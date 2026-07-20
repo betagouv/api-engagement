@@ -11,7 +11,7 @@ type MissionCardProps = {
 export default function MissionCard({ imageSrc, category = "Solidarité", title, size = "md", className = "" }: MissionCardProps) {
   return (
     <div
-      className={`bg-white rounded-xl shadow-md overflow-hidden p-2 gap-2 flex flex-col ${size === "sm" ? "w-60 h-72 md:w-60 md:h-72" : "w-56 h-72 md:w-72 md:h-80"} ${className}`}
+      className={`bg-background rounded-xl shadow-md overflow-hidden p-2 gap-2 flex flex-col ${size === "sm" ? "w-60 h-72 md:w-60 md:h-72" : "w-56 h-72 md:w-72 md:h-80"} ${className}`}
     >
       <div className="relative h-[80%]">
         <img src={imageSrc} alt="" className="block w-full object-cover rounded h-full" />
