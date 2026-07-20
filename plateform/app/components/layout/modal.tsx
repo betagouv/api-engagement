@@ -1,5 +1,6 @@
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   open: boolean;
@@ -14,6 +15,9 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
 export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, className, ...props }: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, open, onClose);
 
   useEffect(() => {
     setMounted(true);
@@ -23,6 +27,8 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
 
   return createPortal(
     <div
+      ref={dialogRef}
+      tabIndex={-1}
       role="dialog"
       aria-labelledby={titleId}
       aria-modal="true"
