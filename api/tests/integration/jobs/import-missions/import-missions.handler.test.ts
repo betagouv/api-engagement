@@ -9,6 +9,10 @@ import { importService } from "@/services/import";
 import { missionService } from "@/services/mission";
 import { createTestImport, createTestMission, createTestPublisher } from "../../../fixtures";
 
+const { lookupMock } = vi.hoisted(() => ({ lookupMock: vi.fn() }));
+
+vi.mock("node:dns/promises", () => ({ lookup: lookupMock }));
+
 const originalFetch = global.fetch;
 global.fetch = vi.fn();
 
@@ -25,6 +29,7 @@ describe("Import missions job (integration test)", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    lookupMock.mockResolvedValue([{ address: "1.1.1.1", family: 4 }]);
     (global.fetch as any).mockReset();
   });
 
