@@ -14,7 +14,6 @@
  *   --taxonomy-weight N        Poids taxonomie (defaut : moteur)
  *   --geo-weight N             Poids geo (defaut : moteur)
  *   --geo-half-decay-km N      Demi-vie geo en km (defaut : moteur)
- *   --publisher-id ID          Applique le filtre de diffusion du publisher (comme le vrai /match ; defaut : plateforme de l'engagement)
  *   --json                     Sortie JSON au lieu du tableau console
  *   --explain                  Affiche EXPLAIN (ANALYZE, BUFFERS) du SQL de ranking au lieu de mesurer
  */
@@ -22,7 +21,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { PUBLISHER_IDS } from "@/config";
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
@@ -47,7 +45,6 @@ type BenchmarkOptions = {
   taxonomyWeight?: number;
   geoWeight?: number;
   geoHalfDecayKm?: number;
-  publisherId?: string;
   json: boolean;
   explain: boolean;
 };
@@ -178,7 +175,6 @@ const parseOptions = (): BenchmarkOptions => ({
   taxonomyWeight: parseNumber("--taxonomy-weight"),
   geoWeight: parseNumber("--geo-weight"),
   geoHalfDecayKm: parseNumber("--geo-half-decay-km"),
-  publisherId: getFlagValue("--publisher-id") ?? PUBLISHER_IDS.PLATEFORME_ENGAGEMENT,
   json: args.includes("--json"),
   explain: args.includes("--explain"),
 });
@@ -321,7 +317,6 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
 
 const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, limit: number, offset: number): RankMissionsByUserScoringInput => ({
   userScoringId,
-  publisherId: options.publisherId,
   version: options.version,
   limit,
   offset,
