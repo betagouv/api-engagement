@@ -7,6 +7,7 @@ import FirefighterSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/fi
 import MoneySvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/money.svg?url";
 import LocationFranceSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/location-france.svg?url";
 import LongTraceSvg from "~/assets/svg/long-trace.svg";
+import { getScrollBehavior } from "~/utils/motion";
 
 import Highlight from "../ui/highlight";
 
@@ -69,7 +70,7 @@ export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void })
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -300 : 300;
-    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
   };
 
   return (

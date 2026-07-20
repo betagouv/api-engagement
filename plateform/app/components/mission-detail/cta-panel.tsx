@@ -24,7 +24,7 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
 
   return (
-    <aside className={`md:shadow-card flex flex-col gap-6 bg-background px-5! py-5! md:p-6! ${className}`}>
+    <div className={`md:shadow-card flex flex-col gap-6 bg-background px-5! py-5! md:p-6! ${className}`}>
       <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:hidden!" />
 
       {(durationLabel || mission.schedule) && (
@@ -56,7 +56,7 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
       <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:mx-0!" />
 
       <div className="flex flex-col gap-3">
-        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
+        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" title="Découvrir la mission - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
           Découvrir la mission
         </a>
 
@@ -64,6 +64,6 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
 
         {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center!">{deadlineLabel}</p>}
       </div>
-    </aside>
+    </div>
   );
 }

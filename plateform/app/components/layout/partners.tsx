@@ -52,7 +52,7 @@ export default function Partners({ style = "default" }: { style?: "default" | "c
               </div>
               <div className="flex-1">
                 <p className="fr-mb-0 font-bold">
-                  <a href={partner.url} target="_blank" rel="noopener noreferrer" className="text-title-grey bg-none!">
+                  <a href={partner.url} target="_blank" rel="noopener noreferrer" title={`${partner.name} - nouvelle fenêtre`} className="text-title-grey bg-none!">
                     {partner.name}
                   </a>
                 </p>

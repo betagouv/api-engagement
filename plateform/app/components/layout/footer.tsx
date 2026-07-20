@@ -31,9 +31,12 @@ const FOOTER_NAV_CATEGORIES = [
   },
 ];
 
-export function FooterContent() {
+// RGAA 9.2 : sur les résultats mobile, le footer est rendu dans le panneau dépliable, à
+// l'intérieur du <main>. `landmark={false}` retire le role="contentinfo" explicite pour ne pas
+// créer un landmark imbriqué (un <footer> descendant de <main> n'est pas un landmark en HTML).
+export function FooterContent({ landmark = true }: { landmark?: boolean }) {
   return (
-    <footer className="fr-footer" role="contentinfo" id="footer" tabIndex={-1}>
+    <footer className="fr-footer" role={landmark ? "contentinfo" : undefined} id="footer" tabIndex={-1}>
       <div className="fr-footer__top">
         <div className="fr-container">
           <nav role="navigation" aria-label="Navigation du pied de page">

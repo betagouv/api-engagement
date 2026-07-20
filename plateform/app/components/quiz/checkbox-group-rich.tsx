@@ -26,8 +26,8 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
       role="group"
       aria-describedby={error ? "checkbox-group-rich-legend checkbox-group-rich-messages" : "checkbox-group-rich-legend"}
     >
-      <legend className="fr-h1 mb-10! ml-2!" id="checkbox-group-rich-legend">
-        {title}
+      <legend className="mb-10! ml-2!" id="checkbox-group-rich-legend">
+        <h1 className="fr-h1 mb-0!">{title}</h1>
         {subtitle && <span className="fr-text--lead font-normal block mt-4! mb-0!">{subtitle}</span>}
       </legend>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">

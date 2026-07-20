@@ -219,6 +219,21 @@
   animation: slide-down-fade 200ms ease-out forwards;
 }
 
+/* RGAA 13.8 — neutralise animations et transitions quand l'utilisateur préfère
+   les mouvements réduits. Durées quasi nulles plutôt que `animation: none` afin
+   que les événements `animationend` continuent de se déclencher (`results.tsx`
+   s'appuie sur `onAnimationEnd`). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .mission-map__emoji-marker {
   align-items: center;
   background: rgb(246 246 255 / 92%);
@@ -239,6 +254,7 @@
 }
 
 .mission-map__tooltip.leaflet-tooltip {
+  background-color: var(--background-default-grey);
   border: none;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgb(0 0 0 / 16%);
@@ -246,6 +262,10 @@
   min-width: 220px;
   padding: 10px 14px;
   white-space: normal;
+}
+
+.mission-map__tooltip.leaflet-tooltip-top::before {
+  border-top-color: var(--background-default-grey);
 }
 
 .mission-map__tooltip-title {

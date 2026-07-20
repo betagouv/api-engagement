@@ -13,6 +13,7 @@ import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
+import { getScrollBehavior } from "~/utils/motion";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
@@ -204,44 +205,45 @@ export default function MissionsPage() {
       else params.set("page", String(newPage));
       return params;
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: getScrollBehavior() });
   };
 
   return (
-    <>
-      <main id="contenu" tabIndex={-1}>
-        <GradientBg>
-          <div className="fr-container pt-4 md:pt-16">
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
-              <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
-            </div>
-            <p role="status" className="fr-text--lead hidden md:block">
-              {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
-            </p>
-            <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
+    <main id="contenu" tabIndex={-1}>
+      <GradientBg>
+        <div className="fr-container pt-4 md:pt-16">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
+            <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
           </div>
+          <p role="status" className="fr-text--lead hidden md:block">
+            {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
+          </p>
+          <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
+        </div>
 
-          <div className="fr-container my-4 md:my-8">
-            {error && (
-              <div role="alert" className="fr-alert fr-alert--error fr-mb-4w">
-                <p>Erreur lors du chargement des missions : {error}</p>
-              </div>
-            )}
+        <div className="fr-container my-4 md:my-8">
+          {error && (
+            <div role="alert" className="fr-alert fr-alert--error fr-mb-4w">
+              <p>Erreur lors du chargement des missions : {error}</p>
+            </div>
+          )}
 
-            {loading && items.length === 0 && (
-              <p role="status" className="fr-text--sm">
-                Chargement des missions…
-              </p>
-            )}
+          {loading && items.length === 0 && (
+            <p role="status" className="fr-text--sm">
+              Chargement des missions…
+            </p>
+          )}
 
-            {!loading && !error && items.length === 0 && (
-              <div role="status" className="fr-alert fr-alert--info">
-                <p>Aucune mission ne correspond à ces filtres.</p>
-              </div>
-            )}
-
-            {items.length > 0 && (
+          {!loading && !error && items.length === 0 && (
+            <div role="status" className="fr-alert fr-alert--info">
+              <p>Aucune mission ne correspond à ces filtres.</p>
+            </div>
+          )}
+          {items.length > 0 && (
+            <>
+              {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
+              <h2 className="fr-sr-only">Liste des missions</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
                 {items.map((mission) => (
                   <MissionCard
@@ -252,17 +254,16 @@ export default function MissionsPage() {
                   />
                 ))}
               </div>
-            )}
+            </>
+          )}
 
-            <div className="fr-mt-6w">
-              <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
-            </div>
+          <div className="fr-mt-6w">
+            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
           </div>
-        </GradientBg>
-      </main>
+        </div>
+      </GradientBg>
       <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
-
       <Partners />
-    </>
+    </main>
   );
 }

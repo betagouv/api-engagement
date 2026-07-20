@@ -1,6 +1,11 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams, useSearchParams } from "react-router";
+import type { Route } from "./+types/mission-detail";
+
+export function meta(): Route.MetaDescriptors {
+  return [{ title: "Détail de la mission — Trouve ta mission" }];
+}
 
 export async function clientLoader({ params }: { params: { userScoringId?: string } }) {
   return { backHref: params.userScoringId ? `/results/${params.userScoringId}` : "/missions" };
@@ -44,6 +49,12 @@ export default function MissionDetailPage() {
   useEffect(() => {
     if (userScoringId) setQuizSessionId(userScoringId);
   }, [userScoringId]);
+
+  // RGAA 8.5/8.6 : la mission est chargée côté client, meta() ne peut donner qu'un titre générique.
+  // On le remplace par le titre de la mission dès qu'elle est disponible.
+  useEffect(() => {
+    if (mission?.title) document.title = `${mission.title} — API Engagement`;
+  }, [mission]);
 
   // mission_detail.viewed : une fois la fiche chargée, émis une seule fois par mission.
   useEffect(() => {
@@ -134,8 +145,8 @@ export default function MissionDetailPage() {
 
       {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
 
-      <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-[#DDD] bg-white px-5 py-4 md:hidden">
-        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" className="fr-btn w-full! justify-center!">
+      <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
+        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" title="Postuler - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
           Postuler
         </a>
         {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
