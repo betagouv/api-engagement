@@ -91,10 +91,8 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
 const buildAllowlistFilter = (
   rules: PublisherDiffusionRule[],
   diffuseurPublisherId: string,
-  publisherIds?: string[],
-  options: { includeDiffuseurSelfScope?: boolean } = {}
+  publisherIds?: string[]
 ): MissionDiffuseurCandidateFilter => {
-  const { includeDiffuseurSelfScope = true } = options;
   const { roots, childrenByParentId } = groupRulesByParent(rules);
   const allowlistRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
   const diffuseurIsRequested = !publisherIds || publisherIds.includes(diffuseurPublisherId);
@@ -117,9 +115,7 @@ const buildAllowlistFilter = (
   const candidatePublisherIds = Array.from(new Set(scopeRoots.map((root) => root.value)));
   const scopePublisherIds = scopeRoots.map((root) => root.value);
 
-  // Le snapshot compose l'allowlist pure avec le scope propre :
-  // `includeDiffuseurSelfScope = false` permet de construire séparément cette allowlist.
-  if (includeDiffuseurSelfScope && allowlistRoots.length > 0 && diffuseurIsRequested && !scopePublisherIds.includes(diffuseurPublisherId)) {
+  if (allowlistRoots.length > 0 && diffuseurIsRequested && !scopePublisherIds.includes(diffuseurPublisherId)) {
     scopes.push({ publisherId: diffuseurPublisherId });
     scopePublisherIds.push(diffuseurPublisherId);
   }
@@ -214,32 +210,13 @@ export const publisherDiffusionRuleService = {
   },
 
   /**
-   * Where de l'allowlist explicite, sans le scope propre ni le bypass
-   * « aucune règle ⇒ tout ». Cette composante est ensuite réunie au scope propre
-   * par `buildMissionDiffuseurSnapshotWhere`.
-   */
-  async buildMissionDiffuseurAllowlistWhere(publisherId: string): Promise<Prisma.MissionWhereInput | null> {
-    const rules = await findOrderedRules(publisherId);
-    const hasAllowlistRoot = rules.some((rule) => rule.combinedWithId === null && rule.field === "publisherId" && rule.operator === "is");
-    if (!hasAllowlistRoot) {
-      return null;
-    }
-
-    const { where } = buildAllowlistFilter(rules, publisherId, undefined, { includeDiffuseurSelfScope: false });
-    return Object.keys(where).length === 0 ? null : where;
-  },
-
-  /**
-   * Périmètre complet persisté dans `mission_diffusion` : allowlist explicite et
-   * scope propre. Contrairement au chemin historique, l'absence de règle ne
-   * signifie pas un accès global mais conserve uniquement les missions propres.
+   * Périmètre complet persisté dans `mission_diffusion`. Le scope propre est
+   * implicite, sauf lorsqu'une root propre explicite lui applique des critères.
+   * L'absence d'allowlist conserve uniquement les missions propres.
    */
   async buildMissionDiffuseurSnapshotWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
-    const allowlistWhere = await this.buildMissionDiffuseurAllowlistWhere(publisherId);
-    if (!allowlistWhere) {
-      return { publisherId };
-    }
-    return optimizeMissionDiffusionRuleWhere({ OR: [allowlistWhere, { publisherId }] });
+    const candidateWhere = await this.buildMissionDiffuseurCandidateWhere(publisherId);
+    return Object.keys(candidateWhere).length === 0 ? { publisherId } : candidateWhere;
   },
 
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
