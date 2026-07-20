@@ -16,6 +16,7 @@ export default function PrecisionParcoursupFormationNomStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [value, setValue] = useState<string>("");
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const stored = answers[STEP_ID];
@@ -26,7 +27,10 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (!valid) return;
+    if (!valid) {
+      setError("Indique le nom d'une formation pour continuer");
+      return;
+    }
     setAnswer(STEP_ID, { type: "text", value: value.trim() });
     saveScoring();
     goNext();
@@ -34,15 +38,33 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle="Indique le nom de la formation." htmlFor="formation-input">
+      <Label subtitle="Indique le nom de la formation." htmlFor="formation-input" required>
         {DEFAULT_TITLE}
       </Label>
 
-      <div className="fr-input-group max-w-md!">
-        <input id="formation-input" className="fr-input" type="text" value={value} onChange={(e) => setValue(e.target.value)} autoFocus />
+      <div className={`fr-input-group max-w-md! ${error ? "fr-input-group--error" : ""}`}>
+        <input
+          id="formation-input"
+          className={`fr-input ${error ? "fr-input--error" : ""}`}
+          type="text"
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+            setError(undefined);
+          }}
+          aria-required="true"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "formation-input-messages" : undefined}
+          autoFocus
+        />
+        {error && (
+          <div className="fr-messages-group" id="formation-input-messages" aria-live="polite">
+            <p className="fr-message fr-message--error">{error}</p>
+          </div>
+        )}
       </div>
 
-      <NextButton type="submit" disabled={!valid} />
+      <NextButton type="submit" />
     </form>
   );
 }

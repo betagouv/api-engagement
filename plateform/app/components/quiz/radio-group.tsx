@@ -23,6 +23,7 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
       <legend className="mb-10! ml-2!" id="radio-group-legend">
         <h1 className="fr-h1 mb-0!">{title}</h1>
         {subtitle && <span className="fr-text--lead font-normal block mt-4! mb-0!">{subtitle}</span>}
+        <span className="fr-hint-text font-normal block mt-2! mb-0!">Réponse obligatoire</span>
       </legend>
       <div className="fr-fieldset__content flex flex-col gap-4 max-w-sm! mx-0! ml-2!">
         {options.map((o) => (
@@ -39,6 +40,7 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
                 onChange={() => onChange(o.value)}
                 checked={!o.disabled && selected === o.value}
                 disabled={o.disabled}
+                aria-required="true"
                 aria-invalid={error ? true : undefined}
               />
               <label className={`fr-label text-sm w-full ${o.disabled ? "cursor-not-allowed!" : ""}`} htmlFor={`radio-group-${o.value}`}>
