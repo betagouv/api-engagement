@@ -261,7 +261,7 @@ export default function ResultsPage() {
               hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
             />
             <Partners style="compact" />
-            <FooterContent />
+            <FooterContent landmark={false} />
           </div>
         </div>
 
@@ -383,14 +383,15 @@ export default function ResultsPage() {
             />
           </section>
         )}
+
+        <Newsletter
+          title="Reçois tes missions par email"
+          subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+          ctaText="Recevoir mes missions"
+          hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+        />
+        <Partners style="compact" />
       </main>
-      <Newsletter
-        title="Reçois tes missions par email"
-        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-        ctaText="Recevoir mes missions"
-        hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-      />
-      <Partners style="compact" />
       <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
     </>
   );
