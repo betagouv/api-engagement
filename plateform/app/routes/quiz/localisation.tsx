@@ -35,6 +35,7 @@ export default function LocalisationStep() {
   const [showOptions, setShowOptions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [locating, setLocating] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,10 +81,12 @@ export default function LocalisationStep() {
     setValue(option.label);
     setShowOptions(false);
     setActiveIndex(-1);
+    setError(undefined);
   };
 
   const handleChange = (nextValue: string) => {
     setValue(nextValue);
+    setError(undefined);
     if (selected && nextValue !== selected.label) {
       setSelected(null);
     }
@@ -139,9 +142,7 @@ export default function LocalisationStep() {
       async ({ coords }) => {
         const result = await reverseGeocode(coords.latitude, coords.longitude);
         if (!result) return setLocating(false);
-        setSelected(result);
-        setShowOptions(false);
-        setValue(result.label);
+        handleSelect(result);
         setLocating(false);
       },
       () => setLocating(false),
@@ -150,7 +151,10 @@ export default function LocalisationStep() {
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (!selected) return;
+    if (!selected) {
+      setError(value.trim().length > 0 ? "Sélectionne une adresse dans la liste de suggestions" : "Entre une adresse pour continuer");
+      return;
+    }
     setAnswer("localisation", {
       type: "params",
       taxonomy: "location",
@@ -197,7 +201,7 @@ export default function LocalisationStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="localisation-input">
+      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="localisation-input" required>
         {DEFAULT_TITLE}
       </Label>
 
@@ -210,7 +214,10 @@ export default function LocalisationStep() {
             aria-controls={LISTBOX_ID}
             aria-autocomplete="list"
             aria-activedescendant={activeIndex >= 0 ? `${LISTBOX_ID}-option-${activeIndex}` : undefined}
-            className="fr-input pr-10! mt-0!"
+            aria-required="true"
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "localisation-input-messages" : undefined}
+            className={`fr-input pr-10! mt-0! ${error ? "fr-input--error" : ""}`}
             type="text"
             placeholder="Adresse, ville ou code postal"
             value={value}
@@ -245,12 +252,18 @@ export default function LocalisationStep() {
           )}
         </div>
 
+        {error && (
+          <div className="fr-messages-group" id="localisation-input-messages" aria-live="polite">
+            <p className="fr-message fr-message--error mb-0!">{error}</p>
+          </div>
+        )}
+
         <button type="button" className="fr-btn fr-btn--secondary justify-center! w-full!" onClick={handleUseMyLocation} disabled={locating}>
           📍 Utiliser ma position
         </button>
       </div>
 
-      <NextButton type="submit" disabled={!selected} />
+      <NextButton type="submit" />
     </form>
   );
 }
