@@ -37,7 +37,7 @@ export default function LocationMap({ lat, lon, zoom = 15, className = "h-[180px
   return (
     <MapContainer center={[lat, lon]} zoom={zoom} className={className} zoomControl={false} scrollWheelZoom={false} dragging={false} doubleClickZoom={false}>
       <TileLayer {...TILE_LAYER_PROPS} />
-      <Marker position={[lat, lon]} icon={pinIcon} />
+      <Marker position={[lat, lon]} icon={pinIcon} interactive={false} keyboard={false} />
     </MapContainer>
   );
 }

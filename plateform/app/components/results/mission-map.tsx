@@ -73,28 +73,25 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
     onMarkerClick?.(item);
   };
 
-  const missions = useMemo<MapMission[]>(
-    () => {
-      const positionedMissions = items.map((item, index) => {
-        const addressNeutralized = hasNeutralizedAddress(item);
-        const hasPreciseCoordinates = !addressNeutralized && typeof item.mission.location.closestLat === "number" && typeof item.mission.location.closestLon === "number";
-        const addressLabel = !addressNeutralized ? getAddressLabel(item) : null;
-        const position: GeoPosition = hasPreciseCoordinates
-          ? [item.mission.location.closestLat!, item.mission.location.closestLon!]
-          : getNearbyPosition(center, item.mission.id, index);
+  const missions = useMemo<MapMission[]>(() => {
+    const positionedMissions = items.map((item, index) => {
+      const addressNeutralized = hasNeutralizedAddress(item);
+      const hasPreciseCoordinates = !addressNeutralized && typeof item.mission.location.closestLat === "number" && typeof item.mission.location.closestLon === "number";
+      const addressLabel = !addressNeutralized ? getAddressLabel(item) : null;
+      const position: GeoPosition = hasPreciseCoordinates
+        ? [item.mission.location.closestLat!, item.mission.location.closestLon!]
+        : getNearbyPosition(center, item.mission.id, index);
 
-        return {
-          item,
-          addressLabel,
-          position,
-          usesRemoteIcon: item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel && item.mission.remote !== "local"),
-        };
-      });
+      return {
+        item,
+        addressLabel,
+        position,
+        usesRemoteIcon: item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel && item.mission.remote !== "local"),
+      };
+    });
 
-      return spreadOverlappingPositions(positionedMissions);
-    },
-    [center, items],
-  );
+    return spreadOverlappingPositions(positionedMissions);
+  }, [center, items]);
 
   const boundsPositions = useMemo<[number, number][]>(() => (missions.length > 0 ? missions.map((mission) => mission.position) : [center]), [missions, center]);
 
@@ -117,6 +114,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
               position={position}
               icon={isActive ? activeIcon : usesRemoteIcon ? remoteIcon : classicIcon}
               zIndexOffset={isActive ? 1000 : 0}
+              keyboard={false}
               eventHandlers={{
                 ...(onMarkerClick ? { click: () => handleMarkerSelect(item, position) } : {}),
                 ...(onMissionHover ? { mouseover: () => onMissionHover(item.mission.id), mouseout: () => onMissionHover(null) } : {}),
