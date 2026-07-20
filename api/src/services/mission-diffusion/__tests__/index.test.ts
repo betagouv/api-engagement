@@ -1,17 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const pgClientMock = vi.hoisted(() => ({
-  connect: vi.fn(),
-  query: vi.fn(),
-  end: vi.fn(),
-}));
-
-vi.mock("pg", () => ({
-  Client: vi.fn(function Client() {
-    return pgClientMock;
-  }),
-}));
-
 vi.mock("@/repositories/mission", () => ({
   missionRepository: {
     findIds: vi.fn(),
@@ -26,15 +14,12 @@ vi.mock("@/repositories/mission-diffusion", () => ({
     findExistingMissionIdsForDistributionPublisher: vi.fn(),
     createManyForDistributionPublisher: vi.fn(),
     deleteManyForDistributionPublisher: vi.fn(),
-    deleteRowsForDistributionPublishersNotIn: vi.fn(),
-    countRowsForDistributionPublishersNotIn: vi.fn(),
   },
 }));
 
 vi.mock("@/services/publisher-diffusion-rule", () => {
   const service = {
     buildMissionDiffuseurSnapshotWhere: vi.fn(),
-    findDistributionPublisherIdsForSnapshot: vi.fn(),
   };
   return { default: service, publisherDiffusionRuleService: service };
 });
@@ -54,27 +39,13 @@ const missionDiffusionRepositoryMock = missionDiffusionRepository as unknown as 
   findExistingMissionIdsForDistributionPublisher: ReturnType<typeof vi.fn>;
   createManyForDistributionPublisher: ReturnType<typeof vi.fn>;
   deleteManyForDistributionPublisher: ReturnType<typeof vi.fn>;
-  deleteRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
-  countRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
 };
 const ruleServiceMock = publisherDiffusionRuleService as unknown as {
   buildMissionDiffuseurSnapshotWhere: ReturnType<typeof vi.fn>;
-  findDistributionPublisherIdsForSnapshot: ReturnType<typeof vi.fn>;
 };
 
 beforeEach(() => {
   vi.clearAllMocks();
-  pgClientMock.connect.mockResolvedValue(undefined);
-  pgClientMock.end.mockResolvedValue(undefined);
-  pgClientMock.query.mockImplementation(async (sql: string) => {
-    if (sql.includes("pg_try_advisory_lock")) {
-      return { rows: [{ locked: true }] };
-    }
-    if (sql.includes("pg_advisory_unlock")) {
-      return { rows: [{ unlocked: true }] };
-    }
-    return { rows: [] };
-  });
   // Par défaut, les compteurs des écritures reflètent le nombre d'ids passés.
   missionRepositoryMock.findIds.mockResolvedValue([]);
   missionRepositoryMock.findIdsPage.mockResolvedValue([]);
@@ -82,8 +53,6 @@ beforeEach(() => {
   missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
   missionDiffusionRepositoryMock.createManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
-  missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(0);
-  missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn.mockResolvedValue(0);
 });
 
 describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
@@ -202,78 +171,5 @@ describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
     expect(result).toMatchObject({ distributionPublisherId: "publisher-1", desired: 3, added: 2, removed: 1, dryRun: true });
     expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
     expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).not.toHaveBeenCalled();
-  });
-});
-
-describe("missionDiffusionService.rebuildAll", () => {
-  it("rebuild chaque publisher du snapshot puis purge les publishers retirés, et agrège les compteurs", async () => {
-    ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue(["d1", "d2"]);
-    ruleServiceMock.buildMissionDiffuseurSnapshotWhere.mockResolvedValue({ publisherId: "annonceur" });
-    missionRepositoryMock.findIdsPage.mockImplementation(async () => ["m1"]);
-    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
-    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
-    missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(3);
-
-    const result = await missionDiffusionService.rebuildAll();
-
-    expect(missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn).toHaveBeenCalledWith(["d1", "d2"]);
-    expect(result.distributionPublishers).toBe(2);
-    expect(result.added).toBe(2); // 1 par publisher
-    expect(result.prunedDistributionPublishers).toBe(3);
-    expect(result.removed).toBe(3); // 0 diff par publisher + 3 purgées
-    expect(result.perDistributionPublisher).toHaveLength(2);
-  });
-
-  it("acquiert et libère un advisory lock autour du rebuild complet", async () => {
-    ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue([]);
-    missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(0);
-
-    await missionDiffusionService.rebuildAll();
-
-    expect(pgClientMock.connect).toHaveBeenCalledTimes(1);
-    expect(pgClientMock.query).toHaveBeenCalledWith("SELECT pg_try_advisory_lock($1, $2) AS locked", expect.any(Array));
-    expect(pgClientMock.query).toHaveBeenCalledWith("SELECT pg_advisory_unlock($1, $2)", expect.any(Array));
-    expect(pgClientMock.end).toHaveBeenCalledTimes(1);
-  });
-
-  it("compte la purge globale sans supprimer en dry-run", async () => {
-    ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue(["d1"]);
-    ruleServiceMock.buildMissionDiffuseurSnapshotWhere.mockResolvedValue({ publisherId: "annonceur" });
-    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1"]);
-    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue([]);
-    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
-    missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn.mockResolvedValue(4);
-
-    const result = await missionDiffusionService.rebuildAll({ dryRun: true });
-
-    expect(result).toMatchObject({
-      distributionPublishers: 1,
-      added: 1,
-      removed: 4,
-      prunedDistributionPublishers: 4,
-      dryRun: true,
-    });
-    expect(missionDiffusionRepositoryMock.countRowsForDistributionPublishersNotIn).toHaveBeenCalledWith(["d1"]);
-    expect(missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
-    expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
-  });
-
-  it("ignore le rebuild complet quand un autre rebuild détient déjà le lock", async () => {
-    pgClientMock.query.mockImplementationOnce(async () => ({ rows: [{ locked: false }] }));
-
-    const result = await missionDiffusionService.rebuildAll();
-
-    expect(result).toMatchObject({
-      distributionPublishers: 0,
-      added: 0,
-      removed: 0,
-      prunedDistributionPublishers: 0,
-      perDistributionPublisher: [],
-      skippedBecauseAlreadyRunning: true,
-    });
-    expect(ruleServiceMock.findDistributionPublisherIdsForSnapshot).not.toHaveBeenCalled();
-    expect(missionDiffusionRepositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
-    expect(pgClientMock.query).not.toHaveBeenCalledWith("SELECT pg_advisory_unlock($1, $2)", expect.any(Array));
-    expect(pgClientMock.end).toHaveBeenCalledTimes(1);
   });
 });

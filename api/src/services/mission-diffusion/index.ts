@@ -1,5 +1,3 @@
-import { Client } from "pg";
-
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
@@ -8,8 +6,6 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 // paramètres liés, sans transaction longue globale.
 const WRITE_BATCH_SIZE = 5000;
 const READ_PAGE_SIZE = 5000;
-const REBUILD_LOCK_NAMESPACE = 1_329_889_109;
-const REBUILD_LOCK_KEY = 1_840_765_554;
 
 export type MissionDiffusionRebuildDistributionPublisherResult = {
   distributionPublisherId: string;
@@ -20,47 +16,12 @@ export type MissionDiffusionRebuildDistributionPublisherResult = {
   dryRun?: boolean;
 };
 
-export type MissionDiffusionRebuildResult = {
-  distributionPublishers: number;
-  added: number;
-  removed: number;
-  prunedDistributionPublishers: number;
-  durationMs: number;
-  perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[];
-  skippedBecauseAlreadyRunning?: boolean;
-  dryRun?: boolean;
-};
-
 const chunk = <T>(items: T[], size: number): T[][] => {
   const batches: T[][] = [];
   for (let index = 0; index < items.length; index += size) {
     batches.push(items.slice(index, index + size));
   }
   return batches;
-};
-
-const withRebuildLock = async <T>(callback: () => Promise<T>): Promise<T | null> => {
-  const client = new Client({ connectionString: process.env.DATABASE_URL_CORE });
-  let acquired = false;
-
-  await client.connect();
-  try {
-    const lockResult = await client.query<{ locked: boolean }>("SELECT pg_try_advisory_lock($1, $2) AS locked", [REBUILD_LOCK_NAMESPACE, REBUILD_LOCK_KEY]);
-    acquired = lockResult.rows[0]?.locked === true;
-    if (!acquired) {
-      return null;
-    }
-
-    return await callback();
-  } finally {
-    try {
-      if (acquired) {
-        await client.query("SELECT pg_advisory_unlock($1, $2)", [REBUILD_LOCK_NAMESPACE, REBUILD_LOCK_KEY]);
-      }
-    } finally {
-      await client.end();
-    }
-  }
 };
 
 type SnapshotWhere = Awaited<ReturnType<typeof publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere>>;
@@ -138,52 +99,6 @@ export const missionDiffusionService = {
     const { desired, added } = await createMissingRowsByPages(distributionPublisherId, snapshotWhere, options);
 
     return { distributionPublisherId, desired, added, removed, durationMs: Date.now() - start, dryRun: options.dryRun || undefined };
-  },
-
-  /**
-   * Reconstruit le snapshot complet : recompute par diff pour chaque publisher de la population, puis
-   * purge les lignes des publishers qui en sont sortis. Non transactionnel entre publishers
-   * (la table reste lisible en permanence). Un advisory lock PostgreSQL empêche deux rebuilds
-   * complets de tourner en parallèle.
-   */
-  async rebuildAll(options: { dryRun?: boolean } = {}): Promise<MissionDiffusionRebuildResult> {
-    const start = Date.now();
-
-    const result = await withRebuildLock(async () => {
-      const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
-
-      const perDistributionPublisher: MissionDiffusionRebuildDistributionPublisherResult[] = [];
-      for (const distributionPublisherId of distributionPublisherIds) {
-        perDistributionPublisher.push(await this.rebuildForDistributionPublisher(distributionPublisherId, options));
-      }
-
-      const prunedDistributionPublishers = options.dryRun
-        ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
-        : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
-
-      return {
-        distributionPublishers: perDistributionPublisher.length,
-        added: perDistributionPublisher.reduce((sum, result) => sum + result.added, 0),
-        removed: perDistributionPublisher.reduce((sum, result) => sum + result.removed, 0) + prunedDistributionPublishers,
-        prunedDistributionPublishers,
-        durationMs: Date.now() - start,
-        perDistributionPublisher,
-        dryRun: options.dryRun || undefined,
-      };
-    });
-
-    return (
-      result ?? {
-        distributionPublishers: 0,
-        added: 0,
-        removed: 0,
-        prunedDistributionPublishers: 0,
-        durationMs: Date.now() - start,
-        perDistributionPublisher: [],
-        skippedBecauseAlreadyRunning: true,
-        dryRun: options.dryRun || undefined,
-      }
-    );
   },
 };
 

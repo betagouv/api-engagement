@@ -271,25 +271,21 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere", () 
 describe("publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot", () => {
   beforeEach(() => {
     prismaMock.publisher.findMany.mockReset();
-    prismaMock.publisherDiffusionRule.findMany.mockReset();
   });
 
-  it("réunit sans doublon les publishers API actifs et ceux ayant une root allowlist", async () => {
-    prismaMock.publisher.findMany.mockResolvedValue([{ id: "api-only" }, { id: "both" }]);
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([{ publisherId: "rule-only" }, { publisherId: "both" }]);
+  it("sélectionne les publishers actifs avec droits API ou root allowlist", async () => {
+    prismaMock.publisher.findMany.mockResolvedValue([{ id: "api-only" }, { id: "rule-only" }, { id: "both" }]);
 
     const publisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
 
     expect(prismaMock.publisher.findMany).toHaveBeenCalledWith({
-      where: { hasApiRights: true, deletedAt: null },
+      where: {
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+      },
       select: { id: true },
     });
-    expect(prismaMock.publisherDiffusionRule.findMany).toHaveBeenCalledWith({
-      where: DIFFUSION_SCOPE_ROOT_CRITERIA,
-      distinct: ["publisherId"],
-      select: { publisherId: true },
-    });
-    expect(publisherIds).toEqual(["api-only", "both", "rule-only"]);
+    expect(publisherIds).toEqual(["api-only", "rule-only", "both"]);
   });
 });
 

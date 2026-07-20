@@ -249,19 +249,18 @@ export const publisherDiffusionRuleService = {
   },
 
   /**
-   * Population du snapshot : publishers API actifs et publishers portant au
-   * moins une root allowlist. L'union conserve notamment les diffuseurs à règles
-   * utilisés hors API et les diffuseurs API sans règle explicite.
+   * Population du snapshot : publishers actifs ayant des droits API ou portant
+   * au moins une root allowlist.
    */
   async findDistributionPublisherIdsForSnapshot(): Promise<string[]> {
-    const [publishers, allowlistPublisherIds] = await Promise.all([
-      publisherRepository.findMany({
-        where: { hasApiRights: true, deletedAt: null },
-        select: { id: true },
-      }),
-      publisherDiffusionRuleRepository.findDistinctPublisherIds(DIFFUSION_SCOPE_ROOT_CRITERIA),
-    ]);
-    return Array.from(new Set([...publishers.map((publisher) => publisher.id), ...allowlistPublisherIds]));
+    const publishers = await publisherRepository.findMany({
+      where: {
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+      },
+      select: { id: true },
+    });
+    return publishers.map((publisher) => publisher.id);
   },
 
   async findRules(params: PublisherDiffusionRuleFindParams = {}, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord[]> {

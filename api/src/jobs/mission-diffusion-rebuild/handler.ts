@@ -1,6 +1,8 @@
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
+import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import { missionDiffusionService } from "@/services/mission-diffusion";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 export interface MissionDiffusionRebuildJobPayload {
   dryRun?: boolean;
@@ -12,7 +14,6 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
   removed?: number;
   prunedDistributionPublishers?: number;
   durationMs?: number;
-  skippedBecauseAlreadyRunning?: boolean;
   dryRun?: boolean;
 }
 
@@ -20,9 +21,7 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
 Reconstruit périodiquement la table `mission_diffusion` (snapshot batch de l'allowlist explicite et du
 scope propre). Recompute complet par diff (par publisher de diffusion), idempotent et relançable ; les
 compteurs added/removed servent de métrique de drift. `dryRun=true` calcule les deltas sans écrire.
-Aucune fraîcheur temps réel : la fenêtre de
-staleness (6h+) fait partie du contrat produit. Un advisory lock PostgreSQL empêche les rebuilds
-concurrents ; un second run est ignoré si un rebuild est déjà en cours.
+Aucune fraîcheur temps réel : la fenêtre de staleness (6h+) fait partie du contrat produit.
 */
 export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffusionRebuildJobPayload, MissionDiffusionRebuildJobResult> {
   name = "Rebuild table de diffusion (mission_diffusion)";
@@ -31,46 +30,40 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     const start = new Date();
     console.log(`[MissionDiffusionRebuild] Starting at ${start.toISOString()}${dryRun ? " (dry-run)" : ""}`);
 
-    const result = await missionDiffusionService.rebuildAll({ dryRun });
+    const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
+    let added = 0;
+    let removed = 0;
 
-    if (result.skippedBecauseAlreadyRunning) {
-      const message = "Rebuild ignoré : un autre rebuild mission_diffusion est déjà en cours";
-      console.log(`[MissionDiffusionRebuild] ${message}`);
-      return {
-        success: true,
-        timestamp: new Date(),
-        distributionPublishers: 0,
-        added: 0,
-        removed: 0,
-        prunedDistributionPublishers: 0,
-        durationMs: result.durationMs,
-        skippedBecauseAlreadyRunning: true,
-        dryRun,
-        message,
-      };
-    }
-
-    for (const distributionPublisher of result.perDistributionPublisher) {
+    for (const distributionPublisherId of distributionPublisherIds) {
+      const distributionPublisher = await missionDiffusionService.rebuildForDistributionPublisher(distributionPublisherId, { dryRun });
+      added += distributionPublisher.added;
+      removed += distributionPublisher.removed;
       console.log(
         `[MissionDiffusionRebuild] distributionPublisher=${distributionPublisher.distributionPublisherId} desired=${distributionPublisher.desired} added=${distributionPublisher.added} removed=${distributionPublisher.removed} in ${distributionPublisher.durationMs}ms`
       );
     }
 
+    const prunedDistributionPublishers = dryRun
+      ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
+      : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
+    removed += prunedDistributionPublishers;
+    const durationMs = Date.now() - start.getTime();
+
     const mode = dryRun ? "Dry-run done" : "Done";
     console.log(
-      `[MissionDiffusionRebuild] ${mode}: ${result.distributionPublishers} distribution publishers, +${result.added} / -${result.removed} lignes (dont ${result.prunedDistributionPublishers} purgées), en ${result.durationMs}ms`
+      `[MissionDiffusionRebuild] ${mode}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), en ${durationMs}ms`
     );
 
     return {
       success: true,
       timestamp: new Date(),
-      distributionPublishers: result.distributionPublishers,
-      added: result.added,
-      removed: result.removed,
-      prunedDistributionPublishers: result.prunedDistributionPublishers,
-      durationMs: result.durationMs,
+      distributionPublishers: distributionPublisherIds.length,
+      added,
+      removed,
+      prunedDistributionPublishers,
+      durationMs,
       dryRun,
-      message: `${dryRun ? "Dry-run : " : ""}${result.distributionPublishers} publishers de diffusion rebuild : +${result.added} / -${result.removed} lignes en ${result.durationMs}ms`,
+      message: `${dryRun ? "Dry-run : " : ""}${distributionPublisherIds.length} publishers de diffusion rebuild : +${added} / -${removed} lignes en ${durationMs}ms`,
     };
   }
 }

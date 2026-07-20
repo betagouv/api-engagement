@@ -4,6 +4,7 @@ import { prisma } from "@/db/postgres";
 import { MissionDiffusionRebuildHandler } from "@/jobs/mission-diffusion-rebuild/handler";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import { publisherService } from "@/services/publisher";
 
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
@@ -116,5 +117,21 @@ describe("MissionDiffusionRebuildHandler", () => {
     const second = await handler.handle({});
     expect(second.added).toBe(0);
     expect(second.removed).toBe(0);
+  });
+
+  it("purge le snapshot d'un diffuseur soft-deleted même si ses règles restent en base", async () => {
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(diffuser.id, annonceur.id);
+    const mission = await createTestMission({ publisherId: annonceur.id, statusCode: "ACCEPTED", clientId: "a-1" });
+
+    await handler.handle({});
+    expect(await tableMissionIds(diffuser.id)).toEqual(new Set([mission.id]));
+
+    await publisherService.softDeletePublisher(diffuser.id);
+    expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuser.id })).not.toHaveLength(0);
+
+    const result = await handler.handle({});
+
+    expect(await tableMissionIds(diffuser.id)).toEqual(new Set());
+    expect(result.prunedDistributionPublishers).toBeGreaterThan(0);
   });
 });
