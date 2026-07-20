@@ -33,6 +33,7 @@ export default [
   ]),
 
   // Pages légales et informatives, liées depuis le footer.
+  route("plan-du-site", "routes/plan-du-site.tsx"),
   route("accessibilite", "routes/accessibilite.tsx"),
   route("mentions-legales", "routes/mentions-legales.tsx"),
   route("politique-de-confidentialite", "routes/politique-de-confidentialite.tsx"),

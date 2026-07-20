@@ -36,4 +36,5 @@ export const publisherDiffusionRuleRepository = {
   async deleteMany(params: Prisma.PublisherDiffusionRuleDeleteManyArgs = {}, tx?: Prisma.TransactionClient): Promise<{ count: number }> {
     return client(tx).publisherDiffusionRule.deleteMany(params);
   },
+
 };

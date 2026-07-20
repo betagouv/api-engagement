@@ -48,6 +48,7 @@ export default function StatutStep() {
         options={options}
         selected={selected}
         error={error}
+        required
       />
       <NextButton onClick={handleNext} />
     </>
