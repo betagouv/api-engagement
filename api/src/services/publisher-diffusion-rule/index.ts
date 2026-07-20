@@ -1,6 +1,7 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
 import { RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionRepository } from "@/repositories/mission";
+import { publisherRepository } from "@/repositories/publisher";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
 import type {
   PublisherDiffusionRuleCombinator,
@@ -87,7 +88,11 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
  * s'il ne figure pas dans sa propre allowlist. `publisherIds` restreint
  * optionnellement aux annonceurs demandés (param `publisher` de la route).
  */
-const buildAllowlistFilter = (rules: PublisherDiffusionRule[], diffuseurPublisherId: string, publisherIds?: string[]): MissionDiffuseurCandidateFilter => {
+const buildAllowlistFilter = (
+  rules: PublisherDiffusionRule[],
+  diffuseurPublisherId: string,
+  publisherIds?: string[]
+): MissionDiffuseurCandidateFilter => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
   const allowlistRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
   const diffuseurIsRequested = !publisherIds || publisherIds.includes(diffuseurPublisherId);
@@ -204,6 +209,16 @@ export const publisherDiffusionRuleService = {
     return buildAllowlistFilter(rules, publisherId, publisherIds);
   },
 
+  /**
+   * Périmètre complet persisté dans `mission_diffusion`. Le scope propre est
+   * implicite, sauf lorsqu'une root propre explicite lui applique des critères.
+   * L'absence d'allowlist conserve uniquement les missions propres.
+   */
+  async buildMissionDiffuseurSnapshotWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
+    const candidateWhere = await this.buildMissionDiffuseurCandidateWhere(publisherId);
+    return Object.keys(candidateWhere).length === 0 ? { publisherId } : candidateWhere;
+  },
+
   async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
     const rules = await findOrderedRules(publisherId);
     if (rules.length === 0) {
@@ -231,6 +246,21 @@ export const publisherDiffusionRuleService = {
 
   isValueDiffused({ rules, field, value }: { rules: PublisherDiffusionRuleRecord[]; field: string; value: string }): boolean {
     return !rules.some((rule) => rule.field === field && EXCLUSION_OPERATORS.has(rule.operator) && ruleExcludesValue(rule, value));
+  },
+
+  /**
+   * Population du snapshot : publishers actifs ayant des droits API ou portant
+   * au moins une root allowlist.
+   */
+  async findDistributionPublisherIdsForSnapshot(): Promise<string[]> {
+    const publishers = await publisherRepository.findMany({
+      where: {
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+      },
+      select: { id: true },
+    });
+    return publishers.map((publisher) => publisher.id);
   },
 
   async findRules(params: PublisherDiffusionRuleFindParams = {}, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord[]> {

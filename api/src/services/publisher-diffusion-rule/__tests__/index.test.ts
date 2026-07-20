@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 
 const prismaMock = prisma as unknown as {
   publisherDiffusionRule: {
+    findMany: ReturnType<typeof vi.fn>;
+  };
+  publisher: {
     findMany: ReturnType<typeof vi.fn>;
   };
   mission: {
@@ -229,6 +232,60 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
     expect(filter.scopePublisherIds).toEqual(["annonceur-1", "annonceur-2", "diffuseur-1"]);
     expect(filter.scopes).toEqual([{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }, { publisherId: "diffuseur-1" }]);
     expect(filter.where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "annonceur-2" }, { publisherId: "diffuseur-1" }] });
+  });
+});
+
+describe("publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere", () => {
+  beforeEach(() => {
+    prismaMock.publisherDiffusionRule.findMany.mockReset();
+  });
+
+  it("limite le snapshot aux missions propres quand le diffuseur n'a aucune allowlist", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere("diffuseur-1");
+
+    expect(where).toEqual({ publisherId: "diffuseur-1" });
+  });
+
+  it("réunit l'allowlist explicite et le scope propre", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere("diffuseur-1");
+
+    expect(where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "diffuseur-1" }] });
+  });
+
+  it("respecte les critères d'une root propre explicite", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "diffuseur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "type", operator: "is", value: "benevolat" }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere("diffuseur-1");
+
+    expect(where).toEqual({ AND: [{ publisherId: "diffuseur-1" }, { type: "benevolat" }] });
+  });
+});
+
+describe("publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot", () => {
+  beforeEach(() => {
+    prismaMock.publisher.findMany.mockReset();
+  });
+
+  it("sélectionne les publishers actifs avec droits API ou root allowlist", async () => {
+    prismaMock.publisher.findMany.mockResolvedValue([{ id: "api-only" }, { id: "rule-only" }, { id: "both" }]);
+
+    const publisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
+
+    expect(prismaMock.publisher.findMany).toHaveBeenCalledWith({
+      where: {
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+      },
+      select: { id: true },
+    });
+    expect(publisherIds).toEqual(["api-only", "rule-only", "both"]);
   });
 });
 
