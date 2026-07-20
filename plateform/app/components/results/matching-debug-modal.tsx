@@ -56,6 +56,7 @@ export default function MatchingDebugModal({ items, userValues }: Props) {
           <section>
             <h3 className="matching-debug__title">Score global</h3>
             <table className="matching-debug__table">
+              <caption className="sr-only">Score global</caption>
               <tbody>
                 <tr>
                   <th scope="row">Score total</th>
@@ -81,6 +82,7 @@ export default function MatchingDebugModal({ items, userValues }: Props) {
             <h3 className="matching-debug__title">Scores par taxonomie</h3>
             <div className="matching-debug__table-wrapper">
               <table className="matching-debug__table">
+                <caption className="sr-only">Scores par taxonomie</caption>
                 <thead>
                   <tr>
                     <th scope="col">Taxonomie</th>
@@ -109,6 +111,7 @@ export default function MatchingDebugModal({ items, userValues }: Props) {
             <h3 className="matching-debug__title">Score user</h3>
             <div className="matching-debug__table-wrapper">
               <table className="matching-debug__table">
+                <caption className="sr-only">Score user</caption>
                 <thead>
                   <tr>
                     <th scope="col">Taxonomie</th>
@@ -139,6 +142,7 @@ export default function MatchingDebugModal({ items, userValues }: Props) {
             <h3 className="matching-debug__title">Valeurs taxonomiques de la mission</h3>
             <div className="matching-debug__table-wrapper">
               <table className="matching-debug__table">
+                <caption className="sr-only">Valeurs taxonomiques de la mission</caption>
                 <thead>
                   <tr>
                     <th scope="col">Taxonomie</th>

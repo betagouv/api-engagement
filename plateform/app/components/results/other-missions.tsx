@@ -36,19 +36,19 @@ export default function OtherMissions({
           Chargement…
         </p>
       ) : (
-        <div className={gridClassName}>
+        <ul role="list" className={`${gridClassName} list-none! p-0! m-0!`}>
           {items.map((item, index) => {
             // Rang dans la section "other", 1-based et tenant compte de la pagination
             // (page 1 → 1..pageSize, page 2 → pageSize+1.., etc.). Indépendant des missions pinned.
             const rank = (page - 1) * OTHER_RESULTS_PAGE_SIZE + index + 1;
             return (
-              <div key={item.mission.id} className="relative">
+              <li key={item.mission.id} className="relative">
                 <MatchMissionCard item={item} section="other" rank={rank} userScoringId={userScoringId} />
                 {showDebug && <DebugButton missionId={item.mission.id} />}
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
       )}
 
       <div className="fr-mt-3w">

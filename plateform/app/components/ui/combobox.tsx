@@ -93,6 +93,11 @@ export default function Combobox({ label, placeholder, options, selected, onChan
             <i className="fr-icon-search-line fr-icon--sm pointer-events-none absolute top-1/2 right-3 -translate-y-1/2" aria-hidden="true" />
           </div>
 
+          {/* RGAA 7.5 : annonce le résultat du filtrage aux technologies d'assistance. */}
+          <p className="sr-only" aria-live="polite">
+            {search ? `${visibleOptions.length} option${visibleOptions.length > 1 ? "s" : ""} disponible${visibleOptions.length > 1 ? "s" : ""}` : ""}
+          </p>
+
           <fieldset className="max-h-60 w-full min-w-0 overflow-y-auto" tabIndex={-1}>
             <legend className="sr-only">Sélectionner {label.toLowerCase()}</legend>
 
@@ -135,7 +140,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
 
           {hasSelection && (
             <div className="flex justify-end border-t border-border-default-grey p-4">
-              <button type="button" className="fr-btn fr-btn--sm fr-btn--tertiary" onClick={() => onChange([])}>
+              <button type="button" className="fr-btn fr-btn--sm fr-btn--tertiary" aria-label={`Effacer le filtre ${label}`} onClick={() => onChange([])}>
                 Effacer
               </button>
             </div>
