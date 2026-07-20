@@ -5,8 +5,8 @@ import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
-import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
+import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
@@ -24,8 +24,11 @@ export type QuizOutletContext = {
   currentStepIndex: number;
 };
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Quiz Engagement" }, { name: "robots", content: "noindex, nofollow" }];
+// Titre par step (RGAA 8.6) : les routes enfants n'exportent pas de meta(), celui-ci s'applique à toutes.
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  const step = QUIZ_FLOW.find((s) => s.route === location.pathname);
+  const title = step ? `${step.title} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
+  return [{ title }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
