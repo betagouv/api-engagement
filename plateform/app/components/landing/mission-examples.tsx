@@ -67,7 +67,7 @@ export default function MissionExamples({ missions, className }: Props) {
                         <div className="fr-mt-auto flex items-center gap-2">
                           {mission.publisherLogo && (
                             <div className="size-10 rounded object-contain bg-white">
-                              <img src={mission.publisherLogo} alt={mission.publisherName ? "" : "Logo du diffuseur de la mission"} className="size-full object-contain" />
+                              <img src={mission.publisherLogo} aria-hidden="true" className="size-full object-contain" />
                             </div>
                           )}
 
@@ -140,7 +140,7 @@ function MissionSlideContent({ mission }: { mission: MissionBrowse }) {
         <div className="fr-mt-auto flex items-center gap-2">
           {mission.publisherLogo && (
             <div className="size-10 rounded object-contain bg-white">
-              <img src={mission.publisherLogo} alt={mission.publisherName ? "" : "Logo du diffuseur de la mission"} className="size-full object-contain" />
+              <img src={mission.publisherLogo} aria-hidden="true" className="size-full object-contain" />
             </div>
           )}
 
