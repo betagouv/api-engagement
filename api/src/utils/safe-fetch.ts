@@ -65,10 +65,11 @@ const withoutSensitiveHeaders = (headersInit: HeadersInit | undefined): Headers 
 
 export const safeFetch = async (input: string | URL, init: RequestInit = {}): Promise<Response> => {
   let url = await validateExternalUrl(input);
+  let requestUrl = typeof input === "string" ? input : input.toString();
   let headers = init.headers;
 
   for (let redirectCount = 0; redirectCount <= MAX_REDIRECTS; redirectCount++) {
-    const response = await fetch(url, { ...init, headers, redirect: "manual" });
+    const response = await fetch(requestUrl, { ...init, headers, redirect: "manual" });
     if (!REDIRECT_STATUS_CODES.has(response.status)) {
       return response;
     }
@@ -80,6 +81,7 @@ export const safeFetch = async (input: string | URL, init: RequestInit = {}): Pr
     }
 
     url = await validateExternalUrl(new URL(location, url));
+    requestUrl = url.toString();
     headers = withoutSensitiveHeaders(init.headers);
   }
 
