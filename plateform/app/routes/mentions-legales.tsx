@@ -52,7 +52,7 @@ export default function MentionsLegales() {
         <h2>Réutilisation des contenus</h2>
         <p>
           Sauf mention contraire, les contenus de ce site sont publiés sous licence{" "}
-          <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence" target="_blank" rel="noopener">
+          <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence" target="_blank" rel="noopener" title="etalab-2.0 - nouvelle fenêtre">
             etalab-2.0
           </a>
           .
