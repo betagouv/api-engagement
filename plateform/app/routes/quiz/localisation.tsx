@@ -231,10 +231,9 @@ export default function LocalisationStep() {
                   id={`${LISTBOX_ID}-option-${index}`}
                   role="option"
                   aria-selected={index === activeIndex}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSelect(option);
-                  }}
+                  // RGAA 13.11 : preventDefault au mousedown pour garder le focus sur l'input, sélection au click (annulable en éloignant le pointeur).
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelect(option)}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={`py-2 px-3 cursor-pointer text-sm ${index === activeIndex ? "bg-background-default-grey-hover" : "hover:bg-background-default-grey-hover"}`}
                 >
@@ -244,6 +243,11 @@ export default function LocalisationStep() {
             </ul>
           )}
         </div>
+
+        {/* RGAA 7.5 : annonce l'apparition et la mise à jour des suggestions d'adresse. */}
+        <p className="sr-only" aria-live="polite">
+          {showOptions && options.length > 0 ? `${options.length} suggestion${options.length > 1 ? "s" : ""} d'adresse disponible${options.length > 1 ? "s" : ""}` : ""}
+        </p>
 
         <button type="button" className="fr-btn fr-btn--secondary justify-center! w-full!" onClick={handleUseMyLocation} disabled={locating}>
           📍 Utiliser ma position

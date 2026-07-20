@@ -2,7 +2,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { MissionMatchItem } from "@engagement/dto";
 import { useEffect, useId, useMemo, useRef } from "react";
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
+import { MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
 import { TILE_LAYER_PROPS, createEmojiIcon } from "~/components/ui/location-map";
 import { type GeoPosition, getNearbyPosition } from "~/utils/geo";
 
@@ -10,14 +10,12 @@ type MapMission = {
   item: MissionMatchItem;
   position: GeoPosition;
   addressLabel: string | null;
-  usesRemoteIcon: boolean;
+  icon: L.DivIcon;
 };
 
-const classicIcon = createEmojiIcon("📍");
-const remoteIcon = createEmojiIcon("👨‍💻");
 const activeIcon = L.divIcon({
   className: "",
-  html: `<div class="mission-map__emoji-marker mission-map__emoji-marker--active">📍</div>`,
+  html: `<div class="mission-map__emoji-marker mission-map__emoji-marker--active" role="img" aria-label="Mission sélectionnée">📍</div>`,
   iconSize: [22, 22],
   iconAnchor: [11, 11],
   popupAnchor: [0, -12],
@@ -94,11 +92,14 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
         ? [item.mission.location.closestLat!, item.mission.location.closestLon!]
         : getNearbyPosition(center, item.mission.id, index);
 
+      const usesRemoteIcon = item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel && item.mission.remote !== "local");
+      const markerLabel = usesRemoteIcon ? "Mission à distance" : item.mission.location.city ? `Mission à ${item.mission.location.city}` : "Mission en présentiel";
+
       return {
         item,
         addressLabel,
         position,
-        usesRemoteIcon: item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel && item.mission.remote !== "local"),
+        icon: createEmojiIcon(usesRemoteIcon ? "👨‍💻" : "📍", markerLabel),
       };
     });
 
@@ -116,15 +117,17 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
         Carte interactive localisant les missions proposées. La liste des missions présente les mêmes informations sous forme textuelle accessible.
       </p>
       <MapContainer ref={mapRef} center={center} zoom={12} className="mission-map" zoomControl={false}>
+        {/* RGAA 13.10 : alternative en pointage simple au zoom par pincement (geste multipoint). */}
+        <ZoomControl zoomInTitle="Zoomer" zoomOutTitle="Dézoomer" />
         <TileLayer {...TILE_LAYER_PROPS} />
         <BoundsFitter positions={boundsPositions} />
-        {missions.map(({ item, position, addressLabel, usesRemoteIcon }) => {
+        {missions.map(({ item, position, addressLabel, icon }) => {
           const isActive = item.mission.id === activeMissionId;
           return (
             <Marker
               key={item.mission.id}
               position={position}
-              icon={isActive ? activeIcon : usesRemoteIcon ? remoteIcon : classicIcon}
+              icon={isActive ? activeIcon : icon}
               zIndexOffset={isActive ? 1000 : 0}
               keyboard={false}
               eventHandlers={{

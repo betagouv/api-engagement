@@ -102,6 +102,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
                   id={emailId}
                   name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   aria-required="true"
                   aria-invalid={error ? true : undefined}

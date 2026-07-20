@@ -42,7 +42,9 @@ export default function RadioGroupRich({ title, subtitle, onChange, options, sel
                 {o.label}
                 {o.disabled ? <span className="fr-hint-text">{DISABLED_OPTION_HINT}</span> : o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>
-              <div className="fr-radio-rich__pictogram">{o.icon && <div className="text-2xl">{o.icon}</div>}</div>
+              <div className="fr-radio-rich__pictogram" aria-hidden="true">
+                {o.icon && <div className="text-2xl">{o.icon}</div>}
+              </div>
             </div>
           </div>
         ))}

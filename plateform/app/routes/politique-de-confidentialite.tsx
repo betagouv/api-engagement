@@ -87,6 +87,7 @@ export default function PolitiqueDeConfidentialite() {
         </p>
         <div className="fr-table">
           <table>
+            <caption className="fr-sr-only">Sous-traitants et garanties associées</caption>
             <thead>
               <tr>
                 <th scope="col">Partenaire</th>
@@ -107,7 +108,7 @@ export default function PolitiqueDeConfidentialite() {
                     rel="noopener"
                     title="Data Processing Agreement - nouvelle fenêtre"
                   >
-                    Data Processing Agreement
+                    <span lang="en">Data Processing Agreement</span>
                   </a>
                 </td>
               </tr>
@@ -136,6 +137,7 @@ export default function PolitiqueDeConfidentialite() {
         <h3>Traceurs soumis à consentement</h3>
         <div className="fr-table">
           <table>
+            <caption className="fr-sr-only">Traceurs soumis à consentement</caption>
             <thead>
               <tr>
                 <th scope="col">Outil</th>

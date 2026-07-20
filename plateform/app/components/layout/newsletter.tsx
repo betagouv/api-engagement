@@ -76,6 +76,7 @@ export default function Newsletter({
                   id="newsletter-email"
                   name="email"
                   type="email"
+                  autoComplete="email"
                   required
                   aria-required="true"
                   aria-invalid={error ? true : undefined}
