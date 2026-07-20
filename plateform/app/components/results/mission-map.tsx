@@ -68,6 +68,18 @@ interface Props {
 export default function MissionMap({ items, center, onMarkerClick, selectionPadding, activeMissionId, onMissionHover }: Props) {
   const mapRef = useRef<L.Map | null>(null);
 
+  // RGAA 10.13 : le contenu additionnel affiché au survol/focus doit pouvoir être masqué à la touche Échap.
+  useEffect(() => {
+    const closeTooltipsOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      mapRef.current?.eachLayer((layer) => {
+        if (layer instanceof L.Marker) layer.closeTooltip();
+      });
+    };
+    document.addEventListener("keydown", closeTooltipsOnEscape);
+    return () => document.removeEventListener("keydown", closeTooltipsOnEscape);
+  }, []);
+
   const handleMarkerSelect = (item: MissionMatchItem, position: GeoPosition) => {
     if (selectionPadding && mapRef.current) mapRef.current.panInside(position, { paddingBottomRight: selectionPadding });
     onMarkerClick?.(item);
@@ -121,7 +133,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
               }}
             >
               {onMissionHover && (
-                <Tooltip direction="top" offset={[0, -8]} opacity={1} className="mission-map__tooltip">
+                <Tooltip interactive direction="top" offset={[0, -8]} opacity={1} className="mission-map__tooltip">
                   <strong className="mission-map__tooltip-title">{item.mission.title}</strong>
                   <span className="mission-map__tooltip-address">{addressLabel ?? getFallbackAddressLabel(item)}</span>
                 </Tooltip>

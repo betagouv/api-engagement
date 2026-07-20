@@ -1,4 +1,3 @@
-import { Link } from "react-router";
 import Highlight from "../ui/highlight";
 
 type Benefit = {
@@ -37,9 +36,6 @@ export default function ProSpace() {
           <p className="fr-text--lead text-default-grey fr-mb-4w hidden! md:block!">
             Professionnels de l'éducation, conseillers, parents. Orientez facilement les jeunes vers des missions adaptées à leurs envies et leur rythme.
           </p>
-          <Link to="#" className="fr-btn fr-btn--secondary hidden! md:block!">
-            Accéder aux ressources
-          </Link>
         </div>
 
         <div className="flex-1 grid grid-cols-1 gap-12 md:gap-8 sm:grid-cols-2 px-4! md:px-0!">
@@ -51,9 +47,6 @@ export default function ProSpace() {
             </div>
           ))}
         </div>
-        <Link to="#" className="fr-btn fr-btn--secondary block! md:hidden! w-full! text-center!">
-          Accéder aux ressources
-        </Link>
       </div>
     </section>
   );

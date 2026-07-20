@@ -243,16 +243,20 @@ export default function MissionsPage() {
             )}
 
             {items.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
-                {items.map((mission) => (
-                  <MissionCard
-                    key={mission.id}
-                    mission={mission}
-                    link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
-                    onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
-                  />
-                ))}
-              </div>
+              <>
+                {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
+                <h2 className="fr-sr-only">Liste des missions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
+                  {items.map((mission) => (
+                    <MissionCard
+                      key={mission.id}
+                      mission={mission}
+                      link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
+                      onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
+                    />
+                  ))}
+                </div>
+              </>
             )}
 
             <div className="fr-mt-6w">
