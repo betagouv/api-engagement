@@ -46,29 +46,43 @@ export default function MissionExamples({ missions, className }: Props) {
           aria-atomic="false"
         >
           <div className="flex w-max gap-4 px-[10vw] pb-4 md:pl-0 md:pr-8">
-            {missions.map((mission, i) => (
-              <div
-                key={mission.id}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`Mission ${i + 1} sur ${missions.length}`}
-                className="w-[80vw] max-w-[360px] shrink-0 snap-center md:w-[360px]"
-              >
-                {mission.applicationUrl ? (
-                  <Link
-                    to={mission.applicationUrl}
-                    onClick={() => trackMissionClickedFromBrowse(mission, { section: "homepage_examples", entryPage: "homepage", opensExternal: true })}
-                    className="bg-background flex h-full w-full overflow-hidden shadow-lg border border-border-default-grey underline-none! bg-none! hover:bg-background!"
-                  >
-                    <MissionSlideContent mission={mission} />
-                  </Link>
-                ) : (
-                  <div className="bg-background flex h-full w-full overflow-hidden shadow-lg border border-border-default-grey">
-                    <MissionSlideContent mission={mission} />
-                  </div>
-                )}
-              </div>
-            ))}
+            {missions.map((mission, i) => {
+              return (
+                <div key={mission.id} role="group" aria-roledescription="slide" aria-label={`Mission ${i + 1} sur ${missions.length}`} className="flex shrink-0 snap-center">
+                  {mission.applicationUrl ? (
+                    <Link
+                      to={mission.applicationUrl}
+                      onClick={() =>
+                        trackMissionClickedFromBrowse(mission, { section: "homepage_examples", entryPage: "homepage", opensExternal: Boolean(mission.applicationUrl) })
+                      }
+                      className="bg-background flex w-[80vw] max-w-[360px] shrink-0 overflow-hidden shadow-lg border border-border-default-grey underline-none! bg-none! hover:bg-background! md:w-[360px]"
+                    >
+                      {mission.domainLogo ? (
+                        <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />
+                      ) : (
+                        <div className="bg-beige-gris-galet w-28 shrink-0" />
+                      )}
+                      <div className="flex flex-1 flex-col gap-4 p-6">
+                        <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
+                        <div className="fr-mt-auto flex items-center gap-2">
+                          {mission.publisherLogo && (
+                            <div className="size-10 rounded object-contain bg-white">
+                              <img src={mission.publisherLogo} alt="" className="size-full object-contain" />
+                            </div>
+                          )}
+
+                          {mission.publisherName && <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>}
+                        </div>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="bg-background flex h-full w-full overflow-hidden shadow-lg border border-border-default-grey">
+                      <MissionSlideContent mission={mission} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -126,6 +126,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
               position={position}
               icon={isActive ? activeIcon : usesRemoteIcon ? remoteIcon : classicIcon}
               zIndexOffset={isActive ? 1000 : 0}
+              keyboard={false}
               eventHandlers={{
                 ...(onMarkerClick ? { click: () => handleMarkerSelect(item, position) } : {}),
                 ...(onMissionHover ? { mouseover: () => onMissionHover(item.mission.id), mouseout: () => onMissionHover(null) } : {}),
