@@ -254,6 +254,7 @@
 }
 
 .mission-map__tooltip.leaflet-tooltip {
+  background-color: var(--background-default-grey);
   border: none;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgb(0 0 0 / 16%);
@@ -261,6 +262,10 @@
   min-width: 220px;
   padding: 10px 14px;
   white-space: normal;
+}
+
+.mission-map__tooltip.leaflet-tooltip-top::before {
+  border-top-color: var(--background-default-grey);
 }
 
 .mission-map__tooltip-title {
