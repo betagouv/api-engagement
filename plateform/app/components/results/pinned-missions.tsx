@@ -24,6 +24,8 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
       )}
       {!loading && !error && items.length > 0 && (
         <>
+          {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, le h1 « X missions pour toi » est le seul titre visible au-dessus. */}
+          <h2 className="fr-sr-only">Les missions sélectionnées pour toi</h2>
           <div className="grid grid-cols-1 gap-6 pb-6 md:grid-cols-2 md:px-4">
             {items.map((item, index) => (
               <div

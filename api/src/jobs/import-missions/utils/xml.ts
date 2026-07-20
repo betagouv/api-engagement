@@ -3,6 +3,7 @@ import { XMLParser } from "fast-xml-parser";
 import { captureException } from "@/error";
 import type { PublisherRecord } from "@/types/publisher";
 import { MissionXML } from "@/jobs/import-missions/types";
+import { safeFetch, UnsafeFetchUrlError } from "@/utils/safe-fetch";
 
 export const fetchXML = async (publisher: PublisherRecord): Promise<{ ok: boolean; data: string; error?: string; status?: number }> => {
   try {
@@ -15,17 +16,20 @@ export const fetchXML = async (publisher: PublisherRecord): Promise<{ ok: boolea
       headers.set("Authorization", `Basic ${btoa(`${publisher.feedUsername}:${publisher.feedPassword}`)}`);
     }
     console.log(`[${publisher.name}] Fetching xml from ${publisher.feed}`);
-    const response = await fetch(publisher.feed.trim(), { headers });
+    const response = await safeFetch(publisher.feed.trim(), { headers });
 
     if (!response.ok) {
       return { ok: false, data: "", error: response.statusText, status: response.status };
     }
     return { ok: true, data: await response.text() };
   } catch (error: any) {
+    if (error instanceof UnsafeFetchUrlError) {
+      return { ok: false, data: "", error: "Unsafe feed URL", status: 400 };
+    }
     if (error.message?.includes("Failed to fetch") || error.message?.includes("fetch failed")) {
       return { ok: false, data: "", error: "Failed to fetch XML", status: 500 };
     }
-    captureException(error, { extra: { publisher } });
+    captureException(error, { extra: { publisherId: publisher.id, publisherName: publisher.name, feed: publisher.feed } });
     return { ok: false, data: "", error: error.message, status: 500 };
   }
 };

@@ -11,6 +11,7 @@ import { importRnaService } from "@/services/import-rna";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { readZip } from "@/jobs/import-organizations/zip";
+import { safeFetch } from "@/utils/safe-fetch";
 
 const RNA_DATASETS_ID = "58e53811c751df03df38f42d";
 
@@ -71,7 +72,7 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), DOWNLOAD_TIMEOUT_MS);
-      const response = await fetch(resource.url, { signal: controller.signal as any });
+      const response = await safeFetch(resource.url, { signal: controller.signal as any });
       clearTimeout(timeout);
 
       if (!response.ok || !response.body) {

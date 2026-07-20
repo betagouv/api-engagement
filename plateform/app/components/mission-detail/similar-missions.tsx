@@ -4,6 +4,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import Highlight from "~/components/ui/highlight";
 import { fetchMatches } from "~/services/matching";
+import { getScrollBehavior } from "~/utils/motion";
 
 interface Props {
   userScoringId: string;
@@ -23,7 +24,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
   if (items.length === 0) return null;
 
   const scrollBy = (direction: -1 | 1) => {
-    scrollRef.current?.scrollBy({ left: direction * 300, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: direction * 300, behavior: getScrollBehavior() });
   };
 
   return (

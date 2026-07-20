@@ -219,6 +219,21 @@
   animation: slide-down-fade 200ms ease-out forwards;
 }
 
+/* RGAA 13.8 — neutralise animations et transitions quand l'utilisateur préfère
+   les mouvements réduits. Durées quasi nulles plutôt que `animation: none` afin
+   que les événements `animationend` continuent de se déclencher (`results.tsx`
+   s'appuie sur `onAnimationEnd`). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .mission-map__emoji-marker {
   align-items: center;
   background: rgb(246 246 255 / 92%);

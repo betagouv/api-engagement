@@ -9,9 +9,9 @@ type Props = {
 export default function Label({ subtitle, children, htmlFor }: Props) {
   return (
     <div className="flex flex-col gap-4">
-      <label className="fr-h1 mb-0!" htmlFor={htmlFor}>
-        {children}
-      </label>
+      <h1 className="fr-h1 mb-0!">
+        <label htmlFor={htmlFor}>{children}</label>
+      </h1>
       {subtitle && <p className="fr-text--lead mb-0!">{subtitle}</p>}
     </div>
   );

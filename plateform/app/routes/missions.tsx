@@ -12,6 +12,7 @@ import GradientBg from "~/components/ui/gradient-bg";
 import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
+import { getScrollBehavior } from "~/utils/motion";
 import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import type { Route } from "./+types/missions";
 
@@ -204,7 +205,7 @@ export default function MissionsPage() {
       else params.set("page", String(newPage));
       return params;
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: getScrollBehavior() });
   };
 
   return (
