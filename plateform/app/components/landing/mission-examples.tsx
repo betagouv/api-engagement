@@ -32,7 +32,6 @@ export default function MissionExamples({ missions, className }: Props) {
     scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
   };
 
-  console.log(missions);
   if (!missions?.length) return null;
 
   return (
@@ -86,48 +85,48 @@ export default function MissionExamples({ missions, className }: Props) {
             })}
           </div>
         </div>
-      </div>
 
-      <div className="mt-6 flex justify-center gap-3 md:hidden">
-        <button
-          type="button"
-          onClick={() => handleScroll("left")}
-          disabled={!canScrollLeft}
-          aria-label="Voir les missions précédentes"
-          aria-controls="missions-carousel"
-          className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
-        ></button>
+        <div className="mt-6 flex justify-center gap-3 md:hidden">
+          <button
+            type="button"
+            onClick={() => handleScroll("left")}
+            disabled={!canScrollLeft}
+            aria-label="Voir les missions précédentes"
+            aria-controls="missions-carousel"
+            className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
+          ></button>
+          <button
+            type="button"
+            onClick={() => handleScroll("right")}
+            disabled={!canScrollRight}
+            aria-label="Voir les missions suivantes"
+            aria-controls="missions-carousel"
+            className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
+          ></button>
+        </div>
+
+        {canScrollLeft && (
+          <button
+            type="button"
+            onClick={() => handleScroll("left")}
+            aria-label="Voir les missions précédentes"
+            aria-controls="missions-carousel"
+            className="bg-background! text-title-grey absolute left-0 top-1/2 hidden size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-md md:flex"
+          >
+            <span aria-hidden className="fr-icon-arrow-left-s-line" />
+          </button>
+        )}
         <button
           type="button"
           onClick={() => handleScroll("right")}
           disabled={!canScrollRight}
           aria-label="Voir les missions suivantes"
           aria-controls="missions-carousel"
-          className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
-        ></button>
-      </div>
-
-      {canScrollLeft && (
-        <button
-          type="button"
-          onClick={() => handleScroll("left")}
-          aria-label="Voir les missions précédentes"
-          aria-controls="missions-carousel"
-          className="bg-background! text-title-grey absolute left-0 top-1/2 hidden size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-md md:flex"
+          className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <span aria-hidden className="fr-icon-arrow-left-s-line" />
+          <span aria-hidden className="fr-icon-arrow-right-s-line" />
         </button>
-      )}
-      <button
-        type="button"
-        onClick={() => handleScroll("right")}
-        disabled={!canScrollRight}
-        aria-label="Voir les missions suivantes"
-        aria-controls="missions-carousel"
-        className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        <span aria-hidden className="fr-icon-arrow-right-s-line" />
-      </button>
+      </div>
     </section>
   );
 }
