@@ -18,7 +18,8 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
     <div className="relative w-full px-6">
       {!loading && error && (
         <div className="fr-alert fr-alert--error my-6" role="alert">
-          <h3 className="fr-alert__title">Une erreur est survenue</h3>
+          {/* RGAA 9.1 : en état d'erreur le h1 « X missions pour toi » n'est pas rendu — ce titre devient le titre principal de la page. */}
+          <h1 className="fr-alert__title">Une erreur est survenue</h1>
           <p>{error}</p>
         </div>
       )}
