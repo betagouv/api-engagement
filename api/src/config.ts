@@ -5,9 +5,11 @@ export const PORT_WORKER = process.env.PORT_WORKER || 4001;
 export const ENV = process.env.ENV || "development";
 const DEFAULT_SECRET = "not-so-secret";
 
-if (ENV !== "development" && (!process.env.SECRET || process.env.SECRET === DEFAULT_SECRET)) {
-  throw new Error("SECRET must be configured with a non-default value when ENV is not development");
-}
+export const ensureJwtSecretIsConfigured = () => {
+  if (ENV !== "development" && (!process.env.SECRET || process.env.SECRET === DEFAULT_SECRET)) {
+    throw new Error("SECRET must be configured with a non-default value when ENV is not development");
+  }
+};
 
 export const SECRET = process.env.SECRET || DEFAULT_SECRET;
 export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
