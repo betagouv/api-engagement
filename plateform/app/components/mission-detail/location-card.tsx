@@ -42,6 +42,7 @@ export default function MissionLocationCard({ location }: MissionLocationCardPro
           href={mapsHref}
           target="_blank"
           rel="noopener noreferrer"
+          title="Ouvrir sur Google Maps - nouvelle fenêtre"
           className="fr-btn fr-btn--secondary fr-icon-map-pin-2-line fr-btn--icon-left w-full! justify-center! md:hidden!"
         >
           Ouvrir sur Google Maps

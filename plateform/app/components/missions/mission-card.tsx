@@ -30,7 +30,15 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
         {mission.title}
       </Link>
     ) : link?.type === "external" ? (
-      <a href={link.href} onClick={onClick} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
+      <a
+        href={link.href}
+        onClick={onClick}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`${mission.title} - nouvelle fenêtre`}
+        className="text-title-grey! fr-h6! bg-none! mb-0!"
+        style={clampStyle}
+      >
         {mission.title}
       </a>
     ) : (

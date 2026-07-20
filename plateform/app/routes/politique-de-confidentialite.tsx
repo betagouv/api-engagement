@@ -65,7 +65,12 @@ export default function PolitiqueDeConfidentialite() {
           </li>
           <li>
             Ou par le biais du formulaire de saisine en ligne :{" "}
-            <a href="https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373" target="_blank" rel="noopener">
+            <a
+              href="https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373"
+              target="_blank"
+              rel="noopener"
+              title="https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373 - nouvelle fenêtre"
+            >
               https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373
             </a>
             . Le responsable de traitement s'engage à vous répondre dans un délai raisonnable qui ne saurait dépasser 1 mois à compter de la réception de votre demande.
@@ -96,7 +101,12 @@ export default function PolitiqueDeConfidentialite() {
                 <td>France</td>
                 <td>Hébergement des données</td>
                 <td>
-                  <a href="https://www-uploads.scaleway.com/Data_Processing_Agreement_03092021_6e2ca4da3c.pdf" target="_blank" rel="noopener">
+                  <a
+                    href="https://www-uploads.scaleway.com/Data_Processing_Agreement_03092021_6e2ca4da3c.pdf"
+                    target="_blank"
+                    rel="noopener"
+                    title="Data Processing Agreement - nouvelle fenêtre"
+                  >
                     Data Processing Agreement
                   </a>
                 </td>
@@ -106,7 +116,7 @@ export default function PolitiqueDeConfidentialite() {
                 <td>France</td>
                 <td>Solution d'e-mailing</td>
                 <td>
-                  <a href="https://www.brevo.com/legal/termsofuse/#annex" target="_blank" rel="noopener">
+                  <a href="https://www.brevo.com/legal/termsofuse/#annex" target="_blank" rel="noopener" title="Conditions d'utilisation - nouvelle fenêtre">
                     Conditions d'utilisation
                   </a>
                 </td>
