@@ -13,8 +13,13 @@ export default function Label({ subtitle, children, htmlFor, required }: Props) 
       <h1 className="fr-h1 mb-0!">
         <label htmlFor={htmlFor}>{children}</label>
       </h1>
-      {subtitle && <p className="fr-text--lead mb-0!">{subtitle}</p>}
-      {required && <p className="fr-hint-text mb-0!">Champ obligatoire</p>}
+      {subtitle && (
+        <p className="fr-text--lead mb-0!">
+          {subtitle}
+          {required && <span className="fr-hint-text inline! mb-0!"> (Champ obligatoire)</span>}
+        </p>
+      )}
+      {!subtitle && required && <p className="fr-hint-text mb-0!">Champ obligatoire</p>}
     </div>
   );
 }

@@ -40,7 +40,7 @@ export default function HandicapStep() {
 
   return (
     <>
-      <RadioGroup title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
+      <RadioGroup title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
       <NextButton onClick={handleNext} />
     </>
   );
