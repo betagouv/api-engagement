@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Combobox from "~/components/ui/combobox";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 export type FilterOption = { value: string; label: string; count?: number };
 
@@ -60,6 +61,7 @@ interface MobileFiltersSheetProps {
 
 function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetProps) {
   const titleId = useId();
+  const sheetRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
@@ -70,19 +72,18 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
     return initial;
   });
 
+  // Échap, piège de focus (boucle Tab/Shift+Tab) et restitution du focus au bouton « Filtres »
+  // à la fermeture sont gérés par le hook (RGAA 12.9 / 7.3).
+  useFocusTrap(sheetRef, mounted, onClose);
+
   useEffect(() => {
     setMounted(true);
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEscape);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = previousOverflow;
     };
-  }, [onClose]);
+  }, []);
 
   useEffect(() => {
     if (mounted) closeButtonRef.current?.focus();
@@ -96,6 +97,8 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
 
   return createPortal(
     <div
+      ref={sheetRef}
+      tabIndex={-1}
       className="fixed inset-0 z-[1750] flex items-end"
       role="dialog"
       aria-modal="true"
