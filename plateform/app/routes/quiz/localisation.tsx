@@ -190,7 +190,7 @@ export default function LocalisationStep() {
             value={value}
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            autoComplete="off"
+            autoComplete="street-address"
           />
           <span className="fr-icon-map-pin-2-line absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
           {showOptions && options.length > 0 && (
