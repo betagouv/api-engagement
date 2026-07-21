@@ -242,7 +242,7 @@ export default function LocalisationStep() {
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSelect(option)}
                   onMouseEnter={() => setActiveIndex(index)}
-                  className={`py-2 px-3 cursor-pointer text-sm ${index === activeIndex ? "bg-background-default-grey-hover" : "hover:bg-background-default-grey-hover"}`}
+                  className={`py-2 px-3 cursor-pointer text-sm ${index === activeIndex ? "bg-action-high-blue-france text-inverted-blue-france" : "hover:bg-background-default-grey-hover"}`}
                 >
                   {option.label}
                 </li>
