@@ -245,7 +245,7 @@ export default function MissionsPage() {
             <>
               {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
               <h2 className="fr-sr-only">Liste des missions</h2>
-              <ul role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit list-none! p-0! m-0!">
+              <ul role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto! gap-6 w-fit list-none! p-0! m-0!">
                 {items.map((mission) => (
                   <li key={mission.id}>
                     <MissionCard
