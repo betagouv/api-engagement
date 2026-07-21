@@ -62,7 +62,7 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
       <div className="fr-container">
         <div className="fr-footer__body">
           <div className="fr-footer__brand fr-enlarge-link">
-            <a href="/" title="Accueil — API Engagement">
+            <a href="/" title="Accueil — Trouve ta mission">
               <p className="fr-logo">
                 République
                 <br />

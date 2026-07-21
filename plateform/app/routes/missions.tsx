@@ -64,7 +64,7 @@ export function HydrateFallback() {
 }
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Trouve ta mission — API Engagement" }];
+  return [{ title: "Trouve ta mission" }];
 }
 
 export default function MissionsPage() {

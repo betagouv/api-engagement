@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import type { Route } from "./+types/plan-du-site";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Plan du site — API Engagement" }];
+  return [{ title: "Plan du site — Trouve ta mission" }];
 }
 
 export default function PlanDuSite() {

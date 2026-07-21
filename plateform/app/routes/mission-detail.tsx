@@ -53,7 +53,7 @@ export default function MissionDetailPage() {
   // RGAA 8.5/8.6 : la mission est chargée côté client, meta() ne peut donner qu'un titre générique.
   // On le remplace par le titre de la mission dès qu'elle est disponible.
   useEffect(() => {
-    if (mission?.title) document.title = `${mission.title} — API Engagement`;
+    if (mission?.title) document.title = `${mission.title} — Trouve ta mission`;
   }, [mission]);
 
   // mission_detail.viewed : une fois la fiche chargée, émis une seule fois par mission.
