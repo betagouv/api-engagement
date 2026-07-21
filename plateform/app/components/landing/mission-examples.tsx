@@ -36,6 +36,8 @@ export default function MissionExamples({ missions, className }: Props) {
 
   return (
     <section className={`fr-pb-8w relative z-10 ${className}`} aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">
+      {/* RGAA 9.1 : titre de section masqué — les titres de cartes sont des <h3>, sans saut depuis le h1 du hero. */}
+      <h2 className="fr-sr-only">Exemples de missions d'engagement</h2>
       <div className="fr-container max-w-7xl! relative">
         <div
           ref={scrollRef}
@@ -63,7 +65,7 @@ export default function MissionExamples({ missions, className }: Props) {
                         <div className="bg-beige-gris-galet w-28 shrink-0" />
                       )}
                       <div className="flex flex-1 flex-col gap-4 p-6">
-                        <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
+                        <h3 className="fr-h6 line-clamp-2 mb-0!">{mission.title}</h3>
                         <div className="fr-mt-auto flex items-center gap-2">
                           {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
                           {mission.publisherName && (
@@ -87,7 +89,7 @@ export default function MissionExamples({ missions, className }: Props) {
                         <div className="bg-beige-gris-galet w-28 shrink-0" />
                       )}
                       <div className="flex flex-1 flex-col gap-4 p-6">
-                        <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
+                        <h3 className="fr-h6 line-clamp-2 mb-0!">{mission.title}</h3>
                         <div className="fr-mt-auto flex items-center gap-2">
                           {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
                           {mission.publisherName && (

@@ -43,7 +43,8 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
             <div className="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
               {FOOTER_NAV_CATEGORIES.map((category) => (
                 <div key={category.title} className="fr-col-12 fr-col-sm-4 fr-col-md-3">
-                  <h3 className="fr-footer__top-cat">{category.title}</h3>
+                  {/* RGAA 9.1 : <h2> pour éviter un saut h1 → h3 sur les pages sans <h2> (plan du site, accessibilité). */}
+                  <h2 className="fr-footer__top-cat">{category.title}</h2>
                   <ul className="fr-footer__top-list">
                     {category.links.map((link) => (
                       <li key={link.to}>
