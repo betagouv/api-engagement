@@ -1,6 +1,5 @@
 import { Prisma, PublisherDiffusionRule } from "@/db/core";
 import { RESSOURCE_ALREADY_EXIST } from "@/error";
-import { missionRepository } from "@/repositories/mission";
 import { publisherRepository } from "@/repositories/publisher";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
 import type {
@@ -217,22 +216,6 @@ export const publisherDiffusionRuleService = {
   async buildMissionDiffuseurSnapshotWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
     const candidateWhere = await this.buildMissionDiffuseurCandidateWhere(publisherId);
     return Object.keys(candidateWhere).length === 0 ? { publisherId } : candidateWhere;
-  },
-
-  async canPublisherAccessMission({ publisherId, missionId }: { publisherId: string; missionId: string }): Promise<boolean> {
-    const rules = await findOrderedRules(publisherId);
-    if (rules.length === 0) {
-      return true;
-    }
-
-    const { where: diffusionRuleWhere } = buildAllowlistFilter(rules, publisherId);
-    if (Object.keys(diffusionRuleWhere).length === 0) {
-      return false;
-    }
-
-    const count = await missionRepository.count({ AND: [{ id: missionId }, diffusionRuleWhere] });
-
-    return count > 0;
   },
 
   async buildMissionPublisherDiffusionRuleSql(publisherId: string, options: { missionAlias?: string } = {}): Promise<Prisma.Sql> {

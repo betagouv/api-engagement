@@ -6,7 +6,6 @@ import { MissionType, Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecordWithRelations } from "@/types/publisher";
@@ -278,16 +277,12 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       id: params.data.id,
       statusCode: "ACCEPTED",
       deletedAt: null,
+      missionDiffusions: { some: { distributionPublisherId: user.id } },
       ...(user.moderator ? { moderationStatuses: { some: { publisherId: user.id, status: "ACCEPTED" } } } : {}),
     };
 
     const mission = await missionService.findOneMissionBy(missionWhere, user.moderator ? user.id : null);
     if (!mission) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
-    const canAccessMission = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: user.id, missionId: mission.id });
-    if (!canAccessMission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 

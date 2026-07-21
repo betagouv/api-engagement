@@ -214,7 +214,7 @@ describe("Activity V2 controller", () => {
       expect(createdApply?.clickId).toBeNull();
     });
 
-    it("records apply events without clickId using missionId when diffusion rules allow the mission", async () => {
+    it("records apply events without clickId using missionId when the diffusion snapshot allows the mission", async () => {
       const owner = await publisherService.createPublisher({ name: "Mission Owner Publisher", apikey: "mission-owner-key" });
       const diffuser = await publisherService.createPublisher({ name: "Allowed Diffuser Publisher", apikey: "allowed-diffuser-key" });
       const mission = await createTestMission({
@@ -224,14 +224,10 @@ describe("Activity V2 controller", () => {
         statusCode: "ACCEPTED",
       });
 
-      await prisma.publisherDiffusionRule.create({
+      await prisma.missionDiffusion.create({
         data: {
-          publisherId: diffuser.id,
-          field: "publisherId",
-          fieldType: "string",
-          operator: "is",
-          value: owner.id,
-          combinator: "or",
+          distributionPublisherId: diffuser.id,
+          missionId: mission.id,
         },
       });
 
@@ -254,7 +250,7 @@ describe("Activity V2 controller", () => {
       expect(createdApply?.clickId).toBeNull();
     });
 
-    it("records apply events without clickId using missionId when the diffuser has no rules", async () => {
+    it("returns 403 when the diffusion snapshot has no entry and the diffuser has no rules", async () => {
       const owner = await publisherService.createPublisher({ name: "No Rules Mission Owner", apikey: "no-rules-owner-key" });
       const diffuser = await publisherService.createPublisher({ name: "No Rules Diffuser", apikey: "no-rules-diffuser-key" });
       const mission = await createTestMission({
@@ -269,20 +265,11 @@ describe("Activity V2 controller", () => {
         .set("apikey", diffuser.apikey || "")
         .send({ missionId: mission.id, tag: "MIG" });
 
-      expect(response.status).toBe(200);
-      expect(response.body.ok).toBe(true);
-
-      const createdApply = await statEventService.findOneStatEventById(response.body.data._id);
-      expect(createdApply).toMatchObject({
-        type: "apply",
-        fromPublisherId: diffuser.id,
-        toPublisherId: owner.id,
-        missionId: mission.id,
-      });
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({ ok: false, code: "FORBIDDEN", message: "Mission not accessible" });
     });
 
-    it("returns 403 when missionId is outside the publisher diffusion rules", async () => {
-      const allowedOwner = await publisherService.createPublisher({ name: "Allowed Owner", apikey: "allowed-owner-key" });
+    it("returns 403 when live rules allow the mission but the diffusion snapshot has no entry", async () => {
       const otherOwner = await publisherService.createPublisher({ name: "Other Owner", apikey: "other-owner-key" });
       const diffuser = await publisherService.createPublisher({ name: "Restricted Diffuser", apikey: "restricted-diffuser-key" });
       const mission = await createTestMission({
@@ -298,7 +285,7 @@ describe("Activity V2 controller", () => {
           field: "publisherId",
           fieldType: "string",
           operator: "is",
-          value: allowedOwner.id,
+          value: otherOwner.id,
           combinator: "or",
         },
       });

@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import request from "supertest";
 
+import { MissionDiffusionRebuildHandler } from "@/jobs/mission-diffusion-rebuild/handler";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord, PublisherRecord } from "@/types";
@@ -611,6 +612,66 @@ describe("Mission API Integration Tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(response.body.data._id).toBe(mission.id);
+    });
+
+    it("should use the materialized diffusion snapshot while live rules are stale", async () => {
+      const owner = await createTestPublisher({ name: "Stale Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Stale Detail Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const mission = await createTestMission({
+        publisherId: owner.id,
+        title: "Mission kept in stale snapshot",
+        statusCode: "ACCEPTED",
+      });
+
+      await new MissionDiffusionRebuildHandler().handle({});
+      const roots = await publisherDiffusionRuleService.findRules({
+        publisherId: diffuseur.id,
+        combinedWithId: null,
+        field: "publisherId",
+      });
+      await Promise.all(roots.map((root) => publisherDiffusionRuleService.deleteRule(root.id)));
+
+      const staleSnapshotApp = createTestApp();
+      const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);
+      const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
+
+      expect(listResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
+      expect(detailResponse.body.data._id).toBe(mission.id);
+    });
+
+    it("should keep a materialized exclusion until the next snapshot rebuild", async () => {
+      const owner = await createTestPublisher({ name: "Stale Exclusion Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Stale Exclusion Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const mission = await createTestMission({
+        organizationClientId: `stale-exclusion-${randomUUID()}`,
+        publisherId: owner.id,
+        title: "Mission excluded from stale snapshot",
+        statusCode: "ACCEPTED",
+      });
+      const exclusion = await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur.id,
+        annonceurPublisherId: owner.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: mission.organizationClientId!,
+      });
+
+      await new MissionDiffusionRebuildHandler().handle({});
+      await publisherDiffusionRuleService.deleteRule(exclusion.id);
+
+      const staleSnapshotApp = createTestApp();
+      const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);
+      const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(404);
+
+      expect(listResponse.body.data.map((item: MissionRecord) => item._id)).not.toContain(mission.id);
+      expect(detailResponse.body.code).toBe("NOT_FOUND");
     });
 
     it("should return 404 for a mission outside publisher diffusion scope", async () => {
