@@ -1,7 +1,7 @@
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
 import type { WidgetRecord } from "@/types/widget";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createTestMission, createTestPublisher, createTestWidget, createTestWidgetRule } from "../../../../fixtures";
@@ -451,6 +451,29 @@ describe("GET /iframe/:id/search", () => {
       const titles = response.body.data.map((mission: MissionRecord) => mission.title);
       expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Santé Marseille"]));
       expect(titles).not.toContain("Mission Éducation Lyon");
+    });
+
+    it("should keep widget publishers as fallback for a widget-only publisher without diffusion root", async () => {
+      const widgetOwner = await createTestPublisher({
+        hasApiRights: false,
+        hasCampaignRights: false,
+        hasWidgetRights: true,
+      });
+      const selectedPublisher = await createTestPublisher();
+      const selectedMission = await createTestMission({
+        publisherId: selectedPublisher.id,
+        title: "Mission du publisher sélectionné",
+      });
+      const widgetOnly = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [selectedPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${widgetOnly.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0]._id).toBe(selectedMission.id);
     });
 
     it("should apply multiple organization rules with OR combinator", async () => {

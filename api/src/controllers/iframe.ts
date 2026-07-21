@@ -5,6 +5,7 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { widgetService } from "@/services/widget";
 import { widgetMissionService } from "@/services/widget-mission";
@@ -211,13 +212,25 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
 };
 
 const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]: any }, pagination: { skip: number; limit: number }): Promise<MissionSearchFilters> => {
+  const [directFilters, diffusionRoots] = await Promise.all([
+    applyWidgetRules(widget.rules || [], publisherOrganizationService.findIdsMatchingArrayValue),
+    publisherDiffusionRuleService.findRules({ publisherId: widget.fromPublisherId, ...DIFFUSION_SCOPE_ROOT_CRITERIA }),
+  ]);
+
   const filters: MissionSearchFilters = {
-    directFilters: await applyWidgetRules(widget.rules || [], publisherOrganizationService.findIdsMatchingArrayValue),
+    directFilters,
     publisherIds: widget.publishers,
-    diffuseurPublisherId: widget.fromPublisherId,
     skip: pagination.skip,
     limit: pagination.limit,
   };
+
+  // Compatibilité temporaire des routes iframe historiques : sans racine de
+  // diffusion, elles doivent conserver leur fallback sur `widget.publishers`,
+  // car les publishers widget-only ne sont pas tous présents dans le snapshot.
+  // À supprimer avec `iframe/*` lors de la migration vers Typesense.
+  if (diffusionRoots.length > 0) {
+    filters.diffuseurPublisherId = widget.fromPublisherId;
+  }
 
   const domainValues = normalizeToArray(query.domain);
   if (domainValues?.length) {

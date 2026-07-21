@@ -127,6 +127,29 @@ describe("GET /iframe/:id/aggs", () => {
   });
 
   describe("Default aggregations", () => {
+    it("should keep widget publishers as fallback for a widget-only publisher without diffusion root", async () => {
+      const widgetOwner = await createTestPublisher({
+        hasApiRights: false,
+        hasCampaignRights: false,
+        hasWidgetRights: true,
+      });
+      const selectedPublisher = await createTestPublisher();
+      await createTestMission({
+        publisherId: selectedPublisher.id,
+        title: "Mission Solidarité",
+        domain: "Solidarité",
+      });
+      const widgetOnly = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [selectedPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${widgetOnly.id}/aggs`).expect(200);
+
+      expect(response.body.data.domain).toEqual(expect.arrayContaining([{ key: "Solidarité", doc_count: 1 }]));
+    });
+
     it("should aggregate by domain with correct counts", async () => {
       const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
