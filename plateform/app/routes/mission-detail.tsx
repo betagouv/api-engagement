@@ -105,42 +105,40 @@ export default function MissionDetailPage() {
   }
 
   return (
-    <>
-      <GradientBg>
-        <main id="contenu" tabIndex={-1} className="min-h-screen">
-          {mission.photo && (
-            <div className="h-[216px] w-full overflow-hidden md:hidden">
-              <img src={mission.photo} alt="" className="h-full w-full object-cover" />
-            </div>
-          )}
-
-          <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
-            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
-              {backLabel}
-            </Link>
-            <div className="flex flex-col md:flex-row md:items-start gap-6">
-              <div className="flex min-w-0 flex-1 flex-col gap-0! md:gap-6!">
-                <MissionHeroCard mission={mission} />
-                {mission.location && <MissionLocationCard location={mission.location} />}
-                <div className="md:hidden">
-                  <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
-                </div>
-                <MissionDescriptionCard mission={mission} />
-              </div>
-
-              <aside className="hidden w-[384px] flex-none md:block">
-                <div className="sticky top-4 flex flex-col">
-                  {mission.photo && (
-                    <div className="h-[216px] w-full overflow-hidden">
-                      <img src={mission.photo} alt="" className="h-full w-full object-cover" />
-                    </div>
-                  )}
-                  <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
-                </div>
-              </aside>
-            </div>
+    <main id="contenu" tabIndex={-1}>
+      <GradientBg className="bg-size-[100%_680px] min-h-screen">
+        {mission.photo && (
+          <div className="h-[216px] w-full overflow-hidden md:hidden">
+            <img src={mission.photo} alt="" className="h-full w-full object-cover" />
           </div>
-        </main>
+        )}
+
+        <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
+          <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
+            {backLabel}
+          </Link>
+          <div className="flex flex-col md:flex-row md:items-start gap-6">
+            <div className="flex min-w-0 flex-1 flex-col gap-0! md:gap-6!">
+              <MissionHeroCard mission={mission} />
+              {mission.location && <MissionLocationCard location={mission.location} />}
+              <div className="md:hidden">
+                <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
+              </div>
+              <MissionDescriptionCard mission={mission} />
+            </div>
+
+            <aside className="hidden w-[384px] flex-none md:block">
+              <div className="sticky top-4 flex flex-col">
+                {mission.photo && (
+                  <div className="h-[216px] w-full overflow-hidden">
+                    <img src={mission.photo} alt="" className="h-full w-full object-cover" />
+                  </div>
+                )}
+                <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
+              </div>
+            </aside>
+          </div>
+        </div>
       </GradientBg>
 
       {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
@@ -151,6 +149,6 @@ export default function MissionDetailPage() {
         </a>
         {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
       </div>
-    </>
+    </main>
   );
 }
