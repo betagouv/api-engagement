@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { MissionMatchItem } from "@engagement/dto";
-import { fetchMatches, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT, prefetchInitialMatches } from "~/services/matching";
+import { fetchInitialMatches, fetchMatches, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT } from "~/services/matching";
 
 export { OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT };
 export const VISIBLE_PAGE_COUNT = 6;
@@ -43,9 +43,8 @@ export function useMissionResults(userScoringId: string | undefined) {
     setOtherItems([]);
     setHasNextPage(false);
 
-    // Réutilise le préchargement lancé pendant l'écran de transition si disponible,
-    // sinon déclenche le chargement (accès direct à /results/:id).
-    prefetchInitialMatches(userScoringId)
+    // Résultats mis en cache par userScoringId (voir matching.ts) : pas de re-fetch au retour sur la page.
+    fetchInitialMatches(userScoringId)
       .then(({ pinned, other }) => {
         if (!active) return;
         setPinnedItems(pinned.items);

@@ -13,7 +13,3 @@ export const TRACKING_PROVIDER = (import.meta.env.VITE_TRACKING_PROVIDER as stri
 // reste inactif. Host EU par défaut (hébergement européen / RGPD).
 export const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
 export const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || "https://eu.i.posthog.com";
-
-// Durée totale (ms) d'une transition entre étapes du quiz : enter → hold → fade-out → onComplete.
-// Le fade lui-même dure 700ms (classe Tailwind `duration-700` côté composants).
-export const QUIZ_TRANSITION_MS = 3000;
