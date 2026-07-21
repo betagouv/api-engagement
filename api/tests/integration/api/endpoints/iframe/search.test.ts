@@ -519,6 +519,28 @@ describe("GET /iframe/:id/search", () => {
       expect(response.body.total).toBe(2);
     });
 
+    it("should return no mission when publisher selection is explicitly empty", async () => {
+      const rootedPublisher = await createTestPublisher();
+      const widgetOwner = await createTestPublisher({
+        publishers: [{ publisherId: rootedPublisher.id }],
+      });
+      await createTestMission({
+        publisherId: rootedPublisher.id,
+        title: "Mission présente dans le snapshot",
+      });
+      const emptyWidget = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [],
+        jvaModeration: true,
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${emptyWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(0);
+      expect(response.body.data).toEqual([]);
+    });
+
     it("should apply multiple organization rules with OR combinator", async () => {
       const widgetWithOrganizationRules = await createTestWidget({
         fromPublisher: publisher,

@@ -189,7 +189,7 @@ export type MissionRecord = {
   Partial<Record<MissionModerationDateKey, Date | null>>;
 
 export type MissionSearchFilters = {
-  publisherIds: string[];
+  publisherIds?: string[];
   statusCode?: MissionStatusCode;
   statusComment?: string;
   diffuseurPublisherId?: string;

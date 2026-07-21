@@ -213,7 +213,12 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   // Le snapshot contient l'allowlist explicite et le scope propre du diffuseur.
   if (filters.diffuseurPublisherId) {
     const diffusionWhere: Prisma.MissionWhereInput = { missionDiffusions: { some: { distributionPublisherId: filters.diffuseurPublisherId } } };
-    const restrictedDiffusionWhere = filters.publisherIds?.length ? { AND: [diffusionWhere, { publisherId: { in: filters.publisherIds } }] } : diffusionWhere;
+    const restrictedDiffusionWhere: Prisma.MissionWhereInput =
+      filters.publisherIds === undefined
+        ? diffusionWhere
+        : filters.publisherIds.length === 0
+          ? { id: { in: [] } }
+          : { AND: [diffusionWhere, { publisherId: { in: filters.publisherIds } }] };
     const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
     where.AND = [...existingAnd, restrictedDiffusionWhere];
   } else if (filters.publisherIds?.length) {

@@ -252,7 +252,7 @@ const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]:
       filters.directFilters = {
         AND: [directFilters, accessConditions.length === 1 ? accessConditions[0] : { OR: accessConditions }],
       };
-      filters.publisherIds = [];
+      filters.publisherIds = undefined;
     }
   }
 
