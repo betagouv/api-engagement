@@ -246,12 +246,13 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.code).toBe("INVALID_QUERY");
     });
 
-    it("should return 400 if publisher has no access", async () => {
+    it("should use the materialized own scope when publisher has no live partner", async () => {
       const noAccessPublisher = await createTestPublisher({ publishers: [] });
+      const ownMission = await createTestMission({ publisherId: noAccessPublisher.id, title: "Own snapshot mission" });
       const response = await authenticatedGet("/v0/mission", noAccessPublisher.apikey!);
-      expect(response.status).toBe(400);
-      expect(response.body.ok).toBe(false);
-      expect(response.body.code).toBe("NO_PARTNER");
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0]._id).toBe(ownMission.id);
     });
 
     it("should filter by domain", async () => {
@@ -614,34 +615,35 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.data._id).toBe(mission.id);
     });
 
-    it("should keep materialized access until the next snapshot rebuild", async () => {
+    it("should keep list and detail aligned after a root removal until the next snapshot rebuild", async () => {
       const owner = await createTestPublisher({ name: "Stale Detail Owner" });
+      const remainingOwner = await createTestPublisher({ name: "Remaining Detail Owner" });
       const diffuseur = await createTestPublisher({
         name: "Stale Detail Diffuseur",
-        publishers: [{ publisherId: owner.id }],
+        publishers: [{ publisherId: owner.id }, { publisherId: remainingOwner.id }],
       });
       const mission = await createTestMission({
-        organizationClientId: `stale-access-${randomUUID()}`,
         publisherId: owner.id,
         title: "Mission kept in stale snapshot",
         statusCode: "ACCEPTED",
       });
 
       await new MissionDiffusionRebuildHandler().handle({});
-      await publisherDiffusionRuleService.createScopedRule({
-        diffuseurPublisherId: diffuseur.id,
-        annonceurPublisherId: owner.id,
-        field: "publisherOrganization.clientId",
-        fieldType: "string",
-        operator: "is_not",
-        value: mission.organizationClientId!,
+      const [removedRoot] = await publisherDiffusionRuleService.findRules({
+        publisherId: diffuseur.id,
+        combinedWithId: null,
+        field: "publisherId",
+        value: owner.id,
       });
+      await publisherDiffusionRuleService.deleteRule(removedRoot.id);
 
       const staleSnapshotApp = createTestApp();
       const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);
+      const searchResponse = await request(staleSnapshotApp).get("/v0/mission/search").set("x-api-key", diffuseur.apikey!).expect(200);
       const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
 
       expect(listResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
+      expect(searchResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
       expect(detailResponse.body.data._id).toBe(mission.id);
     });
 
@@ -762,14 +764,15 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.code).toBe("NOT_FOUND");
     });
 
-    it("should return 404 when publisher has no diffusion partner", async () => {
+    it("should return an own mission from the snapshot when publisher has no live partner", async () => {
       const noAccessPublisher = await createTestPublisher({ publishers: [] });
+      const ownMission = await createTestMission({ publisherId: noAccessPublisher.id, title: "Own detail snapshot mission" });
 
-      const response = await authenticatedGet(`/v0/mission/${mission1.id}`, noAccessPublisher.apikey!);
+      const response = await authenticatedGet(`/v0/mission/${ownMission.id}`, noAccessPublisher.apikey!);
 
-      expect(response.status).toBe(404);
-      expect(response.body.ok).toBe(false);
-      expect(response.body.code).toBe("NOT_FOUND");
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.data._id).toBe(ownMission.id);
     });
 
     it("should return 404 for a mission outside publisher diffusion scope through v2 mount", async () => {
