@@ -309,6 +309,29 @@ resource "scaleway_job_definition" "import-missions" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'mission-diffusion-rebuild' task (after import-missions)
+resource "scaleway_job_definition" "mission-diffusion-rebuild" {
+  count                  = var.enable_mission_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-mission-diffusion-rebuild"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "mission-diffusion-rebuild"]
+  timeout                = "60m"
+
+  cron {
+    # import-missions démarre à HH:15 avec un timeout de 60 min ; ce décalage
+    # laisse 15 min de marge avant le rebuild suivant.
+    schedule = "30 1,7,13,19 * * *"
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'update-mission-enrichment' task (on-demand only, no cron)
 resource "scaleway_job_definition" "update-mission-enrichment" {
   name                   = "${terraform.workspace}-update-mission-enrichment"
