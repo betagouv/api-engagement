@@ -614,25 +614,28 @@ describe("Mission API Integration Tests", () => {
       expect(response.body.data._id).toBe(mission.id);
     });
 
-    it("should use the materialized diffusion snapshot while live rules are stale", async () => {
+    it("should keep materialized access until the next snapshot rebuild", async () => {
       const owner = await createTestPublisher({ name: "Stale Detail Owner" });
       const diffuseur = await createTestPublisher({
         name: "Stale Detail Diffuseur",
         publishers: [{ publisherId: owner.id }],
       });
       const mission = await createTestMission({
+        organizationClientId: `stale-access-${randomUUID()}`,
         publisherId: owner.id,
         title: "Mission kept in stale snapshot",
         statusCode: "ACCEPTED",
       });
 
       await new MissionDiffusionRebuildHandler().handle({});
-      const roots = await publisherDiffusionRuleService.findRules({
-        publisherId: diffuseur.id,
-        combinedWithId: null,
-        field: "publisherId",
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur.id,
+        annonceurPublisherId: owner.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: mission.organizationClientId!,
       });
-      await Promise.all(roots.map((root) => publisherDiffusionRuleService.deleteRule(root.id)));
 
       const staleSnapshotApp = createTestApp();
       const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);

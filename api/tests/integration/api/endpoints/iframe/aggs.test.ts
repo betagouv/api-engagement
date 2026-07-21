@@ -150,6 +150,38 @@ describe("GET /iframe/:id/aggs", () => {
       expect(response.body.data.domain).toEqual(expect.arrayContaining([{ key: "Solidarité", doc_count: 1 }]));
     });
 
+    it("should combine snapshot and widget-only publishers in aggregations", async () => {
+      const rootedPublisher = await createTestPublisher();
+      const widgetOnlyPublisher = await createTestPublisher();
+      const widgetOwner = await createTestPublisher({
+        publishers: [{ publisherId: rootedPublisher.id }],
+      });
+      await createTestMission({
+        publisherId: rootedPublisher.id,
+        title: "Mission matérialisée",
+        domain: "Environnement",
+      });
+      await createTestMission({
+        publisherId: widgetOnlyPublisher.id,
+        title: "Mission widget-only",
+        domain: "Solidarité",
+      });
+      const hybridWidget = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [rootedPublisher.id, widgetOnlyPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${hybridWidget.id}/aggs`).expect(200);
+
+      expect(response.body.data.domain).toEqual(
+        expect.arrayContaining([
+          { key: "Environnement", doc_count: 1 },
+          { key: "Solidarité", doc_count: 1 },
+        ])
+      );
+    });
+
     it("should aggregate by domain with correct counts", async () => {
       const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 

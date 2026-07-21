@@ -12,6 +12,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import { createTestMission, createTestPublisher } from "../../fixtures";
 import { createStatEventFixture } from "../../fixtures/stat-event";
 import { app } from "./testOpenApiApp";
@@ -22,6 +23,7 @@ describe("OpenAPI spec compliance", () => {
   let annonceurApiKey: string;
   let annonceurId: string;
   let diffuseurApiKey: string;
+  let diffuseurId: string;
 
   beforeEach(async () => {
     const annonceur = await createTestPublisher({ name: "Annonceur" });
@@ -33,6 +35,7 @@ describe("OpenAPI spec compliance", () => {
       publishers: [{ publisherId: annonceur.id }],
     });
     diffuseurApiKey = diffuseur.apikey!;
+    diffuseurId = diffuseur.id;
   });
 
   // ── Missions (v0 — lecture diffuseur) ───────────────────────────────────
@@ -55,6 +58,7 @@ describe("OpenAPI spec compliance", () => {
   describe("GET /v0/mission/:id", () => {
     it("returns 200 when mission exists", async () => {
       const mission = await createTestMission({ publisherId: annonceurId });
+      await missionDiffusionRepository.createManyForDistributionPublisher(diffuseurId, [mission.id]);
       const res = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseurApiKey);
       expect(res.status).toBe(200);
     });

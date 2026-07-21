@@ -3,6 +3,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
+import { Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
@@ -224,12 +225,35 @@ const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]:
     limit: pagination.limit,
   };
 
-  // Compatibilité temporaire des routes iframe historiques : sans racine de
-  // diffusion, elles doivent conserver leur fallback sur `widget.publishers`,
-  // car les publishers widget-only ne sont pas tous présents dans le snapshot.
+  // Compatibilité temporaire des routes iframe historiques : les publishers
+  // sélectionnés uniquement via `widget.publishers` ne sont pas matérialisés
+  // dans le snapshot du diffuseur. Dans un widget hybride, on combine donc le
+  // snapshot pour les roots (et le scope propre) avec ce fallback historique.
   // À supprimer avec `iframe/*` lors de la migration vers Typesense.
   if (diffusionRoots.length > 0) {
-    filters.diffuseurPublisherId = widget.fromPublisherId;
+    if (widget.publishers.length === 0) {
+      filters.diffuseurPublisherId = widget.fromPublisherId;
+    } else {
+      const snapshotPublisherIds = new Set([...diffusionRoots.map((root) => root.value), widget.fromPublisherId]);
+      const publishersWithSnapshot = widget.publishers.filter((publisherId) => snapshotPublisherIds.has(publisherId));
+      const publishersWithFallback = widget.publishers.filter((publisherId) => !snapshotPublisherIds.has(publisherId));
+      const accessConditions: Prisma.MissionWhereInput[] = [];
+
+      if (publishersWithSnapshot.length > 0) {
+        accessConditions.push({
+          publisherId: { in: publishersWithSnapshot },
+          missionDiffusions: { some: { distributionPublisherId: widget.fromPublisherId } },
+        });
+      }
+      if (publishersWithFallback.length > 0) {
+        accessConditions.push({ publisherId: { in: publishersWithFallback } });
+      }
+
+      filters.directFilters = {
+        AND: [directFilters, accessConditions.length === 1 ? accessConditions[0] : { OR: accessConditions }],
+      };
+      filters.publisherIds = [];
+    }
   }
 
   const domainValues = normalizeToArray(query.domain);

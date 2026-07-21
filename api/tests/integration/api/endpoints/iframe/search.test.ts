@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
@@ -474,6 +475,48 @@ describe("GET /iframe/:id/search", () => {
 
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(selectedMission.id);
+    });
+
+    it("should combine the diffusion snapshot with widget-only publishers", async () => {
+      const rootedPublisher = await createTestPublisher();
+      const widgetOnlyPublisher = await createTestPublisher();
+      const widgetOwner = await createTestPublisher({
+        publishers: [{ publisherId: rootedPublisher.id }],
+      });
+      const includedRootedMission = await createTestMission({
+        organizationClientId: `included-rooted-${randomUUID()}`,
+        publisherId: rootedPublisher.id,
+        title: "Mission du publisher matérialisé",
+      });
+      const excludedRootedMission = await createTestMission({
+        organizationClientId: `excluded-rooted-${randomUUID()}`,
+        publisherId: rootedPublisher.id,
+        title: "Mission exclue du snapshot",
+      });
+      const widgetOnlyMission = await createTestMission({
+        publisherId: widgetOnlyPublisher.id,
+        title: "Mission du publisher widget-only",
+      });
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: widgetOwner.id,
+        annonceurPublisherId: rootedPublisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: excludedRootedMission.organizationClientId!,
+      });
+      const hybridWidget = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [rootedPublisher.id, widgetOnlyPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${hybridWidget.id}/search`).expect(200);
+
+      const missionIds = response.body.data.map((mission: MissionRecord) => mission._id);
+      expect(missionIds).toEqual(expect.arrayContaining([includedRootedMission.id, widgetOnlyMission.id]));
+      expect(missionIds).not.toContain(excludedRootedMission.id);
+      expect(response.body.total).toBe(2);
     });
 
     it("should apply multiple organization rules with OR combinator", async () => {
