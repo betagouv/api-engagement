@@ -48,7 +48,7 @@ export default function DureeStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={options} selected={selected} error={error} />
+      <CheckboxGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={options} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );
