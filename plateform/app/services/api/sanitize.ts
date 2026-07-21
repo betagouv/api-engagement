@@ -11,4 +11,18 @@ const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
   allowedSchemes: ["http", "https", "mailto"],
 };
 
-export const sanitizeDescriptionHtml = (html: string): string => sanitizeHtml(html, SANITIZE_OPTIONS);
+// RGAA 9.1 : la description est restituée sous le h2 « Présentation de la mission ». Les niveaux
+// de titre réellement utilisés par le partenaire sont re-nivelés dans l'ordre vers h3 → h6, ce qui
+// conserve leur hiérarchie relative sans introduire de saut de niveau ; au-delà de 4 niveaux
+// distincts, les titres les plus profonds deviennent des paragraphes.
+export const sanitizeDescriptionHtml = (html: string): string => {
+  const clean = sanitizeHtml(html, SANITIZE_OPTIONS);
+  const headingLevels = [...new Set([...clean.matchAll(/<h([1-6])/g)].map((match) => Number(match[1])))].sort((a, b) => a - b);
+  if (headingLevels.length === 0) return clean;
+
+  const transformTags: Record<string, string> = {};
+  headingLevels.forEach((level, index) => {
+    transformTags[`h${level}`] = index < 4 ? `h${index + 3}` : "p";
+  });
+  return sanitizeHtml(clean, { ...SANITIZE_OPTIONS, transformTags });
+};

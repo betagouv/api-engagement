@@ -8,8 +8,15 @@ describe("sanitizeDescriptionHtml", () => {
     expect(sanitizeDescriptionHtml(html)).toBe(html);
   });
 
-  it("conserve les balises de titre", () => {
-    expect(sanitizeDescriptionHtml("<h1>Titre</h1><h3>Sous-titre</h3><p>Texte</p>")).toBe("<h1>Titre</h1><h3>Sous-titre</h3><p>Texte</p>");
+  it("re-nivelle les titres sous le h2 de la section en conservant la hiérarchie relative", () => {
+    expect(sanitizeDescriptionHtml("<h1>Titre</h1><h2>Titre</h2><h3>Titre</h3><h4>Titre</h4><h5>Titre</h5><h6>Titre</h6>")).toBe(
+      "<h3>Titre</h3><h4>Titre</h4><h5>Titre</h5><h6>Titre</h6><p>Titre</p><p>Titre</p>",
+    );
+  });
+
+  it("évite les sauts de titre : les niveaux utilisés sont ramenés à h3, h4, … sans trou", () => {
+    expect(sanitizeDescriptionHtml("<h2>Titre</h2><h4>Sous-titre</h4><h2>Titre</h2>")).toBe("<h3>Titre</h3><h4>Sous-titre</h4><h3>Titre</h3>");
+    expect(sanitizeDescriptionHtml("<h5>Titre</h5><p>Texte</p>")).toBe("<h3>Titre</h3><p>Texte</p>");
   });
 
   it("conserve blockquote, s et sup", () => {
