@@ -93,7 +93,7 @@ export default function MotivationStep() {
 
   return (
     <>
-      <RadioGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleChange} options={options} error={error} selected={selected} />
+      <RadioGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleChange} options={options} error={error} selected={selected} required />
       <NextButton onClick={handleNext} skip />
     </>
   );
