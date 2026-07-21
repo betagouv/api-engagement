@@ -1,0 +1,201 @@
+/* Tarteaucitron fournit la structure ; ce fichier ne contient que l'habillage DSFR. */
+#tarteaucitronRoot {
+  --tac-panel-gap: 2rem;
+  --tac-panel-height: calc(100dvh - 2rem);
+  font-family: Marianne, arial, sans-serif !important;
+
+  & :is(a, button):focus-visible {
+    outline: 2px solid var(--border-active-blue-france) !important;
+    outline-offset: 2px !important;
+  }
+  & :is(.tarteaucitronCheck, .tarteaucitronCross, .tarteaucitronSelfLink) { display: none !important; }
+
+  /* Bandeau */
+  & #tarteaucitronAlertBig {
+    background: var(--background-raised-grey) !important;
+    border: 0 !important;
+    border-top: 1px solid var(--border-default-grey) !important;
+    box-shadow: 0 -4px 16px rgb(0 0 18 / 16%) !important;
+    box-sizing: border-box !important;
+    color: var(--text-default-grey) !important;
+    padding: 1.5rem max(1rem, calc((100vw - 75rem) / 2)) !important;
+    text-align: left !important;
+
+    & :is(#tarteaucitronDisclaimerAlert, #tarteaucitronDisclaimerAlert strong, #tarteaucitronPrivacyUrl) {
+      color: var(--text-default-grey) !important;
+      font-size: 1rem !important;
+      line-height: 1.5 !important;
+    }
+    & #tarteaucitronDisclaimerAlert {
+      display: block !important;
+      margin-bottom: 1rem !important;
+      max-width: 56rem;
+    }
+  }
+
+  /* Boutons */
+  & :is(button.tarteaucitronCTAButton, button.tarteaucitronAllow, button.tarteaucitronDeny) {
+    border-radius: 0 !important;
+    box-shadow: inset 0 0 0 1px var(--background-action-high-blue-france) !important;
+    font: 500 1rem/1.5rem Marianne, arial, sans-serif !important;
+    margin: 0.25rem 0.5rem 0.25rem 0 !important;
+    padding: 0.5rem 1rem !important;
+  }
+  & :is(button.tarteaucitronAllow, #tarteaucitronAllAllowed) {
+    background: var(--background-action-high-blue-france) !important;
+    color: var(--text-inverted-blue-france) !important;
+  }
+  & :is(button.tarteaucitronDeny, #tarteaucitronAllDenied, #tarteaucitronAllDenied2, #tarteaucitronPersonalize, #tarteaucitronPersonalize2) {
+    background: transparent !important;
+    color: var(--text-action-high-blue-france) !important;
+  }
+
+  /* Panneau */
+  & :is(#tarteaucitron, #tarteaucitronServices, #tarteaucitronInfo, .tarteaucitronBorder, .tarteaucitronLine, .tarteaucitronMainLine, .tarteaucitronTitle) {
+    background: var(--background-raised-grey) !important;
+    color: var(--text-default-grey) !important;
+  }
+  & div#tarteaucitron {
+    border: 1px solid var(--border-default-grey) !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 1rem 3rem rgb(0 0 18 / 32%) !important;
+    inset: 50% auto auto 50% !important;
+    margin: 0 !important;
+    max-height: var(--tac-panel-height) !important;
+    max-width: 46rem !important;
+    overflow: hidden !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100% - var(--tac-panel-gap)) !important;
+  }
+  & #tarteaucitronServices {
+    display: flex !important;
+    flex-direction: column;
+    max-height: var(--tac-panel-height) !important;
+    overflow: hidden !important;
+  }
+  & #tarteaucitronMainLineOffset {
+    border: 0 !important;
+    display: block !important;
+    flex: 0 0 auto;
+    margin: 0 !important;
+    padding: 2rem var(--tac-panel-gap) 1.5rem !important;
+  }
+  & #dialogTitle {
+    display: block !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    line-height: 2rem !important;
+    padding-right: 3rem;
+    text-align: left !important;
+  }
+  & #tarteaucitronInfo {
+    border: 0 !important;
+    font-size: 1rem !important;
+    line-height: 1.5rem !important;
+    margin: 1rem 0 1.5rem !important;
+    max-width: 40rem !important;
+    padding: 0 !important;
+    text-align: left !important;
+  }
+  & #tarteaucitronMainLineOffset > .tarteaucitronName {
+    float: none !important;
+    margin: 0 0 0.75rem !important;
+    width: auto !important;
+  }
+  & #tarteaucitronScrollbarAdjust {
+    display: flex !important;
+    float: none !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+  & :is(#tarteaucitronScrollbarAdjust, .tarteaucitronAsk) button { margin: 0 !important; }
+
+  & #tarteaucitron .tarteaucitronBorder {
+    border-top: 1px solid var(--border-default-grey) !important;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden auto !important;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+  & #tarteaucitronServices .tarteaucitronLine:not(.tarteaucitronMainLine) {
+    align-items: center;
+    border: 0 !important;
+    border-bottom: 1px solid var(--border-default-grey) !important;
+    display: grid !important;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    overflow: visible !important;
+    padding: 1rem var(--tac-panel-gap) !important;
+  }
+  & #tarteaucitronServices .tarteaucitronLine :is(.tarteaucitronName, .tarteaucitronAsk) {
+    float: none !important;
+    margin: 0 !important;
+    width: auto !important;
+  }
+  & #tarteaucitronServices .tarteaucitronAsk {
+    display: flex !important;
+    gap: 0.5rem;
+  }
+  & #tarteaucitronServices_mandatory .tarteaucitronLine {
+    display: block !important;
+    padding-block: 0.5rem 1rem !important;
+  }
+  & #tarteaucitronNoServicesTitle { display: none !important; }
+  & #tarteaucitronSave { display: none !important; }
+
+  & :is(.tarteaucitronH1, .tarteaucitronH2, .tarteaucitronH3, .tarteaucitronH4, .tarteaucitronName, .tarteaucitronName span, .tarteaucitronDetails) {
+    color: var(--text-default-grey) !important;
+  }
+  & #tarteaucitronServices :is(.tarteaucitronDetails, .tarteaucitronTitle + [id^="tarteaucitronDetails"]) {
+    background: var(--background-raised-grey) !important;
+    color: var(--text-default-grey) !important;
+  }
+  & #tarteaucitronServices :is(.tarteaucitronTitle button, .tarteaucitronMainLine .tarteaucitronName button) {
+    background: transparent !important;
+    color: var(--text-default-grey) !important;
+  }
+  & .tarteaucitronPlus::before { color: var(--text-default-grey) !important; }
+
+  & :is(#tarteaucitronClosePanel, #tarteaucitronCloseAlert, #tarteaucitronPrivacyUrl, #tarteaucitronPrivacyUrlDialog) {
+    background: transparent !important;
+    color: var(--text-action-high-blue-france) !important;
+    text-decoration: underline !important;
+    text-underline-offset: 0.25rem;
+  }
+  & #tarteaucitronClosePanel {
+    border: 0 !important;
+    font-size: 0.875rem !important;
+    padding: 0.25rem 0.5rem !important;
+    position: absolute !important;
+    right: 1.5rem !important;
+    text-decoration: none !important;
+    top: 1.5rem !important;
+    width: auto !important;
+    z-index: 2;
+  }
+
+  @media (max-width: 48rem) {
+    --tac-panel-gap: 1rem;
+    --tac-panel-height: calc(100dvh - 1rem);
+
+    & #tarteaucitronAlertBig { padding: 1rem !important; }
+    & :is(button.tarteaucitronCTAButton, button.tarteaucitronAllow, button.tarteaucitronDeny) {
+      margin: 0.5rem 0 0 !important;
+      width: 100% !important;
+    }
+    & #tarteaucitronMainLineOffset { padding-block: 1.5rem 1rem !important; }
+    & #dialogTitle {
+      font-size: 1.25rem !important;
+      line-height: 1.75rem !important;
+    }
+    & #tarteaucitronServices .tarteaucitronLine:not(.tarteaucitronMainLine) { grid-template-columns: 1fr; }
+    & div#tarteaucitron #tarteaucitronServices .tarteaucitronAsk {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}

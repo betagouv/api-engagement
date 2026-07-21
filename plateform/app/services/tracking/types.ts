@@ -10,6 +10,11 @@ export type TrackingProperties = Record<string, string | number | boolean | null
 // utilisé par le quiz (`useQuizStore.distinctId`).
 export type TrackingTraits = Record<string, string | number | boolean | null | undefined>;
 
+// État de consentement analytique partagé entre le gestionnaire de cookies et le provider.
+// `pending` bloque toute capture, `denied` autorise uniquement le mode cookieless PostHog et
+// `granted` active la persistance ainsi que l'identification.
+export type TrackingConsentStatus = "pending" | "denied" | "granted";
+
 // Interface qu'un provider doit implémenter. `identify` et `init` sont optionnels :
 // tous les outils ne les supportent pas (ex. Plausible n'a pas d'identification).
 export interface TrackingProvider {
@@ -17,6 +22,8 @@ export interface TrackingProvider {
   readonly name: string;
   // Initialisation côté navigateur (chargement du SDK, configuration). Idempotent.
   init?(): void | Promise<void>;
+  // Synchronise le choix du gestionnaire de cookies avec le provider. Idempotent.
+  setConsentStatus?(status: TrackingConsentStatus): void;
   // Enregistre un évènement avec ses propriétés.
   track(event: string, properties?: TrackingProperties): void;
   // Associe l'utilisateur courant à un identifiant et, éventuellement, des traits.

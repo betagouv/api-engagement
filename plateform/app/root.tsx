@@ -4,6 +4,8 @@ import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
 import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
+import tarteaucitronScriptUrl from "tarteaucitronjs/tarteaucitron.js?url";
+import tarteaucitronFrenchScriptUrl from "tarteaucitronjs/lang/tarteaucitron.fr.js?url";
 import { type ReactNode, useEffect } from "react";
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
 import Footer, { FooterContent } from "~/components/layout/footer";
@@ -11,7 +13,7 @@ import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
 import { PUBLISHER_ID } from "~/services/config";
-import { initTracking } from "~/services/tracking";
+import { initCookieConsent, isCookieConsentEnabled } from "~/services/cookie-consent";
 import { serializeForInlineScript } from "~/utils/string";
 import type { Route } from "./+types/root";
 import "./main.css";
@@ -40,6 +42,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <link rel="icon" href={faviconSvg} type="image/svg+xml" />
         <link rel="shortcut icon" href={faviconIco} type="image/x-icon" />
         <link rel="manifest" href={webmanifest} crossOrigin="use-credentials" />
+        {isCookieConsentEnabled() && <script src={tarteaucitronScriptUrl} />}
+        {isCookieConsentEnabled() && <script src={tarteaucitronFrenchScriptUrl} />}
         <Meta />
         <Links />
       </head>
@@ -54,9 +58,8 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function Root() {
-  // Initialise le tracking côté navigateur une seule fois au montage de l'app.
   useEffect(() => {
-    initTracking();
+    if (isCookieConsentEnabled()) initCookieConsent();
   }, []);
 
   return (

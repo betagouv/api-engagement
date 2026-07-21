@@ -126,12 +126,16 @@ export default function PolitiqueDeConfidentialite() {
           </table>
         </div>
 
-        <h2>Gestion de cookies</h2>
+        <h2>Cookies et traceurs</h2>
         <p>
-          Lors de votre navigation sur la Plateforme, des cookies ou traceurs peuvent être déposés sur votre terminal. Conformément à l'article 82 de la loi informatique et
-          libertés et aux recommandations de la CNIL, vous devez consentir au dépôt de cookies via un bandeau, accessible à tout moment. Vous pouvez revenir sur votre choix via le
-          lien « Gestion de cookies » qui vous redirige vers l'outil Tarteaucitron. Nous utilisons également Plausible, une solution qui ne dépose aucun cookie ou traceur et ne
-          collecte pas votre adresse IP.
+          Lors de votre navigation sur la plateforme, des traceurs peuvent être déposés sur votre terminal. Conformément aux recommandations de la CNIL, votre consentement est
+          demandé avant tout dépôt de traceur non strictement nécessaire.
+        </p>
+
+        <h3>Gestionnaire de consentement</h3>
+        <p>
+          La plateforme utilise Tarteaucitron pour vous permettre de gérer vos préférences. Vous pouvez à tout moment modifier vos choix via le lien « Gestion des cookies » en bas de
+          page.
         </p>
 
         <h3>Traceurs soumis à consentement</h3>

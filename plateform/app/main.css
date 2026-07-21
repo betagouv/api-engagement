@@ -5,6 +5,9 @@
    Preflight reste inclus mais est placé dans @layer base : le CSS DSFR n'utilise
    aucun @layer donc il gagne la cascade et le reset DSFR reste en place. */
 @import "tailwindcss";
+@import "tarteaucitronjs/css/tarteaucitron.css";
+/* Adaptation DSFR des composants Tarteaucitron. */
+@import "./styles/cookie-consent.css";
 
 /* DSFR pilote le thème via l'attribut `data-fr-theme` sur `<html>` : on branche
    la variante `dark:` de Tailwind dessus plutôt que sur `prefers-color-scheme`. */
@@ -283,4 +286,29 @@
   font-size: 0.75rem;
   line-height: 1.3;
   margin-top: 2px;
+}
+
+.fr-footer__bottom-link--button {
+  --active-tint: var(--active);
+  --hover-tint: var(--idle);
+
+  appearance: none;
+  background: transparent;
+  background-image: var(--underline-img), var(--underline-img);
+  background-position:
+    var(--underline-x) 100%,
+    var(--underline-x) calc(100% - var(--underline-thickness));
+  background-repeat: no-repeat, no-repeat;
+  background-size:
+    var(--underline-hover-width) calc(var(--underline-thickness) * 2),
+    var(--underline-idle-width) var(--underline-thickness);
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  transition: background-size 0s;
+}
+
+.fr-footer__bottom-link--button:hover,
+.fr-footer__bottom-link--button:active {
+  --underline-hover-width: var(--underline-max-width);
 }

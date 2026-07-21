@@ -1,6 +1,7 @@
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Link, useLocation } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
+import { isCookieConsentEnabled, openCookieConsentPanel } from "~/services/cookie-consent";
 import { isGlobalFooterVisible } from "~/utils/layout";
 
 const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine.values)
@@ -131,6 +132,13 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
                 Statistiques
               </a>
             </li> */}
+            {isCookieConsentEnabled() && (
+              <li className="fr-footer__bottom-item">
+                <button type="button" className="fr-footer__bottom-link fr-footer__bottom-link--button" onClick={openCookieConsentPanel}>
+                  Gestion des cookies
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>
