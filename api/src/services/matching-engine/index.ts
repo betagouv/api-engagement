@@ -100,40 +100,48 @@ const buildRanking = (params: {
   const forcedRemoteCandidatesCteSql = !forcedRemoteActive
     ? Prisma.empty
     : Prisma.sql`
+  remote_missions AS (
+    SELECT
+      ems."mission_id",
+      ems."mission_scoring_id"
+    FROM eligible_mission_scorings ems
+    JOIN "mission" m
+      ON m."id" = ems."mission_id"
+     AND m."remote"::text IN ('full', 'local')
+    WHERE EXISTS (SELECT 1 FROM user_geo)
+  ),
+  unscored_remote_missions AS (
+    SELECT
+      rm."mission_id",
+      rm."mission_scoring_id"
+    FROM remote_missions rm
+    EXCEPT
+    SELECT
+      ts."mission_id",
+      ts."mission_scoring_id"
+    FROM taxonomy_scores ts
+  ),
   forced_remote_candidates AS (
-    -- On priorise les missions remote par score taxonomie (comme l'ordre d'origine) mais sans le
-    -- nested loop O(remote × taxonomy) : le join est piloté DEPUIS taxonomy_scores (→ hash join,
-    -- comme taxonomy_candidates) au lieu d'un LEFT JOIN depuis le côté remote.
     SELECT
       rc."mission_id",
-      rc."mission_scoring_id"
+      rc."mission_scoring_id",
+      rc."weighted_sum"
     FROM (
-      -- (1) missions remote AVEC score taxonomie, triées par pertinence
       SELECT
-        ems."mission_id",
-        ems."mission_scoring_id",
+        ts."mission_id",
+        ts."mission_scoring_id",
         ts."weighted_sum" AS "weighted_sum"
       FROM taxonomy_scores ts
-      JOIN eligible_mission_scorings ems
-        ON ems."mission_scoring_id" = ts."mission_scoring_id"
       JOIN "mission" m
-        ON m."id" = ems."mission_id"
+        ON m."id" = ts."mission_id"
        AND m."remote"::text IN ('full', 'local')
       WHERE EXISTS (SELECT 1 FROM user_geo)
       UNION ALL
-      -- (2) missions remote SANS score taxonomie (score 0), en complément du pool
       SELECT
-        ems."mission_id",
-        ems."mission_scoring_id",
+        urm."mission_id",
+        urm."mission_scoring_id",
         CAST(0 AS double precision) AS "weighted_sum"
-      FROM eligible_mission_scorings ems
-      JOIN "mission" m
-        ON m."id" = ems."mission_id"
-       AND m."remote"::text IN ('full', 'local')
-      WHERE EXISTS (SELECT 1 FROM user_geo)
-        AND NOT EXISTS (
-          SELECT 1 FROM taxonomy_scores ts WHERE ts."mission_scoring_id" = ems."mission_scoring_id"
-        )
+      FROM unscored_remote_missions urm
     ) rc
     ORDER BY rc."weighted_sum" DESC, rc."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
@@ -145,7 +153,8 @@ const buildRanking = (params: {
     SELECT
       rfc."mission_id",
       rfc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
+      CAST(NULL AS double precision) AS "distance_km",
+      rfc."weighted_sum"
     FROM forced_remote_candidates rfc`;
 
   // Une mission remote=full/local ignore toute adresse : on nullifie distance/closest_* pour ne pas polluer
@@ -264,6 +273,7 @@ const buildRanking = (params: {
   ),
   matched_values AS (
     SELECT
+      ems."mission_id",
       msv."mission_scoring_id",
       uv."taxonomy_key",
       SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
@@ -273,10 +283,11 @@ const buildRanking = (params: {
      AND msv."value_key" = uv."value_key"
     JOIN eligible_mission_scorings ems
       ON ems."mission_scoring_id" = msv."mission_scoring_id"
-    GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
+    GROUP BY ems."mission_id", msv."mission_scoring_id", uv."taxonomy_key"
   ),
   taxonomy_scores AS (
     SELECT
+      mv."mission_id",
       mv."mission_scoring_id",
       SUM(
         (
@@ -289,18 +300,17 @@ const buildRanking = (params: {
       ON udt."taxonomy_key" = mv."taxonomy_key"
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = mv."taxonomy_key"
-    GROUP BY mv."mission_scoring_id"
+    GROUP BY mv."mission_id", mv."mission_scoring_id"
   ),
   taxonomy_candidates AS (
     SELECT
-      ems."mission_id",
-      ems."mission_scoring_id"
+      ts."mission_id",
+      ts."mission_scoring_id",
+      ts."weighted_sum"
     FROM taxonomy_scores ts
-    JOIN eligible_mission_scorings ems
-      ON ems."mission_scoring_id" = ts."mission_scoring_id"
     CROSS JOIN weighted_user_totals ut
     WHERE ut."taxonomy_total" > 0
-    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ems."mission_id" ASC
+    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ts."mission_id" ASC
     LIMIT ${params.taxonomyCandidateLimit}
   ),
   user_geo AS (
@@ -398,13 +408,7 @@ const buildRanking = (params: {
     ORDER BY ems."mission_id" ASC
     LIMIT ${params.offset + params.limit}
   ),${forcedRemoteCandidatesCteSql}
-  candidate_mission_rows AS (
-    SELECT
-      tc."mission_id",
-      tc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
-    FROM taxonomy_candidates tc
-    UNION ALL
+  geographic_candidates AS (
     SELECT
       gc."mission_id",
       gc."mission_scoring_id",
@@ -416,18 +420,64 @@ const buildRanking = (params: {
       fgc."mission_scoring_id",
       fgc."distance_km"
     FROM fallback_geo_candidates fgc
+  ),
+  geographic_candidate_scores AS (
+    SELECT
+      gc."mission_id",
+      gc."mission_scoring_id",
+      gc."distance_km",
+      COALESCE(SUM(
+        (
+          CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
+          ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(gmv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
+        ) * COALESCE(dw."taxonomy_weight", 1.0)
+      ) FILTER (WHERE gmv."taxonomy_key" IS NOT NULL), 0) AS "weighted_sum"
+    FROM geographic_candidates gc
+    LEFT JOIN LATERAL (
+      SELECT
+        uv."taxonomy_key",
+        SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
+      FROM user_values uv
+      JOIN "mission_scoring_value" msv
+        ON msv."taxonomy_key" = uv."taxonomy_key"
+       AND msv."value_key" = uv."value_key"
+       AND msv."mission_scoring_id" = gc."mission_scoring_id"
+      GROUP BY uv."taxonomy_key"
+    ) gmv ON TRUE
+    LEFT JOIN user_taxonomy_totals udt
+      ON udt."taxonomy_key" = gmv."taxonomy_key"
+    LEFT JOIN taxonomy_weights dw
+      ON dw."taxonomy_key" = gmv."taxonomy_key"
+    GROUP BY gc."mission_id", gc."mission_scoring_id", gc."distance_km"
+  ),
+  candidate_mission_rows AS (
+    SELECT
+      tc."mission_id",
+      tc."mission_scoring_id",
+      CAST(NULL AS double precision) AS "distance_km",
+      tc."weighted_sum"
+    FROM taxonomy_candidates tc
+    UNION ALL
+    SELECT
+      gcs."mission_id",
+      gcs."mission_scoring_id",
+      gcs."distance_km",
+      gcs."weighted_sum"
+    FROM geographic_candidate_scores gcs
     UNION ALL
     SELECT
       fc."mission_id",
       fc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
+      CAST(NULL AS double precision) AS "distance_km",
+      CAST(0 AS double precision) AS "weighted_sum"
     FROM fallback_candidates fc${forcedRemoteCandidatesUnionSql}
   ),
   candidate_missions AS (
     SELECT
       cmr."mission_id",
       cmr."mission_scoring_id",
-      MIN(cmr."distance_km") AS "distance_km"
+      MIN(cmr."distance_km") AS "distance_km",
+      MAX(cmr."weighted_sum") AS "weighted_sum"
     FROM candidate_mission_rows cmr
     GROUP BY cmr."mission_id", cmr."mission_scoring_id"
   ),
@@ -477,7 +527,7 @@ const buildRanking = (params: {
       cm."mission_id",
       cm."mission_scoring_id",
       CASE
-        WHEN ut."taxonomy_total" > 0 THEN COALESCE(ts."weighted_sum", 0) / ut."taxonomy_total"
+        WHEN ut."taxonomy_total" > 0 THEN cm."weighted_sum" / ut."taxonomy_total"
         ELSE 0
       END AS "taxonomy_score",
       CASE
@@ -494,8 +544,6 @@ const buildRanking = (params: {
     CROSS JOIN weighted_user_totals ut
     JOIN "mission" m
       ON m."id" = cm."mission_id"
-    LEFT JOIN taxonomy_scores ts
-      ON ts."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN geo_scores gs
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
   )
