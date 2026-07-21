@@ -45,7 +45,7 @@ export function MissionFiltersTrigger({ filters, onChange }: MissionFiltersProps
 
   return (
     <>
-      <button type="button" className="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-filter-line bg-background! md:hidden!" onClick={() => setOpen(true)}>
+      <button type="button" className="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-filter-line bg-background! md:hidden! shrink-0!" onClick={() => setOpen(true)}>
         Filtres{totalSelected > 0 ? ` (${totalSelected})` : ""}
       </button>
       {open && <MobileFiltersSheet filters={filters} onChange={onChange} onClose={() => setOpen(false)} />}
@@ -179,6 +179,7 @@ interface FilterAccordionProps {
 
 function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordionProps) {
   const reactId = useId();
+  const panelId = `${reactId}-panel`;
   const isSingle = filter.single === true;
 
   const toggleOption = (value: string) => {
@@ -188,13 +189,13 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
 
   return (
     <div>
-      <button type="button" className="flex w-full items-center justify-between" aria-expanded={open} onClick={onToggleOpen}>
+      <button type="button" className="flex w-full items-center justify-between" aria-expanded={open} aria-controls={panelId} onClick={onToggleOpen}>
         <span className="fr-text--lead font-bold text-title-grey leading-none! mb-0!">{filter.label}</span>
         <i className={`fr-icon-arrow-down-s-line text-blue-france-sun transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
       {open && (
-        <fieldset className="mt-3 flex w-full min-w-0 flex-col gap-2">
+        <fieldset id={panelId} className="mt-3 flex w-full min-w-0 flex-col gap-2">
           <legend className="sr-only">{filter.label}</legend>
           {isSingle && (
             <div className="fr-radio-group">
