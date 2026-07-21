@@ -23,7 +23,7 @@ import { evalCondition } from "~/utils/conditions";
 import type { Route } from "./+types/results";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Tes missions recommandées — API Engagement" }];
+  return [{ title: "Tes missions recommandées — Trouve ta mission" }];
 }
 
 export async function clientLoader() {

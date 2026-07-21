@@ -71,6 +71,34 @@ const createRemoteLocalMissionWithoutMatch = async () => {
   return mission;
 };
 
+const createOnsiteMissionWithoutMatch = async () => {
+  const mission = await createTestMission({
+    publisherId,
+    title: "Mission sur site sans match taxonomie",
+    domain: "solidarite",
+    addresses: [
+      {
+        street: "1 rue de Test",
+        postalCode: "75001",
+        departmentCode: "75",
+        departmentName: "Paris",
+        city: "Paris",
+        region: "Ile-de-France",
+        country: "France",
+        location: { lat: 48.8566, lon: 2.3522 },
+        geolocStatus: "FOUND",
+      },
+    ],
+  });
+  const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+  await createTestMissionScoring({
+    missionId: mission.id,
+    missionEnrichmentId: enrichment.id,
+    values: [{ taxonomyKey: "domaine", valueKey: "sport", score: 1 }],
+  });
+  return mission;
+};
+
 // Mission remote=full AVEC une adresse géocodée proche : sous m3, la distance doit tout de même être
 // ignorée (nullifiée) pour ne pas fausser l'affichage ni avgDistanceKmTop5.
 const createRemoteFullMissionWithAddress = async () => {
@@ -208,6 +236,22 @@ describe("GET /missions/match", () => {
     expect(item.mission.remote).toBe("local");
     expect(item.mission.location.distanceKm).toBeNull();
     expect(item.mission.location.city).toBeNull();
+  });
+
+  it("keeps the taxonomy score at zero for a nearby onsite mission without taxonomy match", async () => {
+    const mission = await createOnsiteMissionWithoutMatch();
+    const userScoringId = await createGeoUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m3",
+    });
+
+    expect(response.status).toBe(200);
+    const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
+    expect(item).toBeDefined();
+    expect(item.match.taxonomyScore).toBe(0);
+    expect(item.match.geoScore).toBe(1);
   });
 
   it("does not surface the same full-remote mission under m2 (candidate pool gap it fixes)", async () => {

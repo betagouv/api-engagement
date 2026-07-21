@@ -64,7 +64,7 @@ export function HydrateFallback() {
 }
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Trouve ta mission — API Engagement" }];
+  return [{ title: "Trouve ta mission" }];
 }
 
 export default function MissionsPage() {
@@ -216,7 +216,8 @@ export default function MissionsPage() {
             <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
             <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
           </div>
-          <p role="status" className="fr-text--lead hidden md:block">
+          {/* RGAA 7.5 : masqué visuellement (pas retiré du DOM) sur mobile pour que le résultat du filtrage reste annoncé. */}
+          <p role="status" className="fr-text--lead sr-only md:not-sr-only">
             {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
           </p>
           <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
@@ -244,16 +245,17 @@ export default function MissionsPage() {
             <>
               {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
               <h2 className="fr-sr-only">Liste des missions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
+              <ul role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto! gap-6 w-fit list-none! p-0! m-0!">
                 {items.map((mission) => (
-                  <MissionCard
-                    key={mission.id}
-                    mission={mission}
-                    link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
-                    onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
-                  />
+                  <li key={mission.id}>
+                    <MissionCard
+                      mission={mission}
+                      link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
+                      onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
+                    />
+                  </li>
                 ))}
-              </div>
+              </ul>
             </>
           )}
 

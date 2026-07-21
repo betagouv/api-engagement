@@ -1,6 +1,35 @@
-import { useLocation } from "react-router";
+import { TAXONOMY } from "@engagement/taxonomy";
+import { Link, useLocation } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { isGlobalFooterVisible } from "~/utils/layout";
+
+const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine.values)
+  .filter(([key]) => key !== "je_ne_sais_pas")
+  .map(([key, value]) => ({ to: `/missions?domaine=${key}`, label: value.label }));
+
+const FOOTER_NAV_CATEGORIES = [
+  {
+    title: "Trouver une mission",
+    links: [
+      { to: "/", label: "Accueil" },
+      { to: "/quiz", label: "Faire le quiz" },
+      { to: "/missions", label: "Toutes les missions" },
+    ],
+  },
+  {
+    title: "Les missions par domaine",
+    links: DOMAINE_LINKS,
+  },
+  {
+    title: "Liens utiles",
+    links: [
+      { to: "/plan-du-site", label: "Plan du site" },
+      { to: "/accessibilite", label: "Accessibilité" },
+      { to: "/mentions-legales", label: "Mentions légales" },
+      { to: "/politique-de-confidentialite", label: "Politique de confidentialité" },
+    ],
+  },
+];
 
 // RGAA 9.2 : sur les résultats mobile, le footer est rendu dans le panneau dépliable, à
 // l'intérieur du <main>. `landmark={false}` retire le role="contentinfo" explicite pour ne pas
@@ -8,10 +37,32 @@ import { isGlobalFooterVisible } from "~/utils/layout";
 export function FooterContent({ landmark = true }: { landmark?: boolean }) {
   return (
     <footer className="fr-footer" role={landmark ? "contentinfo" : undefined} id="footer" tabIndex={-1}>
+      <div className="fr-footer__top">
+        <div className="fr-container">
+          <nav role="navigation" aria-label="Navigation du pied de page">
+            <div className="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
+              {FOOTER_NAV_CATEGORIES.map((category) => (
+                <div key={category.title} className="fr-col-12 fr-col-sm-4 fr-col-md-3">
+                  <h3 className="fr-footer__top-cat">{category.title}</h3>
+                  <ul className="fr-footer__top-list">
+                    {category.links.map((link) => (
+                      <li key={link.to}>
+                        <Link className="fr-footer__top-link" to={link.to}>
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </nav>
+        </div>
+      </div>
       <div className="fr-container">
         <div className="fr-footer__body">
           <div className="fr-footer__brand fr-enlarge-link">
-            <a href="/" title="Accueil — API Engagement">
+            <a href="/" title="Accueil — Trouve ta mission">
               <p className="fr-logo">
                 République
                 <br />
@@ -54,6 +105,11 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
         <div className="fr-footer__bottom">
           <ul className="fr-footer__bottom-list">
             <li className="fr-footer__bottom-item">
+              <a className="fr-footer__bottom-link" href="/plan-du-site">
+                Plan du site
+              </a>
+            </li>
+            <li className="fr-footer__bottom-item">
               <a className="fr-footer__bottom-link" href="/accessibilite">
                 Accessibilité : totalement conforme
               </a>
@@ -68,11 +124,12 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
                 Politique de confidentialité
               </a>
             </li>
-            <li className="fr-footer__bottom-item">
+            {/* Add statistics link when available */}
+            {/* <li className="fr-footer__bottom-item">
               <a className="fr-footer__bottom-link" href="#">
                 Statistiques
               </a>
-            </li>
+            </li> */}
           </ul>
         </div>
       </div>

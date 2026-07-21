@@ -1,7 +1,7 @@
 import type { Route } from "./+types/mentions-legales";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Mentions légales — API Engagement" }];
+  return [{ title: "Mentions légales — Trouve ta mission" }];
 }
 
 export default function MentionsLegales() {

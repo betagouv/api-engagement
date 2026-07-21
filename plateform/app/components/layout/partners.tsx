@@ -44,9 +44,12 @@ export default function Partners({ style = "default" }: { style?: "default" | "c
         <h2 className="fr-h2 mb-2!">Il y a plein d'autres missions…</h2>
         <p className="mb-6! text-title-grey fr-text--lead">…directement sur les sites qui les proposent, jettes-y un coup d'oeil !</p>
 
-        <div className={`${style === "compact" ? "flex flex-col md:flex-row items-start justify-between gap-8 md:gap-0" : "grid grid-cols-1 gap-4 md:grid-cols-2"}`}>
+        <ul
+          role="list"
+          className={`list-none! p-0! m-0! ${style === "compact" ? "flex flex-col md:flex-row items-start justify-between gap-8 md:gap-0" : "grid grid-cols-1 gap-4 md:grid-cols-2"}`}
+        >
           {PARTNERS.map((partner) => (
-            <div key={partner.name} className={`flex items-start gap-2 ${style === "compact" ? "flex-1" : "gap-4"}`}>
+            <li key={partner.name} className={`flex items-start gap-2 ${style === "compact" ? "flex-1" : "gap-4"}`}>
               <div className="flex items-center justify-center bg-white rounded-sm p-1">
                 <img src={partner.logo} alt="" className="size-10 shrink-0 rounded object-contain" aria-hidden="true" />
               </div>
@@ -58,9 +61,9 @@ export default function Partners({ style = "default" }: { style?: "default" | "c
                 </p>
                 <p className="fr-mb-0 fr-text--sm fr-text--mention-grey">{partner.description}</p>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );

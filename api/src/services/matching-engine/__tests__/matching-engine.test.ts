@@ -120,6 +120,9 @@ describe("matchingEngineService", () => {
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
       expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
+      expect(rankingSql).toContain('ems."mission_id",\n      msv."mission_scoring_id"');
+      expect(rankingSql).toContain('MAX(cmr."weighted_sum") AS "weighted_sum"');
+      expect(rankingSql).not.toContain('LEFT JOIN taxonomy_scores ts\n      ON ts."mission_scoring_id" = cm."mission_scoring_id"');
       expect(result.items).toEqual([
         {
           missionId: "mission-1",
@@ -477,6 +480,8 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'local' THEN CAST(");
       expect(rankingSql).toContain('JOIN "mission" m');
       expect(rankingSql).toContain("forced_remote_candidates AS (");
+      expect(rankingSql).toContain("unscored_remote_missions AS (");
+      expect(rankingSql).toContain("EXCEPT");
       expect(rankingSql).toContain("m.\"remote\"::text IN ('full', 'local')");
       expect(rankingSql).toContain("FROM forced_remote_candidates rfc");
       expect(rankingSql).toContain('WHEN m."remote"::text IN (\'full\', \'local\') THEN NULL ELSE gs."distance_km" END');

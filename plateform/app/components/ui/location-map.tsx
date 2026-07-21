@@ -5,7 +5,7 @@ import { MAPTILER_API_KEY } from "~/services/config";
 
 export const MAPTILER_BASIC_URL = MAPTILER_API_KEY ? `https://api.maptiler.com/maps/basic-v2/256/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}` : null;
 export const MAPTILER_ATTRIBUTION =
-  '<a href="https://www.maptiler.com/copyright/" target="_blank" title="&copy; MapTiler - nouvelle fenêtre">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" title="&copy; OpenStreetMap contributors - nouvelle fenêtre">&copy; OpenStreetMap contributors</a>';
+  '<a href="https://www.maptiler.com/copyright/" target="_blank" title="&copy; MapTiler - nouvelle fenêtre">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank" title="&copy; contributeurs OpenStreetMap - nouvelle fenêtre">&copy; contributeurs OpenStreetMap</a>';
 
 export const TILE_LAYER_PROPS = {
   attribution: MAPTILER_API_KEY ? MAPTILER_ATTRIBUTION : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
@@ -15,16 +15,16 @@ export const TILE_LAYER_PROPS = {
   url: MAPTILER_BASIC_URL ?? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
 };
 
-export const createEmojiIcon = (emoji: string) =>
+export const createEmojiIcon = (emoji: string, ariaLabel: string) =>
   L.divIcon({
     className: "",
-    html: `<div class="mission-map__emoji-marker">${emoji}</div>`,
+    html: `<div class="mission-map__emoji-marker" role="img" aria-label="${ariaLabel}">${emoji}</div>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
     popupAnchor: [0, -12],
   });
 
-const pinIcon = createEmojiIcon("📍");
+const pinIcon = createEmojiIcon("📍", "Localisation de la mission");
 
 interface LocationMapProps {
   lat: number;

@@ -65,19 +65,43 @@ export default function MissionExamples({ missions, className }: Props) {
                       <div className="flex flex-1 flex-col gap-4 p-6">
                         <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
                         <div className="fr-mt-auto flex items-center gap-2">
-                          {mission.publisherLogo && (
-                            <div className="size-10 rounded object-contain bg-white">
-                              <img src={mission.publisherLogo} alt="" className="size-full object-contain" />
-                            </div>
+                          {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
+                          {mission.publisherName && (
+                            <>
+                              {mission.publisherLogo && (
+                                <div className="size-10 rounded object-contain bg-white">
+                                  <img src={mission.publisherLogo} aria-hidden="true" alt="" className="size-full object-contain" />
+                                </div>
+                              )}
+                              <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>
+                            </>
                           )}
-
-                          {mission.publisherName && <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>}
                         </div>
                       </div>
                     </Link>
                   ) : (
                     <div className="bg-background flex h-full w-full overflow-hidden shadow-lg border border-border-default-grey">
-                      <MissionSlideContent mission={mission} />
+                      {mission.domainLogo ? (
+                        <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />
+                      ) : (
+                        <div className="bg-beige-gris-galet w-28 shrink-0" />
+                      )}
+                      <div className="flex flex-1 flex-col gap-4 p-6">
+                        <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
+                        <div className="fr-mt-auto flex items-center gap-2">
+                          {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
+                          {mission.publisherName && (
+                            <>
+                              {mission.publisherLogo && (
+                                <div className="size-10 rounded object-contain bg-white">
+                                  <img src={mission.publisherLogo} aria-hidden="true" alt="" className="size-full object-contain" />
+                                </div>
+                              )}
+                              <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -128,25 +152,5 @@ export default function MissionExamples({ missions, className }: Props) {
         </button>
       </div>
     </section>
-  );
-}
-
-function MissionSlideContent({ mission }: { mission: MissionBrowse }) {
-  return (
-    <>
-      {mission.domainLogo ? <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" /> : <div className="bg-beige-gris-galet w-28 shrink-0" />}
-      <div className="flex flex-1 flex-col gap-4 p-6">
-        <p className="fr-h6 line-clamp-2 mb-0!">{mission.title}</p>
-        <div className="fr-mt-auto flex items-center gap-2">
-          {mission.publisherLogo && (
-            <div className="size-10 rounded object-contain bg-white">
-              <img src={mission.publisherLogo} alt="" className="size-full object-contain" />
-            </div>
-          )}
-
-          {mission.publisherName && <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>}
-        </div>
-      </div>
-    </>
   );
 }
