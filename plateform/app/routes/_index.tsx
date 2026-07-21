@@ -26,7 +26,7 @@ const EXAMPLES_COUNT = 5;
 
 export function meta(): Route.MetaDescriptors {
   return [
-    { title: "Trouve ta mission d'engagement — API Engagement" },
+    { title: "Trouve ta mission d'engagement" },
     { name: "description", content: "À chacun sa façon d'agir. Bénévolat, service civique, réserve : trouve la mission d'engagement qui te ressemble près de chez toi." },
     { property: "og:title", content: "Trouve ta mission d'engagement" },
     { property: "og:description", content: "Bénévolat, service civique, réserve : trouve la mission qui te ressemble." },

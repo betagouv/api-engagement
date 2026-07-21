@@ -24,9 +24,9 @@ const apiEngagementTag = PUBLISHER_ID
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().
 export function meta({ error }: Route.MetaArgs): Route.MetaDescriptors {
-  if (!error) return [{ title: "API Engagement" }];
+  if (!error) return [{ title: "Trouve ta mission" }];
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
-  return [{ title: isNotFound ? "Page introuvable — API Engagement" : "Une erreur est survenue — API Engagement" }];
+  return [{ title: isNotFound ? "Page introuvable — Trouve ta mission" : "Une erreur est survenue — Trouve ta mission" }];
 }
 
 export function Layout({ children }: { children: ReactNode }) {

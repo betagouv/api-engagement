@@ -258,7 +258,7 @@ export default function LocalisationStep() {
         )}
 
         <button type="button" className="fr-btn fr-btn--secondary justify-center! w-full!" onClick={handleUseMyLocation} disabled={locating}>
-          📍 Utiliser ma position
+          <span aria-hidden="true">📍</span> Utiliser ma position
         </button>
       </div>
 

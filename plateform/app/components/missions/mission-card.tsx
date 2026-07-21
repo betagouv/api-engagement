@@ -68,12 +68,11 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
               {mission.organizationName && <p className="fr-card__detail fr-icon-building-line m-0! block! truncate!">{mission.organizationName}</p>}
             </div>
 
-            {(mission.publisherName ?? mission.publisherLogo) && (
+            {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
+            {mission.publisherName && (
               <div className="text-mention-grey fr-mt-2w flex items-center justify-end gap-2 text-xs">
-                {mission.publisherName && <span className="line-clamp-1">{mission.publisherName}</span>}
-                {mission.publisherLogo && (
-                  <img src={mission.publisherLogo} alt={mission.publisherName ? "" : "Logo du diffuseur de la mission"} className="max-w-20 object-contain" loading="lazy" />
-                )}
+                <span className="line-clamp-1">{mission.publisherName}</span>
+                {mission.publisherLogo && <img src={mission.publisherLogo} alt="" aria-hidden="true" className="max-w-20 object-contain" loading="lazy" />}
               </div>
             )}
           </div>

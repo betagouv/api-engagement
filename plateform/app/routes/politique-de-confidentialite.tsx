@@ -1,7 +1,7 @@
 import type { Route } from "./+types/politique-de-confidentialite";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Politique de confidentialité — API Engagement" }];
+  return [{ title: "Politique de confidentialité — Trouve ta mission" }];
 }
 
 export default function PolitiqueDeConfidentialite() {
