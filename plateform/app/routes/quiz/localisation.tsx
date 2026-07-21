@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
-import MissionCard from "~/components/quiz/mission-card";
 import NextButton from "~/components/quiz/next-button";
-import QuizTransition from "~/components/quiz/quiz-transition";
-import Highlight from "~/components/ui/highlight";
 import { reverseGeocode, searchAddress, type GeoSuggestion } from "~/services/geolocation";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
-
-import Photo1 from "~/assets/images/humanitaire-02.jpeg";
 
 const LISTBOX_ID = "localisation-listbox";
 
@@ -18,7 +13,7 @@ const DEFAULT_SUBTITLE = "Entre ton adresse pour découvrir les missions près d
 
 export default function LocalisationStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, saveScoring, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
   // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
@@ -168,36 +163,8 @@ export default function LocalisationStep() {
     });
     setValue(selected.label);
     saveScoring();
-    setTransitioning(true);
+    goNext();
   };
-
-  if (transitioning) {
-    return (
-      <QuizTransition onComplete={goNext}>
-        <div className="flex flex-col-reverse md:flex-row gap-6 pt-0 md:pt-20">
-          <div className="w-full md:flex-1 flex flex-col gap-6">
-            <h1 className="fr-h1 mb-0! text-center md:text-left">
-              On a trouvé des missions <Highlight>pour toi</Highlight>
-            </h1>
-            <p className="fr-text--lead text-center md:text-left">Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.</p>
-          </div>
-          <div className="w-full md:flex-1 relative gap-4 h-[400px] md:h-auto">
-            <MissionCard
-              imageSrc={Photo1}
-              title="Participer à l'information du public concernant l'accès aux droits…"
-              className="absolute top-0 left-1/2 -translate-x-[30%] rotate-[8deg]"
-            />
-            <MissionCard
-              imageSrc={Photo1}
-              title="Améliorer la qualité de vie des personnes en situation de handicap"
-              className="absolute top-12 left-1/2 -translate-x-[70%] rotate-[-4deg]"
-            />
-            <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" className="absolute top-24 left-1/2 -translate-x-1/2 rotate-[3deg]" />
-          </div>
-        </div>
-      </QuizTransition>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">

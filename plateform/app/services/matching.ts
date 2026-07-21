@@ -1,7 +1,7 @@
 import type { MissionMatchResponse } from "@engagement/dto";
 import { client } from "~/services/client";
 
-// Tailles de page partagées entre le préchargement (LoadingRecap) et le hook de résultats.
+// Tailles de page du hook de résultats.
 export const PINNED_RESULTS_LIMIT = 5;
 export const OTHER_RESULTS_PAGE_SIZE = 8;
 const INITIAL_RESULTS_LIMIT = PINNED_RESULTS_LIMIT + OTHER_RESULTS_PAGE_SIZE;
@@ -16,11 +16,10 @@ export type InitialMatches = {
 };
 
 // Cache mémoire des résultats de la 1re page, indexé par userScoringId.
-// Permet de lancer le chargement pendant l'écran de transition (LoadingRecap)
-// puis de le réutiliser à l'arrivée sur /results/:id, sans re-fetch.
+// Évite un re-fetch entre deux visites de /results/:id ; invalidé quand le scoring est mis à jour.
 const initialMatchesCache = new Map<string, Promise<InitialMatches>>();
 
-export function prefetchInitialMatches(userScoringId: string): Promise<InitialMatches> {
+export function fetchInitialMatches(userScoringId: string): Promise<InitialMatches> {
   const existing = initialMatchesCache.get(userScoringId);
   if (existing) return existing;
 
