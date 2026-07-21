@@ -431,7 +431,7 @@ const buildRanking = (params: {
           CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
           ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(gmv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
         ) * COALESCE(dw."taxonomy_weight", 1.0)
-      ), 0) AS "weighted_sum"
+      ) FILTER (WHERE gmv."taxonomy_key" IS NOT NULL), 0) AS "weighted_sum"
     FROM geographic_candidates gc
     LEFT JOIN LATERAL (
       SELECT
