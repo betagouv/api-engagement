@@ -8,8 +8,18 @@ describe("sanitizeDescriptionHtml", () => {
     expect(sanitizeDescriptionHtml(html)).toBe(html);
   });
 
-  it("supprime les balises de titre en conservant leur texte", () => {
-    expect(sanitizeDescriptionHtml("<h1>Titre</h1><p>Texte</p>")).toBe("Titre<p>Texte</p>");
+  it("conserve les balises de titre", () => {
+    expect(sanitizeDescriptionHtml("<h1>Titre</h1><h3>Sous-titre</h3><p>Texte</p>")).toBe("<h1>Titre</h1><h3>Sous-titre</h3><p>Texte</p>");
+  });
+
+  it("conserve blockquote, s et sup", () => {
+    expect(sanitizeDescriptionHtml("<blockquote>Citation</blockquote><p><s>Barré</s> le 1<sup>er</sup></p>")).toBe(
+      "<blockquote>Citation</blockquote><p><s>Barré</s> le 1<sup>er</sup></p>",
+    );
+  });
+
+  it("supprime les span en conservant leur texte", () => {
+    expect(sanitizeDescriptionHtml('<p><span style="color:red">Texte</span></p>')).toBe("<p>Texte</p>");
   });
 
   it("supprime les scripts et styles avec leur contenu", () => {
