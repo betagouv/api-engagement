@@ -10,9 +10,10 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   beforeTitle?: React.ReactNode;
   titleIcon?: string;
   className?: string;
+  size?: "md" | "lg";
 }
 
-export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, className, ...props }: ModalProps) {
+export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, className, size = "md", ...props }: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -23,7 +24,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!mounted || !open) return null;
 
   return createPortal(
     <div
@@ -32,9 +33,8 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
       role="dialog"
       aria-labelledby={titleId}
       aria-modal="true"
-      aria-hidden={!open}
-      data-fr-opened={open}
-      className={`fr-modal${open ? " fr-modal--opened" : ""}`}
+      data-fr-opened="true"
+      className="fr-modal fr-modal--opened"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -42,7 +42,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
     >
       <div className={`fr-container fr-container--fluid fr-container-md ${className}`}>
         <div className="fr-grid-row fr-grid-row--center">
-          <div className="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div className={size === "lg" ? "fr-col-12 fr-col-md-10 fr-col-lg-8" : "fr-col-12 fr-col-md-8 fr-col-lg-6"}>
             <div className="fr-modal__body">
               <div className="fr-modal__header">
                 <button type="button" onClick={onClose} title="Fermer" aria-label="Fermer" className="fr-btn--close fr-btn">

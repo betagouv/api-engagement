@@ -4,7 +4,7 @@ import { initTracking, setTrackingConsentStatus, type TrackingConsentStatus } fr
 export const COOKIE_CONSENT_MODAL_ID = "fr-consent-modal";
 
 const COOKIE_CONSENT_NAME = "plateform_consent";
-const LEGACY_TARTEAUCITRON_COOKIE_NAME = "tarteaucitron";
+const COOKIE_CONSENT_OPEN_EVENT = "cookie-consent:open";
 const COOKIE_MAX_AGE_SECONDS = 365 * 24 * 60 * 60;
 
 type ConsentChoice = Exclude<TrackingConsentStatus, "pending">;
@@ -37,18 +37,8 @@ export function parseCookieConsent(value: string | null): TrackingConsentStatus 
   return "pending";
 }
 
-export function parseLegacyTarteaucitronConsent(value: string | null): TrackingConsentStatus {
-  const match = value?.match(/(?:^|!)posthog=(true|false|wait)(?:!|$)/);
-  if (match?.[1] === "true") return "granted";
-  if (match?.[1] === "false") return "denied";
-  return "pending";
-}
-
 export function getCookieConsentStatus(cookieHeader: string = typeof document === "undefined" ? "" : document.cookie): TrackingConsentStatus {
-  const currentStatus = parseCookieConsent(readCookieValue(cookieHeader, COOKIE_CONSENT_NAME));
-  if (currentStatus !== "pending") return currentStatus;
-
-  return parseLegacyTarteaucitronConsent(readCookieValue(cookieHeader, LEGACY_TARTEAUCITRON_COOKIE_NAME));
+  return parseCookieConsent(readCookieValue(cookieHeader, COOKIE_CONSENT_NAME));
 }
 
 function cookieAttributes(maxAge: number): string {
@@ -60,24 +50,13 @@ function writeCookieConsent(status: ConsentChoice): void {
   document.cookie = `${COOKIE_CONSENT_NAME}=${status}; ${cookieAttributes(COOKIE_MAX_AGE_SECONDS)}`;
 }
 
-function removeLegacyTarteaucitronCookie(): void {
-  document.cookie = `${LEGACY_TARTEAUCITRON_COOKIE_NAME}=; ${cookieAttributes(0)}`;
-}
-
 // Synchronise le choix avant l'hydratation afin que les premiers évènements de route utilisent
-// immédiatement le bon mode PostHog. Les anciens choix Tarteaucitron sont migrés une seule fois.
+// immédiatement le bon mode PostHog.
 export function prepareCookieConsent(): void {
   if (prepared || !isCookieConsentEnabled() || typeof window === "undefined") return;
   prepared = true;
 
-  const legacyCookie = readCookieValue(document.cookie, LEGACY_TARTEAUCITRON_COOKIE_NAME);
   const status = getCookieConsentStatus();
-
-  if (parseCookieConsent(readCookieValue(document.cookie, COOKIE_CONSENT_NAME)) === "pending" && status !== "pending") {
-    writeCookieConsent(status);
-  }
-  if (legacyCookie !== null) removeLegacyTarteaucitronCookie();
-
   setTrackingConsentStatus(status);
   initTracking();
 }
@@ -88,4 +67,14 @@ export function saveCookieConsent(status: ConsentChoice): void {
   writeCookieConsent(status);
   setTrackingConsentStatus(status);
   initTracking();
+}
+
+export function openCookieConsentPanel(): void {
+  if (typeof window !== "undefined") window.dispatchEvent(new Event(COOKIE_CONSENT_OPEN_EVENT));
+}
+
+export function subscribeCookieConsentPanelOpen(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener(COOKIE_CONSENT_OPEN_EVENT, listener);
+  return () => window.removeEventListener(COOKIE_CONSENT_OPEN_EVENT, listener);
 }

@@ -5,7 +5,7 @@ const tracking = vi.hoisted(() => ({ initTracking: vi.fn(), setTrackingConsentSt
 vi.mock("~/services/config", () => ({ POSTHOG_KEY: "phc_test", TRACKING_PROVIDER: "posthog" }));
 vi.mock("~/services/tracking", () => tracking);
 
-import { getCookieConsentStatus, parseCookieConsent, parseLegacyTarteaucitronConsent, saveCookieConsent } from "../cookie-consent";
+import { getCookieConsentStatus, parseCookieConsent, saveCookieConsent } from "../cookie-consent";
 
 describe("consentement cookies", () => {
   beforeEach(() => {
@@ -25,21 +25,9 @@ describe("consentement cookies", () => {
     expect(parseCookieConsent(value)).toBe(expected);
   });
 
-  it.each([
-    [null, "pending"],
-    ["!posthog=wait", "pending"],
-    ["!another=true!posthog=true", "granted"],
-    ["!posthog=false!another=true", "denied"],
-  ] as const)("migre l'ancienne valeur Tarteaucitron %j en %s", (value, expected) => {
-    expect(parseLegacyTarteaucitronConsent(value)).toBe(expected);
-  });
-
-  it("privilégie le choix DSFR courant sur l'ancien cookie Tarteaucitron", () => {
-    expect(getCookieConsentStatus("tarteaucitron=!posthog=true; plateform_consent=denied")).toBe("denied");
-  });
-
-  it("restaure l'ancien choix lorsqu'aucun cookie DSFR n'existe encore", () => {
-    expect(getCookieConsentStatus("another=value; tarteaucitron=!posthog=true")).toBe("granted");
+  it("lit le choix dans le cookie du gestionnaire DSFR", () => {
+    expect(getCookieConsentStatus("another=value; plateform_consent=denied")).toBe("denied");
+    expect(getCookieConsentStatus("another=value")).toBe("pending");
   });
 
   it("conserve le choix un an et le synchronise avec PostHog", () => {
