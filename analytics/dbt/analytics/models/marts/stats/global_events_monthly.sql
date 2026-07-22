@@ -54,12 +54,13 @@ affected_months as (
 
 base as (
   select
+    ge.stat_event_id,
     extract(year from ge.created_at)::int as year,
     extract(month from ge.created_at)::int as month,
     date_trunc('month', ge.created_at)::date as month_start,
     mad.department,
     ge.type,
-    mad.publisher_category as mission_type,
+    coalesce(mad.publisher_category, 'unknown') as mission_type,
     coalesce(mad.mission_domain, 'unknown') as mission_domain,
     greatest(
       coalesce(ge.updated_at, ge.created_at),
@@ -91,7 +92,7 @@ dept as (
     mission_domain,
     mission_type,
     type,
-    count(*) as event_count,
+    count(distinct stat_event_id) as event_count,
     max(updated_at) as max_updated_at
   from base
   where department is not null
@@ -109,7 +110,7 @@ dept_all_mission as (
     mission_domain,
     'all' as mission_type,
     type,
-    count(*) as event_count,
+    count(distinct stat_event_id) as event_count,
     max(updated_at) as max_updated_at
   from base
   where department is not null
@@ -126,7 +127,7 @@ all_dept as (
     mission_domain,
     mission_type,
     type,
-    count(*) as event_count,
+    count(distinct stat_event_id) as event_count,
     max(updated_at) as max_updated_at
   from base
   group by year, month, month_start, mission_domain, mission_type, type
@@ -142,7 +143,7 @@ all_dept_all_mission as (
     mission_domain,
     'all' as mission_type,
     type,
-    count(*) as event_count,
+    count(distinct stat_event_id) as event_count,
     max(updated_at) as max_updated_at
   from base
   group by year, month, month_start, mission_domain, type
