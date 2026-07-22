@@ -24,7 +24,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
     setMounted(true);
   }, []);
 
-  if (!mounted || !open) return null;
+  if (!mounted) return null;
 
   return createPortal(
     <div
@@ -33,8 +33,9 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
       role="dialog"
       aria-labelledby={titleId}
       aria-modal="true"
-      data-fr-opened="true"
-      className="fr-modal fr-modal--opened"
+      aria-hidden={!open}
+      data-fr-opened={open}
+      className={`fr-modal${open ? " fr-modal--opened" : ""}`}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
