@@ -641,10 +641,12 @@ describe("Mission API Integration Tests", () => {
       const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);
       const searchResponse = await request(staleSnapshotApp).get("/v0/mission/search").set("x-api-key", diffuseur.apikey!).expect(200);
       const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
+      const browseDetailResponse = await request(staleSnapshotApp).get(`/missions/browse/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
 
       expect(listResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
       expect(searchResponse.body.hits.map((item: MissionRecord) => item._id)).toContain(mission.id);
       expect(detailResponse.body.data._id).toBe(mission.id);
+      expect(browseDetailResponse.body.data.id).toBe(mission.id);
     });
 
     it("should keep a materialized exclusion until the next snapshot rebuild", async () => {
