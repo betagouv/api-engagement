@@ -1,40 +1,63 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Modal from "~/components/layout/modal";
-import { COOKIE_CONSENT_MODAL_ID, getCookieConsentStatus, isCookieConsentEnabled, saveCookieConsent, subscribeCookieConsentPanelOpen } from "~/services/cookie-consent";
-import type { TrackingConsentStatus } from "~/services/tracking";
+import {
+  COOKIE_CONSENT_MODAL_ID,
+  getCookieConsentPreferences,
+  isCookieConsentEnabled,
+  saveCookieConsent,
+  subscribeCookieConsentPanelOpen,
+  type ConsentChoice,
+  type ConsentPreferences,
+} from "~/services/cookie-consent";
+import { getConsentServices, type ConsentService } from "~/services/consent-services";
 
-type ConsentChoice = Exclude<TrackingConsentStatus, "pending">;
+function preferencesForChoice(services: ConsentService[], choice: ConsentChoice): ConsentPreferences {
+  return Object.fromEntries(services.map((service) => [service.id, choice]));
+}
 
-function choiceFromStatus(status: TrackingConsentStatus): ConsentChoice | null {
-  return status === "pending" ? null : status;
+function choiceForAll(services: ConsentService[], preferences: ConsentPreferences): ConsentChoice | null {
+  if (services.every((service) => preferences[service.id] === "granted")) return "granted";
+  if (services.every((service) => preferences[service.id] === "denied")) return "denied";
+  return null;
+}
+
+function hasPendingChoice(services: ConsentService[], preferences: ConsentPreferences): boolean {
+  return services.some((service) => preferences[service.id] === "pending");
 }
 
 export default function CookieConsentManager() {
-  const [status, setStatus] = useState<TrackingConsentStatus | null>(null);
-  const [draftChoice, setDraftChoice] = useState<ConsentChoice | null>(null);
+  const services = getConsentServices();
+  const [preferences, setPreferences] = useState<ConsentPreferences | null>(null);
+  const [draftPreferences, setDraftPreferences] = useState<ConsentPreferences>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState("");
 
   useEffect(() => {
-    const storedStatus = getCookieConsentStatus();
-    setStatus(storedStatus);
-    setDraftChoice(choiceFromStatus(storedStatus));
+    const storedPreferences = getCookieConsentPreferences();
+    setPreferences(storedPreferences);
+    setDraftPreferences(storedPreferences);
 
     return subscribeCookieConsentPanelOpen(() => {
-      setDraftChoice(choiceFromStatus(getCookieConsentStatus()));
+      setDraftPreferences(getCookieConsentPreferences());
       setModalOpen(true);
     });
   }, []);
 
   if (!isCookieConsentEnabled()) return null;
 
-  const applyChoice = (choice: ConsentChoice) => {
-    saveCookieConsent(choice);
-    setStatus(choice);
-    setDraftChoice(choice);
-    setConfirmationMessage(`Vos préférences ont été enregistrées : mesure d’audience ${choice === "granted" ? "autorisée" : "refusée"}.`);
+  const applyPreferences = (nextPreferences: ConsentPreferences) => {
+    saveCookieConsent(nextPreferences);
+    setPreferences(nextPreferences);
+    setDraftPreferences(nextPreferences);
+    setConfirmationMessage("Vos préférences ont été enregistrées.");
   };
+
+  const updateDraftPreference = (serviceId: string, choice: ConsentChoice) => {
+    setDraftPreferences((current) => ({ ...current, [serviceId]: choice }));
+  };
+
+  const allDraftChoice = choiceForAll(services, draftPreferences);
 
   return (
     <>
@@ -42,7 +65,7 @@ export default function CookieConsentManager() {
         {confirmationMessage}
       </p>
 
-      {status === "pending" && (
+      {preferences && hasPendingChoice(services, preferences) && (
         <div className="fr-consent-banner">
           <h2 className="fr-h6">À propos des cookies sur la Plateforme de l'Engagement</h2>
           <div className="fr-consent-banner__content">
@@ -54,12 +77,12 @@ export default function CookieConsentManager() {
           </div>
           <ul className="fr-consent-banner__buttons fr-btns-group fr-btns-group--right fr-btns-group--inline-reverse fr-btns-group--inline-sm">
             <li>
-              <button type="button" className="fr-btn" title="Autoriser la mesure d'audience persistante" onClick={() => applyChoice("granted")}>
+              <button type="button" className="fr-btn" title="Tout autoriser" onClick={() => applyPreferences(preferencesForChoice(services, "granted"))}>
                 Tout accepter
               </button>
             </li>
             <li>
-              <button type="button" className="fr-btn" title="Refuser la mesure d'audience persistante" onClick={() => applyChoice("denied")}>
+              <button type="button" className="fr-btn" title="Tout refuser" onClick={() => applyPreferences(preferencesForChoice(services, "denied"))}>
                 Tout refuser
               </button>
             </li>
@@ -67,10 +90,10 @@ export default function CookieConsentManager() {
               <button
                 type="button"
                 className="fr-btn fr-btn--secondary"
-                title="Personnaliser la mesure d'audience"
+                title="Personnaliser mes préférences"
                 aria-haspopup="dialog"
                 onClick={() => {
-                  setDraftChoice(choiceFromStatus(getCookieConsentStatus()));
+                  setDraftPreferences(getCookieConsentPreferences());
                   setModalOpen(true);
                 }}
               >
@@ -93,13 +116,25 @@ export default function CookieConsentManager() {
               </legend>
               <div className="fr-consent-service__radios">
                 <div className="fr-radio-group">
-                  <input type="radio" id="consent-all-accept" name="consent-all" checked={draftChoice === "granted"} onChange={() => setDraftChoice("granted")} />
+                  <input
+                    type="radio"
+                    id="consent-all-accept"
+                    name="consent-all"
+                    checked={allDraftChoice === "granted"}
+                    onChange={() => setDraftPreferences(preferencesForChoice(services, "granted"))}
+                  />
                   <label className="fr-label" htmlFor="consent-all-accept">
                     Tout accepter
                   </label>
                 </div>
                 <div className="fr-radio-group">
-                  <input type="radio" id="consent-all-refuse" name="consent-all" checked={draftChoice === "denied"} onChange={() => setDraftChoice("denied")} />
+                  <input
+                    type="radio"
+                    id="consent-all-refuse"
+                    name="consent-all"
+                    checked={allDraftChoice === "denied"}
+                    onChange={() => setDraftPreferences(preferencesForChoice(services, "denied"))}
+                  />
                   <label className="fr-label" htmlFor="consent-all-refuse">
                     Tout refuser
                   </label>
@@ -133,41 +168,57 @@ export default function CookieConsentManager() {
             </fieldset>
           </div>
 
-          <div className="fr-consent-service">
-            <fieldset className="fr-fieldset" aria-labelledby="consent-analytics-legend consent-analytics-desc" role="group">
-              <legend id="consent-analytics-legend" className="fr-consent-service__title">
-                Mesure d'audience
-              </legend>
-              <div className="fr-consent-service__radios">
-                <div className="fr-radio-group">
-                  <input type="radio" id="consent-analytics-accept" name="consent-analytics" checked={draftChoice === "granted"} onChange={() => setDraftChoice("granted")} />
-                  <label className="fr-label" htmlFor="consent-analytics-accept">
-                    Accepter
-                  </label>
-                </div>
-                <div className="fr-radio-group">
-                  <input type="radio" id="consent-analytics-refuse" name="consent-analytics" checked={draftChoice === "denied"} onChange={() => setDraftChoice("denied")} />
-                  <label className="fr-label" htmlFor="consent-analytics-refuse">
-                    Refuser
-                  </label>
-                </div>
+          {services.map((service) => {
+            const legendId = `consent-${service.id}-legend`;
+            const descriptionId = `consent-${service.id}-desc`;
+            return (
+              <div key={service.id} className="fr-consent-service">
+                <fieldset className="fr-fieldset" aria-labelledby={`${legendId} ${descriptionId}`} role="group">
+                  <legend id={legendId} className="fr-consent-service__title">
+                    {service.title}
+                  </legend>
+                  <div className="fr-consent-service__radios">
+                    <div className="fr-radio-group">
+                      <input
+                        type="radio"
+                        id={`consent-${service.id}-accept`}
+                        name={`consent-${service.id}`}
+                        checked={draftPreferences[service.id] === "granted"}
+                        onChange={() => updateDraftPreference(service.id, "granted")}
+                      />
+                      <label className="fr-label" htmlFor={`consent-${service.id}-accept`}>
+                        Accepter
+                      </label>
+                    </div>
+                    <div className="fr-radio-group">
+                      <input
+                        type="radio"
+                        id={`consent-${service.id}-refuse`}
+                        name={`consent-${service.id}`}
+                        checked={draftPreferences[service.id] === "denied"}
+                        onChange={() => updateDraftPreference(service.id, "denied")}
+                      />
+                      <label className="fr-label" htmlFor={`consent-${service.id}-refuse`}>
+                        Refuser
+                      </label>
+                    </div>
+                  </div>
+                  <p id={descriptionId} className="fr-consent-service__desc">
+                    {service.description}
+                  </p>
+                </fieldset>
               </div>
-              <p id="consent-analytics-desc" className="fr-consent-service__desc">
-                PostHog mesure l'utilisation de la plateforme afin d'améliorer le parcours et les missions proposées. Sans accord, cette mesure reste cookieless et ne permet pas de
-                reconnaître votre navigateur entre plusieurs journées.
-              </p>
-            </fieldset>
-          </div>
+            );
+          })}
 
           <ul className="fr-consent-manager__buttons fr-btns-group fr-btns-group--right fr-btns-group--inline-sm">
             <li>
               <button
                 type="button"
                 className="fr-btn"
-                disabled={draftChoice === null}
+                disabled={hasPendingChoice(services, draftPreferences)}
                 onClick={() => {
-                  if (!draftChoice) return;
-                  applyChoice(draftChoice);
+                  applyPreferences(draftPreferences);
                   setModalOpen(false);
                 }}
               >
