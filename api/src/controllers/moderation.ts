@@ -77,7 +77,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
     if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
-      return res.status(403).send({ ok: false, code: FORBIDDEN });
+      const requestedPublisherIds = body.data.publisherIds || [];
+      if (requestedPublisherIds.length === 0 || !requestedPublisherIds.every((publisherId) => userPublisherIds.includes(publisherId))) {
+        return res.status(403).send({ ok: false, code: FORBIDDEN });
+      }
     }
 
     const filters: ModerationFilters = {
@@ -125,7 +128,10 @@ router.post("/aggs", passport.authenticate("user", { session: false }), async (r
 
     const userPublisherIds = req.user.publishers.map((publisherId: string) => publisherId.toString());
     if (req.user.role !== "admin" && !userPublisherIds.includes(moderator.id)) {
-      return res.status(403).send({ ok: false, code: FORBIDDEN });
+      const requestedPublisherIds = body.data.publisherIds || [];
+      if (requestedPublisherIds.length === 0 || !requestedPublisherIds.every((publisherId) => userPublisherIds.includes(publisherId))) {
+        return res.status(403).send({ ok: false, code: FORBIDDEN });
+      }
     }
 
     const filters: ModerationFilters = {
