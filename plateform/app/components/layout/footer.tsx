@@ -1,7 +1,8 @@
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Link, useLocation } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
-import { isCookieConsentEnabled, openCookieConsentPanel } from "~/services/cookie-consent";
+import { COOKIE_CONSENT_MODAL_ID, isCookieConsentEnabled } from "~/services/cookie-consent";
+import { openDsfrModal } from "~/services/dsfr";
 import { isGlobalFooterVisible } from "~/utils/layout";
 
 const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine.values)
@@ -134,7 +135,12 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
             </li> */}
             {isCookieConsentEnabled() && (
               <li className="fr-footer__bottom-item">
-                <button type="button" className="fr-footer__bottom-link fr-footer__bottom-link--button" onClick={openCookieConsentPanel}>
+                <button
+                  type="button"
+                  className="fr-footer__bottom-link fr-footer__bottom-link--button"
+                  aria-haspopup="dialog"
+                  onClick={() => void openDsfrModal(COOKIE_CONSENT_MODAL_ID)}
+                >
                   Gestion des cookies
                 </button>
               </li>

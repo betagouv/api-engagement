@@ -4,16 +4,15 @@ import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
 import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
-import tarteaucitronScriptUrl from "tarteaucitronjs/tarteaucitron.js?url";
-import tarteaucitronFrenchScriptUrl from "tarteaucitronjs/lang/tarteaucitron.fr.js?url";
 import { type ReactNode, useEffect } from "react";
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
+import CookieConsentManager from "~/components/layout/cookie-consent-manager";
 import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
 import { PUBLISHER_ID } from "~/services/config";
-import { initCookieConsent, isCookieConsentEnabled } from "~/services/cookie-consent";
+import { initializeDsfr } from "~/services/dsfr";
 import { serializeForInlineScript } from "~/utils/string";
 import type { Route } from "./+types/root";
 import "./main.css";
@@ -22,6 +21,16 @@ import "./main.css";
 const apiEngagementTag = PUBLISHER_ID
   ? `(function(i,s,o,g,r,a,m){i["ApiEngagementObject"]=r;(i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments);}),(i[r].l=1*new Date());(a=s.createElement(o)),(m=s.getElementsByTagName(o)[0]);a.async=1;a.src=g;m.parentNode.insertBefore(a,m);})(window,document,"script","https://app.api-engagement.beta.gouv.fr/jstag.js","apieng");apieng("config",${serializeForInlineScript(PUBLISHER_ID)});`
   : null;
+
+// Le DSFR enrichit le DOM (modales, navigation, etc.). Le charger dans un effet évite qu'il
+// modifie le HTML SSR avant que React ait terminé son hydratation.
+function DsfrClientInitializer() {
+  useEffect(() => {
+    void initializeDsfr();
+  }, []);
+
+  return null;
+}
 
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().
@@ -42,14 +51,14 @@ export function Layout({ children }: { children: ReactNode }) {
         <link rel="icon" href={faviconSvg} type="image/svg+xml" />
         <link rel="shortcut icon" href={faviconIco} type="image/x-icon" />
         <link rel="manifest" href={webmanifest} crossOrigin="use-credentials" />
-        {isCookieConsentEnabled() && <script src={tarteaucitronScriptUrl} />}
-        {isCookieConsentEnabled() && <script src={tarteaucitronFrenchScriptUrl} />}
         <Meta />
         <Links />
       </head>
       <body className="flex flex-col min-h-screen">
+        <DsfrClientInitializer />
         <SkipLinks />
         {children}
+        <CookieConsentManager />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -58,10 +67,6 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function Root() {
-  useEffect(() => {
-    if (isCookieConsentEnabled()) initCookieConsent();
-  }, []);
-
   return (
     <>
       <Header />

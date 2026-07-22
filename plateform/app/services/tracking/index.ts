@@ -142,7 +142,7 @@ export function initTracking(): void {
   getProvider();
 }
 
-// Synchronise le choix affiché dans Tarteaucitron avec PostHog. Pending et denied restent
+// Synchronise le choix affiché dans le gestionnaire DSFR avec PostHog. Pending et denied restent
 // cookieless ; granted active la persistance et l'identification pour les évènements suivants.
 export function setTrackingConsentStatus(status: TrackingConsentStatus): void {
   if (!isBrowser() || status === consentStatus) return;

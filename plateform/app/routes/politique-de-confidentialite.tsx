@@ -134,8 +134,8 @@ export default function PolitiqueDeConfidentialite() {
 
         <h3>Gestionnaire de consentement</h3>
         <p>
-          La plateforme utilise Tarteaucitron pour vous permettre de gérer vos préférences. Vous pouvez à tout moment modifier vos choix via le lien « Gestion des cookies » en bas
-          de page.
+          La plateforme utilise le gestionnaire de consentement du Système de Design de l'État pour vous permettre de gérer vos préférences. Vous pouvez à tout moment modifier vos
+          choix via le lien « Gestion des cookies » en bas de page.
         </p>
 
         <h3>Traceurs soumis à consentement</h3>
@@ -162,11 +162,16 @@ export default function PolitiqueDeConfidentialite() {
             </tbody>
           </table>
         </div>
+        <p>
+          Avant votre choix et en cas de refus, PostHog mesure l'audience sans déposer de cookie ni utiliser le stockage local. Un identifiant anonyme valable une journée est
+          calculé côté serveur à partir d'un sel quotidien, de l'adresse IP, du navigateur et du nom d'hôte. Il ne permet pas de reconnaître un visiteur d'un jour à l'autre. Les
+          cookies <code>ph_*</code> et l'identification persistante ne sont activés qu'après acceptation.
+        </p>
 
         <h3>Cookies strictement nécessaires</h3>
         <p>
           Les cookies techniques indispensables au bon fonctionnement du service (session, sécurité CSRF, préférences d'interface) sont déposés sans consentement préalable,
-          conformément à l'article 82 de la loi Informatique et Libertés.
+          conformément à l'article 82 de la loi Informatique et Libertés. Le cookie <code>plateform_consent</code> conserve votre choix de mesure d'audience pendant un an.
         </p>
       </div>
     </main>

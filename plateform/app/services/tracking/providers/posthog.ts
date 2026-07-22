@@ -23,7 +23,7 @@ export function createPosthogProvider(): TrackingProvider {
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
         defaults: "2026-05-30",
-        // Le statut PostHog reste en opt-out tant que Tarteaucitron n'a pas reçu d'accord :
+        // Le statut PostHog reste en opt-out tant que le gestionnaire DSFR n'a pas reçu d'accord :
         // les évènements sont alors cookieless, puis deviennent persistants après acceptation.
         cookieless_mode: "on_reject",
         // Ne crée un profil personne que pour les utilisateurs identifiés (limite la collecte).
@@ -47,7 +47,7 @@ export function createPosthogProvider(): TrackingProvider {
       }
 
       // `on_reject` utilise l'opt-out pour activer le hash serveur cookieless. Cela couvre le
-      // refus explicite comme l'état pending piloté indépendamment par Tarteaucitron.
+      // refus explicite comme l'état pending piloté par le gestionnaire de consentement.
       posthog.opt_out_capturing();
     },
 

@@ -5,9 +5,6 @@
    Preflight reste inclus mais est placé dans @layer base : le CSS DSFR n'utilise
    aucun @layer donc il gagne la cascade et le reset DSFR reste en place. */
 @import "tailwindcss";
-@import "tarteaucitronjs/css/tarteaucitron.css";
-/* Adaptation DSFR des composants Tarteaucitron. */
-@import "./styles/cookie-consent.css";
 
 /* DSFR pilote le thème via l'attribut `data-fr-theme` sur `<html>` : on branche
    la variante `dark:` de Tailwind dessus plutôt que sur `prefers-color-scheme`. */
