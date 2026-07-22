@@ -643,7 +643,7 @@ describe("Mission API Integration Tests", () => {
       const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
 
       expect(listResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
-      expect(searchResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
+      expect(searchResponse.body.hits.map((item: MissionRecord) => item._id)).toContain(mission.id);
       expect(detailResponse.body.data._id).toBe(mission.id);
     });
 

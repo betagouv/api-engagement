@@ -225,10 +225,10 @@ const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]:
     limit: pagination.limit,
   };
 
-  // Compatibilité temporaire des routes iframe historiques : les publishers
-  // sélectionnés uniquement via `widget.publishers` ne sont pas matérialisés
-  // dans le snapshot du diffuseur. Dans un widget hybride, on combine donc le
-  // snapshot pour les roots (et le scope propre) avec ce fallback historique.
+  // Compatibilité temporaire des routes iframe historiques : on combine le
+  // snapshot pour les roots live avec le fallback des publishers widget-only.
+  // Ce compromis local n'essaie pas de couvrir la staleness après suppression
+  // d'une root : ces routes seront remplacées par Typesense.
   // À supprimer avec `iframe/*` lors de la migration vers Typesense.
   if (diffusionRoots.length > 0) {
     if (widget.publishers.length === 0) {
