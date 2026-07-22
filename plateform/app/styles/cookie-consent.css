@@ -21,7 +21,7 @@
     padding: 1.5rem max(1rem, calc((100vw - 75rem) / 2)) !important;
     text-align: left !important;
 
-    & :is(#tarteaucitronDisclaimerAlert, #tarteaucitronDisclaimerAlert strong, #tarteaucitronPrivacyUrl) {
+    & :is(#tarteaucitronDisclaimerAlert, #tarteaucitronDisclaimerAlert strong) {
       color: var(--text-default-grey) !important;
       font-size: 1rem !important;
       line-height: 1.5 !important;
@@ -88,10 +88,21 @@
     padding-right: 3rem;
     text-align: left !important;
   }
-  & #tarteaucitronInfo {
-    border: 0 !important;
+  & :is(
+    #tarteaucitronInfo,
+    #tarteaucitronPrivacyUrlDialog,
+    #tarteaucitronMainLineOffset .tarteaucitronH2,
+    #tarteaucitronServices .tarteaucitronTitle button,
+    #tarteaucitronServices .tarteaucitronH3,
+    #tarteaucitronServices .tarteaucitronServiceDescription,
+    #tarteaucitronServices .tarteaucitronDetails,
+    #tarteaucitronNoServicesTitle
+  ) {
     font-size: 1rem !important;
     line-height: 1.5rem !important;
+  }
+  & #tarteaucitronInfo {
+    border: 0 !important;
     margin: 1rem 0 1.5rem !important;
     max-width: 40rem !important;
     padding: 0 !important;

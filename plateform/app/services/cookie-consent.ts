@@ -94,7 +94,7 @@ export function prepareCookieConsent(): void {
 
   const tarteaucitron = window.tarteaucitron;
   if (!tarteaucitron) {
-    console.warn("[cookie-consent] Tarteaucitron indisponible : tracking maintenu en attente");
+    console.warn("[cookie-consent] Tarteaucitron indisponible : tracking limité au mode cookieless");
     initTracking();
     return;
   }

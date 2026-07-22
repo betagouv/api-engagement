@@ -11,8 +11,8 @@ export type TrackingProperties = Record<string, string | number | boolean | null
 export type TrackingTraits = Record<string, string | number | boolean | null | undefined>;
 
 // État de consentement analytique partagé entre le gestionnaire de cookies et le provider.
-// `pending` bloque toute capture, `denied` autorise uniquement le mode cookieless PostHog et
-// `granted` active la persistance ainsi que l'identification.
+// `pending` et `denied` autorisent uniquement le mode cookieless PostHog ; `granted` active la
+// persistance ainsi que l'identification.
 export type TrackingConsentStatus = "pending" | "denied" | "granted";
 
 // Interface qu'un provider doit implémenter. `identify` et `init` sont optionnels :

@@ -8,8 +8,6 @@ const posthog = vi.hoisted(() => ({
   unregister: vi.fn(),
   opt_in_capturing: vi.fn(),
   opt_out_capturing: vi.fn(),
-  reset: vi.fn(),
-  clear_opt_in_out_capturing: vi.fn(),
 }));
 
 vi.mock("posthog-js", () => ({ default: posthog }));
@@ -38,22 +36,23 @@ describe("provider PostHog", () => {
     );
   });
 
-  it("bloque les captures en attente puis active le cookieless après refus", () => {
+  it("capture en cookieless pendant l'attente et après refus", () => {
     const provider = createPosthogProvider();
     provider.init?.();
     provider.setConsentStatus?.("pending");
-    provider.track("page.viewed");
-
-    expect(posthog.reset).toHaveBeenCalledWith(true);
-    expect(posthog.clear_opt_in_out_capturing).toHaveBeenCalledOnce();
-    expect(posthog.capture).not.toHaveBeenCalled();
-
-    provider.setConsentStatus?.("denied");
     provider.track("page.viewed", { page_name: "homepage" });
     provider.identify?.("forbidden-id");
 
     expect(posthog.opt_out_capturing).toHaveBeenCalledOnce();
     expect(posthog.capture).toHaveBeenCalledWith("page.viewed", { page_name: "homepage" });
+    expect(posthog.identify).not.toHaveBeenCalled();
+
+    provider.setConsentStatus?.("denied");
+    provider.track("quiz.started", { mission_id: "mission-id" });
+    provider.identify?.("forbidden-id");
+
+    expect(posthog.opt_out_capturing).toHaveBeenCalledTimes(2);
+    expect(posthog.capture).toHaveBeenLastCalledWith("quiz.started", { mission_id: "mission-id" });
     expect(posthog.identify).not.toHaveBeenCalled();
   });
 

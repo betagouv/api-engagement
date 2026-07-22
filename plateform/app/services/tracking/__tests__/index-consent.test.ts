@@ -35,12 +35,12 @@ describe("orchestration du consentement tracking", () => {
 
   beforeEach(() => vi.clearAllMocks());
 
-  it("bloque, anonymise puis identifie selon le choix Tarteaucitron", () => {
+  it("anonymise pendant l'attente et le refus puis identifie après accord", () => {
     initTracking();
     track("quiz.started", { quiz_attempt_id: "leaked-attempt", mission_id: "mission-id" });
 
     expect(trackingProvider.setConsentStatus).toHaveBeenCalledWith("pending");
-    expect(trackingProvider.track).not.toHaveBeenCalled();
+    expect(trackingProvider.track).toHaveBeenCalledWith("quiz.started", { mission_id: "mission-id" });
     expect(trackingProvider.identify).not.toHaveBeenCalled();
 
     setTrackingConsentStatus("denied");

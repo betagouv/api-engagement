@@ -134,8 +134,8 @@ export default function PolitiqueDeConfidentialite() {
 
         <h3>Gestionnaire de consentement</h3>
         <p>
-          La plateforme utilise Tarteaucitron pour vous permettre de gérer vos préférences. Vous pouvez à tout moment modifier vos choix via le lien « Gestion des cookies » en bas de
-          page.
+          La plateforme utilise Tarteaucitron pour vous permettre de gérer vos préférences. Vous pouvez à tout moment modifier vos choix via le lien « Gestion des cookies » en bas
+          de page.
         </p>
 
         <h3>Traceurs soumis à consentement</h3>

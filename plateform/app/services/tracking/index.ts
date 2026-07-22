@@ -117,11 +117,17 @@ function syncInternalUserFlag(provider: TrackingProvider): void {
 // valeurs persistées par PostHog au-delà du TTL.
 function syncCampaignSuperProperties(provider: TrackingProvider): void {
   let campaign: CampaignParams = {};
-  try {
-    campaign = resolveActiveCampaign(window.location.search, window.localStorage);
-  } catch {
-    // localStorage indisponible : au minimum, attacher les UTM de l'URL courante.
+  if (consentStatus !== "granted") {
+    // Aucun accès au localStorage avant l'accord : les UTM de l'URL courante restent néanmoins
+    // disponibles sur les évènements cookieless de la page d'atterrissage.
     campaign = getCampaignParamsFromSearch(window.location.search);
+  } else {
+    try {
+      campaign = resolveActiveCampaign(window.location.search, window.localStorage);
+    } catch {
+      // localStorage indisponible : au minimum, attacher les UTM de l'URL courante.
+      campaign = getCampaignParamsFromSearch(window.location.search);
+    }
   }
 
   for (const key of CAMPAIGN_UTM_KEYS) {
@@ -136,8 +142,8 @@ export function initTracking(): void {
   getProvider();
 }
 
-// Synchronise le choix affiché dans Tarteaucitron avec PostHog. Les évènements émis pendant
-// l'état `pending` sont abandonnés et ne sont jamais rejoués après le choix.
+// Synchronise le choix affiché dans Tarteaucitron avec PostHog. Pending et denied restent
+// cookieless ; granted active la persistance et l'identification pour les évènements suivants.
 export function setTrackingConsentStatus(status: TrackingConsentStatus): void {
   if (!isBrowser() || status === consentStatus) return;
   consentStatus = status;
@@ -191,8 +197,6 @@ function omitUndefined(properties: TrackingProperties): TrackingProperties {
 export function track(event: string, properties?: TrackingProperties): void {
   const currentProvider = getProvider();
   if (!currentProvider) return;
-
-  if (currentProvider.name === "posthog" && consentStatus === "pending") return;
 
   const sanitized = properties ? sanitizePropertiesForConsent(omitUndefined(properties), consentStatus) : properties;
   currentProvider.track(event, sanitized);

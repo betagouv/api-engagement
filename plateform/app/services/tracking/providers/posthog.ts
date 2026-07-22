@@ -23,8 +23,8 @@ export function createPosthogProvider(): TrackingProvider {
       posthog.init(POSTHOG_KEY, {
         api_host: POSTHOG_HOST,
         defaults: "2026-05-30",
-        // Flux recommandé par PostHog avec un bandeau : aucune capture avant le choix,
-        // cookieless après refus et persistance complète après acceptation.
+        // Le statut PostHog reste en opt-out tant que Tarteaucitron n'a pas reçu d'accord :
+        // les évènements sont alors cookieless, puis deviennent persistants après acceptation.
         cookieless_mode: "on_reject",
         // Ne crée un profil personne que pour les utilisateurs identifiés (limite la collecte).
         person_profiles: "identified_only",
@@ -46,19 +46,13 @@ export function createPosthogProvider(): TrackingProvider {
         return;
       }
 
-      if (status === "denied") {
-        posthog.opt_out_capturing();
-        return;
-      }
-
-      // Tarteaucitron est la source de vérité. Un état encore indéterminé doit donc aussi
-      // neutraliser un ancien consentement PostHog éventuellement resté dans le navigateur.
-      posthog.reset(true);
-      posthog.clear_opt_in_out_capturing();
+      // `on_reject` utilise l'opt-out pour activer le hash serveur cookieless. Cela couvre le
+      // refus explicite comme l'état pending piloté indépendamment par Tarteaucitron.
+      posthog.opt_out_capturing();
     },
 
     track(event: string, properties?: TrackingProperties) {
-      if (!ready || consentStatus === null || consentStatus === "pending") return;
+      if (!ready || consentStatus === null) return;
       posthog.capture(event, properties);
     },
 
