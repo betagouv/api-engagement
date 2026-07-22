@@ -8,12 +8,7 @@ import type {
   PublisherDiffusionRuleFindParams,
   PublisherDiffusionRuleRecord,
 } from "@/types/publisher-diffusion-rule";
-import {
-  buildMissionPublisherDiffusionRuleConditionFromRule,
-  buildMissionPublisherDiffusionRuleSqlFromRules,
-  isPublisherDiffusionRuleArrayField,
-  optimizeMissionDiffusionRuleWhere,
-} from "@/utils/publisher-diffusion-rule-query";
+import { buildMissionPublisherDiffusionRuleConditionFromRule, isPublisherDiffusionRuleArrayField, optimizeMissionDiffusionRuleWhere } from "@/utils/publisher-diffusion-rule-query";
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedRules?: PublisherDiffusionRule[];
@@ -87,11 +82,7 @@ const buildScopeCondition = (rule: PublisherDiffusionRule, childrenByParentId: M
  * s'il ne figure pas dans sa propre allowlist. `publisherIds` restreint
  * optionnellement aux annonceurs demandés (param `publisher` de la route).
  */
-const buildAllowlistFilter = (
-  rules: PublisherDiffusionRule[],
-  diffuseurPublisherId: string,
-  publisherIds?: string[]
-): MissionDiffuseurCandidateFilter => {
+const buildAllowlistFilter = (rules: PublisherDiffusionRule[], diffuseurPublisherId: string, publisherIds?: string[]): MissionDiffuseurCandidateFilter => {
   const { roots, childrenByParentId } = groupRulesByParent(rules);
   const allowlistRoots = roots.filter((root) => root.field === "publisherId" && root.operator === "is");
   const diffuseurIsRequested = !publisherIds || publisherIds.includes(diffuseurPublisherId);
@@ -216,15 +207,6 @@ export const publisherDiffusionRuleService = {
   async buildMissionDiffuseurSnapshotWhere(publisherId: string): Promise<Prisma.MissionWhereInput> {
     const candidateWhere = await this.buildMissionDiffuseurCandidateWhere(publisherId);
     return Object.keys(candidateWhere).length === 0 ? { publisherId } : candidateWhere;
-  },
-
-  async buildMissionPublisherDiffusionRuleSql(publisherId: string, options: { missionAlias?: string } = {}): Promise<Prisma.Sql> {
-    const rules = await publisherDiffusionRuleRepository.findMany({
-      where: { publisherId },
-      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
-    });
-
-    return buildMissionPublisherDiffusionRuleSqlFromRules(rules, options);
   },
 
   isValueDiffused({ rules, field, value }: { rules: PublisherDiffusionRuleRecord[]; field: string; value: string }): boolean {

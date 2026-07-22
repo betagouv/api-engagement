@@ -18,19 +18,19 @@ import { buildWhere, missionService } from "@/services/mission";
 
 describe("buildWhere diffusion publisher filter", () => {
   it("uses the whole diffusion snapshot when publisherIds is undefined", async () => {
-    const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1" });
+    const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1", skip: 0, limit: 10 });
 
     expect(where.AND).toEqual([{ missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } } }]);
   });
 
   it("builds an impossible condition when publisherIds is explicitly empty", async () => {
-    const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1", publisherIds: [] });
+    const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1", publisherIds: [], skip: 0, limit: 10 });
 
     expect(where.AND).toEqual([{ id: { in: [] } }]);
   });
 
   it("intersects the diffusion snapshot with explicit publisherIds", async () => {
-    const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1", publisherIds: ["publisher-1"] });
+    const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1", publisherIds: ["publisher-1"], skip: 0, limit: 10 });
 
     expect(where.AND).toEqual([
       {
