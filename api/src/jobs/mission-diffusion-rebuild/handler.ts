@@ -6,9 +6,6 @@ import { asyncTaskBus } from "@/services/async-task";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
-// Concurrence de publication des tâches de réindexation Typesense (une par mission touchée).
-const REINDEX_PUBLISH_CONCURRENCY = 50;
-
 export interface MissionDiffusionRebuildJobPayload {
   dryRun?: boolean;
 }
@@ -44,23 +41,21 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     let reindexFailed = 0;
 
     // Resynchronise Typesense au fil du rebuild : chaque mission dont l'appartenance au snapshot a
-    // changé est republiée sur le bus (at-least-once, récupérable via SQS). Les doublons entre
+    // changé est republiée sur le bus (at-least-once, récupérable via SQS). On empile tout dans la
+    // file d'un coup ; c'est au worker de réguler son débit de traitement. Les doublons entre
     // diffuseurs sont sans effet (upsert idempotent côté worker).
     const republishTouchedMissions = async (missionIds: string[]): Promise<void> => {
-      for (let i = 0; i < missionIds.length; i += REINDEX_PUBLISH_CONCURRENCY) {
-        const batch = missionIds.slice(i, i + REINDEX_PUBLISH_CONCURRENCY);
-        await Promise.all(
-          batch.map(async (missionId) => {
-            try {
-              await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
-              reindexRequested++;
-            } catch (error) {
-              reindexFailed++;
-              captureException(error, { extra: { missionId } });
-            }
-          })
-        );
-      }
+      await Promise.all(
+        missionIds.map(async (missionId) => {
+          try {
+            await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+            reindexRequested++;
+          } catch (error) {
+            reindexFailed++;
+            captureException(error, { extra: { missionId } });
+          }
+        })
+      );
     };
 
     for (const distributionPublisherId of distributionPublisherIds) {

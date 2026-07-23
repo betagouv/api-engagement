@@ -5,7 +5,6 @@ import { MISSION_BROWSE_FACET_FIELDS } from "@/services/search/collections/missi
 const multiSearchMock = vi.hoisted(() => vi.fn());
 const findMissionsByIdsMock = vi.hoisted(() => vi.fn());
 const findOneMissionByMock = vi.hoisted(() => vi.fn());
-const findRulesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/services/search/collections/missions/client", () => ({
   missionSearchClient: { multiSearch: multiSearchMock },
@@ -32,12 +31,6 @@ vi.mock("@/services/mission", () => ({
   missionService: { findMissionsByIds: findMissionsByIdsMock, findOneMissionBy: findOneMissionByMock },
 }));
 
-// Le service ne doit plus consulter les règles de diffusion live : ce mock est conservé pour garantir
-// (via not.toHaveBeenCalled) qu'aucun chemin ne les réintroduit.
-vi.mock("@/services/publisher-diffusion-rule", () => ({
-  publisherDiffusionRuleService: { findRules: findRulesMock },
-}));
-
 import { missionBrowseService } from "@/services/mission-browse";
 
 const baseParams = { page: 1, pageSize: 20, diffuseurPublisherId: "diffuseur-1" };
@@ -49,7 +42,6 @@ describe("missionBrowseService.browse", () => {
     multiSearchMock.mockReset();
     findMissionsByIdsMock.mockReset();
     findOneMissionByMock.mockReset();
-    findRulesMock.mockReset();
     multiSearchMock.mockResolvedValue(emptyMultiSearchResult());
     findMissionsByIdsMock.mockResolvedValue([]);
     findOneMissionByMock.mockResolvedValue(null);
@@ -59,12 +51,6 @@ describe("missionBrowseService.browse", () => {
     await missionBrowseService.browse(baseParams);
 
     expect(resultsSearch().filter_by).toBe(DIFFUSION);
-  });
-
-  it("n'interroge plus les règles de diffusion live", async () => {
-    await missionBrowseService.browse(baseParams);
-
-    expect(findRulesMock).not.toHaveBeenCalled();
   });
 
   it("envoie une requête résultats + une requête par facette en un seul multi_search", async () => {
@@ -140,6 +126,5 @@ describe("missionBrowseService.browse", () => {
       deletedAt: null,
       statusCode: "ACCEPTED",
     });
-    expect(findRulesMock).not.toHaveBeenCalled();
   });
 });

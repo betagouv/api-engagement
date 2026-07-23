@@ -3,12 +3,11 @@ import type { TaxonomyKey } from "@engagement/taxonomy";
 import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import type { SearchCollectionSchema } from "@/services/search/types";
 
-import { MISSION_TAXONOMY_FIELDS_V3 } from "./v3";
-
-// Snapshot statique des champs indexés à l'instant de la v4.
-// Ajout par rapport à la v3 : `distributionPublisherIds` (diffuseurs autorisés par le snapshot mission_diffusion).
-// Pour ajouter/retirer des champs, créer un v5.ts — ne pas modifier ce fichier.
-export const MISSION_TAXONOMY_FIELDS_V4: TaxonomyKey[] = MISSION_TAXONOMY_FIELDS_V3;
+// Snapshot statique et autonome des champs indexés à l'instant de la v4 (aucune dépendance aux
+// versions précédentes). Ajout par rapport à la v3 : `distributionPublisherIds` (diffuseurs autorisés
+// par le snapshot mission_diffusion). Pour ajouter/retirer des champs, créer un v5.ts — ne pas modifier
+// ce fichier.
+export const MISSION_TAXONOMY_FIELDS_V4: TaxonomyKey[] = ["domaine", "secteur_activite", "type_mission", "tranche_age", "dispositif"];
 const taxonomyFields = MISSION_TAXONOMY_FIELDS_V4;
 
 const schema: SearchCollectionSchema = {
