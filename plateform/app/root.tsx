@@ -4,14 +4,14 @@ import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
 import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode } from "react";
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
+import CookieConsentManager from "~/components/layout/cookie-consent-manager";
 import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
 import { PUBLISHER_ID } from "~/services/config";
-import { initTracking } from "~/services/tracking";
 import { serializeForInlineScript } from "~/utils/string";
 import type { Route } from "./+types/root";
 import "./main.css";
@@ -46,6 +46,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <body className="flex flex-col min-h-screen">
         <SkipLinks />
         {children}
+        <CookieConsentManager />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -54,11 +55,6 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function Root() {
-  // Initialise le tracking côté navigateur une seule fois au montage de l'app.
-  useEffect(() => {
-    initTracking();
-  }, []);
-
   return (
     <>
       <Header />

@@ -10,9 +10,10 @@ interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   beforeTitle?: React.ReactNode;
   titleIcon?: string;
   className?: string;
+  size?: "md" | "lg";
 }
 
-export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, className, ...props }: ModalProps) {
+export default function Modal({ open, children, onClose, title, beforeTitle, titleIcon, className, size = "md", ...props }: ModalProps) {
   const titleId = useId();
   const [mounted, setMounted] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -42,14 +43,14 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
     >
       <div className={`fr-container fr-container--fluid fr-container-md ${className}`}>
         <div className="fr-grid-row fr-grid-row--center">
-          <div className="fr-col-12 fr-col-md-8 fr-col-lg-6">
+          <div className={size === "lg" ? "fr-col-12 fr-col-md-10 fr-col-lg-8" : "fr-col-12 fr-col-md-8 fr-col-lg-6"}>
             <div className="fr-modal__body">
               <div className="fr-modal__header">
                 <button type="button" onClick={onClose} title="Fermer" aria-label="Fermer" className="fr-btn--close fr-btn">
                   Fermer
                 </button>
               </div>
-              <div className="fr-modal__content mb-4!">
+              <div className="fr-modal__content">
                 {beforeTitle}
                 <h2 id={titleId} className="fr-modal__title">
                   {titleIcon && <span className={`${titleIcon} fr-icon--lg`} aria-hidden="true" />}
