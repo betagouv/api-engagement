@@ -8,8 +8,7 @@ with results as (
     bool_or(has_results) as has_results,
     max(pinned_count) as pinned_count,
     max(total_results_count) as total_results_count,
-    max(avg_distance_km_top5) as avg_distance_km_top5,
-    bool_or(is_internal_user) as is_internal_user
+    max(avg_distance_km_top5) as avg_distance_km_top5
   from {{ ref('stg_tracking__results_viewed') }}
   where quiz_session_id is not null
   group by quiz_session_id, quiz_attempt_id, distinct_id
@@ -45,4 +44,4 @@ select
   coalesce(cl.click_count, 0) = 0 as is_zero_click
 from results as r
 left join clicks as cl on r.quiz_session_id = cl.quiz_session_id
-where {{ exclude_internal_users('r.is_internal_user') }}
+where {{ exclude_internal_distinct_ids('r.distinct_id') }}

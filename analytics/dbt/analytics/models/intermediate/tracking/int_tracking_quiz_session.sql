@@ -1,6 +1,7 @@
 with started as (
   select
     quiz_attempt_id,
+    max(distinct_id) as distinct_id,
     min(event_at) as started_at,
     max(entry_source) as entry_source,
     max(device_type) as device_type,
@@ -8,8 +9,7 @@ with started as (
     max(utm_campaign) as utm_campaign,
     max(utm_medium) as utm_medium,
     max(prompt_version) as prompt_version,
-    max(algo_version) as algo_version,
-    bool_or(is_internal_user) as is_internal_user
+    max(algo_version) as algo_version
   from {{ ref('stg_tracking__quiz_started') }}
   where quiz_attempt_id is not null
   group by quiz_attempt_id
@@ -18,12 +18,12 @@ with started as (
 steps as (
   select
     quiz_attempt_id,
+    max(distinct_id) as distinct_id,
     count(*) as step_events_count,
     max(step_index) as last_step_index,
     max(total_visible_steps) as total_visible_steps,
     (array_agg(step_name order by step_index desc nulls last))[1]
-      as last_step_name,
-    bool_or(is_internal_user) as is_internal_user
+      as last_step_name
   from {{ ref('stg_tracking__quiz_step_completed') }}
   where quiz_attempt_id is not null
   group by quiz_attempt_id
@@ -32,6 +32,7 @@ steps as (
 completed as (
   select
     quiz_attempt_id,
+    max(distinct_id) as distinct_id,
     max(quiz_session_id) as quiz_session_id,
     min(event_at) as completed_at,
     max(completion_type) as completion_type,
@@ -41,8 +42,7 @@ completed as (
     max(statut) as statut,
     max(motivation) as motivation,
     max(age_bracket) as age_bracket,
-    max(quiz_duration_ms) as quiz_duration_ms,
-    bool_or(is_internal_user) as is_internal_user
+    max(quiz_duration_ms) as quiz_duration_ms
   from {{ ref('stg_tracking__quiz_completed') }}
   where quiz_attempt_id is not null
   group by quiz_attempt_id
@@ -71,15 +71,12 @@ joined as (
     c.motivation,
     c.age_bracket,
     c.has_localisation,
+    coalesce(s.distinct_id, st.distinct_id, c.distinct_id) as distinct_id,
     coalesce(s.quiz_attempt_id, st.quiz_attempt_id, c.quiz_attempt_id)
       as quiz_attempt_id,
     c.completed_at is not null as is_completed,
     coalesce(c.steps_completed_count, st.step_events_count)
-      as steps_completed_count,
-    coalesce(s.is_internal_user, false)
-    or coalesce(st.is_internal_user, false)
-    or coalesce(c.is_internal_user, false)
-      as is_internal_user
+      as steps_completed_count
   from started as s
   full outer join steps as st on s.quiz_attempt_id = st.quiz_attempt_id
   full outer join completed as c
@@ -88,4 +85,4 @@ joined as (
 
 select *
 from joined
-where {{ exclude_internal_users() }}
+where {{ exclude_internal_distinct_ids('distinct_id') }}
