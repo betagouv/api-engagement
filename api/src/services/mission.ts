@@ -589,7 +589,7 @@ export const missionService = {
     }
   },
 
-  async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
+  async findMissionsByIds(ids: string[], moderatedBy: string | null = null): Promise<MissionRecord[]> {
     if (!ids.length) {
       return [];
     }
@@ -601,7 +601,7 @@ export const missionService = {
     return ids
       .map((id) => missionMap.get(id))
       .filter(Boolean)
-      .map((m) => toMissionRecord(m as MissionWithRelations));
+      .map((m) => toMissionRecord(m as MissionWithRelations, moderatedBy));
   },
 
   async findOneMission(id: string, moderatedBy: string | null = null): Promise<MissionRecord | null> {

@@ -45,6 +45,41 @@ describe("Dashboard widget controller", () => {
     expect(res.status).toBe(403);
   });
 
+  it("expose publiquement la configuration d'un widget actif par id", async () => {
+    const publisher = await createTestPublisher();
+    const widget = await createTestWidget({ fromPublisher: publisher, publishers: [publisher.id] });
+
+    const res = await request(app).get("/widget").query({ id: widget.id });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      ok: true,
+      data: {
+        id: widget.id,
+        fromPublisherId: publisher.id,
+        publishers: [publisher.id],
+        active: true,
+      },
+    });
+  });
+
+  it("expose publiquement la configuration d'un widget actif par nom", async () => {
+    const widget = await createTestWidget();
+
+    const res = await request(app).get("/widget").query({ name: widget.name });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(widget.id);
+  });
+
+  it("n'expose pas un widget inactif", async () => {
+    const widget = await createTestWidget({ active: false });
+
+    const res = await request(app).get("/widget").query({ id: widget.id });
+
+    expect(res.status).toBe(404);
+  });
+
   it("logs an audit event when updating a widget", async () => {
     const publisher = await createTestPublisher();
     const widget = await createTestWidget({ fromPublisher: publisher });

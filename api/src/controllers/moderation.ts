@@ -3,8 +3,9 @@ import passport from "passport";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { asyncTaskBus } from "@/services/async-task";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { moderationEventService } from "@/services/moderation-event";
 import { publisherService } from "@/services/publisher";
@@ -16,6 +17,14 @@ import { getModerationEvents, getModerationUpdates, getOrganizationUpdates } fro
 
 const router = Router();
 router.use(ipRateLimiter);
+
+const reindexMission = async (missionId: string): Promise<void> => {
+  try {
+    await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+  } catch (error) {
+    captureException(error, { extra: { context: "moderation.reindexMission", missionId } });
+  }
+};
 
 const searchSchema = zod.object({
   status: zod.enum(["ACCEPTED", "REFUSED", "PENDING", "ONGOING", ""]).optional(),
@@ -312,6 +321,7 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
         }))
       );
     }
+    await Promise.all([...new Set(updatedStatuses.map((status) => status.missionId))].map(reindexMission));
 
     return res.status(200).send({ ok: true, data: { updatedIds: updatedStatuses.map((s) => s.id) } });
   } catch (error) {
@@ -398,6 +408,7 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         }))
       );
     }
+    await reindexMission(updated.missionId);
 
     return res.status(200).send({ ok: true, data: updated });
   } catch (error) {

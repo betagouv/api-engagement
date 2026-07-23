@@ -44,18 +44,37 @@ export const missionIndexService = {
       where: { id: missionId },
       select: {
         id: true,
+        title: true,
         publisherId: true,
         publisherOrganizationId: true,
         deletedAt: true,
         statusCode: true,
+        remote: true,
+        schedule: true,
+        duration: true,
+        startAt: true,
+        createdAt: true,
+        openToMinors: true,
+        reducedMobilityAccessible: true,
+        closeToTransport: true,
+        tasks: true,
+        audience: true,
+        tags: true,
         publisherOrganization: {
-          select: { clientId: true, parentOrganizations: true },
+          select: { clientId: true, name: true, parentOrganizations: true },
         },
         addresses: {
-          select: { departmentCode: true },
+          select: { city: true, departmentCode: true, departmentName: true, postalCode: true, region: true, country: true, locationLat: true, locationLon: true },
+        },
+        activities: {
+          select: { activity: { select: { name: true } } },
         },
         missionDiffusions: {
           select: { distributionPublisherId: true },
+        },
+        moderationStatuses: {
+          where: { status: "ACCEPTED" },
+          select: { publisherId: true },
         },
         missionScorings: {
           orderBy: { createdAt: "desc" },
@@ -75,19 +94,47 @@ export const missionIndexService = {
       return;
     }
 
-    const departmentCodes = [...new Set(mission.addresses.map((a) => a.departmentCode).filter((c): c is string => c !== null && c !== undefined))];
+    const uniqueStrings = (values: Array<string | null | undefined>): string[] => [...new Set(values.filter((value): value is string => Boolean(value)))];
+    const departmentCodes = uniqueStrings(mission.addresses.map((address) => address.departmentCode));
+    const departmentNames = uniqueStrings(mission.addresses.map((address) => address.departmentName));
+    const locations = mission.addresses
+      .filter((address): address is typeof address & { locationLat: number; locationLon: number } => address.locationLat != null && address.locationLon != null)
+      .map((address) => [address.locationLat, address.locationLon] satisfies [number, number]);
     // Diffuseurs autorisés issus du snapshot mission_diffusion. Toujours renseigné, y compris `[]`.
-    const distributionPublisherIds = [...new Set(mission.missionDiffusions.map((d) => d.distributionPublisherId))];
+    const distributionPublisherIds = uniqueStrings(mission.missionDiffusions.map((diffusion) => diffusion.distributionPublisherId));
     const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings[0]?.missionScoringValues ?? []);
 
     const document: MissionIndexDocument = {
       id: mission.id,
       publisherId: mission.publisherId ?? "",
+      distributionPublisherIds,
+      moderationAcceptedPublisherIds: uniqueStrings(mission.moderationStatuses.map((moderation) => moderation.publisherId)),
       ...(mission.publisherOrganizationId ? { publisherOrganizationId: mission.publisherOrganizationId } : {}),
       ...(mission.publisherOrganization?.clientId ? { publisherOrganizationClientId: mission.publisherOrganization.clientId } : {}),
+      ...(mission.publisherOrganization?.clientId
+        ? { publisherOrganizationFacet: `${mission.publisherOrganization.clientId}|||${mission.publisherOrganization.name ?? mission.publisherOrganization.clientId}` }
+        : {}),
       publisherOrganizationParentOrganizations: mission.publisherOrganization?.parentOrganizations ?? [],
+      title: mission.title,
       departmentCodes,
-      distributionPublisherIds,
+      departmentNames,
+      cityNames: uniqueStrings(mission.addresses.map((address) => address.city)),
+      postalCodes: uniqueStrings(mission.addresses.map((address) => address.postalCode)),
+      regionNames: uniqueStrings(mission.addresses.map((address) => address.region)),
+      countryCodes: uniqueStrings(mission.addresses.map((address) => address.country)),
+      ...(locations.length ? { locations } : {}),
+      ...(mission.remote ? { remote: mission.remote } : {}),
+      ...(mission.schedule ? { schedule: mission.schedule } : {}),
+      ...(mission.duration != null ? { duration: mission.duration } : {}),
+      ...(mission.startAt ? { startAt: Math.floor(mission.startAt.getTime() / 1000) } : {}),
+      createdAt: Math.floor(mission.createdAt.getTime() / 1000),
+      ...(mission.openToMinors != null ? { openToMinors: mission.openToMinors } : {}),
+      ...(mission.reducedMobilityAccessible != null ? { reducedMobilityAccessible: mission.reducedMobilityAccessible } : {}),
+      ...(mission.closeToTransport != null ? { closeToTransport: mission.closeToTransport } : {}),
+      tasks: mission.tasks,
+      audience: mission.audience,
+      tags: mission.tags,
+      activities: uniqueStrings(mission.activities.map(({ activity }) => activity.name)),
       ...taxonomyIndex,
     };
 
