@@ -10,8 +10,7 @@ with page_views as (
     referrer,
     referring_domain,
     utm_source,
-    utm_campaign,
-    is_internal_user
+    utm_campaign
   from {{ ref('stg_tracking__page_viewed') }}
 )
 
@@ -28,4 +27,4 @@ select
   utm_source,
   utm_campaign
 from page_views
-where {{ exclude_internal_users() }}
+where {{ exclude_internal_distinct_ids('distinct_id') }}

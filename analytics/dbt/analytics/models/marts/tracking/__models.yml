@@ -5,6 +5,10 @@ models:
     description: >
       Fait session (grain `quiz_attempt_id`) exposé à Metabase. Fusionne le tunnel, les résultats et le backend.
       Sert aussi de base aux distributions (statut, motivation, age_bracket) par `group by`.
+      ATTENTION périmètre implicite : tous les flags de clic ci-dessous ne concernent QUE les sessions
+      ayant vu les résultats (`results.viewed`). Ils proviennent de `int_tracking_results_session`, piloté
+      par les events `results.viewed`, les clics n'étant greffés qu'en `left join`. Une session sans
+      `results.viewed` retombe donc à `false` sur ces flags même si un clic existait hors parcours résultats.
     columns:
       - name: quiz_attempt_id
         tests:
@@ -12,6 +16,21 @@ models:
           - unique
       - name: quiz_session_id
         description: Identifiant backend, présent pour les sessions complétées.
+      - name: has_click_after_results
+        description: >
+          Vrai si la session a vu les résultats ET a cliqué sur au moins une mission (toutes sections
+          confondues). NB : « a vu les résultats ET a cliqué », pas « a cliqué » tout court — d'où le
+          renommage depuis l'ancien `has_click`, trompeur.
+      - name: has_click_results
+        description: >
+          Vrai si la session a vu les résultats et a cliqué avec `entry_page = 'results'` (clic depuis la
+          page de résultats). Numérateur du taux de clic sur les résultats.
+      - name: has_click_pinned
+        description: Vrai si, parmi les clics de la session, au moins un porte sur une mission pinned.
+      - name: has_click_external
+        description: Vrai si, parmi les clics de la session, au moins un ouvre une candidature externe.
+      - name: is_zero_click
+        description: Vrai si la session a vu les résultats sans aucun clic mission.
 
   - name: tracking_mission_click
     description: >
@@ -55,6 +74,17 @@ models:
         tests:
           - not_null
           - unique
+      - name: sessions_with_click_after_results
+        description: >
+          Nombre de sessions ayant vu les résultats ET cliqué sur au moins une mission (renommé depuis
+          `sessions_with_click`). Ne compte pas les clics hors parcours résultats.
+      - name: quiz_to_click_rate
+        description: >
+          Taux `sessions_with_click_after_results / quiz_started_count`. ATTENTION : numérateur et
+          dénominateur portent sur des populations différentes — le numérateur ne couvre que les sessions
+          ayant vu les résultats et cliqué, le dénominateur toutes les sessions démarrées. C'est assumé :
+          il s'agit du taux de sessions démarrées qui vont jusqu'à voir les résultats ET cliquer, pas d'un
+          simple taux de clic sur une population homogène.
 
   - name: tracking_scoring_kpi_daily
     description: >

@@ -18,8 +18,7 @@ with clicks as (
     mission_type,
     opens_external,
     distance_km,
-    entry_page,
-    is_internal_user
+    entry_page
   from {{ ref('stg_tracking__mission_clicked') }}
 ),
 
@@ -84,4 +83,4 @@ select
   cb.event_uuid is not null as matched_to_backend
 from clicks as c
 left join click_backend as cb on c.event_uuid = cb.event_uuid
-where {{ exclude_internal_users('c.is_internal_user') }}
+where {{ exclude_internal_distinct_ids('c.distinct_id') }}
