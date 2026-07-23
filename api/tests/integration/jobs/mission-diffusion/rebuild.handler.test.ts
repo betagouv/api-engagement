@@ -142,9 +142,13 @@ describe("MissionDiffusionRebuildHandler", () => {
     await publisherService.softDeletePublisher(diffuser.id);
     expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuser.id })).not.toHaveLength(0);
 
+    // On isole la republication du run de purge (le premier run a déjà publié la mission à l'ajout).
+    publishMock.mockClear();
     const result = await handler.handle({});
 
     expect(await tableMissionIds(diffuser.id)).toEqual(new Set());
     expect(result.prunedDistributionPublishers).toBeGreaterThan(0);
+    // La mission purgée est republiée pour perdre le diffuseur côté Typesense.
+    expect(publishMock).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: mission.id, action: "upsert" } });
   });
 });

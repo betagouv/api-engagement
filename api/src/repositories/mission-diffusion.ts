@@ -63,6 +63,19 @@ export const missionDiffusionRepository = {
     return result.count;
   },
 
+  // Missions ayant au moins une ligne pour un publisher de diffusion sorti de la population du snapshot.
+  // À collecter AVANT la purge pour pouvoir les réindexer (elles doivent perdre ce diffuseur dans
+  // Typesense). Liste vide ⇒ toutes les missions matérialisées (mêmes bornes que la purge).
+  // `groupBy` = DISTINCT côté Postgres : borné au nombre de missions distinctes (≤ stock des missions),
+  // et non au nombre de lignes lues (contrairement au `distinct` Prisma, post-traité côté client).
+  async findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<string[]> {
+    const rows = await client(tx).missionDiffusion.groupBy({
+      by: ["missionId"],
+      where: distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {},
+    });
+    return rows.map((row) => row.missionId);
+  },
+
   // Purge les lignes des publishers de diffusion sortis de la population du snapshot.
   // Liste vide ⇒ table vidée.
   async deleteRowsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<number> {

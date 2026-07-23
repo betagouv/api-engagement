@@ -70,10 +70,17 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
       );
     }
 
+    // Missions des diffuseurs sortis de la population : collectées AVANT la purge, puis republiées pour
+    // qu'elles perdent le diffuseur dans `distributionPublisherIds` côté Typesense (sinon elles
+    // continueraient d'apparaître dans /browse pour ce diffuseur jusqu'à une réindexation externe).
+    const prunedMissionIds = dryRun ? [] : await missionDiffusionRepository.findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds);
+
     const prunedDistributionPublishers = dryRun
       ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
       : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
     removed += prunedDistributionPublishers;
+
+    await republishTouchedMissions(prunedMissionIds);
     const durationMs = Date.now() - start.getTime();
 
     const mode = dryRun ? "Dry-run done" : "Done";

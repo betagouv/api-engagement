@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/repositories/mission-diffusion", () => ({
   missionDiffusionRepository: {
+    findMissionIdsForDistributionPublishersNotIn: vi.fn(),
     deleteRowsForDistributionPublishersNotIn: vi.fn(),
     countRowsForDistributionPublishersNotIn: vi.fn(),
   },
@@ -34,6 +35,7 @@ import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 const repositoryMock = missionDiffusionRepository as unknown as {
+  findMissionIdsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
   deleteRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
   countRowsForDistributionPublishersNotIn: ReturnType<typeof vi.fn>;
 };
@@ -52,6 +54,7 @@ describe("MissionDiffusionRebuildHandler", () => {
     vi.clearAllMocks();
     vi.spyOn(console, "log").mockImplementation(() => undefined);
     asyncTaskBusMock.publish.mockResolvedValue(undefined);
+    repositoryMock.findMissionIdsForDistributionPublishersNotIn.mockResolvedValue([]);
   });
 
   it("rebuild chaque diffuseur actif puis purge et agrège les compteurs", async () => {
@@ -79,6 +82,8 @@ describe("MissionDiffusionRebuildHandler", () => {
     expect(serviceMock.rebuildForDistributionPublisher).toHaveBeenCalledWith("d1", { dryRun: true, onMissionsTouched: expect.any(Function) });
     expect(repositoryMock.countRowsForDistributionPublishersNotIn).toHaveBeenCalledWith(["d1"]);
     expect(repositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(repositoryMock.findMissionIdsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(asyncTaskBusMock.publish).not.toHaveBeenCalled();
     expect(result).toMatchObject({ distributionPublishers: 1, added: 2, removed: 5, prunedDistributionPublishers: 4, dryRun: true });
   });
 
@@ -109,5 +114,20 @@ describe("MissionDiffusionRebuildHandler", () => {
     const result = await new MissionDiffusionRebuildHandler().handle({});
 
     expect(result).toMatchObject({ reindexRequested: 0, reindexFailed: 1, success: false });
+  });
+
+  it("republie les missions des diffuseurs purgés pour qu'elles perdent le diffuseur dans Typesense", async () => {
+    ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue(["d1"]);
+    serviceMock.rebuildForDistributionPublisher.mockResolvedValue({ distributionPublisherId: "d1", desired: 1, added: 0, removed: 0, durationMs: 1 });
+    repositoryMock.findMissionIdsForDistributionPublishersNotIn.mockResolvedValue(["m-purged-1", "m-purged-2"]);
+    repositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(3);
+
+    const result = await new MissionDiffusionRebuildHandler().handle({});
+
+    // Collecte avant purge, sur les diffuseurs hors population.
+    expect(repositoryMock.findMissionIdsForDistributionPublishersNotIn).toHaveBeenCalledWith(["d1"]);
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m-purged-1", action: "upsert" } });
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m-purged-2", action: "upsert" } });
+    expect(result).toMatchObject({ reindexRequested: 2 });
   });
 });
