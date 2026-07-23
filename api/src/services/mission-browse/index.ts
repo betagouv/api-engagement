@@ -11,6 +11,7 @@ import {
   buildSearchNotListFilter,
   buildSearchNumberFilter,
   combineSearchAnd,
+  combineSearchOr,
 } from "@/services/search/filter";
 import type { SearchQueryParams, SearchQueryResponse } from "@/services/search/types";
 import { normalizeToArray } from "@/utils/array";
@@ -98,7 +99,9 @@ const buildAlwaysFilterParts = (params: MissionBrowseParams): string[] => {
       parts.push(buildSearchNumberFilter("duration", "<=", params.duration));
     }
     if (params.lat !== undefined && params.lon !== undefined && params.distanceKm !== undefined) {
-      parts.push(`locations:(${params.lat},${params.lon},${params.distanceKm} km)`);
+      const locationFilter = `locations:(${params.lat},${params.lon},${params.distanceKm} km)`;
+      const remote = normalizeToArray(params.remote);
+      parts.push(!remote?.length || remote.includes("local") ? combineSearchOr([locationFilter, buildSearchEqualFilter("remote", "local")]) : locationFilter);
     }
   }
   return parts;

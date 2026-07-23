@@ -160,6 +160,35 @@ describe("missionBrowseService.browse", () => {
     ]);
   });
 
+  it("conserve les missions locales hors rayon dans une recherche géolocalisée", async () => {
+    await missionBrowseService.browse({
+      ...baseParams,
+      widgetMode: true,
+      baseFilterBy: "publisherId:=`publisher-1`",
+      lat: 48.8566,
+      lon: 2.3522,
+      distanceKm: 50,
+      remote: ["no", "local"],
+    });
+
+    expect(resultsSearch().filter_by).toContain("(locations:(48.8566,2.3522,50 km) || remote:=`local`)");
+  });
+
+  it("impose le rayon quand le filtre remote exclut les missions locales", async () => {
+    await missionBrowseService.browse({
+      ...baseParams,
+      widgetMode: true,
+      baseFilterBy: "publisherId:=`publisher-1`",
+      lat: 48.8566,
+      lon: 2.3522,
+      distanceKm: 50,
+      remote: ["full", "possible"],
+    });
+
+    expect(resultsSearch().filter_by).toContain("locations:(48.8566,2.3522,50 km)");
+    expect(resultsSearch().filter_by).not.toContain("|| remote:=`local`");
+  });
+
   it("expose une erreur métier lorsque Typesense est indisponible", async () => {
     multiSearchMock.mockRejectedValue(new Error("Typesense unavailable"));
 
