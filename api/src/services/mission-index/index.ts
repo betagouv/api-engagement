@@ -54,6 +54,9 @@ export const missionIndexService = {
         addresses: {
           select: { departmentCode: true },
         },
+        missionDiffusions: {
+          select: { distributionPublisherId: true },
+        },
         missionScorings: {
           orderBy: { createdAt: "desc" },
           take: 1,
@@ -73,6 +76,8 @@ export const missionIndexService = {
     }
 
     const departmentCodes = [...new Set(mission.addresses.map((a) => a.departmentCode).filter((c): c is string => c !== null && c !== undefined))];
+    // Diffuseurs autorisés issus du snapshot mission_diffusion. Toujours renseigné, y compris `[]`.
+    const distributionPublisherIds = [...new Set(mission.missionDiffusions.map((d) => d.distributionPublisherId))];
     const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings[0]?.missionScoringValues ?? []);
 
     const document: MissionIndexDocument = {
@@ -82,6 +87,7 @@ export const missionIndexService = {
       ...(mission.publisherOrganization?.clientId ? { publisherOrganizationClientId: mission.publisherOrganization.clientId } : {}),
       publisherOrganizationParentOrganizations: mission.publisherOrganization?.parentOrganizations ?? [],
       departmentCodes,
+      distributionPublisherIds,
       ...taxonomyIndex,
     };
 
