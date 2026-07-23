@@ -27,6 +27,7 @@ const buildMission = (overrides: Record<string, unknown> = {}) => ({
   deletedAt: null,
   statusCode: "ACCEPTED",
   addresses: [{ departmentCode: "75" }],
+  missionDiffusions: [{ distributionPublisherId: "diffuser-1" }, { distributionPublisherId: "diffuser-2" }],
   missionScorings: [
     {
       missionScoringValues: [{ taxonomyKey: "domaine", valueKey: "social_solidarite" }],
@@ -66,9 +67,32 @@ describe("missionIndexService.upsert", () => {
         publisherOrganizationClientId: "client-org-1",
         publisherOrganizationParentOrganizations: ["Réseau 1", "Réseau 2"],
         departmentCodes: ["75"],
+        distributionPublisherIds: ["diffuser-1", "diffuser-2"],
         domaine: ["social_solidarite"],
       })
     );
     expect(deleteDocumentMock).not.toHaveBeenCalled();
+  });
+
+  it("indexe les diffuseurs du snapshot en dédupliquant", async () => {
+    prismaMock.mission.findUnique.mockResolvedValue(
+      buildMission({
+        missionDiffusions: [{ distributionPublisherId: "diffuser-1" }, { distributionPublisherId: "diffuser-1" }, { distributionPublisherId: "diffuser-2" }],
+      })
+    );
+    upsertDocumentMock.mockResolvedValue(undefined);
+
+    await missionIndexService.upsert("mission-1");
+
+    expect(upsertDocumentMock).toHaveBeenCalledWith(expect.objectContaining({ distributionPublisherIds: ["diffuser-1", "diffuser-2"] }));
+  });
+
+  it("indexe un tableau vide de diffuseurs quand la mission n'est dans aucun snapshot", async () => {
+    prismaMock.mission.findUnique.mockResolvedValue(buildMission({ missionDiffusions: [] }));
+    upsertDocumentMock.mockResolvedValue(undefined);
+
+    await missionIndexService.upsert("mission-1");
+
+    expect(upsertDocumentMock).toHaveBeenCalledWith(expect.objectContaining({ distributionPublisherIds: [] }));
   });
 });
