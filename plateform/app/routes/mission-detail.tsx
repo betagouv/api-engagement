@@ -22,7 +22,7 @@ import { setQuizSessionId } from "~/services/tracking";
 import { trackMissionDetailViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState } from "~/services/tracking/types";
 import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
-import { formatDeadline } from "~/utils/mission";
+import { buildMissionApplicationHref, formatDeadline } from "~/utils/mission";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();
@@ -73,6 +73,7 @@ export default function MissionDetailPage() {
   const backPath = userScoringId ? `/results/${userScoringId}` : "/";
   const backLabel = userScoringId ? "Retour aux résultats" : "Accueil";
   const deadlineLabel = mission ? formatDeadline(mission.endAt) : null;
+  const applicationHref = mission ? buildMissionApplicationHref(mission.applicationUrl, userScoringId) : "";
 
   if (loading) {
     return (
@@ -144,7 +145,7 @@ export default function MissionDetailPage() {
       {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
 
       <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
-        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" title="Postuler - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
+        <a href={applicationHref} target="_blank" rel="noopener noreferrer" title="Postuler - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
           Postuler
         </a>
         {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
