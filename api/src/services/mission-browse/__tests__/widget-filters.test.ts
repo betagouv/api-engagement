@@ -21,7 +21,7 @@ const buildRule = (overrides: Partial<WidgetRuleRecord> = {}): WidgetRuleRecord 
   field: "domain",
   fieldType: "string",
   operator: "is",
-  value: "environnement_nature",
+  value: "Environnement",
   combinator: "and",
   position: 0,
   createdAt: new Date("2026-01-01"),
@@ -81,7 +81,7 @@ describe("buildWidgetBaseFilter", () => {
   it("ajoute les règles du widget sans matérialiser de widgetIds", async () => {
     const filter = await buildWidgetBaseFilter(buildWidget({ publishers: ["publisher-root"], rules: [buildRule()] }));
 
-    expect(filter).toBe("((publisherId:=[`publisher-root`] && distributionPublisherIds:=`diffuseur-1`) && domaine:=`environnement_nature`)");
+    expect(filter).toBe("((publisherId:=[`publisher-root`] && distributionPublisherIds:=`diffuseur-1`) && mission_domain:=`Environnement`)");
   });
 
   it("résout les règles de réseaux vers des ids d'organisation", async () => {

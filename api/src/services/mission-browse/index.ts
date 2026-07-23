@@ -70,7 +70,7 @@ const GENERIC_FACETS: FacetSpec[] = MISSION_BROWSE_FACET_FIELDS.map((field) => (
 }));
 
 const WIDGET_FACETS: FacetSpec[] = [
-  { responseField: "domain", indexFields: ["domaine"] },
+  { responseField: "domain", indexFields: ["mission_domain"] },
   { responseField: "organization", indexFields: ["publisherOrganizationFacet"] },
   { responseField: "department", indexFields: ["departmentNames"], maxValues: 120 },
   { responseField: "remote", indexFields: ["remote"] },
@@ -122,7 +122,7 @@ const buildFacetFilterParts = (params: MissionBrowseParams): Map<string, string>
     return parts;
   }
 
-  setList("domain", "domaine", params.domain);
+  setList("domain", "mission_domain", params.domain);
   setList("organization", "publisherOrganizationClientId", params.organization);
   setList("department", "departmentNames", params.department);
   setList("remote", "remote", params.remote);
@@ -165,7 +165,7 @@ const buildBrowseSearches = (params: MissionBrowseParams): { searches: SearchQue
   };
 
   const q = params.widgetMode ? params.search?.trim() || "*" : "*";
-  const queryBy = params.widgetMode ? "title,publisherOrganizationFacet,cityNames,domaine" : "publisherId";
+  const queryBy = params.widgetMode ? "title,publisherOrganizationFacet,cityNames,mission_domain" : "publisherId";
   const resultsSearch: SearchQueryParams<MissionIndexDocument> = {
     q,
     query_by: queryBy,

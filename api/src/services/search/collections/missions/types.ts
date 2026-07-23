@@ -10,6 +10,7 @@ export type MissionIndexDocument = Partial<Record<IndexedTaxonomyKey, string[]>>
   publisherOrganizationFacet?: string;
   publisherOrganizationParentOrganizations?: string[];
   title: string;
+  mission_domain?: string;
   departmentCodes: string[];
   departmentNames: string[];
   cityNames: string[];

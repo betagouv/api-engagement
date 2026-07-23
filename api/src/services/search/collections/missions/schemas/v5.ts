@@ -14,6 +14,7 @@ const schema: SearchCollectionSchema = {
     { name: "moderationAcceptedPublisherIds", type: "string[]", optional: true },
     { name: "publisherOrganizationFacet", type: "string", facet: true, optional: true },
     { name: "title", type: "string", optional: true },
+    { name: "mission_domain", type: "string", facet: true, optional: true },
     { name: "departmentNames", type: "string[]", facet: true, optional: true },
     { name: "cityNames", type: "string[]", optional: true },
     { name: "postalCodes", type: "string[]", optional: true },

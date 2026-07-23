@@ -26,7 +26,7 @@ const ORG_ARRAY_FIELDS = new Map<string, OrgArrayColumn>([
 ] as const);
 const ORG_NAME_FIELDS = new Set(["organizationName", "associationName"]);
 const FIELD_MAP: Record<string, string> = {
-  domain: "domaine",
+  domain: "mission_domain",
   activity: "activities",
   postalCode: "postalCodes",
   departmentName: "departmentNames",

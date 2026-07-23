@@ -60,6 +60,9 @@ export const missionIndexService = {
         tasks: true,
         audience: true,
         tags: true,
+        domain: {
+          select: { name: true },
+        },
         publisherOrganization: {
           select: { clientId: true, name: true, parentOrganizations: true },
         },
@@ -116,6 +119,7 @@ export const missionIndexService = {
         : {}),
       publisherOrganizationParentOrganizations: mission.publisherOrganization?.parentOrganizations ?? [],
       title: mission.title,
+      ...(mission.domain?.name ? { mission_domain: mission.domain.name } : {}),
       departmentCodes,
       departmentNames,
       cityNames: uniqueStrings(mission.addresses.map((address) => address.city)),

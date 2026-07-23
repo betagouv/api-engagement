@@ -120,7 +120,7 @@ describe("missionBrowseService.browse", () => {
   it("utilise la recherche, le tri et les facettes du widget sans modifier le mode intégrateur", async () => {
     multiSearchMock.mockResolvedValue([
       { hits: [], found: 0 },
-      { hits: [], found: 0, facet_counts: [{ field_name: "domaine", counts: [] }] },
+      { hits: [], found: 0, facet_counts: [{ field_name: "mission_domain", counts: [] }] },
       { hits: [], found: 0, facet_counts: [{ field_name: "publisherOrganizationFacet", counts: [{ value: "org-1|||Organisation 1", count: 3 }] }] },
       { hits: [], found: 0, facet_counts: [{ field_name: "departmentNames", counts: [] }] },
       { hits: [], found: 0, facet_counts: [{ field_name: "remote", counts: [] }] },
@@ -148,7 +148,7 @@ describe("missionBrowseService.browse", () => {
 
     expect(resultsSearch()).toMatchObject({
       q: "solidarité",
-      query_by: "title,publisherOrganizationFacet,cityNames,domaine",
+      query_by: "title,publisherOrganizationFacet,cityNames,mission_domain",
       sort_by: "startAt:desc,createdAt:desc",
       filter_by: "publisherId:=`publisher-1`",
     });
