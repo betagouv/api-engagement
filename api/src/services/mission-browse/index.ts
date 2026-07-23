@@ -139,15 +139,9 @@ export const missionBrowseService = {
   },
 
   async findById(id: string, diffuseurPublisherId: string, addressId?: string): Promise<MissionDetailResponse | null> {
-    const rules = await publisherDiffusionRuleService.findRules({ publisherId: diffuseurPublisherId });
-    const diffusionFilter = publisherDiffusionRulesToMissionFilter(rules);
-    if (diffusionFilter.kind === "none") {
-      return null;
-    }
-
     const mission = await missionService.findOneMissionBy({
       id,
-      ...(diffusionFilter.kind === "filter" ? diffusionFilter.missionWhere : {}),
+      missionDiffusions: { some: { distributionPublisherId: diffuseurPublisherId } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

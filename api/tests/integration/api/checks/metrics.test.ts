@@ -32,7 +32,7 @@ describe("HTTP metrics integration", () => {
 
     const response = await request(app).get("/v0/mission").set("x-api-key", publisher.apikey!);
 
-    expect(response.status).toBe(400);
+    expect(response.status).toBe(200);
     expect(recorder.records).toHaveLength(1);
     expect(recorder.records[0]).toMatchObject({
       environment: "test",

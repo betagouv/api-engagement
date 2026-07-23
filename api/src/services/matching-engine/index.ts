@@ -1,7 +1,6 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type { MatchMissionItem, MatchingEngineTaxonomy, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
@@ -75,7 +74,7 @@ const assertUserScoringExists = async (userScoringId: string): Promise<void> => 
 
 const buildRanking = (params: {
   userScoringId: string;
-  publisherRuleSql?: Prisma.Sql;
+  publisherDiffusionJoinSql?: Prisma.Sql;
   taxonomyWeights: Record<MatchingEngineTaxonomy, number>;
   taxonomyWeight: number;
   geoWeight: number;
@@ -211,9 +210,9 @@ const buildRanking = (params: {
      AND me."status" = 'completed'
     JOIN "mission" m
       ON m."id" = ms."mission_id"
+    ${params.publisherDiffusionJoinSql ?? Prisma.empty}
     WHERE m."deleted_at" IS NULL
       AND m."status_code" = 'ACCEPTED'
-      ${params.publisherRuleSql ?? Prisma.empty}
     ORDER BY
       ms."mission_id" ASC,
       me."completed_at" DESC NULLS LAST,
@@ -577,12 +576,14 @@ const buildRanking = (params: {
 `;
 };
 
-const buildPublisherRuleSql = async (publisherId?: string): Promise<Prisma.Sql> => {
+const buildPublisherDiffusionJoinSql = (publisherId?: string): Prisma.Sql => {
   if (!publisherId) {
     return Prisma.empty;
   }
 
-  return publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql(publisherId, { missionAlias: "m" });
+  return Prisma.sql`JOIN "mission_diffusion" md
+    ON md."mission_id" = m."id"
+   AND md."distribution_publisher_id" = ${publisherId}`;
 };
 
 const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
@@ -690,11 +691,10 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
 
 const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): Promise<Prisma.Sql> => {
   const params = resolveRankingParams(input);
-  const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
 
   return buildRanking({
     userScoringId: input.userScoringId,
-    publisherRuleSql,
+    publisherDiffusionJoinSql: buildPublisherDiffusionJoinSql(input.publisherId),
     taxonomyWeights: params.taxonomyWeights,
     taxonomyWeight: params.taxonomyWeight,
     geoWeight: params.geoWeight,

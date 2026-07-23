@@ -6,12 +6,10 @@ import { MissionType, Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord, MissionRemote, MissionSearchFilters } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecordWithRelations } from "@/types/publisher";
 import { getDistanceFromLatLonInKm, getDistanceKm } from "@/utils";
-import { NO_PARTNER, NO_PARTNER_MESSAGE } from "@/v0/mission/constants";
 import { buildData } from "@/v0/mission/transformer";
 import { normalizeQueryArray, parseDateFilter } from "@/v0/mission/utils";
 
@@ -82,11 +80,6 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    if (!user.publishers || !user.publishers.length) {
-      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
-      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
-    }
-
     if (req.query.size && query.data.limit === 10000) {
       query.data.limit = parseInt(req.query.size as string, 10);
     }
@@ -94,16 +87,9 @@ router.get("/", async (req: PublisherRequest, res: Response, next: NextFunction)
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const allowedPublisherIds = user.publishers.map((p) => p.publisherId);
-    if (!allowedPublisherIds.length) {
-      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
-      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
-    }
-
-    // Les ids hors scope ne sont pas filtrés ici : on les passe au service, qui applique le
-    // gating de diffusion (via diffuseurPublisherId) et renvoie 0 résultat pour le hors-scope.
-    const requestedPublisherIds = normalizeQueryArray(query.data.publisher);
-    const publisherIds = requestedPublisherIds?.length ? requestedPublisherIds : allowedPublisherIds;
+    // Sans filtre explicite, le snapshot est l'unique source du périmètre de diffusion.
+    // Un publisher demandé hors snapshot renvoie simplement 0 résultat.
+    const publisherIds = normalizeQueryArray(query.data.publisher);
 
     const filters: MissionSearchFilters = {
       publisherIds,
@@ -166,11 +152,6 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    if (!user.publishers || !user.publishers.length) {
-      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
-      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
-    }
-
     if (req.query.size && query.data.limit === 10000) {
       query.data.limit = parseInt(req.query.size as string, 10);
     }
@@ -178,16 +159,9 @@ router.get("/search", async (req: PublisherRequest, res: Response, next: NextFun
       query.data.skip = parseInt(req.query.from as string, 10);
     }
 
-    const allowedPublisherIds = user.publishers.map((p) => p.publisherId);
-    if (!allowedPublisherIds.length) {
-      res.locals = { code: NO_PARTNER, message: NO_PARTNER_MESSAGE };
-      return res.status(400).send({ ok: false, code: NO_PARTNER, message: NO_PARTNER_MESSAGE });
-    }
-
-    // Les ids hors scope ne sont pas filtrés ici : on les passe au service, qui applique le
-    // gating de diffusion (via diffuseurPublisherId) et renvoie 0 résultat pour le hors-scope.
-    const requestedPublisherIds = normalizeQueryArray(query.data.publisher);
-    const publisherIds = requestedPublisherIds?.length ? requestedPublisherIds : allowedPublisherIds;
+    // Sans filtre explicite, le snapshot est l'unique source du périmètre de diffusion.
+    // Un publisher demandé hors snapshot renvoie simplement 0 résultat.
+    const publisherIds = normalizeQueryArray(query.data.publisher);
 
     const filters: MissionSearchFilters = {
       publisherIds,
@@ -270,24 +244,16 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
 
-    if (!user.publishers?.length) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
     const missionWhere: Prisma.MissionWhereInput = {
       id: params.data.id,
       statusCode: "ACCEPTED",
       deletedAt: null,
+      missionDiffusions: { some: { distributionPublisherId: user.id } },
       ...(user.moderator ? { moderationStatuses: { some: { publisherId: user.id, status: "ACCEPTED" } } } : {}),
     };
 
     const mission = await missionService.findOneMissionBy(missionWhere, user.moderator ? user.id : null);
     if (!mission) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND });
-    }
-
-    const canAccessMission = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: user.id, missionId: mission.id });
-    if (!canAccessMission) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 

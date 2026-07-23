@@ -154,42 +154,15 @@ describe("missionBrowseService.browse", () => {
     expect(facets.domaine).toEqual([]);
   });
 
-  it("restreint le détail aux publishers whitelistés", async () => {
+  it("restreint le détail au snapshot matérialisé du diffuseur", async () => {
     await missionBrowseService.findById("mission-1", "diffuseur-1");
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      publisherId: { in: ["annonceur-1", "annonceur-2"] },
+      missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });
-  });
-
-  it("restreint le détail avec les enfants organisation supportés", async () => {
-    findRulesMock.mockResolvedValue([
-      buildRule("annonceur-1", { id: "root-1" }),
-      buildRule("po-1", { id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId" }),
-    ]);
-
-    await missionBrowseService.findById("mission-1", "diffuseur-1");
-
-    expect(findOneMissionByMock).toHaveBeenCalledWith({
-      id: "mission-1",
-      AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { clientId: "po-1" } }],
-      deletedAt: null,
-      statusCode: "ACCEPTED",
-    });
-  });
-
-  it("ne restreint pas le détail quand aucune règle n'existe", async () => {
-    findRulesMock.mockResolvedValue([]);
-
-    await missionBrowseService.findById("mission-1", "diffuseur-1");
-
-    expect(findOneMissionByMock).toHaveBeenCalledWith({
-      id: "mission-1",
-      deletedAt: null,
-      statusCode: "ACCEPTED",
-    });
+    expect(findRulesMock).not.toHaveBeenCalled();
   });
 });
