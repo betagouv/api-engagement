@@ -15,7 +15,8 @@ results as (
   select
     session_date as kpi_date,
     count(*) as results_viewed_count,
-    count(*) filter (where has_click) as sessions_with_click,
+    count(*) filter (where has_click_after_results)
+      as sessions_with_click_after_results,
     count(*) filter (where has_click_results) as sessions_with_click_results,
     count(*) filter (where has_click_external) as sessions_with_external
   from {{ ref('int_tracking_results_session') }}
@@ -38,10 +39,11 @@ select
   s.quiz_completed_count,
   p.home_pageview_count,
   coalesce(r.results_viewed_count, 0) as results_viewed_count,
-  coalesce(r.sessions_with_click, 0) as sessions_with_click,
+  coalesce(r.sessions_with_click_after_results, 0)
+    as sessions_with_click_after_results,
   s.quiz_completed_count::numeric
   / nullif(s.quiz_started_count, 0) as completion_rate,
-  coalesce(r.sessions_with_click, 0)::numeric
+  coalesce(r.sessions_with_click_after_results, 0)::numeric
   / nullif(s.quiz_started_count, 0) as quiz_to_click_rate,
   coalesce(r.sessions_with_click_results, 0)::numeric
   / nullif(r.results_viewed_count, 0) as results_click_rate,

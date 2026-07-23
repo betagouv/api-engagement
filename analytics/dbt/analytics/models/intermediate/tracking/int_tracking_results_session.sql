@@ -37,7 +37,7 @@ select
   r.total_results_count,
   r.avg_distance_km_top5,
   coalesce(cl.click_count, 0) as click_count,
-  coalesce(cl.click_count, 0) > 0 as has_click,
+  coalesce(cl.click_count, 0) > 0 as has_click_after_results,
   coalesce(cl.has_click_pinned, false) as has_click_pinned,
   coalesce(cl.has_click_results, false) as has_click_results,
   coalesce(cl.has_click_external, false) as has_click_external,
