@@ -1,10 +1,16 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+// La resynchronisation Typesense (publication sur le bus des missions touchées) est couverte en tests
+// unitaires ; ici on la neutralise pour cibler la correction du snapshot Postgres, tout en gardant un
+// spy pour vérifier le câblage.
+const publishMock = vi.hoisted(() => vi.fn());
+vi.mock("@/services/async-task", () => ({ asyncTaskBus: { publish: publishMock } }));
 
 import { prisma } from "@/db/postgres";
 import { MissionDiffusionRebuildHandler } from "@/jobs/mission-diffusion-rebuild/handler";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { publisherService } from "@/services/publisher";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
@@ -27,6 +33,8 @@ describe("MissionDiffusionRebuildHandler", () => {
   let annonceur: Awaited<ReturnType<typeof createTestPublisher>>;
 
   beforeEach(async () => {
+    publishMock.mockReset();
+    publishMock.mockResolvedValue(undefined);
     diffuser = await createTestPublisher({ name: "Diffuseur" });
     annonceur = await createTestPublisher({ name: "Annonceur", hasApiRights: false });
   });
@@ -48,6 +56,11 @@ describe("MissionDiffusionRebuildHandler", () => {
     // Ni les missions supprimées, ni les missions des publishers hors périmètre.
     expect((await tableMissionIds(diffuser.id)).has(deleted.id)).toBe(false);
     expect((await tableMissionIds(diffuser.id)).has(other.id)).toBe(false);
+
+    // Chaque mission ajoutée au snapshot est republiée sur le bus pour resynchroniser Typesense.
+    expect(result.reindexRequested).toBe(2);
+    expect(publishMock).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: fromAnnonceur.id, action: "upsert" } });
+    expect(publishMock).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: own.id, action: "upsert" } });
   });
 
   it("respecte une exclusion d'organisation (jointure publisher_organization réelle)", async () => {

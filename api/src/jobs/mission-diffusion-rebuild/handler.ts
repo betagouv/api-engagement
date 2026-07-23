@@ -1,8 +1,13 @@
+import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
+import { asyncTaskBus } from "@/services/async-task";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+
+// Concurrence de publication des tâches de réindexation Typesense (une par mission touchée).
+const REINDEX_PUBLISH_CONCURRENCY = 50;
 
 export interface MissionDiffusionRebuildJobPayload {
   dryRun?: boolean;
@@ -13,6 +18,8 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
   added?: number;
   removed?: number;
   prunedDistributionPublishers?: number;
+  reindexRequested?: number;
+  reindexFailed?: number;
   durationMs?: number;
   dryRun?: boolean;
 }
@@ -33,9 +40,34 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
     let added = 0;
     let removed = 0;
+    let reindexRequested = 0;
+    let reindexFailed = 0;
+
+    // Resynchronise Typesense au fil du rebuild : chaque mission dont l'appartenance au snapshot a
+    // changé est republiée sur le bus (at-least-once, récupérable via SQS). Les doublons entre
+    // diffuseurs sont sans effet (upsert idempotent côté worker).
+    const republishTouchedMissions = async (missionIds: string[]): Promise<void> => {
+      for (let i = 0; i < missionIds.length; i += REINDEX_PUBLISH_CONCURRENCY) {
+        const batch = missionIds.slice(i, i + REINDEX_PUBLISH_CONCURRENCY);
+        await Promise.all(
+          batch.map(async (missionId) => {
+            try {
+              await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+              reindexRequested++;
+            } catch (error) {
+              reindexFailed++;
+              captureException(error, { extra: { missionId } });
+            }
+          })
+        );
+      }
+    };
 
     for (const distributionPublisherId of distributionPublisherIds) {
-      const distributionPublisher = await missionDiffusionService.rebuildForDistributionPublisher(distributionPublisherId, { dryRun });
+      const distributionPublisher = await missionDiffusionService.rebuildForDistributionPublisher(distributionPublisherId, {
+        dryRun,
+        onMissionsTouched: republishTouchedMissions,
+      });
       added += distributionPublisher.added;
       removed += distributionPublisher.removed;
       console.log(
@@ -51,19 +83,21 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
 
     const mode = dryRun ? "Dry-run done" : "Done";
     console.log(
-      `[MissionDiffusionRebuild] ${mode}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), en ${durationMs}ms`
+      `[MissionDiffusionRebuild] ${mode}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), ${reindexRequested} réindexations demandées (${reindexFailed} échecs), en ${durationMs}ms`
     );
 
     return {
-      success: true,
+      success: reindexFailed === 0,
       timestamp: new Date(),
       distributionPublishers: distributionPublisherIds.length,
       added,
       removed,
       prunedDistributionPublishers,
+      reindexRequested,
+      reindexFailed,
       durationMs,
       dryRun,
-      message: `${dryRun ? "Dry-run : " : ""}${distributionPublisherIds.length} publishers de diffusion rebuild : +${added} / -${removed} lignes en ${durationMs}ms`,
+      message: `${dryRun ? "Dry-run : " : ""}${distributionPublisherIds.length} publishers de diffusion rebuild : +${added} / -${removed} lignes, ${reindexRequested} réindexations en ${durationMs}ms`,
     };
   }
 }
