@@ -172,4 +172,32 @@ describe("missionDiffusionService.rebuildForDistributionPublisher", () => {
     expect(missionDiffusionRepositoryMock.createManyForDistributionPublisher).not.toHaveBeenCalled();
     expect(missionDiffusionRepositoryMock.deleteManyForDistributionPublisher).not.toHaveBeenCalled();
   });
+
+  it("signale via onMissionsTouched les missions retirées puis ajoutées", async () => {
+    ruleServiceMock.buildMissionDiffuseurSnapshotWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+    missionRepositoryMock.findIds.mockResolvedValue(["m2"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1", "m2", "m3"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["m2"]);
+    const onMissionsTouched = vi.fn().mockResolvedValue(undefined);
+
+    await missionDiffusionService.rebuildForDistributionPublisher("publisher-1", { onMissionsTouched });
+
+    // Suppressions avant insertions : m4 retirée, puis m1/m3 ajoutées.
+    expect(onMissionsTouched).toHaveBeenNthCalledWith(1, ["m4"]);
+    expect(onMissionsTouched).toHaveBeenNthCalledWith(2, ["m1", "m3"]);
+  });
+
+  it("n'appelle pas onMissionsTouched en dry-run", async () => {
+    ruleServiceMock.buildMissionDiffuseurSnapshotWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["m2", "m4"]);
+    missionRepositoryMock.findIds.mockResolvedValue(["m2"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["m1", "m2", "m3"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["m2"]);
+    const onMissionsTouched = vi.fn().mockResolvedValue(undefined);
+
+    await missionDiffusionService.rebuildForDistributionPublisher("publisher-1", { dryRun: true, onMissionsTouched });
+
+    expect(onMissionsTouched).not.toHaveBeenCalled();
+  });
 });

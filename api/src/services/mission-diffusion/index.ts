@@ -16,6 +16,14 @@ export type MissionDiffusionRebuildDistributionPublisherResult = {
   dryRun?: boolean;
 };
 
+// Callback invoqué au fil des lots avec les missionId dont l'appartenance au snapshot a changé
+// (ajoutées ou retirées). Sert à resynchroniser Typesense après application des écritures. Jamais
+// appelé en dryRun.
+type RebuildOptions = {
+  dryRun?: boolean;
+  onMissionsTouched?: (missionIds: string[]) => Promise<void>;
+};
+
 const chunk = <T>(items: T[], size: number): T[][] => {
   const batches: T[][] = [];
   for (let index = 0; index < items.length; index += size) {
@@ -26,7 +34,7 @@ const chunk = <T>(items: T[], size: number): T[][] => {
 
 type SnapshotWhere = Awaited<ReturnType<typeof publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere>>;
 
-const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotWhere: SnapshotWhere, options: { dryRun?: boolean }): Promise<number> => {
+const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotWhere: SnapshotWhere, options: RebuildOptions): Promise<number> => {
   let removed = 0;
   let afterMissionId: string | undefined;
 
@@ -45,6 +53,10 @@ const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotW
       removed += options.dryRun ? batch.length : await missionDiffusionRepository.deleteManyForDistributionPublisher(distributionPublisherId, batch);
     }
 
+    if (!options.dryRun && toRemove.length > 0 && options.onMissionsTouched) {
+      await options.onMissionsTouched(toRemove);
+    }
+
     if (existingIds.length < READ_PAGE_SIZE) {
       break;
     }
@@ -53,11 +65,7 @@ const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotW
   return removed;
 };
 
-const createMissingRowsByPages = async (
-  distributionPublisherId: string,
-  snapshotWhere: SnapshotWhere,
-  options: { dryRun?: boolean }
-): Promise<{ desired: number; added: number }> => {
+const createMissingRowsByPages = async (distributionPublisherId: string, snapshotWhere: SnapshotWhere, options: RebuildOptions): Promise<{ desired: number; added: number }> => {
   let desired = 0;
   let added = 0;
   let afterId: string | undefined;
@@ -78,6 +86,10 @@ const createMissingRowsByPages = async (
       added += options.dryRun ? batch.length : await missionDiffusionRepository.createManyForDistributionPublisher(distributionPublisherId, batch);
     }
 
+    if (!options.dryRun && toAdd.length > 0 && options.onMissionsTouched) {
+      await options.onMissionsTouched(toAdd);
+    }
+
     if (desiredIds.length < READ_PAGE_SIZE) {
       break;
     }
@@ -91,7 +103,7 @@ export const missionDiffusionService = {
    * Reconstruit le snapshot d'un publisher de diffusion par diff paginé. Les suppressions sont
    * appliquées avant les insertions pour éviter un snapshot transitoirement plus permissif.
    */
-  async rebuildForDistributionPublisher(distributionPublisherId: string, options: { dryRun?: boolean } = {}): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
+  async rebuildForDistributionPublisher(distributionPublisherId: string, options: RebuildOptions = {}): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
     const start = Date.now();
     const snapshotWhere = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere(distributionPublisherId);
 
