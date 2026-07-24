@@ -557,8 +557,12 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       userAgent: identity.userAgent,
       user: identity.user,
       source: "email",
-      sourceId: userScoringId ?? "",
-      sourceName: userScoringId ? "email_user_scoring" : "email",
+      sourceId: "",
+      sourceName: "email",
+      customAttributes: {
+        email_type: userScoringId ? "user_scoring" : "mission_email",
+        ...(userScoringId ? { user_scoring_id: userScoringId } : {}),
+      },
       createdAt: new Date(),
       missionId: mission.id,
       toPublisherId: mission.publisherId,
@@ -566,7 +570,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name || "",
       isBot: false,
-    } as StatEventRecord;
+    } as unknown as StatEventRecord;
 
     const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: slugify(fromPublisher.name || fromPublisher.id || "email"),
