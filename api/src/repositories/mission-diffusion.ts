@@ -5,6 +5,19 @@ import { prisma } from "@/db/postgres";
 const client = (tx?: Prisma.TransactionClient) => tx ?? prisma;
 
 export const missionDiffusionRepository = {
+  // Diffuseurs (publishers de diffusion) matérialisés pour une mission donnée, avec leurs infos publisher.
+  // Utilise l'index `mission_diffusion_mission_id_idx`.
+  async findDistributionPublishersByMission(missionId: string, tx?: Prisma.TransactionClient) {
+    return client(tx).missionDiffusion.findMany({
+      where: { missionId },
+      select: {
+        createdAt: true,
+        distributionPublisher: { select: { id: true, name: true, category: true, logo: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+  },
+
   // Liste des `mission_id` déjà matérialisés pour un publisher de diffusion (source du diff du rebuild).
   async findMissionIdsByDistributionPublisher(distributionPublisherId: string, tx?: Prisma.TransactionClient): Promise<string[]> {
     const rows = await client(tx).missionDiffusion.findMany({
