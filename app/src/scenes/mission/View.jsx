@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HiCheckCircle, HiClock, HiLocationMarker, HiXCircle } from "react-icons/hi";
 import { RiCursorFill, RiInformationLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
@@ -85,6 +85,10 @@ const View = () => {
   const [diffuseurs, setDiffuseurs] = useState(null);
   const [searchDocument, setSearchDocument] = useState(null);
   const [technicalTabState, setTechnicalTabState] = useState({ diffuseurs: "idle", "search-document": "idle" });
+  // Garde anti-course : les callbacks des fetch d'onglets techniques comparent l'id capturé à cette
+  // ref (toujours à jour) pour ignorer une réponse arrivée après navigation vers une autre mission.
+  const currentMissionIdRef = useRef(id);
+  currentMissionIdRef.current = id;
 
   useEffect(() => {
     setDiffuseurs(null);
@@ -109,11 +113,13 @@ const View = () => {
       api
         .get(`/mission/${id}/diffuseurs`)
         .then((res) => {
+          if (currentMissionIdRef.current !== id) return;
           if (!res.ok) throw res;
           setDiffuseurs(res.data);
           setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "loaded" }));
         })
         .catch((error) => {
+          if (currentMissionIdRef.current !== id) return;
           setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "error" }));
           captureError(error, { message: "Erreur lors du chargement des diffuseurs", extra: { id } });
         });
@@ -123,11 +129,13 @@ const View = () => {
       api
         .get(`/mission/${id}/search-document`)
         .then((res) => {
+          if (currentMissionIdRef.current !== id) return;
           if (!res.ok) throw res;
           setSearchDocument(res.data);
           setTechnicalTabState((prev) => ({ ...prev, "search-document": "loaded" }));
         })
         .catch((error) => {
+          if (currentMissionIdRef.current !== id) return;
           setTechnicalTabState((prev) => ({ ...prev, "search-document": "error" }));
           captureError(error, { message: "Erreur lors du chargement du document Typesense", extra: { id } });
         });
@@ -455,10 +463,7 @@ const View = () => {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
                             {diffuseur.logo && <img src={diffuseur.logo} alt="" className="h-6 w-6 shrink-0 rounded object-contain" />}
-                            <div>
-                              <p className="font-medium">{diffuseur.name}</p>
-                              {diffuseur.category && <p className="text-text-mention text-xs">{diffuseur.category}</p>}
-                            </div>
+                            <p className="font-medium">{diffuseur.name}</p>
                           </div>
                         </td>
                         <td className="px-4 py-3 font-mono text-xs">{diffuseur.id}</td>
