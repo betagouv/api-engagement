@@ -4,8 +4,10 @@ import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
 import { Prisma } from "@/db/core";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { MissionBrowseIndexUnavailableError, missionBrowseService, type MissionBrowseWidgetFilters } from "@/services/mission-browse";
+import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { widgetService } from "@/services/widget";
@@ -38,6 +40,28 @@ const WIDGET_INCLUDE = {
   widgetPublishers: { select: { publisherId: true }, orderBy: { createdAt: "asc" as const } },
 };
 
+const iframeBrowseQuerySchema = zod.object({
+  accessibility: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  action: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  beneficiary: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  city: zod.string().optional(),
+  country: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  department: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  domain: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  duration: zod.coerce.number().int().min(0).optional(),
+  from: zod.coerce.number().int().min(0).default(0),
+  lat: zod.coerce.number().min(-90).max(90).optional(),
+  location: zod.string().optional(),
+  lon: zod.coerce.number().min(-180).max(180).optional(),
+  minor: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  organization: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  schedule: zod.union([zod.string(), zod.array(zod.string())]).optional(),
+  search: zod.string().optional(),
+  size: zod.coerce.number().int().positive().max(100).default(25),
+  start: zod.coerce.date().optional(),
+});
+
 router.get("/widget", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = zod
@@ -69,6 +93,59 @@ router.get("/widget", async (req: Request, res: Response, next: NextFunction) =>
       return res.status(200).send({ ok: true, data: widget });
     }
   } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id/browse", cors({ origin: "*" }), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    const query = iframeBrowseQuerySchema.safeParse(req.query);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+
+    const widget = await widgetService.findOneWidgetById(params.data.id);
+    if (!widget?.active || widget.deletedAt) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const location = resolveLocationFilters(widget, query.data.lon, query.data.lat);
+    const filters: MissionBrowseWidgetFilters = {
+      search: query.data.search,
+      organization: query.data.organization,
+      department: query.data.department,
+      domain: query.data.domain,
+      remote: resolveRemoteFilter(normalizeToArray(query.data.remote), widget.type),
+      country: query.data.country,
+      schedule: query.data.schedule,
+      action: query.data.action,
+      beneficiary: query.data.beneficiary,
+      minor: query.data.minor,
+      accessibility: query.data.accessibility,
+      start: query.data.start,
+      duration: query.data.duration,
+      ...location,
+    };
+    const result = await missionBrowseService.browse({
+      ...filters,
+      diffuseurPublisherId: widget.fromPublisherId,
+      baseFilterBy: await buildWidgetBaseFilter(widget),
+      widgetMode: true,
+      moderatedBy: widget.jvaModeration ? PUBLISHER_IDS.JEVEUXAIDER : null,
+      page: Math.floor(query.data.from / query.data.size) + 1,
+      pageSize: query.data.size,
+    });
+
+    return res.status(200).send({ ok: true, ...result, request: (req as Request & { requestId?: string }).requestId });
+  } catch (error) {
+    if (error instanceof MissionBrowseIndexUnavailableError) {
+      captureException(error);
+      return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Mission browse index is unavailable" });
+    }
     next(error);
   }
 });

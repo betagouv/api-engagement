@@ -69,32 +69,6 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
   }
 });
 
-router.get("/", async (req, res: Response, next: NextFunction) => {
-  if (!("id" in req.query) && !("name" in req.query)) {
-    return next("route");
-  }
-  try {
-    const query = zod
-      .object({
-        id: zod.string().optional(),
-        name: zod.string().optional(),
-      })
-      .refine((value) => Boolean(value.id) !== Boolean(value.name), { message: "Provide exactly one of id or name" })
-      .safeParse(req.query);
-    if (!query.success) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
-    }
-
-    const widget = query.data.id ? await widgetService.findOneWidgetById(query.data.id) : await widgetService.findOneWidgetByName(query.data.name ?? "");
-    if (!widget?.active || widget.deletedAt) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Widget not found" });
-    }
-    return res.status(200).send({ ok: true, data: widget });
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.get("/", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const query = zod
