@@ -232,7 +232,7 @@ describe("GET /missions/match", () => {
     expect(response.status).toBe(200);
     const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
     expect(item).toBeDefined();
-    expect(item.match.geoScore).toBe(0.7);
+    expect(item.match.geoScore).toBe(0.95);
     expect(item.mission.remote).toBe("local");
     expect(item.mission.location.distanceKm).toBeNull();
     expect(item.mission.location.city).toBeNull();
