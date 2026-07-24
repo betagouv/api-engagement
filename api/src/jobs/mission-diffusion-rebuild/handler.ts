@@ -44,6 +44,9 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     // changé est republiée sur le bus (at-least-once, récupérable via SQS). On empile tout dans la
     // file d'un coup ; c'est au worker de réguler son débit de traitement. Les doublons entre
     // diffuseurs sont sans effet (upsert idempotent côté worker).
+    // Récupération : un échec de publish laisse `reindexFailed>0` (success=false) sans que la ligne SQL
+    // déjà écrite soit rejouée ⇒ relancer alors `update-mission-index` (réindexation complète) pour
+    // reconverger Typesense sur PostgreSQL.
     const republishTouchedMissions = async (missionIds: string[]): Promise<void> => {
       await Promise.all(
         missionIds.map(async (missionId) => {
