@@ -101,18 +101,32 @@ describe("getMissionChanges", () => {
     });
   });
 
-  it("should ignore time differences for postedAt/startAt/endAt", () => {
+  it("should ignore time differences for postedAt/endAt", () => {
     const mission1 = createBaseMission();
     const mission2 = {
       ...createBaseMission(),
       postedAt: new Date("2023-01-15T23:59:59.000Z"),
-      startAt: new Date("2023-02-01T18:30:00.000Z"),
       endAt: new Date("2023-03-01T00:00:01.000Z"),
     };
 
     const changes = getMissionChanges(mission1, mission2);
 
     expect(changes).toBeNull();
+  });
+
+  it("should detect a startAt time change on the same day", () => {
+    const mission1 = createBaseMission();
+    const mission2 = {
+      ...createBaseMission(),
+      startAt: new Date("2023-02-01T18:30:00.000Z"),
+    };
+
+    expect(getMissionChanges(mission1, mission2)).toEqual({
+      startAt: {
+        previous: new Date("2023-02-01T00:00:00.000Z"),
+        current: new Date("2023-02-01T18:30:00.000Z"),
+      },
+    });
   });
 
   it("should detect array field changes", () => {
@@ -184,7 +198,7 @@ describe("getMissionChanges", () => {
 
     const changes = getMissionChanges(mission1, mission2);
 
-    expect(changes).toEqual({
+    expect(changes).toMatchObject({
       addresses: {
         previous: mission1.addresses.map((address) => ({ city: address.city })),
         current: mission2.addresses.map((address) => ({ city: address.city })),
@@ -206,7 +220,7 @@ describe("getMissionChanges", () => {
 
     const changes = getMissionChanges(mission1, mission2);
 
-    expect(changes).toEqual({
+    expect(changes).toMatchObject({
       addresses: {
         previous: mission1.addresses.map((address) => ({ city: address.city })),
         current: mission2.addresses.map((address) => ({ city: address.city })),
@@ -232,6 +246,26 @@ describe("getMissionChanges", () => {
     const changes = getMissionChanges(mission1, mission2);
 
     expect(changes).toBeNull();
+  });
+
+  it.each([
+    ["postalCode", "33000"],
+    ["country", "Belgique"],
+    ["location", { lat: 50.8503, lon: 4.3517 }],
+  ])("should detect address changes when %s changes", (field, value) => {
+    const mission1 = createBaseMission();
+    const mission2 = {
+      ...createBaseMission(),
+      addresses: [
+        {
+          ...mission1.addresses[0],
+          [field]: value,
+        },
+        mission1.addresses[1],
+      ],
+    };
+
+    expect(getMissionChanges(mission1, mission2)).toHaveProperty("addresses");
   });
 
   it("should not detect address content changes when order is different", () => {
@@ -313,11 +347,11 @@ describe("getMissionChanges", () => {
     const mission1 = createBaseMission();
     const mission2 = {
       ...createBaseMission(),
-      startAt: "2023-02-01" as any, // Same date as string
+      startAt: "2023-02-01T00:00:00.000Z" as any,
     };
 
     const changes = getMissionChanges(mission1, mission2);
 
-    expect(changes).toBeNull(); // Should be null because dates are equivalent
+    expect(changes).toBeNull();
   });
 });

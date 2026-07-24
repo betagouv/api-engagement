@@ -5,9 +5,11 @@ import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
+import { asyncTaskBus } from "@/services/async-task";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import { changesRequireEnrichment } from "@/services/mission-enrichment/triggers";
 import { missionEventService } from "@/services/mission-event";
+import { changesRequireIndex } from "@/services/mission-index/triggers";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -580,6 +582,14 @@ const baseInclude: MissionInclude = {
   jobBoards: true,
 };
 
+const enqueueMissionIndex = async (missionId: string): Promise<void> => {
+  try {
+    await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+  } catch (error) {
+    captureException(error, { extra: { context: "enqueueMissionIndex", missionId } });
+  }
+};
+
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
     try {
@@ -803,6 +813,7 @@ export const missionService = {
       type: EVENT_TYPES.CREATE,
       changes: null,
     });
+    await enqueueMissionIndex(id);
     await this.enqueueMissionProcessing(id);
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
@@ -985,6 +996,10 @@ export const missionService = {
       type: changes.deletedAt?.current ? EVENT_TYPES.DELETE : EVENT_TYPES.UPDATE,
       changes,
     });
+
+    if (changesRequireIndex(changes)) {
+      await enqueueMissionIndex(id);
+    }
 
     if (changesRequireEnrichment(changes)) {
       await this.enqueueMissionProcessing(id);
