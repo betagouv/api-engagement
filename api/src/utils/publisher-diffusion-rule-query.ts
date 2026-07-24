@@ -11,16 +11,6 @@ import {
 
 export type PublisherDiffusionRuleCondition = Pick<PublisherDiffusionRule, "field" | "fieldType" | "operator" | "value" | "combinator">;
 
-export type MissionDiffusionRuleCandidate = {
-  publisherId: string;
-  publisherOrganizationId: string | null;
-  type: string | null;
-  publisherOrganization: {
-    clientId: string;
-    parentOrganizations: string[];
-  } | null;
-};
-
 /**
  * Champs array (chemin Prisma) adossés à `PublisherOrganization` → colonne PostgreSQL.
  * Source de vérité unique d'où l'on dérive `ARRAY_FIELD_PATHS`.
@@ -32,92 +22,6 @@ const ARRAY_FIELD_PATHS = new Set(Object.keys(ARRAY_FIELD_PATH_TO_COLUMN));
 
 // Vrai si le champ est adossé à un tableau Postgres : l'appartenance est exacte (et non par sous-chaîne).
 export const isPublisherDiffusionRuleArrayField = (field: string): boolean => ARRAY_FIELD_PATHS.has(field);
-
-const getMissionRuleCandidateValue = (mission: MissionDiffusionRuleCandidate, field: string): unknown => {
-  switch (field) {
-    case "publisherId":
-      return mission.publisherId;
-    case "publisherOrganizationId":
-      return mission.publisherOrganizationId;
-    case "type":
-      return mission.type;
-    case "publisherOrganization.clientId":
-      return mission.publisherOrganization?.clientId;
-    case "publisherOrganization.parentOrganizations":
-      return mission.publisherOrganization?.parentOrganizations;
-    default:
-      return undefined;
-  }
-};
-
-const compareMissionRuleValues = (actual: unknown, expected: unknown, direction: "greater" | "less"): boolean => {
-  if (typeof actual === "number" && typeof expected === "number") {
-    return direction === "greater" ? actual > expected : actual < expected;
-  }
-  if (typeof actual === "string" && typeof expected === "string") {
-    return direction === "greater" ? actual > expected : actual < expected;
-  }
-  return false;
-};
-
-/**
- * Évalue une règle sur une mission déjà chargée. `null` signifie que la règle n'est pas
- * supportée, comme `buildMissionPublisherDiffusionRuleConditionFromRule` qui l'ignore.
- */
-export const matchesMissionPublisherDiffusionRule = (mission: MissionDiffusionRuleCandidate, rule: PublisherDiffusionRuleCondition): boolean | null => {
-  const isArrayField = isPublisherDiffusionRuleArrayField(rule.field) || rule.fieldType === "array";
-  const actual = getMissionRuleCandidateValue(mission, rule.field);
-  const expected = normalizeTypedRuleValue(rule);
-
-  if (actual === undefined && !["does_not_contain"].includes(rule.operator)) {
-    return FIELD_TO_SQL_CONFIG[rule.field] ? false : null;
-  }
-  if (!["exists", "does_not_exist"].includes(rule.operator) && shouldSkipMissionRuleValue(expected)) {
-    return null;
-  }
-
-  if (isArrayField) {
-    const values = Array.isArray(actual) ? actual.map(String) : [];
-    const contains = values.includes(String(expected));
-    switch (rule.operator) {
-      case "is":
-      case "contains":
-        return contains;
-      case "is_not":
-      case "does_not_contain":
-        return !contains;
-      case "exists":
-        return values.length > 0;
-      case "does_not_exist":
-        return values.length === 0;
-      default:
-        return null;
-    }
-  }
-
-  switch (rule.operator) {
-    case "is":
-      return actual === expected;
-    case "is_not":
-      return actual !== null && actual !== undefined && actual !== expected;
-    case "contains":
-      return actual !== null && actual !== undefined && String(actual).toLowerCase().includes(String(expected).toLowerCase());
-    case "does_not_contain":
-      return actual === undefined || (actual !== null && !String(actual).toLowerCase().includes(String(expected).toLowerCase()));
-    case "starts_with":
-      return actual !== null && actual !== undefined && String(actual).toLowerCase().startsWith(String(expected).toLowerCase());
-    case "is_greater_than":
-      return compareMissionRuleValues(actual, expected, "greater");
-    case "is_less_than":
-      return compareMissionRuleValues(actual, expected, "less");
-    case "exists":
-      return actual !== null && actual !== undefined;
-    case "does_not_exist":
-      return actual === null;
-    default:
-      return null;
-  }
-};
 
 type SqlFieldConfig = {
   column: string;
@@ -360,4 +264,10 @@ export const buildMissionPublisherDiffusionRuleSqlFromRules = (rules: PublisherD
   }
 
   return Prisma.sql`AND ${condition}`;
+};
+
+export const buildMissionPublisherDiffusionScopeSqlFromRules = (rules: PublisherDiffusionRuleCondition[], options: { missionAlias?: string } = {}): Prisma.Sql => {
+  const missionAlias = options.missionAlias ?? "m";
+  const conditions = rules.map((rule) => buildRuleSqlCondition(rule, missionAlias)).filter((condition): condition is Prisma.Sql => condition !== null);
+  return conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, " AND ")}` : Prisma.empty;
 };

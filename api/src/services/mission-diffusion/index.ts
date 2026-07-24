@@ -132,27 +132,12 @@ export const missionDiffusionService = {
       where: { id: missionId },
       select: {
         publisherId: true,
-        publisherOrganizationId: true,
-        type: true,
         deletedAt: true,
-        publisherOrganization: {
-          select: {
-            clientId: true,
-            parentOrganizations: true,
-          },
-        },
       },
     });
 
-    const desiredPublisherIds =
-      mission && mission.deletedAt === null
-        ? await publisherDiffusionRuleService.findDistributionPublisherIdsForMission({
-            publisherId: mission.publisherId,
-            publisherOrganizationId: mission.publisherOrganizationId,
-            type: mission.type,
-            publisherOrganization: mission.publisherOrganization,
-          })
-        : [];
+    const scopes = mission && mission.deletedAt === null ? await publisherDiffusionRuleService.findDistributionPublisherScopesForMission(mission.publisherId) : [];
+    const desiredPublisherIds = await missionDiffusionRepository.findDistributionPublisherIdsForMission(missionId, scopes);
     const { added, removed } = await missionDiffusionRepository.replaceForMission(missionId, desiredPublisherIds);
 
     return {

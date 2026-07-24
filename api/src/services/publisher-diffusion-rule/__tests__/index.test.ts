@@ -136,57 +136,50 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
   });
 });
 
-describe("publisherDiffusionRuleService.findDistributionPublisherIdsForMission", () => {
-  const mission = {
-    publisherId: "annonceur-1",
-    publisherOrganizationId: "organization-1",
-    type: "BENEVOLAT",
-    publisherOrganization: {
-      clientId: "organization-client-1",
-      parentOrganizations: ["network-1"],
-    },
-  };
-
+describe("publisherDiffusionRuleService.findDistributionPublisherScopesForMission", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
     prismaMock.publisher.findFirst.mockReset();
   });
 
-  it("retient les roots dont tous les critères enfants correspondent", async () => {
-    const matchingRoot = buildRule({ id: "root-1", publisherId: "diffuseur-1" });
-    const excludedRoot = buildRule({ id: "root-2", publisherId: "diffuseur-2" });
+  it("retourne les scopes candidats avec leurs critères récursifs", async () => {
+    const root = buildRule({ id: "root-1", publisherId: "diffuseur-1" });
+    const child = buildRule({
+      id: "child-1",
+      publisherId: "diffuseur-1",
+      combinedWithId: "root-1",
+      field: "publisherOrganization.clientId",
+      operator: "is",
+      value: "organization-client-1",
+    });
+    const grandchild = buildRule({
+      id: "grandchild-1",
+      publisherId: "diffuseur-1",
+      combinedWithId: "child-1",
+      field: "publisherOrganization.parentOrganizations",
+      operator: "contains",
+      value: "network-1",
+    });
     prismaMock.publisherDiffusionRule.findMany
-      .mockResolvedValueOnce([matchingRoot, excludedRoot])
-      .mockResolvedValueOnce([
-        matchingRoot,
-        buildRule({
-          id: "child-1",
-          publisherId: "diffuseur-1",
-          combinedWithId: "root-1",
-          field: "publisherOrganization.clientId",
-          operator: "is",
-          value: "organization-client-1",
-        }),
-        excludedRoot,
-        buildRule({
-          id: "child-2",
-          publisherId: "diffuseur-2",
-          combinedWithId: "root-2",
-          field: "publisherOrganization.clientId",
-          operator: "is_not",
-          value: "organization-client-1",
-        }),
-      ]);
+      .mockResolvedValueOnce([root])
+      .mockResolvedValueOnce([root, child, grandchild]);
     prismaMock.publisher.findFirst.mockResolvedValue(null);
 
-    await expect(publisherDiffusionRuleService.findDistributionPublisherIdsForMission(mission)).resolves.toEqual(["diffuseur-1"]);
+    const scopes = await publisherDiffusionRuleService.findDistributionPublisherScopesForMission("annonceur-1");
+
+    expect(scopes).toEqual([{ distributionPublisherId: "diffuseur-1", rules: [root, child, grandchild] }]);
   });
 
   it("ajoute le scope propre implicite d'un publisher de diffusion", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
     prismaMock.publisher.findFirst.mockResolvedValue({ id: "annonceur-1" });
 
-    await expect(publisherDiffusionRuleService.findDistributionPublisherIdsForMission(mission)).resolves.toEqual(["annonceur-1"]);
+    await expect(publisherDiffusionRuleService.findDistributionPublisherScopesForMission("annonceur-1")).resolves.toEqual([
+      {
+        distributionPublisherId: "annonceur-1",
+        rules: [{ field: "publisherId", fieldType: "string", operator: "is", value: "annonceur-1", combinator: "or" }],
+      },
+    ]);
   });
 
   it("respecte les critères d'une root propre explicite", async () => {
@@ -206,7 +199,21 @@ describe("publisherDiffusionRuleService.findDistributionPublisherIdsForMission",
       ]);
     prismaMock.publisher.findFirst.mockResolvedValue({ id: "annonceur-1" });
 
-    await expect(publisherDiffusionRuleService.findDistributionPublisherIdsForMission(mission)).resolves.toEqual([]);
+    const scopes = await publisherDiffusionRuleService.findDistributionPublisherScopesForMission("annonceur-1");
+
+    expect(scopes).toEqual([
+      {
+        distributionPublisherId: "annonceur-1",
+        rules: expect.arrayContaining([
+          ownRoot,
+          expect.objectContaining({
+            id: "child-own",
+            field: "publisherOrganization.parentOrganizations",
+            operator: "does_not_contain",
+          }),
+        ]),
+      },
+    ]);
   });
 });
 

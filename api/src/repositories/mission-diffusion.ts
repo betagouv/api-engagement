@@ -1,5 +1,11 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { buildMissionPublisherDiffusionScopeSqlFromRules, type PublisherDiffusionRuleCondition } from "@/utils/publisher-diffusion-rule-query";
+
+export type MissionDiffusionPublisherScope = {
+  distributionPublisherId: string;
+  rules: PublisherDiffusionRuleCondition[];
+};
 
 // Permet d'exécuter les opérations dans une transaction Prisma existante (tx) ou hors transaction.
 const client = (tx?: Prisma.TransactionClient) => tx ?? prisma;
@@ -117,5 +123,24 @@ export const missionDiffusionRepository = {
 
       return { added: added.count, removed: removed.count };
     });
+  },
+
+  async findDistributionPublisherIdsForMission(missionId: string, scopes: MissionDiffusionPublisherScope[]): Promise<string[]> {
+    if (scopes.length === 0) {
+      return [];
+    }
+
+    const scopeQueries = scopes.map((scope) => {
+      return Prisma.sql`
+        SELECT ${scope.distributionPublisherId}::text AS "distributionPublisherId"
+        FROM "mission" m
+        WHERE m."id" = ${missionId}
+          AND m."deleted_at" IS NULL
+          ${buildMissionPublisherDiffusionScopeSqlFromRules(scope.rules)}
+      `;
+    });
+
+    const rows = await prisma.$queryRaw<Array<{ distributionPublisherId: string }>>(Prisma.sql`${Prisma.join(scopeQueries, " UNION ALL ")}`);
+    return Array.from(new Set(rows.map((row) => row.distributionPublisherId)));
   },
 };

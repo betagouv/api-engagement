@@ -15,6 +15,7 @@ vi.mock("@/repositories/mission-diffusion", () => ({
     findExistingMissionIdsForDistributionPublisher: vi.fn(),
     createManyForDistributionPublisher: vi.fn(),
     deleteManyForDistributionPublisher: vi.fn(),
+    findDistributionPublisherIdsForMission: vi.fn(),
     replaceForMission: vi.fn(),
   },
 }));
@@ -22,7 +23,7 @@ vi.mock("@/repositories/mission-diffusion", () => ({
 vi.mock("@/services/publisher-diffusion-rule", () => {
   const service = {
     buildMissionDiffuseurSnapshotWhere: vi.fn(),
-    findDistributionPublisherIdsForMission: vi.fn(),
+    findDistributionPublisherScopesForMission: vi.fn(),
   };
   return { default: service, publisherDiffusionRuleService: service };
 });
@@ -49,11 +50,12 @@ const missionDiffusionRepositoryMock = missionDiffusionRepository as unknown as 
   findExistingMissionIdsForDistributionPublisher: ReturnType<typeof vi.fn>;
   createManyForDistributionPublisher: ReturnType<typeof vi.fn>;
   deleteManyForDistributionPublisher: ReturnType<typeof vi.fn>;
+  findDistributionPublisherIdsForMission: ReturnType<typeof vi.fn>;
   replaceForMission: ReturnType<typeof vi.fn>;
 };
 const ruleServiceMock = publisherDiffusionRuleService as unknown as {
   buildMissionDiffuseurSnapshotWhere: ReturnType<typeof vi.fn>;
-  findDistributionPublisherIdsForMission: ReturnType<typeof vi.fn>;
+  findDistributionPublisherScopesForMission: ReturnType<typeof vi.fn>;
 };
 
 beforeEach(() => {
@@ -66,6 +68,7 @@ beforeEach(() => {
   missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue([]);
   missionDiffusionRepositoryMock.createManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.deleteManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
+  missionDiffusionRepositoryMock.findDistributionPublisherIdsForMission.mockResolvedValue([]);
   missionDiffusionRepositoryMock.replaceForMission.mockResolvedValue({ added: 0, removed: 0 });
 });
 
@@ -220,28 +223,22 @@ describe("missionDiffusionService.rebuildForMission", () => {
   it("remplace le snapshot de la mission par les diffuseurs calculés", async () => {
     missionRepositoryMock.findUnique.mockResolvedValue({
       publisherId: "annonceur-1",
-      publisherOrganizationId: "organization-1",
-      type: "BENEVOLAT",
       deletedAt: null,
-      publisherOrganization: {
-        clientId: "organization-client-1",
-        parentOrganizations: ["network-1"],
-      },
     });
-    ruleServiceMock.findDistributionPublisherIdsForMission.mockResolvedValue(["diffuseur-1", "diffuseur-2"]);
+    const scopes = [
+      {
+        distributionPublisherId: "diffuseur-1",
+        rules: [{ field: "publisherId", fieldType: "string", operator: "is", value: "annonceur-1", combinator: "or" }],
+      },
+    ];
+    ruleServiceMock.findDistributionPublisherScopesForMission.mockResolvedValue(scopes);
+    missionDiffusionRepositoryMock.findDistributionPublisherIdsForMission.mockResolvedValue(["diffuseur-1", "diffuseur-2"]);
     missionDiffusionRepositoryMock.replaceForMission.mockResolvedValue({ added: 1, removed: 2 });
 
     const result = await missionDiffusionService.rebuildForMission("mission-1");
 
-    expect(ruleServiceMock.findDistributionPublisherIdsForMission).toHaveBeenCalledWith({
-      publisherId: "annonceur-1",
-      publisherOrganizationId: "organization-1",
-      type: "BENEVOLAT",
-      publisherOrganization: {
-        clientId: "organization-client-1",
-        parentOrganizations: ["network-1"],
-      },
-    });
+    expect(ruleServiceMock.findDistributionPublisherScopesForMission).toHaveBeenCalledWith("annonceur-1");
+    expect(missionDiffusionRepositoryMock.findDistributionPublisherIdsForMission).toHaveBeenCalledWith("mission-1", scopes);
     expect(missionDiffusionRepositoryMock.replaceForMission).toHaveBeenCalledWith("mission-1", ["diffuseur-1", "diffuseur-2"]);
     expect(result).toMatchObject({ missionId: "mission-1", desired: 2, added: 1, removed: 2 });
   });
@@ -252,10 +249,7 @@ describe("missionDiffusionService.rebuildForMission", () => {
       "supprimée",
       {
         publisherId: "annonceur-1",
-        publisherOrganizationId: null,
-        type: "BENEVOLAT",
         deletedAt: new Date(),
-        publisherOrganization: null,
       },
     ],
   ])("purge le snapshot d'une mission %s", async (_label, mission) => {
@@ -264,7 +258,8 @@ describe("missionDiffusionService.rebuildForMission", () => {
 
     const result = await missionDiffusionService.rebuildForMission("mission-1");
 
-    expect(ruleServiceMock.findDistributionPublisherIdsForMission).not.toHaveBeenCalled();
+    expect(ruleServiceMock.findDistributionPublisherScopesForMission).not.toHaveBeenCalled();
+    expect(missionDiffusionRepositoryMock.findDistributionPublisherIdsForMission).toHaveBeenCalledWith("mission-1", []);
     expect(missionDiffusionRepositoryMock.replaceForMission).toHaveBeenCalledWith("mission-1", []);
     expect(result).toMatchObject({ desired: 0, added: 0, removed: 2 });
   });

@@ -101,10 +101,10 @@ const buildOrgDataForUpdate = (body: OrgBody) => {
   };
 };
 
-export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<string | null> => {
+export const upsertPublisherOrganization = async (body: OrgBody, publisherId: string): Promise<{ id: string | null; changed: boolean }> => {
   const orgClientId = deriveOrganizationClientId(body);
   if (!orgClientId) {
-    return null;
+    return { id: null, changed: false };
   }
 
   const existing = await publisherOrganizationService.findMany({ publisherId, clientId: orgClientId });
@@ -115,11 +115,7 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
     if (changes) {
       await publisherOrganizationService.update(existing[0].id, orgData);
     }
-    // Limitation connue : les modifications du contenu d'organisation ne
-    // ré-enrichissent pas les missions déjà liées. Seul le rattachement
-    // mission -> organisation (`publisherOrganizationId`) est considéré comme
-    // un changement mission pertinent.
-    return existing[0].id;
+    return { id: existing[0].id, changed: changes !== null };
   }
 
   const orgData = buildOrgDataForCreate(body);
@@ -131,7 +127,7 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
     organizationIdVerified: null,
     verificationStatus: null,
   });
-  return created.id;
+  return { id: created.id, changed: true };
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
