@@ -48,7 +48,7 @@ resource "scaleway_job_definition" "analytics-tracking-raw" {
   timeout                = "120m"
 
   cron {
-    schedule = "0 * * * *" # Every hour
+    schedule = "0 3 * * *" # Every day at 3:00 AM
     timezone = "Europe/Paris"
   }
 
