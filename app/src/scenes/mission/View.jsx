@@ -82,8 +82,14 @@ const View = () => {
   const [activeTechnicalTab, setActiveTechnicalTab] = useState("enrichment");
   const [triggeringTask, setTriggeringTask] = useState(null);
   const [showAllAddresses, setShowAllAddresses] = useState(false);
+  const [diffuseurs, setDiffuseurs] = useState(null);
+  const [searchDocument, setSearchDocument] = useState(null);
+  const [technicalTabState, setTechnicalTabState] = useState({ diffuseurs: "idle", "search-document": "idle" });
 
   useEffect(() => {
+    setDiffuseurs(null);
+    setSearchDocument(null);
+    setTechnicalTabState({ diffuseurs: "idle", "search-document": "idle" });
     const fetchData = async () => {
       try {
         const res = await api.get(`/mission/${id}`);
@@ -95,6 +101,38 @@ const View = () => {
     };
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    if (user?.role !== "admin") return;
+    if (activeTechnicalTab === "diffuseurs" && technicalTabState.diffuseurs === "idle") {
+      setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "loading" }));
+      api
+        .get(`/mission/${id}/diffuseurs`)
+        .then((res) => {
+          if (!res.ok) throw res;
+          setDiffuseurs(res.data);
+          setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "loaded" }));
+        })
+        .catch((error) => {
+          setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "error" }));
+          captureError(error, { message: "Erreur lors du chargement des diffuseurs", extra: { id } });
+        });
+    }
+    if (activeTechnicalTab === "search-document" && technicalTabState["search-document"] === "idle") {
+      setTechnicalTabState((prev) => ({ ...prev, "search-document": "loading" }));
+      api
+        .get(`/mission/${id}/search-document`)
+        .then((res) => {
+          if (!res.ok) throw res;
+          setSearchDocument(res.data);
+          setTechnicalTabState((prev) => ({ ...prev, "search-document": "loaded" }));
+        })
+        .catch((error) => {
+          setTechnicalTabState((prev) => ({ ...prev, "search-document": "error" }));
+          captureError(error, { message: "Erreur lors du chargement du document Typesense", extra: { id } });
+        });
+    }
+  }, [activeTechnicalTab, id, user, technicalTabState]);
 
   const handleTriggerTask = async (task) => {
     setTriggeringTask(task);
@@ -136,6 +174,22 @@ const View = () => {
             label: (
               <>
                 <span aria-hidden="true">🎯</span> Scoring
+              </>
+            ),
+          },
+          {
+            key: "diffuseurs",
+            label: (
+              <>
+                <span aria-hidden="true">📡</span> Diffuseurs
+              </>
+            ),
+          },
+          {
+            key: "search-document",
+            label: (
+              <>
+                <span aria-hidden="true">🔎</span> Doc Typesense
               </>
             ),
           },
@@ -379,6 +433,59 @@ const View = () => {
                     )}
                   />
                 )}
+              </>
+            )}
+
+            {isAdmin && technicalTabKey === "diffuseurs" && (
+              <>
+                <div>
+                  <h4 className="text-xl font-semibold">Diffuseurs de la mission</h4>
+                  <p className="text-text-mention mt-1 text-sm">Publishers qui diffusent cette mission, d&apos;après le snapshot mission_diffusion.</p>
+                </div>
+                {technicalTabState.diffuseurs === "loading" && <p className="text-text-mention text-sm">Chargement...</p>}
+                {technicalTabState.diffuseurs === "error" && <p className="text-sm text-red-500">Erreur lors du chargement des diffuseurs.</p>}
+                {technicalTabState.diffuseurs === "loaded" && (
+                  <AdminDataTable
+                    caption="Diffuseurs de la mission"
+                    emptyMessage="Aucun diffuseur ne diffuse cette mission."
+                    headers={["Diffuseur", "Identifiant", "Diffusé depuis"]}
+                    rows={diffuseurs}
+                    renderRow={(diffuseur) => (
+                      <tr key={diffuseur.id} className="border-grey-border border-t">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {diffuseur.logo && <img src={diffuseur.logo} alt="" className="h-6 w-6 shrink-0 rounded object-contain" />}
+                            <div>
+                              <p className="font-medium">{diffuseur.name}</p>
+                              {diffuseur.category && <p className="text-text-mention text-xs">{diffuseur.category}</p>}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs">{diffuseur.id}</td>
+                        <td className="px-4 py-3">{formatDateTime(diffuseur.diffusedAt)}</td>
+                      </tr>
+                    )}
+                  />
+                )}
+              </>
+            )}
+
+            {isAdmin && technicalTabKey === "search-document" && (
+              <>
+                <div>
+                  <h4 className="text-xl font-semibold">Document Typesense</h4>
+                  <p className="text-text-mention mt-1 text-sm">Document brut de la mission dans la collection Typesense missions.</p>
+                </div>
+                {technicalTabState["search-document"] === "loading" && <p className="text-text-mention text-sm">Chargement...</p>}
+                {technicalTabState["search-document"] === "error" && <p className="text-sm text-red-500">Erreur lors du chargement du document Typesense.</p>}
+                {technicalTabState["search-document"] === "loaded" &&
+                  (searchDocument ? (
+                    <div className="overflow-scroll text-xs">
+                      <pre>{JSON.stringify(searchDocument, null, 2)}</pre>
+                    </div>
+                  ) : (
+                    <p className="text-text-mention text-sm">Mission non indexée dans Typesense.</p>
+                  ))}
               </>
             )}
 
