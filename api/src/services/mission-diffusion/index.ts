@@ -98,7 +98,28 @@ const createMissingRowsByPages = async (distributionPublisherId: string, snapsho
   return { desired, added };
 };
 
+export type MissionDiffuseur = {
+  id: string;
+  name: string;
+  logo: string | null;
+  diffusedAt: Date;
+};
+
 export const missionDiffusionService = {
+  /**
+   * Liste les diffuseurs (publishers de diffusion) matérialisés pour une mission, d'après le snapshot
+   * `mission_diffusion`. Renvoie les infos publisher aplaties + la date de matérialisation.
+   */
+  async findDiffuseursByMission(missionId: string): Promise<MissionDiffuseur[]> {
+    const rows = await missionDiffusionRepository.findDistributionPublishersByMission(missionId);
+    return rows.map((row) => ({
+      id: row.distributionPublisher.id,
+      name: row.distributionPublisher.name,
+      logo: row.distributionPublisher.logo,
+      diffusedAt: row.createdAt,
+    }));
+  },
+
   /**
    * Reconstruit le snapshot d'un publisher de diffusion par diff paginé. Les suppressions sont
    * appliquées avant les insertions pour éviter un snapshot transitoirement plus permissif.

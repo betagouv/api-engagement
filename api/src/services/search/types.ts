@@ -33,4 +33,6 @@ export interface SearchProvider {
   multiSearch<TDoc extends object>(collection: string, searches: SearchQueryParams<TDoc>[]): Promise<SearchQueryResponse<TDoc>[]>;
   upsert<TDoc extends object>(collection: string, document: TDoc): Promise<TDoc>;
   delete(collection: string, documentId: string): Promise<{ id: string }>;
+  // Renvoie le document brut par id, ou `null` s'il est absent de la collection.
+  retrieve<TDoc extends object>(collection: string, documentId: string): Promise<TDoc | null>;
 }
