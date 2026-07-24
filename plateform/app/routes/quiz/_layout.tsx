@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
+import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
@@ -42,6 +43,7 @@ export default function QuizLayout() {
   const navigate = useNavigate();
   const { answers, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
+  const [loadingResults, setLoadingResults] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
   // Promise en cours de save — partagée entre saveScoring() et goNext() pour éviter un double appel.
@@ -123,10 +125,14 @@ export default function QuizLayout() {
       navigate(next.route);
     } else {
       trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
-      const id = useQuizStore.getState().userScoringId;
-      navigate(id ? `/results/${id}` : "/");
+      setLoadingResults(true);
     }
   };
+
+  const handleLoadingComplete = useCallback(() => {
+    const id = useQuizStore.getState().userScoringId;
+    navigate(id ? `/results/${id}` : "/");
+  }, [navigate]);
 
   const goBack = () => {
     if (!currentStep) return;
@@ -143,29 +149,40 @@ export default function QuizLayout() {
 
   return (
     <div className="flex flex-col flex-1">
-      <QuizHeader step={currentIndex + 1} stepCount={steps.length} backHref={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />
+      <QuizHeader
+        step={loadingResults ? steps.length + 1 : currentIndex + 1}
+        stepCount={steps.length + 1}
+        backHref={!loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
+        onBack={handleBackNavigated}
+      />
       <main id="contenu" tabIndex={-1} className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
-          <div className="hidden lg:block">
-            <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />
-          </div>
-          {scoringError && (
+          {!loadingResults && (
+            <div className="hidden lg:block">
+              <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />
+            </div>
+          )}
+          {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>
             </div>
           )}
-          {/* `goNext` / `goBack` / `saveScoring` exposés aux routes enfants via Outlet context. */}
-          <Outlet
-            context={
-              {
-                goNext,
-                goBack,
-                saveScoring,
-                currentStepId: currentStep?.id ?? null,
-                currentStepIndex: currentIndex + 1,
-              } satisfies QuizOutletContext
-            }
-          />
+          {loadingResults ? (
+            <LoadingRecap onComplete={handleLoadingComplete} />
+          ) : (
+            // `goNext` / `goBack` / `saveScoring` exposés aux routes enfants via Outlet context.
+            <Outlet
+              context={
+                {
+                  goNext,
+                  goBack,
+                  saveScoring,
+                  currentStepId: currentStep?.id ?? null,
+                  currentStepIndex: currentIndex + 1,
+                } satisfies QuizOutletContext
+              }
+            />
+          )}
         </div>
       </main>
     </div>
