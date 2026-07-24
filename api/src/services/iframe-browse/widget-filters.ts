@@ -5,8 +5,8 @@ import {
   buildSearchBooleanFilter,
   buildSearchEqualFilter,
   buildSearchListFilter,
-  buildSearchNotListFilter,
   buildSearchNotEqualFilter,
+  buildSearchNotListFilter,
   buildSearchPartialFilter,
   buildSearchPrefixFilter,
   combineSearchAnd,
@@ -16,7 +16,7 @@ import type { OrgArrayColumn } from "@/types/publisher-organization";
 import type { WidgetRecord, WidgetRuleRecord } from "@/types/widget";
 
 const NEVER_FILTER = "publisherId:=`__never__`";
-const ARRAY_FIELDS = new Set(["tags"]);
+const ARRAY_FIELDS = new Set<string>(["tags"]);
 const ORG_ARRAY_FIELDS = new Map<string, OrgArrayColumn>([
   ["parentOrganization", "parent_organizations"],
   ["organizationActions", "actions"],
@@ -56,9 +56,7 @@ const buildOrganizationArrayRule = async (rule: WidgetRuleRecord, column: OrgArr
   if (!ids.length) {
     return operator === "does_not_contain" ? "" : NEVER_FILTER;
   }
-  return operator === "does_not_contain"
-    ? buildSearchNotListFilter("publisherOrganizationId", ids)
-    : buildSearchListFilter("publisherOrganizationId", ids);
+  return operator === "does_not_contain" ? buildSearchNotListFilter("publisherOrganizationId", ids) : buildSearchListFilter("publisherOrganizationId", ids);
 };
 
 const buildOrganizationNameRule = async (rule: WidgetRuleRecord): Promise<string> => {
@@ -97,13 +95,7 @@ const buildRule = async (rule: WidgetRuleRecord): Promise<string> => {
   if (!field) {
     return NEVER_FILTER;
   }
-  const operator = ARRAY_FIELDS.has(rule.field)
-    ? rule.operator === "is"
-      ? "contains"
-      : rule.operator === "is_not"
-        ? "does_not_contain"
-        : rule.operator
-    : rule.operator;
+  const operator = ARRAY_FIELDS.has(rule.field) ? (rule.operator === "is" ? "contains" : rule.operator === "is_not" ? "does_not_contain" : rule.operator) : rule.operator;
 
   if (field === "openToMinors") {
     const value = normalizeBoolean(rule.value);
@@ -166,12 +158,7 @@ const buildEligibilityFilter = async (widget: WidgetRecord): Promise<string | nu
   const alternatives: string[] = [];
 
   if (publishersWithSnapshot.length) {
-    alternatives.push(
-      combineSearchAnd([
-        buildSearchListFilter("publisherId", publishersWithSnapshot),
-        buildSearchEqualFilter("distributionPublisherIds", widget.fromPublisherId),
-      ])
-    );
+    alternatives.push(combineSearchAnd([buildSearchListFilter("publisherId", publishersWithSnapshot), buildSearchEqualFilter("distributionPublisherIds", widget.fromPublisherId)]));
   }
   if (publishersWithFallback.length) {
     alternatives.push(buildSearchListFilter("publisherId", publishersWithFallback));

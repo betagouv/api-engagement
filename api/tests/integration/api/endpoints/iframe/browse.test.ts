@@ -3,16 +3,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const browseMock = vi.hoisted(() => vi.fn());
 const buildWidgetBaseFilterMock = vi.hoisted(() => vi.fn());
-const MissionBrowseIndexUnavailableErrorMock = vi.hoisted(() => class MissionBrowseIndexUnavailableError extends Error {});
+const IframeBrowseIndexUnavailableErrorMock = vi.hoisted(() => class IframeBrowseIndexUnavailableError extends Error {});
 
-vi.mock("@/services/mission-browse", () => ({
-  MissionBrowseIndexUnavailableError: MissionBrowseIndexUnavailableErrorMock,
-  missionBrowseService: {
+vi.mock("@/services/iframe-browse", () => ({
+  IframeBrowseIndexUnavailableError: IframeBrowseIndexUnavailableErrorMock,
+  iframeBrowseService: {
     browse: browseMock,
   },
 }));
 
-vi.mock("@/services/mission-browse/widget-filters", () => ({
+vi.mock("@/services/iframe-browse/widget-filters", () => ({
   buildWidgetBaseFilter: buildWidgetBaseFilterMock,
 }));
 
@@ -55,9 +55,7 @@ describe("GET /iframe/:id/browse", () => {
       expect.objectContaining({
         search: "solidarité",
         remote: ["full", "possible"],
-        diffuseurPublisherId: publisher.id,
         baseFilterBy: "widget-filter",
-        widgetMode: true,
         moderatedBy: PUBLISHER_IDS.JEVEUXAIDER,
         page: 3,
         pageSize: 5,
@@ -93,7 +91,7 @@ describe("GET /iframe/:id/browse", () => {
 
   it("retourne 503 lorsque Typesense est indisponible", async () => {
     const widget = await createTestWidget();
-    browseMock.mockRejectedValue(new MissionBrowseIndexUnavailableErrorMock());
+    browseMock.mockRejectedValue(new IframeBrowseIndexUnavailableErrorMock());
 
     await request(app).get(`/iframe/${widget.id}/browse`).expect(503);
   });

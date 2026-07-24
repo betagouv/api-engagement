@@ -12,8 +12,6 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     description: mission.description ?? null,
     remote: mission.remote ?? null,
     city: mission.city ?? null,
-    country: mission.country ?? null,
-    postalCode: mission.postalCode ?? null,
     departmentCode: mission.departmentCode ?? null,
     departmentName: mission.departmentName ?? null,
     domain: mission.domain ?? null,
@@ -27,14 +25,6 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     publisherLogo: mission.publisherLogo ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     schedule: mission.schedule ?? null,
-    places: mission.places ?? null,
-    tags: mission.tags,
-    addresses: mission.addresses.map((address) => ({
-      city: address.city ?? null,
-      country: address.country ?? null,
-      postalCode: address.postalCode ?? null,
-      location: address.location ?? null,
-    })),
     compensation: hasCompensation
       ? {
           amount: mission.compensationAmount ?? null,
