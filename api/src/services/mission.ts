@@ -7,6 +7,8 @@ import { missionRepository } from "@/repositories/mission";
 import { activityService } from "@/services/activity";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import { changesRequireEnrichment } from "@/services/mission-enrichment/triggers";
+import { missionDiffusionService } from "@/services/mission-diffusion";
+import { changesRequireDiffusion } from "@/services/mission-diffusion/triggers";
 import { missionEventService } from "@/services/mission-event";
 import type {
   MissionCreateInput,
@@ -589,6 +591,14 @@ export const missionService = {
     }
   },
 
+  async enqueueMissionDiffusion(missionId: string): Promise<void> {
+    try {
+      await missionDiffusionService.enqueue(missionId);
+    } catch (error) {
+      captureException(error, { extra: { context: "enqueueMissionDiffusion", missionId } });
+    }
+  },
+
   async findMissionsByIds(ids: string[]): Promise<MissionRecord[]> {
     if (!ids.length) {
       return [];
@@ -812,7 +822,7 @@ export const missionService = {
     return toMissionRecord(mission as MissionWithRelations);
   },
 
-  async update(id: string, patch: MissionUpdatePatch): Promise<MissionRecord> {
+  async update(id: string, patch: MissionUpdatePatch, options: { relatedDiffusionDataChanged?: boolean } = {}): Promise<MissionRecord> {
     const previousMission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
     if (!previousMission) {
       throw new Error(`[missionService] Mission ${id} not found before update`);
@@ -977,6 +987,9 @@ export const missionService = {
     const updated = toMissionRecord(mission as MissionWithRelations);
     const changes = getMissionChanges(previous, updated);
     if (!changes) {
+      if (options.relatedDiffusionDataChanged) {
+        await this.enqueueMissionDiffusion(id);
+      }
       return updated;
     }
 
@@ -988,6 +1001,8 @@ export const missionService = {
 
     if (changesRequireEnrichment(changes)) {
       await this.enqueueMissionProcessing(id);
+    } else if (changesRequireDiffusion(changes) || options.relatedDiffusionDataChanged) {
+      await this.enqueueMissionDiffusion(id);
     }
 
     return updated;

@@ -292,7 +292,11 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       patch.description = moderation.description;
     }
 
-    const mission = await missionService.update(existing.id, patch);
+    const mission = await missionService.update(existing.id, patch, {
+      // `parentOrganizations` vit sur l'organisation liée : sa modification ne
+      // ressort pas du diff de la ligne mission, mais change les règles de diffusion.
+      relatedDiffusionDataChanged: body.organizationReseaux !== undefined,
+    });
     return res.status(200).send({ ok: true, data: buildData(mission) });
   } catch (error) {
     next(error);

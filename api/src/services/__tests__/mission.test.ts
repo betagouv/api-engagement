@@ -1,13 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { enqueueMock, captureExceptionMock } = vi.hoisted(() => ({
+const { enqueueMock, diffusionEnqueueMock, captureExceptionMock } = vi.hoisted(() => ({
   enqueueMock: vi.fn(),
+  diffusionEnqueueMock: vi.fn(),
   captureExceptionMock: vi.fn(),
 }));
 
 vi.mock("@/services/mission-enrichment", () => ({
   missionEnrichmentService: { enqueue: enqueueMock },
   buildMissionEnrichmentScoringWhere: vi.fn(),
+}));
+
+vi.mock("@/services/mission-diffusion", () => ({
+  missionDiffusionService: { enqueue: diffusionEnqueueMock },
 }));
 
 vi.mock("@/error", () => ({
@@ -63,6 +68,33 @@ describe("missionService.enqueueMissionProcessing", () => {
 
     expect(captureExceptionMock).toHaveBeenCalledWith(error, {
       extra: { context: "enqueueMissionProcessing", missionId: "mission-1" },
+    });
+  });
+});
+
+describe("missionService.enqueueMissionDiffusion", () => {
+  beforeEach(() => {
+    diffusionEnqueueMock.mockReset();
+    captureExceptionMock.mockReset();
+  });
+
+  it("délègue la publication au service de diffusion", async () => {
+    diffusionEnqueueMock.mockResolvedValue(undefined);
+
+    await missionService.enqueueMissionDiffusion("mission-1");
+
+    expect(diffusionEnqueueMock).toHaveBeenCalledWith("mission-1");
+    expect(captureExceptionMock).not.toHaveBeenCalled();
+  });
+
+  it("conserve le caractère best-effort de la publication", async () => {
+    const error = new Error("queue unavailable");
+    diffusionEnqueueMock.mockRejectedValue(error);
+
+    await expect(missionService.enqueueMissionDiffusion("mission-1")).resolves.toBeUndefined();
+
+    expect(captureExceptionMock).toHaveBeenCalledWith(error, {
+      extra: { context: "enqueueMissionDiffusion", missionId: "mission-1" },
     });
   });
 });

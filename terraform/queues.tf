@@ -61,6 +61,10 @@ locals {
       task_type = "mission.scoring"
       name      = "${var.workspace}-mission-scoring"
     }
+    mission_diffusion = {
+      task_type = "mission.diffusion"
+      name      = "${var.workspace}-mission-diffusion"
+    }
     mission_index = {
       task_type = "mission.index"
       name      = "${var.workspace}-mission-index"

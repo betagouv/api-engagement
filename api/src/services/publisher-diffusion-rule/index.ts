@@ -8,7 +8,13 @@ import type {
   PublisherDiffusionRuleFindParams,
   PublisherDiffusionRuleRecord,
 } from "@/types/publisher-diffusion-rule";
-import { buildMissionPublisherDiffusionRuleConditionFromRule, isPublisherDiffusionRuleArrayField, optimizeMissionDiffusionRuleWhere } from "@/utils/publisher-diffusion-rule-query";
+import {
+  buildMissionPublisherDiffusionRuleConditionFromRule,
+  isPublisherDiffusionRuleArrayField,
+  matchesMissionPublisherDiffusionRule,
+  type MissionDiffusionRuleCandidate,
+  optimizeMissionDiffusionRuleWhere,
+} from "@/utils/publisher-diffusion-rule-query";
 
 type PublisherDiffusionRuleWithChildren = PublisherDiffusionRule & {
   combinedRules?: PublisherDiffusionRule[];
@@ -123,6 +129,25 @@ const findOrderedRules = (publisherId: string): Promise<PublisherDiffusionRule[]
     orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
   });
 
+const matchesScope = (
+  mission: MissionDiffusionRuleCandidate,
+  rule: PublisherDiffusionRule,
+  childrenByParentId: Map<string, PublisherDiffusionRule[]>,
+  visited = new Set<string>()
+): boolean => {
+  if (visited.has(rule.id)) {
+    return false;
+  }
+
+  const nextVisited = new Set(visited).add(rule.id);
+  const selfMatches = matchesMissionPublisherDiffusionRule(mission, rule);
+  if (selfMatches === false) {
+    return false;
+  }
+
+  return (childrenByParentId.get(rule.id) ?? []).every((child) => matchesScope(mission, child, childrenByParentId, nextVisited));
+};
+
 const toRecord = (rule: PublisherDiffusionRuleWithChildren): PublisherDiffusionRuleRecord => ({
   id: rule.id,
   publisherId: rule.publisherId,
@@ -226,6 +251,66 @@ export const publisherDiffusionRuleService = {
       select: { id: true },
     });
     return publishers.map((publisher) => publisher.id);
+  },
+
+  /**
+   * Calcule le pendant mission-centric de `buildMissionDiffuseurSnapshotWhere`.
+   * Les candidats sont bornés aux diffuseurs ayant une root pour l'annonceur de la
+   * mission, plus son éventuel scope propre.
+   */
+  async findDistributionPublisherIdsForMission(mission: MissionDiffusionRuleCandidate): Promise<string[]> {
+    const [candidateRoots, ownDistributionPublisher] = await Promise.all([
+      publisherDiffusionRuleRepository.findMany({
+        where: {
+          ...DIFFUSION_SCOPE_ROOT_CRITERIA,
+          value: mission.publisherId,
+          publisher: { deletedAt: null },
+        },
+        orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
+      }),
+      publisherRepository.findFirst({
+        where: {
+          id: mission.publisherId,
+          deletedAt: null,
+          OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+        },
+      }),
+    ]);
+
+    const candidatePublisherIds = Array.from(new Set(candidateRoots.map((root) => root.publisherId)));
+    if (ownDistributionPublisher) {
+      candidatePublisherIds.push(ownDistributionPublisher.id);
+    }
+    const uniqueCandidatePublisherIds = Array.from(new Set(candidatePublisherIds));
+    if (uniqueCandidatePublisherIds.length === 0) {
+      return [];
+    }
+
+    const rules = await publisherDiffusionRuleRepository.findMany({
+      where: { publisherId: { in: uniqueCandidatePublisherIds } },
+      orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
+    });
+    const { roots, childrenByParentId } = groupRulesByParent(rules);
+    const rootsByPublisherId = new Map<string, PublisherDiffusionRule[]>();
+    for (const root of roots.filter((rule) => rule.field === "publisherId" && rule.operator === "is" && rule.value === mission.publisherId)) {
+      const publisherRoots = rootsByPublisherId.get(root.publisherId) ?? [];
+      publisherRoots.push(root);
+      rootsByPublisherId.set(root.publisherId, publisherRoots);
+    }
+
+    const desiredPublisherIds = new Set<string>();
+    for (const [publisherId, publisherRoots] of rootsByPublisherId) {
+      if (publisherRoots.some((root) => matchesScope(mission, root, childrenByParentId))) {
+        desiredPublisherIds.add(publisherId);
+      }
+    }
+
+    // Le scope propre est implicite, sauf si une root propre explicite lui applique des critères.
+    if (ownDistributionPublisher && !rootsByPublisherId.has(ownDistributionPublisher.id)) {
+      desiredPublisherIds.add(ownDistributionPublisher.id);
+    }
+
+    return Array.from(desiredPublisherIds);
   },
 
   async findRules(params: PublisherDiffusionRuleFindParams = {}, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord[]> {

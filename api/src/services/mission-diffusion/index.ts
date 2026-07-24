@@ -1,5 +1,6 @@
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
+import { asyncTaskBus } from "@/services/async-task";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 // Taille des lots d'écriture (createMany/deleteMany) : borne la taille des requêtes et des
@@ -98,7 +99,19 @@ const createMissingRowsByPages = async (distributionPublisherId: string, snapsho
   return { desired, added };
 };
 
+export type MissionDiffusionRebuildMissionResult = {
+  missionId: string;
+  desired: number;
+  added: number;
+  removed: number;
+  durationMs: number;
+};
+
 export const missionDiffusionService = {
+  async enqueue(missionId: string): Promise<void> {
+    await asyncTaskBus.publish({ type: "mission.diffusion", payload: { missionId } });
+  },
+
   /**
    * Reconstruit le snapshot d'un publisher de diffusion par diff paginé. Les suppressions sont
    * appliquées avant les insertions pour éviter un snapshot transitoirement plus permissif.
@@ -111,6 +124,44 @@ export const missionDiffusionService = {
     const { desired, added } = await createMissingRowsByPages(distributionPublisherId, snapshotWhere, options);
 
     return { distributionPublisherId, desired, added, removed, durationMs: Date.now() - start, dryRun: options.dryRun || undefined };
+  },
+
+  async rebuildForMission(missionId: string): Promise<MissionDiffusionRebuildMissionResult> {
+    const start = Date.now();
+    const mission = await missionRepository.findUnique({
+      where: { id: missionId },
+      select: {
+        publisherId: true,
+        publisherOrganizationId: true,
+        type: true,
+        deletedAt: true,
+        publisherOrganization: {
+          select: {
+            clientId: true,
+            parentOrganizations: true,
+          },
+        },
+      },
+    });
+
+    const desiredPublisherIds =
+      mission && mission.deletedAt === null
+        ? await publisherDiffusionRuleService.findDistributionPublisherIdsForMission({
+            publisherId: mission.publisherId,
+            publisherOrganizationId: mission.publisherOrganizationId,
+            type: mission.type,
+            publisherOrganization: mission.publisherOrganization,
+          })
+        : [];
+    const { added, removed } = await missionDiffusionRepository.replaceForMission(missionId, desiredPublisherIds);
+
+    return {
+      missionId,
+      desired: desiredPublisherIds.length,
+      added,
+      removed,
+      durationMs: Date.now() - start,
+    };
   },
 };
 
