@@ -62,7 +62,11 @@ type UpsertMissionResult = {
  * @param existing - The existing mission from DB (or null if not found)
  * @returns The result of the upsert operation
  */
-export const upsertMission = async (input: ImportedMission, existing: MissionRecord | null): Promise<UpsertMissionResult> => {
+export const upsertMission = async (
+  input: ImportedMission,
+  existing: MissionRecord | null,
+  options: { relatedDiffusionDataChanged?: boolean } = {}
+): Promise<UpsertMissionResult> => {
   // Create new mission
   if (!existing) {
     const created = await missionService.create(input);
@@ -75,13 +79,21 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
   // Check if update is needed
   const changes = getMissionChanges(existing, input);
   if (!changes) {
+    // La ligne mission est identique, mais une donnée de l'organisation liée (ex.
+    // réseaux/parentOrganizations) a pu changer : on redéclenche la diffusion sans réécrire
+    // la mission ni relancer l'enrichissement (cf. relatedDiffusionDataChanged côté API v2).
+    if (options.relatedDiffusionDataChanged) {
+      await missionService.enqueueMissionDiffusion(existing.id);
+    }
     return {
       action: "unchanged",
       mission: existing,
     };
   }
 
-  const updated = await missionService.update(existing.id, input as MissionUpdatePatch);
+  const updated = await missionService.update(existing.id, input as MissionUpdatePatch, {
+    relatedDiffusionDataChanged: options.relatedDiffusionDataChanged,
+  });
   return {
     action: "updated",
     mission: updated,
