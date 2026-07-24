@@ -107,9 +107,30 @@ export type MissionDiffusionRebuildMissionResult = {
   durationMs: number;
 };
 
+export type MissionDiffuseur = {
+  id: string;
+  name: string;
+  logo: string | null;
+  diffusedAt: Date;
+};
+
 export const missionDiffusionService = {
   async enqueue(missionId: string): Promise<void> {
     await asyncTaskBus.publish({ type: "mission.diffusion", payload: { missionId } });
+  },
+
+  /**
+   * Liste les diffuseurs (publishers de diffusion) matérialisés pour une mission, d'après le snapshot
+   * `mission_diffusion`. Renvoie les infos publisher aplaties + la date de matérialisation.
+   */
+  async findDiffuseursByMission(missionId: string): Promise<MissionDiffuseur[]> {
+    const rows = await missionDiffusionRepository.findDistributionPublishersByMission(missionId);
+    return rows.map((row) => ({
+      id: row.distributionPublisher.id,
+      name: row.distributionPublisher.name,
+      logo: row.distributionPublisher.logo,
+      diffusedAt: row.createdAt,
+    }));
   },
 
   /**

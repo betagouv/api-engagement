@@ -53,7 +53,7 @@ function buildMissionPayload() {
     ],
     schedule: "Quelques jours par mois selon vos disponibilités",
     places: 5000,
-    remote: "no",
+    remote: "local",
     openToMinors: false,
     reducedMobilityAccessible: false,
     compensationAmount: 74,

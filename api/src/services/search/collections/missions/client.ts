@@ -20,4 +20,8 @@ export const missionSearchClient = {
   delete(missionId: string): Promise<MissionIndexDocument> {
     return searchProvider.delete(TYPESENSE_MISSION_COLLECTION, missionId) as Promise<MissionIndexDocument>;
   },
+
+  retrieve(missionId: string): Promise<MissionIndexDocument | null> {
+    return searchProvider.retrieve<MissionIndexDocument>(TYPESENSE_MISSION_COLLECTION, missionId);
+  },
 };
