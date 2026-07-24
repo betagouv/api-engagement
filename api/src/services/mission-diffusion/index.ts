@@ -101,7 +101,6 @@ const createMissingRowsByPages = async (distributionPublisherId: string, snapsho
 export type MissionDiffuseur = {
   id: string;
   name: string;
-  category: string | null;
   logo: string | null;
   diffusedAt: Date;
 };
@@ -116,7 +115,6 @@ export const missionDiffusionService = {
     return rows.map((row) => ({
       id: row.distributionPublisher.id,
       name: row.distributionPublisher.name,
-      category: row.distributionPublisher.category,
       logo: row.distributionPublisher.logo,
       diffusedAt: row.createdAt,
     }));

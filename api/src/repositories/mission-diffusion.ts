@@ -12,7 +12,7 @@ export const missionDiffusionRepository = {
       where: { missionId },
       select: {
         createdAt: true,
-        distributionPublisher: { select: { id: true, name: true, category: true, logo: true } },
+        distributionPublisher: { select: { id: true, name: true, logo: true } },
       },
       orderBy: { createdAt: "asc" },
     });
