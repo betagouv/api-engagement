@@ -37,16 +37,16 @@ describe("GET /iframe/:id/browse", () => {
       publishers: [publisher.id],
       jvaModeration: true,
     });
-    browseMock.mockResolvedValue({ data: [], total: 0, page: 3, pageSize: 5, facets: {} });
+    browseMock.mockResolvedValue({ data: [], total: 0, page: 1, pageSize: 25, facets: {} });
 
-    const response = await request(app).get(`/iframe/${widget.id}/browse`).query({ search: "solidarité", remote: "yes", from: 10, size: 5 }).expect(200);
+    const response = await request(app).get(`/iframe/${widget.id}/browse`).query({ search: "solidarité", remote: "yes", from: 10, size: 25 }).expect(200);
 
     expect(response.body).toMatchObject({
       ok: true,
       data: [],
       total: 0,
-      page: 3,
-      pageSize: 5,
+      page: 1,
+      pageSize: 25,
       facets: {},
       request: expect.any(String),
     });
@@ -59,8 +59,9 @@ describe("GET /iframe/:id/browse", () => {
         baseFilterBy: "widget-filter",
         widgetMode: true,
         moderatedBy: PUBLISHER_IDS.JEVEUXAIDER,
-        page: 3,
-        pageSize: 5,
+        offset: 10,
+        page: 1,
+        pageSize: 25,
       })
     );
   });

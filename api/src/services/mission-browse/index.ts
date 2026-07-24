@@ -44,6 +44,7 @@ export type MissionBrowseParams = BrowseTaxonomyParams &
     baseFilterBy?: string | null;
     widgetMode?: boolean;
     moderatedBy?: string | null;
+    offset?: number;
     page: number;
     pageSize: number;
   };
@@ -173,8 +174,7 @@ const buildBrowseSearches = (params: MissionBrowseParams): { searches: SearchQue
     q,
     query_by: queryBy,
     filter_by: filterByExcluding(),
-    per_page: params.pageSize,
-    page: params.page,
+    ...(params.offset === undefined ? { per_page: params.pageSize, page: params.page } : { offset: params.offset, limit: params.pageSize }),
     ...(params.widgetMode
       ? {
           sort_by:

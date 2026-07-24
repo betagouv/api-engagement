@@ -136,6 +136,7 @@ router.get("/:id/browse", cors({ origin: "*" }), async (req: Request, res: Respo
       baseFilterBy: await buildWidgetBaseFilter(widget),
       widgetMode: true,
       moderatedBy: widget.jvaModeration ? PUBLISHER_IDS.JEVEUXAIDER : null,
+      offset: query.data.from,
       page: Math.floor(query.data.from / query.data.size) + 1,
       pageSize: query.data.size,
     });

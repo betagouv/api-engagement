@@ -17,6 +17,8 @@ export type SearchQueryParams<TDoc extends object> = Record<string, unknown> & {
   facet_by?: string;
   per_page?: number;
   page?: number;
+  offset?: number;
+  limit?: number;
 };
 
 export type SearchQueryResponse<TDoc extends object> = {

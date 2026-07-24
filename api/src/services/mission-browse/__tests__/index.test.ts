@@ -160,6 +160,20 @@ describe("missionBrowseService.browse", () => {
     ]);
   });
 
+  it("utilise l'offset du widget sans l'arrondir à une page Typesense", async () => {
+    await missionBrowseService.browse({
+      ...baseParams,
+      widgetMode: true,
+      baseFilterBy: "publisherId:=`publisher-1`",
+      offset: 10,
+      pageSize: 25,
+    });
+
+    expect(resultsSearch()).toMatchObject({ offset: 10, limit: 25 });
+    expect(resultsSearch().page).toBeUndefined();
+    expect(resultsSearch().per_page).toBeUndefined();
+  });
+
   it("conserve les missions locales hors rayon dans une recherche géolocalisée", async () => {
     await missionBrowseService.browse({
       ...baseParams,
