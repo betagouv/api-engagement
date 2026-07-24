@@ -7,6 +7,7 @@ import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { SUPPORTED_CHILD_FIELDS } from "@/services/publisher-diffusion-rule/config";
+import { publisherDiffusionRuleMutationService } from "@/services/publisher-diffusion-rule/mutations";
 import { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
 
@@ -122,7 +123,7 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
 
     const created = await Promise.all(
       diffuseurIds.map((diffuseurId) =>
-        publisherDiffusionRuleService.createScopedRule({
+        publisherDiffusionRuleMutationService.createScopedRule({
           diffuseurPublisherId: diffuseurId,
           annonceurPublisherId: user.id,
           field: body.data.field,
@@ -177,7 +178,7 @@ router.delete("/:id", async (req: PublisherRequest, res: Response, next: NextFun
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Rule not scoped to user" });
     }
 
-    await publisherDiffusionRuleService.deleteRule(rule.id);
+    await publisherDiffusionRuleMutationService.deleteRule(rule.id);
 
     return res.status(200).send({ ok: true });
   } catch (error) {

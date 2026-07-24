@@ -2,6 +2,7 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
+import { asyncTaskBus } from "@/services/async-task";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { PublisherMissionType } from "@/types/publisher";
@@ -204,6 +205,7 @@ describe("Dashboard publisher controller", () => {
   it("logs an audit event when updating a publisher", async () => {
     const { token: adminToken } = await createTestUser({ role: "admin" });
 
+    vi.mocked(asyncTaskBus.publish).mockClear();
     const res = await request(app)
       .put(`/publisher/${publisherId}`)
       .set({ Authorization: `jwt ${adminToken}` })
@@ -213,6 +215,7 @@ describe("Dashboard publisher controller", () => {
       });
 
     expect(res.status).toBe(200);
+    expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "publisher.diffusion" }));
     expect(getAuditLogs(consoleInfoSpy)).toContainEqual(
       expect.objectContaining({
         type: "security_audit",
@@ -242,6 +245,7 @@ describe("Dashboard publisher controller", () => {
       value: "org-1",
     });
 
+    vi.mocked(asyncTaskBus.publish).mockClear();
     const res = await request(app)
       .put(`/publisher/${diffuseur.id}`)
       .set({ Authorization: `jwt ${adminToken}` })
@@ -255,6 +259,7 @@ describe("Dashboard publisher controller", () => {
     expect(roots.map((rule) => rule.value).sort()).toEqual([annonceur1.id, annonceur2.id].sort());
     expect(roots.find((rule) => rule.value === annonceur1.id)?.id).toBe(rootBefore.id);
     expect(rules.find((rule) => rule.id === child.id)).toBeDefined();
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur.id } });
   });
 
   it("deletes the root and its child rules when PUT /publisher/:id removes a partner", async () => {
@@ -269,6 +274,7 @@ describe("Dashboard publisher controller", () => {
       value: "org-1",
     });
 
+    vi.mocked(asyncTaskBus.publish).mockClear();
     const res = await request(app)
       .put(`/publisher/${diffuseur.id}`)
       .set({ Authorization: `jwt ${adminToken}` })
@@ -277,6 +283,22 @@ describe("Dashboard publisher controller", () => {
     expect(res.status).toBe(200);
     expect(res.body.data.publishers).toHaveLength(0);
     expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id })).toHaveLength(0);
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur.id } });
+  });
+
+  it("does not enqueue publisher.diffusion when PUT /publisher/:id keeps the same partner list", async () => {
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const annonceur = await createTestPublisher({ name: "Annonceur unchanged" });
+    const diffuseur = await createTestPublisher({ name: "Diffuseur unchanged", publishers: [{ publisherId: annonceur.id }] });
+
+    vi.mocked(asyncTaskBus.publish).mockClear();
+    const res = await request(app)
+      .put(`/publisher/${diffuseur.id}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ publishers: [{ publisherId: annonceur.id }] });
+
+    expect(res.status).toBe(200);
+    expect(asyncTaskBus.publish).not.toHaveBeenCalled();
   });
 
   it("clears all scope roots when PUT /publisher/:id disables diffusion rights", async () => {
@@ -284,6 +306,7 @@ describe("Dashboard publisher controller", () => {
     const annonceur = await createTestPublisher({ name: "Annonceur" });
     const diffuseur = await createTestPublisher({ name: "Diffuseur", publishers: [{ publisherId: annonceur.id }] });
 
+    vi.mocked(asyncTaskBus.publish).mockClear();
     const res = await request(app)
       .put(`/publisher/${diffuseur.id}`)
       .set({ Authorization: `jwt ${adminToken}` })
@@ -291,6 +314,7 @@ describe("Dashboard publisher controller", () => {
 
     expect(res.status).toBe(200);
     expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null })).toHaveLength(0);
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur.id } });
   });
 
   it("returns true from GET /publisher/:id/moderated when JVA has a scope root for the publisher", async () => {
@@ -331,6 +355,7 @@ describe("Dashboard publisher controller", () => {
     const annonceur = await createTestPublisher({ name: "Annonceur existing" });
     const diffuseur = await createTestPublisher({ name: "Diffuseur before unknown partner", publishers: [{ publisherId: annonceur.id }] });
 
+    vi.mocked(asyncTaskBus.publish).mockClear();
     const res = await request(app)
       .put(`/publisher/${diffuseur.id}`)
       .set({ Authorization: `jwt ${adminToken}` })
@@ -343,5 +368,6 @@ describe("Dashboard publisher controller", () => {
     expect(persisted?.name).toBe("Diffuseur before unknown partner");
     expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null })).toHaveLength(1);
     expect(await publisherDiffusionRuleService.findRules({ value: "unknown-publisher-id" })).toHaveLength(0);
+    expect(asyncTaskBus.publish).not.toHaveBeenCalled();
   });
 });

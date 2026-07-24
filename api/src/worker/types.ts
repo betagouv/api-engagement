@@ -6,6 +6,10 @@ export const missionPayloadSchema = z.object({
 
 export const missionDiffusionPayloadSchema = missionPayloadSchema;
 
+export const publisherDiffusionPayloadSchema = z.object({
+  publisherId: z.string().min(1),
+});
+
 export const missionScoringPayloadSchema = z.object({
   missionId: z.string().min(1),
   missionEnrichmentId: z.string().min(1).optional(),

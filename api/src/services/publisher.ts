@@ -4,6 +4,7 @@ import { MissionType, Prisma, Publisher } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { publisherRepository } from "@/repositories/publisher";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
+import { publisherDiffusionTaskService } from "@/services/publisher-diffusion-task";
 import { normalizeDemarches, publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
@@ -165,9 +166,9 @@ export const publisherService = (() => {
    * Valide les partenaires puis aligne les scope roots via le service des
    * diffusion rules (diff création/suppression, rules enfants préservées).
    */
-  const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<void> => {
+  const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<boolean> => {
     await ensureDiffusionPartnersExist(tx, desiredPartnerIds);
-    await publisherDiffusionRuleService.syncScopeRoots(publisherId, desiredPartnerIds, tx);
+    return publisherDiffusionRuleService.syncScopeRoots(publisherId, desiredPartnerIds, tx);
   };
 
   const buildWhereClause = (params: PublisherSearchParams): Prisma.PublisherWhereInput => {
@@ -278,13 +279,18 @@ export const publisherService = (() => {
       data.demarcheSimplifiees = { create: normalizedDemarches };
     }
 
-    const created = await prisma.$transaction(async (tx) => {
+    const { publisher: created, diffusionChanged } = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.create({ data, include: defaultInclude });
       if (rightsEnabled && normalizedPartnerIds.length) {
-        await syncDiffusionScopeRoots(tx, publisher.id, normalizedPartnerIds);
+        const diffusionChanged = await syncDiffusionScopeRoots(tx, publisher.id, normalizedPartnerIds);
+        return { publisher, diffusionChanged };
       }
-      return publisher;
+      return { publisher, diffusionChanged: false };
     });
+
+    if (diffusionChanged || created.hasApiRights) {
+      await publisherDiffusionTaskService.enqueue([created.id]);
+    }
 
     return toPublisherRecordWithDiffusions(created);
   };
@@ -391,6 +397,7 @@ export const publisherService = (() => {
       where: { id },
       data: { deletedAt: new Date() },
     });
+    await publisherDiffusionTaskService.enqueue([id]);
     return toPublisherRecordWithDiffusions(updated);
   };
 
@@ -491,20 +498,26 @@ export const publisherService = (() => {
 
     const shouldClearDiffusions = patch.publishers === null || !rightsEnabled;
 
-    const updated = await prisma.$transaction(async (tx) => {
+    const { publisher: updated, diffusionChanged } = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.update({
         where: { id },
         data,
       });
 
+      let diffusionChanged = false;
       if (shouldClearDiffusions) {
-        await syncDiffusionScopeRoots(tx, id, []);
+        diffusionChanged = await syncDiffusionScopeRoots(tx, id, []);
       } else if (normalizedPartnerIds) {
-        await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds);
+        diffusionChanged = await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds);
       }
 
-      return publisher;
+      return { publisher, diffusionChanged };
     });
+
+    const diffusionEligibilityChanged = patch.hasApiRights !== undefined && patch.hasApiRights !== existing.hasApiRights;
+    if (diffusionChanged || diffusionEligibilityChanged) {
+      await publisherDiffusionTaskService.enqueue([id]);
+    }
 
     return toPublisherRecordWithDiffusions(updated);
   };

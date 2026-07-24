@@ -24,6 +24,7 @@ vi.mock("@/services/publisher-diffusion-rule", () => {
   const service = {
     buildMissionDiffuseurSnapshotWhere: vi.fn(),
     findDistributionPublisherScopesForMission: vi.fn(),
+    isDistributionPublisherForSnapshot: vi.fn(),
   };
   return { default: service, publisherDiffusionRuleService: service };
 });
@@ -36,6 +37,7 @@ vi.mock("@/services/async-task", () => ({
 
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
+import { asyncTaskBus } from "@/services/async-task";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
@@ -56,6 +58,10 @@ const missionDiffusionRepositoryMock = missionDiffusionRepository as unknown as 
 const ruleServiceMock = publisherDiffusionRuleService as unknown as {
   buildMissionDiffuseurSnapshotWhere: ReturnType<typeof vi.fn>;
   findDistributionPublisherScopesForMission: ReturnType<typeof vi.fn>;
+  isDistributionPublisherForSnapshot: ReturnType<typeof vi.fn>;
+};
+const asyncTaskBusMock = asyncTaskBus as unknown as {
+  publish: ReturnType<typeof vi.fn>;
 };
 
 beforeEach(() => {
@@ -70,6 +76,44 @@ beforeEach(() => {
   missionDiffusionRepositoryMock.deleteManyForDistributionPublisher.mockImplementation(async (_distributionPublisherId: string, ids: string[]) => ids.length);
   missionDiffusionRepositoryMock.findDistributionPublisherIdsForMission.mockResolvedValue([]);
   missionDiffusionRepositoryMock.replaceForMission.mockResolvedValue({ added: 0, removed: 0 });
+  ruleServiceMock.isDistributionPublisherForSnapshot.mockResolvedValue(true);
+  asyncTaskBusMock.publish.mockResolvedValue(undefined);
+});
+
+describe("missionDiffusionService publisher fan-out", () => {
+  it("publie uniquement les missions ajoutées ou retirées du snapshot", async () => {
+    ruleServiceMock.buildMissionDiffuseurSnapshotWhere.mockResolvedValue({ publisherId: "annonceur-1" });
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["kept", "removed"]);
+    missionRepositoryMock.findIds.mockResolvedValue(["kept"]);
+    missionRepositoryMock.findIdsPage.mockResolvedValue(["kept", "added"]);
+    missionDiffusionRepositoryMock.findExistingMissionIdsForDistributionPublisher.mockResolvedValue(["kept"]);
+
+    const result = await missionDiffusionService.enqueueChangedMissionsForDistributionPublisher("publisher-1");
+
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledTimes(2);
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.diffusion", payload: { missionId: "removed" } });
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.diffusion", payload: { missionId: "added" } });
+    expect(result).toMatchObject({
+      distributionPublisherId: "publisher-1",
+      desired: 2,
+      queued: 2,
+      added: 1,
+      removed: 1,
+    });
+  });
+
+  it("purge toutes les missions quand le publisher sort de la population du snapshot", async () => {
+    ruleServiceMock.isDistributionPublisherForSnapshot.mockResolvedValue(false);
+    missionDiffusionRepositoryMock.findMissionIdsPageByDistributionPublisher.mockResolvedValue(["mission-1", "mission-2"]);
+
+    const result = await missionDiffusionService.enqueueChangedMissionsForDistributionPublisher("publisher-1");
+
+    expect(ruleServiceMock.buildMissionDiffuseurSnapshotWhere).not.toHaveBeenCalled();
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.diffusion", payload: { missionId: "mission-1" } });
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.diffusion", payload: { missionId: "mission-2" } });
+    expect(result).toMatchObject({ desired: 0, queued: 2, added: 0, removed: 2 });
+  });
+
 });
 
 describe("missionDiffusionService.rebuildForDistributionPublisher", () => {

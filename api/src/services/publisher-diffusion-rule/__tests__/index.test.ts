@@ -367,3 +367,29 @@ describe("publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot"
     expect(publisherIds).toEqual(["api-only", "rule-only", "both"]);
   });
 });
+
+describe("publisherDiffusionRuleService.isDistributionPublisherForSnapshot", () => {
+  beforeEach(() => {
+    prismaMock.publisher.findFirst.mockReset();
+  });
+
+  it("reconnaît un publisher actif avec droits API ou scope root", async () => {
+    prismaMock.publisher.findFirst.mockResolvedValue({ id: "publisher-1" });
+
+    await expect(publisherDiffusionRuleService.isDistributionPublisherForSnapshot("publisher-1")).resolves.toBe(true);
+    expect(prismaMock.publisher.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: "publisher-1",
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+      },
+      select: { id: true },
+    });
+  });
+
+  it("refuse un publisher sorti de la population", async () => {
+    prismaMock.publisher.findFirst.mockResolvedValue(null);
+
+    await expect(publisherDiffusionRuleService.isDistributionPublisherForSnapshot("publisher-1")).resolves.toBe(false);
+  });
+});

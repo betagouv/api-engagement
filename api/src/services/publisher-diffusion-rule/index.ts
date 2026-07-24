@@ -251,6 +251,18 @@ export const publisherDiffusionRuleService = {
     return publishers.map((publisher) => publisher.id);
   },
 
+  async isDistributionPublisherForSnapshot(publisherId: string): Promise<boolean> {
+    const publisher = await publisherRepository.findFirst({
+      where: {
+        id: publisherId,
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
+      },
+      select: { id: true },
+    });
+    return publisher !== null;
+  },
+
   async findDistributionPublisherScopesForMission(publisherId: string): Promise<MissionDistributionPublisherScope[]> {
     const [candidateRoots, ownDistributionPublisher] = await Promise.all([
       publisherDiffusionRuleRepository.findMany({
@@ -383,31 +395,36 @@ export const publisherDiffusionRuleService = {
    * et création des manquants. Pas de delete+recreate global, pour préserver les
    * rules enfants (ex. exclusions d'organisations) des roots conservés.
    */
-  async syncScopeRoots(diffuseurPublisherId: string, annonceurPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<void> {
+  async syncScopeRoots(diffuseurPublisherId: string, annonceurPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<boolean> {
     const roots = await this.findRules({ publisherId: diffuseurPublisherId, ...DIFFUSION_SCOPE_ROOT_CRITERIA }, tx);
     const desired = new Set(annonceurPublisherIds);
     const existing = new Set(roots.map((root) => root.value));
+    let changed = false;
 
     for (const root of roots) {
       if (!desired.has(root.value)) {
         await this.deleteRule(root.id, tx);
+        changed = true;
       }
     }
     for (const annonceurPublisherId of annonceurPublisherIds) {
       if (!existing.has(annonceurPublisherId)) {
         await this.findOrCreateScopeRoot(diffuseurPublisherId, annonceurPublisherId, tx);
+        changed = true;
       }
     }
+
+    return changed;
   },
 
-  async createScopedRule(input: {
+  async createScopedRuleWithStatus(input: {
     diffuseurPublisherId: string;
     annonceurPublisherId: string;
     field: string;
     fieldType?: string | null;
     operator: string;
     value: string;
-  }): Promise<PublisherDiffusionRuleRecord> {
+  }): Promise<{ rule: PublisherDiffusionRuleRecord; changed: boolean }> {
     const root = await this.findOrCreateScopeRoot(input.diffuseurPublisherId, input.annonceurPublisherId);
 
     const existing = await publisherDiffusionRuleRepository.findFirst({
@@ -419,7 +436,7 @@ export const publisherDiffusionRuleService = {
       // renvoyer silencieusement une règle qui ne correspond pas à la demande (clé unique sur field + value).
       const isSameRule = existing.operator === input.operator && (existing.fieldType ?? null) === (input.fieldType ?? null);
       if (isSameRule) {
-        return toRecord(existing as PublisherDiffusionRuleWithChildren);
+        return { rule: toRecord(existing as PublisherDiffusionRuleWithChildren), changed: false };
       }
       const conflict = new Error(`A diffusion rule already exists for field "${input.field}" and value "${input.value}" with a different operator`) as Error & {
         code: string;
@@ -444,11 +461,24 @@ export const publisherDiffusionRuleService = {
       include: { combinedRules: true },
     })) as PublisherDiffusionRuleWithChildren;
 
-    return toRecord(created);
+    return { rule: toRecord(created), changed: true };
   },
 
-  async deleteRule(id: string, tx?: Prisma.TransactionClient): Promise<void> {
-    await publisherDiffusionRuleRepository.delete({ where: { id } }, tx);
+  async createScopedRule(input: {
+    diffuseurPublisherId: string;
+    annonceurPublisherId: string;
+    field: string;
+    fieldType?: string | null;
+    operator: string;
+    value: string;
+  }): Promise<PublisherDiffusionRuleRecord> {
+    const result = await this.createScopedRuleWithStatus(input);
+    return result.rule;
+  },
+
+  async deleteRule(id: string, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord> {
+    const deleted = await publisherDiffusionRuleRepository.delete({ where: { id } }, tx);
+    return toRecord(deleted);
   },
 
   async deleteRules(params: PublisherDiffusionRuleFindParams): Promise<number> {
@@ -456,6 +486,16 @@ export const publisherDiffusionRuleService = {
       where: buildFindWhere(params),
     });
     return result.count;
+  },
+
+  async deleteRulesWithPublisherIds(params: PublisherDiffusionRuleFindParams): Promise<{ count: number; publisherIds: string[] }> {
+    const rules = await this.findRules(params);
+    if (rules.length === 0) {
+      return { count: 0, publisherIds: [] };
+    }
+
+    const count = await this.deleteRules(params);
+    return { count, publisherIds: Array.from(new Set(rules.map((rule) => rule.publisherId))) };
   },
 };
 
