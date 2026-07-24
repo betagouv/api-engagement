@@ -72,6 +72,20 @@ describe("MissionDiffusionRebuildHandler", () => {
     expect(result).toMatchObject({ distributionPublishers: 2, added: 3, removed: 12, prunedDistributionPublishers: 5, reindexRequested: 0, reindexFailed: 0 });
   });
 
+  it("mode ciblé : ne rebuild que le diffuseur demandé, sans purge cross-diffuseurs", async () => {
+    serviceMock.rebuildForDistributionPublisher.mockResolvedValue({ distributionPublisherId: "d1", desired: 10, added: 4, removed: 2, durationMs: 1 });
+
+    const result = await new MissionDiffusionRebuildHandler().handle({ publisherId: "d1" });
+
+    expect(ruleServiceMock.findDistributionPublisherIdsForSnapshot).not.toHaveBeenCalled();
+    expect(serviceMock.rebuildForDistributionPublisher).toHaveBeenCalledTimes(1);
+    expect(serviceMock.rebuildForDistributionPublisher).toHaveBeenCalledWith("d1", { dryRun: false, onMissionsTouched: expect.any(Function) });
+    expect(repositoryMock.findMissionIdsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(repositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(repositoryMock.countRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ distributionPublishers: 1, added: 4, removed: 2, prunedDistributionPublishers: 0, publisherId: "d1" });
+  });
+
   it("compte la purge sans supprimer en dry-run", async () => {
     ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue(["d1"]);
     serviceMock.rebuildForDistributionPublisher.mockResolvedValue({ distributionPublisherId: "d1", desired: 10, added: 2, removed: 1, durationMs: 1 });
