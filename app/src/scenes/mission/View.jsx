@@ -91,6 +91,10 @@ const View = () => {
   currentMissionIdRef.current = id;
 
   useEffect(() => {
+    // Vider la mission courante au changement d'id : la page repasse sur « Chargement... » (early
+    // return) jusqu'à ce que la nouvelle mission soit chargée. Sans ça, l'en-tête/détails de l'ancienne
+    // mission resteraient affichés pendant que les onglets techniques chargent déjà la nouvelle.
+    setMission(null);
     setDiffuseurs(null);
     setSearchDocument(null);
     setTechnicalTabState({ diffuseurs: "idle", "search-document": "idle" });
