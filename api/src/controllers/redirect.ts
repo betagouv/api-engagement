@@ -557,8 +557,12 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       userAgent: identity.userAgent,
       user: identity.user,
       source: "email",
-      sourceId: userScoringId ?? "",
-      sourceName: userScoringId ? "email_user_scoring" : "email",
+      sourceId: "",
+      sourceName: "email",
+      customAttributes: {
+        email_type: userScoringId ? "user_scoring" : "mission_email",
+        ...(userScoringId ? { user_scoring_id: userScoringId } : {}),
+      },
       createdAt: new Date(),
       missionId: mission.id,
       toPublisherId: mission.publisherId,
@@ -566,7 +570,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       fromPublisherId: fromPublisher.id,
       fromPublisherName: fromPublisher.name || "",
       isBot: false,
-    } as StatEventRecord;
+    } as unknown as StatEventRecord;
 
     const { clickId, url } = await createClickRedirect(obj, mission, href, {
       source: slugify(fromPublisher.name || fromPublisher.id || "email"),
@@ -652,6 +656,7 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
     const query = zod
       .object({
         tags: zod.string().optional(),
+        user_scoring_id: zod.uuid().optional(),
       })
       .safeParse(req.query);
 
@@ -675,6 +680,9 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       return res.redirect(302, "https://www.service-civique.gouv.fr/");
     }
 
+    const queryData = query.success ? query.data : undefined;
+    const userScoringId = queryData?.user_scoring_id && (await userScoringService.exists(queryData.user_scoring_id)) ? queryData.user_scoring_id : undefined;
+
     const obj = {
       type: "click",
       host: req.get("host") || "",
@@ -693,7 +701,8 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       fromPublisherId: fromPublisher?.id || "",
       fromPublisherName: fromPublisher?.name || "",
       isBot: false,
-      tags: query.data?.tags ? (query.data.tags.includes(",") ? query.data.tags.split(",").map((tag) => tag.trim()) : [query.data.tags]) : undefined,
+      tags: queryData?.tags ? (queryData.tags.includes(",") ? queryData.tags.split(",").map((tag) => tag.trim()) : [queryData.tags]) : undefined,
+      customAttributes: userScoringId ? { user_scoring_id: userScoringId } : undefined,
     } as StatEventRecord;
 
     const { clickId, url } = await createClickRedirect(obj, mission, href, {

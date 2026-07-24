@@ -1,7 +1,7 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import type { ReactNode } from "react";
 import EmailMissionModal from "~/components/mission-detail/email-mission-details-modal";
-import { formatCompensation, formatStartDate } from "~/utils/mission";
+import { buildMissionApplicationHref, formatCompensation, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
   mission: MissionDetailResponse;
@@ -22,6 +22,7 @@ function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
 export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel = "", className = "" }: MissionCtaPanelProps) {
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
+  const applicationHref = buildMissionApplicationHref(mission.applicationUrl, userScoringId);
 
   return (
     <div className={`md:shadow-card flex flex-col gap-6 bg-background px-5! py-5! md:p-6! ${className}`}>
@@ -56,7 +57,7 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
       <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:mx-0!" />
 
       <div className="flex flex-col gap-3">
-        <a href={mission.applicationUrl} target="_blank" rel="noopener noreferrer" title="Découvrir la mission - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
+        <a href={applicationHref} target="_blank" rel="noopener noreferrer" title="Découvrir la mission - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
           Découvrir la mission
         </a>
 

@@ -67,6 +67,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
   it("records click stats and appends tracking parameters when identity and publisher exist", async () => {
     const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
     const missionPublisher = await publisherService.createPublisher({ name: "Mission Publisher" });
+    const userScoring = await prisma.userScoring.create({ data: { distinctId: "quiz-user" } });
 
     const mission = await createTestMission({
       addresses: [
@@ -99,7 +100,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       .get(`/r/${mission.id}/${fromPublisher.id}`)
       .set("Host", "redirect.test")
       .set("Origin", "https://app.example.com")
-      .query({ tags: "foo,bar" });
+      .query({ tags: "foo,bar", user_scoring_id: userScoring.id });
 
     expect(response.status).toBe(302);
     const redirectUrl = new URL(response.headers.location);
@@ -134,10 +135,45 @@ describe("RedirectController /:missionId/:publisherId", () => {
       toPublisherId: mission.publisherId,
       fromPublisherId: fromPublisher.id,
       tags: ["foo", "bar"],
+      customAttributes: { user_scoring_id: userScoring.id },
       isBot: true,
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
+  });
+
+  it("records clicks without custom attributes when user scoring is absent, invalid or unknown", async () => {
+    const fromPublisher = await publisherService.createPublisher({ name: "From Publisher" });
+    const missionPublisher = await publisherService.createPublisher({ name: "Mission Publisher" });
+    const mission = await createTestMission({
+      applicationUrl: "https://mission.example.com/apply",
+      clientId: "mission-client-id",
+      lastSyncAt: new Date(),
+      publisherId: missionPublisher.id,
+      title: "Mission Title",
+    });
+
+    vi.spyOn(utils, "identify").mockReturnValue({ user: "mission-user", referer: "https://referrer.example.com", userAgent: "Mozilla/5.0" });
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    const response = await request(app).get(`/r/${mission.id}/${fromPublisher.id}`).query({ user_scoring_id: randomUUID() });
+
+    expect(response.status).toBe(302);
+    const clickId = new URL(response.headers.location).searchParams.get("apiengagement_id");
+    expect(clickId).toBeTruthy();
+    expect((await prisma.statEvent.findUnique({ where: { id: clickId! } }))?.customAttributes).toBeNull();
+
+    const responseWithoutUserScoring = await request(app).get(`/r/${mission.id}/${fromPublisher.id}`);
+    const clickIdWithoutUserScoring = new URL(responseWithoutUserScoring.headers.location).searchParams.get("apiengagement_id");
+    expect(responseWithoutUserScoring.status).toBe(302);
+    expect(clickIdWithoutUserScoring).toBeTruthy();
+    expect((await prisma.statEvent.findUnique({ where: { id: clickIdWithoutUserScoring! } }))?.customAttributes).toBeNull();
+
+    const responseWithInvalidUserScoring = await request(app).get(`/r/${mission.id}/${fromPublisher.id}`).query({ user_scoring_id: "invalid" });
+    const clickIdWithInvalidUserScoring = new URL(responseWithInvalidUserScoring.headers.location).searchParams.get("apiengagement_id");
+    expect(responseWithInvalidUserScoring.status).toBe(302);
+    expect(clickIdWithInvalidUserScoring).toBeTruthy();
+    expect((await prisma.statEvent.findUnique({ where: { id: clickIdWithInvalidUserScoring! } }))?.customAttributes).toBeNull();
   });
 
   it("uses mtm tracking parameters for Service Civique missions", async () => {
@@ -238,8 +274,12 @@ describe("RedirectController /:missionId/:publisherId", () => {
       host: "redirect.test",
       origin: "https://email.example.com",
       source: "email",
-      sourceId: userScoring.id,
-      sourceName: "email_user_scoring",
+      sourceId: "",
+      sourceName: "email",
+      customAttributes: {
+        email_type: "user_scoring",
+        user_scoring_id: userScoring.id,
+      },
       missionId: mission.id,
       toPublisherId: mission.publisherId,
       fromPublisherId: emailPublisher.id,
@@ -289,6 +329,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       source: "email",
       sourceId: "",
       sourceName: "email",
+      customAttributes: { email_type: "mission_email" },
       missionId: mission.id,
       toPublisherId: mission.publisherId,
       fromPublisherId: emailPublisher.id,
