@@ -163,9 +163,7 @@ describe("matchingEngineService", () => {
     });
 
     it("joint directement le snapshot complet pour le diffuseur", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([{ id: "user-scoring-table-filter" }])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-table-filter" }]).mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-table-filter",
       });
@@ -484,9 +482,9 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain("EXCEPT");
       expect(rankingSql).toContain("m.\"remote\"::text IN ('full', 'local')");
       expect(rankingSql).toContain("FROM forced_remote_candidates rfc");
-      expect(rankingSql).toContain('WHEN m."remote"::text IN (\'full\', \'local\') THEN NULL ELSE gs."distance_km" END');
+      expect(rankingSql).toContain("WHEN m.\"remote\"::text IN ('full', 'local') THEN NULL ELSE gs.\"distance_km\" END");
       expect(rankingValues).toContain(0.9);
-      expect(rankingValues).toContain(0.7);
+      expect(rankingValues).toContain(0.95);
     });
 
     it("does not inject the remote=full branch for the m2 version (non-regression)", async () => {
@@ -561,9 +559,9 @@ describe("matchingEngineService", () => {
           {
             mission_id: "mission-remote-local",
             mission_scoring_id: "mission-scoring-remote-local",
-            total_score: 0.77,
+            total_score: 0.815,
             taxonomy_score: 0.8,
-            geo_score: 0.7,
+            geo_score: 0.95,
             distance_km: null,
             closest_address_id: null,
           },
@@ -584,7 +582,7 @@ describe("matchingEngineService", () => {
         version: "m3",
       });
 
-      expect(result.items[0].geoScore).toBe(0.7);
+      expect(result.items[0].geoScore).toBe(0.95);
       expect(result.items[0].distanceKm).toBeNull();
     });
   });
