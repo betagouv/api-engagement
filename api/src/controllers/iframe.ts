@@ -6,8 +6,8 @@ import { PUBLISHER_IDS } from "@/config";
 import { Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
-import { IframeBrowseIndexUnavailableError, iframeBrowseService, type IframeBrowseFilters } from "@/services/iframe-browse";
-import { buildWidgetBaseFilter } from "@/services/iframe-browse/widget-filters";
+import { MissionBrowseIndexUnavailableError, missionBrowseService, type MissionBrowseWidgetFilters } from "@/services/mission-browse";
+import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { widgetService } from "@/services/widget";
@@ -114,7 +114,7 @@ router.get("/:id/browse", cors({ origin: "*" }), async (req: Request, res: Respo
     }
 
     const location = resolveLocationFilters(widget, query.data.lon, query.data.lat);
-    const filters: IframeBrowseFilters = {
+    const filters: MissionBrowseWidgetFilters = {
       search: query.data.search,
       organization: query.data.organization,
       department: query.data.department,
@@ -130,9 +130,11 @@ router.get("/:id/browse", cors({ origin: "*" }), async (req: Request, res: Respo
       duration: query.data.duration,
       ...location,
     };
-    const result = await iframeBrowseService.browse({
+    const result = await missionBrowseService.browse({
       ...filters,
+      diffuseurPublisherId: widget.fromPublisherId,
       baseFilterBy: await buildWidgetBaseFilter(widget),
+      widgetMode: true,
       moderatedBy: widget.jvaModeration ? PUBLISHER_IDS.JEVEUXAIDER : null,
       page: Math.floor(query.data.from / query.data.size) + 1,
       pageSize: query.data.size,
@@ -140,7 +142,7 @@ router.get("/:id/browse", cors({ origin: "*" }), async (req: Request, res: Respo
 
     return res.status(200).send({ ok: true, ...result, request: (req as Request & { requestId?: string }).requestId });
   } catch (error) {
-    if (error instanceof IframeBrowseIndexUnavailableError) {
+    if (error instanceof MissionBrowseIndexUnavailableError) {
       captureException(error);
       return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Mission browse index is unavailable" });
     }

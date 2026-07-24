@@ -13,7 +13,7 @@ vi.mock("@/services/publisher-organization", () => ({
   default: { findIdsMatchingArrayValue: findIdsMatchingArrayValueMock, findIdsMatchingName: findIdsMatchingNameMock },
 }));
 
-import { buildWidgetBaseFilter } from "@/services/iframe-browse/widget-filters";
+import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
 import type { WidgetRecord, WidgetRuleRecord } from "@/types/widget";
 
 const buildRule = (overrides: Partial<WidgetRuleRecord> = {}): WidgetRuleRecord => ({
@@ -67,7 +67,9 @@ describe("buildWidgetBaseFilter", () => {
   it("combine le snapshot matérialisé et le fallback widget-only", async () => {
     const filter = await buildWidgetBaseFilter(buildWidget());
 
-    expect(filter).toBe("((publisherId:=[`publisher-root`] && distributionPublisherIds:=`diffuseur-1`) || publisherId:=[`publisher-widget-only`])");
+    expect(filter).toBe(
+      "((publisherId:=[`publisher-root`] && distributionPublisherIds:=`diffuseur-1`) || publisherId:=[`publisher-widget-only`])"
+    );
   });
 
   it("préserve le filtrage direct lorsqu'aucune root ne couvre les publishers", async () => {
