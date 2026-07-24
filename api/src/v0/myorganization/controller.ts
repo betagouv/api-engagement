@@ -6,6 +6,7 @@ import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import { publisherDiffusionRuleMutationService } from "@/services/publisher-diffusion-rule/mutations";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { statEventService } from "@/services/stat-event";
 import { PublisherRequest } from "@/types/passport";
@@ -109,7 +110,7 @@ router.put("/:organizationClientId", async (req: PublisherRequest, res: Response
     const toCreate = targetExcludedIds.filter((id) => !previousExclusions.has(id));
 
     if (toDelete.length) {
-      await publisherDiffusionRuleService.deleteRules({
+      await publisherDiffusionRuleMutationService.deleteRules({
         publisherIds: toDelete,
         field: EXCLUSION_RULE_FIELD,
         value: params.data.organizationClientId,
@@ -118,7 +119,7 @@ router.put("/:organizationClientId", async (req: PublisherRequest, res: Response
 
     await Promise.all(
       toCreate.map((diffuseurId) =>
-        publisherDiffusionRuleService.createScopedRule({
+        publisherDiffusionRuleMutationService.createScopedRule({
           diffuseurPublisherId: diffuseurId,
           annonceurPublisherId: user.id,
           field: EXCLUSION_RULE_FIELD,

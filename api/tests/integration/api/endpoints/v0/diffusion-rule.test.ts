@@ -1,6 +1,7 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { asyncTaskBus } from "@/services/async-task";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { type PublisherRecord } from "@/types";
 
@@ -257,6 +258,7 @@ describe("DiffusionRule API Integration Tests", () => {
     });
 
     it("should create rules for allowed diffuseurs and ignore unrelated ones", async () => {
+      vi.mocked(asyncTaskBus.publish).mockClear();
       const response = await request(app)
         .post("/v0/diffusion-rule")
         .set("x-api-key", apiKey)
@@ -269,6 +271,8 @@ describe("DiffusionRule API Integration Tests", () => {
 
       const publisherIds = response.body.data.map((rule: any) => rule.publisherId).sort();
       expect(publisherIds).toEqual([diffuseur1.id, diffuseur2.id].sort());
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur1.id } });
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur2.id } });
       response.body.data.forEach((rule: any) => {
         expect(rule).toMatchObject({
           field: validRule.field,
@@ -304,6 +308,7 @@ describe("DiffusionRule API Integration Tests", () => {
         .send({ ...validRule, publisherIds: [diffuseur1.id] });
       expect(first.status).toBe(201);
 
+      vi.mocked(asyncTaskBus.publish).mockClear();
       const second = await request(app)
         .post("/v0/diffusion-rule")
         .set("x-api-key", apiKey)
@@ -312,6 +317,7 @@ describe("DiffusionRule API Integration Tests", () => {
       expect(second.status).toBe(201);
       expect(second.body.ok).toBe(true);
       expect(second.body.data[0].id).toBe(first.body.data[0].id);
+      expect(asyncTaskBus.publish).not.toHaveBeenCalled();
 
       const persisted = await publisherDiffusionRuleService.findRules({
         publisherId: diffuseur1.id,
@@ -409,12 +415,14 @@ describe("DiffusionRule API Integration Tests", () => {
       });
       const root = await publisherDiffusionRuleService.findOrCreateScopeRoot(diffuseur1.id, publisher.id);
 
+      vi.mocked(asyncTaskBus.publish).mockClear();
       const response = await request(app).delete(`/v0/diffusion-rule/${child.id}`).set("x-api-key", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
 
       expect(await publisherDiffusionRuleService.findRuleById(child.id)).toBeNull();
       expect(await publisherDiffusionRuleService.findRuleById(root.id)).not.toBeNull();
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur1.id } });
     });
   });
 });

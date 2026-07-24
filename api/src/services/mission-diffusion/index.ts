@@ -7,6 +7,7 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 // paramètres liés, sans transaction longue globale.
 const WRITE_BATCH_SIZE = 5000;
 const READ_PAGE_SIZE = 5000;
+const PUBLISH_BATCH_SIZE = 100;
 
 export type MissionDiffusionRebuildDistributionPublisherResult = {
   distributionPublisherId: string;
@@ -35,7 +36,20 @@ const chunk = <T>(items: T[], size: number): T[][] => {
 
 type SnapshotWhere = Awaited<ReturnType<typeof publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere>>;
 
-const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotWhere: SnapshotWhere, options: RebuildOptions): Promise<number> => {
+const enqueueMissionDiffusion = async (missionId: string): Promise<void> => {
+  await asyncTaskBus.publish({ type: "mission.diffusion", payload: { missionId } });
+};
+
+type DiffHandlers = {
+  onAdded: (missionIds: string[]) => Promise<number>;
+  onRemoved: (missionIds: string[]) => Promise<number>;
+};
+
+const visitDistributionPublisherDiff = async (
+  distributionPublisherId: string,
+  snapshotWhere: SnapshotWhere,
+  handlers: DiffHandlers
+): Promise<{ desired: number; added: number; removed: number }> => {
   let removed = 0;
   let afterMissionId: string | undefined;
 
@@ -50,12 +64,8 @@ const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotW
     const desiredExistingSet = new Set(desiredExistingIds);
     const toRemove = existingIds.filter((id) => !desiredExistingSet.has(id));
 
-    for (const batch of chunk(toRemove, WRITE_BATCH_SIZE)) {
-      removed += options.dryRun ? batch.length : await missionDiffusionRepository.deleteManyForDistributionPublisher(distributionPublisherId, batch);
-    }
-
-    if (!options.dryRun && toRemove.length > 0 && options.onMissionsTouched) {
-      await options.onMissionsTouched(toRemove);
+    if (toRemove.length > 0) {
+      removed += await handlers.onRemoved(toRemove);
     }
 
     if (existingIds.length < READ_PAGE_SIZE) {
@@ -63,10 +73,6 @@ const deleteStaleRowsByPages = async (distributionPublisherId: string, snapshotW
     }
   }
 
-  return removed;
-};
-
-const createMissingRowsByPages = async (distributionPublisherId: string, snapshotWhere: SnapshotWhere, options: RebuildOptions): Promise<{ desired: number; added: number }> => {
   let desired = 0;
   let added = 0;
   let afterId: string | undefined;
@@ -83,12 +89,8 @@ const createMissingRowsByPages = async (distributionPublisherId: string, snapsho
     const existingDesiredSet = new Set(existingDesiredIds);
     const toAdd = desiredIds.filter((id) => !existingDesiredSet.has(id));
 
-    for (const batch of chunk(toAdd, WRITE_BATCH_SIZE)) {
-      added += options.dryRun ? batch.length : await missionDiffusionRepository.createManyForDistributionPublisher(distributionPublisherId, batch);
-    }
-
-    if (!options.dryRun && toAdd.length > 0 && options.onMissionsTouched) {
-      await options.onMissionsTouched(toAdd);
+    if (toAdd.length > 0) {
+      added += await handlers.onAdded(toAdd);
     }
 
     if (desiredIds.length < READ_PAGE_SIZE) {
@@ -96,7 +98,7 @@ const createMissingRowsByPages = async (distributionPublisherId: string, snapsho
     }
   }
 
-  return { desired, added };
+  return { desired, added, removed };
 };
 
 export type MissionDiffusionRebuildMissionResult = {
@@ -107,9 +109,44 @@ export type MissionDiffusionRebuildMissionResult = {
   durationMs: number;
 };
 
+export type MissionDiffusionPublisherFanOutResult = {
+  distributionPublisherId: string;
+  desired: number;
+  added: number;
+  removed: number;
+  queued: number;
+  durationMs: number;
+};
+
 export const missionDiffusionService = {
   async enqueue(missionId: string): Promise<void> {
-    await asyncTaskBus.publish({ type: "mission.diffusion", payload: { missionId } });
+    await enqueueMissionDiffusion(missionId);
+  },
+
+  async enqueueChangedMissionsForDistributionPublisher(distributionPublisherId: string): Promise<MissionDiffusionPublisherFanOutResult> {
+    const start = Date.now();
+    const isDistributionPublisher = await publisherDiffusionRuleService.isDistributionPublisherForSnapshot(distributionPublisherId);
+    const snapshotWhere = isDistributionPublisher
+      ? await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere(distributionPublisherId)
+      : ({ id: { in: [] } } satisfies SnapshotWhere);
+    const enqueue = async (missionIds: string[]): Promise<number> => {
+      for (const batch of chunk(missionIds, PUBLISH_BATCH_SIZE)) {
+        await Promise.all(batch.map(enqueueMissionDiffusion));
+      }
+      return missionIds.length;
+    };
+
+    const result = await visitDistributionPublisherDiff(distributionPublisherId, snapshotWhere, {
+      onAdded: enqueue,
+      onRemoved: enqueue,
+    });
+
+    return {
+      distributionPublisherId,
+      ...result,
+      queued: result.added + result.removed,
+      durationMs: Date.now() - start,
+    };
   },
 
   /**
@@ -119,9 +156,20 @@ export const missionDiffusionService = {
   async rebuildForDistributionPublisher(distributionPublisherId: string, options: RebuildOptions = {}): Promise<MissionDiffusionRebuildDistributionPublisherResult> {
     const start = Date.now();
     const snapshotWhere = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere(distributionPublisherId);
-
-    const removed = await deleteStaleRowsByPages(distributionPublisherId, snapshotWhere, options);
-    const { desired, added } = await createMissingRowsByPages(distributionPublisherId, snapshotWhere, options);
+    const apply = (operation: (batch: string[]) => Promise<number>) => async (missionIds: string[]): Promise<number> => {
+      let changed = 0;
+      for (const batch of chunk(missionIds, WRITE_BATCH_SIZE)) {
+        changed += options.dryRun ? batch.length : await operation(batch);
+      }
+      if (!options.dryRun && options.onMissionsTouched) {
+        await options.onMissionsTouched(missionIds);
+      }
+      return changed;
+    };
+    const { desired, added, removed } = await visitDistributionPublisherDiff(distributionPublisherId, snapshotWhere, {
+      onAdded: apply((batch) => missionDiffusionRepository.createManyForDistributionPublisher(distributionPublisherId, batch)),
+      onRemoved: apply((batch) => missionDiffusionRepository.deleteManyForDistributionPublisher(distributionPublisherId, batch)),
+    });
 
     return { distributionPublisherId, desired, added, removed, durationMs: Date.now() - start, dryRun: options.dryRun || undefined };
   },
