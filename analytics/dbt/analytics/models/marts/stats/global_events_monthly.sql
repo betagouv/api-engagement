@@ -82,6 +82,28 @@ base as (
     {% endif %}
 ),
 
+-- Le seul axe de fan-out du join de `base` est le département
+-- (int_mission_active_department_range est unique sur (mission_id, department),
+-- et mission_domain / mission_type y sont constants par mission) : il y a donc
+-- au plus 1 ligne par (stat_event_id, department). Dans `dept` et
+-- `dept_all_mission` (groupés par département), `count(*)` est donc exact.
+-- Pour les rollups « tous départements » qui collapsent le département, on
+-- déduplique d'abord au grain événement ici, puis on fera `count(*)`.
+events_all_department as (
+  select
+    stat_event_id,
+    year,
+    month,
+    month_start,
+    mission_domain,
+    mission_type,
+    type,
+    max(updated_at) as updated_at
+  from base
+  group by
+    stat_event_id, year, month, month_start, mission_domain, mission_type, type
+),
+
 dept as (
   select
     year,
@@ -92,7 +114,7 @@ dept as (
     mission_domain,
     mission_type,
     type,
-    count(distinct stat_event_id) as event_count,
+    count(*) as event_count,
     max(updated_at) as max_updated_at
   from base
   where department is not null
@@ -110,7 +132,7 @@ dept_all_mission as (
     mission_domain,
     'all' as mission_type,
     type,
-    count(distinct stat_event_id) as event_count,
+    count(*) as event_count,
     max(updated_at) as max_updated_at
   from base
   where department is not null
@@ -127,9 +149,9 @@ all_dept as (
     mission_domain,
     mission_type,
     type,
-    count(distinct stat_event_id) as event_count,
+    count(*) as event_count,
     max(updated_at) as max_updated_at
-  from base
+  from events_all_department
   group by year, month, month_start, mission_domain, mission_type, type
 ),
 
@@ -143,9 +165,9 @@ all_dept_all_mission as (
     mission_domain,
     'all' as mission_type,
     type,
-    count(distinct stat_event_id) as event_count,
+    count(*) as event_count,
     max(updated_at) as max_updated_at
-  from base
+  from events_all_department
   group by year, month, month_start, mission_domain, type
 )
 
