@@ -510,6 +510,39 @@ export const TAXONOMY = {
     },
   },
 
+  imprevu: {
+    label: "Niveau d’imprévu",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      adaptation_rapide: {
+        label: "J’aime quand il faut s’adapter rapidement",
+        icon: "⚡",
+        sublabel: "Situations changeantes demandant de réagir et de s’adapter",
+        enrichable: true,
+      },
+      imprevu_modere: {
+        label: "Un peu d’imprévu, ça me va",
+        icon: "🌤️",
+        sublabel: "Mission structurée conservant une certaine variété",
+        enrichable: true,
+      },
+      cadre_previsible: {
+        label: "Je préfère savoir à quoi m’attendre",
+        icon: "📅",
+        sublabel: "Tâches, horaires et organisation clairement définis",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        sublabel: "Le niveau d’imprévu n’est pas encore un critère de choix",
+        enrichable: false,
+      },
+    },
+  },
+
   formation_onisep: {
     label: "Domaine de formation ONISEP",
     type: "multi_value",

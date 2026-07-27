@@ -28,6 +28,7 @@ describe("PROMPT_REGISTRY / CURRENT_PROMPT_VERSION", () => {
       expect(prompt.TAXONOMY_KEYS).not.toContain("equipe");
       expect(prompt.TAXONOMY_KEYS).not.toContain("interaction");
       expect(prompt.TAXONOMY_KEYS).not.toContain("autonomie");
+      expect(prompt.TAXONOMY_KEYS).not.toContain("imprevu");
     }
   });
 
