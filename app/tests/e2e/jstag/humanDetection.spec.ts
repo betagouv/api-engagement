@@ -6,10 +6,11 @@ test.describe("jstag.js - Human detection", () => {
 
     await page.route("**/r/*/confirm-human", async (route) => {
       confirmCalled = true;
+      expect(new URL(route.request().url()).searchParams.get("token")).toBe("test-token");
       await route.fulfill({ status: 200 });
     });
 
-    await page.goto("/test-jstag.html?apiengagement_id=stat-123");
+    await page.goto("/test-jstag.html?apiengagement_id=stat-123&apiengagement_tracking_token=test-token");
 
     // Wait 2.5s (2s threshold)
     await page.waitForTimeout(2500);
@@ -27,7 +28,7 @@ test.describe("jstag.js - Human detection", () => {
       confirmCalled = true;
     });
 
-    await page.goto("/test-jstag.html?apiengagement_id=stat-123");
+    await page.goto("/test-jstag.html?apiengagement_id=stat-123&apiengagement_tracking_token=test-token");
     await page.mouse.move(100, 100);
     await page.waitForTimeout(200);
 

@@ -3,7 +3,7 @@ import { Request, Response, Router } from "express";
 import zod from "zod";
 
 import { JVA_URL, PUBLISHER_IDS } from "@/config";
-import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
+import { FORBIDDEN, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { campaignService } from "@/services/campaign";
 import { generateDemarcheNumeriqueDossierUrl } from "@/services/demarches-simplifiees/utils";
@@ -15,7 +15,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { createClickRedirect, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { createClickRedirect, isValidTrackingToken, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -623,10 +623,20 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
 router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) => {
   try {
     const params = zod.object({ statsId: zod.string() }).safeParse(req.params);
+    const query = zod.object({ token: zod.string().min(1) }).safeParse(req.query);
 
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
+
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
+    }
+
+    if (!isValidTrackingToken(query.data.token, params.data.statsId)) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+
     await statEventService.updateStatEvent(params.data.statsId, { isHuman: true });
 
     return res.status(200).send({ ok: true });
