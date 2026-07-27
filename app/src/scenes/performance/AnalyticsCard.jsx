@@ -69,9 +69,17 @@ const AnalyticsCard = ({
     return content;
   }
 
+  if (type === "table") {
+    return (
+      <div className="relative w-full min-w-0 overflow-x-auto" role="region" aria-label="Tableau de données défilable horizontalement" tabIndex={0}>
+        <div className="min-w-[600px] space-y-4 p-0 sm:p-6">{content}</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative overflow-x-auto">
-      <div className="min-w-[600px] space-y-4 p-0 sm:p-6">{content}</div>
+    <div className="relative w-full min-w-0">
+      <div className="w-full min-w-0 space-y-4 p-0 sm:p-6">{content}</div>
     </div>
   );
 };

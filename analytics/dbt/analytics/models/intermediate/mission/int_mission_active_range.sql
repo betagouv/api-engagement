@@ -43,10 +43,7 @@ base as (
       when m.deleted_at is not null
         then date_trunc('day', m.deleted_at)::date
     end as end_date,
-    case
-      when m.type = 'volontariat_service_civique' then 'volontariat'
-      else m.type
-    end as publisher_category
+    m.type as publisher_category
   from {{ ref('int_mission') }} as m
   where
     m.created_at is not null

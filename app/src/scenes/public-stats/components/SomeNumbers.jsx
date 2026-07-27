@@ -3,7 +3,7 @@ import { RiQuestionLine } from "react-icons/ri";
 
 import Loader from "@/components/Loader";
 import Tooltip from "@/components/Tooltip";
-import { DEPARTMENT_NAMES, METABASE_CARD_ID, MONTHS } from "@/constants";
+import { DEPARTMENT_NAMES, METABASE_CARD_ID, MISSION_TYPE_OPTIONS, MONTHS } from "@/constants";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
@@ -115,7 +115,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <label htmlFor="numbers-year" className="text-sm">
                 Année
               </label>
-              <select id="numbers-year" className="input w-full sm:w-48" value={filters.year} onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}>
+              <select id="numbers-year" className="input w-full pr-4 sm:w-48" value={filters.year} onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}>
                 <option value={2020}>2020</option>
                 <option value={2021}>2021</option>
                 <option value={2022}>2022</option>
@@ -131,7 +131,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               </label>
               <select
                 id="numbers-department"
-                className="input w-full sm:w-48"
+                className="input w-full pr-4 sm:w-48"
                 value={filters.department}
                 onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
               >
@@ -149,10 +149,13 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <label htmlFor="numbers-mission-type" className="text-sm">
                 Type de mission
               </label>
-              <select id="numbers-mission-type" className="input w-full sm:w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+              <select id="numbers-mission-type" className="input w-full pr-4 sm:w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
                 <option value="">Tous les types</option>
-                <option value="benevolat">Bénévolat</option>
-                <option value="volontariat">Volontariat</option>
+                {MISSION_TYPE_OPTIONS.map((missionType) => (
+                  <option key={missionType.value} value={missionType.value}>
+                    {missionType.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -164,7 +167,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <div className="flex justify-between">
               <h4 className="mb-2 text-2xl font-semibold">
                 {graphTotal.organizations ? `${graphTotal.organizations.toLocaleString("fr")} organisations actives` : "Pas de données"}
@@ -202,7 +205,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             />
           </div>
 
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <div className="flex justify-between">
               <h4 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h4>
 
@@ -239,7 +242,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             />
           </div>
 
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <h4 className="mb-2 text-2xl font-semibold">{graphTotal.clicks ? `${graphTotal.clicks.toLocaleString("fr")} redirections` : "Pas de données"}</h4>
 
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
@@ -266,7 +269,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             />
           </div>
 
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <h4 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h4>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
