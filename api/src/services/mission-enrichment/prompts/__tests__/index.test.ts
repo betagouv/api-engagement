@@ -23,6 +23,7 @@ describe("PROMPT_REGISTRY / CURRENT_PROMPT_VERSION", () => {
     for (const prompt of Object.values(PROMPT_REGISTRY)) {
       expect(prompt.TAXONOMY_KEYS).not.toContain("motivation_recherche");
       expect(prompt.TAXONOMY_KEYS).not.toContain("rythme");
+      expect(prompt.TAXONOMY_KEYS).not.toContain("domaine_engagement");
     }
   });
 

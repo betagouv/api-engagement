@@ -21,6 +21,8 @@ import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 export const TAXONOMY = {
   // ─── Taxonomies enrichissables ────────────────────────────────────────────
 
+  // Taxonomie historique de domaines des anciens parcours. À conserver sans modifier
+  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
   domaine: {
     label: "Domaine",
     type: "multi_value",
@@ -85,6 +87,69 @@ export const TAXONOMY = {
         icon: "🤔",
         sublabel: "Je découvrirai en explorant les missions",
         enrichable: false,
+      },
+    },
+  },
+
+  domaine_engagement: {
+    label: "Domaine d’engagement",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      sante_bien_etre: {
+        label: "Santé et bien-être",
+        icon: "🩺",
+        sublabel: "Soins, prévention, santé mentale et qualité de vie",
+        enrichable: true,
+      },
+      sport: {
+        label: "Sport",
+        icon: "⚽",
+        sublabel: "Pratique sportive, animation et inclusion par le sport",
+        enrichable: true,
+      },
+      solidarite_inclusion: {
+        label: "Solidarité et inclusion",
+        icon: "🤝",
+        sublabel: "Entraide, accompagnement et lutte contre l’exclusion",
+        enrichable: true,
+      },
+      environnement_animaux: {
+        label: "Environnement et animaux",
+        icon: "🌿",
+        sublabel: "Nature, biodiversité, transition écologique et protection animale",
+        enrichable: true,
+      },
+      art_culture: {
+        label: "Art et culture",
+        icon: "🎨",
+        sublabel: "Création, patrimoine, médiation et événements culturels",
+        enrichable: true,
+      },
+      securite_secours: {
+        label: "Sécurité et secours",
+        icon: "🛡️",
+        sublabel: "Prévention, protection des populations et intervention",
+        enrichable: true,
+      },
+      citoyennete: {
+        label: "Citoyenneté",
+        icon: "🏛️",
+        sublabel: "Vie civique, démocratie, droits et intérêt général",
+        enrichable: true,
+      },
+      numerique: {
+        label: "Numérique",
+        icon: "💻",
+        sublabel: "Outils numériques, inclusion digitale et technologies",
+        enrichable: true,
+      },
+      education: {
+        label: "Éducation",
+        icon: "🎓",
+        sublabel: "Apprentissage, transmission et accompagnement éducatif",
+        enrichable: true,
       },
     },
   },

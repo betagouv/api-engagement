@@ -11,6 +11,7 @@ export const MATCHING_ENGINE_VERSIONS = {
   m1: {
     taxonomyWeights: {
       domaine: 1,
+      domaine_engagement: 0,
       secteur_activite: 1,
       type_mission: 1,
       competence_rome: 1,
@@ -28,6 +29,7 @@ export const MATCHING_ENGINE_VERSIONS = {
   m2: {
     taxonomyWeights: {
       domaine: 1,
+      domaine_engagement: 0,
       secteur_activite: 1,
       type_mission: 1,
       competence_rome: 1,
@@ -48,6 +50,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     // (engagement de proximité) est mise en avant devant une mission entièrement à distance.
     taxonomyWeights: {
       domaine: 1,
+      domaine_engagement: 0,
       secteur_activite: 1,
       type_mission: 1,
       competence_rome: 1,
