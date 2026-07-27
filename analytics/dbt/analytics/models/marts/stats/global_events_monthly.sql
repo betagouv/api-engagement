@@ -82,13 +82,13 @@ base as (
     {% endif %}
 ),
 
--- Le seul axe de fan-out du join de `base` est `department`
+-- Le seul axe de fan-out du join de `base` est le département
 -- (int_mission_active_department_range est unique sur (mission_id, department),
--- et mission_domain / mission_type y sont constants par mission). Il y a donc au
--- plus 1 ligne par (stat_event_id, department) : dans `dept` et `dept_all_mission`
--- (groupés par department), `count(*)` est exact et remplace le `count(distinct)`
--- coûteux. Pour les rollups « tous départements » qui collapsent department, on
--- déduplique d'abord au grain événement dans `events_all_department` ci-dessous.
+-- et mission_domain / mission_type y sont constants par mission) : il y a donc
+-- au plus 1 ligne par (stat_event_id, department). Dans `dept` et
+-- `dept_all_mission` (groupés par département), `count(*)` est donc exact.
+-- Pour les rollups « tous départements » qui collapsent le département, on
+-- déduplique d'abord au grain événement ici, puis on fera `count(*)`.
 events_all_department as (
   select
     stat_event_id,
@@ -100,7 +100,8 @@ events_all_department as (
     type,
     max(updated_at) as updated_at
   from base
-  group by stat_event_id, year, month, month_start, mission_domain, mission_type, type
+  group by
+    stat_event_id, year, month, month_start, mission_domain, mission_type, type
 ),
 
 dept as (
