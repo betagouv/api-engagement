@@ -24,12 +24,7 @@ const ADULT_TRANCHE_AGE_KEYS = [
   "tranche_age.plus_72_ans",
 ];
 
-const ALL_TRANCHE_AGE_KEYS = [
-  "tranche_age.moins_18_ans",
-  ...ADULT_TRANCHE_AGE_KEYS,
-  "tranche_age.entre_16_17_ans",
-  "tranche_age.moins_31_ans_handicap",
-];
+const ALL_TRANCHE_AGE_KEYS = ["tranche_age.moins_18_ans", ...ADULT_TRANCHE_AGE_KEYS, "tranche_age.entre_16_17_ans", "tranche_age.moins_31_ans_handicap"];
 
 const sorted = (keys: string[]): string[] => [...keys].sort();
 
@@ -142,10 +137,8 @@ describe("intersect", () => {
 
 describe("SCORING_RULES — invariant de sûreté (fail-open inatteignable)", () => {
   // L'allowlist adulte (openToMinors=false) est la source de vérité.
-  const adultRule = SCORING_RULES.find(
-    (rule) => rule.field === "openToMinors" && rule.condition.operator === "equals" && rule.condition.value === false
-  );
-  const adultTrancheAge = adultRule?.values.filter((key) => key.startsWith("tranche_age.")) ?? [];
+  const adultRule = SCORING_RULES.find((rule) => rule.field === "openToMinors" && rule.condition.operator === "equals" && rule.condition.value === false);
+  const adultTrancheAge: string[] = adultRule?.values.filter((key) => key.startsWith("tranche_age.")) ?? [];
 
   // Toute règle qui injecte `tranche_age` doit, intersectée avec l'allowlist adulte, rester
   // non vide. Sinon une mission openToMinors=false portant cette règle produirait une

@@ -21,8 +21,9 @@ import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 export const TAXONOMY = {
   // ─── Taxonomies enrichissables ────────────────────────────────────────────
 
-  // Taxonomie historique de domaines des anciens parcours. À conserver sans modifier
-  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   domaine: {
     label: "Domaine",
     type: "multi_value",
@@ -154,6 +155,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   secteur_activite: {
     label: "Secteur d'activité (référentiel ROME)",
     type: "multi_value",
@@ -217,8 +221,9 @@ export const TAXONOMY = {
     },
   },
 
-  // Taxonomie historique de rythme des anciens parcours. À conserver sans modifier
-  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   type_mission: {
     label: "Type / durée de mission",
     type: "categorical",
@@ -316,6 +321,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   competence_rome: {
     label: "Compétences (référentiel ROME)",
     type: "multi_value",
@@ -333,6 +341,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   region_internationale: {
     label: "Région internationale",
     type: "categorical",
@@ -347,8 +358,9 @@ export const TAXONOMY = {
     },
   },
 
-  // Taxonomie historique d'activités des anciens parcours. À conserver sans modifier
-  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   engagement_intent: {
     label: "Intention d'engagement",
     type: "multi_value",
@@ -543,6 +555,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   formation_onisep: {
     label: "Domaine de formation ONISEP",
     type: "multi_value",
@@ -628,8 +643,9 @@ export const TAXONOMY = {
     },
   },
 
-  // Taxonomie historique des anciens parcours du quiz. À conserver sans modifier
-  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
+  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
+  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   motivation: {
     label: "Motivation utilisateur",
     type: "categorical",
