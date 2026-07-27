@@ -411,6 +411,39 @@ export const TAXONOMY = {
     },
   },
 
+  equipe: {
+    label: "Cadre d’équipe",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      autonomie: {
+        label: "Plutôt en autonomie",
+        icon: "🧑",
+        sublabel: "Missions individuelles, tâches indépendantes ou interventions à distance",
+        enrichable: true,
+      },
+      petit_groupe: {
+        label: "Dans un petit groupe où l’on prend le temps de se connaître",
+        icon: "👥",
+        sublabel: "Petites équipes, accompagnement régulier, missions locales et relations suivies",
+        enrichable: true,
+      },
+      grand_collectif: {
+        label: "Dans un grand collectif où il y a beaucoup de monde",
+        icon: "👨‍👩‍👧‍👦",
+        sublabel: "Événements, rassemblements et actions mobilisant de nombreux participants",
+        enrichable: true,
+      },
+      peu_importe: {
+        label: "Peu importe",
+        icon: "🤷",
+        sublabel: "La taille de l’équipe n’est pas un critère de choix",
+        enrichable: false,
+      },
+    },
+  },
+
   formation_onisep: {
     label: "Domaine de formation ONISEP",
     type: "multi_value",
