@@ -444,6 +444,39 @@ export const TAXONOMY = {
     },
   },
 
+  interaction: {
+    label: "Mode d’interaction",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      interaction_collective: {
+        label: "J’aime échanger et agir avec les autres",
+        icon: "🤝",
+        sublabel: "Actions collectives, animation, accueil et échanges réguliers",
+        enrichable: true,
+      },
+      equilibre_collectif_autonomie: {
+        label: "J’aime alterner les moments en groupe et en autonomie",
+        icon: "⚖️",
+        sublabel: "Temps collectifs combinés à des responsabilités individuelles",
+        enrichable: true,
+      },
+      autonomie_principale: {
+        label: "Je préfère avancer principalement en autonomie",
+        icon: "🧑",
+        sublabel: "Tâches individuelles demandant peu d’interactions continues",
+        enrichable: true,
+      },
+      peu_importe: {
+        label: "Peu importe",
+        icon: "🤷",
+        sublabel: "Le niveau d’interaction n’est pas un critère de choix",
+        enrichable: false,
+      },
+    },
+  },
+
   formation_onisep: {
     label: "Domaine de formation ONISEP",
     type: "multi_value",
