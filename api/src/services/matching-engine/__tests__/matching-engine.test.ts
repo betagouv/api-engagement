@@ -119,10 +119,13 @@ describe("matchingEngineService", () => {
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      const taxonomyScoresValues = getSqlValues(prismaMock.$queryRaw.mock.calls[2][0]);
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
       expect(rankingSql).toContain("JOIN taxonomy_weights tw");
       expect(rankingValues).toContain("domaine");
       expect(rankingValues).toContain("tranche_age");
+      expect(taxonomyScoresValues).toContain("domaine");
+      expect(taxonomyScoresValues).not.toContain("tranche_age");
       expect(rankingValues).not.toContain("rythme");
       expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
       expect(rankingSql).toContain('ems."mission_id",\n      msv."mission_scoring_id"');
@@ -327,11 +330,6 @@ describe("matchingEngineService", () => {
             taxonomy_key: "domaine",
             taxonomy_score: 0.2,
           },
-          {
-            mission_scoring_id: "mission-scoring-1",
-            taxonomy_key: "tranche_age",
-            taxonomy_score: 1,
-          },
         ]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-gate-taxonomies",
@@ -357,7 +355,6 @@ describe("matchingEngineService", () => {
           closestAddress: null,
           taxonomyScores: {
             domaine: 0.7,
-            tranche_age: 1,
           },
         },
       ]);
@@ -384,7 +381,7 @@ describe("matchingEngineService", () => {
         .mockResolvedValueOnce([
           {
             mission_scoring_id: "mission-scoring-1",
-            taxonomy_key: "tranche_age",
+            taxonomy_key: "domaine",
             taxonomy_score: 0.866667,
           },
         ]);
@@ -399,7 +396,7 @@ describe("matchingEngineService", () => {
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       const taxonomyScoresSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
 
-      expect(result.items[0].taxonomyScores.tranche_age).toBe(0.866667);
+      expect(result.items[0].taxonomyScores.domaine).toBe(0.866667);
       expect(rankingSql).toContain('COALESCE(SUM(COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"');
       expect(rankingSql).not.toContain('SUM(udt."taxonomy_total" * COALESCE(dw."taxonomy_weight", 1.0))');
       expect(rankingSql).toContain('LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0)');

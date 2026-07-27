@@ -690,7 +690,7 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     shouldPersistTopResults,
     rankingLimit,
     taxonomyWeights: versionConfig.taxonomyWeights,
-    taxonomyKeys: versionConfig.taxonomyKeys,
+    rankingTaxonomyKeys: Object.keys(versionConfig.taxonomyWeights) as MatchingEngineTaxonomy[],
     taxonomyWeight: input.taxonomyWeight ?? 0.3,
     geoWeight: input.geoWeight ?? versionConfig.geoWeight,
     geoHalfDecayKm: input.geoHalfDecayKm ?? 20,
@@ -725,7 +725,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const { version, limit, offset, shouldPersistTopResults, taxonomyKeys } = resolveRankingParams(input);
+    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys } = resolveRankingParams(input);
 
     await assertUserScoringExists(input.userScoringId);
 
@@ -737,7 +737,7 @@ export const matchingEngineService = {
             buildTaxonomyScoresSql({
               userScoringId: input.userScoringId,
               missionScoringIds: missionScoringIdsForDetails,
-              taxonomyKeys,
+              taxonomyKeys: rankingTaxonomyKeys,
             })
           )
         : [];

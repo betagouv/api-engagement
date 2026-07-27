@@ -119,9 +119,8 @@ export const SCORING_RULES = [
     values: ADULT_TRANCHE_AGE_KEYS,
   },
   // Les filtres Typesense sont explicites : une taxonomie absente est indexée comme
-  // un tableau vide, pas comme une absence de contrainte. Matérialiser toutes les
-  // tranches garantit donc qu'une mission ouverte aux mineurs reste aussi visible
-  // pour les utilisateurs adultes.
+  // un tableau vide, pas comme une absence de contrainte. Les gates ne contribuent
+  // pas au score pondéré du matching engine et peuvent donc être matérialisées ici.
   {
     field: "openToMinors",
     condition: { operator: "equals", value: true },

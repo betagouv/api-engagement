@@ -7,13 +7,9 @@ export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
 
 export const CURRENT_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "m3";
 
-// Poids par défaut des taxonomies gate (`tranche_age`, …). Les gates sont une préoccupation
-// transverse de sûreté ; elles sont toujours présentes dans la config avec ce poids, surchargeable.
-const DEFAULT_GATE_WEIGHT = 1;
-
 type MatchingEngineVersionDefinition = {
-  // Taxonomies de ranking pondérées par ce moteur (choix explicite). Les gates y sont ajoutées
-  // automatiquement avec `DEFAULT_GATE_WEIGHT` — les préciser ici ne sert qu'à surcharger le poids.
+  // Taxonomies de ranking pondérées par ce moteur (choix explicite). Les gates sont ajoutées
+  // automatiquement aux clés actives pour l'éligibilité, mais ne contribuent jamais au score.
   // Une nouvelle taxonomie globale n'a aucun impact tant qu'elle n'est pas ajoutée ici.
   taxonomyWeights: MatchingEngineTaxonomyWeights;
   geoWeight: number;
@@ -22,13 +18,15 @@ type MatchingEngineVersionDefinition = {
 };
 
 export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
-  const taxonomyWeights: MatchingEngineTaxonomyWeights = {
-    ...Object.fromEntries(GATE_TAXONOMIES.map((gate) => [gate, DEFAULT_GATE_WEIGHT])),
-    ...definition.taxonomyWeights,
-  };
+  const configuredGate = GATE_TAXONOMIES.find((gate) => gate in definition.taxonomyWeights);
+  if (configuredGate) {
+    throw new Error(`[matching-engine] Gate taxonomy '${configuredGate}' controls eligibility and cannot have a ranking weight`);
+  }
+
+  const taxonomyWeights = definition.taxonomyWeights;
 
   return {
-    taxonomyKeys: Object.keys(taxonomyWeights) as MatchingEngineTaxonomy[],
+    taxonomyKeys: [...Object.keys(taxonomyWeights), ...GATE_TAXONOMIES] as MatchingEngineTaxonomy[],
     taxonomyWeights,
     geoWeight: definition.geoWeight,
     remoteFullGeoScore: definition.remoteFullGeoScore,
