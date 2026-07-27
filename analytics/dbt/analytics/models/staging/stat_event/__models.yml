@@ -70,6 +70,10 @@ models:
         description: Origine normalisée du clic (api/widget/campaign…).
       - name: click_id
         description: Identifiant du clic dans l’entrepôt analytics.
+      - name: user_scoring_id
+        description: >
+          Identifiant de la session quiz (`userScoringId`) porté par le clic quand il vient des résultats
+          du quiz ou d'un email (extrait de `custom_attributes`). Null sinon.
 
   - name: stg_stat_event__apply
     description: >
