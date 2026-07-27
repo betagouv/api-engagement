@@ -24,6 +24,7 @@ describe("PROMPT_REGISTRY / CURRENT_PROMPT_VERSION", () => {
       expect(prompt.TAXONOMY_KEYS).not.toContain("motivation_recherche");
       expect(prompt.TAXONOMY_KEYS).not.toContain("rythme");
       expect(prompt.TAXONOMY_KEYS).not.toContain("domaine_engagement");
+      expect(prompt.TAXONOMY_KEYS).not.toContain("activite");
     }
   });
 

@@ -347,6 +347,8 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique d'activités des anciens parcours. À conserver sans modifier
+  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
   engagement_intent: {
     label: "Intention d'engagement",
     type: "multi_value",
@@ -361,6 +363,51 @@ export const TAXONOMY = {
       cadre_engage: { label: "Engagement en cadre structuré", icon: "🪖", enrichable: true },
       support_organisation: { label: "Organisation / gestion de projet / communication", icon: "🧠", enrichable: true },
       exploration: { label: "Je ne sais pas encore", icon: "🤷", enrichable: false },
+    },
+  },
+
+  activite: {
+    label: "Type d’activité",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      aider_accompagner: {
+        label: "Aider et accompagner des personnes",
+        icon: "🤝",
+        sublabel: "Accueil, écoute, visites, aide quotidienne et soutien à des bénéficiaires",
+        enrichable: true,
+      },
+      transmettre_animer: {
+        label: "Transmettre et animer",
+        icon: "🎓",
+        sublabel: "Tutorat, sensibilisation, formation, ateliers et activités collectives",
+        enrichable: true,
+      },
+      fabriquer_reparer_terrain: {
+        label: "Fabriquer, réparer ou agir sur le terrain",
+        icon: "🛠️",
+        sublabel: "Chantiers, bricolage, collecte, entretien, logistique et actions environnementales",
+        enrichable: true,
+      },
+      secourir_proteger: {
+        label: "Secourir et protéger",
+        icon: "🛡️",
+        sublabel: "Secours, prévention, surveillance, sécurité civile et protection des populations",
+        enrichable: true,
+      },
+      organiser_coordonner: {
+        label: "Organiser et coordonner",
+        icon: "📋",
+        sublabel: "Événements, gestion de projet, planification, logistique et coordination d’équipes",
+        enrichable: true,
+      },
+      creer_communiquer: {
+        label: "Créer et communiquer",
+        icon: "🎨",
+        sublabel: "Photo, vidéo, rédaction, graphisme, réseaux sociaux et création de supports",
+        enrichable: true,
+      },
     },
   },
 
