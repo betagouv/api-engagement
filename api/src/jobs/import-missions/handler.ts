@@ -248,6 +248,9 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
       });
       const existingOrganizationsMap = new Map(existingOrganizations.map((o) => [o.clientId, o]));
       console.log(`[${publisher.name}] Found ${existingOrganizations.length} existing organizations`);
+      // Organisations dont le contenu a changé sur ce run : une mission par ailleurs inchangée
+      // mais rattachée à l'une d'elles doit tout de même être re-diffusée (réseaux/parentOrganizations).
+      const changedOrganizationClientIds = new Set<string>();
       let createdOrganizationsCount = 0;
       let updatedOrganizationsCount = 0;
       let unchangedOrganizationsCount = 0;
@@ -256,6 +259,8 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         const result = await upsertOrganization(organization, existing);
         if (result.action === "unchanged") {
           unchangedOrganizationsCount += 1;
+        } else {
+          changedOrganizationClientIds.add(organization.clientId);
         }
         existingOrganizationsMap.set(organization.clientId, result.organization);
         createdOrganizationsCount += result.action === "created" ? 1 : 0;
@@ -281,7 +286,8 @@ async function importMissionssForPublisher(publisher: PublisherRecord, start: Da
         }
 
         const existing = existingMap.get(mission.clientId) || null;
-        const result = await upsertMission(mission, existing);
+        const relatedDiffusionDataChanged = mission.organizationClientId ? changedOrganizationClientIds.has(mission.organizationClientId) : false;
+        const result = await upsertMission(mission, existing, { relatedDiffusionDataChanged });
         existingMap.set(mission.clientId, result.mission);
 
         if (result.action === "created") {

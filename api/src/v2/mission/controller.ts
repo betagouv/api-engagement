@@ -155,7 +155,7 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), p
 
     let publisherOrganizationId: string | null = null;
     if (hasOrgFields(body)) {
-      publisherOrganizationId = await upsertPublisherOrganization(body, publisher.id);
+      publisherOrganizationId = (await upsertPublisherOrganization(body, publisher.id)).id;
     }
 
     const input: MissionCreateInput = {
@@ -251,10 +251,12 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
     }
 
     let publisherOrganizationId: string | undefined;
+    let publisherOrganizationChanged = false;
     if (hasOrgFields(body)) {
-      const orgId = await upsertPublisherOrganization(body, publisher.id);
-      if (orgId) {
-        publisherOrganizationId = orgId;
+      const organization = await upsertPublisherOrganization(body, publisher.id);
+      publisherOrganizationChanged = organization.changed;
+      if (organization.id) {
+        publisherOrganizationId = organization.id;
       }
     }
 
@@ -292,7 +294,9 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
       patch.description = moderation.description;
     }
 
-    const mission = await missionService.update(existing.id, patch);
+    const mission = await missionService.update(existing.id, patch, {
+      relatedDiffusionDataChanged: publisherOrganizationChanged,
+    });
     return res.status(200).send({ ok: true, data: buildData(mission) });
   } catch (error) {
     next(error);

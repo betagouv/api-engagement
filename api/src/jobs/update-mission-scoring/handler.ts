@@ -83,7 +83,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
       for (const enrichment of enrichments) {
         try {
           await missionScoringService.score({ missionId: enrichment.missionId, missionEnrichmentId: enrichment.id, force });
-          await asyncTaskBus.publish({ type: "mission.index", payload: { missionId: enrichment.missionId, action: "upsert" } });
+          await asyncTaskBus.publish({ type: "mission.diffusion", payload: { missionId: enrichment.missionId } });
           processed++;
           console.log(`${LOG_PREFIX} [${processed}/${enrichments.length}] scored mission=${enrichment.missionId}`);
         } catch (error) {

@@ -265,3 +265,9 @@ export const buildMissionPublisherDiffusionRuleSqlFromRules = (rules: PublisherD
 
   return Prisma.sql`AND ${condition}`;
 };
+
+export const buildMissionPublisherDiffusionScopeSqlFromRules = (rules: PublisherDiffusionRuleCondition[], options: { missionAlias?: string } = {}): Prisma.Sql => {
+  const missionAlias = options.missionAlias ?? "m";
+  const conditions = rules.map((rule) => buildRuleSqlCondition(rule, missionAlias)).filter((condition): condition is Prisma.Sql => condition !== null);
+  return conditions.length > 0 ? Prisma.sql`AND ${Prisma.join(conditions, " AND ")}` : Prisma.empty;
+};

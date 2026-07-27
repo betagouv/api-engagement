@@ -1,5 +1,11 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { buildMissionPublisherDiffusionScopeSqlFromRules, type PublisherDiffusionRuleCondition } from "@/utils/publisher-diffusion-rule-query";
+
+export type MissionDiffusionPublisherScope = {
+  distributionPublisherId: string;
+  rules: PublisherDiffusionRuleCondition[];
+};
 
 // Permet d'exécuter les opérations dans une transaction Prisma existante (tx) ou hors transaction.
 const client = (tx?: Prisma.TransactionClient) => tx ?? prisma;
@@ -110,5 +116,44 @@ export const missionDiffusionRepository = {
 
   async count(tx?: Prisma.TransactionClient): Promise<number> {
     return client(tx).missionDiffusion.count();
+  },
+
+  async replaceForMission(missionId: string, distributionPublisherIds: string[]): Promise<{ added: number; removed: number }> {
+    return prisma.$transaction(async (tx) => {
+      const removed = await tx.missionDiffusion.deleteMany({
+        where: {
+          missionId,
+          ...(distributionPublisherIds.length > 0 ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {}),
+        },
+      });
+      const added =
+        distributionPublisherIds.length > 0
+          ? await tx.missionDiffusion.createMany({
+              data: distributionPublisherIds.map((distributionPublisherId) => ({ distributionPublisherId, missionId })),
+              skipDuplicates: true,
+            })
+          : { count: 0 };
+
+      return { added: added.count, removed: removed.count };
+    });
+  },
+
+  async findDistributionPublisherIdsForMission(missionId: string, scopes: MissionDiffusionPublisherScope[]): Promise<string[]> {
+    if (scopes.length === 0) {
+      return [];
+    }
+
+    const scopeQueries = scopes.map((scope) => {
+      return Prisma.sql`
+        SELECT ${scope.distributionPublisherId}::text AS "distributionPublisherId"
+        FROM "mission" m
+        WHERE m."id" = ${missionId}
+          AND m."deleted_at" IS NULL
+          ${buildMissionPublisherDiffusionScopeSqlFromRules(scope.rules)}
+      `;
+    });
+
+    const rows = await prisma.$queryRaw<Array<{ distributionPublisherId: string }>>(Prisma.sql`${Prisma.join(scopeQueries, " UNION ALL ")}`);
+    return Array.from(new Set(rows.map((row) => row.distributionPublisherId)));
   },
 };

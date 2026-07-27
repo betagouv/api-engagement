@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildMissionPublisherDiffusionRuleConditionFromRule,
+  buildMissionPublisherDiffusionScopeSqlFromRules,
   buildMissionPublisherDiffusionRuleSqlFromRules,
   optimizeMissionDiffusionRuleWhere,
   type PublisherDiffusionRuleCondition,
@@ -31,6 +32,19 @@ describe("buildMissionPublisherDiffusionRuleSqlFromRules - array fields", () => 
 
     expect(sql.sql).toContain("NOT");
     expect(sql.sql).toContain("lower(elem) = lower(");
+  });
+});
+
+describe("buildMissionPublisherDiffusionScopeSqlFromRules", () => {
+  it("combine toutes les règles d'un scope en AND indépendamment de leur combinator", () => {
+    const sql = buildMissionPublisherDiffusionScopeSqlFromRules([
+      rule({ field: "publisherId", fieldType: "string", operator: "is", value: "annonceur-1", combinator: "or" }),
+      rule({ field: "publisherOrganization.clientId", fieldType: "string", operator: "is_not", value: "organization-1", combinator: "or" }),
+    ]);
+
+    expect(sql.sql).toContain('m."publisher_id" = ? AND EXISTS');
+    expect(sql.sql).not.toContain(" OR ");
+    expect(sql.values).toEqual(["annonceur-1", "organization-1"]);
   });
 });
 

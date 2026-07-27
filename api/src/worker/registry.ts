@@ -1,7 +1,8 @@
+import { handleMissionDiffusion } from "./handlers/mission-diffusion";
 import { handleMissionEnrichment } from "./handlers/mission-enrichment";
 import { handleMissionIndex } from "./handlers/mission-index";
 import { handleMissionScoring } from "./handlers/mission-scoring";
-import { defineTask, missionEnrichmentPayloadSchema, missionIndexPayloadSchema, missionScoringPayloadSchema, TaskRegistryEntry } from "./types";
+import { defineTask, missionDiffusionPayloadSchema, missionEnrichmentPayloadSchema, missionIndexPayloadSchema, missionScoringPayloadSchema, TaskRegistryEntry } from "./types";
 
 export const taskRegistry: Record<string, TaskRegistryEntry> = {
   "mission.enrichment": defineTask({
@@ -13,6 +14,11 @@ export const taskRegistry: Record<string, TaskRegistryEntry> = {
     queueUrl: process.env.SCW_QUEUE_URL_MISSION_SCORING ?? "",
     schema: missionScoringPayloadSchema,
     handler: handleMissionScoring,
+  }),
+  "mission.diffusion": defineTask({
+    queueUrl: process.env.SCW_QUEUE_URL_MISSION_DIFFUSION ?? "",
+    schema: missionDiffusionPayloadSchema,
+    handler: handleMissionDiffusion,
   }),
   "mission.index": defineTask({
     queueUrl: process.env.SCW_QUEUE_URL_MISSION_INDEX ?? "",

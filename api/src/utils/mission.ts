@@ -127,6 +127,7 @@ export const IMPORT_FIELDS_TO_COMPARE = [
   "places",
   "postedAt",
   "priority",
+  "publisherId",
   "romeSkills",
   "snu",
   "snuPlaces",
