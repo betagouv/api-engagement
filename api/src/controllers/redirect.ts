@@ -623,7 +623,7 @@ router.get("/notrack/:id", cors({ origin: "*" }), async (req, res, next) => {
 router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) => {
   try {
     const params = zod.object({ statsId: zod.string() }).safeParse(req.params);
-    const query = zod.object({ token: zod.string().min(1) }).safeParse(req.query);
+    const query = zod.object({ token: zod.string().min(1).optional() }).safeParse(req.query);
 
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
@@ -633,7 +633,15 @@ router.get("/:statsId/confirm-human", cors({ origin: "*" }), async (req, res) =>
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
 
-    if (!isValidTrackingToken(query.data.token, params.data.statsId)) {
+    if (!query.data.token) {
+      captureException(new Error("[Tracking] Confirmation received without tracking token"), {
+        extra: {
+          statsId: params.data.statsId,
+          host: req.get("host") || "",
+          origin: req.get("origin") || "",
+        },
+      });
+    } else if (!isValidTrackingToken(query.data.token, params.data.statsId)) {
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
