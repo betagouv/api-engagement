@@ -152,6 +152,8 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique de rythme des anciens parcours. À conserver sans modifier
+  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
   type_mission: {
     label: "Type / durée de mission",
     type: "categorical",
@@ -180,6 +182,51 @@ export const TAXONOMY = {
         label: "Je ne sais pas encore",
         sublabel: "Je déciderai en découvrant les missions",
         icon: "🤔‍",
+        enrichable: false,
+      },
+    },
+  },
+
+  rythme: {
+    label: "Rythme de mission",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      ponctuelle_journee: {
+        label: "Une mission ponctuelle, sur une journée",
+        sublabel: "Une intervention unique concentrée sur une journée",
+        icon: "📅",
+        enrichable: true,
+      },
+      quelques_heures_semaine: {
+        label: "Quelques heures par semaine",
+        sublabel: "Un engagement régulier compatible avec un emploi du temps quotidien",
+        icon: "🕐",
+        enrichable: true,
+      },
+      plusieurs_jours_semaine: {
+        label: "Plusieurs jours par semaine",
+        sublabel: "Un engagement soutenu réparti chaque semaine",
+        icon: "🗓️",
+        enrichable: true,
+      },
+      quelques_jours_annee: {
+        label: "Quelques jours répartis dans l’année",
+        sublabel: "Des interventions occasionnelles à différents moments de l’année",
+        icon: "🔁",
+        enrichable: true,
+      },
+      temps_plein_plusieurs_mois: {
+        label: "À temps plein pendant plusieurs mois",
+        sublabel: "Un engagement intensif et continu sur plusieurs mois",
+        icon: "⏱️",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        sublabel: "Je déciderai en découvrant les missions",
+        icon: "🤔",
         enrichable: false,
       },
     },

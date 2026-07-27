@@ -17,11 +17,12 @@ describe("PROMPT_REGISTRY / CURRENT_PROMPT_VERSION", () => {
     expect((PROMPT_REGISTRY.v4.MODEL as { provider: string }).provider).toBe("albert");
   });
 
-  it("keeps the new taxonomy out of prompts v1 to v4", async () => {
+  it("keeps new taxonomies out of prompts v1 to v4", async () => {
     const { PROMPT_REGISTRY } = await import("@/services/mission-enrichment/prompts");
 
     for (const prompt of Object.values(PROMPT_REGISTRY)) {
       expect(prompt.TAXONOMY_KEYS).not.toContain("motivation_recherche");
+      expect(prompt.TAXONOMY_KEYS).not.toContain("rythme");
     }
   });
 
