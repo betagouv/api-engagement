@@ -1,4 +1,5 @@
 import { ai } from "@/services/ai";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
 import { ENRICHMENT_SCHEMA, TEMPERATURE, buildSystemPrompt, buildUserMessage } from "./v3";
 
@@ -8,5 +9,14 @@ import { ENRICHMENT_SCHEMA, TEMPERATURE, buildSystemPrompt, buildUserMessage } f
  * Seul le MODEL (provider + modèle) change, pour comparer les providers à prompt identique (A/B).
  */
 export const VERSION = "v4";
+export const TAXONOMY_KEYS = [
+  "domaine",
+  "secteur_activite",
+  "type_mission",
+  "competence_rome",
+  "region_internationale",
+  "engagement_intent",
+  "formation_onisep",
+] as const satisfies readonly EnrichableTaxonomyKey[];
 export const MODEL = ai.model("albert", "mistralai/Mistral-Small-3.2-24B-Instruct-2506");
 export { ENRICHMENT_SCHEMA, TEMPERATURE, buildSystemPrompt, buildUserMessage };

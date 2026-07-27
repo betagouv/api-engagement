@@ -270,6 +270,45 @@ export const TAXONOMY = {
     },
   },
 
+  motivation_recherche: {
+    label: "Motivation de recherche",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      premiere_experience: {
+        label: "Acquérir une première expérience",
+        icon: "🌱",
+        enrichable: true,
+      },
+      decouverte_metier: {
+        label: "Découvrir un métier",
+        icon: "🧭",
+        enrichable: true,
+      },
+      agir_pour_une_cause: {
+        label: "Agir pour une cause",
+        icon: "🤝",
+        enrichable: true,
+      },
+      rencontres: {
+        label: "Rencontrer de nouvelles personnes",
+        icon: "👥",
+        enrichable: true,
+      },
+      indemnisation: {
+        label: "Bénéficier d’une indemnisation",
+        icon: "💶",
+        enrichable: false,
+      },
+      securite_pays: {
+        label: "Contribuer à la sécurité du pays",
+        icon: "🛡️",
+        enrichable: true,
+      },
+    },
+  },
+
   // ─── Taxonomies déclaratives côté quiz, non enrichies par LLM ─────────────
 
   statut: {
@@ -298,6 +337,8 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique des anciens parcours du quiz. À conserver sans modifier
+  // pour la rétrocompatibilité ; candidate à une suppression lors d'une future migration.
   motivation: {
     label: "Motivation utilisateur",
     type: "categorical",

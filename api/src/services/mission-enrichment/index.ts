@@ -1,6 +1,7 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
-import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
+import { TAXONOMY } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
@@ -140,8 +141,8 @@ const toTaxonomyForPrompt = (
     values: taxonomy.values.map((value) => ({ key: value.key, label: value.label })),
   }));
 
-const getTaxonomies = (): TaxonomyWithValues[] =>
-  ENRICHABLE_TAXONOMIES.map((taxonomyKey) => ({
+const getTaxonomies = (taxonomyKeys: readonly EnrichableTaxonomyKey[]): TaxonomyWithValues[] =>
+  taxonomyKeys.map((taxonomyKey) => ({
     key: taxonomyKey,
     label: TAXONOMY[taxonomyKey].label,
     type: TAXONOMY[taxonomyKey].type,
@@ -299,8 +300,9 @@ export const missionEnrichmentService = {
       }
     }
 
-    // 3. Load taxonomy from package.
-    const taxonomies = getTaxonomies();
+    // 3. Resolve the prompt and load only its explicitly whitelisted taxonomies.
+    const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
+    const taxonomies = getTaxonomies(promptVersion.TAXONOMY_KEYS);
 
     // 4. Reserve the single enrichment row for this (mission, version) and mark it `processing`.
     // The unique constraint (mission_id, prompt_version) guarantees one row; claimForRun reuses it
@@ -320,7 +322,6 @@ export const missionEnrichmentService = {
 
     try {
       // 6. Build prompts
-      const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 

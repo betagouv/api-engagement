@@ -1,5 +1,6 @@
 import type { LanguageModel } from "ai";
 import type { ZodTypeAny } from "zod";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
 import { MISSION_ENRICHMENT_PROMPT_VERSION } from "@/config";
 import { captureMessage } from "@/error";
@@ -15,6 +16,7 @@ export type { MissionForPrompt, TaxonomyForPrompt } from "./types";
 
 export type PromptEntry = {
   VERSION: string;
+  TAXONOMY_KEYS: readonly EnrichableTaxonomyKey[];
   TEMPERATURE: number;
   MODEL: LanguageModel;
   ENRICHMENT_SCHEMA: ZodTypeAny;

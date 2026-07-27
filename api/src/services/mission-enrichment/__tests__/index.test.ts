@@ -21,6 +21,7 @@ vi.mock("@/services/mission-enrichment/providers", () => ({
 vi.mock("@/services/mission-enrichment/prompts", () => ({
   PROMPT_REGISTRY: {
     v2: {
+      TAXONOMY_KEYS: ["domaine"],
       MODEL: {},
       TEMPERATURE: 0,
       ENRICHMENT_SCHEMA: {},
@@ -28,6 +29,7 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
       buildUserMessage: () => "user",
     },
     v3: {
+      TAXONOMY_KEYS: ["domaine"],
       MODEL: {},
       TEMPERATURE: 0,
       ENRICHMENT_SCHEMA: {},
