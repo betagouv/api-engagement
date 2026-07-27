@@ -40,6 +40,8 @@ export const MATCHING_ENGINE_VERSIONS = {
   },
   m3: {
     // Identique à m2, mais les missions remote=full/local sont considérées comme naturellement proches.
+    // Le remote=local est le signal géo le plus fort (au-dessus de remote=full) : une mission "locale"
+    // (engagement de proximité) est mise en avant devant une mission entièrement à distance.
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -52,7 +54,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     } satisfies MatchingEngineTaxonomyWeights,
     geoWeight: 0.3,
     remoteFullGeoScore: 0.9,
-    remoteLocalGeoScore: 0.7,
+    remoteLocalGeoScore: 0.95,
   },
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 
