@@ -8,32 +8,57 @@ type MissionScoringRuleMission = {
   publisherId: string | null;
   type: MissionType | null;
   openToMinors: boolean | null;
+  compensationAmount: number | null;
 };
 
-type MissionScoringRuleField = keyof MissionScoringRuleMission;
-
-type MissionScoringRules = {
-  // La clé est la forme stringifiée de la valeur (cf. `String(value)` dans
-  // getMissionScoringRuleKeys) : `boolean` devient "true" | "false", ce qui permet
-  // des champs booléens comme `openToMinors` tout en gardant un index valide.
-  [Field in MissionScoringRuleField]?: Partial<Record<`${NonNullable<MissionScoringRuleMission[Field]>}`, TaxonomyValueKey[]>>;
+type MissionScoringRuleOutput = {
+  mode: "replace" | "add";
+  values: TaxonomyValueKey[];
 };
+
+type MissionScoringEqualsRule = {
+  [Field in keyof MissionScoringRuleMission]: {
+    field: Field;
+    condition: { operator: "equals"; value: NonNullable<MissionScoringRuleMission[Field]> };
+  } & MissionScoringRuleOutput;
+}[keyof MissionScoringRuleMission];
+
+type MissionScoringPresentRule = {
+  field: keyof MissionScoringRuleMission;
+  condition: { operator: "present" };
+} & MissionScoringRuleOutput;
+
+type MissionScoringRule = MissionScoringEqualsRule | MissionScoringPresentRule;
 
 /**
- * Taxonomy value keys injected directly into mission_scoring for specific mission fields.
- * These values bypass LLM enrichment and are set deterministically from mission data.
- * Score is always 1.0 and missionEnrichmentValueId is null.
+ * Règles déterministes injectées directement dans mission_scoring.
+ *
+ * - `equals` compare la valeur du champ à une valeur précise ;
+ * - `present` vérifie uniquement que le champ n'est ni null ni undefined ;
+ * - `replace` remplace les valeurs enrichies de la taxonomie et intersecte les
+ *   allowlists lorsque plusieurs règles la contraignent ;
+ * - `add` complète les valeurs enrichies sans les remplacer.
+ *
+ * Les valeurs produites ont toujours un score de 1 et aucun missionEnrichmentValueId.
  */
-export const SCORING_RULES = {
-  publisherId: {
-    [PUBLISHER_IDS.SERVICE_CIVIQUE]: [
+export const SCORING_RULES = [
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.SERVICE_CIVIQUE },
+    mode: "replace",
+    values: [
       "tranche_age.moins_18_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.moins_31_ans_handicap",
       "type_mission.temps_plein",
       "dispositif.service_civique",
     ],
-    [PUBLISHER_IDS.ROC]: [
+  },
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.ROC },
+    mode: "replace",
+    values: [
       "tranche_age.entre_16_17_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
@@ -42,9 +67,17 @@ export const SCORING_RULES = {
       "tranche_age.entre_68_72_ans",
     ],
   },
-  type: {
-    benevolat: ["dispositif.benevolat"],
-    volontariat_sapeurs_pompiers: [
+  {
+    field: "type",
+    condition: { operator: "equals", value: "benevolat" },
+    mode: "replace",
+    values: ["dispositif.benevolat"],
+  },
+  {
+    field: "type",
+    condition: { operator: "equals", value: "volontariat_sapeurs_pompiers" },
+    mode: "replace",
+    values: [
       "dispositif.sapeurs_pompiers",
       "tranche_age.entre_16_17_ans",
       "tranche_age.entre_18_25_ans",
@@ -56,8 +89,11 @@ export const SCORING_RULES = {
   // Mission fermée aux mineurs : seules les tranches d'âge adultes sont autorisées.
   // Combinée par intersection avec les autres règles (cf. getMissionScoringRuleKeys),
   // cette contrainte exclut du matching tout utilisateur de moins de 18 ans.
-  openToMinors: {
-    false: [
+  {
+    field: "openToMinors",
+    condition: { operator: "equals", value: false },
+    mode: "replace",
+    values: [
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
       "tranche_age.entre_30_45_ans",
@@ -67,7 +103,18 @@ export const SCORING_RULES = {
       "tranche_age.plus_72_ans",
     ],
   },
-} satisfies MissionScoringRules;
+  {
+    field: "compensationAmount",
+    condition: { operator: "present" },
+    mode: "add",
+    values: ["motivation_recherche.indemnisation"],
+  },
+] satisfies MissionScoringRule[];
+
+export type ResolvedMissionScoringRules = {
+  keys: TaxonomyValueKey[];
+  replacedTaxonomyKeys: Set<string>;
+};
 
 /**
  * Intersection d'une liste d'ensembles. Fonction **totale** : retourne un ensemble vide pour
@@ -91,24 +138,14 @@ export const intersect = (sets: Set<TaxonomyValueKey>[]): Set<TaxonomyValueKey> 
  * `openToMinors=false` ne conserve sur `tranche_age` que l'intersection des tranches SC et
  * des tranches adultes, ce qui exclut les mineurs sans réouvrir la mission aux autres âges.
  */
-export const getMissionScoringRuleKeys = (mission: MissionScoringRuleMission): TaxonomyValueKey[] => {
-  // taxonomie -> liste des ensembles autorisés (un par règle applicable)
-  const constraintsByTaxonomy = new Map<string, Set<TaxonomyValueKey>[]>();
+export const resolveMissionScoringRules = (mission: MissionScoringRuleMission): ResolvedMissionScoringRules => {
+  // Taxonomie -> ensembles de remplacement à intersecter + valeurs additives à réunir.
+  const rulesByTaxonomy = new Map<string, { replaceSets: Set<TaxonomyValueKey>[]; additiveKeys: Set<TaxonomyValueKey> }>();
 
-  for (const [field, rulesByValue] of Object.entries(SCORING_RULES) as [MissionScoringRuleField, Partial<Record<string, TaxonomyValueKey[]>>][]) {
-    const value = mission[field];
-    if (value == null) {
-      continue;
-    }
-
-    const ruleKeys = rulesByValue[String(value)];
-    if (!ruleKeys) {
-      continue;
-    }
-
+  const addRuleKeys = (rule: MissionScoringRule): void => {
     // Regroupe les clés de CETTE règle par taxonomie avant de les agréger.
     const ruleSetsByTaxonomy = new Map<string, Set<TaxonomyValueKey>>();
-    for (const key of ruleKeys) {
+    for (const key of rule.values) {
       const parsed = parseTaxonomyValueKey(key);
       if (!parsed) {
         continue;
@@ -120,16 +157,34 @@ export const getMissionScoringRuleKeys = (mission: MissionScoringRuleMission): T
     }
 
     for (const [taxonomyKey, set] of ruleSetsByTaxonomy) {
-      const list = constraintsByTaxonomy.get(taxonomyKey) ?? [];
-      list.push(set);
-      constraintsByTaxonomy.set(taxonomyKey, list);
+      const taxonomyRules = rulesByTaxonomy.get(taxonomyKey) ?? {
+        replaceSets: [],
+        additiveKeys: new Set<TaxonomyValueKey>(),
+      };
+      if (rule.mode === "replace") {
+        taxonomyRules.replaceSets.push(set);
+      } else {
+        for (const key of set) {
+          taxonomyRules.additiveKeys.add(key);
+        }
+      }
+      rulesByTaxonomy.set(taxonomyKey, taxonomyRules);
+    }
+  };
+
+  for (const rule of SCORING_RULES) {
+    const fieldValue = mission[rule.field];
+    const matches = rule.condition.operator === "present" ? fieldValue != null : fieldValue === rule.condition.value;
+    if (matches) {
+      addRuleKeys(rule);
     }
   }
 
   const keys: TaxonomyValueKey[] = [];
-  for (const [taxonomyKey, sets] of constraintsByTaxonomy) {
-    const intersection = intersect(sets);
-    if (intersection.size === 0) {
+  const replacedTaxonomyKeys = new Set<string>();
+  for (const [taxonomyKey, taxonomyRules] of rulesByTaxonomy) {
+    const intersection = intersect(taxonomyRules.replaceSets);
+    if (taxonomyRules.replaceSets.length > 0 && intersection.size === 0) {
       // Garde-fou de SÛRETÉ : une intersection vide n'injecterait aucune valeur, ce que le
       // matching interprète comme « aucune contrainte » (gate inactif, mission ouverte à tous)
       // plutôt que « personne ne passe ». Pour un gate de sûreté comme `tranche_age` (exclusion
@@ -138,11 +193,15 @@ export const getMissionScoringRuleKeys = (mission: MissionScoringRuleMission): T
       // bruyant : c'est une anomalie de configuration. L'invariant « aucune règle tranche_age
       // n'est un sous-ensemble de mineurs » (cf. test) garantit que ce cas est inatteignable.
       console.error(`[mission-scoring] ANOMALIE config: intersection vide pour la taxonomie '${taxonomyKey}' — gate NON appliqué (fail-open). Vérifier SCORING_RULES.`);
-      continue;
+    } else if (taxonomyRules.replaceSets.length > 0) {
+      replacedTaxonomyKeys.add(taxonomyKey);
+      keys.push(...intersection);
     }
 
-    keys.push(...intersection);
+    keys.push(...taxonomyRules.additiveKeys);
   }
 
-  return keys;
+  return { keys, replacedTaxonomyKeys };
 };
+
+export const getMissionScoringRuleKeys = (mission: MissionScoringRuleMission): TaxonomyValueKey[] => resolveMissionScoringRules(mission).keys;
