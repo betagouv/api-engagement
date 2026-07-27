@@ -43,9 +43,10 @@ export default function QuizLayout() {
   const navigate = useNavigate();
   const { answers, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
-  const [loadingResults, setLoadingResults] = useState(false);
+  const [loadingResultsPath, setLoadingResultsPath] = useState<string | null>(null);
   const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
+  const loadingResults = loadingResultsPath === location.pathname;
   // Promise en cours de save — partagée entre saveScoring() et goNext() pour éviter un double appel.
   const scoringPromiseRef = useRef<Promise<boolean> | null>(null);
 
@@ -100,9 +101,12 @@ export default function QuizLayout() {
     return scoringPromiseRef.current;
   };
 
-  // Réinitialise la promise de save à chaque changement de step.
+  // Réinitialise le save et interrompt l'écran de préchargement à chaque changement de route.
+  // Le pathname mémorisé garantit que l'Outlet précédent est rendu dès un retour navigateur,
+  // avant même l'exécution de cet effet et le nettoyage de la promesse par LoadingRecap.
   useEffect(() => {
     scoringPromiseRef.current = null;
+    setLoadingResultsPath(null);
   }, [location.pathname]);
 
   const goNext = async () => {
@@ -125,7 +129,7 @@ export default function QuizLayout() {
       navigate(next.route);
     } else {
       trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
-      setLoadingResults(true);
+      setLoadingResultsPath(location.pathname);
     }
   };
 
