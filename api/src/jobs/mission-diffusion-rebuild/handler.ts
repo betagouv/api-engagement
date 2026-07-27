@@ -8,6 +8,10 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
 export interface MissionDiffusionRebuildJobPayload {
   dryRun?: boolean;
+  // Restreint le rebuild à un seul publisher de diffusion (utile après correction de ses rules).
+  // En mode ciblé, la purge des diffuseurs hors population est désactivée (sinon on viderait la table
+  // pour tous les autres diffuseurs).
+  publisherId?: string;
 }
 
 export interface MissionDiffusionRebuildJobResult extends JobResult {
@@ -19,22 +23,25 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
   reindexFailed?: number;
   durationMs?: number;
   dryRun?: boolean;
+  publisherId?: string;
 }
 
 /*
 Reconstruit périodiquement la table `mission_diffusion` (snapshot batch de l'allowlist explicite et du
 scope propre). Recompute complet par diff (par publisher de diffusion), idempotent et relançable ; les
 compteurs added/removed servent de métrique de drift. `dryRun=true` calcule les deltas sans écrire.
+`publisherId` restreint le rebuild à un seul diffuseur (sans purge cross-diffuseurs).
 Aucune fraîcheur temps réel : la fenêtre de staleness (6h+) fait partie du contrat produit.
 */
 export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffusionRebuildJobPayload, MissionDiffusionRebuildJobResult> {
   name = "Rebuild table de diffusion (mission_diffusion)";
 
-  async handle({ dryRun = false }: MissionDiffusionRebuildJobPayload = {}): Promise<MissionDiffusionRebuildJobResult> {
+  async handle({ dryRun = false, publisherId }: MissionDiffusionRebuildJobPayload = {}): Promise<MissionDiffusionRebuildJobResult> {
     const start = new Date();
-    console.log(`[MissionDiffusionRebuild] Starting at ${start.toISOString()}${dryRun ? " (dry-run)" : ""}`);
+    const scoped = Boolean(publisherId);
+    console.log(`[MissionDiffusionRebuild] Starting at ${start.toISOString()}${dryRun ? " (dry-run)" : ""}${scoped ? ` (publisher=${publisherId})` : ""}`);
 
-    const distributionPublisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
+    const distributionPublisherIds = scoped ? [publisherId as string] : await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
     let added = 0;
     let removed = 0;
     let reindexRequested = 0;
@@ -76,19 +83,24 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     // Missions des diffuseurs sortis de la population : collectées AVANT la purge, puis republiées pour
     // qu'elles perdent le diffuseur dans `distributionPublisherIds` côté Typesense (sinon elles
     // continueraient d'apparaître dans /browse pour ce diffuseur jusqu'à une réindexation externe).
-    const prunedMissionIds = dryRun ? [] : await missionDiffusionRepository.findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds);
+    // Ignorée en mode ciblé : `distributionPublisherIds` ne contient qu'un diffuseur, la purge
+    // `notIn` viderait la table pour tous les autres.
+    let prunedDistributionPublishers = 0;
+    if (!scoped) {
+      const prunedMissionIds = dryRun ? [] : await missionDiffusionRepository.findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds);
 
-    const prunedDistributionPublishers = dryRun
-      ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
-      : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
-    removed += prunedDistributionPublishers;
+      prunedDistributionPublishers = dryRun
+        ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
+        : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
+      removed += prunedDistributionPublishers;
 
-    await republishTouchedMissions(prunedMissionIds);
+      await republishTouchedMissions(prunedMissionIds);
+    }
     const durationMs = Date.now() - start.getTime();
 
     const mode = dryRun ? "Dry-run done" : "Done";
     console.log(
-      `[MissionDiffusionRebuild] ${mode}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), ${reindexRequested} réindexations demandées (${reindexFailed} échecs), en ${durationMs}ms`
+      `[MissionDiffusionRebuild] ${mode}${scoped ? ` (publisher=${publisherId})` : ""}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), ${reindexRequested} réindexations demandées (${reindexFailed} échecs), en ${durationMs}ms`
     );
 
     return {
@@ -102,7 +114,8 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
       reindexFailed,
       durationMs,
       dryRun,
-      message: `${dryRun ? "Dry-run : " : ""}${distributionPublisherIds.length} publishers de diffusion rebuild : +${added} / -${removed} lignes, ${reindexRequested} réindexations en ${durationMs}ms`,
+      publisherId,
+      message: `${dryRun ? "Dry-run : " : ""}${scoped ? `1 diffuseur ciblé (${publisherId})` : `${distributionPublisherIds.length} publishers de diffusion`} rebuild : +${added} / -${removed} lignes, ${reindexRequested} réindexations en ${durationMs}ms`,
     };
   }
 }
