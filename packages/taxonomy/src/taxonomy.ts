@@ -100,56 +100,49 @@ export const TAXONOMY = {
     values: {
       sante_bien_etre: {
         label: "Santé et bien-être",
-        icon: "🩺",
-        sublabel: "Soins, prévention, santé mentale et qualité de vie",
+        icon: "🏥",
         enrichable: true,
       },
       sport: {
         label: "Sport",
-        icon: "⚽",
+        icon: "🏀",
         sublabel: "Pratique sportive, animation et inclusion par le sport",
         enrichable: true,
       },
       solidarite_inclusion: {
         label: "Solidarité et inclusion",
-        icon: "🤝",
+        icon: "🍲",
         sublabel: "Entraide, accompagnement et lutte contre l’exclusion",
         enrichable: true,
       },
       environnement_animaux: {
         label: "Environnement et animaux",
-        icon: "🌿",
-        sublabel: "Nature, biodiversité, transition écologique et protection animale",
+        icon: "🌱",
         enrichable: true,
       },
       art_culture: {
         label: "Art et culture",
         icon: "🎨",
-        sublabel: "Création, patrimoine, médiation et événements culturels",
         enrichable: true,
       },
       securite_secours: {
         label: "Sécurité et secours",
         icon: "🛡️",
-        sublabel: "Prévention, protection des populations et intervention",
         enrichable: true,
       },
       citoyennete: {
         label: "Citoyenneté",
-        icon: "🏛️",
-        sublabel: "Vie civique, démocratie, droits et intérêt général",
+        icon: "🗳️",
         enrichable: true,
       },
       numerique: {
         label: "Numérique",
         icon: "💻",
-        sublabel: "Outils numériques, inclusion digitale et technologies",
         enrichable: true,
       },
       education: {
         label: "Éducation",
         icon: "🎓",
-        sublabel: "Apprentissage, transmission et accompagnement éducatif",
         enrichable: true,
       },
     },
@@ -265,37 +258,31 @@ export const TAXONOMY = {
     values: {
       ponctuelle_journee: {
         label: "Une mission ponctuelle, sur une journée",
-        sublabel: "Une intervention unique concentrée sur une journée",
-        icon: "📅",
+        icon: "🔎",
         enrichable: true,
       },
       quelques_heures_semaine: {
         label: "Quelques heures par semaine",
-        sublabel: "Un engagement régulier compatible avec un emploi du temps quotidien",
-        icon: "🕐",
+        icon: "👋",
         enrichable: true,
       },
       plusieurs_jours_semaine: {
         label: "Plusieurs jours par semaine",
-        sublabel: "Un engagement soutenu réparti chaque semaine",
-        icon: "🗓️",
+        icon: "💪",
         enrichable: true,
       },
       quelques_jours_annee: {
         label: "Quelques jours répartis dans l’année",
-        sublabel: "Des interventions occasionnelles à différents moments de l’année",
-        icon: "🔁",
+        icon: "📆",
         enrichable: true,
       },
       temps_plein_plusieurs_mois: {
         label: "À temps plein pendant plusieurs mois",
-        sublabel: "Un engagement intensif et continu sur plusieurs mois",
-        icon: "⏱️",
+        icon: "💼",
         enrichable: true,
       },
       je_ne_sais_pas: {
         label: "Je ne sais pas encore",
-        sublabel: "Je déciderai en découvrant les missions",
         icon: "🤔",
         enrichable: false,
       },
@@ -386,38 +373,32 @@ export const TAXONOMY = {
     values: {
       aider_accompagner: {
         label: "Aider et accompagner des personnes",
-        icon: "🤝",
-        sublabel: "Accueil, écoute, visites, aide quotidienne et soutien à des bénéficiaires",
+        icon: "❤️",
         enrichable: true,
       },
       transmettre_animer: {
         label: "Transmettre et animer",
-        icon: "🎓",
-        sublabel: "Tutorat, sensibilisation, formation, ateliers et activités collectives",
+        icon: "📢",
         enrichable: true,
       },
       fabriquer_reparer_terrain: {
         label: "Fabriquer, réparer ou agir sur le terrain",
         icon: "🛠️",
-        sublabel: "Chantiers, bricolage, collecte, entretien, logistique et actions environnementales",
         enrichable: true,
       },
       secourir_proteger: {
         label: "Secourir et protéger",
-        icon: "🛡️",
-        sublabel: "Secours, prévention, surveillance, sécurité civile et protection des populations",
+        icon: "🛟",
         enrichable: true,
       },
       organiser_coordonner: {
         label: "Organiser et coordonner",
-        icon: "📋",
-        sublabel: "Événements, gestion de projet, planification, logistique et coordination d’équipes",
+        icon: "🗓️",
         enrichable: true,
       },
       creer_communiquer: {
         label: "Créer et communiquer",
         icon: "🎨",
-        sublabel: "Photo, vidéo, rédaction, graphisme, réseaux sociaux et création de supports",
         enrichable: true,
       },
     },
@@ -431,26 +412,22 @@ export const TAXONOMY = {
     values: {
       autonomie: {
         label: "Plutôt en autonomie",
-        icon: "🧑",
-        sublabel: "Missions individuelles, tâches indépendantes ou interventions à distance",
+        icon: "🌱",
         enrichable: true,
       },
       petit_groupe: {
         label: "Dans un petit groupe où l’on prend le temps de se connaître",
-        icon: "👥",
-        sublabel: "Petites équipes, accompagnement régulier, missions locales et relations suivies",
+        icon: "🌿",
         enrichable: true,
       },
       grand_collectif: {
         label: "Dans un grand collectif où il y a beaucoup de monde",
-        icon: "👨‍👩‍👧‍👦",
-        sublabel: "Événements, rassemblements et actions mobilisant de nombreux participants",
+        icon: "🌳",
         enrichable: true,
       },
       peu_importe: {
         label: "Peu importe",
-        icon: "🤷",
-        sublabel: "La taille de l’équipe n’est pas un critère de choix",
+        icon: "🤔",
         enrichable: false,
       },
     },
@@ -464,26 +441,22 @@ export const TAXONOMY = {
     values: {
       interaction_collective: {
         label: "J’aime échanger et agir avec les autres",
-        icon: "🤝",
-        sublabel: "Actions collectives, animation, accueil et échanges réguliers",
+        icon: "🌱",
         enrichable: true,
       },
       equilibre_collectif_autonomie: {
         label: "J’aime alterner les moments en groupe et en autonomie",
-        icon: "⚖️",
-        sublabel: "Temps collectifs combinés à des responsabilités individuelles",
+        icon: "🌿",
         enrichable: true,
       },
       autonomie_principale: {
         label: "Je préfère avancer principalement en autonomie",
-        icon: "🧑",
-        sublabel: "Tâches individuelles demandant peu d’interactions continues",
+        icon: "🌳",
         enrichable: true,
       },
       peu_importe: {
         label: "Peu importe",
-        icon: "🤷",
-        sublabel: "Le niveau d’interaction n’est pas un critère de choix",
+        icon: "🤔",
         enrichable: false,
       },
     },
@@ -497,26 +470,22 @@ export const TAXONOMY = {
     values: {
       organisation_libre: {
         label: "On me donne un objectif et je m’organise librement",
-        icon: "🧭",
-        sublabel: "Responsabilités individuelles et organisation flexible",
+        icon: "🤝",
         enrichable: true,
       },
       accompagnement_initial: {
         label: "J’aime être accompagné·e au début, puis gagner en autonomie",
-        icon: "🌱",
-        sublabel: "Intégration, formation initiale ou tutorat au démarrage",
+        icon: "🧭",
         enrichable: true,
       },
       cadre_suivi_regulier: {
         label: "Je préfère avoir des consignes précises et un suivi régulier",
-        icon: "📋",
-        sublabel: "Référent identifié, tâches définies et points réguliers",
+        icon: "🚀",
         enrichable: true,
       },
       je_ne_sais_pas: {
-        label: "Je ne sais pas encore",
+        label: "Peu importe",
         icon: "🤔",
-        sublabel: "Le niveau d’encadrement n’est pas encore un critère de choix",
         enrichable: false,
       },
     },
@@ -530,26 +499,22 @@ export const TAXONOMY = {
     values: {
       adaptation_rapide: {
         label: "J’aime quand il faut s’adapter rapidement",
-        icon: "⚡",
-        sublabel: "Situations changeantes demandant de réagir et de s’adapter",
+        icon: "🚀",
         enrichable: true,
       },
       imprevu_modere: {
         label: "Un peu d’imprévu, ça me va",
-        icon: "🌤️",
-        sublabel: "Mission structurée conservant une certaine variété",
+        icon: "💪",
         enrichable: true,
       },
       cadre_previsible: {
         label: "Je préfère savoir à quoi m’attendre",
-        icon: "📅",
-        sublabel: "Tâches, horaires et organisation clairement définis",
+        icon: "🧘",
         enrichable: true,
       },
       je_ne_sais_pas: {
         label: "Je ne sais pas encore",
         icon: "🤔",
-        sublabel: "Le niveau d’imprévu n’est pas encore un critère de choix",
         enrichable: false,
       },
     },
@@ -583,34 +548,39 @@ export const TAXONOMY = {
     gate: false,
     values: {
       premiere_experience: {
-        label: "Acquérir une première expérience",
-        icon: "🌱",
+        label: "J'ai besoin d'une première expérience",
+        icon: "🙏",
         enrichable: true,
       },
       decouverte_metier: {
-        label: "Découvrir un métier",
+        label: "Je veux découvrir un métier",
         icon: "🧭",
         enrichable: true,
       },
       agir_pour_une_cause: {
-        label: "Agir pour une cause",
-        icon: "🤝",
+        label: "Je veux aider une cause qui me tient à coeur cœur",
+        icon: "🌍",
+        enrichable: true,
+      },
+      securite_pays: {
+        label: "Je veux contribuer à la sécurité du pays",
+        icon: "🪖",
         enrichable: true,
       },
       rencontres: {
-        label: "Rencontrer de nouvelles personnes",
-        icon: "👥",
+        label: "J'aimerais rencontrer de nouvelles personnes",
+        icon: "🤝",
         enrichable: true,
       },
       indemnisation: {
-        label: "Bénéficier d’une indemnisation",
-        icon: "💶",
+        label: "Je cherche une mission indemnisée",
+        icon: "💸",
         enrichable: false,
       },
-      securite_pays: {
-        label: "Contribuer à la sécurité du pays",
-        icon: "🛡️",
-        enrichable: true,
+      autre: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        enrichable: false,
       },
     },
   },
@@ -741,6 +711,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
+  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   parcoursup_formation: {
     label: "Formation Parcoursup identifiée",
     type: "categorical",
@@ -752,6 +725,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
+  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   servir_pays: {
     label: "Cadre de service du pays",
     type: "categorical",
