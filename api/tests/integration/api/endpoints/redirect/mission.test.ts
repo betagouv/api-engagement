@@ -107,6 +107,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
     expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://mission.example.com/apply");
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
     expect(clickId).toBeTruthy();
+    expect(redirectUrl.searchParams.get("apiengagement_tracking_token")).toEqual(expect.any(String));
     expect(redirectUrl.searchParams.get("utm_source")).toBe("api_engagement");
     expect(redirectUrl.searchParams.get("utm_medium")).toBe("api");
     expect(redirectUrl.searchParams.get("utm_campaign")).toBe("from-publisher");
