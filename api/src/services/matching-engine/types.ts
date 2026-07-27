@@ -1,5 +1,4 @@
 import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonomy";
-import type { PromptVersion } from "@/services/mission-enrichment/prompts";
 
 export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
@@ -8,7 +7,6 @@ export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonom
 export type MatchingEngineVersion = "m1" | "m2" | "m3";
 
 export type MatchingEngineVersionConfig = {
-  promptVersion: PromptVersion;
   taxonomyKeys: readonly MatchingEngineTaxonomy[];
   taxonomyWeights: MatchingEngineTaxonomyWeights;
   geoWeight: number;

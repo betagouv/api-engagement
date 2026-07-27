@@ -1,8 +1,5 @@
 import { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES } from "@engagement/taxonomy";
-import type { GateTaxonomyKey } from "@engagement/taxonomy";
-import { PROMPT_REGISTRY } from "@/services/mission-enrichment/prompts";
-import type { PromptVersion } from "@/services/mission-enrichment/prompts";
-import type { MatchingEngineTaxonomyWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
+import type { MatchingEngineTaxonomy, MatchingEngineTaxonomyWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
 
 export const MATCHING_ENGINE_TAXONOMIES = [...ENRICHABLE_TAXONOMIES, ...GATE_TAXONOMIES] as readonly (keyof MatchingEngineTaxonomyWeights)[];
 
@@ -10,36 +7,29 @@ export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
 
 export const CURRENT_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "m3";
 
-type PromptTaxonomyKey<P extends PromptVersion> = (typeof PROMPT_REGISTRY)[P]["TAXONOMY_KEYS"][number];
-type MatchingEngineTaxonomyForPrompt<P extends PromptVersion> = PromptTaxonomyKey<P> | GateTaxonomyKey;
+// Poids par défaut des taxonomies gate (`tranche_age`, …). Les gates sont une préoccupation
+// transverse de sûreté ; elles sont toujours présentes dans la config avec ce poids, surchargeable.
+const DEFAULT_GATE_WEIGHT = 1;
 
-type MatchingEngineVersionDefinition<P extends PromptVersion> = {
-  promptVersion: P;
-  taxonomyWeights: Record<MatchingEngineTaxonomyForPrompt<P>, number>;
+type MatchingEngineVersionDefinition = {
+  // Taxonomies de ranking pondérées par ce moteur (choix explicite). Les gates y sont ajoutées
+  // automatiquement avec `DEFAULT_GATE_WEIGHT` — les préciser ici ne sert qu'à surcharger le poids.
+  // Une nouvelle taxonomie globale n'a aucun impact tant qu'elle n'est pas ajoutée ici.
+  taxonomyWeights: MatchingEngineTaxonomyWeights;
   geoWeight: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
 };
 
-export const defineMatchingEngineVersion = <P extends PromptVersion>(definition: MatchingEngineVersionDefinition<P>): MatchingEngineVersionConfig => {
-  const taxonomyKeys = [...new Set([...PROMPT_REGISTRY[definition.promptVersion].TAXONOMY_KEYS, ...GATE_TAXONOMIES])] as MatchingEngineTaxonomyForPrompt<P>[];
-  const expectedTaxonomyKeys = new Set<string>(taxonomyKeys);
-  const configuredTaxonomyKeys = Object.keys(definition.taxonomyWeights);
-  const missingTaxonomyKeys = taxonomyKeys.filter((taxonomyKey) => !Object.prototype.hasOwnProperty.call(definition.taxonomyWeights, taxonomyKey));
-  const unknownTaxonomyKeys = configuredTaxonomyKeys.filter((taxonomyKey) => !expectedTaxonomyKeys.has(taxonomyKey));
-
-  if (missingTaxonomyKeys.length > 0 || unknownTaxonomyKeys.length > 0) {
-    throw new Error([
-      `[matching-engine] configuration invalide pour le prompt ${definition.promptVersion}`,
-      missingTaxonomyKeys.length > 0 ? `taxonomies manquantes : ${missingTaxonomyKeys.join(", ")}` : null,
-      unknownTaxonomyKeys.length > 0 ? `taxonomies absentes du prompt : ${unknownTaxonomyKeys.join(", ")}` : null,
-    ].filter(Boolean).join(" — "));
-  }
+export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
+  const taxonomyWeights: MatchingEngineTaxonomyWeights = {
+    ...Object.fromEntries(GATE_TAXONOMIES.map((gate) => [gate, DEFAULT_GATE_WEIGHT])),
+    ...definition.taxonomyWeights,
+  };
 
   return {
-    promptVersion: definition.promptVersion,
-    taxonomyKeys: taxonomyKeys as MatchingEngineVersionConfig["taxonomyKeys"],
-    taxonomyWeights: definition.taxonomyWeights,
+    taxonomyKeys: Object.keys(taxonomyWeights) as MatchingEngineTaxonomy[],
+    taxonomyWeights,
     geoWeight: definition.geoWeight,
     remoteFullGeoScore: definition.remoteFullGeoScore,
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
@@ -48,7 +38,6 @@ export const defineMatchingEngineVersion = <P extends PromptVersion>(definition:
 
 export const MATCHING_ENGINE_VERSIONS = {
   m1: defineMatchingEngineVersion({
-    promptVersion: "v1",
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -57,14 +46,12 @@ export const MATCHING_ENGINE_VERSIONS = {
       region_internationale: 1,
       engagement_intent: 1,
       formation_onisep: 1,
-      tranche_age: 1,
     },
     geoWeight: 0.7,
     remoteFullGeoScore: null,
     remoteLocalGeoScore: null,
   }),
   m2: defineMatchingEngineVersion({
-    promptVersion: "v2",
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -73,7 +60,6 @@ export const MATCHING_ENGINE_VERSIONS = {
       region_internationale: 1,
       engagement_intent: 1,
       formation_onisep: 1,
-      tranche_age: 1,
     },
     geoWeight: 0.3,
     remoteFullGeoScore: null,
@@ -83,7 +69,6 @@ export const MATCHING_ENGINE_VERSIONS = {
     // Identique à m2, mais les missions remote=full/local sont considérées comme naturellement proches.
     // Le remote=local est le signal géo le plus fort (au-dessus de remote=full) : une mission "locale"
     // (engagement de proximité) est mise en avant devant une mission entièrement à distance.
-    promptVersion: "v3",
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -92,7 +77,6 @@ export const MATCHING_ENGINE_VERSIONS = {
       region_internationale: 1,
       engagement_intent: 1,
       formation_onisep: 1,
-      tranche_age: 1,
     },
     geoWeight: 0.3,
     remoteFullGeoScore: 0.9,

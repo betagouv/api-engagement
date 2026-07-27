@@ -24,6 +24,13 @@ const ADULT_TRANCHE_AGE_KEYS = [
   "tranche_age.plus_72_ans",
 ];
 
+const ALL_TRANCHE_AGE_KEYS = [
+  "tranche_age.moins_18_ans",
+  ...ADULT_TRANCHE_AGE_KEYS,
+  "tranche_age.entre_16_17_ans",
+  "tranche_age.moins_31_ans_handicap",
+];
+
 const sorted = (keys: string[]): string[] => [...keys].sort();
 
 describe("getMissionScoringRuleKeys — openToMinors", () => {
@@ -33,10 +40,10 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
     expect(sorted(keys)).toEqual(sorted(ADULT_TRANCHE_AGE_KEYS));
   });
 
-  it("n'ajoute aucune contrainte tranche_age quand openToMinors=true", () => {
+  it("matérialise toutes les tranches d'âge quand openToMinors=true", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ openToMinors: true }));
 
-    expect(keys).toEqual([]);
+    expect(sorted(keys)).toEqual(sorted(ALL_TRANCHE_AGE_KEYS));
   });
 
   it("n'ajoute aucune contrainte tranche_age quand openToMinors=null", () => {

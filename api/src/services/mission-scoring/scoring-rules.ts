@@ -30,6 +30,29 @@ type MissionScoringPresentRule = {
 
 type MissionScoringRule = MissionScoringEqualsRule | MissionScoringPresentRule;
 
+const ALL_TRANCHE_AGE_KEYS = [
+  "tranche_age.moins_18_ans",
+  "tranche_age.entre_18_25_ans",
+  "tranche_age.entre_25_30_ans",
+  "tranche_age.entre_30_45_ans",
+  "tranche_age.entre_46_67_ans",
+  "tranche_age.entre_68_72_ans",
+  "tranche_age.plus_72_ans",
+  "tranche_age.entre_16_17_ans",
+  "tranche_age.entre_46_66_ans",
+  "tranche_age.moins_31_ans_handicap",
+] satisfies TaxonomyValueKey[];
+
+const ADULT_TRANCHE_AGE_KEYS = [
+  "tranche_age.entre_18_25_ans",
+  "tranche_age.entre_25_30_ans",
+  "tranche_age.entre_30_45_ans",
+  "tranche_age.entre_46_67_ans",
+  "tranche_age.entre_46_66_ans",
+  "tranche_age.entre_68_72_ans",
+  "tranche_age.plus_72_ans",
+] satisfies TaxonomyValueKey[];
+
 /**
  * Règles déterministes injectées directement dans mission_scoring.
  *
@@ -93,15 +116,17 @@ export const SCORING_RULES = [
     field: "openToMinors",
     condition: { operator: "equals", value: false },
     mode: "replace",
-    values: [
-      "tranche_age.entre_18_25_ans",
-      "tranche_age.entre_25_30_ans",
-      "tranche_age.entre_30_45_ans",
-      "tranche_age.entre_46_67_ans",
-      "tranche_age.entre_46_66_ans",
-      "tranche_age.entre_68_72_ans",
-      "tranche_age.plus_72_ans",
-    ],
+    values: ADULT_TRANCHE_AGE_KEYS,
+  },
+  // Les filtres Typesense sont explicites : une taxonomie absente est indexée comme
+  // un tableau vide, pas comme une absence de contrainte. Matérialiser toutes les
+  // tranches garantit donc qu'une mission ouverte aux mineurs reste aussi visible
+  // pour les utilisateurs adultes.
+  {
+    field: "openToMinors",
+    condition: { operator: "equals", value: true },
+    mode: "replace",
+    values: ALL_TRANCHE_AGE_KEYS,
   },
   {
     field: "compensationAmount",
