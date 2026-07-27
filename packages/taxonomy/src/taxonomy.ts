@@ -477,6 +477,39 @@ export const TAXONOMY = {
     },
   },
 
+  autonomie: {
+    label: "Niveau d’autonomie et d’accompagnement",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      organisation_libre: {
+        label: "On me donne un objectif et je m’organise librement",
+        icon: "🧭",
+        sublabel: "Responsabilités individuelles et organisation flexible",
+        enrichable: true,
+      },
+      accompagnement_initial: {
+        label: "J’aime être accompagné·e au début, puis gagner en autonomie",
+        icon: "🌱",
+        sublabel: "Intégration, formation initiale ou tutorat au démarrage",
+        enrichable: true,
+      },
+      cadre_suivi_regulier: {
+        label: "Je préfère avoir des consignes précises et un suivi régulier",
+        icon: "📋",
+        sublabel: "Référent identifié, tâches définies et points réguliers",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        sublabel: "Le niveau d’encadrement n’est pas encore un critère de choix",
+        enrichable: false,
+      },
+    },
+  },
+
   formation_onisep: {
     label: "Domaine de formation ONISEP",
     type: "multi_value",
