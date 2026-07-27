@@ -118,7 +118,12 @@ describe("matchingEngineService", () => {
       expect(result.version).toBe(CURRENT_MATCHING_ENGINE_VERSION);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
+      expect(rankingSql).toContain("JOIN taxonomy_weights tw");
+      expect(rankingValues).toContain("domaine");
+      expect(rankingValues).toContain("tranche_age");
+      expect(rankingValues).not.toContain("rythme");
       expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
       expect(rankingSql).toContain('ems."mission_id",\n      msv."mission_scoring_id"');
       expect(rankingSql).toContain('MAX(cmr."weighted_sum") AS "weighted_sum"');

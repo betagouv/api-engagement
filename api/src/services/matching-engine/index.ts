@@ -3,7 +3,14 @@ import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
-import type { MatchMissionItem, MatchingEngineTaxonomy, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
+import type {
+  MatchMissionItem,
+  MatchingEngineTaxonomy,
+  MatchingEngineTaxonomyWeights,
+  MissionMatchingResultItem,
+  RankMissionsByUserScoringInput,
+  RankMissionsByUserScoringResult,
+} from "./types";
 
 type DbRankRow = {
   mission_id: string;
@@ -53,8 +60,10 @@ const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): n
 const getGeoCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * GEO_CANDIDATE_MULTIPLIER, MIN_GEO_CANDIDATE_LIMIT);
 
-const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Record<MatchingEngineTaxonomy, number>) =>
-  Prisma.join(MATCHING_ENGINE_TAXONOMIES.map((taxonomy) => Prisma.sql`(${taxonomy}, CAST(${taxonomyWeights[taxonomy]} AS double precision))`));
+const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>) =>
+  Prisma.join(
+    Object.entries(taxonomyWeights).map(([taxonomy, weight]) => Prisma.sql`(${taxonomy}, CAST(${weight} AS double precision))`)
+  );
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
@@ -75,7 +84,7 @@ const assertUserScoringExists = async (userScoringId: string): Promise<void> => 
 const buildRanking = (params: {
   userScoringId: string;
   publisherDiffusionJoinSql?: Prisma.Sql;
-  taxonomyWeights: Record<MatchingEngineTaxonomy, number>;
+  taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>;
   taxonomyWeight: number;
   geoWeight: number;
   geoHalfDecayKm: number;
@@ -184,6 +193,8 @@ const buildRanking = (params: {
       usv."value_key" AS "value_key",
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
+    JOIN taxonomy_weights tw
+      ON tw."taxonomy_key" = usv."taxonomy_key"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
   ),
   user_taxonomy_totals AS (
@@ -586,7 +597,7 @@ const buildPublisherDiffusionJoinSql = (publisherId?: string): Prisma.Sql => {
    AND md."distribution_publisher_id" = ${publisherId}`;
 };
 
-const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
+const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[]; taxonomyKeys: readonly MatchingEngineTaxonomy[] }) => Prisma.sql`
   WITH user_values AS (
     SELECT
       usv."taxonomy_key" AS "taxonomy_key",
@@ -594,6 +605,7 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
+      AND usv."taxonomy_key" IN (${Prisma.join(params.taxonomyKeys)})
   ),
   user_taxonomy_totals AS (
     SELECT
@@ -678,6 +690,7 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     shouldPersistTopResults,
     rankingLimit,
     taxonomyWeights: versionConfig.taxonomyWeights,
+    taxonomyKeys: versionConfig.taxonomyKeys,
     taxonomyWeight: input.taxonomyWeight ?? 0.3,
     geoWeight: input.geoWeight ?? versionConfig.geoWeight,
     geoHalfDecayKm: input.geoHalfDecayKm ?? 20,
@@ -712,7 +725,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const { version, limit, offset, shouldPersistTopResults } = resolveRankingParams(input);
+    const { version, limit, offset, shouldPersistTopResults, taxonomyKeys } = resolveRankingParams(input);
 
     await assertUserScoringExists(input.userScoringId);
 
@@ -724,6 +737,7 @@ export const matchingEngineService = {
             buildTaxonomyScoresSql({
               userScoringId: input.userScoringId,
               missionScoringIds: missionScoringIdsForDetails,
+              taxonomyKeys,
             })
           )
         : [];

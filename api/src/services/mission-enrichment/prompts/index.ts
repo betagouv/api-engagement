@@ -24,12 +24,12 @@ export type PromptEntry = {
   buildUserMessage: (missionBlock: string) => string;
 };
 
-export const PROMPT_REGISTRY: Record<string, PromptEntry> = {
+export const PROMPT_REGISTRY = {
   [v1.VERSION]: v1,
   [v2.VERSION]: v2,
   [v3.VERSION]: v3,
   [v4.VERSION]: v4,
-};
+} satisfies Record<string, PromptEntry>;
 
 export type PromptVersion = keyof typeof PROMPT_REGISTRY;
 
@@ -39,9 +39,9 @@ export const DEFAULT_PROMPT_VERSION = v3.VERSION;
 // Résout la version active depuis l'env. Une valeur inconnue (typo, version supprimée) retombe sur le
 // défaut plutôt que de faire planter l'enrichissement (`PROMPT_REGISTRY[inconnu]` → undefined) ; on
 // signale le fallback via Sentry pour ne pas masquer une mauvaise configuration.
-const resolvePromptVersion = (raw: string): string => {
+const resolvePromptVersion = (raw: string): PromptVersion => {
   if (raw in PROMPT_REGISTRY) {
-    return raw;
+    return raw as PromptVersion;
   }
   captureMessage(`[mission-enrichment] unknown prompt version "${raw}", falling back to "${DEFAULT_PROMPT_VERSION}"`);
   console.warn(`[mission-enrichment] unknown prompt version "${raw}", falling back to "${DEFAULT_PROMPT_VERSION}"`);
