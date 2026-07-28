@@ -95,3 +95,28 @@ models:
         tests:
           - not_null
           - unique
+
+  - name: tracking_recommendation
+    description: >
+      Fait « une ligne par mission recommandée » (dernier run de matching de chaque session), exposé à
+      Metabase pour le KPI de contrôle « part des recommandations par annonceur ». Pas de pré-agrégation :
+      agréger librement par `publisher_name`, `session_date` ou `backend_rank`. Voir
+      `int_tracking_recommendation` pour la chaîne de jointure (pont `mission_scoring` -> mission ->
+      publisher). Personnes internes exclues au niveau du `distinct_id`.
+    columns:
+      - name: quiz_session_id
+        description: Session quiz (`user_scoring_id`) du run de matching.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Mission recommandée (text ; formats mixtes ObjectId Mongo / UUID).
+        tests:
+          - not_null
+      - name: publisher_id
+        description: Annonceur propriétaire de la mission recommandée.
+        tests:
+          - not_null
+      - name: publisher_name
+        description: Nom de l'annonceur, pour l'agrégation « part par annonceur » côté Metabase.
+      - name: backend_rank
+        description: Rang de la mission dans le run de matching (position dans `results`).
