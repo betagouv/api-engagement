@@ -5,12 +5,14 @@ import { Prisma } from "@/db/core";
 import { pgConnected, pgDisconnect, prisma } from "@/db/postgres";
 import { ai } from "@/services/ai";
 import { LLM_MAX_RETRIES } from "@/services/mission-enrichment/config";
-import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
+import type { PromptVersion } from "@/services/mission-enrichment/prompts";
+import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION, PROMPT_REGISTRY } from "@/services/mission-enrichment/prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "@/services/mission-enrichment/prompts/types";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV2 } from "@/services/mission-enrichment/prompts/v2";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV3 } from "@/services/mission-enrichment/prompts/v3";
 import { resolveRomeSkills } from "@/utils/rome";
-import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
+import { TAXONOMY } from "@engagement/taxonomy";
 import { generateObject } from "ai";
 import { spawnSync } from "child_process";
 import fs from "fs";
@@ -201,8 +203,19 @@ ${classificationsText}`;
 
 type TaxonomyWithValues = { key: string; type: string; label: string; values: Array<{ key: string; label: string }> };
 
-const getTaxonomies = (): TaxonomyWithValues[] =>
-  ENRICHABLE_TAXONOMIES.map((taxonomyKey) => ({
+// Le juge doit voir exactement le référentiel que la version évaluée était censée produire.
+// On part donc de la whitelist explicite du prompt (`TAXONOMY_KEYS`), pas du référentiel global
+// `ENRICHABLE_TAXONOMIES` : sinon les taxonomies enrichissables ajoutées pour des versions
+// ultérieures seraient signalées comme « manquantes » et pénaliseraient injustement v1-v4.
+const resolveEvaluatedTaxonomyKeys = (evaluatedVersion: string): readonly EnrichableTaxonomyKey[] => {
+  if (evaluatedVersion in PROMPT_REGISTRY) {
+    return PROMPT_REGISTRY[evaluatedVersion as PromptVersion].TAXONOMY_KEYS;
+  }
+  throw new Error(`[judge-enrichments] version inconnue "${evaluatedVersion}" — aucune whitelist de taxonomies disponible`);
+};
+
+const getTaxonomies = (taxonomyKeys: readonly EnrichableTaxonomyKey[]): TaxonomyWithValues[] =>
+  taxonomyKeys.map((taxonomyKey) => ({
     key: taxonomyKey,
     label: TAXONOMY[taxonomyKey].label,
     type: TAXONOMY[taxonomyKey].type,
@@ -489,7 +502,7 @@ async function main() {
 
   await pgConnected();
 
-  const taxonomies = getTaxonomies();
+  const taxonomies = getTaxonomies(resolveEvaluatedTaxonomyKeys(version));
   const taxonomyBlock = buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies));
 
   const enrichments = await prisma.missionEnrichment.findMany({
