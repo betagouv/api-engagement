@@ -131,7 +131,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               </label>
               <select
                 id="numbers-department"
-                className="input w-full pr-4 sm:w-48"
+                className="input w-full pr-4 sm:w-64"
                 value={filters.department}
                 onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
               >
@@ -149,7 +149,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <label htmlFor="numbers-mission-type" className="text-sm">
                 Type de mission
               </label>
-              <select id="numbers-mission-type" className="input w-full pr-4 sm:w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+              <select id="numbers-mission-type" className="input w-full pr-4 sm:w-64" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
                 <option value="">Tous les types</option>
                 {MISSION_TYPE_OPTIONS.map((missionType) => (
                   <option key={missionType.value} value={missionType.value}>

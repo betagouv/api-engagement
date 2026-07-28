@@ -79,7 +79,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
               </label>
               <select
                 id="distribution-department"
-                className="input w-full pr-4 sm:w-48"
+                className="input w-full pr-4 sm:w-64"
                 value={departmentCode}
                 onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
               >
@@ -97,7 +97,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
               <label htmlFor="distribution-mission-type" className="text-sm">
                 Type de mission
               </label>
-              <select id="distribution-mission-type" className="input w-full pr-4 sm:w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+              <select id="distribution-mission-type" className="input w-full pr-4 sm:w-64" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
                 <option value="">Tous les types</option>
                 {MISSION_TYPE_OPTIONS.map((missionType) => (
                   <option key={missionType.value} value={missionType.value}>

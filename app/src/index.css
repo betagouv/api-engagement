@@ -259,10 +259,6 @@ select {
   background-size: 14px;
 }
 
-select.input {
-  background-position: right 0.5rem center;
-}
-
 /* TOAST PART */
 .Toastify__close-button--light {
   color: white;
