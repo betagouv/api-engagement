@@ -552,14 +552,29 @@ export const TAXONOMY = {
         icon: "🙏",
         enrichable: true,
       },
+      rencontres: {
+        label: "J'aimerais rencontrer de nouvelles personnes",
+        icon: "🤝",
+        enrichable: true,
+      },
       decouverte_metier: {
         label: "Je veux découvrir un métier",
         icon: "🧭",
         enrichable: true,
       },
+      indemnisation: {
+        label: "Je cherche une mission indemnisée",
+        icon: "💸",
+        enrichable: false,
+      },
       agir_pour_une_cause: {
         label: "Je veux aider une cause qui me tient à coeur cœur",
         icon: "🌍",
+        enrichable: true,
+      },
+      horaires_flexibles: {
+        label: "Je veux avoir des horaires flexibles",
+        icon: "📅",
         enrichable: true,
       },
       securite_pays: {
@@ -567,14 +582,9 @@ export const TAXONOMY = {
         icon: "🪖",
         enrichable: true,
       },
-      rencontres: {
-        label: "J'aimerais rencontrer de nouvelles personnes",
-        icon: "🤝",
-        enrichable: true,
-      },
-      indemnisation: {
-        label: "Je cherche une mission indemnisée",
-        icon: "💸",
+      remote: {
+        label: "Je veux pouvoir participer à distance",
+        icon: "💻",
         enrichable: false,
       },
       autre: {

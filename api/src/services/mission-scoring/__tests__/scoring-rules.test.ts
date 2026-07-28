@@ -9,6 +9,7 @@ type RuleMission = Parameters<typeof getMissionScoringRuleKeys>[0];
 const buildMission = (overrides: Partial<RuleMission> = {}): RuleMission => ({
   publisherId: null,
   type: null,
+  remote: null,
   openToMinors: null,
   compensationAmount: null,
   ...overrides,
@@ -97,6 +98,26 @@ describe("getMissionScoringRuleKeys — compensationAmount", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ compensationAmount: null }));
 
     expect(keys).toEqual([]);
+  });
+});
+
+describe("getMissionScoringRuleKeys — remote", () => {
+  it("injecte la motivation remote pour une mission entièrement à distance", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ remote: "full" }));
+
+    expect(keys).toEqual(["motivation_recherche.remote"]);
+  });
+
+  it.each(["no", "possible", "local", null] as const)("n'injecte pas la motivation remote quand remote=%s", (remote) => {
+    const keys = getMissionScoringRuleKeys(buildMission({ remote }));
+
+    expect(keys).toEqual([]);
+  });
+
+  it("cumule les motivations déterministes remote et indemnisation", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ remote: "full", compensationAmount: 619.83 }));
+
+    expect(sorted(keys)).toEqual(sorted(["motivation_recherche.remote", "motivation_recherche.indemnisation"]));
   });
 });
 

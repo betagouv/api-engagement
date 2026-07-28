@@ -1,4 +1,4 @@
-import type { MissionType } from "@/db/core";
+import type { MissionRemote, MissionType } from "@/db/core";
 import type { TaxonomyValueKey } from "@engagement/taxonomy";
 import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 
@@ -7,6 +7,7 @@ import { PUBLISHER_IDS } from "@/config";
 type MissionScoringRuleMission = {
   publisherId: string | null;
   type: MissionType | null;
+  remote: MissionRemote | null;
   openToMinors: boolean | null;
   compensationAmount: number | null;
 };
@@ -132,6 +133,12 @@ export const SCORING_RULES = [
     condition: { operator: "present" },
     mode: "add",
     values: ["motivation_recherche.indemnisation"],
+  },
+  {
+    field: "remote",
+    condition: { operator: "equals", value: "full" },
+    mode: "add",
+    values: ["motivation_recherche.remote"],
   },
 ] satisfies MissionScoringRule[];
 

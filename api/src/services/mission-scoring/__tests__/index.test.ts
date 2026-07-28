@@ -293,6 +293,45 @@ describe("missionScoringService.score", () => {
       ],
     });
   });
+
+  it("adds deterministic remote without replacing other enriched motivations", async () => {
+    missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
+      id: "enrichment-1",
+      missionId: "mission-1",
+      mission: { publisherId: null, type: null, remote: "full", openToMinors: null, compensationAmount: null },
+      values: [
+        buildEnrichmentValue({
+          taxonomyKey: "motivation_recherche",
+          valueKey: "premiere_experience",
+        }),
+      ],
+    });
+    missionScoringRepositoryMock.findUnique.mockResolvedValue(null);
+
+    await missionScoringService.score({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+    });
+
+    expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
+      missionId: "mission-1",
+      missionEnrichmentId: "enrichment-1",
+      values: [
+        {
+          missionEnrichmentValueId: "mev-1",
+          taxonomyKey: "motivation_recherche",
+          valueKey: "premiere_experience",
+          score: 0.6,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "motivation_recherche",
+          valueKey: "remote",
+          score: 1,
+        },
+      ],
+    });
+  });
 });
 
 describe("missionScoringService.score — enrichment selection", () => {
