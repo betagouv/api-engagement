@@ -1,7 +1,7 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
-import { TAXONOMY } from "@engagement/taxonomy";
 import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
+import { TAXONOMY } from "@engagement/taxonomy";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
@@ -384,7 +384,11 @@ export const missionEnrichmentService = {
       throw error;
     }
 
-    // 10. Trigger scoring (outside try/catch — enrichment is already completed)
-    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, missionEnrichmentId: enrichment.id } });
+    // 10. Trigger scoring (outside try/catch — enrichment is already completed).
+    // `force` est indispensable : `claimForRun` réutilise la ligne d'enrichissement, donc le
+    // `mission_scoring` associé existe déjà. `completeWithValues` vient d'écraser les valeurs
+    // enrichies (cascade `mission_scoring_value`), mais laisse la ligne de scoring en place ;
+    // sans `force`, `score()` retournerait sur ce scoring existant et le laisserait obsolète.
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, missionEnrichmentId: enrichment.id, force: true } });
   },
 };
