@@ -2,11 +2,12 @@ import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonom
 
 export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
-export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
+export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonomy, number>>;
 
 export type MatchingEngineVersion = "m1" | "m2" | "m3";
 
 export type MatchingEngineVersionConfig = {
+  taxonomyKeys: readonly MatchingEngineTaxonomy[];
   taxonomyWeights: MatchingEngineTaxonomyWeights;
   geoWeight: number;
   // Score géo forcé pour les missions remote=full (proximité naturelle). null = pas de traitement spécial.

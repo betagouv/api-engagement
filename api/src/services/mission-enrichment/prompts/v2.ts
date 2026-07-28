@@ -1,5 +1,6 @@
 import { ai } from "@/services/ai";
 import { TAXONOMY } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 import { z } from "zod";
 import type { TaxonomyGuidanceMap } from "./types";
 
@@ -165,6 +166,15 @@ export const buildTaxonomyGuidanceBlock = (map: typeof TAXONOMY_GUIDANCE_MAP = T
 const MISSION_DATA_TAG = "mission_data";
 
 export const VERSION = "v2";
+export const TAXONOMY_KEYS = [
+  "domaine",
+  "secteur_activite",
+  "type_mission",
+  "competence_rome",
+  "region_internationale",
+  "engagement_intent",
+  "formation_onisep",
+] as const satisfies readonly EnrichableTaxonomyKey[];
 export const TEMPERATURE = 0;
 export const MODEL = ai.model("mistral", "mistral-small-2603");
 export const ENRICHMENT_SCHEMA = z.object({

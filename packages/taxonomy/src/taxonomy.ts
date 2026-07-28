@@ -21,6 +21,9 @@ import { resolveTrancheAgeValues } from "./transformers/tranche-age";
 export const TAXONOMY = {
   // ─── Taxonomies enrichissables ────────────────────────────────────────────
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   domaine: {
     label: "Domaine",
     type: "multi_value",
@@ -89,6 +92,65 @@ export const TAXONOMY = {
     },
   },
 
+  domaine_engagement: {
+    label: "Domaine d’engagement",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      sante_bien_etre: {
+        label: "Santé et bien-être",
+        icon: "🏥",
+        enrichable: true,
+      },
+      sport: {
+        label: "Sport",
+        icon: "🏀",
+        sublabel: "Pratique sportive, animation et inclusion par le sport",
+        enrichable: true,
+      },
+      solidarite_inclusion: {
+        label: "Solidarité et inclusion",
+        icon: "🍲",
+        sublabel: "Entraide, accompagnement et lutte contre l’exclusion",
+        enrichable: true,
+      },
+      environnement_animaux: {
+        label: "Environnement et animaux",
+        icon: "🌱",
+        enrichable: true,
+      },
+      art_culture: {
+        label: "Art et culture",
+        icon: "🎨",
+        enrichable: true,
+      },
+      securite_secours: {
+        label: "Sécurité et secours",
+        icon: "🛡️",
+        enrichable: true,
+      },
+      citoyennete: {
+        label: "Citoyenneté",
+        icon: "🗳️",
+        enrichable: true,
+      },
+      numerique: {
+        label: "Numérique",
+        icon: "💻",
+        enrichable: true,
+      },
+      education: {
+        label: "Éducation",
+        icon: "🎓",
+        enrichable: true,
+      },
+    },
+  },
+
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   secteur_activite: {
     label: "Secteur d'activité (référentiel ROME)",
     type: "multi_value",
@@ -152,6 +214,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   type_mission: {
     label: "Type / durée de mission",
     type: "categorical",
@@ -185,6 +250,45 @@ export const TAXONOMY = {
     },
   },
 
+  rythme: {
+    label: "Rythme de mission",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      ponctuelle_journee: {
+        label: "Une mission ponctuelle, sur une journée",
+        icon: "🔎",
+        enrichable: true,
+      },
+      quelques_heures_semaine: {
+        label: "Quelques heures par semaine",
+        icon: "👋",
+        enrichable: true,
+      },
+      plusieurs_jours_semaine: {
+        label: "Plusieurs jours par semaine",
+        icon: "💪",
+        enrichable: true,
+      },
+      quelques_jours_annee: {
+        label: "Quelques jours répartis dans l’année",
+        icon: "📆",
+        enrichable: true,
+      },
+      temps_plein_plusieurs_mois: {
+        label: "À temps plein pendant plusieurs mois",
+        icon: "💼",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        enrichable: false,
+      },
+    },
+  },
+
   // Dispositif d'engagement de la mission. Valeur déterministe injectée depuis `mission.type`
   // (cf. SCORING_RULES.type côté API), pas enrichie par le LLM. Pour l'instant seuls bénévolat,
   // service civique et pompiers sont mappés ; les réserves arriveront quand un discriminant
@@ -204,6 +308,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   competence_rome: {
     label: "Compétences (référentiel ROME)",
     type: "multi_value",
@@ -221,6 +328,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   region_internationale: {
     label: "Région internationale",
     type: "categorical",
@@ -235,6 +345,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   engagement_intent: {
     label: "Intention d'engagement",
     type: "multi_value",
@@ -252,6 +365,164 @@ export const TAXONOMY = {
     },
   },
 
+  activite: {
+    label: "Type d’activité",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      aider_accompagner: {
+        label: "Aider et accompagner des personnes",
+        icon: "❤️",
+        enrichable: true,
+      },
+      transmettre_animer: {
+        label: "Transmettre et animer",
+        icon: "📢",
+        enrichable: true,
+      },
+      fabriquer_reparer_terrain: {
+        label: "Fabriquer, réparer ou agir sur le terrain",
+        icon: "🛠️",
+        enrichable: true,
+      },
+      secourir_proteger: {
+        label: "Secourir et protéger",
+        icon: "🛟",
+        enrichable: true,
+      },
+      organiser_coordonner: {
+        label: "Organiser et coordonner",
+        icon: "🗓️",
+        enrichable: true,
+      },
+      creer_communiquer: {
+        label: "Créer et communiquer",
+        icon: "🎨",
+        enrichable: true,
+      },
+    },
+  },
+
+  equipe: {
+    label: "Cadre d’équipe",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      autonomie: {
+        label: "Plutôt en autonomie",
+        icon: "🌱",
+        enrichable: true,
+      },
+      petit_groupe: {
+        label: "Dans un petit groupe où l’on prend le temps de se connaître",
+        icon: "🌿",
+        enrichable: true,
+      },
+      grand_collectif: {
+        label: "Dans un grand collectif où il y a beaucoup de monde",
+        icon: "🌳",
+        enrichable: true,
+      },
+      peu_importe: {
+        label: "Peu importe",
+        icon: "🤔",
+        enrichable: false,
+      },
+    },
+  },
+
+  interaction: {
+    label: "Mode d’interaction",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      interaction_collective: {
+        label: "J’aime échanger et agir avec les autres",
+        icon: "🌱",
+        enrichable: true,
+      },
+      equilibre_collectif_autonomie: {
+        label: "J’aime alterner les moments en groupe et en autonomie",
+        icon: "🌿",
+        enrichable: true,
+      },
+      autonomie_principale: {
+        label: "Je préfère avancer principalement en autonomie",
+        icon: "🌳",
+        enrichable: true,
+      },
+      peu_importe: {
+        label: "Peu importe",
+        icon: "🤔",
+        enrichable: false,
+      },
+    },
+  },
+
+  autonomie: {
+    label: "Niveau d’autonomie et d’accompagnement",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      organisation_libre: {
+        label: "On me donne un objectif et je m’organise librement",
+        icon: "🤝",
+        enrichable: true,
+      },
+      accompagnement_initial: {
+        label: "J’aime être accompagné·e au début, puis gagner en autonomie",
+        icon: "🧭",
+        enrichable: true,
+      },
+      cadre_suivi_regulier: {
+        label: "Je préfère avoir des consignes précises et un suivi régulier",
+        icon: "🚀",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Peu importe",
+        icon: "🤔",
+        enrichable: false,
+      },
+    },
+  },
+
+  imprevu: {
+    label: "Niveau d’imprévu",
+    type: "categorical",
+    enrichable: true,
+    gate: false,
+    values: {
+      adaptation_rapide: {
+        label: "J’aime quand il faut s’adapter rapidement",
+        icon: "🚀",
+        enrichable: true,
+      },
+      imprevu_modere: {
+        label: "Un peu d’imprévu, ça me va",
+        icon: "💪",
+        enrichable: true,
+      },
+      cadre_previsible: {
+        label: "Je préfère savoir à quoi m’attendre",
+        icon: "🧘",
+        enrichable: true,
+      },
+      je_ne_sais_pas: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        enrichable: false,
+      },
+    },
+  },
+
+  // Taxonomie historique utilisée par les prompts d'enrichissement v1 à v4, mais plus par
+  // le prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   formation_onisep: {
     label: "Domaine de formation ONISEP",
     type: "multi_value",
@@ -267,6 +538,60 @@ export const TAXONOMY = {
       technique_industrie_construction: { label: "Technique, industrie et construction", icon: "🛠️", enrichable: true },
       securite_defense_logistique: { label: "Sécurité, défense et logistique", icon: "🚓", enrichable: true },
       je_ne_sais_pas: { label: "Je ne sais pas encore", icon: "🤷", enrichable: false },
+    },
+  },
+
+  motivation_recherche: {
+    label: "Motivation de recherche",
+    type: "multi_value",
+    enrichable: true,
+    gate: false,
+    values: {
+      premiere_experience: {
+        label: "J'ai besoin d'une première expérience",
+        icon: "🙏",
+        enrichable: true,
+      },
+      rencontres: {
+        label: "J'aimerais rencontrer de nouvelles personnes",
+        icon: "🤝",
+        enrichable: true,
+      },
+      decouverte_metier: {
+        label: "Je veux découvrir un métier",
+        icon: "🧭",
+        enrichable: true,
+      },
+      indemnisation: {
+        label: "Je cherche une mission indemnisée",
+        icon: "💸",
+        enrichable: false,
+      },
+      agir_pour_une_cause: {
+        label: "Je veux aider une cause qui me tient à coeur cœur",
+        icon: "🌍",
+        enrichable: true,
+      },
+      horaires_flexibles: {
+        label: "Je veux avoir des horaires flexibles",
+        icon: "📅",
+        enrichable: true,
+      },
+      securite_pays: {
+        label: "Je veux contribuer à la sécurité du pays",
+        icon: "🪖",
+        enrichable: true,
+      },
+      remote: {
+        label: "Je veux pouvoir participer à distance",
+        icon: "💻",
+        enrichable: false,
+      },
+      autre: {
+        label: "Je ne sais pas encore",
+        icon: "🤔",
+        enrichable: false,
+      },
     },
   },
 
@@ -298,6 +623,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
+  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   motivation: {
     label: "Motivation utilisateur",
     type: "categorical",
@@ -393,6 +721,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
+  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   parcoursup_formation: {
     label: "Formation Parcoursup identifiée",
     type: "categorical",
@@ -404,6 +735,9 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
+  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
+  // à une suppression lors d'une future migration.
   servir_pays: {
     label: "Cadre de service du pays",
     type: "categorical",

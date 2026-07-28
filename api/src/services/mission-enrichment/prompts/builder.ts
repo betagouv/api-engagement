@@ -6,9 +6,10 @@ import type { MissionForPrompt, TaxonomyForPrompt } from "./types";
  * Champs de mission dont une modification justifie de relancer le traitement
  * d'enrichissement/scoring/indexation.
  *
- * La majorité est consommée par `buildMissionBlock` ci-dessous. `addresses` est
- * volontairement inclus même s'il n'est pas envoyé au prompt : `mission.index`
- * utilise les `departmentCode` des adresses pour construire le document de recherche.
+ * La majorité est consommée par `buildMissionBlock` ci-dessous. Certains champs sont
+ * volontairement inclus même s'ils ne sont pas envoyés au prompt :
+ * - `addresses` est utilisé par `mission.index` pour construire le document de recherche ;
+ * - `compensationAmount` est utilisé par une règle déterministe de `mission.scoring`.
  *
  * Exclus volontairement bien que rendus dans le prompt :
  * - `startAt`/`endAt` : décalés chaque jour par les flux (bruit, sans impact sur la classification).
@@ -35,6 +36,7 @@ export const ENRICHMENT_TRIGGER_FIELDS = [
   "softSkills",
   "requirements",
   "publisherOrganizationId",
+  "compensationAmount",
 ] as const;
 
 export type EnrichmentTriggerField = (typeof ENRICHMENT_TRIGGER_FIELDS)[number];
