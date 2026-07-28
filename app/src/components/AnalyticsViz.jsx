@@ -51,7 +51,8 @@ const AnalyticsViz = ({
   const chartNameFormatter = chartProps?.nameFormatter;
   const chartValueFormatter = chartProps?.tooltipValueFormatter;
   const generatedDescriptionId = `${generatedId}-chart-description`;
-  const internalDescriptionId = chartDescriptionMode === "visible" || chartDescriptionMode === "sr-only" ? generatedDescriptionId : undefined;
+  const internalDescriptionId =
+    chartDescriptionMode === "visible" || chartDescriptionMode === "sr-only" || chartDescriptionMode === "collapsible" ? generatedDescriptionId : undefined;
   const describedById = chartDescriptionMode === "external" ? chartDescriptionId : internalDescriptionId;
   const chartAriaProps = chartTitle
     ? {
@@ -60,8 +61,12 @@ const AnalyticsViz = ({
         "aria-describedby": describedById,
       }
     : {};
-  // RGAA 1.6 : la description détaillée d'un histogramme doit être visible et annoncée dans l'aria-label, sans aria-describedby
-  const histogramAriaProps = chartTitle && chartDescriptionMode === "visible" ? { role: "img", "aria-label": `${chartTitle} - description détaillée ci-dessous` } : chartAriaProps;
+  // RGAA 1.6 : la description détaillée d'un histogramme doit être visible (en permanence ou via un bouton d'affichage,
+  // validé par Ethic First) et annoncée dans l'aria-label, sans aria-describedby
+  const histogramAriaProps =
+    chartTitle && (chartDescriptionMode === "visible" || chartDescriptionMode === "collapsible")
+      ? { role: "img", "aria-label": `${chartTitle} - description détaillée ci-dessous` }
+      : chartAriaProps;
 
   useEffect(() => {
     if (!cardId) {

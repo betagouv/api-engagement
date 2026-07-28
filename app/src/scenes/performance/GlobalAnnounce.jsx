@@ -308,7 +308,7 @@ const Evolution = ({ filters }) => {
                 id="announce-evolution-description"
                 title={`Évolution des ${TYPE[type].toLowerCase()} reçues`}
                 description="Trafic reçu grâce aux partenaires diffuseurs sur la période sélectionnée."
-                mode="visible"
+                mode="collapsible"
                 type="stacked"
                 data={histogram}
                 stackedKeys={keys}

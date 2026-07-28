@@ -437,7 +437,7 @@ const Evolution = ({ filters }) => {
                 id="broadcast-evolution-description"
                 title={`Évolution des ${accessibleTypeLabel} générées`}
                 description="Trafic généré pour les partenaires annonceurs sur la période sélectionnée."
-                mode="visible"
+                mode="collapsible"
                 type="stacked"
                 data={histogram}
                 stackedKeys={keys}
