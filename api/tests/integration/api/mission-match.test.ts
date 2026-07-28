@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
-const app = createTestApp();
+const app = createTestApp({ syncMissionDiffusion: true });
 
 let apiKey: string;
 let publisherId: string;
@@ -34,7 +34,7 @@ const createGeoUserScoring = async (): Promise<string> => {
 };
 
 // Mission remote=full sans adresse et sans recouvrement taxonomie avec l'utilisateur :
-// elle n'entre ni dans les candidats taxonomie ni géo → cas ciblé par remote_full_candidates.
+// elle n'entre ni dans les candidats taxonomie ni géo → cas ciblé par forced_remote_candidates.
 const createRemoteFullMissionWithoutMatch = async () => {
   const mission = await createTestMission({
     publisherId,
@@ -42,6 +42,53 @@ const createRemoteFullMissionWithoutMatch = async () => {
     domain: "solidarite",
     remote: "full",
     addresses: [],
+  });
+  const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+  await createTestMissionScoring({
+    missionId: mission.id,
+    missionEnrichmentId: enrichment.id,
+    values: [{ taxonomyKey: "domaine", valueKey: "sport", score: 1 }],
+  });
+  return mission;
+};
+
+// Mission sur site à proximité sans adresse et sans recouvrement taxonomie avec l'utilisateur :
+// elle suit la même injection que full, mais avec un score géo dédié plus faible.
+const createRemoteLocalMissionWithoutMatch = async () => {
+  const mission = await createTestMission({
+    publisherId,
+    title: "Mission locale sans adresse",
+    domain: "solidarite",
+    remote: "local",
+    addresses: [],
+  });
+  const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+  await createTestMissionScoring({
+    missionId: mission.id,
+    missionEnrichmentId: enrichment.id,
+    values: [{ taxonomyKey: "domaine", valueKey: "sport", score: 1 }],
+  });
+  return mission;
+};
+
+const createOnsiteMissionWithoutMatch = async () => {
+  const mission = await createTestMission({
+    publisherId,
+    title: "Mission sur site sans match taxonomie",
+    domain: "solidarite",
+    addresses: [
+      {
+        street: "1 rue de Test",
+        postalCode: "75001",
+        departmentCode: "75",
+        departmentName: "Paris",
+        city: "Paris",
+        region: "Ile-de-France",
+        country: "France",
+        location: { lat: 48.8566, lon: 2.3522 },
+        geolocStatus: "FOUND",
+      },
+    ],
   });
   const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
   await createTestMissionScoring({
@@ -171,6 +218,40 @@ describe("GET /missions/match", () => {
     expect(item).toBeDefined();
     expect(item.match.geoScore).toBe(0.9);
     expect(item.mission.location.distanceKm).toBeNull();
+  });
+
+  it("ranks an eligible local mission without taxonomy match nor address for a geolocated user (m3)", async () => {
+    const mission = await createRemoteLocalMissionWithoutMatch();
+    const userScoringId = await createGeoUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m3",
+    });
+
+    expect(response.status).toBe(200);
+    const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
+    expect(item).toBeDefined();
+    expect(item.match.geoScore).toBe(0.95);
+    expect(item.mission.remote).toBe("local");
+    expect(item.mission.location.distanceKm).toBeNull();
+    expect(item.mission.location.city).toBeNull();
+  });
+
+  it("keeps the taxonomy score at zero for a nearby onsite mission without taxonomy match", async () => {
+    const mission = await createOnsiteMissionWithoutMatch();
+    const userScoringId = await createGeoUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m3",
+    });
+
+    expect(response.status).toBe(200);
+    const item = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === mission.id);
+    expect(item).toBeDefined();
+    expect(item.match.taxonomyScore).toBe(0);
+    expect(item.match.geoScore).toBe(1);
   });
 
   it("does not surface the same full-remote mission under m2 (candidate pool gap it fixes)", async () => {

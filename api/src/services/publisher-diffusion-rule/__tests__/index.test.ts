@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { prisma } from "@/db/postgres";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 
 const prismaMock = prisma as unknown as {
   publisherDiffusionRule: {
     findMany: ReturnType<typeof vi.fn>;
   };
-  mission: {
-    count: ReturnType<typeof vi.fn>;
+  publisher: {
+    findMany: ReturnType<typeof vi.fn>;
   };
 };
 
@@ -232,41 +232,56 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
   });
 });
 
-describe("publisherDiffusionRuleService.canPublisherAccessMission", () => {
+describe("publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere", () => {
   beforeEach(() => {
     prismaMock.publisherDiffusionRule.findMany.mockReset();
-    prismaMock.mission.count.mockReset();
   });
 
-  it("allows access when the publisher has no diffusion rules", async () => {
+  it("limite le snapshot aux missions propres quand le diffuseur n'a aucune allowlist", async () => {
     prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([]);
 
-    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere("diffuseur-1");
 
-    expect(canAccess).toBe(true);
-    expect(prismaMock.mission.count).not.toHaveBeenCalled();
+    expect(where).toEqual({ publisherId: "diffuseur-1" });
   });
 
-  it("checks the mission against applicable diffusion rules", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ value: "annonceur-1" })]);
-    prismaMock.mission.count.mockResolvedValue(1);
+  it("réunit l'allowlist explicite et le scope propre", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" })]);
 
-    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere("diffuseur-1");
 
-    expect(canAccess).toBe(true);
-    expect(prismaMock.mission.count).toHaveBeenCalledWith({
+    expect(where).toEqual({ OR: [{ publisherId: "annonceur-1" }, { publisherId: "diffuseur-1" }] });
+  });
+
+  it("respecte les critères d'une root propre explicite", async () => {
+    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([
+      buildRule({ id: "root-1", value: "diffuseur-1" }),
+      buildRule({ id: "child-1", combinedWithId: "root-1", field: "type", operator: "is", value: "benevolat" }),
+    ]);
+
+    const where = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere("diffuseur-1");
+
+    expect(where).toEqual({ AND: [{ publisherId: "diffuseur-1" }, { type: "benevolat" }] });
+  });
+});
+
+describe("publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot", () => {
+  beforeEach(() => {
+    prismaMock.publisher.findMany.mockReset();
+  });
+
+  it("sélectionne les publishers actifs avec droits API ou root allowlist", async () => {
+    prismaMock.publisher.findMany.mockResolvedValue([{ id: "api-only" }, { id: "rule-only" }, { id: "both" }]);
+
+    const publisherIds = await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
+
+    expect(prismaMock.publisher.findMany).toHaveBeenCalledWith({
       where: {
-        AND: [{ id: "mission-1" }, { OR: [{ publisherId: "annonceur-1" }, { publisherId: "publisher-1" }] }],
+        deletedAt: null,
+        OR: [{ hasApiRights: true }, { diffusionRules: { some: DIFFUSION_SCOPE_ROOT_CRITERIA } }],
       },
+      select: { id: true },
     });
-  });
-
-  it("rejects access when the mission does not match applicable diffusion rules", async () => {
-    prismaMock.publisherDiffusionRule.findMany.mockResolvedValue([buildRule({ value: "annonceur-1" })]);
-    prismaMock.mission.count.mockResolvedValue(0);
-
-    const canAccess = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: "publisher-1", missionId: "mission-1" });
-
-    expect(canAccess).toBe(false);
+    expect(publisherIds).toEqual(["api-only", "rule-only", "both"]);
   });
 });

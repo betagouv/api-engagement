@@ -6,9 +6,11 @@ import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { missionService } from "@/services/mission";
+import { missionDiffusionService } from "@/services/mission-diffusion";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionScoringService } from "@/services/mission-scoring";
 import publisherOrganizationService from "@/services/publisher-organization";
+import { missionSearchClient } from "@/services/search/collections/missions/client";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
 import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
@@ -266,6 +268,54 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
     }
 
     return res.status(200).send({ ok: true, data: access.mission });
+  } catch (error: any) {
+    next(error);
+  }
+});
+
+router.get("/:id/diffuseurs", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+
+    const mission = await missionService.findOneMission(params.data.id);
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const diffuseurs = await missionDiffusionService.findDiffuseursByMission(params.data.id);
+    return res.status(200).send({ ok: true, data: diffuseurs });
+  } catch (error: any) {
+    next(error);
+  }
+});
+
+router.get("/:id/search-document", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod
+      .object({
+        id: zod.string(),
+      })
+      .safeParse(req.params);
+
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+
+    const mission = await missionService.findOneMission(params.data.id);
+    if (!mission) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const document = await missionSearchClient.retrieve(params.data.id);
+    return res.status(200).send({ ok: true, data: document });
   } catch (error: any) {
     next(error);
   }

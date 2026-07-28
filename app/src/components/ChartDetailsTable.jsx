@@ -17,6 +17,8 @@ const ChartDetailsTable = ({
   className = "",
   nameFormatter,
   valueFormatter,
+  nameLabel,
+  valueLabel,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -66,7 +68,7 @@ const ChartDetailsTable = ({
         <caption className={mode === "sr-only" ? "" : "mb-2 text-left font-semibold"}>{captionText}</caption>
         <thead className="text-text-mention text-left text-[10px] uppercase">
           <tr>
-            <th className="px-2 py-1">Catégorie</th>
+            <th className="px-2 py-1">{nameLabel || "Catégorie"}</th>
             {stackedKeys.map((key) => (
               <th key={key} className="px-2 py-1 text-right">
                 {getChartSeriesLabel(key, seriesLabelMap)}
@@ -102,8 +104,8 @@ const ChartDetailsTable = ({
       <caption className={mode === "sr-only" ? "" : "mb-2 text-left font-semibold"}>{captionText}</caption>
       <thead className="text-text-mention text-left text-[10px] uppercase">
         <tr>
-          <th className="px-2 py-1">Libellé</th>
-          <th className="px-2 py-1 text-right">Valeur</th>
+          <th className="px-2 py-1">{nameLabel || "Libellé"}</th>
+          <th className="px-2 py-1 text-right">{valueLabel || "Valeur"}</th>
         </tr>
       </thead>
       <tbody>

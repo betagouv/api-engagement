@@ -55,7 +55,7 @@ export interface MissionXML {
   softSkills: { value: string[] | string } | string;
   romeSkills: { value: string[] | string } | string;
   requirements: { value: string[] | string } | string;
-  remote: "no" | "possible" | "full";
+  remote: "no" | "possible" | "full" | "local";
   reducedMobilityAccessible: string;
   closeToTransport: string;
   openToMinors: string;

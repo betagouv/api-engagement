@@ -1,14 +1,15 @@
+import { randomUUID } from "crypto";
+import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
 import type { WidgetRecord } from "@/types/widget";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 import { createTestMission, createTestPublisher, createTestWidget, createTestWidgetRule } from "../../../../fixtures";
 import { createTestApp } from "../../../../testApp";
 
 describe("GET /iframe/:id/search", () => {
-  const app = createTestApp();
+  const app = createTestApp({ syncMissionDiffusion: true });
   let widget: WidgetRecord;
   let publisher: PublisherRecord;
   let mission1: MissionRecord;
@@ -262,6 +263,50 @@ describe("GET /iframe/:id/search", () => {
 
       expect(response.body.code).toBe("INVALID_QUERY");
     });
+
+    it("should include local missions without address when filtering on-site missions around a widget location", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/search`).query({ remote: "no" }).expect(200);
+
+      expect(response.body.total).toBe(2);
+      const titles = response.body.data.map((mission: MissionRecord) => mission.title);
+      expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Locale sans adresse"]));
+    });
+
+    it("should include local missions without address around a widget location without remote filter", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(2);
+      const titles = response.body.data.map((mission: MissionRecord) => mission.title);
+      expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Locale sans adresse"]));
+    });
   });
 
   describe("Category filters", () => {
@@ -290,18 +335,34 @@ describe("GET /iframe/:id/search", () => {
 
   describe("Boolean filters", () => {
     it("should filter by remote=yes (full or possible)", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/search`).query({ remote: "yes" }).expect(200);
 
       expect(response.body.total).toBe(2);
       const remoteValues = response.body.data.map((m: any) => m.remote);
       expect(remoteValues).toEqual(expect.arrayContaining(["full", "possible"]));
+      expect(remoteValues).not.toContain("local");
     });
 
-    it("should filter by remote=no", async () => {
+    it("should filter by remote=no (presentiel or local)", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/search`).query({ remote: "no" }).expect(200);
 
-      expect(response.body.total).toBe(1);
-      expect(response.body.data[0].remote).toBe("no");
+      expect(response.body.total).toBe(2);
+      const remoteValues = response.body.data.map((m: any) => m.remote);
+      expect(remoteValues).toEqual(expect.arrayContaining(["no", "local"]));
     });
 
     it("should filter by minor=yes (open to minors)", async () => {
@@ -391,6 +452,93 @@ describe("GET /iframe/:id/search", () => {
       const titles = response.body.data.map((mission: MissionRecord) => mission.title);
       expect(titles).toEqual(expect.arrayContaining(["Mission Environnement Paris", "Mission Santé Marseille"]));
       expect(titles).not.toContain("Mission Éducation Lyon");
+    });
+
+    it("should keep widget publishers as fallback for a widget-only publisher without diffusion root", async () => {
+      const widgetOwner = await createTestPublisher({
+        hasApiRights: false,
+        hasCampaignRights: false,
+        hasWidgetRights: true,
+      });
+      const selectedPublisher = await createTestPublisher();
+      const selectedMission = await createTestMission({
+        publisherId: selectedPublisher.id,
+        title: "Mission du publisher sélectionné",
+      });
+      const widgetOnly = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [selectedPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${widgetOnly.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0]._id).toBe(selectedMission.id);
+    });
+
+    it("should combine the diffusion snapshot with widget-only publishers", async () => {
+      const rootedPublisher = await createTestPublisher();
+      const widgetOnlyPublisher = await createTestPublisher();
+      const widgetOwner = await createTestPublisher({
+        publishers: [{ publisherId: rootedPublisher.id }],
+      });
+      const includedRootedMission = await createTestMission({
+        organizationClientId: `included-rooted-${randomUUID()}`,
+        publisherId: rootedPublisher.id,
+        title: "Mission du publisher matérialisé",
+      });
+      const excludedRootedMission = await createTestMission({
+        organizationClientId: `excluded-rooted-${randomUUID()}`,
+        publisherId: rootedPublisher.id,
+        title: "Mission exclue du snapshot",
+      });
+      const widgetOnlyMission = await createTestMission({
+        publisherId: widgetOnlyPublisher.id,
+        title: "Mission du publisher widget-only",
+      });
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: widgetOwner.id,
+        annonceurPublisherId: rootedPublisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: excludedRootedMission.organizationClientId!,
+      });
+      const hybridWidget = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [rootedPublisher.id, widgetOnlyPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${hybridWidget.id}/search`).expect(200);
+
+      const missionIds = response.body.data.map((mission: MissionRecord) => mission._id);
+      expect(missionIds).toEqual(expect.arrayContaining([includedRootedMission.id, widgetOnlyMission.id]));
+      expect(missionIds).not.toContain(excludedRootedMission.id);
+      expect(response.body.total).toBe(2);
+    });
+
+    it("should return no mission when publisher selection is explicitly empty", async () => {
+      const rootedPublisher = await createTestPublisher();
+      const widgetOwner = await createTestPublisher({
+        publishers: [{ publisherId: rootedPublisher.id }],
+      });
+      await createTestMission({
+        publisherId: rootedPublisher.id,
+        title: "Mission présente dans le snapshot",
+      });
+      const emptyWidget = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [],
+        jvaModeration: true,
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${emptyWidget.id}/search`).expect(200);
+
+      expect(response.body.total).toBe(0);
+      expect(response.body.data).toEqual([]);
     });
 
     it("should apply multiple organization rules with OR combinator", async () => {

@@ -43,7 +43,12 @@ const Table = ({ header, caption, sortBy, total, onSort, loading, children, stic
 
   return (
     <>
-      <div className={`relative w-full overflow-x-auto overflow-y-visible ${className}`}>
+      <div
+        className={`relative w-full overflow-x-auto overflow-y-visible ${className}`}
+        role="region"
+        aria-label={caption ? `Tableau : ${caption}` : "Tableau de données"}
+        tabIndex={0}
+      >
         <table className="min-w-full table-fixed border-collapse">
           {caption && (
             <caption className="sr-only">

@@ -127,8 +127,10 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  // La version courante ignore-t-elle l'adresse des missions remote=full ? (aligné sur le moteur / l'API)
-  const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteFullGeoScore != null;
+  // La version courante ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur / l'API)
+  const ignoreRemoteAddress =
+    MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteFullGeoScore != null ||
+    MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteLocalGeoScore != null;
   const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems, ignoreRemoteAddress);
   const missionsByScoringId = new Map(missions.map((item) => [item.missionScoringId, item]));
   const orderedMissions = matchingItems.map((item) => missionsByScoringId.get(item.missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));

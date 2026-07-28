@@ -42,6 +42,10 @@ describe("parseRemote", () => {
     expect(parseRemote("remote")).toBe("full");
   });
 
+  it("returns 'local' for 'local'", () => {
+    expect(parseRemote("local")).toBe("local");
+  });
+
   it("returns 'possible' for 'partiel', 'partielle', 'hybride'", () => {
     expect(parseRemote("partiel")).toBe("possible");
     expect(parseRemote("partielle")).toBe("possible");
@@ -54,6 +58,7 @@ describe("parseRemote", () => {
 
   it("is case-insensitive", () => {
     expect(parseRemote("FULL")).toBe("full");
+    expect(parseRemote("LOCAL")).toBe("local");
     expect(parseRemote("Oui")).toBe("possible");
   });
 });
@@ -312,13 +317,13 @@ describe("parseMission", () => {
       expect(result?.tags).toEqual([]);
     });
 
-    it("should parse romeSkills", () => {
+    it("should parse romeSkills without altering the raw codes", () => {
       const publisher = buildPublisher();
-      const missionXML = buildMissionXML({ romeSkills: "Skill A, Skill B" });
+      const missionXML = buildMissionXML({ romeSkills: "300412, Skill B" });
 
       const result = parseMission(publisher, missionXML, null, startTime);
 
-      expect(result?.romeSkills).toEqual(["Skill A", "Skill B"]);
+      expect(result?.romeSkills).toEqual(["300412", "Skill B"]);
     });
 
     it("should parse requirements", () => {

@@ -1,3 +1,4 @@
+import { Errors } from "typesense";
 import type { MultiSearchRequestSchema } from "typesense/lib/Typesense/Types";
 
 import type { SearchProvider, SearchQueryParams, SearchQueryResponse } from "@/services/search/types";
@@ -33,5 +34,16 @@ export class TypesenseSearchProvider implements SearchProvider {
 
   async delete(collection: string, documentId: string): Promise<{ id: string }> {
     return typesenseClient.collections(collection).documents(documentId).delete() as Promise<{ id: string }>;
+  }
+
+  async retrieve<TDoc extends object>(collection: string, documentId: string): Promise<TDoc | null> {
+    try {
+      return (await typesenseClient.collections<TDoc>(collection).documents(documentId).retrieve()) as TDoc;
+    } catch (error) {
+      if (error instanceof Errors.ObjectNotFound) {
+        return null;
+      }
+      throw error;
+    }
   }
 }

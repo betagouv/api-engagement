@@ -1,12 +1,12 @@
 import type { Route } from "./+types/mentions-legales";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Mentions légales — API Engagement" }];
+  return [{ title: "Mentions légales — Trouve ta mission" }];
 }
 
 export default function MentionsLegales() {
   return (
-    <main>
+    <main id="contenu" tabIndex={-1}>
       <div className="fr-container max-w-3xl py-8 md:py-16">
         <h1>Mentions légales</h1>
 
@@ -52,7 +52,7 @@ export default function MentionsLegales() {
         <h2>Réutilisation des contenus</h2>
         <p>
           Sauf mention contraire, les contenus de ce site sont publiés sous licence{" "}
-          <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence" target="_blank" rel="noopener">
+          <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence" target="_blank" rel="noopener" title="etalab-2.0 - nouvelle fenêtre">
             etalab-2.0
           </a>
           .

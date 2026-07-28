@@ -54,12 +54,13 @@ affected_months as (
 
 base as (
   select
+    ge.stat_event_id,
     extract(year from ge.created_at)::int as year,
     extract(month from ge.created_at)::int as month,
     date_trunc('month', ge.created_at)::date as month_start,
     mad.department,
     ge.type,
-    mad.publisher_category as mission_type,
+    coalesce(mad.publisher_category, 'unknown') as mission_type,
     coalesce(mad.mission_domain, 'unknown') as mission_domain,
     greatest(
       coalesce(ge.updated_at, ge.created_at),
@@ -79,6 +80,28 @@ base as (
         from affected_months as am
       )
     {% endif %}
+),
+
+-- Le seul axe de fan-out du join de `base` est le département
+-- (int_mission_active_department_range est unique sur (mission_id, department),
+-- et mission_domain / mission_type y sont constants par mission) : il y a donc
+-- au plus 1 ligne par (stat_event_id, department). Dans `dept` et
+-- `dept_all_mission` (groupés par département), `count(*)` est donc exact.
+-- Pour les rollups « tous départements » qui collapsent le département, on
+-- déduplique d'abord au grain événement ici, puis on fera `count(*)`.
+events_all_department as (
+  select
+    stat_event_id,
+    year,
+    month,
+    month_start,
+    mission_domain,
+    mission_type,
+    type,
+    max(updated_at) as updated_at
+  from base
+  group by
+    stat_event_id, year, month, month_start, mission_domain, mission_type, type
 ),
 
 dept as (
@@ -128,7 +151,7 @@ all_dept as (
     type,
     count(*) as event_count,
     max(updated_at) as max_updated_at
-  from base
+  from events_all_department
   group by year, month, month_start, mission_domain, mission_type, type
 ),
 
@@ -144,7 +167,7 @@ all_dept_all_mission as (
     type,
     count(*) as event_count,
     max(updated_at) as max_updated_at
-  from base
+  from events_all_department
   group by year, month, month_start, mission_domain, type
 )
 

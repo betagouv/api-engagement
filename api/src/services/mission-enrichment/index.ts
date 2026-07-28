@@ -1,11 +1,13 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
-import { ENRICHABLE_TAXONOMIES, TAXONOMY } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
+import { TAXONOMY } from "@engagement/taxonomy";
 
 import { missionRepository } from "@/repositories/mission";
 import { missionEnrichmentRepository } from "@/repositories/mission-enrichment";
 import { asyncTaskBus } from "@/services/async-task";
 import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
+import { resolveRomeSkills } from "@/utils/rome";
 import { CONFIDENCE_THRESHOLD } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
 import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION, PROMPT_REGISTRY } from "./prompts";
@@ -101,6 +103,7 @@ const toMissionForPrompt = (mission: MissionWithRelations): MissionForPrompt => 
     softSkills: mission.softSkills,
     requirements: mission.requirements,
     tags: mission.tags,
+    romeSkillLabels: resolveRomeSkills(mission.romeSkills),
     type: mission.type,
     remote: mission.remote,
     openToMinors: mission.openToMinors,
@@ -138,8 +141,8 @@ const toTaxonomyForPrompt = (
     values: taxonomy.values.map((value) => ({ key: value.key, label: value.label })),
   }));
 
-const getTaxonomies = (): TaxonomyWithValues[] =>
-  ENRICHABLE_TAXONOMIES.map((taxonomyKey) => ({
+const getTaxonomies = (taxonomyKeys: readonly EnrichableTaxonomyKey[]): TaxonomyWithValues[] =>
+  taxonomyKeys.map((taxonomyKey) => ({
     key: taxonomyKey,
     label: TAXONOMY[taxonomyKey].label,
     type: TAXONOMY[taxonomyKey].type,
@@ -297,8 +300,9 @@ export const missionEnrichmentService = {
       }
     }
 
-    // 3. Load taxonomy from package.
-    const taxonomies = getTaxonomies();
+    // 3. Resolve the prompt and load only its explicitly whitelisted taxonomies.
+    const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
+    const taxonomies = getTaxonomies(promptVersion.TAXONOMY_KEYS);
 
     // 4. Reserve the single enrichment row for this (mission, version) and mark it `processing`.
     // The unique constraint (mission_id, prompt_version) guarantees one row; claimForRun reuses it
@@ -318,7 +322,6 @@ export const missionEnrichmentService = {
 
     try {
       // 6. Build prompts
-      const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
       const systemPrompt = promptVersion.buildSystemPrompt(buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies)));
       const userMessage = promptVersion.buildUserMessage(buildMissionBlock(toMissionForPrompt(mission)));
 
@@ -381,7 +384,11 @@ export const missionEnrichmentService = {
       throw error;
     }
 
-    // 10. Trigger scoring (outside try/catch — enrichment is already completed)
-    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, missionEnrichmentId: enrichment.id } });
+    // 10. Trigger scoring (outside try/catch — enrichment is already completed).
+    // `force` est indispensable : `claimForRun` réutilise la ligne d'enrichissement, donc le
+    // `mission_scoring` associé existe déjà. `completeWithValues` vient d'écraser les valeurs
+    // enrichies (cascade `mission_scoring_value`), mais laisse la ligne de scoring en place ;
+    // sans `force`, `score()` retournerait sur ce scoring existant et le laisserait obsolète.
+    await asyncTaskBus.publish({ type: "mission.scoring", payload: { missionId, missionEnrichmentId: enrichment.id, force: true } });
   },
 };

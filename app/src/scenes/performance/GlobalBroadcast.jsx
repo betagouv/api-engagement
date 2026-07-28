@@ -441,6 +441,7 @@ const Evolution = ({ filters }) => {
                 type="stacked"
                 data={histogram}
                 stackedKeys={keys}
+                nameLabel="Période"
               />
             </figure>
           )}

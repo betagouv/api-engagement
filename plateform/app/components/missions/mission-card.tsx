@@ -20,6 +20,7 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
   const domainLabel = getDomainLabel(mission.domain);
   const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
+  const locationLabel = mission.remote === "local" ? "Près de chez moi" : mission.city;
 
   const clampStyle = { display: "-webkit-box", WebkitBoxOrient: "vertical" as const, WebkitLineClamp: 3, overflow: "hidden" };
 
@@ -29,7 +30,15 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
         {mission.title}
       </Link>
     ) : link?.type === "external" ? (
-      <a href={link.href} onClick={onClick} target="_blank" rel="noopener noreferrer" className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
+      <a
+        href={link.href}
+        onClick={onClick}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`${mission.title} - nouvelle fenêtre`}
+        className="text-title-grey! fr-h6! bg-none! mb-0!"
+        style={clampStyle}
+      >
         {mission.title}
       </a>
     ) : (
@@ -54,15 +63,16 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
 
           <div className="fr-card__end flex flex-col gap-2 justify-between mt-3! p-0!">
             <div className="flex flex-col gap-1">
-              {mission.city && <p className="fr-card__detail fr-icon-map-pin-2-line m-0! block! truncate!">{mission.city}</p>}
+              {locationLabel && <p className="fr-card__detail fr-icon-map-pin-2-line m-0! block! truncate!">{locationLabel}</p>}
               {mission.schedule && <p className="fr-card__detail fr-icon-time-line m-0! block! truncate!">{mission.schedule}</p>}
               {mission.organizationName && <p className="fr-card__detail fr-icon-building-line m-0! block! truncate!">{mission.organizationName}</p>}
             </div>
 
-            {(mission.publisherName ?? mission.publisherLogo) && (
+            {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
+            {mission.publisherName && (
               <div className="text-mention-grey fr-mt-2w flex items-center justify-end gap-2 text-xs">
-                {mission.publisherName && <span className="line-clamp-1">{mission.publisherName}</span>}
-                {mission.publisherLogo && <img src={mission.publisherLogo} alt="" className="max-w-20 object-contain" loading="lazy" />}
+                <span className="line-clamp-1">{mission.publisherName}</span>
+                {mission.publisherLogo && <img src={mission.publisherLogo} alt="" aria-hidden="true" className="max-w-20 object-contain" loading="lazy" />}
               </div>
             )}
           </div>

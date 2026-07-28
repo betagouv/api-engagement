@@ -63,6 +63,32 @@ describe("Moderation API endpoints (integration test)", () => {
       expect(res.status).toBe(403);
     });
 
+    it("allows a partner user requesting only their own publisherIds", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+      await createMissionWithModeration({ publisherId: partner.id });
+
+      const res = await request(app)
+        .post("/moderation/search")
+        .set("Authorization", `jwt ${token}`)
+        .send({ publisherIds: [partner.id] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+      expect(res.body.total).toBe(1);
+    });
+
+    it("should return 403 when a partner user requests publisherIds outside their own publishers", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+      const otherPublisher = await createTestPublisher();
+
+      const res = await request(app)
+        .post("/moderation/search")
+        .set("Authorization", `jwt ${token}`)
+        .send({ publisherIds: [partner.id, otherPublisher.id] });
+
+      expect(res.status).toBe(403);
+    });
+
     it("should return empty results when there are no moderation records for this moderator", async () => {
       const otherPublisher = await createTestPublisher({ moderator: true });
 
@@ -183,6 +209,31 @@ describe("Moderation API endpoints (integration test)", () => {
       const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
 
       const res = await request(app).post("/moderation/aggs").set("Authorization", `jwt ${token}`).send({ moderatorId: jva.id });
+
+      expect(res.status).toBe(403);
+    });
+
+    it("allows a partner user requesting only their own publisherIds", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+      await createMissionWithModeration({ publisherId: partner.id, moderationStatus: "PENDING" });
+
+      const res = await request(app)
+        .post("/moderation/aggs")
+        .set("Authorization", `jwt ${token}`)
+        .send({ publisherIds: [partner.id] });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.status.find((s: any) => s.key === "PENDING")?.doc_count).toBe(1);
+    });
+
+    it("should return 403 when a partner user requests publisherIds outside their own publishers", async () => {
+      const { token } = await createTestUser({ role: "user", publishers: [partner.id] });
+      const otherPublisher = await createTestPublisher();
+
+      const res = await request(app)
+        .post("/moderation/aggs")
+        .set("Authorization", `jwt ${token}`)
+        .send({ publisherIds: [partner.id, otherPublisher.id] });
 
       expect(res.status).toBe(403);
     });

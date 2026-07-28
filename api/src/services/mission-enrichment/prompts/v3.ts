@@ -1,4 +1,5 @@
 import { ai } from "@/services/ai";
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
 import {
   ENRICHMENT_SCHEMA,
@@ -10,6 +11,15 @@ import {
 } from "./v2";
 
 export const VERSION = "v3";
+export const TAXONOMY_KEYS = [
+  "domaine",
+  "secteur_activite",
+  "type_mission",
+  "competence_rome",
+  "region_internationale",
+  "engagement_intent",
+  "formation_onisep",
+] as const satisfies readonly EnrichableTaxonomyKey[];
 export const MODEL = ai.model("mistral", "mistral-small-2603");
 export { ENRICHMENT_SCHEMA, TEMPERATURE, buildUserMessage };
 

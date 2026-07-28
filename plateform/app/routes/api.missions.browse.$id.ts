@@ -2,6 +2,7 @@ import type { MissionDetailResponse } from "@engagement/dto";
 import type { LoaderFunctionArgs } from "react-router";
 
 import { createApi, upstreamErrorResponse } from "~/services/api";
+import { sanitizeDescriptionHtml } from "~/services/api/sanitize";
 
 export async function loader({ params, request }: LoaderFunctionArgs) {
   const { id } = params;
@@ -10,6 +11,7 @@ export async function loader({ params, request }: LoaderFunctionArgs) {
   const api = createApi(request);
   try {
     const data = await api.get<MissionDetailResponse>(`/missions/browse/${id}${addressId ? `?addressId=${encodeURIComponent(addressId)}` : ""}`);
+    if (data.descriptionHtml) data.descriptionHtml = sanitizeDescriptionHtml(data.descriptionHtml);
     return Response.json({ ok: true, data });
   } catch (error) {
     return upstreamErrorResponse(error);

@@ -67,8 +67,12 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
         });
         setSuccess(true);
       }
-    } catch {
-      setError("Une erreur est survenue. Merci de réessayer.");
+    } catch (err) {
+      if (err instanceof Error && err.message === "INVALID_BODY") {
+        setError("Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr");
+      } else {
+        setError("Une erreur est survenue. Merci de réessayer.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -82,24 +86,38 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
 
       <Modal open={open} onClose={handleClose} title="Reçois ta mission par email" titleIcon="fr-icon-mail-line">
         {success ? (
-          <div className="fr-alert fr-alert--success">
+          <div role="status" className="fr-alert fr-alert--success">
             <p>La mission a bien été envoyée ! Vérifie ta boîte mail.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
             <p className="fr-mb-2w">On t'envoie ta mission pour que tu puisses la retrouver facilement.</p>
 
-            {error && (
-              <div className="fr-alert fr-alert--error fr-mb-2w">
-                <p>{error}</p>
-              </div>
-            )}
+            <p className="fr-hint-text fr-mb-2w">
+              Les champs marqués d'un <span aria-hidden="true">*</span> sont obligatoires.
+            </p>
 
-            <div className="fr-input-group fr-mb-2w">
+            <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
               <label className="fr-label" htmlFor={emailId}>
-                Adresse email
+                Adresse email <span aria-hidden="true">*</span>
               </label>
-              <input id={emailId} name="email" type="email" required className="fr-input" placeholder="nom@email.fr" />
+              <input
+                id={emailId}
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                aria-required="true"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? `${emailId}-error` : undefined}
+                className="fr-input"
+                placeholder="nom@email.fr"
+              />
+              {error && (
+                <div className="fr-messages-group" id={`${emailId}-error`} role="alert">
+                  <p className="fr-message fr-message--error">{error}</p>
+                </div>
+              )}
             </div>
 
             {userScoringId && (

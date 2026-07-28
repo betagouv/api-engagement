@@ -85,6 +85,10 @@ models:
       Agrégats mensuels des événements `global_events`, ventilés par type d’événement,
       domaine de mission, type de mission (catégorie publisher) et département (ou national).
       Utilisé pour les KPI publics mensuels (redirections, candidatures).
+      `event_count` compte les événements **distincts** (`stat_event_id`) : une mission
+      multi-départements ne gonfle donc pas l’agrégat national. Par conception, le total
+      national (`is_all_department = true`) n’est PAS la somme des départements (un même
+      événement compte dans chaque département de la mission, mais une seule fois au national).
     columns:
       - name: year
         description: Année d’agrégation.
@@ -107,13 +111,18 @@ models:
       - name: mission_domain
         description: Domaine de mission associé (`unknown` si non rattaché).
       - name: mission_type
-        description: Catégorie de mission (`benevolat`, `volontariat`, `all`).
+        description: >
+          Type de mission d'origine (`benevolat`, `volontariat_service_civique`,
+          `volontariat_sapeurs_pompiers`, `volontariat_reserve_operationnelle`, `all`,
+          `unknown` si non rattaché).
       - name: type
         description: Type d'événement (`click`, `apply`, `print`, `account`).
         tests:
           - not_null
       - name: event_count
-        description: Nombre d’événements agrégés.
+        description: >
+          Nombre d’événements distincts (`count(distinct stat_event_id)`) : dédoublonne le
+          fan-out de la jointure département pour ne compter chaque événement qu’une fois.
         tests:
           - not_null
       - name: max_updated_at

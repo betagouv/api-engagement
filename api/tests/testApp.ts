@@ -20,6 +20,7 @@ import UserController from "@/controllers/user";
 import UserScoringController from "@/controllers/user-scoring";
 import WarningController from "@/controllers/warning";
 import WidgetController from "@/controllers/widget";
+import { MissionDiffusionRebuildHandler } from "@/jobs/mission-diffusion-rebuild/handler";
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
 import { auditLogger } from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
@@ -34,8 +35,16 @@ import ViewV0Controller from "@/v0/view";
 import ActivityV2Controller from "@/v2/activity";
 import MissionV2WriteController from "@/v2/mission/controller";
 
+type TestAppOptions = {
+  auditLogs?: boolean;
+  metricsRecorder?: HttpMetricsRecorder;
+  syncMissionDiffusion?: boolean;
+};
+
+const missionDiffusionRebuildHandler = new MissionDiffusionRebuildHandler();
+
 // Create a test Express app with minimal configuration
-export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLogs?: boolean; metricsRecorder?: HttpMetricsRecorder } = {}) => {
+export const createTestApp = ({ auditLogs = false, metricsRecorder, syncMissionDiffusion = false }: TestAppOptions = {}) => {
   const app = express();
 
   app.set("trust proxy", true);
@@ -48,6 +57,16 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder }: { auditLog
   app.use(cookieParser());
   app.use(requestId);
   app.use(createHttpMetricsMiddleware(metricsRecorder));
+  if (syncMissionDiffusion) {
+    app.use(async (_req, _res, next) => {
+      try {
+        await missionDiffusionRebuildHandler.handle({});
+        next();
+      } catch (error) {
+        next(error);
+      }
+    });
+  }
   if (auditLogs) {
     app.use(auditLogger);
   }

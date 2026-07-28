@@ -1,8 +1,7 @@
 import { toast } from "@/services/toast";
-import { Menu, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { BsDot } from "react-icons/bs";
-import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
+import { RiCalendarEventFill, RiCheckboxCircleFill, RiCloseCircleFill, RiErrorWarningFill, RiMapPin2Fill, RiMoreFill, RiPencilFill, RiTimeLine } from "react-icons/ri";
 import { useSearchParams } from "react-router-dom";
 
 import Modal from "@/components/Modal";
@@ -173,74 +172,104 @@ const MissionItem = ({ data, history, selected, onChange, onSelect, onFilter, on
 const MissionActionsMenu = ({ data, onFilter, onChange }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [show, setShow] = useState(false);
+  const [position, setPosition] = useState({ top: 0, right: 0 });
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  useEffect(() => {
+    if (!show) {
+      return;
+    }
+    const handleClose = () => setShow(false);
+    window.addEventListener("scroll", handleClose, true);
+    window.addEventListener("resize", handleClose);
+    return () => {
+      window.removeEventListener("scroll", handleClose, true);
+      window.removeEventListener("resize", handleClose);
+    };
+  }, [show]);
+
+  const handleToggle = () => {
+    if (!show && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setPosition({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+    setShow(!show);
+  };
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setShow(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setShow(false);
+      buttonRef.current?.focus();
+    }
+  };
 
   const handleMissionClick = () => {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("mission", data.id);
     setSearchParams(newSearchParams);
+    setShow(false);
+  };
+
+  const handleOpenNote = () => {
+    setShow(false);
+    setIsModalOpen(true);
+  };
+
+  const handleFilterOrganization = () => {
+    setShow(false);
+    onFilter(data.missionPublisherOrganizationId);
   };
 
   return (
     <>
-      <Menu as="div" className="relative h-full text-left">
-        <Menu.Button className="secondary-btn shadow-border-black text-black" aria-label="Plus d'actions">
-          <span className="font-semibold">
-            <RiMoreFill aria-hidden="true" />
-          </span>
-        </Menu.Button>
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <Menu.Items as="div" className="border-grey-border absolute right-0 z-30 mt-2 w-64 origin-top-right border bg-white text-black focus:outline-none">
-            <Menu.Item>
-              <button onClick={handleMissionClick} className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950">
+      <div className="relative h-full text-left" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
+        <button ref={buttonRef} type="button" className="secondary-btn shadow-border-black text-black" aria-label="Plus d'actions" aria-expanded={show} onClick={handleToggle}>
+          <RiMoreFill aria-hidden="true" />
+        </button>
+        {/* fixed + position calculée : les conteneurs overflow-x-auto du tableau clippent tout panneau en absolute (et un panneau resté dans le DOM y crée du scroll) */}
+        <div className={`border-grey-border fixed z-30 w-64 border bg-white shadow-lg ${show ? "" : "hidden"}`} style={{ top: position.top, right: position.right }}>
+          <ul className="m-0 flex list-none flex-col p-0">
+            <li>
+              <button type="button" className="nav-link text-left" onClick={handleMissionClick}>
                 Aperçu de la mission
               </button>
-            </Menu.Item>
-            <Menu.Item>
-              <a
-                href={data.missionApplicationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-              >
+            </li>
+            <li>
+              <a href={data.missionApplicationUrl} target="_blank" rel="noopener noreferrer" className="nav-link" onClick={() => setShow(false)}>
                 Lien de la mission
               </a>
-            </Menu.Item>
-            <Menu.Item>
-              {data.note ? (
-                <button
-                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Modifier la note
-                </button>
-              ) : (
-                <button
-                  className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                  onClick={() => setIsModalOpen(true)}
-                >
-                  Ajouter une note interne
-                </button>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              <button
-                className="text-blue-france flex w-full cursor-pointer items-center border-none p-3 text-left text-sm hover:bg-gray-950"
-                onClick={() => onFilter(data.missionPublisherOrganizationId)}
-              >
+            </li>
+            <li>
+              <button type="button" className="nav-link text-left" onClick={handleOpenNote}>
+                {data.note ? "Modifier la note" : "Ajouter une note interne"}
+              </button>
+            </li>
+            <li>
+              <button type="button" className="nav-link text-left" onClick={handleFilterOrganization}>
                 Filtrer les missions de l'organisation
               </button>
-            </Menu.Item>
-          </Menu.Items>
-        </Transition>
-      </Menu>
+            </li>
+          </ul>
+        </div>
+      </div>
       <UpdateNoteModal open={isModalOpen} onClose={() => setIsModalOpen(false)} onChange={onChange} data={data} />
     </>
   );
@@ -250,13 +279,19 @@ const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
   const { publisher } = useStore();
   const noteId = useId();
   const [note, setNote] = useState(data.note || "");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setNote(data.note || "");
+    setError("");
   }, [data]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (note.trim() === "") {
+      setError("Le champ Note est obligatoire.");
+      return;
+    }
     try {
       const res = await api.put(`/moderation/${data.id}`, { note, moderatorId: publisher.id });
       if (!res.ok) {
@@ -272,16 +307,36 @@ const UpdateNoteModal = ({ open, onChange, onClose, data }) => {
 
   return (
     <Modal open={open} onClose={onClose} title="Modifier la note" className="w-[90vw] max-w-3xl">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <div className="flex items-center justify-center">
           <div className="flex w-full flex-col justify-center gap-4">
             <div className="flex flex-col gap-1">
               <label htmlFor={noteId} className="text-sm">
-                Note
+                Note<span className="text-error ml-1">*</span>
               </label>
-              <textarea id={noteId} className="input" rows={4} name="note" value={note} onChange={(e) => setNote(e.target.value)} required />
+              <textarea
+                id={noteId}
+                className="input"
+                rows={4}
+                name="note"
+                value={note}
+                onChange={(e) => {
+                  setNote(e.target.value);
+                  setError("");
+                }}
+                required
+                aria-required="true"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? `${noteId}-error` : undefined}
+              />
+              {error && (
+                <p id={`${noteId}-error`} className="text-error flex items-center text-sm" aria-live="polite">
+                  <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+                  {error}
+                </p>
+              )}
               <div className="mt-6 flex justify-end">
-                <button className="primary-btn w-full" type="submit">
+                <button className="primary-btn w-full" type="submit" disabled={!note.trim() || error}>
                   Enregistrer
                 </button>
               </div>

@@ -6,10 +6,13 @@ import SpvLogo from "~/assets/images/spv-logo.png";
 
 import Highlight from "../ui/highlight";
 
+import { getScrollBehavior } from "~/utils/motion";
+
 type Testimonial = {
   id: string;
   image: string;
   domain: string;
+  skillIcon: string;
   skill: string;
   title: string;
   publisherName: string;
@@ -26,7 +29,8 @@ const TESTIMONIALS: Testimonial[] = [
     id: "1",
     image: TestimonialSophie,
     domain: "Sécurité",
-    skill: "❤️ Aider les autres",
+    skillIcon: "❤️",
+    skill: "Aider les autres",
     title: "Sophie, infirmière 2 fois par semaine depuis 3 mois",
     publisherName: "La réserve des armées",
     publisherLogo: RocLogo,
@@ -35,7 +39,8 @@ const TESTIMONIALS: Testimonial[] = [
     id: "2",
     image: TestimonialSeb,
     domain: "Solidarité",
-    skill: "💡 Développe tes...",
+    skillIcon: "💡",
+    skill: "Développe tes...",
     title: "Séb, améliore la qualité de vie des personnes en situation de handicap depuis 6 mois",
     publisherName: "Service Civique",
     publisherLogo: AscLogo,
@@ -44,7 +49,8 @@ const TESTIMONIALS: Testimonial[] = [
     id: "3",
     image: TestimonialAdrien,
     domain: "Solidarité",
-    skill: "💡 Développe tes...",
+    skillIcon: "💡",
+    skill: "Développe tes...",
     title: "Adrien, accompagne des mineurs étrangers vers la réussite de leur apprentissage depuis 9 mois",
     publisherName: "Service Civique",
     publisherLogo: AscLogo,
@@ -53,7 +59,8 @@ const TESTIMONIALS: Testimonial[] = [
     id: "4",
     image: TestimonialMarie,
     domain: "Sécurité",
-    skill: "❤️ Aider les autres",
+    skillIcon: "❤️",
+    skill: "Aider les autres",
     title: "Marie, pompier 2 fois par semaine depuis 7 mois",
     publisherName: "Sapeurs-pompiers volontaires",
     publisherLogo: SpvLogo,
@@ -79,7 +86,7 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -352 : 352;
-    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
   };
 
   return (
@@ -116,7 +123,10 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
                 <div className="flex flex-1 flex-col gap-4 p-6">
                   <div className="flex flex-wrap gap-2">
                     <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center rounded-full px-2 text-sm font-bold">{testimonial.domain}</span>
-                    <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center rounded-full px-2 text-sm font-bold">{testimonial.skill}</span>
+                    <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center gap-1 rounded-full px-2 text-sm font-bold">
+                      <span aria-hidden="true">{testimonial.skillIcon}</span>
+                      {testimonial.skill}
+                    </span>
                   </div>
                   <h3 className="fr-h6 text-title-grey mb-0!">{testimonial.title}</h3>
                   <div className="flex items-center gap-3 fr-mt-auto pt-2">

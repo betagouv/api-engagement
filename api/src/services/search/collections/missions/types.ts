@@ -7,4 +7,5 @@ export type MissionIndexDocument = Partial<Record<IndexedTaxonomyKey, string[]>>
   publisherOrganizationClientId?: string;
   publisherOrganizationParentOrganizations?: string[];
   departmentCodes: string[];
+  distributionPublisherIds?: string[];
 };

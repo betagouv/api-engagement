@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import request from "supertest";
 
+import { MissionDiffusionRebuildHandler } from "@/jobs/mission-diffusion-rebuild/handler";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type { MissionRecord, PublisherRecord } from "@/types";
@@ -9,7 +10,8 @@ import { createTestMission, createTestPublisher } from "../../../../fixtures";
 import { createTestApp } from "../../../../testApp";
 
 describe("Mission API Integration Tests", () => {
-  const app = createTestApp();
+  const app = createTestApp({ syncMissionDiffusion: true });
+  const authenticatedGet = (path: string, apiKey: string) => request(app).get(path).set("x-api-key", apiKey);
   let publisher: PublisherRecord;
   let apiKey: string;
   let mission1: MissionRecord;
@@ -119,7 +121,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should return a list of missions with correct format", async () => {
-      const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -155,7 +157,7 @@ describe("Mission API Integration Tests", () => {
       const roots = await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null, field: "publisherId" });
       expect(roots.map((rule) => rule.value).sort()).toEqual([annonceurA.id, annonceurB.id].sort());
 
-      const response = await request(app).get("/v0/mission").set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet("/v0/mission", diffuseur.apikey!);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -202,7 +204,7 @@ describe("Mission API Integration Tests", () => {
         value: excludedMissionB.organizationClientId!,
       });
 
-      const response = await request(app).get("/v0/mission").set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet("/v0/mission", diffuseur.apikey!);
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
@@ -212,7 +214,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should expose compensation fields on missions", async () => {
-      const response = await request(app).get("/v0/mission").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission", apiKey);
       expect(response.status).toBe(200);
       const target = response.body.data.find((mission: any) => mission._id === mission1.id);
       expect(target).toBeDefined();
@@ -222,12 +224,12 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should respect limit and skip parameters", async () => {
-      const response1 = await request(app).get("/v0/mission?limit=1").set("x-api-key", apiKey);
+      const response1 = await authenticatedGet("/v0/mission?limit=1", apiKey);
       expect(response1.status).toBe(200);
       expect(response1.body.data.length).toBe(1);
       expect(response1.body.limit).toBe(1);
 
-      const response2 = await request(app).get("/v0/mission?skip=1").set("x-api-key", apiKey);
+      const response2 = await authenticatedGet("/v0/mission?skip=1", apiKey);
       expect(response2.status).toBe(200);
       expect(response2.body.skip).toBe(1);
       expect(response2.body.data.length).toBe(2);
@@ -238,29 +240,30 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should return 400 for invalid query parameters", async () => {
-      const response = await request(app).get("/v0/mission?limit=invalid").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?limit=invalid", apiKey);
       expect(response.status).toBe(400);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("INVALID_QUERY");
     });
 
-    it("should return 400 if publisher has no access", async () => {
+    it("should use the materialized own scope when publisher has no live partner", async () => {
       const noAccessPublisher = await createTestPublisher({ publishers: [] });
-      const response = await request(app).get("/v0/mission").set("x-api-key", noAccessPublisher.apikey!);
-      expect(response.status).toBe(400);
-      expect(response.body.ok).toBe(false);
-      expect(response.body.code).toBe("NO_PARTNER");
+      const ownMission = await createTestMission({ publisherId: noAccessPublisher.id, title: "Own snapshot mission" });
+      const response = await authenticatedGet("/v0/mission", noAccessPublisher.apikey!);
+      expect(response.status).toBe(200);
+      expect(response.body.total).toBe(1);
+      expect(response.body.data[0]._id).toBe(ownMission.id);
     });
 
     it("should filter by domain", async () => {
-      const response = await request(app).get("/v0/mission?domain=culture").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?domain=culture", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(mission1.id);
     });
 
     it("should filter by city", async () => {
-      const response = await request(app).get("/v0/mission?city=Paris").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?city=Paris", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
       const ids = response.body.data.map((m: any) => m._id!);
@@ -270,7 +273,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by publisherId", async () => {
       const publisherIdToFilter = publisher.publishers[1].publisherId;
-      const response = await request(app).get(`/v0/mission?publisher=${publisherIdToFilter}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?publisher=${publisherIdToFilter}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(mission2.id);
@@ -280,7 +283,7 @@ describe("Mission API Integration Tests", () => {
       const outsidePublisher = await createTestPublisher({ name: "Outside Publisher" });
       await createTestMission({ publisherId: outsidePublisher.id, title: "Outside mission", clientId: `outside-${randomUUID()}` });
 
-      const response = await request(app).get(`/v0/mission?publisher=${outsidePublisher.id}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?publisher=${outsidePublisher.id}`, apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(0);
@@ -288,7 +291,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by keywords", async () => {
-      const response = await request(app).get("/v0/mission?keywords=Lyon").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?keywords=Lyon", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(mission2.id);
@@ -296,7 +299,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by location", async () => {
       // Near Lyon
-      const response = await request(app).get("/v0/mission?lat=45.767&lon=4.836&distance=10km").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?lat=45.767&lon=4.836&distance=10km", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(mission2.id);
@@ -304,7 +307,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by activity", async () => {
       await createTestMission({ organizationClientId: "org-4", publisherId: publisher.publishers[0].publisherId, activities: ["education"] });
-      const response = await request(app).get("/v0/mission?activity=education").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?activity=education", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].activity).toBe("education");
@@ -313,20 +316,20 @@ describe("Mission API Integration Tests", () => {
     it("should filter by clientId", async () => {
       const specificClientId = "client-abc-123";
       await createTestMission({ organizationClientId: "org-5", publisherId: publisher.publishers[0].publisherId, clientId: specificClientId });
-      const response = await request(app).get(`/v0/mission?clientId=${specificClientId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?clientId=${specificClientId}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].clientId).toBe(specificClientId);
     });
 
     it("should filter by country", async () => {
-      const response = await request(app).get("/v0/mission?country=France").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?country=France", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(3);
     });
 
     it("should filter by departmentName", async () => {
-      const response = await request(app).get("/v0/mission?departmentName=Rhône").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?departmentName=Rhône", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0]._id).toBe(mission2.id);
@@ -335,7 +338,7 @@ describe("Mission API Integration Tests", () => {
     it("should filter by organizationRNA", async () => {
       const specificRNA = "W987654321";
       await createTestMission({ organizationClientId: "org-6", publisherId: publisher.publishers[0].publisherId, organizationRNA: specificRNA });
-      const response = await request(app).get(`/v0/mission?organizationRNA=${specificRNA}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?organizationRNA=${specificRNA}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].organizationRNA).toBe(specificRNA);
@@ -343,7 +346,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by organizationStatusJuridique", async () => {
       await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].publisherId, organizationStatusJuridique: "Fondation" });
-      const response = await request(app).get("/v0/mission?organizationStatusJuridique=Fondation").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?organizationStatusJuridique=Fondation", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].organizationStatusJuridique).toBe("Fondation");
@@ -351,7 +354,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by openToMinors", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, openToMinors: true });
-      const response = await request(app).get("/v0/mission?openToMinors=yes").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?openToMinors=yes", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].openToMinors).toBe("yes");
@@ -359,7 +362,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by remote", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, remote: "full" });
-      const response = await request(app).get("/v0/mission?remote=full").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?remote=full", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].remote).toBe("full");
@@ -367,7 +370,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by reducedMobilityAccessible", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: false });
-      const response = await request(app).get("/v0/mission?reducedMobilityAccessible=no").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?reducedMobilityAccessible=no", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].reducedMobilityAccessible).toBe("no");
@@ -375,28 +378,28 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by snu", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, snu: true });
-      const response = await request(app).get("/v0/mission/?snu=true").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/?snu=true", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by type", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: "volontariat_service_civique" });
-      const response = await request(app).get(`/v0/mission?type=${"volontariat_service_civique"}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?type=${"volontariat_service_civique"}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.data[0].type).toBe("volontariat_service_civique");
     });
 
     it("should return 400 for an invalid type value", async () => {
-      const response = await request(app).get("/v0/mission?type=volontariat").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission?type=volontariat", apiKey);
       expect(response.status).toBe(400);
     });
 
     it("should filter by createdAt (gt)", async () => {
       const date = new Date();
       date.setSeconds(date.getSeconds() - 1);
-      const response = await request(app).get(`/v0/mission?createdAt=gt:${date.toISOString()}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?createdAt=gt:${date.toISOString()}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(3);
     });
@@ -404,7 +407,7 @@ describe("Mission API Integration Tests", () => {
     it("should filter by startAt (lt)", async () => {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + 1);
-      const response = await request(app).get(`/v0/mission?startAt=lt:${futureDate.toISOString()}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?startAt=lt:${futureDate.toISOString()}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(3);
     });
@@ -417,7 +420,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should return a list of missions with correct format and facets", async () => {
-      const response = await request(app).get("/v0/mission/search").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search", apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -438,7 +441,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should expose compensation fields within search results", async () => {
-      const response = await request(app).get("/v0/mission/search").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search", apiKey);
       expect(response.status).toBe(200);
       const target = response.body.hits.find((mission: any) => mission._id === mission1.id);
       expect(target).toBeDefined();
@@ -448,7 +451,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by keywords", async () => {
-      const response = await request(app).get("/v0/mission/search?keywords=Lyon").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?keywords=Lyon", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0]._id).toBe(mission2.id);
@@ -456,7 +459,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by geo-location", async () => {
       // Near Lyon
-      const response = await request(app).get("/v0/mission/search?lat=45.76&lon=4.83&distance=10km").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?lat=45.76&lon=4.83&distance=10km", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0]._id).toBe(mission2.id);
@@ -464,34 +467,34 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should respect limit and skip parameters", async () => {
-      const response = await request(app).get("/v0/mission/search?limit=1&skip=1").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?limit=1&skip=1", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.hits.length).toBe(1);
       expect(response.body.total).toBe(3);
     });
 
     it("should filter by activity", async () => {
-      const response = await request(app).get("/v0/mission/search?activity=arts").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?activity=arts", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by city", async () => {
-      const response = await request(app).get("/v0/mission/search?city=Paris").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?city=Paris", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
     });
 
     it("should filter by clientId", async () => {
-      const response = await request(app).get(`/v0/mission/search?clientId=${mission1.clientId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/search?clientId=${mission1.clientId}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0]._id).toBe(mission1.id);
     });
 
     it("should filter by multiple clientIds", async () => {
-      const response = await request(app).get(`/v0/mission/search?clientId=${mission1.clientId},${mission3.clientId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/search?clientId=${mission1.clientId},${mission3.clientId}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(2);
       const clientIds = response.body.hits.map((h: any) => h.clientId);
@@ -500,27 +503,27 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should filter by country", async () => {
-      const response = await request(app).get("/v0/mission/search?country=France").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?country=France", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(3);
     });
 
     it("should filter by departmentName", async () => {
-      const response = await request(app).get("/v0/mission/search?departmentName=Rhône").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?departmentName=Rhône", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by domain", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, domain: "arts" });
-      const response = await request(app).get("/v0/mission/search?domain=arts").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?domain=arts", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by openToMinors", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, openToMinors: true });
-      const response = await request(app).get("/v0/mission/search?openToMinors=yes").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?openToMinors=yes", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0].openToMinors).toBe("yes");
@@ -528,20 +531,20 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by organizationRNA", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, organizationRNA: "XXX" });
-      const response = await request(app).get("/v0/mission/search?organizationRNA=XXX").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?organizationRNA=XXX", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by organizationStatusJuridique", async () => {
       await createTestMission({ organizationClientId: "org-7", publisherId: publisher.publishers[0].publisherId, organizationStatusJuridique: "Fondation" });
-      const response = await request(app).get("/v0/mission/search?organizationStatusJuridique=Fondation").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?organizationStatusJuridique=Fondation", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by publisher", async () => {
-      const response = await request(app).get(`/v0/mission/search?publisher=${mission2.publisherId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/search?publisher=${mission2.publisherId}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
       expect(response.body.hits[0]._id).toBe(mission2.id);
@@ -549,28 +552,28 @@ describe("Mission API Integration Tests", () => {
 
     it("should filter by remote", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, remote: "full" });
-      const response = await request(app).get("/v0/mission/search?remote=full").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?remote=full", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by reducedMobilityAccessible", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, reducedMobilityAccessible: false });
-      const response = await request(app).get("/v0/mission/search?reducedMobilityAccessible=no").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?reducedMobilityAccessible=no", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by startAt (gt)", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, startAt: new Date("2028-01-01") });
-      const response = await request(app).get("/v0/mission/search?startAt=gt:2027-12-31").set("x-api-key", apiKey);
+      const response = await authenticatedGet("/v0/mission/search?startAt=gt:2027-12-31", apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
 
     it("should filter by type", async () => {
       await createTestMission({ publisherId: publisher.publishers[0].publisherId, type: "volontariat_service_civique" });
-      const response = await request(app).get(`/v0/mission/search?type=${"volontariat_service_civique"}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/search?type=${"volontariat_service_civique"}`, apiKey);
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
     });
@@ -583,7 +586,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("should return an existing mission with correct format", async () => {
-      const response = await request(app).get(`/v0/mission/${mission1._id}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/${mission1._id}`, apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
@@ -605,11 +608,77 @@ describe("Mission API Integration Tests", () => {
         statusCode: "ACCEPTED",
       });
 
-      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet(`/v0/mission/${mission.id}`, diffuseur.apikey!);
 
       expect(response.status).toBe(200);
       expect(response.body.ok).toBe(true);
       expect(response.body.data._id).toBe(mission.id);
+    });
+
+    it("should keep list and detail aligned after a root removal until the next snapshot rebuild", async () => {
+      const owner = await createTestPublisher({ name: "Stale Detail Owner" });
+      const remainingOwner = await createTestPublisher({ name: "Remaining Detail Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Stale Detail Diffuseur",
+        publishers: [{ publisherId: owner.id }, { publisherId: remainingOwner.id }],
+      });
+      const mission = await createTestMission({
+        publisherId: owner.id,
+        title: "Mission kept in stale snapshot",
+        statusCode: "ACCEPTED",
+      });
+
+      await new MissionDiffusionRebuildHandler().handle({});
+      const [removedRoot] = await publisherDiffusionRuleService.findRules({
+        publisherId: diffuseur.id,
+        combinedWithId: null,
+        field: "publisherId",
+        value: owner.id,
+      });
+      await publisherDiffusionRuleService.deleteRule(removedRoot.id);
+
+      const staleSnapshotApp = createTestApp();
+      const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);
+      const searchResponse = await request(staleSnapshotApp).get("/v0/mission/search").set("x-api-key", diffuseur.apikey!).expect(200);
+      const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
+      const browseDetailResponse = await request(staleSnapshotApp).get(`/missions/browse/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(200);
+
+      expect(listResponse.body.data.map((item: MissionRecord) => item._id)).toContain(mission.id);
+      expect(searchResponse.body.hits.map((item: MissionRecord) => item._id)).toContain(mission.id);
+      expect(detailResponse.body.data._id).toBe(mission.id);
+      expect(browseDetailResponse.body.data.id).toBe(mission.id);
+    });
+
+    it("should keep a materialized exclusion until the next snapshot rebuild", async () => {
+      const owner = await createTestPublisher({ name: "Stale Exclusion Owner" });
+      const diffuseur = await createTestPublisher({
+        name: "Stale Exclusion Diffuseur",
+        publishers: [{ publisherId: owner.id }],
+      });
+      const mission = await createTestMission({
+        organizationClientId: `stale-exclusion-${randomUUID()}`,
+        publisherId: owner.id,
+        title: "Mission excluded from stale snapshot",
+        statusCode: "ACCEPTED",
+      });
+      const exclusion = await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur.id,
+        annonceurPublisherId: owner.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: mission.organizationClientId!,
+      });
+
+      await new MissionDiffusionRebuildHandler().handle({});
+      await publisherDiffusionRuleService.deleteRule(exclusion.id);
+
+      const staleSnapshotApp = createTestApp();
+      const listResponse = await request(staleSnapshotApp).get("/v0/mission").set("x-api-key", diffuseur.apikey!).expect(200);
+      const detailResponse = await request(staleSnapshotApp).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!).expect(404);
+
+      expect(listResponse.body.data.map((item: MissionRecord) => item._id)).not.toContain(mission.id);
+      expect(detailResponse.body.code).toBe("NOT_FOUND");
     });
 
     it("should return 404 for a mission outside publisher diffusion scope", async () => {
@@ -625,7 +694,7 @@ describe("Mission API Integration Tests", () => {
         statusCode: "ACCEPTED",
       });
 
-      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet(`/v0/mission/${mission.id}`, diffuseur.apikey!);
 
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
@@ -653,7 +722,7 @@ describe("Mission API Integration Tests", () => {
         value: mission.organizationClientId!,
       });
 
-      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet(`/v0/mission/${mission.id}`, diffuseur.apikey!);
 
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
@@ -671,7 +740,7 @@ describe("Mission API Integration Tests", () => {
         title: "Refused detail mission",
         statusCode: "REFUSED",
       });
-      const refusedResponse = await request(app).get(`/v0/mission/${refusedMission.id}`).set("x-api-key", diffuseur.apikey!);
+      const refusedResponse = await authenticatedGet(`/v0/mission/${refusedMission.id}`, diffuseur.apikey!);
 
       expect(refusedResponse.status).toBe(404);
       expect(refusedResponse.body.code).toBe("NOT_FOUND");
@@ -690,21 +759,22 @@ describe("Mission API Integration Tests", () => {
         deleted: true,
       });
 
-      const response = await request(app).get(`/v0/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet(`/v0/mission/${mission.id}`, diffuseur.apikey!);
 
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("NOT_FOUND");
     });
 
-    it("should return 404 when publisher has no diffusion partner", async () => {
+    it("should return an own mission from the snapshot when publisher has no live partner", async () => {
       const noAccessPublisher = await createTestPublisher({ publishers: [] });
+      const ownMission = await createTestMission({ publisherId: noAccessPublisher.id, title: "Own detail snapshot mission" });
 
-      const response = await request(app).get(`/v0/mission/${mission1.id}`).set("x-api-key", noAccessPublisher.apikey!);
+      const response = await authenticatedGet(`/v0/mission/${ownMission.id}`, noAccessPublisher.apikey!);
 
-      expect(response.status).toBe(404);
-      expect(response.body.ok).toBe(false);
-      expect(response.body.code).toBe("NOT_FOUND");
+      expect(response.status).toBe(200);
+      expect(response.body.ok).toBe(true);
+      expect(response.body.data._id).toBe(ownMission.id);
     });
 
     it("should return 404 for a mission outside publisher diffusion scope through v2 mount", async () => {
@@ -720,7 +790,7 @@ describe("Mission API Integration Tests", () => {
         statusCode: "ACCEPTED",
       });
 
-      const response = await request(app).get(`/v2/mission/${mission.id}`).set("x-api-key", diffuseur.apikey!);
+      const response = await authenticatedGet(`/v2/mission/${mission.id}`, diffuseur.apikey!);
 
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
@@ -729,7 +799,7 @@ describe("Mission API Integration Tests", () => {
 
     it("should return 404 for unknown id parameter", async () => {
       const id = randomUUID();
-      const response = await request(app).get(`/v0/mission/${id}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/${id}`, apiKey);
       expect(response.status).toBe(404);
       expect(response.body.ok).toBe(false);
       expect(response.body.code).toBe("NOT_FOUND");
@@ -790,7 +860,7 @@ describe("Mission API Integration Tests", () => {
         title: "No moderation for this publisher",
       });
 
-      const response = await request(app).get("/v0/mission").set("x-api-key", moderatorPublisher.apikey!);
+      const response = await authenticatedGet("/v0/mission", moderatorPublisher.apikey!);
 
       expect(response.status).toBe(200);
       const ids = response.body.data.map((m: any) => m._id);
@@ -835,7 +905,7 @@ describe("Mission API Integration Tests", () => {
         title: null,
       });
 
-      const response = await request(app).get("/v0/mission/search").set("x-api-key", moderatorPublisher.apikey!);
+      const response = await authenticatedGet("/v0/mission/search", moderatorPublisher.apikey!);
 
       expect(response.status).toBe(200);
       const ids = response.body.hits.map((m: any) => m._id);
@@ -896,10 +966,10 @@ describe("Mission API Integration Tests", () => {
         title: "Detail no moderation mission",
       });
 
-      const acceptedResponse = await request(app).get(`/v0/mission/${acceptedMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
-      const pendingResponse = await request(app).get(`/v0/mission/${pendingMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
-      const refusedResponse = await request(app).get(`/v0/mission/${refusedMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
-      const noModerationResponse = await request(app).get(`/v0/mission/${noModerationMission.id}`).set("x-api-key", moderatorPublisher.apikey!);
+      const acceptedResponse = await authenticatedGet(`/v0/mission/${acceptedMission.id}`, moderatorPublisher.apikey!);
+      const pendingResponse = await authenticatedGet(`/v0/mission/${pendingMission.id}`, moderatorPublisher.apikey!);
+      const refusedResponse = await authenticatedGet(`/v0/mission/${refusedMission.id}`, moderatorPublisher.apikey!);
+      const noModerationResponse = await authenticatedGet(`/v0/mission/${noModerationMission.id}`, moderatorPublisher.apikey!);
 
       expect(acceptedResponse.status).toBe(200);
       expect(acceptedResponse.body.data._id).toBe(acceptedMission.id);
@@ -922,7 +992,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("GET /v0/mission — joins multiple activities sorted alphabetically", async () => {
-      const response = await request(app).get(`/v0/mission?clientId=${multiActivityMission.clientId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission?clientId=${multiActivityMission.clientId}`, apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -930,7 +1000,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("GET /v0/mission/search — joins multiple activities sorted alphabetically", async () => {
-      const response = await request(app).get(`/v0/mission/search?clientId=${multiActivityMission.clientId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/search?clientId=${multiActivityMission.clientId}`, apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -938,7 +1008,7 @@ describe("Mission API Integration Tests", () => {
     });
 
     it("GET /v0/mission/:id — joins multiple activities sorted alphabetically", async () => {
-      const response = await request(app).get(`/v0/mission/${multiActivityMission.id}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/${multiActivityMission.id}`, apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.data.activity).toBe("arts, education, sport");
@@ -952,14 +1022,14 @@ describe("Mission API Integration Tests", () => {
         activities: [],
       });
 
-      const response = await request(app).get(`/v0/mission/${noActivityMission.id}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/${noActivityMission.id}`, apiKey);
 
       expect(response.status).toBe(200);
       expect(response.body.data.activity).toBeNull();
     });
 
     it("search facets list each activity individually from a multi-activity mission", async () => {
-      const response = await request(app).get(`/v0/mission/search?clientId=${multiActivityMission.clientId}`).set("x-api-key", apiKey);
+      const response = await authenticatedGet(`/v0/mission/search?clientId=${multiActivityMission.clientId}`, apiKey);
 
       expect(response.status).toBe(200);
       const activityKeys = response.body.facets.activities.map((f: any) => f.key);

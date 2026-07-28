@@ -18,10 +18,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 import { getTaxonomyList } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
-import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/config";
+import type { PromptVersion } from "@/services/mission-enrichment/prompts";
+import { CURRENT_PROMPT_VERSION, PROMPT_REGISTRY } from "@/services/mission-enrichment/prompts";
 
 // ── CLI args ──────────────────────────────────────────────────────────────────
 
@@ -96,9 +98,21 @@ function generateValues(taxonomies: SeedTaxonomy[]): GeneratedValue[] {
   return result;
 }
 
-function buildSeedTaxonomies(): SeedTaxonomy[] {
+// Le seed doit refléter exactement le périmètre que la version ciblée était censée produire.
+// On part donc de la whitelist explicite du prompt (`TAXONOMY_KEYS`), pas du référentiel global
+// `getTaxonomyList()` : sinon les taxonomies enrichissables ajoutées pour des versions ultérieures
+// seraient persistées dans des enrichissements étiquetés v1-v4 et fausseraient les tests de scoring.
+const resolveSeedTaxonomyKeys = (seedVersion: string): readonly EnrichableTaxonomyKey[] => {
+  if (seedVersion in PROMPT_REGISTRY) {
+    return PROMPT_REGISTRY[seedVersion as PromptVersion].TAXONOMY_KEYS;
+  }
+  throw new Error(`[seed-fake-mission-enrichment] version inconnue "${seedVersion}" — aucune whitelist de taxonomies disponible`);
+};
+
+function buildSeedTaxonomies(taxonomyKeys: readonly EnrichableTaxonomyKey[]): SeedTaxonomy[] {
+  const whitelist = new Set<string>(taxonomyKeys);
   return getTaxonomyList()
-    .filter((taxonomy) => taxonomy.enrichable)
+    .filter((taxonomy) => whitelist.has(taxonomy.key))
     .map((taxonomy) => ({
       key: taxonomy.key,
       type: taxonomy.type,
@@ -141,15 +155,15 @@ async function reset() {
 // ── Seed ──────────────────────────────────────────────────────────────────────
 
 async function seed() {
-  const taxonomies = buildSeedTaxonomies();
+  const seedVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
+  const taxonomies = buildSeedTaxonomies(resolveSeedTaxonomyKeys(seedVersion));
   const valueCount = taxonomies.reduce((sum, taxonomy) => sum + taxonomy.values.length, 0);
 
   if (taxonomies.length === 0) {
-    console.error("[seed-fake-mission-enrichment] Aucune taxonomie enrichissable trouvée dans @engagement/taxonomy");
+    console.error(`[seed-fake-mission-enrichment] Aucune taxonomie enrichissable pour la version ${seedVersion}`);
     process.exit(1);
   }
 
-  const seedVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
   console.log(
     `[seed-fake-mission-enrichment] ${taxonomies.length} taxonomies enrichissables chargées depuis @engagement/taxonomy (${valueCount} valeurs, version: ${seedVersion})`
   );

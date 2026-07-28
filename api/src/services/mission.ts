@@ -8,7 +8,6 @@ import { activityService } from "@/services/activity";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
 import { changesRequireEnrichment } from "@/services/mission-enrichment/triggers";
 import { missionEventService } from "@/services/mission-event";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import type {
   MissionCreateInput,
   MissionFacets,
@@ -209,20 +208,20 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   const where: Prisma.MissionWhereInput = filters.directFilters ?? {};
 
   const orConditions: Prisma.MissionWhereInput[] = [];
+  const andConditions: Prisma.MissionWhereInput[] = [];
 
-  // Restriction par publisher : les diffusion rules du diffuseur (allowlist `OR` de scopes
-  // `publisherId === annonceur AND <critères>`) font autorité. À défaut de rules, on retombe
-  // sur la simple liste d'annonceurs.
-  let publisherRestrictionApplied = false;
+  // Le snapshot contient l'allowlist explicite et le scope propre du diffuseur.
   if (filters.diffuseurPublisherId) {
-    const diffusionWhere = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere(filters.diffuseurPublisherId, filters.publisherIds);
-    if (Object.keys(diffusionWhere).length > 0) {
-      const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
-      where.AND = [...existingAnd, diffusionWhere];
-      publisherRestrictionApplied = true;
-    }
-  }
-  if (!publisherRestrictionApplied && filters.publisherIds?.length) {
+    const diffusionWhere: Prisma.MissionWhereInput = { missionDiffusions: { some: { distributionPublisherId: filters.diffuseurPublisherId } } };
+    const restrictedDiffusionWhere: Prisma.MissionWhereInput =
+      filters.publisherIds === undefined
+        ? diffusionWhere
+        : filters.publisherIds.length === 0
+          ? { id: { in: [] } }
+          : { AND: [diffusionWhere, { publisherId: { in: filters.publisherIds } }] };
+    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+    where.AND = [...existingAnd, restrictedDiffusionWhere];
+  } else if (filters.publisherIds?.length) {
     where.publisherId = { in: filters.publisherIds };
   }
 
@@ -345,7 +344,14 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
     if (addressOr.length) {
       clauses.push(...addressOr);
     }
-    where.addresses = clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } };
+    const addressWhere: Prisma.MissionWhereInput = {
+      addresses: clauses.length === 1 ? { some: clauses[0] } : { some: { OR: clauses } },
+    };
+    if (hasGeoFilters(filters) && (!filters.remote?.length || filters.remote.includes("local"))) {
+      andConditions.push({ OR: [addressWhere, { remote: "local" }] });
+    } else {
+      Object.assign(where, addressWhere);
+    }
   }
 
   if (filters.moderationAcceptedFor) {
@@ -382,6 +388,10 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   if (orConditions.length) {
     const existingOr = Array.isArray(where.OR) ? where.OR : where.OR ? [where.OR] : [];
     where.OR = [...existingOr, ...orConditions];
+  }
+  if (andConditions.length) {
+    const existingAnd = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+    where.AND = [...existingAnd, ...andConditions];
   }
 
   return where;
@@ -570,97 +580,6 @@ const baseInclude: MissionInclude = {
   jobBoards: true,
 };
 
-const MAX_SPLIT_DIFFUSION_SCOPES = 8;
-const MAX_SPLIT_PAGE_WINDOW = 10_000;
-
-type MissionPageIndexRow = {
-  id: string;
-  startAt: Date | null;
-  scopeIndex: number;
-  rowIndex: number;
-};
-
-const compareMissionPageIndexRows = (a: MissionPageIndexRow, b: MissionPageIndexRow) => {
-  if (a.startAt === null && b.startAt !== null) {
-    return -1;
-  }
-  if (a.startAt !== null && b.startAt === null) {
-    return 1;
-  }
-  if (a.startAt !== null && b.startAt !== null) {
-    const dateDiff = b.startAt.getTime() - a.startAt.getTime();
-    if (dateDiff !== 0) {
-      return dateDiff;
-    }
-  }
-  return a.scopeIndex - b.scopeIndex || a.rowIndex - b.rowIndex;
-};
-
-const hydrateMissionPage = async (ids: string[], select: MissionSelect | null, moderatedBy: string | null = null): Promise<MissionRecord[]> => {
-  if (!ids.length) {
-    return [];
-  }
-
-  const missions = await missionRepository.findMany({
-    where: { id: { in: ids } },
-    include: select ? undefined : baseInclude,
-    select: select ?? undefined,
-  });
-  const missionById = new Map(missions.map((mission) => [mission.id, mission]));
-
-  return ids
-    .map((id) => missionById.get(id))
-    .filter((mission): mission is Mission => Boolean(mission))
-    .map((mission) => toMissionRecord(mission as MissionWithRelations, moderatedBy));
-};
-
-const tryFindMissionsBySplitDiffusionScopes = async (
-  filters: MissionSearchFilters,
-  select: MissionSelect | null = null
-): Promise<{ data: MissionRecord[]; total: number } | null> => {
-  if (!filters.diffuseurPublisherId || filters.includeDeleted || filters.deletedAt || (filters.statusCode ?? "ACCEPTED") !== "ACCEPTED") {
-    return null;
-  }
-
-  const pageWindow = filters.skip + filters.limit;
-  if (pageWindow > MAX_SPLIT_PAGE_WINDOW) {
-    return null;
-  }
-
-  const diffusionFilter = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter(filters.diffuseurPublisherId, filters.publisherIds);
-  const hasDistinctScopes = diffusionFilter.scopes.length > 1 && new Set(diffusionFilter.scopePublisherIds).size === diffusionFilter.scopePublisherIds.length;
-  if (!hasDistinctScopes || diffusionFilter.scopes.length > MAX_SPLIT_DIFFUSION_SCOPES) {
-    return null;
-  }
-
-  const baseWhere = await buildWhere({ ...filters, diffuseurPublisherId: undefined, publisherIds: [] });
-  const scopeWheres = diffusionFilter.scopes.map((scope) => ({ AND: [baseWhere, scope] }) satisfies Prisma.MissionWhereInput);
-
-  const [scopeRows, scopeCounts] = await Promise.all([
-    filters.limit === 0
-      ? Promise.resolve(scopeWheres.map(() => [] as Array<{ id: string; startAt: Date | null }>))
-      : Promise.all(
-          scopeWheres.map((where) =>
-            prisma.mission.findMany({
-              where,
-              select: { id: true, startAt: true },
-              orderBy: { startAt: Prisma.SortOrder.desc },
-              take: pageWindow,
-            })
-          )
-        ),
-    Promise.all(scopeWheres.map((where) => missionRepository.count(where))),
-  ]);
-
-  const orderedRows = scopeRows.flatMap((rows, scopeIndex) => rows.map((row, rowIndex) => ({ ...row, scopeIndex, rowIndex }))).sort(compareMissionPageIndexRows);
-  const pageIds = orderedRows.slice(filters.skip, filters.skip + filters.limit).map((row) => row.id);
-
-  return {
-    data: await hydrateMissionPage(pageIds, select, filters.moderationAcceptedFor ?? null),
-    total: scopeCounts.reduce((sum, count) => sum + count, 0),
-  };
-};
-
 export const missionService = {
   async enqueueMissionProcessing(missionId: string): Promise<void> {
     try {
@@ -744,11 +663,6 @@ export const missionService = {
   },
 
   async findMissions(filters: MissionSearchFilters, select: MissionSelect | null = null): Promise<{ data: MissionRecord[]; total: number }> {
-    const splitDiffusionResult = await tryFindMissionsBySplitDiffusionScopes(filters, select);
-    if (splitDiffusionResult) {
-      return splitDiffusionResult;
-    }
-
     const where = await buildWhere(filters);
 
     const [missions, total] = await Promise.all([

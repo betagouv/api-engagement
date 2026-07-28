@@ -1,12 +1,12 @@
 import type { Route } from "./+types/politique-de-confidentialite";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Politique de confidentialité — API Engagement" }];
+  return [{ title: "Politique de confidentialité — Trouve ta mission" }];
 }
 
 export default function PolitiqueDeConfidentialite() {
   return (
-    <main>
+    <main id="contenu" tabIndex={-1}>
       <div className="fr-container max-w-3xl py-8 md:py-16">
         <h1>Politique de confidentialité de la Plateforme de l'Engagement</h1>
 
@@ -65,7 +65,12 @@ export default function PolitiqueDeConfidentialite() {
           </li>
           <li>
             Ou par le biais du formulaire de saisine en ligne :{" "}
-            <a href="https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373" target="_blank" rel="noopener">
+            <a
+              href="https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373"
+              target="_blank"
+              rel="noopener"
+              title="https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373 - nouvelle fenêtre"
+            >
               https://www.education.gouv.fr/contacter-le-delegue-la-protection-des-donnees-dpd-469373
             </a>
             . Le responsable de traitement s'engage à vous répondre dans un délai raisonnable qui ne saurait dépasser 1 mois à compter de la réception de votre demande.
@@ -82,6 +87,7 @@ export default function PolitiqueDeConfidentialite() {
         </p>
         <div className="fr-table">
           <table>
+            <caption className="fr-sr-only">Sous-traitants et garanties associées</caption>
             <thead>
               <tr>
                 <th scope="col">Partenaire</th>
@@ -96,8 +102,13 @@ export default function PolitiqueDeConfidentialite() {
                 <td>France</td>
                 <td>Hébergement des données</td>
                 <td>
-                  <a href="https://www-uploads.scaleway.com/Data_Processing_Agreement_03092021_6e2ca4da3c.pdf" target="_blank" rel="noopener">
-                    Data Processing Agreement
+                  <a
+                    href="https://www-uploads.scaleway.com/Data_Processing_Agreement_03092021_6e2ca4da3c.pdf"
+                    target="_blank"
+                    rel="noopener"
+                    title="Data Processing Agreement - nouvelle fenêtre"
+                  >
+                    <span lang="en">Data Processing Agreement</span>
                   </a>
                 </td>
               </tr>
@@ -106,7 +117,7 @@ export default function PolitiqueDeConfidentialite() {
                 <td>France</td>
                 <td>Solution d'e-mailing</td>
                 <td>
-                  <a href="https://www.brevo.com/legal/termsofuse/#annex" target="_blank" rel="noopener">
+                  <a href="https://www.brevo.com/legal/termsofuse/#annex" target="_blank" rel="noopener" title="Conditions d'utilisation - nouvelle fenêtre">
                     Conditions d'utilisation
                   </a>
                 </td>
@@ -115,17 +126,22 @@ export default function PolitiqueDeConfidentialite() {
           </table>
         </div>
 
-        <h2>Gestion de cookies</h2>
+        <h2>Cookies et traceurs</h2>
         <p>
-          Lors de votre navigation sur la Plateforme, des cookies ou traceurs peuvent être déposés sur votre terminal. Conformément à l'article 82 de la loi informatique et
-          libertés et aux recommandations de la CNIL, vous devez consentir au dépôt de cookies via un bandeau, accessible à tout moment. Vous pouvez revenir sur votre choix via le
-          lien « Gestion de cookies » qui vous redirige vers l'outil Tarteaucitron. Nous utilisons également Plausible, une solution qui ne dépose aucun cookie ou traceur et ne
-          collecte pas votre adresse IP.
+          Lors de votre navigation sur la plateforme, des traceurs peuvent être déposés sur votre terminal. Conformément aux recommandations de la CNIL, votre consentement est
+          demandé avant tout dépôt de traceur non strictement nécessaire.
+        </p>
+
+        <h3>Gestionnaire de consentement</h3>
+        <p>
+          La plateforme utilise le gestionnaire de consentement du Système de Design de l'État pour vous permettre de gérer vos préférences. Vous pouvez à tout moment modifier vos
+          choix via le lien « Gestion des cookies » en bas de page.
         </p>
 
         <h3>Traceurs soumis à consentement</h3>
         <div className="fr-table">
           <table>
+            <caption className="fr-sr-only">Traceurs soumis à consentement</caption>
             <thead>
               <tr>
                 <th scope="col">Outil</th>
@@ -146,11 +162,16 @@ export default function PolitiqueDeConfidentialite() {
             </tbody>
           </table>
         </div>
+        <p>
+          Avant votre choix et en cas de refus, PostHog mesure l'audience sans déposer de cookie ni utiliser le stockage local. Un identifiant anonyme valable une journée est
+          calculé côté serveur à partir d'un sel quotidien, de l'adresse IP, du navigateur et du nom d'hôte. Il ne permet pas de reconnaître un visiteur d'un jour à l'autre. Les
+          cookies <code>ph_*</code> et l'identification persistante ne sont activés qu'après acceptation.
+        </p>
 
         <h3>Cookies strictement nécessaires</h3>
         <p>
           Les cookies techniques indispensables au bon fonctionnement du service (session, sécurité CSRF, préférences d'interface) sont déposés sans consentement préalable,
-          conformément à l'article 82 de la loi Informatique et Libertés.
+          conformément à l'article 82 de la loi Informatique et Libertés. Le cookie <code>plateform_consent</code> conserve votre choix de mesure d'audience pendant un an.
         </p>
       </div>
     </main>

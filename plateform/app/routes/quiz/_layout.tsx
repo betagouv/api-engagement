@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
-import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
+import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
@@ -17,15 +17,16 @@ export type QuizOutletContext = {
   goNext: () => void;
   goBack: () => void;
   saveScoring: () => void;
-  transitioning: boolean;
-  setTransitioning: (value: boolean) => void;
   // Step courant (pour le tracking des raccourcis depuis NextButton).
   currentStepId: StepId | null;
   currentStepIndex: number;
 };
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Quiz Engagement" }, { name: "robots", content: "noindex, nofollow" }];
+// Titre par step (RGAA 8.6) : les routes enfants n'exportent pas de meta(), celui-ci s'applique à toutes.
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  const step = QUIZ_FLOW.find((s) => s.route === location.pathname);
+  const title = step ? `${step.title} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
+  return [{ title }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
@@ -42,10 +43,10 @@ export default function QuizLayout() {
   const navigate = useNavigate();
   const { answers, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
-  const [transitioning, setTransitioning] = useState(false);
-  const [loadingResults, setLoadingResults] = useState(false);
+  const [loadingResultsPath, setLoadingResultsPath] = useState<string | null>(null);
   const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
+  const loadingResults = loadingResultsPath === location.pathname;
   // Promise en cours de save — partagée entre saveScoring() et goNext() pour éviter un double appel.
   const scoringPromiseRef = useRef<Promise<boolean> | null>(null);
 
@@ -100,13 +101,12 @@ export default function QuizLayout() {
     return scoringPromiseRef.current;
   };
 
-  // Réinitialise `transitioning` uniquement après que la navigation a commité (nouveau pathname effectif).
-  // Si on appelait setTransitioning(false) dans goNext() après navigate(), React Router v7 différerait
-  // la navigation via startTransition, et le setState synchrone commiterait en premier — ce qui
-  // provoquerait un flash du step précédent (transitioning=false sur l'ancienne route).
+  // Réinitialise le save et interrompt l'écran de préchargement à chaque changement de route.
+  // Le pathname mémorisé garantit que l'Outlet précédent est rendu dès un retour navigateur,
+  // avant même l'exécution de cet effet et le nettoyage de la promesse par LoadingRecap.
   useEffect(() => {
-    setTransitioning(false);
     scoringPromiseRef.current = null;
+    setLoadingResultsPath(null);
   }, [location.pathname]);
 
   const goNext = async () => {
@@ -117,7 +117,6 @@ export default function QuizLayout() {
 
     if (!scoringSaved) {
       setScoringError("Impossible d'enregistrer tes réponses. Réessaie dans quelques instants.");
-      setTransitioning(false);
       return;
     }
 
@@ -130,19 +129,17 @@ export default function QuizLayout() {
       navigate(next.route);
     } else {
       trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
-      setLoadingResults(true);
+      setLoadingResultsPath(location.pathname);
     }
   };
 
-  const handleLoadingComplete = () => {
-    setLoadingResults(false);
+  const handleLoadingComplete = useCallback(() => {
     const id = useQuizStore.getState().userScoringId;
     navigate(id ? `/results/${id}` : "/");
-  };
+  }, [navigate]);
 
   const goBack = () => {
     if (!currentStep) return;
-    setTransitioning(false);
     const freshAnswers = useQuizStore.getState().answers;
     const { prev, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(steps);
@@ -159,18 +156,18 @@ export default function QuizLayout() {
       <QuizHeader
         step={loadingResults ? steps.length + 1 : currentIndex + 1}
         stepCount={steps.length + 1}
-        backHref={!transitioning && !loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
+        backHref={!loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
         onBack={handleBackNavigated}
       />
-      <main className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
+      <main id="contenu" tabIndex={-1} className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
-          {!transitioning && !loadingResults && (
+          {!loadingResults && (
             <div className="hidden lg:block">
               <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />
             </div>
           )}
           {scoringError && !loadingResults && (
-            <div className="fr-alert fr-alert--error">
+            <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>
             </div>
           )}
@@ -184,8 +181,6 @@ export default function QuizLayout() {
                   goNext,
                   goBack,
                   saveScoring,
-                  transitioning,
-                  setTransitioning,
                   currentStepId: currentStep?.id ?? null,
                   currentStepIndex: currentIndex + 1,
                 } satisfies QuizOutletContext

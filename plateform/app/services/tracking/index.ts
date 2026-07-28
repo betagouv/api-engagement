@@ -4,12 +4,15 @@ import { CAMPAIGN_UTM_KEYS, getCampaignParamsFromSearch, resolveActiveCampaign, 
 import { getInternalUserFlagAction, isInternalUserFlagEnabled, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
-import type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
+import { IDENTITY_TRACKING_PROPERTIES, sanitizePropertiesForConsent } from "./consent";
+import type { TrackingConsentStatus, TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
 
-export type { TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
+export type { TrackingConsentStatus, TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
 
 // Provider courant, instancié paresseusement à la première utilisation côté navigateur.
 let provider: TrackingProvider | null = null;
+let consentStatus: TrackingConsentStatus = "pending";
+let identitySubscriptionInitialized = false;
 
 // Le tracking est exclusivement côté client : on ne veut rien émettre pendant le rendu SSR.
 function isBrowser(): boolean {
@@ -21,10 +24,9 @@ function getProvider(): TrackingProvider | null {
   if (!provider) {
     provider = createProvider(TRACKING_PROVIDER as TrackingProviderName);
     provider.init?.();
-    // Identify + super properties avant la première capture (un track() de route peut précéder initTracking()).
-    bootstrapIdentity();
-    syncInternalUserFlag(provider);
-    syncCampaignSuperProperties(provider);
+    initializeIdentitySubscription();
+    applyConsentAndIdentity(provider);
+    syncContextSuperProperties(provider);
   }
   return provider;
 }
@@ -35,19 +37,49 @@ function getProvider(): TrackingProvider | null {
 //   - quiz_session_id : userScoringId créé à la complétion du quiz (null tant qu'absent).
 // On synchronise ces propriétés depuis le store quiz et on les ré-enregistre à chaque changement
 // (nouvelle tentative → nouveau quiz_attempt_id et quiz_session_id remis à null).
-function syncIdentitySuperProperties(state: { quizAttemptId: string; userScoringId?: string }): void {
-  getProvider()?.register?.({
+function syncIdentitySuperProperties(targetProvider: TrackingProvider, state: { quizAttemptId: string; userScoringId?: string }): void {
+  targetProvider.register?.({
     quiz_attempt_id: state.quizAttemptId,
     quiz_session_id: state.userScoringId ?? null,
   });
 }
 
-// Bootstrap d'identité (une seule fois, à l'init du provider) : identify par le `distinctId`
-// persistant du quiz et super properties d'identité, maintenues à jour via un abonnement au store.
-// TODO(cookie-banner) : sans consentement, ne pas appeler `identify` (rester anonyme/cookieless).
-function bootstrapIdentity(): void {
-  identify(useQuizStore.getState().distinctId);
-  syncIdentitySuperProperties(useQuizStore.getState());
+function syncIdentity(targetProvider: TrackingProvider): void {
+  const state = useQuizStore.getState();
+  targetProvider.identify?.(state.distinctId);
+  syncIdentitySuperProperties(targetProvider, state);
+}
+
+function clearIdentitySuperProperties(targetProvider: TrackingProvider): void {
+  for (const property of IDENTITY_TRACKING_PROPERTIES) {
+    if (property !== "distinct_id") targetProvider.unregister?.(property);
+  }
+}
+
+function shouldSyncIdentity(targetProvider: TrackingProvider): boolean {
+  return targetProvider.name !== "posthog" || consentStatus === "granted";
+}
+
+function applyConsentAndIdentity(targetProvider: TrackingProvider): void {
+  if (targetProvider.name === "posthog") targetProvider.setConsentStatus?.(consentStatus);
+
+  if (shouldSyncIdentity(targetProvider)) {
+    syncIdentity(targetProvider);
+  } else {
+    clearIdentitySuperProperties(targetProvider);
+  }
+}
+
+function syncContextSuperProperties(targetProvider: TrackingProvider): void {
+  syncInternalUserFlag(targetProvider);
+  syncCampaignSuperProperties(targetProvider);
+}
+
+// L'abonnement est installé une seule fois. Les changements du quiz ne sont synchronisés vers
+// PostHog que lorsque l'utilisateur a explicitement accepté le tracking persistant.
+function initializeIdentitySubscription(): void {
+  if (identitySubscriptionInitialized) return;
+  identitySubscriptionInitialized = true;
 
   let lastAttemptId = useQuizStore.getState().quizAttemptId;
   let lastSessionId = useQuizStore.getState().userScoringId;
@@ -55,7 +87,8 @@ function bootstrapIdentity(): void {
     if (state.quizAttemptId === lastAttemptId && state.userScoringId === lastSessionId) return;
     lastAttemptId = state.quizAttemptId;
     lastSessionId = state.userScoringId;
-    syncIdentitySuperProperties(state);
+    const currentProvider = getProvider();
+    if (currentProvider && shouldSyncIdentity(currentProvider)) syncIdentitySuperProperties(currentProvider, state);
   });
 }
 
@@ -84,11 +117,17 @@ function syncInternalUserFlag(provider: TrackingProvider): void {
 // valeurs persistées par PostHog au-delà du TTL.
 function syncCampaignSuperProperties(provider: TrackingProvider): void {
   let campaign: CampaignParams = {};
-  try {
-    campaign = resolveActiveCampaign(window.location.search, window.localStorage);
-  } catch {
-    // localStorage indisponible : au minimum, attacher les UTM de l'URL courante.
+  if (consentStatus !== "granted") {
+    // Aucun accès au localStorage avant l'accord : les UTM de l'URL courante restent néanmoins
+    // disponibles sur les évènements cookieless de la page d'atterrissage.
     campaign = getCampaignParamsFromSearch(window.location.search);
+  } else {
+    try {
+      campaign = resolveActiveCampaign(window.location.search, window.localStorage);
+    } catch {
+      // localStorage indisponible : au minimum, attacher les UTM de l'URL courante.
+      campaign = getCampaignParamsFromSearch(window.location.search);
+    }
   }
 
   for (const key of CAMPAIGN_UTM_KEYS) {
@@ -103,10 +142,31 @@ export function initTracking(): void {
   getProvider();
 }
 
+// Synchronise le choix affiché dans le gestionnaire DSFR avec PostHog. Pending et denied restent
+// cookieless ; granted active la persistance et l'identification pour les évènements suivants.
+export function setTrackingConsentStatus(status: TrackingConsentStatus): void {
+  if (!isBrowser() || status === consentStatus) return;
+  consentStatus = status;
+
+  if (provider) {
+    applyConsentAndIdentity(provider);
+    // PostHog réinitialise ses propriétés lors d'une transition cookieless ↔ persistante.
+    syncContextSuperProperties(provider);
+  } else {
+    getProvider();
+  }
+}
+
+export function getTrackingConsentStatus(): TrackingConsentStatus {
+  return consentStatus;
+}
+
 // Force l'enregistrement du quiz_session_id (ex. accès direct à /results/:id où l'id vient de l'URL
 // et non du store). No-op pendant le SSR.
 export function setQuizSessionId(userScoringId: string): void {
-  getProvider()?.register?.({ quiz_session_id: userScoringId });
+  const currentProvider = getProvider();
+  if (!currentProvider || !shouldSyncIdentity(currentProvider)) return;
+  currentProvider.register?.({ quiz_session_id: userScoringId });
 }
 
 // Désactive le flag interne depuis l'UI de debug. No-op pendant le SSR.
@@ -135,10 +195,16 @@ function omitUndefined(properties: TrackingProperties): TrackingProperties {
 
 // Enregistre un évènement avec ses propriétés. No-op pendant le SSR.
 export function track(event: string, properties?: TrackingProperties): void {
-  getProvider()?.track(event, properties ? omitUndefined(properties) : properties);
+  const currentProvider = getProvider();
+  if (!currentProvider) return;
+
+  const sanitized = properties ? sanitizePropertiesForConsent(omitUndefined(properties), consentStatus) : properties;
+  currentProvider.track(event, sanitized);
 }
 
 // Associe l'utilisateur courant à un identifiant (ex. `distinctId` du quiz). No-op pendant le SSR.
 export function identify(distinctId: string, traits?: TrackingTraits): void {
-  getProvider()?.identify?.(distinctId, traits);
+  const currentProvider = getProvider();
+  if (!currentProvider || !shouldSyncIdentity(currentProvider)) return;
+  currentProvider.identify?.(distinctId, traits);
 }

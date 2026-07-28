@@ -6,7 +6,7 @@ import { createTestMission, createTestPublisher, createTestWidget } from "../../
 import { createTestApp } from "../../../../testApp";
 
 describe("GET /iframe/:id/aggs", () => {
-  const app = createTestApp();
+  const app = createTestApp({ syncMissionDiffusion: true });
   let widget: WidgetRecord;
   let publisher: PublisherRecord;
 
@@ -127,6 +127,61 @@ describe("GET /iframe/:id/aggs", () => {
   });
 
   describe("Default aggregations", () => {
+    it("should keep widget publishers as fallback for a widget-only publisher without diffusion root", async () => {
+      const widgetOwner = await createTestPublisher({
+        hasApiRights: false,
+        hasCampaignRights: false,
+        hasWidgetRights: true,
+      });
+      const selectedPublisher = await createTestPublisher();
+      await createTestMission({
+        publisherId: selectedPublisher.id,
+        title: "Mission Solidarité",
+        domain: "Solidarité",
+      });
+      const widgetOnly = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [selectedPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${widgetOnly.id}/aggs`).expect(200);
+
+      expect(response.body.data.domain).toEqual(expect.arrayContaining([{ key: "Solidarité", doc_count: 1 }]));
+    });
+
+    it("should combine snapshot and widget-only publishers in aggregations", async () => {
+      const rootedPublisher = await createTestPublisher();
+      const widgetOnlyPublisher = await createTestPublisher();
+      const widgetOwner = await createTestPublisher({
+        publishers: [{ publisherId: rootedPublisher.id }],
+      });
+      await createTestMission({
+        publisherId: rootedPublisher.id,
+        title: "Mission matérialisée",
+        domain: "Environnement",
+      });
+      await createTestMission({
+        publisherId: widgetOnlyPublisher.id,
+        title: "Mission widget-only",
+        domain: "Solidarité",
+      });
+      const hybridWidget = await createTestWidget({
+        fromPublisher: widgetOwner,
+        publishers: [rootedPublisher.id, widgetOnlyPublisher.id],
+        type: "benevolat",
+      });
+
+      const response = await request(app).get(`/iframe/${hybridWidget.id}/aggs`).expect(200);
+
+      expect(response.body.data.domain).toEqual(
+        expect.arrayContaining([
+          { key: "Environnement", doc_count: 1 },
+          { key: "Solidarité", doc_count: 1 },
+        ])
+      );
+    });
+
     it("should aggregate by domain with correct counts", async () => {
       const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
@@ -162,6 +217,13 @@ describe("GET /iframe/:id/aggs", () => {
     });
 
     it("should aggregate by remote with correct counts", async () => {
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale",
+        domain: "Environnement",
+        remote: "local",
+      });
+
       const response = await request(app).get(`/iframe/${widget.id}/aggs`).expect(200);
 
       const remote = response.body.data.remote;
@@ -174,6 +236,10 @@ describe("GET /iframe/:id/aggs", () => {
       const fullRemote = remote.find((r: any) => r.key === "full");
       expect(fullRemote).toBeDefined();
       expect(fullRemote.doc_count).toBe(1);
+
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
     });
 
     it("should aggregate by country with correct counts", async () => {
@@ -185,6 +251,90 @@ describe("GET /iframe/:id/aggs", () => {
       const france = countries.find((c: any) => c.key === "FR");
       expect(france).toBeDefined();
       expect(france.doc_count).toBe(4);
+    });
+
+    it("should aggregate local missions without address when filtering on-site missions around a widget location", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Présentiel Paris",
+        domain: "Environnement",
+        remote: "no",
+        addresses: [
+          {
+            city: "Paris",
+            postalCode: "75001",
+            departmentCode: "75",
+            departmentName: "Paris",
+            country: "FR",
+            location: { lat: 48.8566, lon: 2.3522 },
+          },
+        ],
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/aggs`).query({ remote: "no" }).expect(200);
+
+      const remote = response.body.data.remote;
+      const noRemote = remote.find((r: any) => r.key === "no");
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(noRemote).toBeDefined();
+      expect(noRemote.doc_count).toBe(1);
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
+    });
+
+    it("should aggregate local missions without address around a widget location without remote filter", async () => {
+      const geoWidget = await createTestWidget({
+        fromPublisher: publisher,
+        publishers: [publisher.id],
+        location: { lat: 48.8566, lon: 2.3522 },
+        distance: "25km",
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Présentiel Paris",
+        domain: "Environnement",
+        remote: "no",
+        addresses: [
+          {
+            city: "Paris",
+            postalCode: "75001",
+            departmentCode: "75",
+            departmentName: "Paris",
+            country: "FR",
+            location: { lat: 48.8566, lon: 2.3522 },
+          },
+        ],
+      });
+      await createTestMission({
+        publisherId: publisher.id,
+        title: "Mission Locale sans adresse",
+        domain: "Environnement",
+        remote: "local",
+        addresses: [],
+      });
+
+      const response = await request(app).get(`/iframe/${geoWidget.id}/aggs`).expect(200);
+
+      const remote = response.body.data.remote;
+      const noRemote = remote.find((r: any) => r.key === "no");
+      const localRemote = remote.find((r: any) => r.key === "local");
+      expect(noRemote).toBeDefined();
+      expect(noRemote.doc_count).toBe(1);
+      expect(localRemote).toBeDefined();
+      expect(localRemote.doc_count).toBe(1);
     });
   });
 

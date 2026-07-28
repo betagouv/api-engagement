@@ -15,10 +15,16 @@ interface ComboboxProps {
 export default function Combobox({ label, placeholder, options, selected, onChange, className, single }: ComboboxProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  // Vrai pendant une interaction au pointeur (souris/tactile) : en sélection unique, seule une
+  // sélection au pointeur ferme le panneau ; aux flèches clavier il reste ouvert pour parcourir.
+  const pointerRef = useRef(false);
   const reactId = useId();
   const panelId = `${reactId}-panel`;
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  // Sélection figée à l'ouverture pour le tri : sinon chaque sélection aux flèches réordonnerait
+  // la liste sous le focus pendant la navigation clavier.
+  const [sortedSelection, setSortedSelection] = useState<string[]>([]);
 
   useEffect(() => {
     if (!open) {
@@ -42,15 +48,21 @@ export default function Combobox({ label, placeholder, options, selected, onChan
     };
   }, [open]);
 
-  // En sélection unique, la valeur sélectionnée est remontée en première position (tri stable).
-  const orderedOptions = single ? [...options].sort((a, b) => (selected.includes(b.value) ? 1 : 0) - (selected.includes(a.value) ? 1 : 0)) : options;
+  // En sélection unique, la valeur sélectionnée à l'ouverture est remontée en première position (tri stable).
+  const orderedOptions = single ? [...options].sort((a, b) => (sortedSelection.includes(b.value) ? 1 : 0) - (sortedSelection.includes(a.value) ? 1 : 0)) : options;
   const visibleOptions = search ? orderedOptions.filter((option) => option.label.toLowerCase().includes(search.toLowerCase())) : orderedOptions;
 
   const toggleOption = (option: ComboboxOption) => {
     const isSelected = selected.includes(option.value);
     if (single) {
       onChange(isSelected ? [] : [option.value]);
-      setOpen(false);
+      // Au pointeur, la sélection ferme le panneau et restitue le focus au déclencheur (RGAA 7.3).
+      // Aux flèches clavier (change natif des radios), le panneau reste ouvert pour parcourir.
+      if (pointerRef.current) {
+        pointerRef.current = false;
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
       return;
     }
     onChange(isSelected ? selected.filter((value) => value !== option.value) : [...selected, option.value]);
@@ -61,14 +73,24 @@ export default function Combobox({ label, placeholder, options, selected, onChan
   const summaryLabel = hasSelection ? `${selectedOptions[0].label}${selectedOptions.length > 1 ? ` +${selectedOptions.length - 1}` : ""}` : placeholder;
 
   return (
-    <div className="relative" ref={wrapperRef}>
+    <div
+      className="relative"
+      ref={wrapperRef}
+      onBlur={(event) => {
+        // Ferme le panneau quand le focus sort du composant (Tab), comme un select natif.
+        if (open && event.relatedTarget instanceof Node && !wrapperRef.current?.contains(event.relatedTarget)) setOpen(false);
+      }}
+    >
       <button
         ref={triggerRef}
         type="button"
         className={`w-full px-4 text-left transition-colors hover:bg-background-default-grey-hover ${className}`}
         aria-expanded={open}
         aria-controls={panelId}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          setSortedSelection(selected);
+          setOpen((value) => !value);
+        }}
       >
         <span className="fr-text text-title-grey">{label}</span>
 
@@ -93,7 +115,27 @@ export default function Combobox({ label, placeholder, options, selected, onChan
             <i className="fr-icon-search-line fr-icon--sm pointer-events-none absolute top-1/2 right-3 -translate-y-1/2" aria-hidden="true" />
           </div>
 
-          <fieldset className="max-h-60 w-full min-w-0 overflow-y-auto" tabIndex={-1}>
+          {/* RGAA 7.5 : annonce le résultat du filtrage aux technologies d'assistance. */}
+          <p className="sr-only" aria-live="polite">
+            {search ? `${visibleOptions.length} option${visibleOptions.length > 1 ? "s" : ""} disponible${visibleOptions.length > 1 ? "s" : ""}` : ""}
+          </p>
+
+          <fieldset
+            className="max-h-60 w-full min-w-0 overflow-y-auto"
+            tabIndex={-1}
+            onPointerDown={() => {
+              pointerRef.current = true;
+            }}
+            onKeyDown={(event) => {
+              pointerRef.current = false;
+              // Entrée valide la sélection en cours et ferme le panneau.
+              if (event.key === "Enter") {
+                event.preventDefault();
+                setOpen(false);
+                triggerRef.current?.focus();
+              }
+            }}
+          >
             <legend className="sr-only">Sélectionner {label.toLowerCase()}</legend>
 
             <div className="px-4">
@@ -135,7 +177,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
 
           {hasSelection && (
             <div className="flex justify-end border-t border-border-default-grey p-4">
-              <button type="button" className="fr-btn fr-btn--sm fr-btn--tertiary" onClick={() => onChange([])}>
+              <button type="button" className="fr-btn fr-btn--sm fr-btn--tertiary" aria-label={`Effacer le filtre ${label}`} onClick={() => onChange([])}>
                 Effacer
               </button>
             </div>

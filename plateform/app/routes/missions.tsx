@@ -13,6 +13,7 @@ import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
+import { getScrollBehavior } from "~/utils/motion";
 import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
@@ -63,7 +64,7 @@ export function HydrateFallback() {
 }
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Trouve ta mission — API Engagement" }];
+  return [{ title: "Trouve ta mission" }];
 }
 
 export default function MissionsPage() {
@@ -204,61 +205,67 @@ export default function MissionsPage() {
       else params.set("page", String(newPage));
       return params;
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: getScrollBehavior() });
   };
 
   return (
-    <>
-      <main>
-        <GradientBg>
-          <div className="fr-container pt-4 md:pt-16">
-            <div className="flex items-center justify-between gap-4">
-              <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
-              <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
+    <main id="contenu" tabIndex={-1}>
+      <GradientBg>
+        <div className="fr-container pt-4 md:pt-16">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
+            <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
+          </div>
+          {/* RGAA 7.5 : masqué visuellement (pas retiré du DOM) sur mobile pour que le résultat du filtrage reste annoncé. */}
+          <p role="status" className="fr-text--lead sr-only md:not-sr-only">
+            {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
+          </p>
+          <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
+        </div>
+
+        <div className="fr-container my-4 md:my-8">
+          {error && (
+            <div role="alert" className="fr-alert fr-alert--error fr-mb-4w">
+              <p>Erreur lors du chargement des missions : {error}</p>
             </div>
-            <p className="fr-text--lead hidden md:block">
-              {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
+          )}
+
+          {loading && items.length === 0 && (
+            <p role="status" className="fr-text--sm">
+              Chargement des missions…
             </p>
-            <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
-          </div>
+          )}
 
-          <div className="fr-container my-4 md:my-8">
-            {error && (
-              <div className="fr-alert fr-alert--error fr-mb-4w">
-                <p>Erreur lors du chargement des missions : {error}</p>
-              </div>
-            )}
-
-            {loading && items.length === 0 && <p className="fr-text--sm">Chargement des missions…</p>}
-
-            {!loading && !error && items.length === 0 && (
-              <div className="fr-alert fr-alert--info">
-                <p>Aucune mission ne correspond à ces filtres.</p>
-              </div>
-            )}
-
-            {items.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto gap-6 w-fit">
-                {items.map((mission) => (
-                  <MissionCard
-                    key={mission.id}
-                    mission={mission}
-                    link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
-                    onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
-                  />
-                ))}
-              </div>
-            )}
-
-            <div className="fr-mt-6w">
-              <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          {!loading && !error && items.length === 0 && (
+            <div role="status" className="fr-alert fr-alert--info">
+              <p>Aucune mission ne correspond à ces filtres.</p>
             </div>
-          </div>
-        </GradientBg>
-      </main>
-      <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
+          )}
+          {items.length > 0 && (
+            <>
+              {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
+              <h2 className="fr-sr-only">Liste des missions</h2>
+              <ul role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto! gap-6 w-fit list-none! p-0! m-0!">
+                {items.map((mission) => (
+                  <li key={mission.id}>
+                    <MissionCard
+                      mission={mission}
+                      link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
+                      onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
+                    />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
+          <div className="fr-mt-6w">
+            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          </div>
+        </div>
+      </GradientBg>
+      <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
       <Partners />
-    </>
+    </main>
   );
 }

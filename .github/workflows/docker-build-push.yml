@@ -83,7 +83,7 @@ jobs:
             context: .
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7.0.0
+        uses: actions/checkout@v7.0.1
         with:
           ref: ${{ inputs.branch || github.ref_name }}
           fetch-depth: 0

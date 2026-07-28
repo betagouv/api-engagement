@@ -3,7 +3,7 @@ import { RiQuestionLine } from "react-icons/ri";
 
 import Loader from "@/components/Loader";
 import Tooltip from "@/components/Tooltip";
-import { DEPARTMENT_NAMES, METABASE_CARD_ID, MONTHS } from "@/constants";
+import { DEPARTMENT_NAMES, METABASE_CARD_ID, MISSION_TYPE_OPTIONS, MONTHS } from "@/constants";
 import AnalyticsCard from "@/scenes/performance/AnalyticsCard";
 import { useAnalyticsProvider } from "@/services/analytics/provider";
 import { captureError } from "@/services/error";
@@ -110,45 +110,59 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <label htmlFor="numbers-year" className="sr-only">
-              Année
-            </label>
-            <select id="numbers-year" className="input w-full sm:w-48" value={filters.year} onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}>
-              <option value={2020}>2020</option>
-              <option value={2021}>2021</option>
-              <option value={2022}>2022</option>
-              <option value={2023}>2023</option>
-              <option value={2024}>2024</option>
-              <option value={2025}>2025</option>
-              <option value={2026}>2026</option>
-            </select>
-            <label htmlFor="numbers-department" className="sr-only">
-              Département
-            </label>
-            <select
-              id="numbers-department"
-              className="input w-full sm:w-48"
-              value={filters.department}
-              onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
-            >
-              <option value="">Départements</option>
-              {Object.entries(DEPARTMENT_NAMES)
-                .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
-                .map(([code, value]) => (
-                  <option key={value[0]} value={code}>
-                    {code} - {value[0]}
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-1">
+              <label htmlFor="numbers-year" className="text-sm">
+                Année
+              </label>
+              <select
+                id="numbers-year"
+                className="input w-full pr-4 sm:w-48"
+                value={filters.year}
+                onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}
+              >
+                <option value={2020}>2020</option>
+                <option value={2021}>2021</option>
+                <option value={2022}>2022</option>
+                <option value={2023}>2023</option>
+                <option value={2024}>2024</option>
+                <option value={2025}>2025</option>
+                <option value={2026}>2026</option>
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="numbers-department" className="text-sm">
+                Département
+              </label>
+              <select
+                id="numbers-department"
+                className="input w-full pr-4 sm:w-64"
+                value={filters.department}
+                onChange={(e) => onFiltersChange({ ...filters, department: e.target.value })}
+              >
+                <option value="">Tous les départements</option>
+                {Object.entries(DEPARTMENT_NAMES)
+                  .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
+                  .map(([code, value]) => (
+                    <option key={value[0]} value={code}>
+                      {code} - {value[0]}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="numbers-mission-type" className="text-sm">
+                Type de mission
+              </label>
+              <select id="numbers-mission-type" className="input w-full pr-4 sm:w-64" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+                <option value="">Tous les types</option>
+                {MISSION_TYPE_OPTIONS.map((missionType) => (
+                  <option key={missionType.value} value={missionType.value}>
+                    {missionType.label}
                   </option>
                 ))}
-            </select>
-            <label htmlFor="numbers-mission-type" className="sr-only">
-              Type de mission
-            </label>
-            <select id="numbers-mission-type" className="input w-full sm:w-48" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
-              <option value="">Type de mission</option>
-              <option value="benevolat">Bénévolat</option>
-              <option value="volontariat">Volontariat</option>
-            </select>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -158,7 +172,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
         </div>
       ) : (
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <div className="flex justify-between">
               <h4 className="mb-2 text-2xl font-semibold">
                 {graphTotal.organizations ? `${graphTotal.organizations.toLocaleString("fr")} organisations actives` : "Pas de données"}
@@ -182,6 +196,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des organisations actives en ${filters.year}`}
               chartDescription="Nombre d'organisations actives par mois sur l'année sélectionnée."
               chartDescriptionMode="collapsible"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre d'organisations actives"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "organizations" }}
               chartProps={{
                 dataKey: "value",
@@ -194,7 +210,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             />
           </div>
 
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <div className="flex justify-between">
               <h4 className="mb-2 text-2xl font-semibold">{graphTotal.missions ? `${graphTotal.missions.toLocaleString("fr")} missions partagées` : "Pas de données"}</h4>
 
@@ -217,6 +233,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des missions partagées en ${filters.year}`}
               chartDescription="Nombre de missions partagées par mois sur l'année sélectionnée."
               chartDescriptionMode="collapsible"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre de missions partagées"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "missions" }}
               chartProps={{
                 dataKey: "value",
@@ -229,7 +247,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             />
           </div>
 
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <h4 className="mb-2 text-2xl font-semibold">{graphTotal.clicks ? `${graphTotal.clicks.toLocaleString("fr")} redirections` : "Pas de données"}</h4>
 
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
@@ -242,6 +260,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des redirections en ${filters.year}`}
               chartDescription="Nombre de redirections par mois sur l'année sélectionnée."
               chartDescriptionMode="collapsible"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre de redirections"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "redirection_count" }}
               chartProps={{
                 dataKey: "value",
@@ -254,7 +274,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
             />
           </div>
 
-          <div className="border-grey-border border p-8">
+          <div className="border-grey-border min-w-0 border p-8">
             <h4 className="mb-2 text-2xl font-semibold">{graphTotal.applies ? `${graphTotal.applies.toLocaleString("fr")} candidatures` : "Pas de données"}</h4>
             <p className="text-text-mention text-lg font-semibold">Evolution {filters.year}</p>
             <div className="mt-4 mb-1 h-px bg-gray-900" />
@@ -266,6 +286,8 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               chartTitle={`Évolution mensuelle des candidatures en ${filters.year}`}
               chartDescription="Nombre de candidatures par mois sur l'année sélectionnée."
               chartDescriptionMode="collapsible"
+              chartNameLabel="Mois"
+              chartValueLabel="Nombre de candidatures"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "candidature_count" }}
               chartProps={{
                 dataKey: "value",

@@ -4,6 +4,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import Highlight from "~/components/ui/highlight";
 import { fetchMatches } from "~/services/matching";
+import { getScrollBehavior } from "~/utils/motion";
 
 interface Props {
   userScoringId: string;
@@ -12,7 +13,7 @@ interface Props {
 
 export default function SimilarMissions({ userScoringId, currentMissionId }: Props) {
   const [items, setItems] = useState<MissionMatchItem[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     fetchMatches(userScoringId, 11, 0)
@@ -23,7 +24,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
   if (items.length === 0) return null;
 
   const scrollBy = (direction: -1 | 1) => {
-    scrollRef.current?.scrollBy({ left: direction * 300, behavior: "smooth" });
+    scrollRef.current?.scrollBy({ left: direction * 300, behavior: getScrollBehavior() });
   };
 
   return (
@@ -38,13 +39,13 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
           </div>
         </div>
 
-        <div ref={scrollRef} className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none">
+        <ul ref={scrollRef} role="list" className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none list-none! p-0! m-0!">
           {items.map((item, index) => (
-            <div key={item.mission.id} className="w-[310px] flex-none snap-start md:w-[283px]">
+            <li key={item.mission.id} className="w-[310px] flex-none snap-start md:w-[283px]">
               <MatchMissionCard item={item} section="similar" rank={index + 1} userScoringId={userScoringId} />
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
 
         <div className="mt-6 flex justify-center gap-3 md:hidden">
           <NavButtons onScroll={scrollBy} />

@@ -1,10 +1,25 @@
 version: 2
 
 models:
+  - name: int_internal_distinct_ids
+    description: >
+      Référentiel des `distinct_id` internes (équipe API Engagement) : liste des identifiants ayant émis au moins
+      un event avec `internal_user = true`. L'internalité est résolue au niveau de la PERSONNE (et non de l'event
+      ni de la session) : dès qu'un `distinct_id` s'est flagué `?internal=1`, tous ses events sont considérés
+      internes, y compris ceux antérieurs au flag. Ce référentiel est la source UNIQUE de l'exclusion interne,
+      appliquée uniformément à tous les intermédiaires tracking via la macro `exclude_internal_distinct_ids`.
+    columns:
+      - name: distinct_id
+        description: Identifiant PostHog d'une personne interne.
+        tests:
+          - not_null
+          - unique
+
   - name: int_tracking_quiz_session
     description: >
       Colonne vertébrale du tracking : une ligne par `quiz_attempt_id`. Agrège tout le tunnel (started, steps,
-      completed), résout `quiz_session_id` et porte les flags de complétion. Les utilisateurs internes sont exclus.
+      completed), résout `quiz_session_id` et porte les flags de complétion. Les personnes internes sont exclues
+      au niveau du `distinct_id` (référentiel `int_internal_distinct_ids`).
     columns:
       - name: quiz_attempt_id
         description: UUID de la tentative de quiz.
@@ -19,7 +34,7 @@ models:
   - name: int_tracking_quiz_funnel_step
     description: >
       Séquence des étapes validées, une ligne par (`quiz_attempt_id`, étape). Base du taux d'abandon
-      étape N / N-1. Utilisateurs internes exclus.
+      étape N / N-1. Personnes internes exclues au niveau du `distinct_id`.
     columns:
       - name: quiz_attempt_id
         tests:
@@ -31,7 +46,7 @@ models:
   - name: int_tracking_results_session
     description: >
       Vue « résultats + aval » par `quiz_session_id` : combine `results.viewed` avec les clics mission de la
-      session (taux de clic, clic pinned, clic externe, zéro-clic). Utilisateurs internes exclus.
+      session (taux de clic, clic pinned, clic externe, zéro-clic). Personnes internes exclues au niveau du `distinct_id`.
     columns:
       - name: quiz_session_id
         tests:
@@ -43,15 +58,28 @@ models:
   - name: int_tracking_mission_click
     description: >
       Chaque clic mission enrichi (rang, section, distance, publisher), une ligne par événement `mission.clicked`.
-      `mission_score` reste à alimenter depuis le backend. Utilisateurs internes exclus.
+      Réconcilié avec le backend via `quiz_session_id` = `user_scoring_id` et le pont `mission_scoring`
+      (`results[i].missionScoringId` = `mission_scoring.id` -> `mission_id`) : expose le rang attribué à la
+      mission cliquée par le run de matching actif au moment du clic (dernier `created_at` <= `clicked_at`).
+      `mission_score` reste un placeholder (le score total de classement n'est pas persisté dans `results`).
+      Personnes internes exclues au niveau du `distinct_id`.
     columns:
       - name: event_uuid
         tests:
           - not_null
           - unique
       - name: mission_id
+        description: Identifiant de la mission cliquée (text ; formats mixtes ObjectId Mongo / UUID).
         tests:
           - not_null
+      - name: backend_rank
+        description: >
+          Rang de la mission dans le run de matching actif au moment du clic (dernier `created_at` <=
+          `clicked_at`), position dans `results`. Null si le clic n'a pas pu être rattaché au backend.
+      - name: matching_engine_version
+        description: Version du moteur de matching du run rattaché (nullable si non rattaché).
+      - name: matched_to_backend
+        description: Vrai si le clic a été rattaché à une mission du résultat de matching de la session.
 
   - name: int_tracking_quiz_backend
     description: >
@@ -59,7 +87,7 @@ models:
       `score_top5` est la moyenne des `taxonomyScores` des 5 premiers résultats du dernier run de
       matching (`matching_engine_result` le plus récent par `user_scoring_id`, plusieurs runs possibles).
       Les métriques de candidature (`has_apply`, `apply_count`, `first_apply_at`) restent des
-      placeholders à figer (clé d'attribution des candidatures). Utilisateurs internes exclus.
+      placeholders à figer (clé d'attribution des candidatures). Personnes internes exclues au niveau du `distinct_id`.
     columns:
       - name: quiz_session_id
         tests:
@@ -72,7 +100,7 @@ models:
 
   - name: int_tracking_page_view
     description: >
-      Visites de pages filtrées (internes exclus), une ligne par événement `page.viewed`. Alimente le trafic
+      Visites de pages filtrées (personnes internes exclues au niveau du `distinct_id`), une ligne par événement `page.viewed`. Alimente le trafic
       quotidien agrégé (`page_view_daily`).
     columns:
       - name: event_uuid

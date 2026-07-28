@@ -7,6 +7,7 @@ import FirefighterSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/fi
 import MoneySvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/money.svg?url";
 import LocationFranceSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/location-france.svg?url";
 import LongTraceSvg from "~/assets/svg/long-trace.svg";
+import { getScrollBehavior } from "~/utils/motion";
 
 import Highlight from "../ui/highlight";
 
@@ -69,7 +70,7 @@ export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void })
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
     const offset = direction === "left" ? -300 : 300;
-    scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
   };
 
   return (
@@ -94,17 +95,17 @@ export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void })
           aria-live="polite"
           aria-atomic="false"
         >
-          <div className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:gap-6 md:px-0 md:pb-0 lg:grid-cols-4">
+          <ul role="list" className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:gap-6 md:px-0 md:pb-0 lg:grid-cols-4 list-none! p-0! m-0!">
             {FEATURES.map((feature) => (
-              <div
+              <li
                 key={feature.icon}
                 className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-8 text-center shadow-lg md:w-auto md:p-10 lg:mx-auto lg:max-w-60 lg:p-6"
               >
                 <img src={feature.icon} alt="" className="size-16 dark:box-content dark:rounded-full dark:bg-white dark:p-3" aria-hidden="true" />
-                <p className="fr-text--lead text-title-grey font-bold mb-0!">{feature.title}</p>
-              </div>
+                <h3 className="fr-text--lead text-title-grey font-bold">{feature.title}</h3>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
         <div className="fr-mb-3w flex justify-center gap-3 md:hidden">

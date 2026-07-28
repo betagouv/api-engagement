@@ -13,10 +13,13 @@ const buildWidgetWhere = async (widget: WidgetRecord, filters: MissionSearchFilt
   if (!widget.jvaModeration) {
     return buildWhere(filters);
   }
+  if (filters.publisherIds?.length === 0) {
+    return buildWhere(filters);
+  }
 
   const jvaPublishers = widget.publishers.filter((publisherId) => publisherId === PUBLISHER_IDS.JEVEUXAIDER);
   const otherPublishers = widget.publishers.filter((publisherId) => publisherId !== PUBLISHER_IDS.JEVEUXAIDER);
-  const baseWhere = await buildWhere({ ...filters, publisherIds: [], moderationAcceptedFor: undefined });
+  const baseWhere = await buildWhere({ ...filters, publisherIds: undefined, moderationAcceptedFor: undefined });
   const orConditions: Prisma.MissionWhereInput[] = [];
 
   if (jvaPublishers.length) {

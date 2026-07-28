@@ -5,7 +5,6 @@ import { MISSION_BROWSE_FACET_FIELDS } from "@/services/search/collections/missi
 const multiSearchMock = vi.hoisted(() => vi.fn());
 const findMissionsByIdsMock = vi.hoisted(() => vi.fn());
 const findOneMissionByMock = vi.hoisted(() => vi.fn());
-const findRulesMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/services/search/collections/missions/client", () => ({
   missionSearchClient: { multiSearch: multiSearchMock },
@@ -32,56 +31,26 @@ vi.mock("@/services/mission", () => ({
   missionService: { findMissionsByIds: findMissionsByIdsMock, findOneMissionBy: findOneMissionByMock },
 }));
 
-vi.mock("@/services/publisher-diffusion-rule", () => ({
-  publisherDiffusionRuleService: { findRules: findRulesMock },
-}));
-
 import { missionBrowseService } from "@/services/mission-browse";
 
 const baseParams = { page: 1, pageSize: 20, diffuseurPublisherId: "diffuseur-1" };
-const buildRule = (value: string, overrides: Record<string, unknown> = {}) => ({
-  id: `rule-${value}`,
-  publisherId: "diffuseur-1",
-  combinedWithId: null,
-  field: "publisherId",
-  fieldType: "string",
-  operator: "is",
-  value,
-  combinator: "or",
-  position: 0,
-  createdAt: new Date("2026-01-01T00:00:00.000Z"),
-  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-  ...overrides,
-});
+// Filtre de diffusion attendu : le snapshot `mission_diffusion` dénormalisé dans le document Typesense.
+const DIFFUSION = "distributionPublisherIds:=`diffuseur-1`";
 
 describe("missionBrowseService.browse", () => {
   beforeEach(() => {
     multiSearchMock.mockReset();
     findMissionsByIdsMock.mockReset();
     findOneMissionByMock.mockReset();
-    findRulesMock.mockReset();
     multiSearchMock.mockResolvedValue(emptyMultiSearchResult());
     findMissionsByIdsMock.mockResolvedValue([]);
     findOneMissionByMock.mockResolvedValue(null);
-    findRulesMock.mockResolvedValue([buildRule("annonceur-1"), buildRule("annonceur-2")]);
   });
 
-  it("ne restreint pas la recherche quand aucune règle n'existe", async () => {
-    findRulesMock.mockResolvedValue([]);
-
+  it("applique systématiquement le filtre de diffusion issu du snapshot", async () => {
     await missionBrowseService.browse(baseParams);
 
-    expect(findRulesMock).toHaveBeenCalledWith({ publisherId: "diffuseur-1" });
-    expect(resultsSearch().filter_by).toBeUndefined();
-  });
-
-  it("court-circuite quand des règles existent mais qu'aucune n'est supportée", async () => {
-    findRulesMock.mockResolvedValue([buildRule("annonceur-1", { field: "publisherOrganization.clientId" })]);
-
-    const result = await missionBrowseService.browse(baseParams);
-
-    expect(result).toEqual({ data: [], total: 0, page: 1, pageSize: 20, facets: {} });
-    expect(multiSearchMock).not.toHaveBeenCalled();
+    expect(resultsSearch().filter_by).toBe(DIFFUSION);
   });
 
   it("envoie une requête résultats + une requête par facette en un seul multi_search", async () => {
@@ -95,6 +64,14 @@ describe("missionBrowseService.browse", () => {
     expect(searches.slice(1).map((s) => s.facet_by)).toEqual(FACET_FIELDS);
   });
 
+  it("applique le filtre de diffusion à toutes les facettes", async () => {
+    await missionBrowseService.browse(baseParams);
+
+    for (const field of FACET_FIELDS) {
+      expect(facetSearch(field).filter_by).toBe(DIFFUSION);
+    }
+  });
+
   it("demande assez de valeurs pour la facette des départements", async () => {
     await missionBrowseService.browse(baseParams);
 
@@ -102,23 +79,10 @@ describe("missionBrowseService.browse", () => {
     expect(facetSearch("domaine").max_facet_values).toBe(100);
   });
 
-  it("applique la whitelist des annonceurs autorisés", async () => {
-    await missionBrowseService.browse(baseParams);
-
-    expect(findRulesMock).toHaveBeenCalledWith({ publisherId: "diffuseur-1" });
-    expect(resultsSearch().filter_by).toBe("publisherId:=[`annonceur-1`,`annonceur-2`]");
-  });
-
-  it("combine le publisher demandé avec la whitelist sans faire confiance au paramètre", async () => {
+  it("combine le publisher demandé avec le filtre de diffusion sans faire confiance au paramètre", async () => {
     await missionBrowseService.browse({ ...baseParams, publisherId: "annonceur-3" });
 
-    expect(resultsSearch().filter_by).toBe("publisherId:=[`annonceur-1`,`annonceur-2`] && publisherId:=`annonceur-3`");
-  });
-
-  it("combine le publisher demandé quand il est dans la whitelist", async () => {
-    await missionBrowseService.browse({ ...baseParams, publisherId: "annonceur-2" });
-
-    expect(resultsSearch().filter_by).toBe("publisherId:=[`annonceur-1`,`annonceur-2`] && publisherId:=`annonceur-2`");
+    expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && publisherId:=\`annonceur-3\``);
   });
 
   it("calcule chaque facette en excluant son propre groupe (facettes disjonctives)", async () => {
@@ -128,13 +92,12 @@ describe("missionBrowseService.browse", () => {
       secteur_activite: ["sante"], // un autre groupe
     });
 
-    const diffusion = "publisherId:=[`annonceur-1`,`annonceur-2`]";
     // Les parts suivent l'ordre de INDEXED_TAXONOMY_KEYS : secteur_activite avant type_mission.
-    const allGroups = `${diffusion} && secteur_activite:=[\`sante\`] && type_mission:=[\`benevolat\`,\`volontariat\`]`;
+    const allGroups = `${DIFFUSION} && secteur_activite:=[\`sante\`] && type_mission:=[\`benevolat\`,\`volontariat\`]`;
     // La facette type_mission ignore SA sélection mais garde diffusion + l'autre groupe.
-    expect(facetSearch("type_mission").filter_by).toBe(`${diffusion} && secteur_activite:=[\`sante\`]`);
+    expect(facetSearch("type_mission").filter_by).toBe(`${DIFFUSION} && secteur_activite:=[\`sante\`]`);
     // La facette secteur_activite ignore SA sélection mais garde diffusion + type_mission.
-    expect(facetSearch("secteur_activite").filter_by).toBe(`${diffusion} && type_mission:=[\`benevolat\`,\`volontariat\`]`);
+    expect(facetSearch("secteur_activite").filter_by).toBe(`${DIFFUSION} && type_mission:=[\`benevolat\`,\`volontariat\`]`);
     // Une facette d'un groupe non sélectionné garde tous les filtres.
     expect(facetSearch("domaine").filter_by).toBe(allGroups);
     // La requête résultats applique tous les filtres.
@@ -154,40 +117,12 @@ describe("missionBrowseService.browse", () => {
     expect(facets.domaine).toEqual([]);
   });
 
-  it("restreint le détail aux publishers whitelistés", async () => {
+  it("restreint le détail au snapshot matérialisé du diffuseur", async () => {
     await missionBrowseService.findById("mission-1", "diffuseur-1");
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      publisherId: { in: ["annonceur-1", "annonceur-2"] },
-      deletedAt: null,
-      statusCode: "ACCEPTED",
-    });
-  });
-
-  it("restreint le détail avec les enfants organisation supportés", async () => {
-    findRulesMock.mockResolvedValue([
-      buildRule("annonceur-1", { id: "root-1" }),
-      buildRule("po-1", { id: "child-1", combinedWithId: "root-1", field: "publisherOrganization.clientId" }),
-    ]);
-
-    await missionBrowseService.findById("mission-1", "diffuseur-1");
-
-    expect(findOneMissionByMock).toHaveBeenCalledWith({
-      id: "mission-1",
-      AND: [{ publisherId: "annonceur-1" }, { publisherOrganization: { clientId: "po-1" } }],
-      deletedAt: null,
-      statusCode: "ACCEPTED",
-    });
-  });
-
-  it("ne restreint pas le détail quand aucune règle n'existe", async () => {
-    findRulesMock.mockResolvedValue([]);
-
-    await missionBrowseService.findById("mission-1", "diffuseur-1");
-
-    expect(findOneMissionByMock).toHaveBeenCalledWith({
-      id: "mission-1",
+      missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

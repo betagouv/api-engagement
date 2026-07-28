@@ -9,9 +9,10 @@ type Props = {
   options: StepOption[];
   selected: string[];
   error?: string;
+  required?: boolean;
 };
 
-export default function CheckboxGroupRich({ title, subtitle, onChange, options, selected, error }: Props) {
+export default function CheckboxGroupRich({ title, subtitle, onChange, options, selected, error, required }: Props) {
   const toggle = (taxonomyKey: string) => {
     const next = selected.includes(taxonomyKey) ? selected.filter((v) => v !== taxonomyKey) : [...selected, taxonomyKey];
     onChange(next);
@@ -24,11 +25,17 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
       className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
       id="checkbox-group-rich"
       role="group"
-      aria-describedby={`checkbox-group-rich-legend ${error && "checkbox-group-rich-messages"}`}
+      aria-describedby={error ? "checkbox-group-rich-legend checkbox-group-rich-messages" : "checkbox-group-rich-legend"}
     >
-      <legend className="fr-h1 mb-10! ml-2!" id="checkbox-group-rich-legend">
-        {title}
-        {subtitle && <span className="fr-text--lead font-normal block mt-4! mb-0!">{subtitle}</span>}
+      <legend className="mb-10! ml-2!" id="checkbox-group-rich-legend">
+        <h1 className="fr-h1 mb-0!">{title}</h1>
+        {subtitle && (
+          <span className="fr-text--lead font-normal block mt-4! mb-0!">
+            {subtitle}
+            {required && <span className="fr-hint-text inline! font-normal mb-0!"> (Réponse obligatoire)</span>}
+          </span>
+        )}
+        {!subtitle && required && <span className="fr-hint-text font-normal block mt-2! mb-0!">Réponse obligatoire</span>}
       </legend>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
@@ -42,6 +49,7 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
                 onChange={() => toggle(o.value)}
                 checked={!o.disabled && selected.includes(o.value)}
                 disabled={o.disabled}
+                aria-invalid={error ? true : undefined}
               />
               <label
                 className={`fr-label text-base before:size-4! after:absolute after:inset-0 after:right-[-5.5rem] after:content-[''] ${o.disabled ? "cursor-not-allowed!" : ""}`}
@@ -50,7 +58,9 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
                 {o.label}
                 {o.disabled ? <span className="fr-hint-text">{DISABLED_OPTION_HINT}</span> : o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
               </label>
-              <div className="fr-checkbox-rich__pictogram">{o.icon && <div className="text-2xl">{o.icon}</div>}</div>
+              <div className="fr-checkbox-rich__pictogram" aria-hidden="true">
+                {o.icon && <div className="text-2xl">{o.icon}</div>}
+              </div>
             </div>
           </div>
         ))}

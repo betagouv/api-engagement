@@ -1,9 +1,7 @@
 import type { MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
 
 import { missionService } from "@/services/mission";
-import { publisherDiffusionRuleService } from "@/services/publisher-diffusion-rule";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
-import { publisherDiffusionRulesToMissionFilter } from "@/services/search/collections/missions/diffusion-rules-filter";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey, MISSION_BROWSE_FACET_FIELDS } from "@/services/search/collections/missions/fields";
 import type { MissionIndexDocument } from "@/services/search/collections/missions/types";
 import { buildSearchEqualFilter, buildSearchListFilter } from "@/services/search/filter";
@@ -34,14 +32,6 @@ const toArray = (v: string | string[] | undefined): string[] | undefined => {
   }
   return Array.isArray(v) ? v : [v];
 };
-
-const emptyBrowseResponse = (params: Pick<BrowseParams, "page" | "pageSize">): MissionBrowseResponse => ({
-  data: [],
-  total: 0,
-  page: params.page,
-  pageSize: params.pageSize,
-  facets: {},
-});
 
 const DEFAULT_MAX_FACET_VALUES = 100;
 const MAX_FACET_VALUES_BY_FIELD: Partial<Record<(typeof MISSION_BROWSE_FACET_FIELDS)[number], number>> = {
@@ -81,8 +71,8 @@ const buildFacetFilterParts = (params: BrowseParams): Map<string, string> => {
   return parts;
 };
 
-const buildBrowseSearches = (params: BrowseParams, diffusionFilterBy?: string): SearchQueryParams<MissionIndexDocument>[] => {
-  const alwaysParts = [diffusionFilterBy ?? "", buildAlwaysFilterPart(params) ?? ""].filter(Boolean);
+const buildBrowseSearches = (params: BrowseParams, diffusionFilterBy: string): SearchQueryParams<MissionIndexDocument>[] => {
+  const alwaysParts = [diffusionFilterBy, buildAlwaysFilterPart(params) ?? ""].filter(Boolean);
   const facetParts = buildFacetFilterParts(params);
 
   const filterByExcluding = (excludedField?: string): string | undefined => {
@@ -105,13 +95,10 @@ const buildBrowseSearches = (params: BrowseParams, diffusionFilterBy?: string): 
 
 export const missionBrowseService = {
   async browse(params: BrowseParams): Promise<MissionBrowseResponse> {
-    const rules = await publisherDiffusionRuleService.findRules({ publisherId: params.diffuseurPublisherId });
-    const diffusionFilter = publisherDiffusionRulesToMissionFilter(rules);
-    if (diffusionFilter.kind === "none") {
-      return emptyBrowseResponse(params);
-    }
-
-    const searches = buildBrowseSearches(params, diffusionFilter.kind === "filter" ? diffusionFilter.filterBy : undefined);
+    // Autorisation de diffusion = snapshot `mission_diffusion` dénormalisé dans le document Typesense.
+    // Un diffuseur sans ligne de snapshot filtre naturellement à zéro (aucune lecture des rules live).
+    const diffusionFilterBy = buildSearchEqualFilter("distributionPublisherIds", params.diffuseurPublisherId);
+    const searches = buildBrowseSearches(params, diffusionFilterBy);
 
     const searchResults = await (async () => {
       try {
@@ -139,15 +126,9 @@ export const missionBrowseService = {
   },
 
   async findById(id: string, diffuseurPublisherId: string, addressId?: string): Promise<MissionDetailResponse | null> {
-    const rules = await publisherDiffusionRuleService.findRules({ publisherId: diffuseurPublisherId });
-    const diffusionFilter = publisherDiffusionRulesToMissionFilter(rules);
-    if (diffusionFilter.kind === "none") {
-      return null;
-    }
-
     const mission = await missionService.findOneMissionBy({
       id,
-      ...(diffusionFilter.kind === "filter" ? diffusionFilter.missionWhere : {}),
+      missionDiffusions: { some: { distributionPublisherId: diffuseurPublisherId } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

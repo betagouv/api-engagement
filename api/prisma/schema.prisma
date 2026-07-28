@@ -63,6 +63,7 @@ enum MissionRemote {
   no
   possible
   full
+  local
 }
 
 enum MissionPlacesStatus {
@@ -346,6 +347,7 @@ model Publisher {
   updatedAt          DateTime     @updatedAt @map("updated_at")
 
   diffusionRules         PublisherDiffusionRule[]      @relation("PublisherDiffuseurRuleRelation")
+  missionDiffusions      MissionDiffusion[]            @relation("MissionDiffusionDistributionPublisher")
   warnings               Warning[]                     @relation("WarningPublisherRelation")
   warningBots            WarningBot[]                  @relation("WarningBotPublisherRelation")
   imports                Import[]                      @relation("ImportPublisherRelation")
@@ -431,6 +433,23 @@ model PublisherDiffusionRule {
   @@index([publisherId], map: "publisher_diffusion_rule_publisher_id_idx")
   @@index([combinedWithId], map: "publisher_diffusion_rule_combined_with_id_idx")
   @@map("publisher_diffusion_rule")
+}
+
+// Snapshot batch du périmètre de diffusion complet : une ligne (publisher de diffusion, mission)
+// encode l'allowlist explicite ou le scope propre du publisher. Le statut, le soft-delete et la
+// restriction `publisher` restent évalués en lecture (cf. mission-diffusion service).
+model MissionDiffusion {
+  distributionPublisherId String   @map("distribution_publisher_id")
+  missionId               String   @map("mission_id")
+  createdAt               DateTime @default(now()) @map("created_at")
+
+  distributionPublisher Publisher @relation("MissionDiffusionDistributionPublisher", fields: [distributionPublisherId], references: [id], onDelete: Cascade)
+  mission               Mission   @relation("MissionDiffusionMission", fields: [missionId], references: [id], onDelete: Cascade)
+
+  @@id([distributionPublisherId, missionId], map: "mission_diffusion_pkey")
+  @@index([missionId], map: "mission_diffusion_mission_id_idx")
+  @@index([createdAt], map: "mission_diffusion_created_at_idx")
+  @@map("mission_diffusion")
 }
 
 model Warning {
@@ -633,6 +652,7 @@ model Mission {
   activities            MissionActivity[]
   enrichments           MissionEnrichment[]
   missionScorings       MissionScoring[]
+  missionDiffusions     MissionDiffusion[]        @relation("MissionDiffusionMission")
 
   // TODO: restore relations
   // missionEvents      MissionEvent[]

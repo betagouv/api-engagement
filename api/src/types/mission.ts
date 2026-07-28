@@ -2,7 +2,7 @@ import { Prisma } from "@/db/core";
 import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 
 export type MissionStatusCode = "ACCEPTED" | "REFUSED";
-export type MissionRemote = "no" | "possible" | "full";
+export type MissionRemote = "no" | "possible" | "full" | "local";
 export type MissionPlacesStatus = "ATTRIBUTED_BY_API" | "GIVEN_BY_PARTNER";
 export type MissionCompensationUnit = "hour" | "day" | "month" | "year";
 export type MissionCompensationType = "gross" | "net";
@@ -189,7 +189,7 @@ export type MissionRecord = {
   Partial<Record<MissionModerationDateKey, Date | null>>;
 
 export type MissionSearchFilters = {
-  publisherIds: string[];
+  publisherIds?: string[];
   statusCode?: MissionStatusCode;
   statusComment?: string;
   diffuseurPublisherId?: string;

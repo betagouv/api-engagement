@@ -75,11 +75,23 @@ export function buildMissionDetailHref(item: MissionMatchItem, userScoringId?: s
   return addressId ? `${base}?addressId=${encodeURIComponent(addressId)}` : base;
 }
 
+/**
+ * Ajoute le contexte du quiz à une URL de redirection trackée vers l'annonceur.
+ */
+export function buildMissionApplicationHref(applicationUrl: string, userScoringId?: string): string {
+  if (!userScoringId) return applicationUrl;
+
+  const url = new URL(applicationUrl);
+  url.searchParams.set("user_scoring_id", userScoringId);
+  return url.toString();
+}
+
 export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrowse {
   return {
     id: item.mission.id,
     title: item.mission.title,
     description: null,
+    remote: item.mission.remote,
     city: item.mission.location.city,
     departmentCode: null,
     departmentName: null,

@@ -30,6 +30,7 @@ export default function AgeStep() {
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const location = useLocation();
   const [value, setValue] = useState<string>("");
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (answers[STEP_ID]?.type === "numeric" && isValidAge(answers[STEP_ID].value, MIN_AGE, MAX_AGE)) setValue(String(answers[STEP_ID].value));
@@ -57,7 +58,10 @@ export default function AgeStep() {
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (!valid) return;
+    if (!valid) {
+      setError("Sélectionne ton âge pour continuer");
+      return;
+    }
     setAnswer(STEP_ID, { type: "numeric", value: numeric });
     const existingHandicap = answers["handicap"]?.type === "options" ? answers["handicap"].option_ids[0] === "oui" : false;
     setAnswer("tranche_age", { type: "params", taxonomy: "tranche_age", params: { age: numeric, handicap: existingHandicap } });
@@ -67,19 +71,37 @@ export default function AgeStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="age-input">
+      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="age-input" required>
         {DEFAULT_TITLE}
       </Label>
 
-      <select id="age-input" className="fr-select md:max-w-80!" value={value} onChange={(e) => setValue(e.target.value)}>
-        <option value="">Sélectionne ton âge</option>
-        {Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (
-          <option key={i} value={i + MIN_AGE}>
-            {i + MIN_AGE}
-          </option>
-        ))}
-      </select>
-      <NextButton type="submit" disabled={!valid} />
+      <div className={`fr-select-group mb-0! ${error ? "fr-select-group--error" : ""}`}>
+        <select
+          id="age-input"
+          className={`fr-select md:max-w-80! ${error ? "fr-select--error" : ""}`}
+          value={value}
+          onChange={(e) => {
+            setValue(e.target.value);
+            setError(undefined);
+          }}
+          aria-required="true"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? "age-input-messages" : undefined}
+        >
+          <option value="">Sélectionne ton âge</option>
+          {Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => (
+            <option key={i} value={i + MIN_AGE}>
+              {i + MIN_AGE}
+            </option>
+          ))}
+        </select>
+        {error && (
+          <div className="fr-messages-group" id="age-input-messages" aria-live="polite">
+            <p className="fr-message fr-message--error">{error}</p>
+          </div>
+        )}
+      </div>
+      <NextButton type="submit" />
     </form>
   );
 }

@@ -54,7 +54,7 @@ export default function PrecisionCompetencesStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} />
+      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

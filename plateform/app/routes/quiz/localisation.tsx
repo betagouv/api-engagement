@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
-import MissionCard from "~/components/quiz/mission-card";
 import NextButton from "~/components/quiz/next-button";
-import QuizTransition from "~/components/quiz/quiz-transition";
-import Highlight from "~/components/ui/highlight";
 import { reverseGeocode, searchAddress, type GeoSuggestion } from "~/services/geolocation";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
-
-import Photo1 from "~/assets/images/humanitaire-02.jpeg";
 
 const LISTBOX_ID = "localisation-listbox";
 
@@ -18,7 +13,7 @@ const DEFAULT_SUBTITLE = "Entre ton adresse pour découvrir les missions près d
 
 export default function LocalisationStep() {
   const { answers, setAnswer } = useQuizStore();
-  const { goNext, saveScoring, transitioning, setTransitioning } = useOutletContext<QuizOutletContext>();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
   // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
@@ -35,6 +30,7 @@ export default function LocalisationStep() {
   const [showOptions, setShowOptions] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [locating, setLocating] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -80,10 +76,12 @@ export default function LocalisationStep() {
     setValue(option.label);
     setShowOptions(false);
     setActiveIndex(-1);
+    setError(undefined);
   };
 
   const handleChange = (nextValue: string) => {
     setValue(nextValue);
+    setError(undefined);
     if (selected && nextValue !== selected.label) {
       setSelected(null);
     }
@@ -139,9 +137,7 @@ export default function LocalisationStep() {
       async ({ coords }) => {
         const result = await reverseGeocode(coords.latitude, coords.longitude);
         if (!result) return setLocating(false);
-        setSelected(result);
-        setShowOptions(false);
-        setValue(result.label);
+        handleSelect(result);
         setLocating(false);
       },
       () => setLocating(false),
@@ -150,7 +146,10 @@ export default function LocalisationStep() {
 
   const handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
-    if (!selected) return;
+    if (!selected) {
+      setError(value.trim().length > 0 ? "Sélectionne une adresse dans la liste de suggestions" : "Entre une adresse pour continuer");
+      return;
+    }
     setAnswer("localisation", {
       type: "params",
       taxonomy: "location",
@@ -164,40 +163,12 @@ export default function LocalisationStep() {
     });
     setValue(selected.label);
     saveScoring();
-    setTransitioning(true);
+    goNext();
   };
-
-  if (transitioning) {
-    return (
-      <QuizTransition onComplete={goNext}>
-        <div className="flex flex-col-reverse md:flex-row gap-6 pt-0 md:pt-20">
-          <div className="w-full md:flex-1 flex flex-col gap-6">
-            <h1 className="fr-h1 mb-0! text-center md:text-left">
-              On a trouvé des missions <Highlight>pour toi</Highlight>
-            </h1>
-            <p className="fr-text--lead text-center md:text-left">Maintenant, aide-nous à comprendre ce qui te donnerait envie de t'engager.</p>
-          </div>
-          <div className="w-full md:flex-1 relative gap-4 h-[400px] md:h-auto">
-            <MissionCard
-              imageSrc={Photo1}
-              title="Participer à l'information du public concernant l'accès aux droits…"
-              className="absolute top-0 left-1/2 -translate-x-[30%] rotate-[8deg]"
-            />
-            <MissionCard
-              imageSrc={Photo1}
-              title="Améliorer la qualité de vie des personnes en situation de handicap"
-              className="absolute top-12 left-1/2 -translate-x-[70%] rotate-[-4deg]"
-            />
-            <MissionCard imageSrc={Photo1} title="Je deviens infirmier pompier volontaire 🚒" className="absolute top-24 left-1/2 -translate-x-1/2 rotate-[3deg]" />
-          </div>
-        </div>
-      </QuizTransition>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="localisation-input">
+      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="localisation-input" required>
         {DEFAULT_TITLE}
       </Label>
 
@@ -210,13 +181,16 @@ export default function LocalisationStep() {
             aria-controls={LISTBOX_ID}
             aria-autocomplete="list"
             aria-activedescendant={activeIndex >= 0 ? `${LISTBOX_ID}-option-${activeIndex}` : undefined}
-            className="fr-input pr-10! mt-0!"
+            aria-required="true"
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? "localisation-input-messages" : undefined}
+            className={`fr-input pr-10! mt-0! ${error ? "fr-input--error" : ""}`}
             type="text"
             placeholder="Adresse, ville ou code postal"
             value={value}
             onChange={(e) => handleChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            autoComplete="off"
+            autoComplete="street-address"
           />
           <span className="fr-icon-map-pin-2-line absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
           {showOptions && options.length > 0 && (
@@ -231,12 +205,11 @@ export default function LocalisationStep() {
                   id={`${LISTBOX_ID}-option-${index}`}
                   role="option"
                   aria-selected={index === activeIndex}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSelect(option);
-                  }}
+                  // RGAA 13.11 : preventDefault au mousedown pour garder le focus sur l'input, sélection au click (annulable en éloignant le pointeur).
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelect(option)}
                   onMouseEnter={() => setActiveIndex(index)}
-                  className={`py-2 px-3 cursor-pointer text-sm ${index === activeIndex ? "bg-background-default-grey-hover" : "hover:bg-background-default-grey-hover"}`}
+                  className={`py-2 px-3 cursor-pointer text-sm ${index === activeIndex ? "bg-action-high-blue-france text-inverted-blue-france" : "hover:bg-background-default-grey-hover"}`}
                 >
                   {option.label}
                 </li>
@@ -245,12 +218,18 @@ export default function LocalisationStep() {
           )}
         </div>
 
+        {error && (
+          <div className="fr-messages-group" id="localisation-input-messages" aria-live="polite">
+            <p className="fr-message fr-message--error mb-0!">{error}</p>
+          </div>
+        )}
+
         <button type="button" className="fr-btn fr-btn--secondary justify-center! w-full!" onClick={handleUseMyLocation} disabled={locating}>
-          📍 Utiliser ma position
+          <span aria-hidden="true">📍</span> Utiliser ma position
         </button>
       </div>
 
-      <NextButton type="submit" disabled={!selected} />
+      <NextButton type="submit" />
     </form>
   );
 }

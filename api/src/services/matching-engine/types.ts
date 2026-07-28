@@ -2,15 +2,18 @@ import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonom
 
 export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
-export type MatchingEngineTaxonomyWeights = Record<MatchingEngineTaxonomy, number>;
+export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonomy, number>>;
 
 export type MatchingEngineVersion = "m1" | "m2" | "m3";
 
 export type MatchingEngineVersionConfig = {
+  taxonomyKeys: readonly MatchingEngineTaxonomy[];
   taxonomyWeights: MatchingEngineTaxonomyWeights;
   geoWeight: number;
   // Score géo forcé pour les missions remote=full (proximité naturelle). null = pas de traitement spécial.
   remoteFullGeoScore: number | null;
+  // Score géo forcé pour les missions remote=local (sur site, à proximité). null = pas de traitement spécial.
+  remoteLocalGeoScore: number | null;
 };
 
 export type RankMissionsByUserScoringInput = {
@@ -24,6 +27,7 @@ export type RankMissionsByUserScoringInput = {
   geoHalfDecayKm?: number;
   missingGeoScore?: number;
   remoteFullGeoScore?: number | null;
+  remoteLocalGeoScore?: number | null;
 };
 
 export type MatchMissionItem = {

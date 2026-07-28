@@ -6,7 +6,7 @@ import { asyncTaskBus } from "@/services/async-task";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { computeMissionScoringValues } from "@/services/mission-scoring/calculator";
 import { missionScoringEnrichmentInclude, toScoringInputValues } from "@/services/mission-scoring/data";
-import { getMissionScoringRuleKeys } from "@/services/mission-scoring/scoring-rules";
+import { resolveMissionScoringRules } from "@/services/mission-scoring/scoring-rules";
 import type { ComputedMissionScoringValue } from "@/services/mission-scoring/types";
 import { parseTaxonomyValueKey } from "@engagement/taxonomy";
 
@@ -75,7 +75,8 @@ export const missionScoringService = {
       return;
     }
 
-    const missionRuleKeys = getMissionScoringRuleKeys(enrichment.mission);
+    const resolvedMissionRules = resolveMissionScoringRules(enrichment.mission);
+    const missionRuleKeys = resolvedMissionRules.keys;
     if (enrichment.values.length === 0 && missionRuleKeys.length === 0 && !existingScoring) {
       console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — no enrichment values and no mission rules`);
       return;
@@ -97,8 +98,7 @@ export const missionScoringService = {
     });
 
     // Taxonomies covered by deterministic rules — LLM values for these are replaced entirely.
-    const ruleTaxonomyKeys = new Set(missionRuleValues.map((v) => v.taxonomyKey));
-    const enrichmentValues = result.values.filter((v) => !ruleTaxonomyKeys.has(v.taxonomyKey));
+    const enrichmentValues = result.values.filter((v) => !resolvedMissionRules.replacedTaxonomyKeys.has(v.taxonomyKey));
 
     // Merge: enrichment values (minus rule-covered taxonomies) + rule values.
     const mergedValuesMap = new Map<string, ComputedMissionScoringValue>(enrichmentValues.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value] as const));

@@ -56,8 +56,12 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
         trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
         setSuccess(true);
       }
-    } catch {
-      setError("Une erreur est survenue. Merci de réessayer.");
+    } catch (err) {
+      if (err instanceof Error && err.message === "INVALID_BODY") {
+        setError("Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr");
+      } else {
+        setError("Une erreur est survenue. Merci de réessayer.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -74,7 +78,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
       <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mx-auto mb-6 h-[100px]" />} className="">
         {success ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
-            <div className="fr-alert fr-alert--success w-full">
+            <div role="status" className="fr-alert fr-alert--success w-full">
               <p>Tes missions ont bien été envoyées ! Vérifie ta boîte mail.</p>
             </div>
             <button type="button" onClick={handleClose} className="fr-btn fr-btn--secondary w-full! justify-center!">
@@ -86,17 +90,31 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
             <p className="fr-text--lead fr-mb-2w">On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement.</p>
 
             <form onSubmit={handleSubmit}>
-              {error && (
-                <div className="fr-alert fr-alert--error fr-mb-2w">
-                  <p>{error}</p>
-                </div>
-              )}
+              <p className="fr-hint-text fr-mb-2w">
+                Les champs marqués d'un <span aria-hidden="true">*</span> sont obligatoires.
+              </p>
 
-              <div className="fr-input-group fr-mb-2w">
+              <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
                 <label className="fr-label" htmlFor={emailId}>
-                  Adresse email
+                  Adresse email <span aria-hidden="true">*</span>
                 </label>
-                <input id={emailId} name="email" type="email" required className="fr-input" placeholder="nom@email.fr" />
+                <input
+                  id={emailId}
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  aria-required="true"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? `${emailId}-error` : undefined}
+                  className="fr-input"
+                  placeholder="nom@email.fr"
+                />
+                {error && (
+                  <div className="fr-messages-group" id={`${emailId}-error`} role="alert">
+                    <p className="fr-message fr-message--error">{error}</p>
+                  </div>
+                )}
               </div>
 
               <div className="fr-checkbox-group fr-mb-2w">

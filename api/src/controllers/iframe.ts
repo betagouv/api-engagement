@@ -3,8 +3,10 @@ import { NextFunction, Request, Response, Router } from "express";
 import zod from "zod";
 
 import { PUBLISHER_IDS } from "@/config";
+import { Prisma } from "@/db/core";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { widgetService } from "@/services/widget";
 import { widgetMissionService } from "@/services/widget-mission";
@@ -185,10 +187,10 @@ const resolveRemoteFilter = (remoteValues?: string[], widgetType?: string): Arra
     return ["full", "possible"];
   }
   if (remoteValues?.includes("no") && !remoteValues.includes("yes")) {
-    return ["no"];
+    return ["no", "local"];
   }
   if (!remoteValues && widgetType === "volontariat") {
-    return ["no"];
+    return ["no", "local"];
   }
 };
 
@@ -211,13 +213,48 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
 };
 
 const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]: any }, pagination: { skip: number; limit: number }): Promise<MissionSearchFilters> => {
+  const [directFilters, diffusionRoots] = await Promise.all([
+    applyWidgetRules(widget.rules || [], publisherOrganizationService.findIdsMatchingArrayValue),
+    publisherDiffusionRuleService.findRules({ publisherId: widget.fromPublisherId, ...DIFFUSION_SCOPE_ROOT_CRITERIA }),
+  ]);
+
   const filters: MissionSearchFilters = {
-    directFilters: await applyWidgetRules(widget.rules || [], publisherOrganizationService.findIdsMatchingArrayValue),
+    directFilters,
     publisherIds: widget.publishers,
-    diffuseurPublisherId: widget.fromPublisherId,
     skip: pagination.skip,
     limit: pagination.limit,
   };
+
+  // Compatibilité temporaire des routes iframe historiques : on combine le
+  // snapshot pour les roots live avec le fallback des publishers widget-only.
+  // Ce compromis local n'essaie pas de couvrir la staleness après suppression
+  // d'une root : ces routes seront remplacées par Typesense.
+  // À supprimer avec `iframe/*` lors de la migration vers Typesense.
+  if (diffusionRoots.length > 0) {
+    if (widget.publishers.length === 0) {
+      filters.diffuseurPublisherId = widget.fromPublisherId;
+    } else {
+      const snapshotPublisherIds = new Set([...diffusionRoots.map((root) => root.value), widget.fromPublisherId]);
+      const publishersWithSnapshot = widget.publishers.filter((publisherId) => snapshotPublisherIds.has(publisherId));
+      const publishersWithFallback = widget.publishers.filter((publisherId) => !snapshotPublisherIds.has(publisherId));
+      const accessConditions: Prisma.MissionWhereInput[] = [];
+
+      if (publishersWithSnapshot.length > 0) {
+        accessConditions.push({
+          publisherId: { in: publishersWithSnapshot },
+          missionDiffusions: { some: { distributionPublisherId: widget.fromPublisherId } },
+        });
+      }
+      if (publishersWithFallback.length > 0) {
+        accessConditions.push({ publisherId: { in: publishersWithFallback } });
+      }
+
+      filters.directFilters = {
+        AND: [directFilters, accessConditions.length === 1 ? accessConditions[0] : { OR: accessConditions }],
+      };
+      filters.publisherIds = undefined;
+    }
+  }
 
   const domainValues = normalizeToArray(query.domain);
   if (domainValues?.length) {

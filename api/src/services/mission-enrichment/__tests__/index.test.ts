@@ -21,6 +21,7 @@ vi.mock("@/services/mission-enrichment/providers", () => ({
 vi.mock("@/services/mission-enrichment/prompts", () => ({
   PROMPT_REGISTRY: {
     v2: {
+      TAXONOMY_KEYS: ["domaine"],
       MODEL: {},
       TEMPERATURE: 0,
       ENRICHMENT_SCHEMA: {},
@@ -28,6 +29,7 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
       buildUserMessage: () => "user",
     },
     v3: {
+      TAXONOMY_KEYS: ["domaine"],
       MODEL: {},
       TEMPERATURE: 0,
       ENRICHMENT_SCHEMA: {},
@@ -55,6 +57,7 @@ const baseMission = {
   softSkills: [],
   requirements: [],
   tags: [],
+  romeSkillLabels: [],
   type: null,
   remote: null,
   openToMinors: null,
@@ -174,7 +177,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(asyncTaskBus.publish).toHaveBeenCalledOnce();
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
-      payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-new" },
+      payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-new", force: true },
     });
   });
 });

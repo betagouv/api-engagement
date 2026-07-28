@@ -1,10 +1,16 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
-import type { MatchMissionItem, MatchingEngineTaxonomy, MissionMatchingResultItem, RankMissionsByUserScoringInput, RankMissionsByUserScoringResult } from "./types";
+import type {
+  MatchMissionItem,
+  MatchingEngineTaxonomy,
+  MatchingEngineTaxonomyWeights,
+  MissionMatchingResultItem,
+  RankMissionsByUserScoringInput,
+  RankMissionsByUserScoringResult,
+} from "./types";
 
 type DbRankRow = {
   mission_id: string;
@@ -54,8 +60,10 @@ const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): n
 const getGeoCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * GEO_CANDIDATE_MULTIPLIER, MIN_GEO_CANDIDATE_LIMIT);
 
-const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Record<MatchingEngineTaxonomy, number>) =>
-  Prisma.join(MATCHING_ENGINE_TAXONOMIES.map((taxonomy) => Prisma.sql`(${taxonomy}, CAST(${taxonomyWeights[taxonomy]} AS double precision))`));
+const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>) =>
+  Prisma.join(
+    Object.entries(taxonomyWeights).map(([taxonomy, weight]) => Prisma.sql`(${taxonomy}, CAST(${weight} AS double precision))`)
+  );
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
@@ -75,78 +83,91 @@ const assertUserScoringExists = async (userScoringId: string): Promise<void> => 
 
 const buildRanking = (params: {
   userScoringId: string;
-  publisherRuleSql?: Prisma.Sql;
-  taxonomyWeights: Record<MatchingEngineTaxonomy, number>;
+  publisherDiffusionJoinSql?: Prisma.Sql;
+  taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>;
   taxonomyWeight: number;
   geoWeight: number;
   geoHalfDecayKm: number;
   missingGeoScore: number;
   remoteFullGeoScore: number | null;
+  remoteLocalGeoScore: number | null;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
   offset: number;
 }) => {
-  // Missions remote=full : proximité naturelle (score géo forcé), uniquement si la version l'active.
-  const remoteFullActive = params.remoteFullGeoScore != null;
-  const remoteFullGeoScoreSql = !remoteFullActive ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+  // Missions remote=full/local : proximité naturelle (score géo forcé), uniquement si la version l'active.
+  const forcedRemoteActive = params.remoteFullGeoScore != null || params.remoteLocalGeoScore != null;
+  const remoteFullGeoScoreSql =
+    params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+  const remoteLocalGeoScoreSql =
+    params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
 
-  // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full éligibles
+  // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full/local éligibles
   // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
-  const remoteFullCandidatesCteSql = !remoteFullActive
+  const forcedRemoteCandidatesCteSql = !forcedRemoteActive
     ? Prisma.empty
     : Prisma.sql`
-  remote_full_candidates AS (
-    -- On priorise les missions remote par score taxonomie (comme l'ordre d'origine) mais sans le
-    -- nested loop O(remote × taxonomy) : le join est piloté DEPUIS taxonomy_scores (→ hash join,
-    -- comme taxonomy_candidates) au lieu d'un LEFT JOIN depuis le côté remote.
+  remote_missions AS (
+    SELECT
+      ems."mission_id",
+      ems."mission_scoring_id"
+    FROM eligible_mission_scorings ems
+    JOIN "mission" m
+      ON m."id" = ems."mission_id"
+     AND m."remote"::text IN ('full', 'local')
+    WHERE EXISTS (SELECT 1 FROM user_geo)
+  ),
+  unscored_remote_missions AS (
+    SELECT
+      rm."mission_id",
+      rm."mission_scoring_id"
+    FROM remote_missions rm
+    EXCEPT
+    SELECT
+      ts."mission_id",
+      ts."mission_scoring_id"
+    FROM taxonomy_scores ts
+  ),
+  forced_remote_candidates AS (
     SELECT
       rc."mission_id",
-      rc."mission_scoring_id"
+      rc."mission_scoring_id",
+      rc."weighted_sum"
     FROM (
-      -- (1) missions remote AVEC score taxonomie, triées par pertinence
       SELECT
-        ems."mission_id",
-        ems."mission_scoring_id",
+        ts."mission_id",
+        ts."mission_scoring_id",
         ts."weighted_sum" AS "weighted_sum"
       FROM taxonomy_scores ts
-      JOIN eligible_mission_scorings ems
-        ON ems."mission_scoring_id" = ts."mission_scoring_id"
       JOIN "mission" m
-        ON m."id" = ems."mission_id"
-       AND m."remote"::text = 'full'
+        ON m."id" = ts."mission_id"
+       AND m."remote"::text IN ('full', 'local')
       WHERE EXISTS (SELECT 1 FROM user_geo)
       UNION ALL
-      -- (2) missions remote SANS score taxonomie (score 0), en complément du pool
       SELECT
-        ems."mission_id",
-        ems."mission_scoring_id",
+        urm."mission_id",
+        urm."mission_scoring_id",
         CAST(0 AS double precision) AS "weighted_sum"
-      FROM eligible_mission_scorings ems
-      JOIN "mission" m
-        ON m."id" = ems."mission_id"
-       AND m."remote"::text = 'full'
-      WHERE EXISTS (SELECT 1 FROM user_geo)
-        AND NOT EXISTS (
-          SELECT 1 FROM taxonomy_scores ts WHERE ts."mission_scoring_id" = ems."mission_scoring_id"
-        )
+      FROM unscored_remote_missions urm
     ) rc
     ORDER BY rc."weighted_sum" DESC, rc."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
   ),`;
-  const remoteFullCandidatesUnionSql = !remoteFullActive
+  const forcedRemoteCandidatesUnionSql = !forcedRemoteActive
     ? Prisma.empty
     : Prisma.sql`
     UNION ALL
     SELECT
       rfc."mission_id",
       rfc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
-    FROM remote_full_candidates rfc`;
+      CAST(NULL AS double precision) AS "distance_km",
+      rfc."weighted_sum"
+    FROM forced_remote_candidates rfc`;
 
-  // Une mission remote=full ignore toute adresse : on nullifie distance/closest_* pour ne pas polluer
+  // Une mission remote=full/local ignore toute adresse : on nullifie distance/closest_* pour ne pas polluer
   // l'affichage ni avgDistanceKmTop5, y compris quand elle a une adresse géocodée.
-  const rankedGeoColumnsSql = !remoteFullActive
+  const rankedGeoColumnsSql = !forcedRemoteActive
     ? Prisma.sql`
       gs."distance_km",
       gs."closest_lat",
@@ -155,12 +176,12 @@ const buildRanking = (params: {
       gs."closest_city",
       gs."closest_address"`
     : Prisma.sql`
-      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."distance_km" END AS "distance_km",
-      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_lat" END AS "closest_lat",
-      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_lon" END AS "closest_lon",
-      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_address_id" END AS "closest_address_id",
-      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_city" END AS "closest_city",
-      CASE WHEN m."remote"::text = 'full' THEN NULL ELSE gs."closest_address" END AS "closest_address"`;
+      CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."distance_km" END AS "distance_km",
+      CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_lat" END AS "closest_lat",
+      CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_lon" END AS "closest_lon",
+      CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_address_id" END AS "closest_address_id",
+      CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_city" END AS "closest_city",
+      CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_address" END AS "closest_address"`;
 
   return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
@@ -172,6 +193,8 @@ const buildRanking = (params: {
       usv."value_key" AS "value_key",
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
+    JOIN taxonomy_weights tw
+      ON tw."taxonomy_key" = usv."taxonomy_key"
     WHERE usv."user_scoring_id" = ${params.userScoringId}
   ),
   user_taxonomy_totals AS (
@@ -198,9 +221,9 @@ const buildRanking = (params: {
      AND me."status" = 'completed'
     JOIN "mission" m
       ON m."id" = ms."mission_id"
+    ${params.publisherDiffusionJoinSql ?? Prisma.empty}
     WHERE m."deleted_at" IS NULL
       AND m."status_code" = 'ACCEPTED'
-      ${params.publisherRuleSql ?? Prisma.empty}
     ORDER BY
       ms."mission_id" ASC,
       me."completed_at" DESC NULLS LAST,
@@ -260,6 +283,7 @@ const buildRanking = (params: {
   ),
   matched_values AS (
     SELECT
+      ems."mission_id",
       msv."mission_scoring_id",
       uv."taxonomy_key",
       SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
@@ -269,10 +293,11 @@ const buildRanking = (params: {
      AND msv."value_key" = uv."value_key"
     JOIN eligible_mission_scorings ems
       ON ems."mission_scoring_id" = msv."mission_scoring_id"
-    GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
+    GROUP BY ems."mission_id", msv."mission_scoring_id", uv."taxonomy_key"
   ),
   taxonomy_scores AS (
     SELECT
+      mv."mission_id",
       mv."mission_scoring_id",
       SUM(
         (
@@ -285,18 +310,17 @@ const buildRanking = (params: {
       ON udt."taxonomy_key" = mv."taxonomy_key"
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = mv."taxonomy_key"
-    GROUP BY mv."mission_scoring_id"
+    GROUP BY mv."mission_id", mv."mission_scoring_id"
   ),
   taxonomy_candidates AS (
     SELECT
-      ems."mission_id",
-      ems."mission_scoring_id"
+      ts."mission_id",
+      ts."mission_scoring_id",
+      ts."weighted_sum"
     FROM taxonomy_scores ts
-    JOIN eligible_mission_scorings ems
-      ON ems."mission_scoring_id" = ts."mission_scoring_id"
     CROSS JOIN weighted_user_totals ut
     WHERE ut."taxonomy_total" > 0
-    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ems."mission_id" ASC
+    ORDER BY ts."weighted_sum" / ut."taxonomy_total" DESC, ts."mission_id" ASC
     LIMIT ${params.taxonomyCandidateLimit}
   ),
   user_geo AS (
@@ -393,14 +417,8 @@ const buildRanking = (params: {
       AND NOT EXISTS (SELECT 1 FROM user_geo)
     ORDER BY ems."mission_id" ASC
     LIMIT ${params.offset + params.limit}
-  ),${remoteFullCandidatesCteSql}
-  candidate_mission_rows AS (
-    SELECT
-      tc."mission_id",
-      tc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
-    FROM taxonomy_candidates tc
-    UNION ALL
+  ),${forcedRemoteCandidatesCteSql}
+  geographic_candidates AS (
     SELECT
       gc."mission_id",
       gc."mission_scoring_id",
@@ -412,18 +430,64 @@ const buildRanking = (params: {
       fgc."mission_scoring_id",
       fgc."distance_km"
     FROM fallback_geo_candidates fgc
+  ),
+  geographic_candidate_scores AS (
+    SELECT
+      gc."mission_id",
+      gc."mission_scoring_id",
+      gc."distance_km",
+      COALESCE(SUM(
+        (
+          CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
+          ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(gmv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
+        ) * COALESCE(dw."taxonomy_weight", 1.0)
+      ) FILTER (WHERE gmv."taxonomy_key" IS NOT NULL), 0) AS "weighted_sum"
+    FROM geographic_candidates gc
+    LEFT JOIN LATERAL (
+      SELECT
+        uv."taxonomy_key",
+        SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
+      FROM user_values uv
+      JOIN "mission_scoring_value" msv
+        ON msv."taxonomy_key" = uv."taxonomy_key"
+       AND msv."value_key" = uv."value_key"
+       AND msv."mission_scoring_id" = gc."mission_scoring_id"
+      GROUP BY uv."taxonomy_key"
+    ) gmv ON TRUE
+    LEFT JOIN user_taxonomy_totals udt
+      ON udt."taxonomy_key" = gmv."taxonomy_key"
+    LEFT JOIN taxonomy_weights dw
+      ON dw."taxonomy_key" = gmv."taxonomy_key"
+    GROUP BY gc."mission_id", gc."mission_scoring_id", gc."distance_km"
+  ),
+  candidate_mission_rows AS (
+    SELECT
+      tc."mission_id",
+      tc."mission_scoring_id",
+      CAST(NULL AS double precision) AS "distance_km",
+      tc."weighted_sum"
+    FROM taxonomy_candidates tc
+    UNION ALL
+    SELECT
+      gcs."mission_id",
+      gcs."mission_scoring_id",
+      gcs."distance_km",
+      gcs."weighted_sum"
+    FROM geographic_candidate_scores gcs
     UNION ALL
     SELECT
       fc."mission_id",
       fc."mission_scoring_id",
-      CAST(NULL AS double precision) AS "distance_km"
-    FROM fallback_candidates fc${remoteFullCandidatesUnionSql}
+      CAST(NULL AS double precision) AS "distance_km",
+      CAST(0 AS double precision) AS "weighted_sum"
+    FROM fallback_candidates fc${forcedRemoteCandidatesUnionSql}
   ),
   candidate_missions AS (
     SELECT
       cmr."mission_id",
       cmr."mission_scoring_id",
-      MIN(cmr."distance_km") AS "distance_km"
+      MIN(cmr."distance_km") AS "distance_km",
+      MAX(cmr."weighted_sum") AS "weighted_sum"
     FROM candidate_mission_rows cmr
     GROUP BY cmr."mission_id", cmr."mission_scoring_id"
   ),
@@ -473,13 +537,14 @@ const buildRanking = (params: {
       cm."mission_id",
       cm."mission_scoring_id",
       CASE
-        WHEN ut."taxonomy_total" > 0 THEN COALESCE(ts."weighted_sum", 0) / ut."taxonomy_total"
+        WHEN ut."taxonomy_total" > 0 THEN cm."weighted_sum" / ut."taxonomy_total"
         ELSE 0
       END AS "taxonomy_score",
       CASE
         WHEN EXISTS (SELECT 1 FROM user_geo) THEN
           CASE
             ${remoteFullGeoScoreSql}
+            ${remoteLocalGeoScoreSql}
             WHEN gs."distance_km" IS NULL THEN CAST(${params.missingGeoScore} AS double precision)
             ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
           END
@@ -489,8 +554,6 @@ const buildRanking = (params: {
     CROSS JOIN weighted_user_totals ut
     JOIN "mission" m
       ON m."id" = cm."mission_id"
-    LEFT JOIN taxonomy_scores ts
-      ON ts."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN geo_scores gs
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
   )
@@ -524,15 +587,17 @@ const buildRanking = (params: {
 `;
 };
 
-const buildPublisherRuleSql = async (publisherId?: string): Promise<Prisma.Sql> => {
+const buildPublisherDiffusionJoinSql = (publisherId?: string): Prisma.Sql => {
   if (!publisherId) {
     return Prisma.empty;
   }
 
-  return publisherDiffusionRuleService.buildMissionPublisherDiffusionRuleSql(publisherId, { missionAlias: "m" });
+  return Prisma.sql`JOIN "mission_diffusion" md
+    ON md."mission_id" = m."id"
+   AND md."distribution_publisher_id" = ${publisherId}`;
 };
 
-const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[] }) => Prisma.sql`
+const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[]; taxonomyKeys: readonly MatchingEngineTaxonomy[] }) => Prisma.sql`
   WITH user_values AS (
     SELECT
       usv."taxonomy_key" AS "taxonomy_key",
@@ -540,6 +605,7 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
       usv."score"::double precision AS "user_score"
     FROM "user_scoring_value" usv
     WHERE usv."user_scoring_id" = ${params.userScoringId}
+      AND usv."taxonomy_key" IN (${Prisma.join(params.taxonomyKeys)})
   ),
   user_taxonomy_totals AS (
     SELECT
@@ -624,11 +690,13 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     shouldPersistTopResults,
     rankingLimit,
     taxonomyWeights: versionConfig.taxonomyWeights,
+    rankingTaxonomyKeys: Object.keys(versionConfig.taxonomyWeights) as MatchingEngineTaxonomy[],
     taxonomyWeight: input.taxonomyWeight ?? 0.3,
     geoWeight: input.geoWeight ?? versionConfig.geoWeight,
     geoHalfDecayKm: input.geoHalfDecayKm ?? 20,
     missingGeoScore: input.missingGeoScore ?? 0.1,
     remoteFullGeoScore: input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore,
+    remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
     taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
     geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
   };
@@ -636,17 +704,17 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
 
 const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): Promise<Prisma.Sql> => {
   const params = resolveRankingParams(input);
-  const publisherRuleSql = await buildPublisherRuleSql(input.publisherId);
 
   return buildRanking({
     userScoringId: input.userScoringId,
-    publisherRuleSql,
+    publisherDiffusionJoinSql: buildPublisherDiffusionJoinSql(input.publisherId),
     taxonomyWeights: params.taxonomyWeights,
     taxonomyWeight: params.taxonomyWeight,
     geoWeight: params.geoWeight,
     geoHalfDecayKm: params.geoHalfDecayKm,
     missingGeoScore: params.missingGeoScore,
     remoteFullGeoScore: params.remoteFullGeoScore,
+    remoteLocalGeoScore: params.remoteLocalGeoScore,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
     limit: params.rankingLimit,
@@ -657,7 +725,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const { version, limit, offset, shouldPersistTopResults } = resolveRankingParams(input);
+    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys } = resolveRankingParams(input);
 
     await assertUserScoringExists(input.userScoringId);
 
@@ -669,6 +737,7 @@ export const matchingEngineService = {
             buildTaxonomyScoresSql({
               userScoringId: input.userScoringId,
               missionScoringIds: missionScoringIdsForDetails,
+              taxonomyKeys: rankingTaxonomyKeys,
             })
           )
         : [];

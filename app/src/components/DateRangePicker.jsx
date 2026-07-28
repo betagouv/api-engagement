@@ -62,7 +62,7 @@ const DateRangePicker = ({ value, onChange }) => {
     <div className="flex flex-wrap gap-4 sm:items-center">
       <fieldset className="m-0 border-0 p-0">
         <legend className="sr-only">Période</legend>
-        <div className="border-grey-border flex flex-col items-stretch gap-2 rounded-sm border sm:w-fit sm:flex-row sm:items-center sm:gap-x-2" role="radiogroup">
+        <div className="border-grey-border flex flex-col items-stretch gap-2 rounded-sm border sm:w-fit sm:flex-row sm:items-center sm:gap-x-2">
           {RANGES.map((range, i) => {
             const isSelected = selectedIndex === i;
             return (
@@ -229,9 +229,9 @@ export const DateInput = ({ value, onChange }) => {
             className="w-24 border-0 bg-transparent p-0 text-sm font-semibold outline-none focus:ring-0"
           />
         </div>
-        <span id={`${id}-format`} className="sr-only">
+        <p id={`${id}-format`} className="sr-only">
           Format attendu : JJ/MM/AAAA
-        </span>
+        </p>
         <button
           ref={buttonRef}
           className="focus flex items-center rounded-sm p-2 hover:bg-gray-100"

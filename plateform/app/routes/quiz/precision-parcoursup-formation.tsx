@@ -35,7 +35,7 @@ export default function PrecisionParcoursupFormationStep() {
 
   return (
     <>
-      <RadioGroup title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} />
+      <RadioGroup title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

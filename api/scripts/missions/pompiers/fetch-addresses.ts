@@ -4,9 +4,9 @@
  * Seuls les points géolocalisés en France sont conservés.
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions-sdis/fetch-addresses.ts
+ *   npx ts-node -r tsconfig-paths/register scripts/missions/pompiers/fetch-addresses.ts
  *
- * Sortie : scripts/missions-sdis/addresses.csv
+ * Sortie : scripts/missions/pompiers/addresses.csv
  */
 
 import { createWriteStream } from "fs";
@@ -58,13 +58,25 @@ type CsvRow = {
 };
 
 function deptFromPostalCode(postalCode: string): string | null {
-  if (!postalCode || postalCode.length < 5) return null;
+  if (!postalCode || postalCode.length < 5) {
+    return null;
+  }
 
-  if (postalCode.startsWith("971")) return "971";
-  if (postalCode.startsWith("972")) return "972";
-  if (postalCode.startsWith("973")) return "973";
-  if (postalCode.startsWith("974")) return "974";
-  if (postalCode.startsWith("976")) return "976";
+  if (postalCode.startsWith("971")) {
+    return "971";
+  }
+  if (postalCode.startsWith("972")) {
+    return "972";
+  }
+  if (postalCode.startsWith("973")) {
+    return "973";
+  }
+  if (postalCode.startsWith("974")) {
+    return "974";
+  }
+  if (postalCode.startsWith("976")) {
+    return "976";
+  }
 
   if (postalCode.startsWith("20")) {
     const num = parseInt(postalCode, 10);
@@ -111,7 +123,9 @@ async function reverseBatch(stations: Station[]): Promise<CsvRow[]> {
   form.append("data", new Blob([csvInput], { type: "text/csv" }), "points.csv");
 
   const res = await fetch(BAN_REVERSE_URL, { method: "POST", body: form });
-  if (!res.ok) throw new Error(`BAN reverse error: HTTP ${res.status}`);
+  if (!res.ok) {
+    throw new Error(`BAN reverse error: HTTP ${res.status}`);
+  }
 
   const text = await res.text();
   const lines = text.trim().split("\n");
@@ -130,17 +144,23 @@ async function reverseBatch(stations: Station[]): Promise<CsvRow[]> {
   for (const line of lines.slice(1)) {
     const cols = parseCsvLine(line);
     const status = cols[statusIdx] ?? "";
-    if (status !== "ok") continue;
+    if (status !== "ok") {
+      continue;
+    }
 
     const id = cols[idIdx];
     const postalCode = cols[postcodeIdx]?.trim() ?? "";
     const city = cols[cityIdx]?.trim() ?? "";
     const dept = deptFromPostalCode(postalCode);
 
-    if (!dept || !postalCode || !city) continue;
+    if (!dept || !postalCode || !city) {
+      continue;
+    }
 
     const station = stationMap.get(id);
-    if (!station) continue;
+    if (!station) {
+      continue;
+    }
 
     rows.push({
       dept,
@@ -179,7 +199,9 @@ async function run() {
   for (const el of data.elements) {
     const lat = el.lat ?? el.center?.lat;
     const lon = el.lon ?? el.center?.lon;
-    if (lat === undefined || lon === undefined) continue;
+    if (lat === undefined || lon === undefined) {
+      continue;
+    }
     stations.push({ id: el.id, name: el.tags?.["name"]?.trim() ?? "", lat, lon });
   }
 

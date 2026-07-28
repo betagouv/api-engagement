@@ -95,7 +95,7 @@ describe("getModeration", () => {
     (mission as any).remote = "maybe";
     const result = getModeration(mission as MissionRecord);
     expect(result.statusCode).toBe("REFUSED");
-    expect(result.statusComment).toBe("Valeur remote non valide (no, possible ou full)");
+    expect(result.statusComment).toBe("Valeur remote non valide (no, possible, full ou local)");
   });
 
   it("should set status to REFUSED for invalid places", () => {

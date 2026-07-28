@@ -1,6 +1,7 @@
 import { MissionMatchingResult, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import type { MatchingEngineVersion, MissionMatchingResultItem } from "@/services/matching-engine/types";
+import { isAddressNeutralizedRemote } from "@/utils/mission-remote";
 
 export type MissionMatchingEmailMission = {
   missionScoringId: string;
@@ -24,7 +25,7 @@ export type MissionMatchingEmailMission = {
 const buildMissionMatchingResultItemsFromScoringIds = (missionScoringIds: string[]): MissionMatchingResultItem[] =>
   missionScoringIds.map((missionScoringId) => ({ missionScoringId, missionAddressId: null, taxonomyScores: {} }));
 
-// ignoreRemoteAddress : quand la version du snapshot ignore l'adresse des missions remote=full,
+// ignoreRemoteAddress : quand la version du snapshot ignore l'adresse des missions remote=full/local,
 // on neutralise aussi le fallback ville ici pour ne pas la ré-exposer dans les emails.
 const findMissionsByMatchingResultItems = async (items: MissionMatchingResultItem[], ignoreRemoteAddress = false): Promise<MissionMatchingEmailMission[]> => {
   if (items.length === 0) {
@@ -62,10 +63,10 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
 
   return missionScorings.map((missionScoring) => {
     const item = itemsByMissionScoringId.get(missionScoring.id);
-    const isFullRemoteAddressIgnored = ignoreRemoteAddress && missionScoring.mission.remote === "full";
+    const isRemoteAddressIgnored = ignoreRemoteAddress && isAddressNeutralizedRemote(missionScoring.mission.remote);
     const matchedAddress = item?.missionAddressId ? missionScoring.mission.addresses.find((address) => address.id === item.missionAddressId) : null;
     const fallbackAddress = missionScoring.mission.addresses[0] ?? null;
-    const city = isFullRemoteAddressIgnored ? null : (matchedAddress?.city ?? fallbackAddress?.city ?? null);
+    const city = isRemoteAddressIgnored ? null : (matchedAddress?.city ?? fallbackAddress?.city ?? null);
 
     return {
       missionScoringId: missionScoring.id,

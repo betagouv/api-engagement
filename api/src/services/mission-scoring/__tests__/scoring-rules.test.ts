@@ -9,7 +9,9 @@ type RuleMission = Parameters<typeof getMissionScoringRuleKeys>[0];
 const buildMission = (overrides: Partial<RuleMission> = {}): RuleMission => ({
   publisherId: null,
   type: null,
+  remote: null,
   openToMinors: null,
+  compensationAmount: null,
   ...overrides,
 });
 
@@ -23,6 +25,8 @@ const ADULT_TRANCHE_AGE_KEYS = [
   "tranche_age.plus_72_ans",
 ];
 
+const ALL_TRANCHE_AGE_KEYS = ["tranche_age.moins_18_ans", ...ADULT_TRANCHE_AGE_KEYS, "tranche_age.entre_16_17_ans", "tranche_age.moins_31_ans_handicap"];
+
 const sorted = (keys: string[]): string[] => [...keys].sort();
 
 describe("getMissionScoringRuleKeys — openToMinors", () => {
@@ -32,10 +36,10 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
     expect(sorted(keys)).toEqual(sorted(ADULT_TRANCHE_AGE_KEYS));
   });
 
-  it("n'ajoute aucune contrainte tranche_age quand openToMinors=true", () => {
+  it("matérialise toutes les tranches d'âge quand openToMinors=true", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ openToMinors: true }));
 
-    expect(keys).toEqual([]);
+    expect(sorted(keys)).toEqual(sorted(ALL_TRANCHE_AGE_KEYS));
   });
 
   it("n'ajoute aucune contrainte tranche_age quand openToMinors=null", () => {
@@ -77,6 +81,46 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
   });
 });
 
+describe("getMissionScoringRuleKeys — compensationAmount", () => {
+  it("injecte l'indemnisation quand un montant est renseigné", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ compensationAmount: 619.83 }));
+
+    expect(keys).toEqual(["motivation_recherche.indemnisation"]);
+  });
+
+  it("considère un montant nul comme renseigné", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ compensationAmount: 0 }));
+
+    expect(keys).toEqual(["motivation_recherche.indemnisation"]);
+  });
+
+  it("n'injecte pas l'indemnisation quand le montant est absent", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ compensationAmount: null }));
+
+    expect(keys).toEqual([]);
+  });
+});
+
+describe("getMissionScoringRuleKeys — remote", () => {
+  it("injecte la motivation remote pour une mission entièrement à distance", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ remote: "full" }));
+
+    expect(keys).toEqual(["motivation_recherche.remote"]);
+  });
+
+  it.each(["no", "possible", "local", null] as const)("n'injecte pas la motivation remote quand remote=%s", (remote) => {
+    const keys = getMissionScoringRuleKeys(buildMission({ remote }));
+
+    expect(keys).toEqual([]);
+  });
+
+  it("cumule les motivations déterministes remote et indemnisation", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ remote: "full", compensationAmount: 619.83 }));
+
+    expect(sorted(keys)).toEqual(sorted(["motivation_recherche.remote", "motivation_recherche.indemnisation"]));
+  });
+});
+
 // Note : la co-occurrence de DEUX règles sur la même taxonomie `tranche_age` est exercée par
 // le cas réel « Service Civique + openToMinors=false » du bloc ci-dessus (deux ensembles
 // tranche_age → intersection → {entre_18_25_ans}). Aucun couple de règles `publisherId`/`type`
@@ -114,21 +158,21 @@ describe("intersect", () => {
 
 describe("SCORING_RULES — invariant de sûreté (fail-open inatteignable)", () => {
   // L'allowlist adulte (openToMinors=false) est la source de vérité.
-  const adultTrancheAge: string[] = SCORING_RULES.openToMinors.false;
+  const adultRule = SCORING_RULES.find((rule) => rule.field === "openToMinors" && rule.condition.operator === "equals" && rule.condition.value === false);
+  const adultTrancheAge: string[] = adultRule?.values.filter((key) => key.startsWith("tranche_age.")) ?? [];
 
   // Toute règle qui injecte `tranche_age` doit, intersectée avec l'allowlist adulte, rester
   // non vide. Sinon une mission openToMinors=false portant cette règle produirait une
   // intersection vide → gate désactivé (fail-open) → des mineurs pourraient matcher.
   const trancheAgeRules: { label: string; keys: string[] }[] = [];
-  for (const [field, rulesByValue] of Object.entries(SCORING_RULES)) {
-    if (field === "openToMinors") {
+  for (const rule of SCORING_RULES) {
+    if (rule === adultRule || rule.mode === "add") {
       continue;
     }
-    for (const [value, keys] of Object.entries(rulesByValue as Record<string, string[]>)) {
-      const trancheKeys = keys.filter((key) => key.startsWith("tranche_age."));
-      if (trancheKeys.length > 0) {
-        trancheAgeRules.push({ label: `${field}.${value}`, keys: trancheKeys });
-      }
+    const trancheKeys = rule.values.filter((key) => key.startsWith("tranche_age."));
+    if (trancheKeys.length > 0) {
+      const condition = rule.condition.operator === "equals" ? String(rule.condition.value) : rule.condition.operator;
+      trancheAgeRules.push({ label: `${rule.field}.${condition}`, keys: trancheKeys });
     }
   }
 

@@ -20,6 +20,11 @@ import { setQuizSessionId } from "~/services/tracking";
 import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
+import type { Route } from "./+types/results";
+
+export function meta(): Route.MetaDescriptors {
+  return [{ title: "Tes missions recommandées — Trouve ta mission" }];
+}
 
 export async function clientLoader() {
   return { backHref: null };
@@ -47,6 +52,22 @@ export default function ResultsPage() {
   useEffect(() => {
     if (userScoringId) setQuizSessionId(userScoringId);
   }, [userScoringId]);
+
+  // RGAA 12.7 : le lien d'évitement « Pied de page » cible #footer, rendu ici dans le
+  // panneau dépliable (masqué quand il est replié). Quand la cible est activée, on déplie
+  // le panneau et on place le focus sur le footer pour qu'il soit réellement atteignable.
+  useEffect(() => {
+    if (!isMobile) return;
+    const revealFooter = () => {
+      if (window.location.hash !== "#footer") return;
+      setExpanded(true);
+      // Laisser React retirer `hidden` du conteneur de défilement avant de déplacer le focus.
+      setTimeout(() => document.getElementById("footer")?.focus(), 0);
+    };
+    revealFooter();
+    window.addEventListener("hashchange", revealFooter);
+    return () => window.removeEventListener("hashchange", revealFooter);
+  }, [isMobile]);
 
   // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
   useEffect(() => {
@@ -123,7 +144,7 @@ export default function ResultsPage() {
 
   if (isMobile) {
     return (
-      <main className="flex-1 relative overflow-hidden">
+      <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
         {showMap && (
           <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
             <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
@@ -181,16 +202,30 @@ export default function ResultsPage() {
           className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"} ${selectedMission ? "hidden" : ""}`}
         >
           <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
-            {!loading && error && <p className="fr-error-text m-0! text-center!">{error}</p>}
+            {!loading && error && (
+              <p role="alert" className="fr-error-text m-0! text-center!">
+                {error}
+              </p>
+            )}
             {!loading && !error && (
-              <h2 className={`m-0! ${expanded ? "text-center!" : ""}`}>
-                <Highlight>
-                  <span className="text-blue-france-sun">
-                    {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
-                  </span>
-                </Highlight>
-                pour toi
-              </h2>
+              <h1 className={`fr-h2 m-0! ${expanded ? "text-center!" : ""}`}>
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  aria-controls="results-sheet-content"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleSheet();
+                  }}
+                >
+                  <Highlight>
+                    <span className="text-blue-france-sun">
+                      {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
+                    </span>
+                  </Highlight>
+                  pour toi
+                </button>
+              </h1>
             )}
 
             {expanded && (
@@ -201,7 +236,7 @@ export default function ResultsPage() {
             )}
           </div>
 
-          <div ref={scrollRef} className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
+          <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
             <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} highlightedMissionId={activeMissionId} />
 
             {showOther && (
@@ -226,7 +261,7 @@ export default function ResultsPage() {
               hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
             />
             <Partners style="compact" />
-            <FooterContent />
+            <FooterContent landmark={false} />
           </div>
         </div>
 
@@ -238,20 +273,20 @@ export default function ResultsPage() {
 
   return (
     <>
-      <main>
+      <main id="contenu" tabIndex={-1}>
         <GradientBg fixed className="px-12">
           <section className="flex flex-row max-w-7xl mx-auto">
             <div className="flex flex-col flex-1 py-12">
-              <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6" onClick={handleToggleSheet}>
+              <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6">
                 {!loading && !error && (
-                  <h2 className="m-0!">
+                  <h1 className="fr-h2 m-0!">
                     <Highlight>
                       <span className="text-blue-france-sun">
                         {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
                       </span>
                     </Highlight>
                     pour toi
-                  </h2>
+                  </h1>
                 )}
 
                 <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
@@ -348,14 +383,15 @@ export default function ResultsPage() {
             />
           </section>
         )}
+
+        <Newsletter
+          title="Reçois tes missions par email"
+          subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+          ctaText="Recevoir mes missions"
+          hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+        />
+        <Partners style="compact" />
       </main>
-      <Newsletter
-        title="Reçois tes missions par email"
-        subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-        ctaText="Recevoir mes missions"
-        hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-      />
-      <Partners style="compact" />
       <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
     </>
   );

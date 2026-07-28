@@ -1,13 +1,70 @@
-import { useLocation } from "react-router";
+import { TAXONOMY } from "@engagement/taxonomy";
+import { Link, useLocation } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
+import { COOKIE_CONSENT_MODAL_ID, isCookieConsentEnabled, openCookieConsentPanel } from "~/services/cookie-consent";
+import { isGlobalFooterVisible } from "~/utils/layout";
 
-export function FooterContent() {
+const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine.values)
+  .filter(([key]) => key !== "je_ne_sais_pas")
+  .map(([key, value]) => ({ to: `/missions?domaine=${key}`, label: value.label }));
+
+const FOOTER_NAV_CATEGORIES = [
+  {
+    title: "Trouver une mission",
+    links: [
+      { to: "/", label: "Accueil" },
+      { to: "/quiz", label: "Faire le quiz" },
+      { to: "/missions", label: "Toutes les missions" },
+    ],
+  },
+  {
+    title: "Les missions par domaine",
+    links: DOMAINE_LINKS,
+  },
+  {
+    title: "Liens utiles",
+    links: [
+      { to: "/plan-du-site", label: "Plan du site" },
+      { to: "/accessibilite", label: "Accessibilité" },
+      { to: "/mentions-legales", label: "Mentions légales" },
+      { to: "/politique-de-confidentialite", label: "Politique de confidentialité" },
+    ],
+  },
+];
+
+// RGAA 9.2 : sur les résultats mobile, le footer est rendu dans le panneau dépliable, à
+// l'intérieur du <main>. `landmark={false}` retire le role="contentinfo" explicite pour ne pas
+// créer un landmark imbriqué (un <footer> descendant de <main> n'est pas un landmark en HTML).
+export function FooterContent({ landmark = true }: { landmark?: boolean }) {
   return (
-    <footer className="fr-footer" role="contentinfo" id="footer">
+    <footer className="fr-footer" role={landmark ? "contentinfo" : undefined} id="footer" tabIndex={-1}>
+      <div className="fr-footer__top">
+        <div className="fr-container">
+          <nav role="navigation" aria-label="Navigation du pied de page">
+            <div className="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
+              {FOOTER_NAV_CATEGORIES.map((category) => (
+                <div key={category.title} className="fr-col-12 fr-col-sm-4 fr-col-md-3">
+                  {/* RGAA 9.1 : <h2> pour éviter un saut h1 → h3 sur les pages sans <h2> (plan du site, accessibilité). */}
+                  <h2 className="fr-footer__top-cat">{category.title}</h2>
+                  <ul className="fr-footer__top-list">
+                    {category.links.map((link) => (
+                      <li key={link.to}>
+                        <Link className="fr-footer__top-link" to={link.to}>
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </nav>
+        </div>
+      </div>
       <div className="fr-container">
         <div className="fr-footer__body">
           <div className="fr-footer__brand fr-enlarge-link">
-            <a href="/" title="Accueil — API Engagement">
+            <a href="/" title="Accueil — Trouve ta mission">
               <p className="fr-logo">
                 République
                 <br />
@@ -50,6 +107,11 @@ export function FooterContent() {
         <div className="fr-footer__bottom">
           <ul className="fr-footer__bottom-list">
             <li className="fr-footer__bottom-item">
+              <a className="fr-footer__bottom-link" href="/plan-du-site">
+                Plan du site
+              </a>
+            </li>
+            <li className="fr-footer__bottom-item">
               <a className="fr-footer__bottom-link" href="/accessibilite">
                 Accessibilité : totalement conforme
               </a>
@@ -64,11 +126,27 @@ export function FooterContent() {
                 Politique de confidentialité
               </a>
             </li>
-            <li className="fr-footer__bottom-item">
+            {/* Add statistics link when available */}
+            {/* <li className="fr-footer__bottom-item">
               <a className="fr-footer__bottom-link" href="#">
                 Statistiques
               </a>
-            </li>
+            </li> */}
+            {isCookieConsentEnabled() && (
+              <li className="fr-footer__bottom-item">
+                <a
+                  href={`#${COOKIE_CONSENT_MODAL_ID}`}
+                  className="fr-footer__bottom-link"
+                  aria-haspopup="dialog"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    openCookieConsentPanel();
+                  }}
+                >
+                  Gestion des cookies
+                </a>
+              </li>
+            )}
           </ul>
         </div>
       </div>
@@ -79,10 +157,8 @@ export function FooterContent() {
 export default function Footer() {
   const location = useLocation();
   const isMobile = useIsMobile();
-  const isQuiz = location.pathname.startsWith("/quiz");
-  const isMobileResults = isMobile && location.pathname.startsWith("/results");
 
-  if (isQuiz || isMobileResults) {
+  if (!isGlobalFooterVisible(location.pathname, isMobile)) {
     return null;
   }
 

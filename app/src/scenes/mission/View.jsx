@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HiCheckCircle, HiClock, HiLocationMarker, HiXCircle } from "react-icons/hi";
 import { RiCursorFill, RiInformationLine } from "react-icons/ri";
 import { useParams } from "react-router-dom";
@@ -28,6 +28,19 @@ const formatDateTime = (date) => (date ? new Date(date).toLocaleString("fr").rep
 const formatScore = (value) => (typeof value === "number" ? value.toLocaleString("fr", { maximumFractionDigits: 2 }) : "N/A");
 
 const formatConfidence = (value) => (typeof value === "number" ? `${(value * 100).toLocaleString("fr", { maximumFractionDigits: 0 })} %` : "N/A");
+
+const buildLink = (applicationUrl) => {
+  if (typeof applicationUrl !== "string" || !applicationUrl.trim()) return null;
+
+  const value = applicationUrl.trim();
+  try {
+    const url = new URL(/^[a-z][a-z\d+.-]*:/i.test(value) ? value : `https://${value}`);
+
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+};
 
 const AdminDataTable = ({ caption, emptyMessage, headers, rows, renderRow }) => {
   if (!rows?.length) {
@@ -69,8 +82,22 @@ const View = () => {
   const [activeTechnicalTab, setActiveTechnicalTab] = useState("enrichment");
   const [triggeringTask, setTriggeringTask] = useState(null);
   const [showAllAddresses, setShowAllAddresses] = useState(false);
+  const [diffuseurs, setDiffuseurs] = useState(null);
+  const [searchDocument, setSearchDocument] = useState(null);
+  const [technicalTabState, setTechnicalTabState] = useState({ diffuseurs: "idle", "search-document": "idle" });
+  // Garde anti-course : les callbacks des fetch d'onglets techniques comparent l'id capturé à cette
+  // ref (toujours à jour) pour ignorer une réponse arrivée après navigation vers une autre mission.
+  const currentMissionIdRef = useRef(id);
+  currentMissionIdRef.current = id;
 
   useEffect(() => {
+    // Vider la mission courante au changement d'id : la page repasse sur « Chargement... » (early
+    // return) jusqu'à ce que la nouvelle mission soit chargée. Sans ça, l'en-tête/détails de l'ancienne
+    // mission resteraient affichés pendant que les onglets techniques chargent déjà la nouvelle.
+    setMission(null);
+    setDiffuseurs(null);
+    setSearchDocument(null);
+    setTechnicalTabState({ diffuseurs: "idle", "search-document": "idle" });
     const fetchData = async () => {
       try {
         const res = await api.get(`/mission/${id}`);
@@ -83,12 +110,41 @@ const View = () => {
     fetchData();
   }, [id]);
 
-  const buildLink = (mission) => {
-    if (mission.applicationUrl.indexOf("http://") === -1 && mission.applicationUrl.indexOf("https://") === -1) {
-      mission.applicationUrl = "https://" + mission.applicationUrl;
+  useEffect(() => {
+    if (user?.role !== "admin") return;
+    if (activeTechnicalTab === "diffuseurs" && technicalTabState.diffuseurs === "idle") {
+      setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "loading" }));
+      api
+        .get(`/mission/${id}/diffuseurs`)
+        .then((res) => {
+          if (currentMissionIdRef.current !== id) return;
+          if (!res.ok) throw res;
+          setDiffuseurs(res.data);
+          setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "loaded" }));
+        })
+        .catch((error) => {
+          if (currentMissionIdRef.current !== id) return;
+          setTechnicalTabState((prev) => ({ ...prev, diffuseurs: "error" }));
+          captureError(error, { message: "Erreur lors du chargement des diffuseurs", extra: { id } });
+        });
     }
-    return mission.applicationUrl;
-  };
+    if (activeTechnicalTab === "search-document" && technicalTabState["search-document"] === "idle") {
+      setTechnicalTabState((prev) => ({ ...prev, "search-document": "loading" }));
+      api
+        .get(`/mission/${id}/search-document`)
+        .then((res) => {
+          if (currentMissionIdRef.current !== id) return;
+          if (!res.ok) throw res;
+          setSearchDocument(res.data);
+          setTechnicalTabState((prev) => ({ ...prev, "search-document": "loaded" }));
+        })
+        .catch((error) => {
+          if (currentMissionIdRef.current !== id) return;
+          setTechnicalTabState((prev) => ({ ...prev, "search-document": "error" }));
+          captureError(error, { message: "Erreur lors du chargement du document Typesense", extra: { id } });
+        });
+    }
+  }, [activeTechnicalTab, id, user, technicalTabState]);
 
   const handleTriggerTask = async (task) => {
     setTriggeringTask(task);
@@ -110,6 +166,7 @@ const View = () => {
   const isMultiAddress = addresses.length > 1;
   const visibleAddresses = showAllAddresses ? addresses : addresses.slice(0, ADDRESSES_PREVIEW_COUNT);
   const hiddenCount = addresses.length - ADDRESSES_PREVIEW_COUNT;
+  const applicationUrl = buildLink(mission.applicationUrl);
   const isAdmin = user?.role === "admin";
   const rawMission = Object.fromEntries(Object.entries(mission).filter(([key]) => !["adminEnrichment", "adminScoring"].includes(key)));
   const selectedTechnicalTabKey = isAdmin ? activeTechnicalTab : "raw";
@@ -129,6 +186,22 @@ const View = () => {
             label: (
               <>
                 <span aria-hidden="true">🎯</span> Scoring
+              </>
+            ),
+          },
+          {
+            key: "diffuseurs",
+            label: (
+              <>
+                <span aria-hidden="true">📡</span> Diffuseurs
+              </>
+            ),
+          },
+          {
+            key: "search-document",
+            label: (
+              <>
+                <span aria-hidden="true">🔎</span> Doc Typesense
               </>
             ),
           },
@@ -199,10 +272,12 @@ const View = () => {
             <p className="mt-2">Mise à jour le {new Date(mission.lastSyncAt).toLocaleString().replace(" ", " à ")}</p>
           </div>
 
-          <a className="tertiary-bis-btn flex h-fit items-center" href={buildLink(mission)} target="_blank">
-            <RiCursorFill className="mr-2" aria-hidden="true" />
-            <span>Lien vers la mission</span>
-          </a>
+          {applicationUrl && (
+            <a className="tertiary-bis-btn flex h-fit items-center" href={applicationUrl} target="_blank" rel="noopener noreferrer">
+              <RiCursorFill className="mr-2" aria-hidden="true" />
+              <span>Lien vers la mission</span>
+            </a>
+          )}
         </div>
 
         <div className="border-grey-border grid grid-cols-1 gap-4 border p-4 lg:grid-cols-[minmax(0,2fr)_1px_minmax(280px,1fr)] lg:p-6">
@@ -370,6 +445,56 @@ const View = () => {
                     )}
                   />
                 )}
+              </>
+            )}
+
+            {isAdmin && technicalTabKey === "diffuseurs" && (
+              <>
+                <div>
+                  <h4 className="text-xl font-semibold">Diffuseurs de la mission</h4>
+                  <p className="text-text-mention mt-1 text-sm">Publishers qui diffusent cette mission, d&apos;après le snapshot mission_diffusion.</p>
+                </div>
+                {technicalTabState.diffuseurs === "loading" && <p className="text-text-mention text-sm">Chargement...</p>}
+                {technicalTabState.diffuseurs === "error" && <p className="text-sm text-red-500">Erreur lors du chargement des diffuseurs.</p>}
+                {technicalTabState.diffuseurs === "loaded" && (
+                  <AdminDataTable
+                    caption="Diffuseurs de la mission"
+                    emptyMessage="Aucun diffuseur ne diffuse cette mission."
+                    headers={["Diffuseur", "Identifiant", "Diffusé depuis"]}
+                    rows={diffuseurs}
+                    renderRow={(diffuseur) => (
+                      <tr key={diffuseur.id} className="border-grey-border border-t">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2">
+                            {diffuseur.logo && <img src={diffuseur.logo} alt="" className="h-6 w-6 shrink-0 rounded object-contain" />}
+                            <p className="font-medium">{diffuseur.name}</p>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs">{diffuseur.id}</td>
+                        <td className="px-4 py-3">{formatDateTime(diffuseur.diffusedAt)}</td>
+                      </tr>
+                    )}
+                  />
+                )}
+              </>
+            )}
+
+            {isAdmin && technicalTabKey === "search-document" && (
+              <>
+                <div>
+                  <h4 className="text-xl font-semibold">Document Typesense</h4>
+                  <p className="text-text-mention mt-1 text-sm">Document brut de la mission dans la collection Typesense missions.</p>
+                </div>
+                {technicalTabState["search-document"] === "loading" && <p className="text-text-mention text-sm">Chargement...</p>}
+                {technicalTabState["search-document"] === "error" && <p className="text-sm text-red-500">Erreur lors du chargement du document Typesense.</p>}
+                {technicalTabState["search-document"] === "loaded" &&
+                  (searchDocument ? (
+                    <div className="overflow-scroll text-xs">
+                      <pre>{JSON.stringify(searchDocument, null, 2)}</pre>
+                    </div>
+                  ) : (
+                    <p className="text-text-mention text-sm">Mission non indexée dans Typesense.</p>
+                  ))}
               </>
             )}
 

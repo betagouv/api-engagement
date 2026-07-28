@@ -106,9 +106,12 @@
         if (!window._apieng.pageLoadTime || Date.now() - window._apieng.pageLoadTime < 2000) return;
 
         const apiengagementId = window._apieng.getCookieValue("apiengagement");
-        if (!apiengagementId) return;
+        const trackingToken = window._apieng.getCookieValue("apiengagement_tracking_token");
+        if (!apiengagementId || !trackingToken) return;
 
-        fetch(`${window._apieng.eventHost}/r/${apiengagementId}/confirm-human`).then((response) => (response.ok ? (window._apieng.humanConfirmed = true) : null));
+        fetch(`${window._apieng.eventHost}/r/${apiengagementId}/confirm-human?token=${encodeURIComponent(trackingToken)}`).then((response) =>
+          response.ok ? (window._apieng.humanConfirmed = true) : null,
+        );
       }),
       // Impression tracking
       (window._apieng.getTrackers = function (e) {
@@ -242,5 +245,6 @@
       window._apieng[arguments[0]](arguments[1], arguments[2], arguments[3]);
     };
     let e = window._apieng.getQueryParameter("apiengagement_id");
-    null != e && window._apieng.setCookieValue("apiengagement", e);
+    let n = window._apieng.getQueryParameter("apiengagement_tracking_token");
+    (null != e && window._apieng.setCookieValue("apiengagement", e), null != n && window._apieng.setCookieValue("apiengagement_tracking_token", n));
   })());

@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Combobox from "~/components/ui/combobox";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 export type FilterOption = { value: string; label: string; count?: number };
 
@@ -44,7 +45,7 @@ export function MissionFiltersTrigger({ filters, onChange }: MissionFiltersProps
 
   return (
     <>
-      <button type="button" className="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-filter-line bg-background! md:hidden!" onClick={() => setOpen(true)}>
+      <button type="button" className="fr-btn fr-btn--tertiary fr-btn--icon-left fr-icon-filter-line bg-background! md:hidden! shrink-0!" onClick={() => setOpen(true)}>
         Filtres{totalSelected > 0 ? ` (${totalSelected})` : ""}
       </button>
       {open && <MobileFiltersSheet filters={filters} onChange={onChange} onClose={() => setOpen(false)} />}
@@ -60,6 +61,7 @@ interface MobileFiltersSheetProps {
 
 function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetProps) {
   const titleId = useId();
+  const sheetRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [mounted, setMounted] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>(() => {
@@ -70,19 +72,18 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
     return initial;
   });
 
+  // Échap, piège de focus (boucle Tab/Shift+Tab) et restitution du focus au bouton « Filtres »
+  // à la fermeture sont gérés par le hook (RGAA 12.9 / 7.3).
+  useFocusTrap(sheetRef, mounted, onClose);
+
   useEffect(() => {
     setMounted(true);
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleEscape);
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = previousOverflow;
     };
-  }, [onClose]);
+  }, []);
 
   useEffect(() => {
     if (mounted) closeButtonRef.current?.focus();
@@ -96,6 +97,8 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
 
   return createPortal(
     <div
+      ref={sheetRef}
+      tabIndex={-1}
       className="fixed inset-0 z-[1750] flex items-end"
       role="dialog"
       aria-modal="true"
@@ -176,6 +179,7 @@ interface FilterAccordionProps {
 
 function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordionProps) {
   const reactId = useId();
+  const panelId = `${reactId}-panel`;
   const isSingle = filter.single === true;
 
   const toggleOption = (value: string) => {
@@ -185,13 +189,14 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
 
   return (
     <div>
-      <button type="button" className="flex w-full items-center justify-between" aria-expanded={open} onClick={onToggleOpen}>
+      <button type="button" className="flex w-full items-center justify-between" aria-expanded={open} aria-controls={panelId} onClick={onToggleOpen}>
         <span className="fr-text--lead font-bold text-title-grey leading-none! mb-0!">{filter.label}</span>
         <i className={`fr-icon-arrow-down-s-line text-blue-france-sun transition-transform ${open ? "rotate-180" : ""}`} aria-hidden="true" />
       </button>
 
       {open && (
-        <div className="mt-3 flex flex-col gap-2">
+        <fieldset id={panelId} className="mt-3 flex w-full min-w-0 flex-col gap-2">
+          <legend className="sr-only">{filter.label}</legend>
           {isSingle && (
             <div className="fr-radio-group">
               <input type="radio" id={`${reactId}-all`} name={`${reactId}-group`} checked={filter.selected.length === 0} onChange={() => onChange([])} />
@@ -224,7 +229,7 @@ function FilterAccordion({ filter, open, onToggleOpen, onChange }: FilterAccordi
               </div>
             );
           })}
-        </div>
+        </fieldset>
       )}
     </div>
   );

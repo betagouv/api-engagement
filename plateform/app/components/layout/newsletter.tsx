@@ -34,8 +34,12 @@ export default function Newsletter({
     try {
       await subscribeNewsletter({ email, distinctId });
       setSuccess(true);
-    } catch {
-      setError("Une erreur est survenue. Merci de réessayer.");
+    } catch (err) {
+      if (err instanceof Error && err.message === "INVALID_BODY") {
+        setError("Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr");
+      } else {
+        setError("Une erreur est survenue. Merci de réessayer.");
+      }
     } finally {
       setLoading(false);
     }
@@ -43,12 +47,12 @@ export default function Newsletter({
 
   return (
     <section className="bg-blue-france-950 relative">
-      <img src={TraceSvg} alt="Trace" className="absolute top-20 left-0 w-1/5" />
+      <img src={TraceSvg} alt="" aria-hidden="true" className="absolute top-20 left-0 w-1/5" />
       <div className="fr-container py-6! md:py-12! px-6! flex flex-col md:flex-row gap-4 md:gap-2 items-center justify-center">
-        <div className="flex-1 z-10" aria-hidden="true">
+        <div className="flex-1 z-10">
           {/* SVG illustration à venir */}
           <div className="flex items-center justify-center gap-4">
-            <img src={MailSendSvg} alt="" className="hidden md:block rotate-12" />
+            <img src={MailSendSvg} alt="" aria-hidden="true" className="hidden md:block rotate-12" />
 
             <div className="flex-1 max-w-md">
               <h2 className="fr-h2 fr-mb-2w">{title}</h2>
@@ -59,21 +63,33 @@ export default function Newsletter({
 
         <div className="flex-1 w-full md:w-auto">
           {success ? (
-            <div className="fr-alert fr-alert--success max-w-md">
+            <div role="status" className="fr-alert fr-alert--success max-w-md">
               <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="max-w-md">
-              {error && (
-                <div className="fr-alert fr-alert--error fr-mb-2w">
-                  <p>{error}</p>
-                </div>
-              )}
-              <div className="fr-input-group fr-mb-2w">
+              <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
                 <label className="fr-label sr-only" htmlFor="newsletter-email">
                   Adresse email
                 </label>
-                <input id="newsletter-email" name="email" type="email" required className="fr-input bg-background!" placeholder="nom@email.fr" />
+                <input
+                  id="newsletter-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  aria-required="true"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? "newsletter-email-error" : undefined}
+                  className="fr-input bg-background!"
+                  placeholder="nom@email.fr"
+                />
+                <p className="fr-hint-text fr-mt-1w">Champ obligatoire</p>
+                {error && (
+                  <div className="fr-messages-group" id="newsletter-email-error" role="alert">
+                    <p className="fr-message fr-message--error">{error}</p>
+                  </div>
+                )}
               </div>
               <button type="submit" disabled={loading} className="fr-btn w-full! md:w-auto! justify-center! md:justify-start!">
                 {loading ? "Inscription en cours…" : ctaText}

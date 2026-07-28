@@ -32,6 +32,7 @@ base as (
     m.publisher_id,
     m.updated_at,
     m.created_at,
+    m.type as publisher_category,
     length(m.description) as description_length,
     case
       when m.start_at is null or m.end_at is null then null
@@ -42,11 +43,7 @@ base as (
     case
       when m.deleted_at is not null
         then date_trunc('day', m.deleted_at)::date
-    end as end_date,
-    case
-      when m.type = 'volontariat_service_civique' then 'volontariat'
-      else m.type
-    end as publisher_category
+    end as end_date
   from {{ ref('int_mission') }} as m
   where
     m.created_at is not null

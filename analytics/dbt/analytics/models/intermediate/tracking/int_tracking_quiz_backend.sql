@@ -2,8 +2,7 @@ with sessions as (
   select
     quiz_session_id,
     min(event_at)::date as session_date,
-    max(distinct_id) as distinct_id,
-    bool_or(is_internal_user) as is_internal_user
+    max(distinct_id) as distinct_id
   from {{ ref('stg_tracking__quiz_completed') }}
   where quiz_session_id is not null
   group by quiz_session_id
@@ -14,7 +13,7 @@ latest_result as (
     user_scoring_id,
     matching_engine_version,
     results
-  from {{ ref('matching_engine_result') }}
+  from {{ ref('stg_matching_engine_result') }}
   where results is not null
   order by user_scoring_id asc, created_at desc
 ),
@@ -48,4 +47,4 @@ select
   null::timestamp as first_apply_at
 from sessions as s
 left join backend_scoring as bsc on s.quiz_session_id = bsc.quiz_session_id
-where {{ exclude_internal_users('s.is_internal_user') }}
+where {{ exclude_internal_distinct_ids('s.distinct_id') }}

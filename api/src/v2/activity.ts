@@ -5,7 +5,6 @@ import zod from "zod";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND } from "@/error";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import missionService from "@/services/mission";
-import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
 import { PublisherRequest } from "@/types/passport";
@@ -140,7 +139,11 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Mission not found" });
       }
 
-      const canAccessMission = await publisherDiffusionRuleService.canPublisherAccessMission({ publisherId: user.id, missionId: mission.id });
+      const canAccessMission =
+        (await missionService.countBy({
+          id: mission.id,
+          missionDiffusions: { some: { distributionPublisherId: user.id } },
+        })) > 0;
       if (!canAccessMission) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Mission not accessible" });
       }
