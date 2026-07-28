@@ -29,7 +29,8 @@ click_backend as (
   select
     c.event_uuid,
     active_result.matching_engine_version,
-    ranked.backend_rank
+    ranked.backend_rank,
+    ranked.mission_score
   from clicks as c
   cross join
     lateral (
@@ -46,13 +47,20 @@ click_backend as (
     ) as active_result
   cross join
     lateral (
-      select min(t.ord) as backend_rank
+      select
+        t.ord as backend_rank,
+        (
+          select avg(jt.value::numeric)
+          from jsonb_each_text(t.elem -> 'taxonomyScores') as jt
+        ) as mission_score
       from
         jsonb_array_elements(active_result.results)
         with ordinality as t (elem, ord)
       inner join {{ ref('stg_mission_scoring') }} as ms
         on ms.id = t.elem ->> 'missionScoringId'
       where ms.mission_id = c.mission_id
+      order by t.ord asc
+      limit 1
     ) as ranked
   where ranked.backend_rank is not null
 )
@@ -79,7 +87,7 @@ select
   c.entry_page,
   cb.backend_rank,
   cb.matching_engine_version,
-  null::numeric as mission_score,
+  cb.mission_score,
   cb.event_uuid is not null as matched_to_backend
 from clicks as c
 left join click_backend as cb on c.event_uuid = cb.event_uuid

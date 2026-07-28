@@ -80,6 +80,11 @@ models:
         description: Version du moteur de matching du run rattaché (nullable si non rattaché).
       - name: matched_to_backend
         description: Vrai si le clic a été rattaché à une mission du résultat de matching de la session.
+      - name: mission_score
+        description: >
+          Score de la mission cliquée = moyenne de ses `taxonomyScores` dans le run de matching actif au
+          clic. Même base que `score_top5` (sous-score thématique), donc PAS le score total pondéré géo
+          (non persisté). Null si le clic n'est pas réconcilié au backend (`matched_to_backend = false`).
 
   - name: int_tracking_quiz_backend
     description: >
