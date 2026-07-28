@@ -112,7 +112,9 @@ models:
         description: Domaine de mission associé (`unknown` si non rattaché).
       - name: mission_type
         description: >
-          Catégorie de mission (`benevolat`, `volontariat`, `all`, `unknown` si non rattaché).
+          Type de mission d'origine (`benevolat`, `volontariat_service_civique`,
+          `volontariat_sapeurs_pompiers`, `volontariat_reserve_operationnelle`, `all`,
+          `unknown` si non rattaché).
       - name: type
         description: Type d'événement (`click`, `apply`, `print`, `account`).
         tests:

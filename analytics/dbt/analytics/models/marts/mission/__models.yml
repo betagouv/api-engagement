@@ -334,7 +334,7 @@ models:
       - name: source_id
         description: Identifiant de la source (nullable).
       - name: publisher_category
-        description: Catégorie de mission (benevolat / volontariat).
+        description: Type de mission d'origine.
       - name: mission_domain
         description: Domaine de la mission (`unknown` si non renseigné).
       - name: mission_activity
@@ -413,7 +413,7 @@ models:
       - name: source_id
         description: Identifiant de la source (nullable).
       - name: publisher_category
-        description: Catégorie de mission (benevolat / volontariat).
+        description: Type de mission d'origine.
       - name: mission_domain
         description: Domaine de la mission.
       - name: mission_activity
@@ -506,7 +506,7 @@ models:
       - name: publisher_key
         description: Clé technique du diffuseur (`publisher_id` en texte, `all` pour l’agrégat, `unknown` si publisher_id manquant).
       - name: publisher_category
-        description: Type de mission (normalisé).
+        description: Type de mission d'origine.
       - name: mission_domain
         description: Domaine de la mission.
       - name: mission_count
@@ -531,7 +531,7 @@ models:
       - name: mission_domain
         description: Domaine de la mission (`unknown` si non renseigné).
       - name: publisher_category
-        description: Catégorie de mission (benevolat / volontariat / all).
+        description: Type de mission d'origine (`benevolat`, `volontariat_service_civique`, `volontariat_sapeurs_pompiers` ou `volontariat_reserve_operationnelle`).
       - name: mission_count
         description: Nombre de missions actives dans l’année (distinct mission_id).
       - name: organization_count
