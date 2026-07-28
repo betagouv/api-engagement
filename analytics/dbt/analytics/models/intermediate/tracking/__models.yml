@@ -80,6 +80,11 @@ models:
         description: Version du moteur de matching du run rattaché (nullable si non rattaché).
       - name: matched_to_backend
         description: Vrai si le clic a été rattaché à une mission du résultat de matching de la session.
+      - name: mission_score
+        description: >
+          Score de la mission cliquée = moyenne de ses `taxonomyScores` dans le run de matching actif au
+          clic. Même base que `score_top5` (sous-score thématique), donc PAS le score total pondéré géo
+          (non persisté). Null si le clic n'est pas réconcilié au backend (`matched_to_backend = false`).
 
   - name: int_tracking_quiz_backend
     description: >
@@ -97,6 +102,31 @@ models:
         description: >
           Moyenne des `taxonomyScores` sur le top 5 des résultats du dernier run de matching de la
           session. Null si aucun `matching_engine_result` exploitable.
+
+  - name: int_tracking_recommendation
+    description: >
+      Missions recommandées par le moteur de matching, une ligne par mission du DERNIER run de chaque
+      session quiz (`user_scoring_id`). Source : `stg_matching_engine_result.results` (tableau JSON de
+      `missionScoringId`). Pont vers la mission puis l'annonceur via `mission_scoring`
+      (`results[i].missionScoringId` = `mission_scoring.id` -> `mission_id`), puis `mission.publisher_id`
+      -> `publisher.name`. Usage : KPI de contrôle « part des recommandations par annonceur » (détecter
+      qu'un seul annonceur capte l'essentiel des recommandations). Personnes internes exclues au niveau
+      du `distinct_id`. `mission_id` en `text` (formats mixtes ObjectId Mongo / UUID), jamais casté.
+    columns:
+      - name: quiz_session_id
+        description: Session quiz (`user_scoring_id`) du run de matching.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Mission recommandée (text ; formats mixtes ObjectId Mongo / UUID).
+        tests:
+          - not_null
+      - name: publisher_id
+        description: Annonceur propriétaire de la mission recommandée.
+        tests:
+          - not_null
+      - name: backend_rank
+        description: Rang de la mission dans le run de matching (position dans `results`).
 
   - name: int_tracking_page_view
     description: >

@@ -37,12 +37,17 @@ models:
       Fait clic mission (grain événement) pour les breakdowns rang / distance / section / publisher,
       enrichi du statut et de la tranche d'âge de la session. Réconcilié avec le moteur de matching :
       `backend_rank`, `matching_engine_version` et `matched_to_backend` permettent d'analyser le CTR par rang.
-      `mission_score` reste un placeholder (non alimenté).
+      `mission_score` porte le score de la mission cliquée (répartition des clics par score).
     columns:
       - name: event_uuid
         tests:
           - not_null
           - unique
+      - name: mission_score
+        description: >
+          Score de la mission cliquée = moyenne de ses `taxonomyScores` dans le run de matching actif au
+          clic. Même base que `score_top5` (sous-score thématique), donc PAS le score total pondéré géo
+          (non persisté). Null si le clic n'est pas réconcilié au backend (`matched_to_backend = false`).
 
   - name: tracking_page_view_daily
     description: >
@@ -95,3 +100,28 @@ models:
         tests:
           - not_null
           - unique
+
+  - name: tracking_recommendation
+    description: >
+      Fait « une ligne par mission recommandée » (dernier run de matching de chaque session), exposé à
+      Metabase pour le KPI de contrôle « part des recommandations par annonceur ». Pas de pré-agrégation :
+      agréger librement par `publisher_name`, `session_date` ou `backend_rank`. Voir
+      `int_tracking_recommendation` pour la chaîne de jointure (pont `mission_scoring` -> mission ->
+      publisher). Personnes internes exclues au niveau du `distinct_id`.
+    columns:
+      - name: quiz_session_id
+        description: Session quiz (`user_scoring_id`) du run de matching.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Mission recommandée (text ; formats mixtes ObjectId Mongo / UUID).
+        tests:
+          - not_null
+      - name: publisher_id
+        description: Annonceur propriétaire de la mission recommandée.
+        tests:
+          - not_null
+      - name: publisher_name
+        description: Nom de l'annonceur, pour l'agrégation « part par annonceur » côté Metabase.
+      - name: backend_rank
+        description: Rang de la mission dans le run de matching (position dans `results`).
