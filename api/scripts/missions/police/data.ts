@@ -39,7 +39,7 @@ export const DESCRIPTION_DGPN = `<h2>👮‍♀️ Je deviens réserviste de la 
 </ul>
 
 <h3>Comment candidater ?</h3>
-<p>Cliquez sur <strong>Je m'engage</strong> pour accéder au formulaire. Vous serez ensuite contacté·e pour :</p>
+<p>Cliquez sur <strong>Découvrir la mission</strong> pour accéder au formulaire. Vous serez ensuite contacté·e pour :</p>
 <ul>
 <li>une prise de contact par les équipes locales</li>
 <li>un entretien</li>

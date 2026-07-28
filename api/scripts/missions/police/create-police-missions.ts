@@ -27,7 +27,7 @@ const API_URLS: Record<string, string> = {
 
 const CLIENT_ID = "dgpn-reserve-police-nationale";
 
-const MISSION_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN0FUbhz90IKhzd0hf16b0xCORFc42P5E-*Uv7yLQ_xCEkR619TyWkqc5*&s=10";
+const MISSION_IMAGE = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQN0FUbhz90IKhzd0hf16b0xCORFc42P5E-_Uv7yLQ_xCEkR619TyWkqc5_&s=10";
 const ORGANIZATION_LOGO =
   "https://www.interieur.gouv.fr/var/miomcti/storage/images/media/police-nationale/images/logo-police-nationale-500-px/270879-2-fre-FR/Logo-police-nationale-500-px.jpg";
 

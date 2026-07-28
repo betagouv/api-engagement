@@ -1,6 +1,6 @@
 export const DESCRIPTION_DGGN = `<h2>👮 Et si vous deveniez réserviste de la Gendarmerie nationale près de chez vous ?</h2>
 <p>Quelques jours par mois, vous renforcez les unités de gendarmerie dans leurs missions de protection et de sécurité.</p>
-<p>Que vous soyez étudiant·e, salarié·e, en recherche d'emploi ou déjà engagé·e ailleurs, la réserve opérationnelle vous permet de vous investir selon vos disponibilités, tout en étant formé et accompagné.</p>
+<p>Que vous soyez étudiant, salarié, en recherche d'emploi ou déjà engagé ailleurs, la réserve opérationnelle vous permet de vous investir selon vos disponibilités, tout en étant formé et accompagné.</p>
 
 <h3>Ce que vous ferez</h3>
 <p>En tant que réserviste, vous participez aux côtés des gendarmes à des missions très variées, par exemple :</p>
@@ -50,10 +50,10 @@ export const DESCRIPTION_DGGN = `<h2>👮 Et si vous deveniez réserviste de la 
 </ul>
 
 <h3>Comment candidater ?</h3>
-<p>Cliquez sur <strong>Je m'engage</strong> pour déposer votre candidature.</p>
+<p>Cliquez sur <strong>Découvrir la mission</strong> pour déposer votre candidature.</p>
 <ol>
 <li>Déposez votre candidature sur MINOT@UR.</li>
-<li>Vous êtes recontacté pour un entretien et des tests psychotechniques.</li>
+<li>Nous vous recontacterons pour un entretien et des tests psychotechniques.</li>
 <li>Vous passez une visite médicale.</li>
 <li>Vous suivez une préparation militaire avant vos premières missions.</li>
 </ol>`;
