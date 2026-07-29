@@ -115,7 +115,12 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               <label htmlFor="numbers-year" className="text-sm">
                 Année
               </label>
-              <select id="numbers-year" className="input w-full pr-4 sm:w-48" value={filters.year} onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}>
+              <select
+                id="numbers-year"
+                className="input w-full pr-4 sm:w-48"
+                value={filters.year}
+                onChange={(e) => onFiltersChange({ ...filters, year: parseInt(e.target.value, 10) })}
+              >
                 <option value={2020}>2020</option>
                 <option value={2021}>2021</option>
                 <option value={2022}>2022</option>
@@ -190,7 +195,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               type="bar"
               chartTitle={`Évolution mensuelle des organisations actives en ${filters.year}`}
               chartDescription="Nombre d'organisations actives par mois sur l'année sélectionnée."
-              chartDescriptionMode="sr-only"
+              chartDescriptionMode="collapsible"
               chartNameLabel="Mois"
               chartValueLabel="Nombre d'organisations actives"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "organizations" }}
@@ -227,7 +232,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               type="bar"
               chartTitle={`Évolution mensuelle des missions partagées en ${filters.year}`}
               chartDescription="Nombre de missions partagées par mois sur l'année sélectionnée."
-              chartDescriptionMode="sr-only"
+              chartDescriptionMode="collapsible"
               chartNameLabel="Mois"
               chartValueLabel="Nombre de missions partagées"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "missions" }}
@@ -254,7 +259,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               type="bar"
               chartTitle={`Évolution mensuelle des redirections en ${filters.year}`}
               chartDescription="Nombre de redirections par mois sur l'année sélectionnée."
-              chartDescriptionMode="sr-only"
+              chartDescriptionMode="collapsible"
               chartNameLabel="Mois"
               chartValueLabel="Nombre de redirections"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "redirection_count" }}
@@ -280,7 +285,7 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
               type="bar"
               chartTitle={`Évolution mensuelle des candidatures en ${filters.year}`}
               chartDescription="Nombre de candidatures par mois sur l'année sélectionnée."
-              chartDescriptionMode="sr-only"
+              chartDescriptionMode="collapsible"
               chartNameLabel="Mois"
               chartValueLabel="Nombre de candidatures"
               adapterOptions={{ labelColumn: "month_start", valueColumn: "candidature_count" }}

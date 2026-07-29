@@ -1,3 +1,6 @@
+import { useState } from "react";
+import { HiChevronDown } from "react-icons/hi";
+
 import { formatChartValue, getChartSeriesLabel, getChartValue } from "@/utils/chart";
 
 const ChartDetailsTable = ({
@@ -17,6 +20,8 @@ const ChartDetailsTable = ({
   nameLabel,
   valueLabel,
 }) => {
+  const [expanded, setExpanded] = useState(false);
+
   if (mode === "none" || mode === "external" || !id || !data.length) {
     return (
       <p id={id} aria-label="Aucune donnée" className="sr-only">
@@ -32,7 +37,30 @@ const ChartDetailsTable = ({
   const formatValue = (value) => (valueFormatter ? valueFormatter(value) : formatChartValue(value));
   // sr-only doit être porté par un div englobant : appliqué directement à une <table>,
   // width/height 1px est ignoré (taille min-content) et clip ne masque pas la <caption>
-  const wrap = (table) => (mode === "sr-only" ? <div className="sr-only">{table}</div> : table);
+  const toggleLabel = expanded ? "Masquer la description détaillée" : "Afficher la description détaillée";
+  const wrap = (table) => {
+    if (mode === "sr-only") {
+      return <div className="sr-only">{table}</div>;
+    }
+    if (mode === "collapsible") {
+      return (
+        <>
+          <button
+            type="button"
+            aria-expanded={expanded}
+            aria-label={title ? `${toggleLabel} du graphique : ${title}` : toggleLabel}
+            className="mt-2 flex items-center gap-1 text-sm text-blue-900"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {toggleLabel}
+            <HiChevronDown className={expanded ? "rotate-180" : ""} aria-hidden="true" />
+          </button>
+          {expanded ? table : null}
+        </>
+      );
+    }
+    return table;
+  };
 
   if (type === "stacked") {
     return wrap(
