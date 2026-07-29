@@ -101,7 +101,8 @@ const TAXONOMY_GUIDANCE_MAP_V5 = {
     values: {
       interaction_collective: "Actions collectives, animation, accueil, missions comportant des échanges réguliers.",
       equilibre_collectif_autonomie: "Missions combinant temps collectifs et responsabilités individuelles.",
-      autonomie_principale: "Tâches individuelles, missions à distance ou activités demandant peu d'interactions continues.",
+      autonomie_principale:
+        "Tâches principalement individuelles ou activités explicitement décrites comme demandant peu d'interactions continues. Le seul fait que la mission soit entièrement ou partiellement à distance ne suffit pas.",
     },
   },
   autonomie: {
