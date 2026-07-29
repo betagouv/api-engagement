@@ -4,7 +4,7 @@ export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonomy, number>>;
 
-export type MatchingEngineVersion = "m1" | "m2" | "m3";
+export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4";
 
 export type MatchingEngineVersionConfig = {
   taxonomyKeys: readonly MatchingEngineTaxonomy[];

@@ -1,6 +1,6 @@
+import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 import type { LanguageModel } from "ai";
 import type { ZodTypeAny } from "zod";
-import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 
 import { MISSION_ENRICHMENT_PROMPT_VERSION } from "@/config";
 import { captureMessage } from "@/error";
@@ -9,6 +9,7 @@ import * as v1 from "./v1";
 import * as v2 from "./v2";
 import * as v3 from "./v3";
 import * as v4 from "./v4";
+import * as v5 from "./v5";
 
 export { buildMissionBlock, buildTaxonomyBlock, ENRICHMENT_TRIGGER_FIELDS } from "./builder";
 export type { EnrichmentTriggerField } from "./builder";
@@ -29,6 +30,7 @@ export const PROMPT_REGISTRY = {
   [v2.VERSION]: v2,
   [v3.VERSION]: v3,
   [v4.VERSION]: v4,
+  [v5.VERSION]: v5,
 } satisfies Record<string, PromptEntry>;
 
 export type PromptVersion = keyof typeof PROMPT_REGISTRY;

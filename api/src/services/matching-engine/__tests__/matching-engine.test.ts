@@ -243,6 +243,66 @@ describe("matchingEngineService", () => {
       });
     });
 
+    it("weights the new taxonomies under m4 while still ranking missions scored only on old taxonomies", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m4",
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_id: "mission-old-only",
+            mission_scoring_id: "mission-scoring-old-only",
+            total_score: 0.6,
+            taxonomy_score: 0.6,
+            geo_score: null,
+            distance_km: null,
+            closest_address_id: null,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            mission_scoring_id: "mission-scoring-old-only",
+            taxonomy_key: "domaine",
+            taxonomy_score: 0.6,
+          },
+        ]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m4",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m4",
+        version: "m4",
+      });
+
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(result.version).toBe("m4");
+      // m4 pondère les nouvelles taxonomies du parcours de recommandation…
+      for (const taxonomy of ["domaine_engagement", "rythme", "activite", "motivation_recherche"]) {
+        expect(rankingValues).toContain(taxonomy);
+      }
+      // …tout en conservant les anciennes pour la rétro-compatibilité.
+      expect(rankingValues).toContain("domaine");
+      // Une mission scorée uniquement sur les anciennes taxonomies reste classée (pas d'exclusion).
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].missionId).toBe("mission-old-only");
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).toHaveBeenCalledWith({
+        userScoringId: "user-scoring-m4",
+        matchingEngineVersion: "m4",
+        results: [
+          {
+            missionScoringId: "mission-scoring-old-only",
+            missionAddressId: null,
+            taxonomyScores: {
+              domaine: 0.6,
+            },
+          },
+        ],
+      });
+    });
+
     it("returns only missions that remain after gate exclusion", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([

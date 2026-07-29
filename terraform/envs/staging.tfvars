@@ -9,7 +9,8 @@ piloty_hostname            = "sandbox-api.piloty.fr"
 bucket_name                = "api-engagement-bucket-staging"
 slack_jobteaser_channel_id = ""
 
-mission_enrichment_prompt_version = "v4"
+mission_enrichment_prompt_version = "v5"
+matching_engine_version           = "m4"
 
 api_cpu_limit    = 250
 api_memory_limit = 512
