@@ -9,7 +9,6 @@ import { missionService } from "@/services/mission";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionScoringService } from "@/services/mission-scoring";
-import { publisherService } from "@/services/publisher";
 import publisherOrganizationService from "@/services/publisher-organization";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import type { UserRequest } from "@/types/passport";
@@ -195,15 +194,18 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
 
     const requestedPublisherIds = Array.isArray(query.data.publishers) ? query.data.publishers : query.data.publishers ? [query.data.publishers] : [];
     let publisherIds = requestedPublisherIds;
+    let restrictToVisibleMissions = false;
     if (!isAdmin(req.user)) {
       if (requestedPublisherIds.length) {
-        // Un user peut requêter les annonceurs liés à son publisher par une relation de diffusion (ex : JVA diffuse les missions de Benevolt).
+        // Un user peut requêter les annonceurs diffusés par son publisher (ex : JVA diffuse les missions de Benevolt),
+        // sur la base du snapshot mission_diffusion : seules les missions réellement diffusables alimentent l'autocomplete.
         const directPublisherIds = requestedPublisherIds.filter((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId));
-        const relatedPublisherIds = await publisherService.filterPublisherIdsWithRelationAccess(
+        const diffusedPublisherIds = await missionDiffusionService.filterDiffusedPublisherIds(
           requestedPublisherIds.filter((publisherId) => !directPublisherIds.includes(publisherId)),
           getUserPublisherIds(req.user)
         );
-        publisherIds = [...directPublisherIds, ...relatedPublisherIds];
+        publisherIds = [...directPublisherIds, ...diffusedPublisherIds];
+        restrictToVisibleMissions = true;
       } else {
         publisherIds = getUserPublisherIds(req.user);
       }
@@ -223,6 +225,7 @@ router.get("/autocomplete", passport.authenticate("user", { session: false }), a
 
     const missions = await missionService.findMissions({
       publisherIds,
+      directFilters: restrictToVisibleMissions ? missionDiffusionService.buildVisibleMissionsWhere(getUserPublisherIds(req.user)) : undefined,
       limit: 1000,
       skip: 0,
       domain: undefined,

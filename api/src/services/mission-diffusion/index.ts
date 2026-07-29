@@ -1,3 +1,4 @@
+import { Prisma } from "@/db/core";
 import { missionRepository } from "@/repositories/mission";
 import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
@@ -118,6 +119,34 @@ export const missionDiffusionService = {
       logo: row.distributionPublisher.logo,
       diffusedAt: row.createdAt,
     }));
+  },
+
+  /**
+   * Where Prisma des missions visibles par ces publishers : leurs missions propres
+   * ou celles matérialisées dans leur snapshot `mission_diffusion`.
+   */
+  buildVisibleMissionsWhere(publisherIds: string[]): Prisma.MissionWhereInput {
+    return { OR: [{ publisherId: { in: publisherIds } }, { missionDiffusions: { some: { distributionPublisherId: { in: publisherIds } } } }] };
+  },
+
+  /**
+   * Filtre les annonceurs dont au moins une mission est matérialisée dans le snapshot
+   * `mission_diffusion` d'un des publishers de diffusion donnés.
+   */
+  async filterDiffusedPublisherIds(publisherIds: string[], distributionPublisherIds: string[]): Promise<string[]> {
+    if (!publisherIds.length || !distributionPublisherIds.length) {
+      return [];
+    }
+    const missions = await missionRepository.findMany({
+      where: {
+        publisherId: { in: publisherIds },
+        deletedAt: null,
+        missionDiffusions: { some: { distributionPublisherId: { in: distributionPublisherIds } } },
+      },
+      select: { publisherId: true },
+      distinct: ["publisherId"],
+    });
+    return missions.map((mission) => mission.publisherId);
   },
 
   /**
