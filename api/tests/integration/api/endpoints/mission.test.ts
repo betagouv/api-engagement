@@ -96,6 +96,30 @@ describe("Dashboard mission controller", () => {
     });
   });
 
+  describe("GET /mission/autocomplete?field=city", () => {
+    it("returns values of an annonceur linked by a diffusion relation", async () => {
+      const annonceur = await createTestPublisher();
+      const diffuseur = await createTestPublisher({ publishers: [{ publisherId: annonceur.id }] });
+      const { token: diffuseurToken } = await createTestUser({ role: "user", publishers: [diffuseur.id] });
+      await createTestMission({ publisherId: annonceur.id, city: "Nantes" });
+
+      const res = await request(app)
+        .get(`/mission/autocomplete?field=city&search=nan&publishers=${annonceur.id}`)
+        .set({ Authorization: `jwt ${diffuseurToken}` });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual([{ key: "Nantes", doc_count: 1 }]);
+    });
+
+    it("rejects a publisher without any diffusion relation", async () => {
+      const otherPublisher = await createTestPublisher();
+
+      const res = await request(app).get(`/mission/autocomplete?field=city&search=nan&publishers=${otherPublisher.id}`).set(authHeader());
+
+      expect(res.status).toBe(403);
+    });
+  });
+
   describe("GET /mission/:id/diffuseurs", () => {
     let adminToken: string;
 

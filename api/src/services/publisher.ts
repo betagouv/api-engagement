@@ -363,6 +363,26 @@ export const publisherService = (() => {
     return count > 0;
   };
 
+  const filterPublisherIdsWithRelationAccess = async (publisherIds: string[], accessiblePublisherIds: string[]): Promise<string[]> => {
+    const relatedIds = Array.from(new Set(accessiblePublisherIds.map((value) => value.trim()).filter(Boolean)));
+    if (!relatedIds.length || !publisherIds.length) {
+      return [];
+    }
+
+    const rules = await publisherDiffusionRuleRepository.findMany({
+      where: {
+        ...DIFFUSION_SCOPE_ROOT_CRITERIA,
+        OR: [
+          { publisherId: { in: publisherIds }, value: { in: relatedIds } },
+          { publisherId: { in: relatedIds }, value: { in: publisherIds } },
+        ],
+      },
+    });
+
+    const relatedPublisherIds = new Set(rules.flatMap((rule) => [rule.publisherId, rule.value]));
+    return publisherIds.filter((publisherId) => relatedPublisherIds.has(publisherId));
+  };
+
   const findPublishersByIds = async (ids: string[]): Promise<PublisherRecord[]> => {
     if (!ids.length) {
       return [];
@@ -535,6 +555,7 @@ export const publisherService = (() => {
     findPublishersByIds,
     findPublishersWithCount,
     hasPublisherRelationAccess,
+    filterPublisherIdsWithRelationAccess,
     purgeAll,
     regenerateApiKey,
     softDeletePublisher,
