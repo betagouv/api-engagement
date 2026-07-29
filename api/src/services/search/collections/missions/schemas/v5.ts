@@ -1,16 +1,22 @@
+import type { TaxonomyKey } from "@engagement/taxonomy";
+
+import { TYPESENSE_MISSION_COLLECTION } from "@/config";
 import type { SearchCollectionSchema } from "@/services/search/types";
 
-import missionSchemaV4 from "./v4";
-
 // Snapshot statique des champs indexés à l'instant de la v5.
-// Ajouts par rapport à la v4 : champs nécessaires à la recherche et aux facettes du widget.
-// `distributionPublisherIds` est hérité de la v4.
-// Pour ajouter/retirer des champs, créer un v6.ts — ne pas modifier ce fichier.
+// Pour ajouter ou retirer des champs, créer un v6.ts — ne pas modifier ce fichier.
+export const MISSION_TAXONOMY_FIELDS_V5: TaxonomyKey[] = ["domaine", "secteur_activite", "type_mission", "tranche_age", "dispositif"];
+const taxonomyFields = MISSION_TAXONOMY_FIELDS_V5;
 
 const schema: SearchCollectionSchema = {
-  ...missionSchemaV4,
+  name: TYPESENSE_MISSION_COLLECTION,
   fields: [
-    ...(missionSchemaV4.fields ?? []),
+    { name: "publisherId", type: "string", facet: true },
+    { name: "publisherOrganizationId", type: "string", facet: true, optional: true },
+    { name: "publisherOrganizationClientId", type: "string", facet: true, optional: true },
+    { name: "publisherOrganizationParentOrganizations", type: "string[]", facet: true, optional: true },
+    { name: "departmentCodes", type: "string[]", facet: true },
+    { name: "distributionPublisherIds", type: "string[]", facet: true, optional: true },
     { name: "moderationAcceptedPublisherIds", type: "string[]", optional: true },
     { name: "publisherOrganizationFacet", type: "string", facet: true, optional: true },
     { name: "title", type: "string", optional: true },
@@ -33,6 +39,7 @@ const schema: SearchCollectionSchema = {
     { name: "audience", type: "string[]", facet: true, optional: true },
     { name: "tags", type: "string[]", optional: true },
     { name: "activities", type: "string[]", optional: true },
+    ...taxonomyFields.map((name) => ({ name, type: "string[]" as const, facet: true, optional: true })),
   ],
 };
 
