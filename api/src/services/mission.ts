@@ -582,15 +582,15 @@ const baseInclude: MissionInclude = {
   jobBoards: true,
 };
 
-const enqueueMissionIndex = async (missionId: string): Promise<void> => {
-  try {
-    await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
-  } catch (error) {
-    captureException(error, { extra: { context: "enqueueMissionIndex", missionId } });
-  }
-};
-
 export const missionService = {
+  async enqueueMissionIndex(missionId: string): Promise<void> {
+    try {
+      await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+    } catch (error) {
+      captureException(error, { extra: { context: "enqueueMissionIndex", missionId } });
+    }
+  },
+
   async enqueueMissionProcessing(missionId: string): Promise<void> {
     try {
       await missionEnrichmentService.enqueue(missionId);
@@ -813,7 +813,7 @@ export const missionService = {
       type: EVENT_TYPES.CREATE,
       changes: null,
     });
-    await enqueueMissionIndex(id);
+    await this.enqueueMissionIndex(id);
     await this.enqueueMissionProcessing(id);
 
     const mission = await missionRepository.findFirst({ where: { id }, include: baseInclude });
@@ -998,7 +998,7 @@ export const missionService = {
     });
 
     if (changesRequireIndex(changes)) {
-      await enqueueMissionIndex(id);
+      await this.enqueueMissionIndex(id);
     }
 
     if (changesRequireEnrichment(changes)) {

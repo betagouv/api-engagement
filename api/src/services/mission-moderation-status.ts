@@ -5,6 +5,7 @@ import { missionRepository } from "@/repositories/mission";
 import { missionActivityRepository } from "@/repositories/mission-activity";
 import { missionAddressRepository } from "@/repositories/mission-address";
 import { missionModerationStatusRepository } from "@/repositories/mission-moderation-status";
+import { missionService } from "@/services/mission";
 import { publisherRepository } from "@/repositories/publisher";
 import { MissionModerationRecord, ModerationFilters } from "@/types/mission-moderation-status";
 import { PublisherOrganizationWithRelations } from "@/types/publisher-organization";
@@ -214,7 +215,9 @@ export const missionModerationStatusService = {
       updates.title = patch.title ?? null;
     }
     const res = await missionModerationStatusRepository.update({ where: { id }, data: updates, include: baseInclude });
-    return toRecord(res as MissionModerationWithRelations);
+    const record = toRecord(res as MissionModerationWithRelations);
+    await missionService.enqueueMissionIndex(record.missionId);
+    return record;
   },
 
   async updateMany(
@@ -258,12 +261,16 @@ export const missionModerationStatusService = {
       },
     });
 
+    await Promise.all([...new Set(updatedStatuses.map((status) => status.missionId))].map((missionId) => missionService.enqueueMissionIndex(missionId)));
+
     return updatedStatuses;
   },
 
   async create(input: Prisma.MissionModerationStatusCreateInput) {
     const res = await missionModerationStatusRepository.create({ data: input, include: baseInclude });
-    return toRecord(res as MissionModerationWithRelations);
+    const record = toRecord(res as MissionModerationWithRelations);
+    await missionService.enqueueMissionIndex(record.missionId);
+    return record;
   },
 
   async aggregateByOrganization(filters: { moderatorId: string; organizationId?: string }) {
