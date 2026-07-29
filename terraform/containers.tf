@@ -44,6 +44,10 @@ resource "scaleway_container" "api" {
     "TYPESENSE_HOST"             = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"             = "8108"
 
+    # Version active du moteur de matching (/match est servi par l'api).
+    # Pilotée par workspace via var.matching_engine_version (m4 staging / m3 prod).
+    "MATCHING_ENGINE_VERSION" = var.matching_engine_version
+
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
     "READ_STATS_FROM"  = "pg"

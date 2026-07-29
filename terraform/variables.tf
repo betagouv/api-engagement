@@ -70,6 +70,14 @@ variable "mission_enrichment_prompt_version" {
   default = "v3"
 }
 
+# Version active du moteur de matching (clé de MATCHING_ENGINE_VERSIONS).
+# Permet d'activer un jeu de pondérations de taxonomies différent par environnement
+# (ex. "m4"/nouvelles taxonomies en staging, "m3" en production).
+variable "matching_engine_version" {
+  type    = string
+  default = "m3"
+}
+
 # Container sizing
 
 variable "api_cpu_limit" {
