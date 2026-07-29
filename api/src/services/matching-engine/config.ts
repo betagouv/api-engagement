@@ -117,8 +117,8 @@ export const MATCHING_ENGINE_VERSION_KEYS = Object.keys(MATCHING_ENGINE_VERSIONS
 // Résout la version active depuis l'env (cf. `MATCHING_ENGINE_VERSION`). Une valeur inconnue (typo,
 // version supprimée) retombe sur le défaut plutôt que de renvoyer une config `undefined` ; on signale
 // le fallback via Sentry pour ne pas masquer une mauvaise configuration.
-const resolveMatchingEngineVersion = (raw: string): MatchingEngineVersion => {
-  if (raw in MATCHING_ENGINE_VERSIONS) {
+export const resolveMatchingEngineVersion = (raw: string): MatchingEngineVersion => {
+  if (Object.prototype.hasOwnProperty.call(MATCHING_ENGINE_VERSIONS, raw)) {
     return raw as MatchingEngineVersion;
   }
   captureMessage(`[matching-engine] unknown version "${raw}", falling back to "${DEFAULT_MATCHING_ENGINE_VERSION}"`);

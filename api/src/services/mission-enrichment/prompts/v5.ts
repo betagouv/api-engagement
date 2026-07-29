@@ -24,29 +24,38 @@ export { ENRICHMENT_SCHEMA, buildUserMessage };
 const TAXONOMY_GUIDANCE_MAP_V5 = {
   domaine_engagement: {
     taxonomy:
-      "Domaine principal de la mission, déduit de ce que la personne va réellement faire (tâches d'abord). Ne pas choisir un domaine à partir du seul type de structure, du vocabulaire institutionnel ou de la finalité sociale générale si les tâches relèvent d'un autre domaine. Plusieurs domaines possibles si la mission les combine explicitement.",
+      "Correspond au sujet principal de la mission. Priorise ce que la personne va réellement faire dans ses tâches principales. Ne choisis pas un domaine uniquement à partir du type de structure, du vocabulaire institutionnel, du public bénéficiaire ou de la finalité sociale générale du projet si les tâches décrites relèvent surtout d'un autre domaine. Plusieurs domaines sont possibles si les tâches principales les combinent explicitement.",
     values: {
-      sante_bien_etre: "Missions de soin, prévention, accompagnement médico-social, santé mentale ou bien-être physique et psychique.",
-      sport: "Missions d'encadrement, d'animation ou d'inclusion par la pratique sportive.",
-      solidarite_inclusion: "Entraide, accompagnement social, insertion, lutte contre l'isolement ou l'exclusion, soutien à des publics fragilisés.",
-      environnement_animaux: "Protection de l'environnement, biodiversité, transition écologique, nature, ou protection et soin des animaux.",
-      art_culture: "Création artistique, médiation culturelle, patrimoine, organisation d'événements culturels.",
+      sante_bien_etre:
+        "À utiliser quand la mission porte principalement sur la santé, les soins, la prévention, l'accompagnement médico-social, la santé mentale ou le bien-être physique et psychique.",
+      sport: "À utiliser quand l'activité principale concerne la pratique, l'encadrement, l'organisation, l'animation ou l'inclusion par le sport.",
+      solidarite_inclusion:
+        "À utiliser quand les tâches principales sont centrées sur l'entraide, l'accompagnement social, l'insertion, l'inclusion, la lutte contre l'isolement ou le soutien à des publics fragilisés. Ne pas l'utiliser uniquement parce que l'organisation porte un projet social ou vise des publics fragilisés si le rôle décrit relève surtout d'un autre domaine ou consiste principalement en une fonction support.",
+      environnement_animaux:
+        "À utiliser pour les missions principalement liées à la protection de l'environnement, la biodiversité, la transition écologique, le recyclage, la nature, ou à la protection et au soin des animaux.",
+      art_culture:
+        "À utiliser pour les missions centrées sur la création artistique, la médiation culturelle au sens patrimonial ou artistique, l'organisation d'événements culturels ou la valorisation du patrimoine. Ne pas l'utiliser automatiquement pour une mission de médiation ou de vulgarisation si le contenu principal est scientifique, technique, éducatif, numérique ou citoyen.",
       securite_secours:
-        "Défense, sécurité civile, secours, prévention et protection des populations : réserves des armées, réserve police/gendarmerie, sapeurs-pompiers volontaires, protection civile.",
-      citoyennete: "Vie démocratique, engagement civique, médiation citoyenne, accès aux droits, participation à la vie publique.",
-      numerique: "Développement, outils numériques, communication digitale, médiation ou inclusion numérique, production de contenus en ligne.",
-      education: "Transmission de savoirs, soutien scolaire, formation, sensibilisation, accompagnement à l'apprentissage.",
+        "À utiliser pour les missions liées à la protection, la sécurité civile, la défense, l'ordre public, le secours, la prévention des risques ou les interventions structurées de sécurité : réserves des armées, réserve police/gendarmerie, sapeurs-pompiers volontaires, protection civile. Le seul cadre judiciaire ou pénitentiaire (tribunal, SPIP, PJJ, maison d'arrêt) n'implique pas ce domaine si les tâches portent sur l'accueil, l'accès aux droits, l'accompagnement social ou l'insertion ; utiliser alors citoyennete ou solidarite_inclusion selon les tâches principales.",
+      citoyennete:
+        "À utiliser quand les tâches principales concernent la vie démocratique, l'engagement civique, la médiation citoyenne, l'accès aux droits ou la participation à la vie publique. Ne pas l'utiliser sur la seule présence d'une administration, d'un établissement public ou d'un vocabulaire institutionnel.",
+      numerique:
+        "À utiliser quand le développement, les outils numériques, la communication digitale, la médiation ou l'inclusion numérique, ou la production de contenus en ligne constituent une tâche principale. Ne pas l'utiliser pour la simple mention d'un outil numérique employé comme support accessoire. Une communication seulement orale, une animation sans composante numérique explicite ou la création de supports exclusivement papier ne suffisent pas.",
+      education:
+        "À utiliser quand la mission consiste principalement à transmettre des savoirs, soutenir des apprentissages, former, sensibiliser ou faire de la pédagogie. Le seul fait d'accueillir, d'accompagner ou d'animer un public ne suffit pas si aucune transmission ni intention pédagogique n'est décrite.",
     },
   },
   rythme: {
     taxonomy:
-      "Fréquence et volume d'engagement attendus, déduits des indices explicites (durée, horaires/`schedule`, dates, type de mission). Ne pas conclure un rythme à partir de la seule durée totale : c'est l'intensité (heures par semaine, répétition) qui tranche. Plusieurs valeurs possibles si la mission propose plusieurs formats.",
+      "Fréquence et volume d'engagement attendus, déduits en priorité des horaires/`schedule`, de la répétition et du volume hebdomadaire, puis de la durée totale, des dates et du type de mission. Les valeurs sont cumulatives : retourne toutes celles qui sont réellement compatibles avec le rythme décrit, même lorsqu'un format spécifique en implique un autre, à condition que chaque valeur dispose d'un signal suffisant. Calibre leur confiance selon la force du signal propre à chaque valeur : un format explicitement nommé ou chiffré peut recevoir 0.90 à 1.00 ; une compatibilité déduite d'un planning précis doit recevoir un score inférieur ; une inférence fondée seulement sur le dispositif ou la durée totale est insuffisante et doit être omise. La durée totale ne permet jamais, à elle seule, de déterminer l'intensité. Si la mission propose explicitement plusieurs formats au choix, retourne toutes les valeurs correspondantes.",
     values: {
       ponctuelle_journee: "Mission ponctuelle tenant sur une journée (ou un événement isolé, un week-end), sans répétition.",
-      quelques_heures_semaine: "Engagement régulier de quelques heures par semaine (faible intensité hebdomadaire, étalé dans le temps).",
-      plusieurs_jours_semaine: "Engagement soutenu de plusieurs jours par semaine.",
-      quelques_jours_annee: "Quelques jours répartis dans l'année (interventions espacées, non hebdomadaires).",
-      temps_plein_plusieurs_mois: "Engagement à temps plein sur plusieurs mois (ex. service civique, mission longue et intensive).",
+      quelques_heures_semaine: "Engagement régulier de faible intensité, explicitement décrit en heures par semaine et étalé dans le temps.",
+      plusieurs_jours_semaine:
+        "Engagement régulier de plusieurs jours par semaine. Peut être retourné avec temps_plein_plusieurs_mois lorsque les jours ou le planning hebdomadaire constituent aussi un signal suffisant.",
+      quelques_jours_annee: "Quelques interventions explicitement espacées et réparties dans l'année, sans régularité hebdomadaire.",
+      temps_plein_plusieurs_mois:
+        "Engagement dont l'intensité à temps plein et la durée de plusieurs mois sont toutes deux explicites ou clairement établies. Le seul fait qu'il s'agisse d'un service civique ou d'une mission longue ne suffit pas.",
     },
   },
   activite: {

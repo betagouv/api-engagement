@@ -1,8 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
-import { defineMatchingEngineVersion, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
+import { DEFAULT_MATCHING_ENGINE_VERSION, defineMatchingEngineVersion, MATCHING_ENGINE_VERSIONS, resolveMatchingEngineVersion } from "@/services/matching-engine/config";
+
+vi.mock("@/error", () => ({ captureMessage: vi.fn() }));
 
 describe("matching engine config", () => {
   it("inclut toujours les gates sans leur attribuer de poids", () => {
@@ -38,5 +40,13 @@ describe("matching engine config", () => {
         remoteLocalGeoScore: null,
       })
     ).toThrow("cannot have a ranking weight");
+  });
+
+  it.each(["constructor", "toString", "__proto__"])("rejette la propriété Object.prototype '%s' comme version", (version) => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+
+    expect(resolveMatchingEngineVersion(version)).toBe(DEFAULT_MATCHING_ENGINE_VERSION);
+
+    warnSpy.mockRestore();
   });
 });
