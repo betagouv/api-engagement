@@ -15,6 +15,7 @@ vi.mock("@/services/mission-browse", () => ({
 
 vi.mock("@/services/mission-browse/widget-filters", () => ({
   buildWidgetBaseFilter: buildWidgetBaseFilterMock,
+  isWidgetRuleSupported: vi.fn(() => true),
 }));
 
 import { BENEVOLAT_URL, PUBLISHER_IDS } from "@/config";
