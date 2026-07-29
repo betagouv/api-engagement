@@ -69,4 +69,21 @@ describe("Dashboard widget controller", () => {
       })
     );
   });
+
+  it("refuses a widget rule not supported by mission browse", async () => {
+    const publisher = await createTestPublisher();
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+
+    const res = await request(app)
+      .post("/widget")
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({
+        name: "Unsupported rule widget",
+        fromPublisherId: publisher.id,
+        rules: [{ combinator: "and", field: "title", operator: "does_not_contain", value: "collecte" }],
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe("INVALID_BODY");
+  });
 });

@@ -13,7 +13,7 @@ vi.mock("@/services/publisher-organization", () => ({
   default: { findIdsMatchingArrayValue: findIdsMatchingArrayValueMock, findIdsMatchingName: findIdsMatchingNameMock },
 }));
 
-import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
+import { buildWidgetBaseFilter, isWidgetRuleSupported } from "@/services/mission-browse/widget-filters";
 import type { WidgetRecord, WidgetRuleRecord } from "@/types/widget";
 
 const buildRule = (overrides: Partial<WidgetRuleRecord> = {}): WidgetRuleRecord => ({
@@ -128,5 +128,17 @@ describe("buildWidgetBaseFilter", () => {
     );
 
     expect(filter).toContain("publisherId:=`__never__`");
+  });
+});
+
+describe("isWidgetRuleSupported", () => {
+  it("refuse les opérateurs dont la sémantique n'est pas reproductible dans Typesense", () => {
+    expect(isWidgetRuleSupported(buildRule({ field: "title", operator: "does_not_contain" }))).toBe(false);
+    expect(isWidgetRuleSupported(buildRule({ field: "duration", operator: "is_greater_than" }))).toBe(false);
+  });
+
+  it("accepte les règles compilées par le browse widget", () => {
+    expect(isWidgetRuleSupported(buildRule({ field: "domain", operator: "is" }))).toBe(true);
+    expect(isWidgetRuleSupported(buildRule({ field: "organizationName", operator: "contains" }))).toBe(true);
   });
 });

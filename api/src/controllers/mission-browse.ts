@@ -7,7 +7,7 @@ import { BENEVOLAT_URL, PUBLISHER_IDS, VOLONTARIAT_URL } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { corsPublic } from "@/middlewares/cors";
 import { ipRateLimiter, plateformRateLimiter } from "@/middlewares/rate-limit";
-import { MissionBrowseIndexUnavailableError, missionBrowseService, type MissionBrowseWidgetFilters } from "@/services/mission-browse";
+import { MissionBrowseIndexUnavailableError, missionBrowseService, type MissionBrowseSearchFilters } from "@/services/mission-browse";
 import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
 import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
 import { widgetService } from "@/services/widget";
@@ -96,7 +96,7 @@ router.get("/browse/widget/:id", cors({ origin: [BENEVOLAT_URL, VOLONTARIAT_URL]
     }
 
     const location = resolveLocationFilters(widget, query.data.lon, query.data.lat);
-    const filters: MissionBrowseWidgetFilters = {
+    const filters: MissionBrowseSearchFilters = {
       search: query.data.search,
       organization: query.data.organization,
       department: query.data.department,

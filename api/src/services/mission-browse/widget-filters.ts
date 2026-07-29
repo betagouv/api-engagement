@@ -15,6 +15,8 @@ import {
 import type { OrgArrayColumn } from "@/types/publisher-organization";
 import type { WidgetRecord, WidgetRuleRecord } from "@/types/widget";
 
+type WidgetRule = Pick<WidgetRuleRecord, "field" | "operator" | "value">;
+
 const NEVER_FILTER = "publisherId:=`__never__`";
 const ARRAY_FIELDS = new Set(["tags"]);
 const ORG_ARRAY_FIELDS = new Map<string, OrgArrayColumn>([
@@ -34,6 +36,31 @@ const FIELD_MAP: Record<string, string> = {
   tags: "tags",
   title: "title",
   openToMinors: "openToMinors",
+};
+
+export const isWidgetRuleSupported = (rule: WidgetRule): boolean => {
+  if (!rule.value.trim()) {
+    return false;
+  }
+
+  if (ORG_ARRAY_FIELDS.has(rule.field)) {
+    return ["is", "is_not", "contains", "does_not_contain"].includes(rule.operator);
+  }
+  if (ORG_NAME_FIELDS.has(rule.field)) {
+    return ["is", "is_not", "contains", "does_not_contain", "starts_with"].includes(rule.operator);
+  }
+
+  const field = FIELD_MAP[rule.field];
+  if (!field) {
+    return false;
+  }
+  if (field === "openToMinors") {
+    return normalizeBoolean(rule.value) !== null && ["is", "is_not"].includes(rule.operator);
+  }
+  if (ARRAY_FIELDS.has(rule.field)) {
+    return ["is", "contains"].includes(rule.operator);
+  }
+  return ["is", "is_not", "contains", "starts_with"].includes(rule.operator);
 };
 
 const normalizeBoolean = (value: string): boolean | null => {
@@ -81,7 +108,7 @@ const buildOrganizationNameRule = async (rule: WidgetRuleRecord): Promise<string
 };
 
 const buildRule = async (rule: WidgetRuleRecord): Promise<string> => {
-  if (!rule.value && rule.operator !== "exists" && rule.operator !== "does_not_exist") {
+  if (!isWidgetRuleSupported(rule)) {
     return NEVER_FILTER;
   }
 

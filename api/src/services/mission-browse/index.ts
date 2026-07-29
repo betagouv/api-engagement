@@ -18,7 +18,7 @@ import { normalizeToArray } from "@/utils/array";
 import { toMissionBrowse, toMissionDetailPayload } from "./transformers";
 
 type BrowseTaxonomyParams = Partial<Record<IndexedTaxonomyKey, string | string[]>>;
-export type MissionBrowseWidgetFilters = {
+export type MissionBrowseSearchFilters = {
   search?: string;
   organization?: string | string[];
   department?: string | string[];
@@ -39,7 +39,7 @@ export type MissionBrowseWidgetFilters = {
 
 export type MissionBrowseParams = BrowseTaxonomyParams &
   Omit<MissionBrowseFilters, "page" | "pageSize"> &
-  MissionBrowseWidgetFilters & {
+  MissionBrowseSearchFilters & {
     diffuseurPublisherId: string;
     baseFilterBy?: string | null;
     widgetMode?: boolean;
