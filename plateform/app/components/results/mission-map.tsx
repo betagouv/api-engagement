@@ -1,9 +1,9 @@
+import type { MissionMatchItem } from "@engagement/dto";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import type { MissionMatchItem } from "@engagement/dto";
 import { useEffect, useId, useMemo, useRef } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
-import { TILE_LAYER_PROPS, createEmojiIcon } from "~/components/ui/location-map";
+import { TILE_LAYER_PROPS } from "~/components/ui/location-map";
 import { type GeoPosition, getNearbyPosition } from "~/utils/geo";
 
 type MapMission = {
@@ -11,15 +11,17 @@ type MapMission = {
   position: GeoPosition;
   addressLabel: string | null;
   icon: L.DivIcon;
+  activeIcon: L.DivIcon;
 };
 
-const activeIcon = L.divIcon({
-  className: "",
-  html: `<div class="mission-map__emoji-marker mission-map__emoji-marker--active" role="img" aria-label="Mission sélectionnée">📍</div>`,
-  iconSize: [22, 22],
-  iconAnchor: [11, 11],
-  popupAnchor: [0, -12],
-});
+const createPinIcon = (iconClass: string, ariaLabel: string, active = false) =>
+  L.divIcon({
+    className: "",
+    html: `<div class="mission-map__pin${active ? " mission-map__pin--active" : ""}" role="img" aria-label="${ariaLabel}"><span class="${iconClass} fr-icon--sm" aria-hidden="true"></span></div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -16],
+  });
 
 const getAddressLabel = (item: MissionMatchItem): string | null => item.mission.location.closestAddress ?? item.mission.location.city;
 const hasNeutralizedAddress = (item: MissionMatchItem): boolean => item.mission.remote === "full" || item.mission.remote === "local";
@@ -94,12 +96,14 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
 
       const usesRemoteIcon = item.mission.remote === "full" || (!hasPreciseCoordinates && !addressLabel && item.mission.remote !== "local");
       const markerLabel = usesRemoteIcon ? "Mission à distance" : item.mission.location.city ? `Mission à ${item.mission.location.city}` : "Mission en présentiel";
+      const iconClass = usesRemoteIcon ? "fr-icon-computer-fill" : "fr-icon-map-pin-2-fill";
 
       return {
         item,
         addressLabel,
         position,
-        icon: createEmojiIcon(usesRemoteIcon ? "👨‍💻" : "📍", markerLabel),
+        icon: createPinIcon(iconClass, markerLabel),
+        activeIcon: createPinIcon(iconClass, markerLabel, true),
       };
     });
 
@@ -121,7 +125,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
         <ZoomControl zoomInTitle="Zoomer" zoomOutTitle="Dézoomer" />
         <TileLayer {...TILE_LAYER_PROPS} />
         <BoundsFitter positions={boundsPositions} />
-        {missions.map(({ item, position, addressLabel, icon }) => {
+        {missions.map(({ item, position, addressLabel, icon, activeIcon }) => {
           const isActive = item.mission.id === activeMissionId;
           return (
             <Marker
@@ -136,7 +140,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
               }}
             >
               {onMissionHover && (
-                <Tooltip interactive direction="top" offset={[0, -8]} opacity={1} className="mission-map__tooltip">
+                <Tooltip interactive direction="top" offset={[0, -16]} opacity={1} className="mission-map__tooltip">
                   <strong className="mission-map__tooltip-title">{item.mission.title}</strong>
                   <span className="mission-map__tooltip-address">{addressLabel ?? getFallbackAddressLabel(item)}</span>
                 </Tooltip>

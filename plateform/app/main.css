@@ -250,9 +250,24 @@
   width: 22px;
 }
 
-.mission-map__emoji-marker--active {
-  background: #000091;
-  transform: scale(1.18);
+/* Pins de la carte des résultats : bleu d'action DSFR (blue-france-sun-113) comme les CTA,
+   hover/actif en bleu clair pour matérialiser la sélection. */
+.mission-map__pin {
+  align-items: center;
+  background-color: #000091;
+  border: 1px solid #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 24%);
+  color: #ffffff;
+  display: grid;
+  height: 30px;
+  justify-items: center;
+  width: 30px;
+}
+
+.mission-map__pin:hover,
+.mission-map__pin--active {
+  background-color: #1212ff;
 }
 
 .mission-map__tooltip.leaflet-tooltip {
