@@ -7,8 +7,15 @@ import ReactDOM from "react-dom/client";
 import "react-tooltip/dist/react-tooltip.css";
 
 import App from "@/App";
-import "./index.css";
 import { ENV, SENTRY_DSN } from "@/services/config";
+import "./index.css";
+
+// Stub Plausible (déplacé depuis index.html pour permettre une CSP sans script inline).
+window.plausible =
+  window.plausible ||
+  function () {
+    (window.plausible.q = window.plausible.q || []).push(arguments);
+  };
 
 if (ENV !== "development") {
   Sentry.init({

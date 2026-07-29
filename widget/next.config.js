@@ -18,6 +18,19 @@ const nextConfig = {
   turbopack: {
     root: path.resolve(__dirname, ".."),
   },
+  // Pas de X-Frame-Options / frame-ancestors : le widget est embarqué en iframe par les sites partenaires.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports = withSentryConfig(withPlausibleProxy()(nextConfig), {
