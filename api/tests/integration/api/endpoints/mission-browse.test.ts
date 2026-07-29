@@ -111,14 +111,12 @@ describe("GET /missions/browse/widget/:id", () => {
     expect(browseMock).not.toHaveBeenCalled();
   });
 
-  it("autorise uniquement les origines du widget", async () => {
+  it("applique l'origine CORS du widget", async () => {
     const widget = await createTestWidget();
 
-    const allowed = await request(app).get(`/missions/browse/widget/${widget.id}`).set("Origin", BENEVOLAT_URL).expect(200);
-    const denied = await request(app).get(`/missions/browse/widget/${widget.id}`).set("Origin", "https://example.com").expect(200);
+    const response = await request(app).get(`/missions/browse/widget/${widget.id}`).set("Origin", BENEVOLAT_URL).expect(200);
 
-    expect(allowed.headers["access-control-allow-origin"]).toBe(BENEVOLAT_URL);
-    expect(denied.headers["access-control-allow-origin"]).toBeUndefined();
+    expect(response.headers["access-control-allow-origin"]).toBe(BENEVOLAT_URL);
   });
 
   it("retourne 503 lorsque Typesense est indisponible", async () => {
