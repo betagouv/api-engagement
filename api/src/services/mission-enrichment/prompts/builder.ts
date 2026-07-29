@@ -64,7 +64,7 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const remoteLabel =
     mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : mission.remote === "local" ? "Sur site, à proximité" : "Présentiel";
 
-  const durationStr = mission.duration ? `${mission.duration} heures` : "non précisée";
+  const durationStr = mission.duration !== null ? `${mission.duration} mois` : "non précisée";
   const cleanSchedule = clean(mission.schedule, PROMPT_FIELD_MAX_LENGTH.short);
   const scheduleStr = cleanSchedule ? ` — ${cleanSchedule}` : "";
 
