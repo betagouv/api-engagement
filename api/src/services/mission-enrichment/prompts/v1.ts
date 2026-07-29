@@ -1,6 +1,9 @@
 import { ai } from "@/services/ai";
 import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
-import { z } from "zod";
+import { ENRICHMENT_SCHEMA } from "./shared";
+
+// Schéma de sortie mutualisé dans ./shared ; réexport pour la surface publique de cette version.
+export { ENRICHMENT_SCHEMA };
 
 export const VERSION = "v1";
 export const TAXONOMY_KEYS = [
@@ -14,16 +17,6 @@ export const TAXONOMY_KEYS = [
 ] as const satisfies readonly EnrichableTaxonomyKey[];
 export const TEMPERATURE = 0;
 export const MODEL = ai.model("mistral", "mistral-small-2603");
-export const ENRICHMENT_SCHEMA = z.object({
-  classifications: z.array(
-    z.object({
-      taxonomy_key: z.string(),
-      value_key: z.string(),
-      confidence: z.number().min(0).max(1),
-      evidence: z.object({ extract: z.string(), reasoning: z.string() }),
-    })
-  ),
-});
 
 export const buildSystemPrompt = (taxonomyBlock: string): string => `\
 Tu es un classificateur de missions d'engagement bénévole et civique.
