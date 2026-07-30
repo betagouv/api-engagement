@@ -336,12 +336,6 @@ type EnrichmentValue = {
   evidence: { extract: string; reasoning: string };
 };
 
-const hasUnsupportedRhythmEvidence = (normalizedExtract: string): boolean =>
-  /\bhoraires spécifiques\b/.test(normalizedExtract) ||
-  /\b(?:mensuel(?:le)?|bimensuel(?:le)?|tous les (?:quinze|15) jours)\b/.test(normalizedExtract) ||
-  /\bpar mois\b/.test(normalizedExtract) ||
-  /\b(?:1|un|une) jour(?:née)? par semaine\b/.test(normalizedExtract);
-
 const normalizeJudgeOutput = (
   output: JudgeOutput,
   values: EnrichmentValue[],
@@ -386,14 +380,7 @@ const normalizeJudgeOutput = (
   const missingValues = output.missing_values.filter((missing) => {
     const key = `${missing.taxonomy_key}.${missing.value_key}`;
     const normalizedExtract = missing.evidence_extract.normalize("NFKC").toLocaleLowerCase("fr-FR").replace(/\s+/g, " ").trim();
-    if (
-      !allowedKeys.has(key) ||
-      valuesByKey.has(key) ||
-      seenMissingKeys.has(key) ||
-      normalizedExtract.length === 0 ||
-      !normalizedMissionBlock.includes(normalizedExtract) ||
-      (missing.taxonomy_key === "rythme" && hasUnsupportedRhythmEvidence(normalizedExtract))
-    ) {
+    if (!allowedKeys.has(key) || valuesByKey.has(key) || seenMissingKeys.has(key) || normalizedExtract.length === 0 || !normalizedMissionBlock.includes(normalizedExtract)) {
       return false;
     }
     seenMissingKeys.add(key);
