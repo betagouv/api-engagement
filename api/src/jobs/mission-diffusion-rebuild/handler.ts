@@ -19,6 +19,10 @@ export interface MissionDiffusionRebuildJobResult extends JobResult {
   added?: number;
   removed?: number;
   prunedDistributionPublishers?: number;
+  // Nombre de touches (mission, diffuseur) collectées (avec doublons entre diffuseurs).
+  reindexTouches?: number;
+  // Nombre de missions distinctes réellement republiées sur le bus (après déduplication).
+  distinctMissionsReindexed?: number;
   reindexRequested?: number;
   reindexFailed?: number;
   durationMs?: number;
@@ -44,34 +48,30 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     const distributionPublisherIds = scoped ? [publisherId as string] : await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot();
     let added = 0;
     let removed = 0;
-    let reindexRequested = 0;
-    let reindexFailed = 0;
 
-    // Resynchronise Typesense au fil du rebuild : chaque mission dont l'appartenance au snapshot a
-    // changé est republiée sur le bus (at-least-once, récupérable via SQS). On empile tout dans la
-    // file d'un coup ; c'est au worker de réguler son débit de traitement. Les doublons entre
-    // diffuseurs sont sans effet (upsert idempotent côté worker).
+    // Resynchronise Typesense après le rebuild : chaque mission dont l'appartenance au snapshot a changé
+    // (pour un diffuseur quelconque) est republiée UNE seule fois sur le bus. Comme une mission est
+    // diffusée à ~150 diffuseurs, republier par ligne (mission, diffuseur) amplifiait le trafic d'un
+    // facteur ~150 alors que l'upsert worker reconstruit le document complet (liste des diffuseurs
+    // incluse) depuis PostgreSQL : un seul message par mission suffit. On collecte donc les missionId
+    // touchés (toutes les touches, y compris la purge) dans un Set, puis on publie à la fin, une fois
+    // toutes les écritures SQL convergées (chaque doc est ainsi construit depuis l'état final).
     // Récupération : un échec de publish laisse `reindexFailed>0` (success=false) sans que la ligne SQL
     // déjà écrite soit rejouée ⇒ relancer alors `update-mission-index` (réindexation complète) pour
     // reconverger Typesense sur PostgreSQL.
-    const republishTouchedMissions = async (missionIds: string[]): Promise<void> => {
-      await Promise.all(
-        missionIds.map(async (missionId) => {
-          try {
-            await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
-            reindexRequested++;
-          } catch (error) {
-            reindexFailed++;
-            captureException(error, { extra: { missionId } });
-          }
-        })
-      );
+    const touchedMissionIds = new Set<string>();
+    let reindexTouches = 0;
+    const collectTouchedMissions = async (missionIds: string[]): Promise<void> => {
+      for (const missionId of missionIds) {
+        reindexTouches++;
+        touchedMissionIds.add(missionId);
+      }
     };
 
     for (const distributionPublisherId of distributionPublisherIds) {
       const distributionPublisher = await missionDiffusionService.rebuildForDistributionPublisher(distributionPublisherId, {
         dryRun,
-        onMissionsTouched: republishTouchedMissions,
+        onMissionsTouched: collectTouchedMissions,
       });
       added += distributionPublisher.added;
       removed += distributionPublisher.removed;
@@ -94,13 +94,30 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
         : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
       removed += prunedDistributionPublishers;
 
-      await republishTouchedMissions(prunedMissionIds);
+      await collectTouchedMissions(prunedMissionIds);
     }
+
+    // Publication dédupliquée : un seul message par mission distincte, après convergence des écritures.
+    const distinctMissionsReindexed = touchedMissionIds.size;
+    let reindexRequested = 0;
+    let reindexFailed = 0;
+    await Promise.all(
+      Array.from(touchedMissionIds).map(async (missionId) => {
+        try {
+          await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+          reindexRequested++;
+        } catch (error) {
+          reindexFailed++;
+          captureException(error, { extra: { missionId } });
+        }
+      })
+    );
+
     const durationMs = Date.now() - start.getTime();
 
     const mode = dryRun ? "Dry-run done" : "Done";
     console.log(
-      `[MissionDiffusionRebuild] ${mode}${scoped ? ` (publisher=${publisherId})` : ""}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), ${reindexRequested} réindexations demandées (${reindexFailed} échecs), en ${durationMs}ms`
+      `[MissionDiffusionRebuild] ${mode}${scoped ? ` (publisher=${publisherId})` : ""}: ${distributionPublisherIds.length} distribution publishers, +${added} / -${removed} lignes (dont ${prunedDistributionPublishers} purgées), ${reindexTouches} touches dédupliquées en ${distinctMissionsReindexed} missions réindexées (${reindexRequested} demandées, ${reindexFailed} échecs), en ${durationMs}ms`
     );
 
     return {
@@ -110,12 +127,14 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
       added,
       removed,
       prunedDistributionPublishers,
+      reindexTouches,
+      distinctMissionsReindexed,
       reindexRequested,
       reindexFailed,
       durationMs,
       dryRun,
       publisherId,
-      message: `${dryRun ? "Dry-run : " : ""}${scoped ? `1 diffuseur ciblé (${publisherId})` : `${distributionPublisherIds.length} publishers de diffusion`} rebuild : +${added} / -${removed} lignes, ${reindexRequested} réindexations en ${durationMs}ms`,
+      message: `${dryRun ? "Dry-run : " : ""}${scoped ? `1 diffuseur ciblé (${publisherId})` : `${distributionPublisherIds.length} publishers de diffusion`} rebuild : +${added} / -${removed} lignes, ${distinctMissionsReindexed} missions réindexées (${reindexTouches} touches) en ${durationMs}ms`,
     };
   }
 }
