@@ -1,6 +1,6 @@
 # Dataset de jugement des enrichissements
 
-`v1-mission-ids.txt` fige un échantillon de missions staging utilisé pour juger les
+`staging-mission-ids.txt` fige un échantillon de missions staging utilisé pour juger les
 enrichissements v5.
 
 L'échantillon contient :
@@ -23,10 +23,10 @@ Depuis `api/` :
 
 ```bash
 npm run job -- update-mission-enrichment \
-  '{"missionIdsFile":"scripts/mission-enrichment/dataset/v1-mission-ids.txt"}' \
+  '{"missionIdsFile":"scripts/mission-enrichment/dataset/staging-mission-ids.txt"}' \
   --env staging
 
 npx ts-node -r tsconfig-paths/register scripts/mission-enrichment/judge-enrichments.ts \
   --version v5 \
-  --mission-ids-file scripts/mission-enrichment/dataset/v1-mission-ids.txt
+  --mission-ids-file scripts/mission-enrichment/dataset/staging-mission-ids.txt
 ```
