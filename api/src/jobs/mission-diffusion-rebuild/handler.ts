@@ -6,6 +6,10 @@ import { asyncTaskBus } from "@/services/async-task";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
+// Concurrence bornée des publications sur le bus (aligné sur le job update-mission-index) : évite qu'un
+// rebuild touchant des dizaines de milliers de missions ne lance autant de requêtes SQS simultanées.
+const REINDEX_PUBLISH_BATCH_SIZE = 50;
+
 export interface MissionDiffusionRebuildJobPayload {
   dryRun?: boolean;
   // Restreint le rebuild à un seul publisher de diffusion (utile après correction de ses rules).
@@ -54,11 +58,8 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
     // diffusée à ~150 diffuseurs, republier par ligne (mission, diffuseur) amplifiait le trafic d'un
     // facteur ~150 alors que l'upsert worker reconstruit le document complet (liste des diffuseurs
     // incluse) depuis PostgreSQL : un seul message par mission suffit. On collecte donc les missionId
-    // touchés (toutes les touches, y compris la purge) dans un Set, puis on publie à la fin, une fois
-    // toutes les écritures SQL convergées (chaque doc est ainsi construit depuis l'état final).
-    // Récupération : un échec de publish laisse `reindexFailed>0` (success=false) sans que la ligne SQL
-    // déjà écrite soit rejouée ⇒ relancer alors `update-mission-index` (réindexation complète) pour
-    // reconverger Typesense sur PostgreSQL.
+    // touchés (toutes les touches, y compris la purge) dans un Set, puis on publie par lots à
+    // concurrence bornée.
     const touchedMissionIds = new Set<string>();
     let reindexTouches = 0;
     const collectTouchedMissions = async (missionIds: string[]): Promise<void> => {
@@ -68,50 +69,68 @@ export class MissionDiffusionRebuildHandler implements BaseHandler<MissionDiffus
       }
     };
 
-    for (const distributionPublisherId of distributionPublisherIds) {
-      const distributionPublisher = await missionDiffusionService.rebuildForDistributionPublisher(distributionPublisherId, {
-        dryRun,
-        onMissionsTouched: collectTouchedMissions,
-      });
-      added += distributionPublisher.added;
-      removed += distributionPublisher.removed;
-      console.log(
-        `[MissionDiffusionRebuild] distributionPublisher=${distributionPublisher.distributionPublisherId} desired=${distributionPublisher.desired} added=${distributionPublisher.added} removed=${distributionPublisher.removed} in ${distributionPublisher.durationMs}ms`
-      );
-    }
-
-    // Missions des diffuseurs sortis de la population : collectées AVANT la purge, puis republiées pour
-    // qu'elles perdent le diffuseur dans `distributionPublisherIds` côté Typesense (sinon elles
-    // continueraient d'apparaître dans /browse pour ce diffuseur jusqu'à une réindexation externe).
-    // Ignorée en mode ciblé : `distributionPublisherIds` ne contient qu'un diffuseur, la purge
-    // `notIn` viderait la table pour tous les autres.
-    let prunedDistributionPublishers = 0;
-    if (!scoped) {
-      const prunedMissionIds = dryRun ? [] : await missionDiffusionRepository.findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds);
-
-      prunedDistributionPublishers = dryRun
-        ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
-        : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
-      removed += prunedDistributionPublishers;
-
-      await collectTouchedMissions(prunedMissionIds);
-    }
-
-    // Publication dédupliquée : un seul message par mission distincte, après convergence des écritures.
-    const distinctMissionsReindexed = touchedMissionIds.size;
+    // La publication est exécutée dans un `finally` pour préserver le contrat at-least-once même si le
+    // rebuild échoue en cours de route : les diffuseurs déjà traités ont validé leurs écritures SQL, donc
+    // une relance ne reverrait plus ces lignes comme modifiées (diff convergé) et ne les republierait
+    // pas. On republie donc systématiquement les missionId déjà collectés avant de laisser l'erreur
+    // remonter. Résiduel non couvert : un kill brutal du process (timeout/OOM) coupe avant le `finally` ⇒
+    // reconverger alors Typesense via `update-mission-index` (réindexation complète). Un échec de publish
+    // isolé laisse `reindexFailed>0` (success=false), même remédiation.
+    let distinctMissionsReindexed = 0;
     let reindexRequested = 0;
     let reindexFailed = 0;
-    await Promise.all(
-      Array.from(touchedMissionIds).map(async (missionId) => {
-        try {
-          await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
-          reindexRequested++;
-        } catch (error) {
-          reindexFailed++;
-          captureException(error, { extra: { missionId } });
-        }
-      })
-    );
+    const publishTouchedMissions = async (): Promise<void> => {
+      const ids = Array.from(touchedMissionIds);
+      distinctMissionsReindexed = ids.length;
+      for (let i = 0; i < ids.length; i += REINDEX_PUBLISH_BATCH_SIZE) {
+        const batch = ids.slice(i, i + REINDEX_PUBLISH_BATCH_SIZE);
+        await Promise.all(
+          batch.map(async (missionId) => {
+            try {
+              await asyncTaskBus.publish({ type: "mission.index", payload: { missionId, action: "upsert" } });
+              reindexRequested++;
+            } catch (error) {
+              reindexFailed++;
+              captureException(error, { extra: { missionId } });
+            }
+          })
+        );
+      }
+    };
+
+    let prunedDistributionPublishers = 0;
+    try {
+      for (const distributionPublisherId of distributionPublisherIds) {
+        const distributionPublisher = await missionDiffusionService.rebuildForDistributionPublisher(distributionPublisherId, {
+          dryRun,
+          onMissionsTouched: collectTouchedMissions,
+        });
+        added += distributionPublisher.added;
+        removed += distributionPublisher.removed;
+        console.log(
+          `[MissionDiffusionRebuild] distributionPublisher=${distributionPublisher.distributionPublisherId} desired=${distributionPublisher.desired} added=${distributionPublisher.added} removed=${distributionPublisher.removed} in ${distributionPublisher.durationMs}ms`
+        );
+      }
+
+      // Missions des diffuseurs sortis de la population : collectées AVANT la purge, puis republiées pour
+      // qu'elles perdent le diffuseur dans `distributionPublisherIds` côté Typesense (sinon elles
+      // continueraient d'apparaître dans /browse pour ce diffuseur jusqu'à une réindexation externe).
+      // Ignorée en mode ciblé : `distributionPublisherIds` ne contient qu'un diffuseur, la purge
+      // `notIn` viderait la table pour tous les autres.
+      if (!scoped) {
+        const prunedMissionIds = dryRun ? [] : await missionDiffusionRepository.findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds);
+
+        prunedDistributionPublishers = dryRun
+          ? await missionDiffusionRepository.countRowsForDistributionPublishersNotIn(distributionPublisherIds)
+          : await missionDiffusionRepository.deleteRowsForDistributionPublishersNotIn(distributionPublisherIds);
+        removed += prunedDistributionPublishers;
+
+        await collectTouchedMissions(prunedMissionIds);
+      }
+    } finally {
+      // Publication dédupliquée, par lots bornés, y compris si le `try` a levé (avant re-propagation).
+      await publishTouchedMissions();
+    }
 
     const durationMs = Date.now() - start.getTime();
 
