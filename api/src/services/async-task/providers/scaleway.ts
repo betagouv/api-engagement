@@ -17,6 +17,12 @@ export class ScalewayQueueProvider implements QueueProvider {
   }
 
   async publish(queueUrl: string, message: string): Promise<void> {
+    if (!queueUrl) {
+      console.warn("[async-task] File SQS not configured, publication ignored.");
+
+      return;
+    }
+
     await this.client.send(
       new SendMessageCommand({
         QueueUrl: queueUrl,
