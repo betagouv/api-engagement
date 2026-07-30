@@ -64,9 +64,9 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const remoteLabel =
     mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : mission.remote === "local" ? "Sur site, à proximité" : "Présentiel";
 
-  const durationStr = mission.duration ? `${mission.duration} heures` : "non précisée";
+  const durationStr = mission.duration !== null ? `${mission.duration} mois` : "non précisée";
   const cleanSchedule = clean(mission.schedule, PROMPT_FIELD_MAX_LENGTH.short);
-  const scheduleStr = cleanSchedule ? ` — ${cleanSchedule}` : "";
+  const scheduleStr = cleanSchedule || "non précisé";
 
   const cleanType = clean(mission.type, PROMPT_FIELD_MAX_LENGTH.short);
   const cleanActivities = cleanList(mission.activities, PROMPT_FIELD_MAX_LENGTH.short);
@@ -78,7 +78,8 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
     `**Format :** ${remoteLabel}`,
     `**Ouverte aux mineurs :** ${boolLabel(mission.openToMinors)}`,
     `**Accessible PMR :** ${boolLabel(mission.reducedMobilityAccessible)}`,
-    `**Durée :** ${durationStr}${scheduleStr}`
+    `**Durée totale :** ${durationStr}`,
+    `**Rythme déclaré :** ${scheduleStr}`
   );
 
   if (mission.startAt || mission.endAt) {
