@@ -21,7 +21,7 @@ export { ENRICHMENT_SCHEMA, buildUserMessage };
 // Guides de classification propres à v5. Reformulent le parcours de recommandation en
 // consignes de CLASSIFICATION DE MISSION : on tague ce que la mission propose réellement,
 // jamais la préférence supposée d'un utilisateur.
-const TAXONOMY_GUIDANCE_MAP_V5 = {
+export const TAXONOMY_GUIDANCE_MAP_V5 = {
   domaine_engagement: {
     taxonomy:
       "Correspond au sujet principal de la mission. Priorise ce que la personne va réellement faire dans ses tâches principales. Ne choisis pas un domaine uniquement à partir du type de structure, du vocabulaire institutionnel, du public bénéficiaire ou de la finalité sociale générale du projet si les tâches décrites relèvent surtout d'un autre domaine. Plusieurs domaines sont possibles si les tâches principales les combinent explicitement.",
