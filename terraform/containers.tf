@@ -104,6 +104,10 @@ resource "scaleway_container" "api_worker" {
     failure_threshold = 3
   }
 
+  scaling_option {
+    cpu_usage_threshold = 70
+  }
+
   environment_variables = {
     "ENV"                               = var.env
     "IMAGE_VERSION"                     = var.image_tag
