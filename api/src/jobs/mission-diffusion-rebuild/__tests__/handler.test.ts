@@ -113,7 +113,50 @@ describe("MissionDiffusionRebuildHandler", () => {
 
     expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m1", action: "upsert" } });
     expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m2", action: "upsert" } });
-    expect(result).toMatchObject({ reindexRequested: 2, reindexFailed: 0 });
+    expect(result).toMatchObject({ reindexTouches: 2, distinctMissionsReindexed: 2, reindexRequested: 2, reindexFailed: 0 });
+  });
+
+  it("déduplique les missions touchées par plusieurs diffuseurs : un seul message index par mission", async () => {
+    ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue(["d1", "d2"]);
+    // m1 touchée par les deux diffuseurs, m2 par un seul : 3 touches, 2 missions distinctes.
+    serviceMock.rebuildForDistributionPublisher
+      .mockImplementationOnce(async (_id: string, options: { onMissionsTouched?: (ids: string[]) => Promise<void> }) => {
+        await options.onMissionsTouched?.(["m1", "m2"]);
+        return { distributionPublisherId: "d1", desired: 2, added: 2, removed: 0, durationMs: 1 };
+      })
+      .mockImplementationOnce(async (_id: string, options: { onMissionsTouched?: (ids: string[]) => Promise<void> }) => {
+        await options.onMissionsTouched?.(["m1"]);
+        return { distributionPublisherId: "d2", desired: 1, added: 1, removed: 0, durationMs: 1 };
+      });
+    repositoryMock.deleteRowsForDistributionPublishersNotIn.mockResolvedValue(0);
+
+    const result = await new MissionDiffusionRebuildHandler().handle({});
+
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledTimes(2);
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m1", action: "upsert" } });
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m2", action: "upsert" } });
+    expect(result).toMatchObject({ reindexTouches: 3, distinctMissionsReindexed: 2, reindexRequested: 2, reindexFailed: 0 });
+  });
+
+  it("republie les missions déjà collectées même si un diffuseur ultérieur échoue, puis propage l'erreur", async () => {
+    ruleServiceMock.findDistributionPublisherIdsForSnapshot.mockResolvedValue(["d1", "d2"]);
+    serviceMock.rebuildForDistributionPublisher
+      .mockImplementationOnce(async (_id: string, options: { onMissionsTouched?: (ids: string[]) => Promise<void> }) => {
+        await options.onMissionsTouched?.(["m1", "m2"]);
+        return { distributionPublisherId: "d1", desired: 2, added: 2, removed: 0, durationMs: 1 };
+      })
+      .mockImplementationOnce(async () => {
+        throw new Error("diffuseur d2 en échec");
+      });
+
+    // L'erreur du rebuild remonte...
+    await expect(new MissionDiffusionRebuildHandler().handle({})).rejects.toThrow("diffuseur d2 en échec");
+
+    // ...mais les missions déjà touchées par d1 (SQL déjà commité) ont bien été republiées avant.
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m1", action: "upsert" } });
+    expect(asyncTaskBusMock.publish).toHaveBeenCalledWith({ type: "mission.index", payload: { missionId: "m2", action: "upsert" } });
+    // La purge ne doit pas avoir tourné (le try a levé avant).
+    expect(repositoryMock.deleteRowsForDistributionPublishersNotIn).not.toHaveBeenCalled();
   });
 
   it("compte les échecs de republication sans faire échouer le rebuild global", async () => {
