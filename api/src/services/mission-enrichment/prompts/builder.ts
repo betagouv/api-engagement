@@ -55,19 +55,6 @@ const cleanList = (values: string[], maxLength: number): string[] =>
     .map((value) => sanitizeForPrompt(value, maxLength))
     .filter((value) => value.length > 0);
 
-const normalizeSchedule = (schedule: string): string => {
-  const normalized = schedule.trim().toLocaleLowerCase("fr-FR");
-
-  if (["de 24h à 30h", "24h à 30h", "24 à 30h"].includes(normalized)) {
-    return "De 24 à 30 heures par semaine";
-  }
-  if (["plus de 30h", "plus de 30 heures"].includes(normalized)) {
-    return "Plus de 30 heures par semaine";
-  }
-
-  return schedule;
-};
-
 export const buildTaxonomyBlock = (taxonomy: TaxonomyForPrompt): string =>
   taxonomy.map((dim) => `### ${dim.key} — ${dim.label} (type: ${dim.type})\n` + dim.values.map((v) => `- ${v.key} : ${v.label}`).join("\n")).join("\n\n");
 
@@ -75,17 +62,11 @@ export const buildMissionBlock = (mission: MissionForPrompt): string => {
   const lines: string[] = [];
 
   const remoteLabel =
-    mission.remote === "full"
-      ? "Entièrement à distance"
-      : mission.remote === "possible"
-        ? "Présentiel avec option à distance"
-        : mission.remote === "local"
-          ? "Sur site, à proximité"
-          : "Présentiel";
+    mission.remote === "full" ? "Entièrement à distance" : mission.remote === "possible" ? "Présentiel avec option à distance" : mission.remote === "local" ? "Sur site, à proximité" : "Présentiel";
 
   const durationStr = mission.duration !== null ? `${mission.duration} mois` : "non précisée";
   const cleanSchedule = clean(mission.schedule, PROMPT_FIELD_MAX_LENGTH.short);
-  const scheduleStr = cleanSchedule ? normalizeSchedule(cleanSchedule) : "non précisé";
+  const scheduleStr = cleanSchedule || "non précisé";
 
   const cleanType = clean(mission.type, PROMPT_FIELD_MAX_LENGTH.short);
   const cleanActivities = cleanList(mission.activities, PROMPT_FIELD_MAX_LENGTH.short);
