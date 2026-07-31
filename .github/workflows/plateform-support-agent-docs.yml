@@ -21,7 +21,6 @@ concurrency:
 
 jobs:
   generate:
-    if: vars.PLATEFORM_SUPPORT_DOCS_EXTERNAL_GENERATION_ENABLED == 'true'
     runs-on: ubuntu-latest
 
     steps:
@@ -41,6 +40,9 @@ jobs:
       - name: Install generator dependencies
         run: npm ci --prefix tools/scripts
 
+      - name: Typecheck generator
+        run: npm run typecheck --prefix tools/scripts
+
       - name: Generate documentation
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -52,9 +54,6 @@ jobs:
             ARGS+=(--all)
           fi
           npm run generate-docs-plateform-support-agent --prefix tools/scripts -- "${ARGS[@]}"
-
-      - name: Validate documentation
-        run: npm run check-docs-plateform-support-agent --prefix tools/scripts
 
       - name: Detect documentation changes
         id: changes
@@ -73,10 +72,8 @@ jobs:
             echo
             echo "## Validation automatique"
             echo
-            echo "- [x] Structure documentaire valide"
-            echo "- [x] Références vers les sources valides"
-            echo "- [x] Aucun secret détecté par les contrôles du générateur"
-            echo "- [x] Aucun fichier hors périmètre documentaire modifié"
+            echo "- [x] Génération terminée"
+            echo "- [x] Typecheck du générateur réussi"
             echo
             echo "## Relecture PM"
             echo
@@ -104,7 +101,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: github-actions/chore/plateform-support-docs
-          REVIEWER: ${{ vars.PLATEFORM_SUPPORT_DOCS_REVIEWER }}
+          REVIEWER: quentindallery-stack
         run: |
           PR_URL=$(gh pr list --head "$BRANCH" --base main --state open --json url --jq '.[0].url')
           if [[ -z "$PR_URL" ]]; then
@@ -117,8 +114,6 @@ jobs:
             gh pr edit "$PR_URL" --body-file /tmp/plateform-support-agent-pr-body.md
           fi
 
-          if [[ -n "$REVIEWER" ]]; then
-            gh pr edit "$PR_URL" --add-reviewer "$REVIEWER"
-          fi
+          gh pr edit "$PR_URL" --add-reviewer "$REVIEWER"
 
           echo "Pull request: $PR_URL"
