@@ -21,7 +21,7 @@ export { ENRICHMENT_SCHEMA, buildUserMessage };
 // Guides de classification propres à v5. Reformulent le parcours de recommandation en
 // consignes de CLASSIFICATION DE MISSION : on tague ce que la mission propose réellement,
 // jamais la préférence supposée d'un utilisateur.
-const TAXONOMY_GUIDANCE_MAP_V5 = {
+export const TAXONOMY_GUIDANCE_MAP_V5 = {
   domaine_engagement: {
     taxonomy:
       "Correspond au sujet principal de la mission. Priorise ce que la personne va réellement faire dans ses tâches principales. Ne choisis pas un domaine uniquement à partir du type de structure, du vocabulaire institutionnel, du public bénéficiaire ou de la finalité sociale générale du projet si les tâches décrites relèvent surtout d'un autre domaine. Plusieurs domaines sont possibles si les tâches principales les combinent explicitement.",
@@ -47,16 +47,16 @@ const TAXONOMY_GUIDANCE_MAP_V5 = {
   },
   rythme: {
     taxonomy:
-      "Fréquence et volume d'engagement attendus, déduits en priorité des horaires/`schedule`, de la répétition et du volume hebdomadaire, puis de la durée totale, des dates et du type de mission. Les valeurs sont cumulatives : retourne toutes celles qui sont réellement compatibles avec le rythme décrit, même lorsqu'un format spécifique en implique un autre, à condition que chaque valeur dispose d'un signal suffisant. Calibre leur confiance selon la force du signal propre à chaque valeur : un format explicitement nommé ou chiffré peut recevoir 0.90 à 1.00 ; une compatibilité déduite d'un planning précis doit recevoir un score inférieur ; une inférence fondée seulement sur le dispositif ou la durée totale est insuffisante et doit être omise. Respecte toujours l'unité et la périodicité littérales : ne transforme jamais une fréquence mensuelle, bimensuelle ou annuelle en moyenne hebdomadaire. La durée totale ne permet jamais, à elle seule, de déterminer l'intensité. Si aucun format du référentiel ne correspond suffisamment, omets la taxonomie plutôt que d'approximer. Si la mission propose explicitement plusieurs formats au choix, retourne toutes les valeurs correspondantes.",
+      "Fréquence et volume d'engagement attendus, déduits en priorité des horaires/`schedule`, de la répétition et du volume hebdomadaire, puis de la durée totale et des dates. Les valeurs sont cumulatives : retourne toutes celles qui sont réellement compatibles avec le rythme décrit, à condition que chacune dispose de son propre signal. Calibre leur confiance selon la force de ce signal : un format explicitement nommé ou chiffré peut recevoir 0.90 à 1.00 ; une compatibilité déduite d'un planning précis doit recevoir un score inférieur. Respecte toujours l'unité et la périodicité littérales : ne transforme jamais une fréquence mensuelle, bimensuelle ou annuelle en rythme hebdomadaire, ni un événement de plusieurs jours consécutifs en plusieurs jours par semaine. La durée totale ou le dispositif ne permettent jamais, à eux seuls, de déterminer l'intensité. Les formats « 1 jour par semaine », mensuel, bimensuel ou événement isolé de plus de deux jours n'ont pas d'équivalent exact dans ce référentiel : omets alors la taxonomie plutôt que de choisir la valeur la plus proche, sauf si un autre signal explicite satisfait pleinement sa définition. Si la mission propose explicitement plusieurs formats au choix, retourne toutes les valeurs correspondantes.",
     values: {
-      ponctuelle_journee: "Mission ponctuelle tenant sur une journée (ou un événement isolé, un week-end), sans répétition.",
+      ponctuelle_journee: "Mission ponctuelle tenant sur une journée ou un week-end de deux jours maximum, sans répétition.",
       quelques_heures_semaine:
-        "Engagement régulier de faible intensité, explicitement décrit en heures par semaine et étalé dans le temps. Une fréquence exprimée par mois, tous les quinze jours ou quelques fois par an ne relève pas de cette valeur.",
+        "Engagement régulier de moins de 20 heures par semaine, explicitement décrit en heures par semaine et étalé sur au moins deux semaines. « 1 jour par semaine » sans volume horaire ne suffit pas. Une fréquence exprimée par mois, tous les quinze jours ou quelques fois par an ne relève pas de cette valeur.",
       plusieurs_jours_semaine:
-        "Engagement régulier de plusieurs jours par semaine. Peut être retourné avec temps_plein_plusieurs_mois lorsque les jours ou le planning hebdomadaire constituent aussi un signal suffisant.",
+        "Engagement régulier explicitement prévu au moins deux jours par semaine. Plusieurs jours consécutifs lors d'un événement isolé ne suffisent pas. Peut être retourné avec temps_plein_plusieurs_mois lorsque le planning hebdomadaire et le volume horaire satisfont les deux définitions.",
       quelques_jours_annee: "Quelques interventions explicitement espacées et réparties dans l'année, sans régularité hebdomadaire.",
       temps_plein_plusieurs_mois:
-        "Engagement dont l'intensité à temps plein et la durée de plusieurs mois sont toutes deux explicites ou clairement établies. Le seul fait qu'il s'agisse d'un service civique ou d'une mission longue ne suffit pas.",
+        "Engagement d'au moins 20 heures par semaine pendant au moins trois semaines ou plusieurs mois. Le volume hebdomadaire et la durée doivent tous deux être explicites ou clairement établis. Par exemple, un service civique indiqué « 24 à 30 heures par semaine » pendant six mois correspond à cette valeur ; le seul fait qu'il s'agisse d'un service civique ou d'une mission longue ne suffit pas.",
     },
   },
   activite: {

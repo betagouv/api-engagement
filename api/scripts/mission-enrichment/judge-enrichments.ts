@@ -8,8 +8,9 @@ import { LLM_MAX_RETRIES } from "@/services/mission-enrichment/config";
 import type { PromptVersion } from "@/services/mission-enrichment/prompts";
 import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION, PROMPT_REGISTRY } from "@/services/mission-enrichment/prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "@/services/mission-enrichment/prompts/types";
-import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV2 } from "@/services/mission-enrichment/prompts/v2";
+import { buildTaxonomyGuidanceBlock as renderTaxonomyGuidanceBlock, TAXONOMY_GUIDANCE_MAP } from "@/services/mission-enrichment/prompts/v2";
 import { buildTaxonomyGuidanceBlock as buildTaxonomyGuidanceBlockV3 } from "@/services/mission-enrichment/prompts/v3";
+import { TAXONOMY_GUIDANCE_MAP_V5 } from "@/services/mission-enrichment/prompts/v5";
 import { resolveRomeSkills } from "@/utils/rome";
 import type { EnrichableTaxonomyKey } from "@engagement/taxonomy";
 import { TAXONOMY } from "@engagement/taxonomy";
@@ -21,11 +22,14 @@ import { performance } from "perf_hooks";
 import { setTimeout as sleep } from "timers/promises";
 import { z } from "zod";
 
-const GUIDANCE_BLOCKS: Record<string, () => string> = {
-  v2: buildTaxonomyGuidanceBlockV2,
+const GUIDANCE_BLOCKS: Record<PromptVersion, () => string> = {
+  v1: () => "Aucune guidance additionnelle versionnée pour v1.",
+  v2: () => renderTaxonomyGuidanceBlock(TAXONOMY_GUIDANCE_MAP),
   v3: buildTaxonomyGuidanceBlockV3,
+  v4: buildTaxonomyGuidanceBlockV3,
+  v5: () => renderTaxonomyGuidanceBlock(TAXONOMY_GUIDANCE_MAP_V5),
 };
-const buildTaxonomyGuidanceBlock = (): string => (GUIDANCE_BLOCKS[version] ?? buildTaxonomyGuidanceBlockV2)();
+const buildTaxonomyGuidanceBlock = (evaluatedVersion: PromptVersion): string => GUIDANCE_BLOCKS[evaluatedVersion]();
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
@@ -46,19 +50,40 @@ const getArg = (flag: string): string | undefined => {
   return idx !== -1 ? args[idx + 1] : undefined;
 };
 const parsePositiveInteger = (value: string | undefined, defaultValue: number, name: string): number => {
-  if (!value) return defaultValue;
+  if (!value) {
+    return defaultValue;
+  }
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) throw new Error(`${name} doit être un entier positif`);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${name} doit être un entier positif`);
+  }
+  return parsed;
+};
+const parseNonNegativeInteger = (value: string | undefined, defaultValue: number, name: string): number => {
+  if (value === undefined) {
+    return defaultValue;
+  }
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error(`${name} doit être un entier positif ou nul`);
+  }
   return parsed;
 };
 
 const version = getArg("--version") ?? DEFAULT_VERSION;
 const limit = parsePositiveInteger(getArg("--limit"), DEFAULT_LIMIT, "--limit");
-const sleepMs = parsePositiveInteger(getArg("--sleep-ms"), DEFAULT_SLEEP_MS, "--sleep-ms");
+const sleepMs = parseNonNegativeInteger(getArg("--sleep-ms"), DEFAULT_SLEEP_MS, "--sleep-ms");
 const outputPath = getArg("--output") ?? DEFAULT_OUTPUT;
 const reportPath = getArg("--report") ?? DEFAULT_REPORT;
 const datasetOutputPath = getArg("--dataset-output") ?? DEFAULT_DATASET_OUTPUT;
 const shouldExportDataset = !args.includes("--skip-dataset-export");
+const parseIds = (idsFlag: string, idsFileFlag: string): string[] => {
+  const idsArg = getArg(idsFlag);
+  const idsFile = getArg(idsFileFlag);
+  const ids = [...(idsArg ? idsArg.split(",") : []), ...(idsFile ? fs.readFileSync(idsFile, "utf-8").split(/\r?\n|,/) : [])].map((id) => id.trim()).filter(Boolean);
+  return [...new Set(ids)];
+};
+const missionIds = parseIds("--mission-ids", "--mission-ids-file");
 
 // ─── CSV helpers ─────────────────────────────────────────────────────────────
 
@@ -89,11 +114,14 @@ const CSV_HEADERS = [
 
 const JUDGE_SCHEMA = z.object({
   verdict: z.enum(["approved", "flagged_minor", "flagged_major"]),
+  primary_domain_error: z.boolean(),
   classifications_review: z.array(
     z.object({
       taxonomy_key: z.string(),
       value_key: z.string(),
       status: z.enum(["ok", "questionable", "wrong"]),
+      expected_confidence_min: z.number().min(0).max(1),
+      expected_confidence_max: z.number().min(0).max(1),
       reason: z.string(),
     })
   ),
@@ -102,6 +130,8 @@ const JUDGE_SCHEMA = z.object({
       z.object({
         taxonomy_key: z.string(),
         value_key: z.string(),
+        confidence: z.number().min(0.8).max(1),
+        evidence_extract: z.string().min(1),
         reason: z.string(),
       })
     )
@@ -110,26 +140,30 @@ const JUDGE_SCHEMA = z.object({
   summary: z.string(),
 });
 
-type JudgeResult = z.infer<typeof JUDGE_SCHEMA>;
+type JudgeOutput = z.infer<typeof JUDGE_SCHEMA>;
+type ConfidenceStatus = "ok" | "too_low" | "too_high";
+type JudgeResult = Omit<JudgeOutput, "classifications_review"> & {
+  classifications_review: Array<JudgeOutput["classifications_review"][number] & { confidence: number; confidence_status: ConfidenceStatus }>;
+};
 
 const enforceVerdictInvariants = (result: JudgeResult): JudgeResult => {
   const wrongCount = result.classifications_review.filter((c) => c.status === "wrong").length;
-  if (wrongCount === 0) return result;
-
-  let verdict = result.verdict;
-  if (verdict === "approved") {
-    verdict = "flagged_minor";
-  }
-  if (wrongCount >= 4 && verdict === "flagged_minor") {
-    verdict = "flagged_major";
-  }
+  const hasSemanticIssue = wrongCount > 0 || result.missing_values.length > 0;
+  const verdict = result.primary_domain_error || wrongCount >= 4 ? "flagged_major" : hasSemanticIssue ? "flagged_minor" : "approved";
 
   return verdict === result.verdict ? result : { ...result, verdict };
 };
 
 // ─── Prompt ──────────────────────────────────────────────────────────────────
 
-const buildJudgeSystemPrompt = (taxonomyBlock: string): string => `\
+const buildJudgeSystemPrompt = (taxonomyBlock: string, taxonomyKeys: readonly EnrichableTaxonomyKey[], evaluatedVersion: PromptVersion): string => {
+  const primaryDomainTaxonomy = taxonomyKeys.includes("domaine_engagement") ? "domaine_engagement" : taxonomyKeys.includes("domaine") ? "domaine" : null;
+  const internationalRule = taxonomyKeys.includes("region_internationale")
+    ? '- Si `region_internationale` est attribué à une mission se déroulant à Mayotte, en Martinique, en Guadeloupe, en Guyane ou à La Réunion, le statut doit être "wrong". Ces territoires sont administrativement France et ne constituent pas une mission internationale.'
+    : "- Aucune règle spécifique additionnelle pour les taxonomies de cette version.";
+  const primaryDomainMajorRule = primaryDomainTaxonomy ? `la taxonomy \`${primaryDomainTaxonomy}\` principale est incorrecte, OU ` : "";
+
+  return `\
 Tu es un évaluateur expert de classifications de missions d'engagement bénévole et civique.
 
 Ta tâche : évaluer si les classifications produites par un classificateur LLM sont correctes, incorrectes ou manquantes, en te basant exclusivement sur le texte de la mission et les règles ci-dessous.
@@ -138,7 +172,7 @@ Ta tâche : évaluer si les classifications produites par un classificateur LLM 
 
 Ces règles sont celles utilisées par le classificateur. Applique-les exactement pour évaluer ses résultats.
 
-${buildTaxonomyGuidanceBlock()}
+${buildTaxonomyGuidanceBlock(evaluatedVersion)}
 
 ## Taxonomies de référence
 
@@ -150,30 +184,43 @@ Pour chaque classification existante :
 - "ok" : clairement justifiée par le texte de la mission et conforme aux règles
 - "questionable" : plausible mais signal ambigu — ne pas forcer un "wrong" si tu n'es pas certain
 - "wrong" : incorrecte ou clairement non justifiée par le texte, ou en contradiction avec les règles
-- Renseigne toujours "reason" ; utilise une chaîne vide pour les classifications "ok" sans remarque utile
+- Évalue séparément la calibration de sa confiance avec "expected_confidence_min" et "expected_confidence_max". Donne la plage raisonnable pour cette classification, avec min ≤ max. Le script comparera lui-même la confiance observée à cette plage.
+- Utilise l'échelle du classificateur : 0.90–1.00 explicite, 0.70–0.89 clair, 0.50–0.69 inférence plausible, 0.30–0.49 signal faible avec plusieurs indices convergents
+- Le statut sémantique et la calibration sont indépendants : une valeur peut être "questionable" avec une confiance faible correctement calibrée.
+- Renseigne toujours "reason" ; utilise une chaîne vide uniquement lorsque le statut est "ok" et que la confiance observée appartient à la plage attendue.
 
 Pour les valeurs manquantes (missing_values) :
 - Identifie uniquement les valeurs qui sont manifestement justifiées par le texte mais absentes
+- Chaque entrée signifie strictement « cette valeur aurait dû être ajoutée ». N'utilise jamais missing_values pour commenter une valeur qui doit rester absente, qui serait incorrecte ou pour laquelle le référentiel ne possède pas de bonne approximation.
+- Fournis dans "evidence_extract" un extrait LITTÉRAL du bloc mission qui établit directement la valeur manquante. N'utilise ni reformulation, ni raisonnement, ni extrait issu des classifications proposées.
+- N'ajoute une valeur manquante que si sa confiance est comprise entre 0.80 et 1.00. En cas d'ambiguïté, n'ajoute rien.
+- Utilise exclusivement les taxonomy_key et value_key présents dans les taxonomies de référence. N'invente jamais une valeur pour mieux représenter la mission.
+- Respecte les unités et périodicités littérales. Ne transforme notamment pas une fréquence mensuelle en moyenne hebdomadaire.
 - Maximum 5 — ne les surcharge pas si les classifications sont globalement correctes
 
-Verdicts globaux :
-- "approved" : les classifications sont globalement correctes, pas de problème majeur
-- "flagged_minor" : 1 à 3 tags wrong sur des dimensions secondaires, domaine principal correct
-- "flagged_major" : le domaine principal est incorrect (critère qualitatif principal), OU 4 tags ou plus sont classés wrong dans classificationsReview, quel que soit le domaine (critère quantitatif de sécurité)
+Pour "primary_domain_error" :
+- Utilise la taxonomy \`${primaryDomainTaxonomy ?? "aucune"}\`.
+- Retourne true uniquement si le domaine réellement principal est absent ou si la valeur de domaine la mieux scorée est incorrecte.
+- Une valeur de domaine secondaire incorrecte ne constitue PAS une erreur de domaine principal lorsqu'une valeur mieux scorée ou aussi bien scorée décrit correctement le domaine principal.
 
-RÈGLE ABSOLUE : si au moins un tag est classé "wrong" dans classificationsReview, le verdict DOIT être "flagged_minor" ou "flagged_major", jamais "approved". Un tagging "globalement correct" avec une erreur explicite = flagged_minor minimum.
+Verdicts globaux :
+- "approved" : aucun tag incorrect et aucune valeur manifestement manquante ; des confiances imparfaites restent un diagnostic séparé
+- "flagged_minor" : 1 à 3 tags wrong sur des dimensions secondaires, ou au moins une valeur manifestement manquante
+- "flagged_major" : ${primaryDomainMajorRule}4 tags ou plus sont classés wrong dans classifications_review
+
+Les problèmes de calibration de confiance ne modifient jamais, à eux seuls, le verdict sémantique.
 
 ## Règles spécifiques par taxonomy
 
-- Si \`region_internationale\` est attribué à une mission se déroulant à Mayotte, en Martinique, en Guadeloupe, en Guyane ou à La Réunion, le statut doit être "wrong". Ces territoires sont administrativement France et ne constituent pas une mission internationale.
+${internationalRule}
 
 ## Principes fondamentaux
 
 - Ancre chaque verdict dans le texte de la mission — ne déduis pas ce qui n'y est pas
 - Ne préfère pas une version qui retourne plus de valeurs : la complétude n'est pas une vertu en soi
 - Si tu ne peux pas trancher, utilise "questionable" plutôt que "wrong"
-- Ignore les confidences (0–1) dans ton évaluation : juge uniquement la pertinence des valeurs choisies
-- Pour failure_patterns : liste jusqu'à 3 formulations courtes décrivant le type d'erreur (ex. "domaine trop large", "formation_onisep ignorée", "cadre_engage non justifié")`;
+- Pour failure_patterns : liste jusqu'à 3 formulations courtes décrivant uniquement les erreurs sémantiques (ex. "domaine trop large", "signal explicite ignoré", "rythme mensuel interprété comme hebdomadaire"). N'y inclus pas les seuls écarts de confiance.`;
+};
 
 const buildJudgeUserMessage = (
   missionBlock: string,
@@ -207,12 +254,14 @@ type TaxonomyWithValues = { key: string; type: string; label: string; values: Ar
 // On part donc de la whitelist explicite du prompt (`TAXONOMY_KEYS`), pas du référentiel global
 // `ENRICHABLE_TAXONOMIES` : sinon les taxonomies enrichissables ajoutées pour des versions
 // ultérieures seraient signalées comme « manquantes » et pénaliseraient injustement v1-v4.
-const resolveEvaluatedTaxonomyKeys = (evaluatedVersion: string): readonly EnrichableTaxonomyKey[] => {
-  if (evaluatedVersion in PROMPT_REGISTRY) {
-    return PROMPT_REGISTRY[evaluatedVersion as PromptVersion].TAXONOMY_KEYS;
+const resolveEvaluatedPromptVersion = (evaluatedVersion: string): PromptVersion => {
+  if (Object.prototype.hasOwnProperty.call(PROMPT_REGISTRY, evaluatedVersion)) {
+    return evaluatedVersion as PromptVersion;
   }
   throw new Error(`[judge-enrichments] version inconnue "${evaluatedVersion}" — aucune whitelist de taxonomies disponible`);
 };
+
+const resolveEvaluatedTaxonomyKeys = (evaluatedVersion: PromptVersion): readonly EnrichableTaxonomyKey[] => PROMPT_REGISTRY[evaluatedVersion].TAXONOMY_KEYS;
 
 const getTaxonomies = (taxonomyKeys: readonly EnrichableTaxonomyKey[]): TaxonomyWithValues[] =>
   taxonomyKeys.map((taxonomyKey) => ({
@@ -287,6 +336,71 @@ type EnrichmentValue = {
   evidence: { extract: string; reasoning: string };
 };
 
+const normalizeJudgeOutput = (
+  output: JudgeOutput,
+  values: EnrichmentValue[],
+  taxonomyKeys: readonly EnrichableTaxonomyKey[],
+  primaryDomainTaxonomy: string | null,
+  missionBlock: string
+): JudgeResult => {
+  const allowedKeys = new Set<string>();
+  for (const taxonomyKey of taxonomyKeys) {
+    for (const [valueKey, value] of Object.entries(TAXONOMY[taxonomyKey].values)) {
+      if (value.enrichable) {
+        allowedKeys.add(`${taxonomyKey}.${valueKey}`);
+      }
+    }
+  }
+
+  const valuesByKey = new Map(values.map((value) => [`${value.taxonomyKey}.${value.valueKey}`, value]));
+  const classificationsReview = output.classifications_review.flatMap((review) => {
+    const key = `${review.taxonomy_key}.${review.value_key}`;
+    const value = valuesByKey.get(key);
+    if (!value || !allowedKeys.has(key)) {
+      return [];
+    }
+
+    const expectedMin = Math.min(review.expected_confidence_min, review.expected_confidence_max);
+    const expectedMax = Math.max(review.expected_confidence_min, review.expected_confidence_max);
+    const confidenceStatus: ConfidenceStatus = value.confidence < expectedMin ? "too_low" : value.confidence > expectedMax ? "too_high" : "ok";
+
+    return [
+      {
+        ...review,
+        expected_confidence_min: expectedMin,
+        expected_confidence_max: expectedMax,
+        confidence: value.confidence,
+        confidence_status: confidenceStatus,
+      },
+    ];
+  });
+
+  const seenMissingKeys = new Set<string>();
+  const normalizedMissionBlock = missionBlock.normalize("NFKC").toLocaleLowerCase("fr-FR").replace(/\s+/g, " ");
+  const missingValues = output.missing_values.filter((missing) => {
+    const key = `${missing.taxonomy_key}.${missing.value_key}`;
+    const normalizedExtract = missing.evidence_extract.normalize("NFKC").toLocaleLowerCase("fr-FR").replace(/\s+/g, " ").trim();
+    if (!allowedKeys.has(key) || valuesByKey.has(key) || seenMissingKeys.has(key) || normalizedExtract.length === 0 || !normalizedMissionBlock.includes(normalizedExtract)) {
+      return false;
+    }
+    seenMissingKeys.add(key);
+    return true;
+  });
+
+  const domainReviews = primaryDomainTaxonomy ? classificationsReview.filter((review) => review.taxonomy_key === primaryDomainTaxonomy) : [];
+  const bestCorrectDomainConfidence = Math.max(0, ...domainReviews.filter((review) => review.status !== "wrong").map((review) => review.confidence));
+  const bestWrongDomainConfidence = Math.max(0, ...domainReviews.filter((review) => review.status === "wrong").map((review) => review.confidence));
+  const hasMissingDomain = primaryDomainTaxonomy !== null && missingValues.some((missing) => missing.taxonomy_key === primaryDomainTaxonomy);
+  const primaryDomainError = bestWrongDomainConfidence > bestCorrectDomainConfidence || (output.primary_domain_error && hasMissingDomain);
+
+  return enforceVerdictInvariants({
+    ...output,
+    primary_domain_error: primaryDomainError,
+    classifications_review: classificationsReview,
+    missing_values: missingValues,
+  });
+};
+
 type JudgeRunResult = {
   enrichmentId: string;
   missionId: string;
@@ -321,7 +435,8 @@ const resultToCsv = (result: JudgeRunResult): string =>
 const runJudge = async (params: {
   enrichmentId: string;
   missionId: string;
-  promptVersion: string;
+  promptVersion: PromptVersion;
+  taxonomyKeys: readonly EnrichableTaxonomyKey[];
   missionBlock: string;
   taxonomyBlock: string;
   values: EnrichmentValue[];
@@ -336,10 +451,11 @@ const runJudge = async (params: {
   }));
 
   try {
+    const primaryDomainTaxonomy = params.taxonomyKeys.includes("domaine_engagement") ? "domaine_engagement" : params.taxonomyKeys.includes("domaine") ? "domaine" : null;
     const llmResult = await generateObject({
       model: JUDGE_MODEL,
       schema: JUDGE_SCHEMA,
-      system: buildJudgeSystemPrompt(params.taxonomyBlock),
+      system: buildJudgeSystemPrompt(params.taxonomyBlock, params.taxonomyKeys, params.promptVersion),
       prompt: buildJudgeUserMessage(params.missionBlock, classifications),
       maxRetries: LLM_MAX_RETRIES,
       temperature: 0,
@@ -353,7 +469,7 @@ const runJudge = async (params: {
       inputTokens: llmResult.usage.inputTokens,
       outputTokens: llmResult.usage.outputTokens,
       totalTokens: llmResult.usage.totalTokens,
-      result: enforceVerdictInvariants(llmResult.object),
+      result: normalizeJudgeOutput(llmResult.object, params.values, params.taxonomyKeys, primaryDomainTaxonomy, params.missionBlock),
     };
   } catch (err) {
     const error = err as { message?: string };
@@ -384,14 +500,20 @@ const generateReport = (results: JudgeRunResult[], version: string, judgeModel: 
   }
 
   // Per-taxonomy stats
-  type TaxoStats = { ok: number; questionable: number; wrong: number; total: number };
+  type TaxoStats = { ok: number; questionable: number; wrong: number; confidenceTooLow: number; confidenceTooHigh: number; total: number };
   const taxoStats = new Map<string, TaxoStats>();
   const missingByTaxo = new Map<string, number>();
 
   for (const r of successful) {
     for (const cr of r.result!.classifications_review) {
-      const stats = taxoStats.get(cr.taxonomy_key) ?? { ok: 0, questionable: 0, wrong: 0, total: 0 };
+      const stats = taxoStats.get(cr.taxonomy_key) ?? { ok: 0, questionable: 0, wrong: 0, confidenceTooLow: 0, confidenceTooHigh: 0, total: 0 };
       stats[cr.status]++;
+      if (cr.confidence_status === "too_low") {
+        stats.confidenceTooLow++;
+      }
+      if (cr.confidence_status === "too_high") {
+        stats.confidenceTooHigh++;
+      }
       stats.total++;
       taxoStats.set(cr.taxonomy_key, stats);
     }
@@ -443,11 +565,11 @@ const generateReport = (results: JudgeRunResult[], version: string, judgeModel: 
     ``,
     `## Par taxonomy_key`,
     ``,
-    `| taxonomy_key | ok | questionable | wrong | manquantes |`,
-    `|---|---|---|---|---|`,
+    `| taxonomy_key | ok | questionable | wrong | confiance trop basse | confiance trop haute | manquantes |`,
+    `|---|---|---|---|---|---|---|`,
     ...[...taxoStats.entries()].map(([key, s]) => {
       const missing = missingByTaxo.get(key) ?? 0;
-      return `| ${key} | ${pct(s.ok, s.total)} | ${pct(s.questionable, s.total)} | ${pct(s.wrong, s.total)} | ${missing} missions |`;
+      return `| ${key} | ${pct(s.ok, s.total)} | ${pct(s.questionable, s.total)} | ${pct(s.wrong, s.total)} | ${pct(s.confidenceTooLow, s.total)} | ${pct(s.confidenceTooHigh, s.total)} | ${missing} missions |`;
     }),
     ``,
     `## Patterns d'échec les plus fréquents`,
@@ -479,16 +601,11 @@ const buildMissionIdsPath = (filePath: string): string => {
   return path.join(parsed.dir, `${parsed.name}-mission-ids.txt`);
 };
 
-const buildEnrichmentIdsPath = (filePath: string): string => {
-  const parsed = path.parse(filePath);
-  return path.join(parsed.dir, `${parsed.name}-enrichment-ids.txt`);
-};
-
-const exportDataset = (enrichmentIdsPath: string) => {
+const exportDataset = (missionIdsPath: string) => {
   const exportScriptPath = path.resolve(__dirname, "export-dataset.ts");
   const result = spawnSync(
     process.execPath,
-    ["-r", "ts-node/register", "-r", "tsconfig-paths/register", exportScriptPath, "--version", version, "--enrichment-ids-file", enrichmentIdsPath, "--output", datasetOutputPath],
+    ["-r", "ts-node/register", "-r", "tsconfig-paths/register", exportScriptPath, "--version", version, "--ids-file", missionIdsPath, "--output", datasetOutputPath],
     { cwd: path.resolve(__dirname, "../.."), env: process.env, stdio: "inherit" }
   );
 
@@ -498,22 +615,45 @@ const exportDataset = (enrichmentIdsPath: string) => {
 };
 
 async function main() {
-  console.log(`[judge-enrichments] version=${version} limit=${limit} output=${outputPath} report=${reportPath} datasetOutput=${datasetOutputPath} judgeModel=${JUDGE_MODEL_ID}`);
+  console.log(
+    `[judge-enrichments] version=${version} limit=${missionIds.length > 0 ? missionIds.length : limit} missionIds=${missionIds.length || "latest"} output=${outputPath} report=${reportPath} datasetOutput=${datasetOutputPath} judgeModel=${JUDGE_MODEL_ID}`
+  );
+
+  const evaluatedVersion = resolveEvaluatedPromptVersion(version);
+  const taxonomyKeys = resolveEvaluatedTaxonomyKeys(evaluatedVersion);
+  const taxonomies = getTaxonomies(taxonomyKeys);
+  const taxonomyBlock = buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies));
 
   await pgConnected();
 
-  const taxonomies = getTaxonomies(resolveEvaluatedTaxonomyKeys(version));
-  const taxonomyBlock = buildTaxonomyBlock(toTaxonomyForPrompt(taxonomies));
-
-  const enrichments = await prisma.missionEnrichment.findMany({
-    where: { status: "completed", promptVersion: version },
+  const loadedEnrichments = await prisma.missionEnrichment.findMany({
+    where: {
+      status: "completed",
+      promptVersion: version,
+      ...(missionIds.length > 0 ? { missionId: { in: missionIds } } : {}),
+    },
     include: {
       values: true,
       mission: { include: missionInclude },
     },
-    take: limit,
+    take: missionIds.length > 0 ? undefined : limit,
     orderBy: { completedAt: "desc" },
   });
+
+  const latestEnrichmentByMissionId = new Map<string, (typeof loadedEnrichments)[number]>();
+  for (const enrichment of loadedEnrichments) {
+    if (!latestEnrichmentByMissionId.has(enrichment.missionId)) {
+      latestEnrichmentByMissionId.set(enrichment.missionId, enrichment);
+    }
+  }
+
+  if (missionIds.length > 0 && latestEnrichmentByMissionId.size !== missionIds.length) {
+    const foundMissionIds = new Set(latestEnrichmentByMissionId.keys());
+    const missingMissionIds = missionIds.filter((missionId) => !foundMissionIds.has(missionId));
+    throw new Error(`[judge-enrichments] ${missingMissionIds.length} mission IDs sans enrichissement ${version} terminé: ${missingMissionIds.join(", ")}`);
+  }
+
+  const enrichments = missionIds.length > 0 ? missionIds.map((missionId) => latestEnrichmentByMissionId.get(missionId)!) : loadedEnrichments;
 
   if (enrichments.length === 0) {
     console.warn(`[judge-enrichments] aucun enrichissement trouvé pour version=${version}`);
@@ -553,7 +693,8 @@ async function main() {
     const runResult = await runJudge({
       enrichmentId: enrichment.id,
       missionId: mission.id,
-      promptVersion: version,
+      promptVersion: evaluatedVersion,
+      taxonomyKeys,
       missionBlock,
       taxonomyBlock,
       values,
@@ -580,11 +721,9 @@ async function main() {
 
   if (shouldExportDataset) {
     const missionIdsPath = buildMissionIdsPath(outputPath);
-    const enrichmentIdsPath = buildEnrichmentIdsPath(outputPath);
     fs.writeFileSync(missionIdsPath, results.map((r) => r.missionId).join("\n"), "utf-8");
-    fs.writeFileSync(enrichmentIdsPath, results.map((r) => r.enrichmentId).join("\n"), "utf-8");
-    console.log(`[judge-enrichments] export dataset sur le même échantillon — ids: ${enrichmentIdsPath}`);
-    exportDataset(enrichmentIdsPath);
+    console.log(`[judge-enrichments] export dataset sur le même échantillon — mission ids: ${missionIdsPath}`);
+    exportDataset(missionIdsPath);
   }
 
   const successful = results.filter((r) => r.result);

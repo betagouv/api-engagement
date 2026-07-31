@@ -155,19 +155,15 @@ const rowToCsv = (row: CsvRow): string => HEADERS.map((h) => csvEscape(row[h as 
 
 async function main() {
   const missionIds = parseIds("--ids", "--ids-file");
-  const enrichmentIds = parseIds("--enrichment-ids", "--enrichment-ids-file");
-  console.log(
-    `[export-dataset] version=${version} limit=${limit ?? "all"} missionIds=${missionIds.length || "all"} enrichmentIds=${enrichmentIds.length || "all"} output=${outputPath}`
-  );
+  console.log(`[export-dataset] version=${version} limit=${limit ?? "all"} missionIds=${missionIds.length || "all"} output=${outputPath}`);
 
   const fullLookup = buildFullLookup();
 
-  const enrichments = await prisma.missionEnrichment.findMany({
+  const loadedEnrichments = await prisma.missionEnrichment.findMany({
     where: {
       status: "completed",
       promptVersion: version,
       ...(missionIds.length > 0 ? { missionId: { in: missionIds } } : {}),
-      ...(enrichmentIds.length > 0 ? { id: { in: enrichmentIds } } : {}),
     },
     take: limit,
     orderBy: { completedAt: "desc" },
@@ -187,6 +183,13 @@ async function main() {
       values: true,
     },
   });
+
+  const enrichments =
+    missionIds.length > 0
+      ? missionIds
+          .map((missionId) => loadedEnrichments.find((enrichment) => enrichment.missionId === missionId))
+          .filter((enrichment): enrichment is (typeof loadedEnrichments)[number] => enrichment !== undefined)
+      : loadedEnrichments;
 
   console.log(`[export-dataset] ${enrichments.length} enrichments found`);
 
