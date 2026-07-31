@@ -3,50 +3,30 @@ import path from "node:path";
 import YAML from "yaml";
 import type { DocumentConfig, SourcesConfig } from "./types";
 
-const assertStringArray = (value: unknown, label: string): string[] => {
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) {
-    throw new Error(`${label} doit être une liste de chaînes non vides`);
-  }
+export const DOCUMENTS: DocumentConfig[] = [
+  ["01-product-overview.md", "Vue d'ensemble du produit", "Décrire la finalité, les fonctionnalités, les acteurs et l'architecture fonctionnelle."],
+  ["02-user-journeys.md", "Parcours utilisateur", "Décrire les parcours de bout en bout, du quiz à la candidature, aux emails et à la newsletter."],
+  ["03-quiz.md", "Quiz", "Documenter les étapes, options, validations, embranchements, navigation et réponses du quiz."],
+  ["04-user-scoring.md", "Scoring utilisateur", "Décrire la création, la mise à jour et la persistance du scoring utilisateur."],
+  ["05-mission-search.md", "Recherche de missions", "Décrire le catalogue, les filtres, facettes, pagination et états de résultat."],
+  ["06-matching.md", "Matching", "Décrire les versions, taxonomies, pondérations, scores, gates, classement, pagination et cache."],
+  ["07-eligibility-and-scoring.md", "Éligibilité et scoring des missions", "Documenter les règles déterministes et contraintes d'éligibilité."],
+  ["08-taxonomies.md", "Taxonomies", "Décrire les taxonomies, leurs valeurs, transformations et usages."],
+  ["09-mission-detail-and-application.md", "Détail d'une mission et candidature", "Décrire le chargement, l'affichage, la candidature et les missions similaires."],
+  ["10-emails-newsletter-and-consent.md", "Emails, newsletter et consentement", "Décrire les emails, la newsletter et les règles de consentement."],
+  ["11-data-persistence-and-state.md", "Persistance des données et états", "Décrire les données persistées, identifiants, caches, resets et invalidations."],
+  ["12-errors-edge-cases-and-fallbacks.md", "Erreurs, cas limites et fallbacks", "Décrire les comportements prévus pour les erreurs, valeurs absentes et fallbacks."],
+].map(([documentPath, title, objective]) => ({ path: documentPath, title, objective, sources: [] }));
+
+const readStringArray = (value: unknown, label: string): string[] => {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) throw new Error(`${label} doit être une liste de chaînes non vides`);
   return value;
 };
 
-const parseDocument = (value: unknown, index: number): DocumentConfig => {
-  if (!value || typeof value !== "object") throw new Error(`documents[${index}] est invalide`);
-  const document = value as Record<string, unknown>;
-  for (const key of ["path", "title", "objective"] as const) {
-    if (typeof document[key] !== "string" || document[key].length === 0) {
-      throw new Error(`documents[${index}].${key} doit être une chaîne non vide`);
-    }
-  }
-
-  const outputPath = document.path as string;
-  if (!/^\d{2}-[a-z0-9-]+\.md$/.test(outputPath) || outputPath.includes("..")) {
-    throw new Error(`Chemin de document non autorisé : ${outputPath}`);
-  }
-
-  return {
-    path: outputPath,
-    title: document.title as string,
-    objective: document.objective as string,
-    sources: assertStringArray(document.sources, `documents[${index}].sources`),
-  };
-};
-
 export const loadConfig = (configPath: string): SourcesConfig => {
-  const raw = fs.readFileSync(configPath, "utf8");
-  const parsed = YAML.parse(raw) as Record<string, unknown> | null;
+  const parsed = YAML.parse(fs.readFileSync(configPath, "utf8")) as Record<string, unknown> | null;
   if (!parsed || parsed.version !== 1) throw new Error("sources.yml doit déclarer version: 1");
-  if (!Array.isArray(parsed.documents) || parsed.documents.length === 0) throw new Error("sources.yml ne contient aucun document");
-
-  const documents = parsed.documents.map(parseDocument);
-  const paths = documents.map((document) => document.path);
-  if (new Set(paths).size !== paths.length) throw new Error("Deux documents utilisent le même chemin de sortie");
-
-  return {
-    version: 1,
-    exclude: assertStringArray(parsed.exclude, "exclude"),
-    documents,
-  };
+  return { version: 1, include: readStringArray(parsed.include, "include"), exclude: readStringArray(parsed.exclude, "exclude") };
 };
 
 export const resolveRepositoryPaths = (repositoryRoot: string) => ({

@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "generate-changelog": "ts-node generate-changelog.ts",
-    "generate-docs-plateform-support-agent": "ts-node generate-docs-plateform-support-agent/index.ts generate",
-    "check-docs-plateform-support-agent": "ts-node generate-docs-plateform-support-agent/index.ts check",
+    "generate-docs-plateform-support-agent": "ts-node generate-docs-plateform-support-agent/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

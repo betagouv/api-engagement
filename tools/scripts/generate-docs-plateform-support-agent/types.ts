@@ -7,8 +7,8 @@ export type DocumentConfig = {
 
 export type SourcesConfig = {
   version: number;
+  include: string[];
   exclude: string[];
-  documents: DocumentConfig[];
 };
 
 export type CollectedDocument = DocumentConfig & {

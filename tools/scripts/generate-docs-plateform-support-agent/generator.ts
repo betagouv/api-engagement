@@ -49,8 +49,15 @@ Règles impératives :
 - Termine obligatoirement par une section "## Sources" contenant une liste de chemins entre backticks.
 - Retourne uniquement le Markdown du document, sans bloc de code englobant ni commentaire.`;
 
-export const generateDocument = async (params: { openai: OpenAI; model: string; repositoryRoot: string; docsDirectory: string; document: CollectedDocument }): Promise<string> => {
-  const { openai, model, repositoryRoot, docsDirectory, document } = params;
+export const generateDocument = async (params: {
+  openai: OpenAI;
+  model: string;
+  repositoryRoot: string;
+  docsDirectory: string;
+  document: CollectedDocument;
+  changedSources: string[];
+}): Promise<string> => {
+  const { openai, model, repositoryRoot, docsDirectory, document, changedSources } = params;
   const outputPath = path.join(docsDirectory, document.path);
   const existing = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, "utf8") : "(document inexistant)";
   const sources = buildSourcesContext(repositoryRoot, document.files);
@@ -77,7 +84,11 @@ ${truncate(existing, MAX_EXISTING_DOCUMENT_CHARS, "document existant")}
 
 # Sources de vérité
 
-${sources}`,
+${sources}
+
+# Fichiers modifiés ou supprimés depuis la génération précédente
+
+${changedSources.map((file) => `- ${file}`).join("\n") || "- Aucun (régénération complète)"}`,
       },
     ],
   });

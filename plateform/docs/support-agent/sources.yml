@@ -1,5 +1,22 @@
 version: 1
 
+# Frontière fonctionnelle globale. Les sources propres à chaque chapitre sont
+# retrouvées automatiquement depuis ses citations et les fichiers modifiés.
+include:
+  - "plateform/app/**"
+  - "packages/taxonomy/src/**"
+  - "packages/dto/src/resources/**"
+  - "api/src/controllers/**"
+  - "api/src/services/user-scoring/**"
+  - "api/src/services/mission-browse/**"
+  - "api/src/services/mission-match/**"
+  - "api/src/services/matching-engine/**"
+  - "api/src/services/mission-scoring/**"
+  - "api/src/services/mission-email/**"
+  - "api/src/services/newsletter/**"
+  - "api/src/services/search/**"
+  - "api/src/repositories/mission-matching-result.ts"
+
 exclude:
   - "**/node_modules/**"
   - "**/dist/**"
@@ -10,181 +27,3 @@ exclude:
   - "**/eval-runs/**"
   - "**/.env"
   - "**/.env.*"
-
-documents:
-  - path: 01-product-overview.md
-    title: Vue d'ensemble du produit
-    objective: Décrire la finalité du produit, ses fonctionnalités, ses acteurs, ses concepts et son architecture fonctionnelle.
-    sources:
-      - plateform/app/routes.ts
-      - plateform/app/routes/_index.tsx
-      - plateform/app/components/landing/**
-      - plateform/app/components/layout/header.tsx
-      - plateform/app/components/layout/footer.tsx
-      - plateform/app/services/config.ts
-
-  - path: 02-user-journeys.md
-    title: Parcours utilisateur
-    objective: Décrire les parcours de bout en bout, de l'entrée sur la plateforme jusqu'à la candidature, aux emails et à la newsletter.
-    sources:
-      - plateform/app/routes.ts
-      - plateform/app/routes/_index.tsx
-      - plateform/app/routes/quiz/**
-      - plateform/app/routes/results.tsx
-      - plateform/app/routes/missions.tsx
-      - plateform/app/routes/mission-detail.tsx
-      - plateform/app/components/mission-detail/**
-      - plateform/app/components/results/**
-      - plateform/app/services/email.ts
-      - plateform/app/services/newsletter.ts
-
-  - path: 03-quiz.md
-    title: Quiz
-    objective: Documenter toutes les étapes du quiz, les options, validations, embranchements, règles de navigation et la construction des réponses.
-    sources:
-      - plateform/app/config/quiz-flow.ts
-      - plateform/app/config/quiz-options.ts
-      - plateform/app/routes/quiz/**
-      - plateform/app/components/quiz/**
-      - plateform/app/stores/quiz.ts
-      - plateform/app/types/quiz.ts
-      - plateform/app/utils/conditions.ts
-      - plateform/app/utils/quiz.ts
-      - plateform/app/utils/__tests__/conditions.test.ts
-      - plateform/app/utils/__tests__/quiz.test.ts
-      - packages/taxonomy/src/**
-
-  - path: 04-user-scoring.md
-    title: Scoring utilisateur
-    objective: Décrire la création, la mise à jour et la persistance du scoring utilisateur ainsi que les données transmises à l'API.
-    sources:
-      - plateform/app/routes/api.user-scoring.ts
-      - plateform/app/routes/api.user-scoring.$id.ts
-      - plateform/app/routes/quiz/_layout.tsx
-      - plateform/app/services/user-scoring.ts
-      - plateform/app/services/client.ts
-      - plateform/app/stores/quiz.ts
-      - plateform/app/utils/quiz.ts
-      - packages/dto/src/resources/user-scoring.ts
-      - api/src/controllers/user-scoring.ts
-      - api/src/services/user-scoring/**
-
-  - path: 05-mission-search.md
-    title: Recherche de missions
-    objective: Décrire le catalogue, les filtres, les facettes, la pagination, le chargement du détail et les résultats vides ou en erreur.
-    sources:
-      - plateform/app/routes/missions.tsx
-      - plateform/app/routes/api.missions.browse.ts
-      - plateform/app/routes/api.missions.browse.$id.ts
-      - plateform/app/components/missions/**
-      - plateform/app/services/mission-browse.ts
-      - packages/dto/src/resources/mission-browse.ts
-      - api/src/controllers/mission-browse.ts
-      - api/src/services/mission-browse/**
-      - api/src/services/search/**
-      - packages/taxonomy/src/**
-
-  - path: 06-matching.md
-    title: Matching
-    objective: Décrire précisément les versions du moteur, les taxonomies, pondérations, scores, gates, règles géographiques, classement, pagination et cache.
-    sources:
-      - plateform/app/routes/results.tsx
-      - plateform/app/routes/api.missions.match.ts
-      - plateform/app/components/results/**
-      - plateform/app/hooks/useMissionResults.ts
-      - plateform/app/services/matching.ts
-      - packages/dto/src/resources/mission-match.ts
-      - api/src/controllers/mission-match.ts
-      - api/src/services/mission-match/**
-      - api/src/services/matching-engine/**
-      - api/src/repositories/mission-matching-result.ts
-      - packages/taxonomy/src/**
-
-  - path: 07-eligibility-and-scoring.md
-    title: Éligibilité et scoring des missions
-    objective: Documenter les règles déterministes de scoring, les contraintes d'éligibilité, leurs modes de combinaison et les invariants associés.
-    sources:
-      - api/src/services/mission-scoring/**
-      - api/src/services/matching-engine/**
-      - packages/taxonomy/src/**
-
-  - path: 08-taxonomies.md
-    title: Taxonomies
-    objective: Décrire toutes les taxonomies consommées par la plateforme, leurs valeurs, transformations et usages dans le quiz, le matching et les filtres.
-    sources:
-      - packages/taxonomy/src/**
-      - plateform/app/config/quiz-flow.ts
-      - plateform/app/config/quiz-options.ts
-      - plateform/app/routes/quiz/**
-      - plateform/app/routes/missions.tsx
-      - api/src/services/matching-engine/config.ts
-      - api/src/services/mission-scoring/scoring-rules.ts
-
-  - path: 09-mission-detail-and-application.md
-    title: Détail d'une mission et candidature
-    objective: Décrire le chargement et l'affichage d'une mission, les informations disponibles, les liens de candidature et les missions similaires.
-    sources:
-      - plateform/app/routes/mission-detail.tsx
-      - plateform/app/routes/api.missions.browse.$id.ts
-      - plateform/app/components/mission-detail/**
-      - plateform/app/services/mission-browse.ts
-      - plateform/app/utils/mission.ts
-      - plateform/app/utils/__tests__/mission.test.ts
-      - packages/dto/src/resources/mission-browse.ts
-      - api/src/services/mission-browse/**
-
-  - path: 10-emails-newsletter-and-consent.md
-    title: Emails, newsletter et consentement
-    objective: Décrire l'envoi de missions, l'inscription à la newsletter, les données requises, les réponses possibles et les règles de consentement.
-    sources:
-      - plateform/app/routes/api.email.mission.ts
-      - plateform/app/routes/api.newsletter.ts
-      - plateform/app/components/mission-detail/email-mission-details-modal.tsx
-      - plateform/app/components/results/email-missions-modal.tsx
-      - plateform/app/components/layout/newsletter.tsx
-      - plateform/app/components/layout/cookie-consent-manager.tsx
-      - plateform/app/services/email.ts
-      - plateform/app/services/newsletter.ts
-      - plateform/app/services/cookie-consent.ts
-      - plateform/app/services/consent-services.ts
-      - plateform/app/services/__tests__/cookie-consent.test.ts
-      - packages/dto/src/resources/mission-email.ts
-      - packages/dto/src/resources/newsletter.ts
-      - api/src/controllers/email.ts
-      - api/src/controllers/newsletter.ts
-      - api/src/services/mission-email/**
-      - api/src/services/newsletter/**
-
-  - path: 11-data-persistence-and-state.md
-    title: Persistance des données et états
-    objective: Décrire les données persistées dans le navigateur, les identifiants de session, les caches, les resets et leurs invalidations.
-    sources:
-      - plateform/app/stores/quiz.ts
-      - plateform/app/routes/quiz/_layout.tsx
-      - plateform/app/routes/quiz/age.tsx
-      - plateform/app/services/matching.ts
-      - plateform/app/services/tracking/index.ts
-      - plateform/app/services/cookie-consent.ts
-      - plateform/app/utils/internal-user-flag.ts
-      - plateform/app/utils/campaign-attribution.ts
-      - plateform/app/utils/__tests__/internal-user-flag.test.ts
-      - plateform/app/utils/__tests__/campaign-attribution.test.ts
-
-  - path: 12-errors-edge-cases-and-fallbacks.md
-    title: Erreurs, cas limites et fallbacks
-    objective: Regrouper les comportements explicitement prévus pour les données invalides, erreurs API, accès directs, retries, redirections et valeurs absentes.
-    sources:
-      - plateform/app/routes/**
-      - plateform/app/services/**
-      - plateform/app/utils/**
-      - api/src/controllers/user-scoring.ts
-      - api/src/controllers/mission-match.ts
-      - api/src/controllers/mission-browse.ts
-      - api/src/controllers/email.ts
-      - api/src/controllers/newsletter.ts
-      - api/src/services/user-scoring/**
-      - api/src/services/mission-browse/**
-      - api/src/services/mission-match/**
-      - api/src/services/matching-engine/**
-      - api/src/services/mission-email/**
-      - api/src/services/newsletter/**

@@ -7,24 +7,17 @@ import OpenAI from "openai";
 import { loadConfig, resolveRepositoryPaths } from "./config";
 import { generateDocument, generatePullRequestSummary } from "./generator";
 import { getChangedFiles, getHeadCommit, getRepositoryRoot, readPreviousSourceCommit } from "./git";
-import { collectDocuments, selectDocuments } from "./sources";
+import { collectDocuments, collectSourceFiles, isSourceInScope, selectDocuments } from "./sources";
 import type { GenerationResult } from "./types";
-import { validateDocuments } from "./validation";
 
 type CliOptions = {
-  command: "generate" | "check";
   forceAll: boolean;
   summaryFile?: string;
 };
 
 const parseArgs = (args: string[]): CliOptions => {
-  const command = args[0];
-  if (command !== "generate" && command !== "check") {
-    throw new Error("Usage : index.ts <generate|check> [--all] [--summary-file <chemin>]");
-  }
   const summaryIndex = args.indexOf("--summary-file");
   return {
-    command,
     forceAll: args.includes("--all"),
     summaryFile: summaryIndex >= 0 ? args[summaryIndex + 1] : undefined,
   };
@@ -49,11 +42,12 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const repositoryRoot = getRepositoryRoot();
   const paths = resolveRepositoryPaths(repositoryRoot);
   const config = loadConfig(paths.configPath);
-  const documents = await collectDocuments(repositoryRoot, config);
+  const sourceFiles = await collectSourceFiles(repositoryRoot, config);
+  const documents = collectDocuments(repositoryRoot, paths.docsDirectory, sourceFiles);
   const readme = fs.readFileSync(paths.readmePath, "utf8");
   const previousSourceCommit = readPreviousSourceCommit(readme);
   const sourceCommit = getHeadCommit(repositoryRoot);
-  const changedSources = getChangedFiles(repositoryRoot, previousSourceCommit);
+  const changedSources = getChangedFiles(repositoryRoot, previousSourceCommit).filter((file) => isSourceInScope(file, config));
   const selected = selectDocuments(documents, changedSources, options.forceAll || !previousSourceCommit, paths.docsDirectory);
 
   if (selected.length === 0) {
@@ -72,7 +66,16 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
     console.log(`[${index + 1}/${selected.length}] Génération de ${document.path}`);
     const outputPath = path.join(paths.docsDirectory, document.path);
     const previous = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, "utf8") : "";
-    const generated = await generateDocument({ openai, model, repositoryRoot, docsDirectory: paths.docsDirectory, document });
+    const existingChangedSources = changedSources.filter((file) => fs.existsSync(path.join(repositoryRoot, file)));
+    const sources = [...new Set([...document.files, ...existingChangedSources])].sort();
+    const generated = await generateDocument({
+      openai,
+      model,
+      repositoryRoot,
+      docsDirectory: paths.docsDirectory,
+      document: { ...document, files: sources },
+      changedSources,
+    });
     if (generated !== previous) {
       fs.writeFileSync(outputPath, generated, "utf8");
       changedDocuments.push(document.path);
@@ -85,7 +88,6 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   }
 
   fs.writeFileSync(paths.readmePath, updateReadmeMetadata(readme, sourceCommit), "utf8");
-  validateDocuments(repositoryRoot, paths.docsDirectory, documents);
 
   if (options.summaryFile) {
     const diff = gitDiffForDocuments(repositoryRoot, paths.docsDirectory, changedDocuments);
@@ -97,19 +99,9 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   return { changedDocuments, changedSources, sourceCommit };
 };
 
-const check = async (): Promise<void> => {
-  const repositoryRoot = getRepositoryRoot();
-  const paths = resolveRepositoryPaths(repositoryRoot);
-  const config = loadConfig(paths.configPath);
-  const documents = await collectDocuments(repositoryRoot, config);
-  validateDocuments(repositoryRoot, paths.docsDirectory, documents);
-  console.log(`${documents.length} document(s) validé(s).`);
-};
-
 const main = async () => {
   const options = parseArgs(process.argv.slice(2));
-  if (options.command === "check") await check();
-  else await generate(options);
+  await generate(options);
 };
 
 main().catch((error: unknown) => {
