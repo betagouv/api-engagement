@@ -114,9 +114,13 @@ const Widgets = () => {
           {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="px-4">
-                <Link to={`/broadcast/widget/${item.id}`} className="text-blue-france truncate">
-                  {item.name}
-                </Link>
+                {user.role === "admin" ? (
+                  <Link to={`/broadcast/widget/${item.id}`} className="text-blue-france truncate">
+                    {item.name}
+                  </Link>
+                ) : (
+                  <span className="truncate">{item.name}</span>
+                )}
               </td>
               <td className={`px-4 ${!item.active ? "opacity-50" : "opacity-100"}`}>
                 {item.publishers
@@ -127,9 +131,15 @@ const Widgets = () => {
               </td>
               <td className={`${!item.active ? "opacity-50" : "opacity-100"} px-4`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
               <td className="mt-3 flex gap-2 px-4 text-lg">
-                <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item.id}`}>
-                  <RiEditFill className="text-lg" role="img" aria-label="Modifier le widget" />
-                </Link>
+                {user.role === "admin" ? (
+                  <Link className="secondary-btn flex items-center" to={`/broadcast/widget/${item.id}`}>
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier le widget" />
+                  </Link>
+                ) : (
+                  <button type="button" className="secondary-btn flex items-center" disabled>
+                    <RiEditFill className="text-lg" role="img" aria-label="Modifier le widget" />
+                  </button>
+                )}
                 <a
                   className="secondary-btn flex items-center"
                   href={`${item.type === "volontariat" ? VOLONTARIAT_URL : BENEVOLAT_URL}?widget=${item.id}&notrack=true`}
@@ -142,15 +152,14 @@ const Widgets = () => {
                   <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct du widget ${item.name || ""}`.trim()} />
                 </Link>
               </td>
-              {user.role === "admin" && (
-                <td className="px-4">
-                  <Toggle
-                    aria-label={`${item.active ? "Désactiver" : "Activer"} le widget ${item.name || ""}`.trim()}
-                    value={item.active}
-                    onChange={(v) => handleActivate(v, item)}
-                  />
-                </td>
-              )}
+              <td className="px-4">
+                <Toggle
+                  aria-label={`${item.active ? "Désactiver" : "Activer"} le widget ${item.name || ""}`.trim()}
+                  value={item.active}
+                  onChange={(v) => handleActivate(v, item)}
+                  disabled={user.role !== "admin"}
+                />
+              </td>
             </tr>
           ))}
         </Table>
