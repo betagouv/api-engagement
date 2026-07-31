@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -18,7 +19,7 @@ const STEP_OPTIONS: StepOption[] = [
   OPTIONS["activite.creer_communiquer"],
 ];
 
-const DEFAULT_TITLE = "Qu’aimerais-tu faire concrètement ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function ActivitesStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -42,7 +43,7 @@ export default function ActivitesStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

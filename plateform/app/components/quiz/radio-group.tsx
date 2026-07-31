@@ -22,10 +22,10 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
         {subtitle && (
           <span className="fr-text--lead block! mb-0!">
             {subtitle}
-            {required && <span className={`fr-hint-text inline! mb-0! ${error ? "text-error!" : ""}`}> (Champ obligatoire)</span>}
+            {required && <span className={`inline! mb-0! ml-2! ${error ? "text-error!" : ""}`}>(champ obligatoire)</span>}
           </span>
         )}
-        {!subtitle && required && <span className={`fr-hint-text mb-0! ${error ? "text-error!" : ""}`}>(Champ obligatoire)</span>}
+        {!subtitle && required && <span className={`fr-text--lead mb-0! ${error ? "text-error!" : ""}`}>(champ obligatoire)</span>}
       </legend>
       {options.map((o) => (
         <div className="fr-fieldset__element md:max-w-sm! max-w-full!" key={o.value}>

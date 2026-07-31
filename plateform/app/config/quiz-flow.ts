@@ -33,21 +33,34 @@ export type StepId =
 export interface StepDef {
   id: StepId;
   route: string;
-  // Titre de la question, utilisé pour le <title> de la page (RGAA 8.6). À garder synchronisé avec le wording affiché dans le step component.
+  // Titre de la question : affiché dans le step (via getStepDef) et utilisé pour le <title> de la page (RGAA 8.6).
   title: string;
+  // Sous-titre optionnel affiché sous le titre du step.
+  subtitle?: string;
   condition?: Condition;
 }
 
-// Séquence et conditions de visibilité des steps (parcours v2).
-// Le wording et les options de chaque step vivent dans le step component correspondant.
+// Séquence, wording (titres/sous-titres) et conditions de visibilité des steps (parcours v2).
+// Les options de chaque step vivent dans le step component correspondant.
 // L'ordre ici dicte l'ordre de navigation (goNext/goBack).
 export const QUIZ_FLOW: StepDef[] = [
   // Étape 1 — âge.
-  { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?" },
+  { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?", subtitle: "Certaines missions dépendent de l'âge." },
   // Étape 2 — handicap, posée uniquement entre 26 et 30 ans.
-  { id: "handicap", route: "/quiz/handicap", title: "Es-tu en situation de handicap reconnue ?", condition: numericRange("age", 26, 30) },
+  {
+    id: "handicap",
+    route: "/quiz/handicap",
+    title: "Es-tu en situation de handicap reconnue ?",
+    subtitle: "Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.",
+    condition: numericRange("age", 26, 30),
+  },
   // Étape 3 — localisation.
-  { id: "localisation", route: "/quiz/localisation", title: "Où veux-tu chercher des missions ?" },
+  {
+    id: "localisation",
+    route: "/quiz/localisation",
+    title: "Où veux-tu chercher des missions ?",
+    subtitle: "Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.",
+  },
   // Étape 4 — mobilité, calibre le rayon de recherche autour de la localisation.
   { id: "mobilite", route: "/quiz/mobilite", title: "Comment tu te déplaces généralement ?" },
   // Étape 5 — motivations.
@@ -67,3 +80,10 @@ export const QUIZ_FLOW: StepDef[] = [
   // Étape 12 — imprévu.
   { id: "imprevu", route: "/quiz/imprevu", title: "Quel niveau d’imprévu te conviendrait le mieux ?" },
 ];
+
+// Définition d'un step du flow — utilisé par les step components pour afficher titre/sous-titre.
+export const getStepDef = (id: StepId): StepDef => {
+  const step = QUIZ_FLOW.find((s) => s.id === id);
+  if (!step) throw new Error(`Step absent de QUIZ_FLOW : ${id}`);
+  return step;
+};

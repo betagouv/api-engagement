@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
 import RadioGroupRich from "~/components/quiz/radio-group-rich";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -16,7 +17,7 @@ const STEP_OPTIONS: StepOption[] = [
   OPTIONS["autonomie.je_ne_sais_pas"],
 ];
 
-const DEFAULT_TITLE = "Quel cadre te conviendrait le mieux ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function AutonomieStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -40,7 +41,7 @@ export default function AutonomieStep() {
 
   return (
     <>
-      <RadioGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <RadioGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

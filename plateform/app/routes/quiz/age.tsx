@@ -2,6 +2,7 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import { useLocation, useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { trackQuizStarted } from "~/services/tracking/events";
 import { resolveQuizEntrySource } from "~/services/tracking/utils";
 import { useQuizStore } from "~/stores/quiz";
@@ -14,8 +15,7 @@ const MAX_AGE = 99;
 const STEP_ID = "age";
 // Step custom : stocke une valeur numérique brute (pas de taxonomyKey).
 // Utilisée uniquement dans les conditions des steps suivants (ex: handicap).
-const DEFAULT_TITLE = "Quel âge as-tu ?";
-const DEFAULT_SUBTITLE = "Certaines missions dépendent de l'âge.";
+const STEP = getStepDef(STEP_ID);
 
 // Type de navigation du document courant ("navigate" | "reload" | "back_forward"), pour distinguer
 // une arrivée directe d'un simple refresh.
@@ -70,12 +70,11 @@ export default function AgeStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="age-input" required>
-        {DEFAULT_TITLE}
-      </Label>
-
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
       <div className={`fr-select-group mb-0! ${error ? "fr-select-group--error" : ""}`}>
+        <Label subtitle={STEP.subtitle} htmlFor="age-input" error={error} required>
+          {STEP.title}
+        </Label>
         <select
           id="age-input"
           className={`fr-select md:max-w-80! ${error ? "fr-select--error" : ""}`}

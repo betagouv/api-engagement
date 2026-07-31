@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -11,7 +12,7 @@ const STEP_ID = "mobilite";
 
 const STEP_OPTIONS: StepOption[] = [OPTIONS["mobilite.pied_transports"], OPTIONS["mobilite.velo"], OPTIONS["mobilite.voiture"]];
 
-const DEFAULT_TITLE = "Comment tu te déplaces généralement ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function MobiliteStep() {
   const { answers } = useQuizStore();
@@ -37,7 +38,7 @@ export default function MobiliteStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} columns={1} />
+      <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} columns={1} />
       <NextButton onClick={handleNext} />
     </>
   );

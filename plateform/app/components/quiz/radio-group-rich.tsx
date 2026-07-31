@@ -26,10 +26,10 @@ export default function RadioGroupRich({ title, subtitle, onChange, options, sel
         {subtitle && (
           <span className="fr-text--lead block! mb-0!">
             {subtitle}
-            {required && <span className={`fr-hint-text inline! mb-0! ${error ? "text-error!" : ""}`}> (Champ obligatoire)</span>}
+            {required && <span className={`inline! mb-0! ml-2! ${error ? "text-error!" : ""}`}>(champ obligatoire)</span>}
           </span>
         )}
-        {!subtitle && required && <span className={`fr-hint-text mb-0! ${error ? "text-error!" : ""}`}>(Champ obligatoire)</span>}
+        {!subtitle && required && <span className={`fr-text--lead mb-0! ${error ? "text-error!" : ""}`}>(champ obligatoire)</span>}
       </legend>
       <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-5xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
