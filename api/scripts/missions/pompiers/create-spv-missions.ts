@@ -55,7 +55,8 @@ function loadAddresses(): Map<string, Address[]> {
 const API_URLS: Record<string, string> = {
   prod: "https://api.api-engagement.beta.gouv.fr",
   sandbox: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
-  local: "http://localhost:4000",
+  staging: "https://api.api-engagement-dev.fr",
+  local: "http://localhost:3002",
 };
 
 function buildMissionPayload(entry: SdisEntry, addresses: Map<string, Address[]>) {
