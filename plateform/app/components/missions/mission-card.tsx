@@ -48,7 +48,7 @@ export default function MissionCard({ mission, link, onClick }: MissionCardProps
     );
 
   return (
-    <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full md:max-w-[330px]">
+    <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full">
       {compensationLabel && <p className="fr-badge fr-badge--sm fr-badge--purple-glycine absolute top-3 left-3 z-1 m-0!">{compensationLabel}</p>}
 
       <div className="fr-card__body px-6! py-4!">

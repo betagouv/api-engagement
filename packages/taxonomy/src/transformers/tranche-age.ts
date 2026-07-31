@@ -2,7 +2,6 @@ const isRecord = (value: unknown): value is Record<string, unknown> => typeof va
 
 type TrancheAgeValueKey =
   | "moins_18_ans"
-  | "entre_16_17_ans"
   | "entre_18_25_ans"
   | "entre_25_30_ans"
   | "entre_30_45_ans"
@@ -32,11 +31,6 @@ export const resolveTrancheAgeValues = (params: unknown): TrancheAgeValueKey[] =
 
   if (age < 18) {
     values.push("moins_18_ans");
-    if (age >= 16) {
-      // bucket caché : permet aux règles de scoring d'inclure les 16-17 ans
-      // sans englober les âges < 16 via moins_18_ans
-      values.push("entre_16_17_ans");
-    }
   } else if (age <= 25) {
     values.push("entre_18_25_ans");
   } else if (age <= 30) {

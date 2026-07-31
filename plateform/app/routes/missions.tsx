@@ -149,14 +149,14 @@ export default function MissionsPage() {
     },
     {
       key: "type_mission",
-      label: "Disponibilités",
+      label: "Rythme",
       placeholder: "Toutes",
       selected: filterValues.type_mission,
       options: buildTaxonomyFilterOptions("type_mission", facets.type_mission),
     },
     {
       key: "secteur_activite",
-      label: "Activités",
+      label: "Activité",
       placeholder: "Toutes",
       selected: filterValues.secteur_activite,
       options: buildTaxonomyFilterOptions("secteur_activite", facets.secteur_activite),
@@ -170,7 +170,7 @@ export default function MissionsPage() {
     },
     {
       key: "dispositif",
-      label: "Organisation",
+      label: "Type de mission",
       placeholder: "Toutes",
       selected: filterValues.dispositif,
       options: buildTaxonomyFilterOptions("dispositif", facets.dispositif),
@@ -245,9 +245,9 @@ export default function MissionsPage() {
             <>
               {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
               <h2 className="fr-sr-only">Liste des missions</h2>
-              <ul role="list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mx-auto! gap-6 w-fit list-none! p-0! m-0!">
+              <ul role="list" className="grid w-full grid-cols-1 gap-6 p-0! m-0! list-none! md:grid-cols-2 lg:grid-cols-3">
                 {items.map((mission) => (
-                  <li key={mission.id}>
+                  <li key={mission.id} className="min-w-0">
                     <MissionCard
                       mission={mission}
                       link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
