@@ -312,7 +312,6 @@ router.put("/many", passport.authenticate("user", { session: false }), async (re
         }))
       );
     }
-
     return res.status(200).send({ ok: true, data: { updatedIds: updatedStatuses.map((s) => s.id) } });
   } catch (error) {
     next(error);
@@ -398,7 +397,6 @@ router.put("/:id", passport.authenticate("user", { session: false }), async (req
         }))
       );
     }
-
     return res.status(200).send({ ok: true, data: updated });
   } catch (error) {
     next(error);

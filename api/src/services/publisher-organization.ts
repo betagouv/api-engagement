@@ -137,6 +137,12 @@ const publisherOrganizationService = {
   findIdsMatchingArrayValue: async (column: OrgArrayColumn, value: string): Promise<string[]> => {
     return publisherOrganizationRepository.findIdsByArrayValueInsensitive(column, value);
   },
+  findIdsMatchingName: async (operator: "is" | "contains" | "starts_with", value: string): Promise<string[]> => {
+    const name: Prisma.PublisherOrganizationWhereInput["name"] =
+      operator === "is" ? value : operator === "contains" ? { contains: value, mode: "insensitive" } : { startsWith: value, mode: "insensitive" };
+    const organizations = await publisherOrganizationRepository.findMany({ where: { name }, select: { id: true } });
+    return organizations.map((organization) => organization.id);
+  },
   autocompleteParentOrganizations: async (publisherIds: string[], search: string): Promise<Array<{ key: string; doc_count: number }>> => {
     const rows = await publisherOrganizationRepository.aggregateParentOrganizations(publisherIds, search);
 

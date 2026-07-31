@@ -5,13 +5,16 @@ import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
 export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
   const hasCompensation = mission.compensationAmount != null || mission.compensationAmountMax != null;
+  const primaryAddress = mission.addresses[0];
 
   return {
     id: mission.id,
     title: mission.title,
     description: mission.description ?? null,
     remote: mission.remote ?? null,
-    city: mission.city ?? null,
+    city: primaryAddress?.city ?? null,
+    country: primaryAddress?.country ?? null,
+    postalCode: primaryAddress?.postalCode ?? null,
     departmentCode: mission.departmentCode ?? null,
     departmentName: mission.departmentName ?? null,
     domain: mission.domain ?? null,
@@ -25,6 +28,14 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     publisherLogo: mission.publisherLogo ?? null,
     applicationUrl: mission.applicationUrl ?? null,
     schedule: mission.schedule ?? null,
+    places: mission.places ?? null,
+    tags: mission.tags,
+    addresses: mission.addresses.map((address) => ({
+      city: address.city ?? null,
+      country: address.country ?? null,
+      postalCode: address.postalCode ?? null,
+      location: address.location ?? null,
+    })),
     compensation: hasCompensation
       ? {
           amount: mission.compensationAmount ?? null,

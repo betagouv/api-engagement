@@ -32,7 +32,6 @@ export class UpdateMissionIndexHandler implements BaseHandler<UpdateMissionIndex
         where: {
           deletedAt: null,
           statusCode: "ACCEPTED",
-          missionScorings: { some: {} },
           ...(publisherId ? { publisherId } : {}),
         },
         select: { id: true },

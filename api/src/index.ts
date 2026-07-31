@@ -137,7 +137,7 @@ const main = async () => {
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
-  app.use("/missions", corsPublic, MissionBrowseController);
+  app.use("/missions", MissionBrowseController);
   app.use("/missions", corsPublic, MissionMatchController);
   app.use("/email", corsPublic, EmailController);
   app.use("/newsletter", corsPublic, NewsletterController);

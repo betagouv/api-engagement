@@ -1,6 +1,7 @@
 export type MissionBrowseFacetCount = {
   key: string;
   count: number;
+  label?: string;
 };
 
 export type MissionBrowseTaxonomyKey = "domaine" | "secteur_activite" | "type_mission" | "tranche_age" | "competence_rome" | "dispositif";
@@ -20,6 +21,8 @@ export type MissionBrowse = {
   description: string | null;
   remote: "no" | "possible" | "full" | "local" | null;
   city: string | null;
+  country: string | null;
+  postalCode: string | null;
   departmentCode: string | null;
   departmentName: string | null;
   domain: string | null;
@@ -33,6 +36,14 @@ export type MissionBrowse = {
   publisherLogo: string | null;
   applicationUrl: string | null;
   schedule: string | null;
+  places: number | null;
+  tags: string[];
+  addresses: Array<{
+    city: string | null;
+    country: string | null;
+    postalCode: string | null;
+    location: { lat: number; lon: number } | null;
+  }>;
   compensation: MissionDetailCompensation | null;
 };
 

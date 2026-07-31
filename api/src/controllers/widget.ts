@@ -5,6 +5,7 @@ import zod from "zod";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { requireAllPublisherAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { isWidgetRuleSupported } from "@/services/mission-browse/widget-filters";
 import { publisherService } from "@/services/publisher";
 import { widgetService } from "@/services/widget";
 import { UserRequest } from "@/types/passport";
@@ -14,6 +15,16 @@ import { readRequiredParam } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);
+
+const widgetRuleSchema = zod
+  .object({
+    combinator: zod.enum(["and", "or"]),
+    field: zod.string(),
+    fieldType: zod.string().nullable().optional(),
+    operator: zod.string(),
+    value: zod.string().min(1),
+  })
+  .refine(isWidgetRuleSupported, { message: "Unsupported widget rule for mission browse" });
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -153,17 +164,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         distance: zod.string().optional(),
         name: zod.string().optional(),
         url: zod.string().optional(),
-        rules: zod
-          .array(
-            zod.object({
-              combinator: zod.enum(["and", "or"]),
-              field: zod.string(),
-              fieldType: zod.string().nullable().optional(),
-              operator: zod.string(),
-              value: zod.string().min(1),
-            })
-          )
-          .optional(),
+        rules: zod.array(widgetRuleSchema).optional(),
 
         style: zod.enum(["carousel", "page"]).optional(),
         color: zod.string().optional(),
@@ -241,17 +242,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         distance: zod.string().optional(),
         name: zod.string().optional(),
         url: zod.string().optional(),
-        rules: zod
-          .array(
-            zod.object({
-              combinator: zod.enum(["and", "or"]),
-              field: zod.string(),
-              fieldType: zod.string().nullable().optional(),
-              operator: zod.string(),
-              value: zod.string().min(1),
-            })
-          )
-          .optional(),
+        rules: zod.array(widgetRuleSchema).optional(),
 
         style: zod.enum(["carousel", "page"]).optional(),
         color: zod.string().optional(),
