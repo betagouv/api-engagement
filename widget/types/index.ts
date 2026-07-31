@@ -121,23 +121,23 @@ export interface ApiResponse<T = any> {
   data: T;
 }
 
-export interface AggregationBucket {
+export interface MissionBrowseFacet {
   key: string;
-  doc_count: number;
   label?: string;
+  count: number;
 }
 
-export interface AggregationData {
-  domain: AggregationBucket[];
-  organization: AggregationBucket[];
-  department: AggregationBucket[];
-  remote: AggregationBucket[];
-  accessibility: AggregationBucket[];
-  action: AggregationBucket[];
-  beneficiary: AggregationBucket[];
-  country: AggregationBucket[];
-  minor: AggregationBucket[];
-  schedule: AggregationBucket[];
+export interface MissionBrowseFacets {
+  domain?: MissionBrowseFacet[];
+  organization?: MissionBrowseFacet[];
+  department?: MissionBrowseFacet[];
+  remote?: MissionBrowseFacet[];
+  accessibility?: MissionBrowseFacet[];
+  action?: MissionBrowseFacet[];
+  beneficiary?: MissionBrowseFacet[];
+  country?: MissionBrowseFacet[];
+  minor?: MissionBrowseFacet[];
+  schedule?: MissionBrowseFacet[];
 }
 
 export interface FilterOptions {

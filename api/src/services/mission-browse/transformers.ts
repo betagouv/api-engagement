@@ -14,7 +14,6 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     remote: mission.remote ?? null,
     city: primaryAddress?.city ?? null,
     country: primaryAddress?.country ?? null,
-    postalCode: primaryAddress?.postalCode ?? null,
     departmentCode: mission.departmentCode ?? null,
     departmentName: mission.departmentName ?? null,
     domain: mission.domain ?? null,
@@ -33,7 +32,6 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     addresses: mission.addresses.map((address) => ({
       city: address.city ?? null,
       country: address.country ?? null,
-      postalCode: address.postalCode ?? null,
       location: address.location ?? null,
     })),
     compensation: hasCompensation

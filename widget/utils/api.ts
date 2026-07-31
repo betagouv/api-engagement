@@ -1,8 +1,34 @@
-import { AggregationData } from "@/types";
+import { MissionBrowseFacets } from "@/types";
 import { fetchWithTimeout } from "./fetchWithTimeout";
-import { generateRequestId, REQUEST_ID_HEADER } from "./requestId";
+import { REQUEST_ID_HEADER } from "./requestId";
 
-const apiGet = async <T>(url: string, signal?: AbortSignal): Promise<{ ok: boolean; data: T; total?: number; request?: string }> => {
+type MissionBrowseResponse = {
+  ok: boolean;
+  data: Array<{
+    id: string;
+    title: string | null;
+    domain: string | null;
+    domainLogo: string | null;
+    organizationName: string | null;
+    city: string | null;
+    country: string | null;
+    remote: string | null;
+    places: number | null;
+    tags: string[];
+    addresses: Array<{
+      city: string | null;
+      country: string | null;
+      location: { lat: number; lon: number } | null;
+    }>;
+  }>;
+  total: number;
+  page: number;
+  pageSize: number;
+  facets: MissionBrowseFacets;
+  request?: string;
+};
+
+const apiGet = async <T>(url: string, signal?: AbortSignal): Promise<T> => {
   const response = await fetch(url, { method: "GET", signal });
   if (!response.ok) {
     throw new Error(`API error ${response.status} on ${url}`);
@@ -11,11 +37,7 @@ const apiGet = async <T>(url: string, signal?: AbortSignal): Promise<{ ok: boole
 };
 
 export const searchMissions = async (apiUrl: string, widgetId: string, params: URLSearchParams, signal?: AbortSignal) => {
-  return apiGet<any[]>(`${apiUrl}/iframe/${widgetId}/search?${params.toString()}`, signal);
-};
-
-export const fetchAggs = async (apiUrl: string, widgetId: string, params: URLSearchParams, signal?: AbortSignal) => {
-  return apiGet<AggregationData>(`${apiUrl}/iframe/${widgetId}/aggs?${params.toString()}`, signal);
+  return apiGet<MissionBrowseResponse>(`${apiUrl}/missions/browse/widget/${widgetId}?${params.toString()}`, signal);
 };
 
 export const fetchWidgetConfig = async (apiUrl: string, query: string, requestId: string) => {

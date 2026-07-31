@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-import { Filters, Mission, Widget } from "@/types";
+import { Filters, Mission, MissionBrowseFacets, Widget } from "@/types";
 import { searchMissions } from "@/utils/api";
 import { buildSearchParams } from "@/utils/buildSearchParams";
 import { calculateDistance } from "@/utils/utils";
@@ -15,6 +15,7 @@ interface UseMissionsParams {
 interface UseMissionsResult {
   missions: Mission[];
   total: number;
+  facets: MissionBrowseFacets;
   request: string | null;
   isLoading: boolean;
 }
@@ -22,6 +23,7 @@ interface UseMissionsResult {
 const useMissions = ({ widget, filters, apiUrl, notrack }: UseMissionsParams): UseMissionsResult => {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [total, setTotal] = useState(0);
+  const [facets, setFacets] = useState<MissionBrowseFacets>({});
   const [request, setRequest] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -35,7 +37,7 @@ const useMissions = ({ widget, filters, apiUrl, notrack }: UseMissionsParams): U
 
     const isBenevolat = widget.type === "benevolat";
     const params = buildSearchParams(filters, isBenevolat);
-    const url = `${apiUrl}/iframe/${widget.id}/search?${params.toString()}`;
+    const url = `${apiUrl}/missions/browse/widget/${widget.id}?${params.toString()}`;
 
     setIsLoading(true);
 
@@ -52,9 +54,19 @@ const useMissions = ({ widget, filters, apiUrl, notrack }: UseMissionsParams): U
           requestId: response.request || "",
         });
 
-        const results: Mission[] = response.data.map((h: any) => ({
-          ...h,
-          url: `${apiUrl}/r/${notrack ? "notrack" : "widget"}/${h._id}?${query.toString()}`,
+        const results: Mission[] = response.data.map((h) => ({
+          _id: h.id,
+          title: h.title ?? "",
+          domain: h.domain ?? "",
+          domainLogo: h.domainLogo ?? undefined,
+          organizationName: h.organizationName ?? "",
+          city: h.city,
+          country: h.country,
+          remote: h.remote ?? undefined,
+          places: h.places ?? undefined,
+          tags: h.tags,
+          addresses: h.addresses.map((address) => ({ ...address, location: address.location ?? undefined })),
+          url: `${apiUrl}/r/${notrack ? "notrack" : "widget"}/${h.id}?${query.toString()}`,
         }));
 
         if (filters.location?.lat && filters.location?.lon) {
@@ -70,7 +82,8 @@ const useMissions = ({ widget, filters, apiUrl, notrack }: UseMissionsParams): U
         }
 
         setMissions(results);
-        setTotal(response.total || 0);
+        setTotal(response.total);
+        setFacets(response.facets);
         setRequest(response.request || null);
       })
       .catch((error) => {
@@ -81,6 +94,7 @@ const useMissions = ({ widget, filters, apiUrl, notrack }: UseMissionsParams): U
         });
         setMissions([]);
         setTotal(0);
+        setFacets({});
         setRequest(null);
       })
       .finally(() => {
@@ -92,7 +106,7 @@ const useMissions = ({ widget, filters, apiUrl, notrack }: UseMissionsParams): U
     return () => controller.abort();
   }, [widget?.id, filters, apiUrl, notrack]);
 
-  return { missions, total, request, isLoading };
+  return { missions, total, facets, request, isLoading };
 };
 
 export default useMissions;

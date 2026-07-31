@@ -177,8 +177,7 @@ const buildBrowseSearches = (params: MissionBrowseParams): { searches: SearchQue
     ...(params.offset === undefined ? { per_page: params.pageSize, page: params.page } : { offset: params.offset, limit: params.pageSize }),
     ...(params.widgetMode
       ? {
-          sort_by:
-            params.lat !== undefined && params.lon !== undefined ? `locations(${params.lat},${params.lon}):asc,startAt:desc,createdAt:desc` : "startAt:desc,createdAt:desc",
+          sort_by: "startAt:desc,createdAt:desc",
         }
       : {}),
   };

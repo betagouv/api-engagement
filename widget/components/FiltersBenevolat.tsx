@@ -1,11 +1,9 @@
 import { usePlausible } from "next-plausible";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { DOMAINS } from "@/config";
-import { FilterOptions, Filters, Widget } from "@/types";
-import { fetchAggs } from "@/utils/api";
-import { buildSearchParams } from "@/utils/buildSearchParams";
+import { FilterOptions, Filters, MissionBrowseFacets, Widget } from "@/types";
 import useStore from "@/utils/store";
 import ComboboxFilter from "./ComboxFilter";
 import LocationFilter from "./LocationFilter";
@@ -17,7 +15,7 @@ const hasFilters = (filters: Filters, disabledLocation: boolean) => {
 
 interface FiltersBenevolatProps {
   widget: Widget;
-  apiUrl: string;
+  facets: MissionBrowseFacets;
   values: Filters;
   total: number;
   onChange: (filters: Partial<Filters>) => void;
@@ -25,51 +23,28 @@ interface FiltersBenevolatProps {
   onShow: (show: boolean) => void;
 }
 
-const FiltersBenevolat = ({ widget, apiUrl, values, total, onChange, show, onShow }: FiltersBenevolatProps) => {
+const FiltersBenevolat = ({ widget, facets, values, total, onChange, show, onShow }: FiltersBenevolatProps) => {
   const { mobile, url, color } = useStore();
   const plausible = usePlausible();
-  const [options, setOptions] = useState<FilterOptions>({
-    organizations: [],
-    domains: [],
-    departments: [],
-    remote: [],
-  });
+  const options = useMemo<FilterOptions>(() => {
+    const remote = facets.remote ?? [];
+    const presentiel = remote.filter((bucket) => bucket.key === "no" || bucket.key === "local");
+    const distance = remote.filter((bucket) => bucket.key === "full" || bucket.key === "possible");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const searchParams = buildSearchParams(values, true);
-        ["domain", "organization", "department", "remote"].forEach((key) => searchParams.append("aggs", key));
-
-        const { ok, data } = await fetchAggs(apiUrl, widget.id, searchParams);
-
-        if (!ok) {
-          throw Error("Error fetching aggs");
-        }
-
-        const remote = data.remote.filter((b) => b.key === "full" || b.key === "possible");
-        const presentiel = data.remote.filter((b) => b.key === "no" || b.key === "local");
-        const newOptions: FilterOptions = {
-          organizations: data.organization.map((b) => ({ value: b.key, count: b.doc_count, label: b.label || b.key })),
-          domains: data.domain.map((b) => ({ value: b.key, count: b.doc_count, label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key })),
-          departments: data.department.map((b) => ({
-            value: b.key === "" ? "none" : b.key,
-            count: b.doc_count,
-            label: b.key === "" ? "Non renseigné" : b.key,
-          })),
-          remote: [
-            { value: "no", label: "Sur place", count: presentiel.reduce((acc, b) => acc + b.doc_count, 0) },
-            { value: "yes", label: "À distance", count: remote.reduce((acc, b) => acc + b.doc_count, 0) },
-          ],
-        };
-        setOptions(newOptions);
-      } catch (error) {
-        console.error(error);
-      }
+    return {
+      organizations: (facets.organization ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: bucket.label || bucket.key })),
+      domains: (facets.domain ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: DOMAINS[bucket.key] ? DOMAINS[bucket.key].label : bucket.key })),
+      departments: (facets.department ?? []).map((bucket) => ({
+        value: bucket.key === "" ? "none" : bucket.key,
+        count: bucket.count,
+        label: bucket.key === "" ? "Non renseigné" : bucket.key,
+      })),
+      remote: [
+        { value: "no", label: "Sur place", count: presentiel.reduce((total, bucket) => total + bucket.count, 0) },
+        { value: "yes", label: "À distance", count: distance.reduce((total, bucket) => total + bucket.count, 0) },
+      ],
     };
-
-    fetchData();
-  }, [widget.id, values, apiUrl]);
+  }, [facets]);
 
   const handleReset = () => {
     onChange({
