@@ -39,7 +39,6 @@ const ALL_TRANCHE_AGE_KEYS = [
   "tranche_age.entre_46_67_ans",
   "tranche_age.entre_68_72_ans",
   "tranche_age.plus_72_ans",
-  "tranche_age.entre_16_17_ans",
   "tranche_age.entre_46_66_ans",
   "tranche_age.moins_31_ans_handicap",
 ] satisfies TaxonomyValueKey[];
@@ -70,20 +69,14 @@ export const SCORING_RULES = [
     field: "publisherId",
     condition: { operator: "equals", value: PUBLISHER_IDS.SERVICE_CIVIQUE },
     mode: "replace",
-    values: [
-      "tranche_age.moins_18_ans",
-      "tranche_age.entre_18_25_ans",
-      "tranche_age.moins_31_ans_handicap",
-      "type_mission.temps_plein",
-      "dispositif.service_civique",
-    ],
+    values: ["tranche_age.moins_18_ans", "tranche_age.entre_18_25_ans", "tranche_age.moins_31_ans_handicap", "type_mission.temps_plein", "dispositif.service_civique"],
   },
   {
     field: "publisherId",
     condition: { operator: "equals", value: PUBLISHER_IDS.ROC },
     mode: "replace",
     values: [
-      "tranche_age.entre_16_17_ans",
+      "tranche_age.moins_18_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
       "tranche_age.entre_30_45_ans",
@@ -103,13 +96,26 @@ export const SCORING_RULES = [
     mode: "replace",
     values: [
       "dispositif.sapeurs_pompiers",
-      "tranche_age.entre_16_17_ans",
+      "tranche_age.moins_18_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
       "tranche_age.entre_30_45_ans",
       "tranche_age.entre_46_66_ans",
     ],
   },
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.GENDARMERIE },
+    mode: "replace",
+    values: ["dispositif.reserve_gendarmerie"],
+  },
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.POLICE },
+    mode: "replace",
+    values: ["dispositif.reserve_police_nationale"],
+  },
+
   // Mission fermée aux mineurs : seules les tranches d'âge adultes sont autorisées.
   // Combinée par intersection avec les autres règles (cf. getMissionScoringRuleKeys),
   // cette contrainte exclut du matching tout utilisateur de moins de 18 ans.
