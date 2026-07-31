@@ -1,0 +1,44 @@
+import { useState } from "react";
+import { useOutletContext } from "react-router";
+import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
+import NextButton from "~/components/quiz/next-button";
+import { OPTIONS } from "~/config/quiz-options";
+import { useQuizStore } from "~/stores/quiz";
+import type { StepOption } from "~/types/quiz";
+import type { QuizOutletContext } from "./_layout";
+
+const STEP_ID = "mobilite";
+
+const STEP_OPTIONS: StepOption[] = [OPTIONS["mobilite.pied_transports"], OPTIONS["mobilite.velo"], OPTIONS["mobilite.voiture"]];
+
+const DEFAULT_TITLE = "Comment tu te déplaces généralement ?";
+
+export default function MobiliteStep() {
+  const { answers } = useQuizStore();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
+
+  const handleSelect = () => {
+    setError(undefined);
+    // TODO: en attente que le backend soit mis à jour :
+    // setAnswer(STEP_ID, { type: "options", taxonomy: "mobilite", option_ids: value });
+  };
+
+  const handleNext = () => {
+    // if (selected.length === 0) {
+    //   setError("Sélectionne une réponse");
+    //   return;
+    // }
+    // TODO: en attente que le backend soit mis à jour
+    saveScoring();
+    goNext();
+  };
+
+  return (
+    <>
+      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} columns={1} />
+      <NextButton onClick={handleNext} />
+    </>
+  );
+}

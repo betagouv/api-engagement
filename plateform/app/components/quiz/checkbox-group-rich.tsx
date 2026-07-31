@@ -10,9 +10,10 @@ type Props = {
   selected: string[];
   error?: string;
   required?: boolean;
+  columns?: 1 | 2;
 };
 
-export default function CheckboxGroupRich({ title, subtitle, onChange, options, selected, error, required }: Props) {
+export default function CheckboxGroupRich({ title, subtitle, onChange, options, selected, error, required, columns = 2 }: Props) {
   const toggle = (taxonomyKey: string) => {
     const next = selected.includes(taxonomyKey) ? selected.filter((v) => v !== taxonomyKey) : [...selected, taxonomyKey];
     onChange(next);
@@ -27,17 +28,17 @@ export default function CheckboxGroupRich({ title, subtitle, onChange, options, 
       role="group"
       aria-describedby={error ? "checkbox-group-rich-legend checkbox-group-rich-messages" : "checkbox-group-rich-legend"}
     >
-      <legend className="mb-10! ml-2!" id="checkbox-group-rich-legend">
-        <h1 className="fr-h1 mb-0!">{title}</h1>
+      <legend className="mb-6! md:mb-8! fr-fieldset__legend--regular fr-fieldset__legend" id="checkbox-group-rich-legend">
+        <h1 className={`fr-h1 mb-4! ${error ? "text-error!" : ""}`}>{title}</h1>
         {subtitle && (
-          <span className="fr-text--lead font-normal block mt-4! mb-0!">
+          <span className="fr-text--lead block! mb-0!">
             {subtitle}
-            {required && <span className="fr-hint-text inline! font-normal mb-0!"> (Réponse obligatoire)</span>}
+            {required && <span className={`fr-hint-text inline! mb-0! ${error ? "text-error!" : ""}`}> (Champ obligatoire)</span>}
           </span>
         )}
-        {!subtitle && required && <span className="fr-hint-text font-normal block mt-2! mb-0!">Réponse obligatoire</span>}
+        {!subtitle && required && <span className={`fr-hint-text mb-0! ${error ? "text-error!" : ""}`}>(Champ obligatoire)</span>}
       </legend>
-      <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
+      <div className={`fr-fieldset__content grid grid-cols-1 w-full! ${columns === 1 ? "md:max-w-md!" : "md:grid-cols-2 max-w-5xl!"} mx-0! gap-x-6 gap-y-4!`}>
         {options.map((o) => (
           <div key={o.value} className={`fr-fieldset__element mb-0! ${o.disabled ? "opacity-60" : ""}`}>
             <div className="fr-checkbox-group fr-checkbox-rich mt-0! mb-0!">

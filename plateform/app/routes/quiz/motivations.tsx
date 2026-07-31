@@ -4,31 +4,35 @@ import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
+import type { StepOption } from "~/types/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "precision_international";
+const STEP_ID = "motivations";
 
-// Régions du monde. Condition de visibilité dans QUIZ_FLOW : masqué si `type_mission = ponctuelle`.
-const STEP_OPTIONS = [
-  OPTIONS["region_internationale.europe"],
-  OPTIONS["region_internationale.afrique"],
-  OPTIONS["region_internationale.amerique"],
-  OPTIONS["region_internationale.asie"],
-  OPTIONS["region_internationale.je_ne_sais_pas"],
+const STEP_OPTIONS: StepOption[] = [
+  OPTIONS["motivation_recherche.premiere_experience"],
+  OPTIONS["motivation_recherche.decouverte_metier"],
+  OPTIONS["motivation_recherche.agir_pour_une_cause"],
+  OPTIONS["motivation_recherche.securite_pays"],
+  OPTIONS["motivation_recherche.remote"],
+  OPTIONS["motivation_recherche.rencontres"],
+  OPTIONS["motivation_recherche.indemnisation"],
+  OPTIONS["motivation_recherche.horaires_flexibles"],
+  OPTIONS["motivation_recherche.autre"],
 ];
 
-const DEFAULT_TITLE = "Dans quelle région du monde souhaiterais-tu partir ?";
+const DEFAULT_TITLE = "Qu’est-ce qui t’amène aujourd’hui ?";
 
-export default function PrecisionInternationalStep() {
+export default function MotivationsStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", taxonomy: "region_internationale", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "motivation_recherche", option_ids: value });
   };
-  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleNext = () => {
     if (selected.length === 0) {
@@ -42,7 +46,7 @@ export default function PrecisionInternationalStep() {
   return (
     <>
       <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
-      <NextButton onClick={handleNext} skip />
+      <NextButton onClick={handleNext} />
     </>
   );
 }

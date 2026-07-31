@@ -4,35 +4,35 @@ import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
+import type { StepOption } from "~/types/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "precision_reprendre_activite";
+const STEP_ID = "domaines";
 
-// Mapping référentiel ROME — 9 secteurs d'activité (voir Notion — Étape 7 demandeur / reprendre_activite).
-const STEP_OPTIONS = [
-  OPTIONS["secteur_activite.sante_social_aide_personne"],
-  OPTIONS["secteur_activite.education_formation_animation"],
-  OPTIONS["secteur_activite.securite_service_public"],
-  OPTIONS["secteur_activite.environnement_agriculture"],
-  OPTIONS["secteur_activite.culture_creation_medias"],
-  OPTIONS["secteur_activite.numerique_communication"],
-  OPTIONS["secteur_activite.batiment_industrie_logistique"],
-  OPTIONS["secteur_activite.gestion_commerce_organisation"],
-  OPTIONS["secteur_activite.je_ne_sais_pas"],
+const STEP_OPTIONS: StepOption[] = [
+  OPTIONS["domaine_engagement.sante_bien_etre"],
+  OPTIONS["domaine_engagement.sport"],
+  OPTIONS["domaine_engagement.solidarite_inclusion"],
+  OPTIONS["domaine_engagement.environnement_animaux"],
+  OPTIONS["domaine_engagement.art_culture"],
+  OPTIONS["domaine_engagement.securite_secours"],
+  OPTIONS["domaine_engagement.citoyennete"],
+  OPTIONS["domaine_engagement.numerique"],
+  OPTIONS["domaine_engagement.education"],
 ];
 
-const DEFAULT_TITLE = "Quel secteur d'activité t'attirerait le plus ?";
+const DEFAULT_TITLE = "Quels domaines t’intéressent ?";
 
-export default function PrecisionReprendreActiviteStep() {
+export default function DomainesStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", taxonomy: "secteur_activite", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "domaine_engagement", option_ids: value });
   };
-  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleNext = () => {
     if (selected.length === 0) {

@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
-import RadioGroup from "~/components/quiz/radio-group";
+import RadioGroupRich from "~/components/quiz/radio-group-rich";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
+import type { StepOption } from "~/types/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "precision_parcoursup_formation";
+const STEP_ID = "equipe";
 
-const STEP_OPTIONS = [OPTIONS["parcoursup_formation.oui"], OPTIONS["parcoursup_formation.non"]];
+const STEP_OPTIONS: StepOption[] = [OPTIONS["equipe.autonomie"], OPTIONS["equipe.petit_groupe"], OPTIONS["equipe.grand_collectif"], OPTIONS["equipe.peu_importe"]];
 
-const DEFAULT_TITLE = "As-tu déjà une formation précise en tête ?";
+const DEFAULT_TITLE = "Dans quel type d’équipe te sentirais-tu le plus à l’aise ?";
 
-export default function PrecisionParcoursupFormationStep() {
+export default function EquipeStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
@@ -20,12 +21,11 @@ export default function PrecisionParcoursupFormationStep() {
 
   const handleSelect = (value: string) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", taxonomy: "parcoursup_formation", option_ids: [value] });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "equipe", option_ids: [value] });
   };
 
   const handleNext = () => {
-    const answer = answers[STEP_ID];
-    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+    if (!selected) {
       setError("Sélectionne une réponse");
       return;
     }
@@ -35,7 +35,7 @@ export default function PrecisionParcoursupFormationStep() {
 
   return (
     <>
-      <RadioGroup title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
+      <RadioGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );
