@@ -9,7 +9,7 @@ scope: plateform-product
 
 Ce dossier regroupe les règles de gestion du produit frontal `plateform` et des services métier qu'il consomme. Il est destiné à être consulté par un agent utilisé par un humain, notamment pour comprendre le produit et contribuer à la rédaction d'une FAQ.
 
-La documentation est générée à partir du code et des tests déclarés dans [`sources.yml`](./sources.yml), puis validée par le PM au moyen d'une pull request.
+La documentation est générée à partir du code et des tests compris dans la frontière globale de [`sources.yml`](./sources.yml), puis validée par le PM au moyen d'une pull request. Les sources propres à chaque chapitre sont retrouvées automatiquement depuis ses citations et les fichiers modifiés.
 
 ## Périmètre
 
