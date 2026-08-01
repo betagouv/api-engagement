@@ -75,7 +75,7 @@
     },
     "devDependencies": {
         "@eslint/js": "10.0.1",
-        "@testcontainers/postgresql": "12.0.3",
+        "@testcontainers/postgresql": "12.0.4",
         "@types/bcryptjs": "3.0.0",
         "@types/body-parser": "1.19.6",
         "@types/cookie-parser": "1.4.10",
@@ -90,19 +90,19 @@
         "@types/passport": "1.0.17",
         "@types/passport-jwt": "4.0.1",
         "@types/pg": "8.20.0",
-        "@types/supertest": "7.2.0",
+        "@types/supertest": "7.2.1",
         "@types/yauzl": "3.4.0",
-        "@typescript-eslint/eslint-plugin": "8.62.0",
-        "@typescript-eslint/parser": "8.62.0",
-        "eslint": "10.5.0",
-        "eslint-plugin-import-x": "4.17.0",
+        "@typescript-eslint/eslint-plugin": "8.65.0",
+        "@typescript-eslint/parser": "8.65.0",
+        "eslint": "10.8.0",
+        "eslint-plugin-import-x": "4.17.1",
         "express-openapi-validator": "5.6.2",
         "nodemon": "3.1.14",
         "supertest": "7.2.2",
         "ts-node": "10.9.2",
-        "tsc-alias": "1.8.17",
+        "tsc-alias": "1.9.1",
         "tsconfig-paths": "4.2.0",
         "typescript": "6.0.3",
-        "vitest": "4.1.9"
+        "vitest": "4.1.10"
     }
 }
