@@ -35,6 +35,7 @@ const Settings = ({ widget, values, onChange, loading }) => {
   const [total, setTotal] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
+  const [locationKey, setLocationKey] = useState(0);
 
   const availableTypes = useMemo(() => {
     const types = new Set();
@@ -150,13 +151,29 @@ const Settings = ({ widget, values, onChange, loading }) => {
             <label className="text-base" htmlFor="location">
               Ville ou code postal
             </label>
+            {/* key force un remontage du combobox à l'effacement pour vider son champ de recherche interne */}
             <LocationCombobox
+              key={locationKey}
               id="location"
               ariaDescribedby="location-hint"
               selected={values.location ? { label: values.location.label, value: `${values.location.lat}-${values.location.lon}` } : null}
               onSelect={(v) => onChange({ ...values, location: v ? { label: v.label, lat: parseFloat(v.value.split("-")[0]), lon: parseFloat(v.value.split("-")[1]) } : null })}
               placeholder="Localisation"
             />
+            {values.location ? (
+              <div className="mt-2">
+                <button
+                  type="button"
+                  className="text-blue-france cursor-pointer underline"
+                  onClick={() => {
+                    onChange({ ...values, location: null });
+                    setLocationKey(locationKey + 1);
+                  }}
+                >
+                  Supprimer la localisation
+                </button>
+              </div>
+            ) : null}
             <div className="text-info mt-4 flex items-center gap-2">
               <BiSolidInfoSquare className="text-sm" aria-hidden="true" />
               <p id="location-hint" className="text-xs">
