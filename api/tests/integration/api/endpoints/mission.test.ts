@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
-import { createTestMission, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
+import { createTestMission, createTestMissionWithModeration, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
 
@@ -93,6 +93,33 @@ describe("Dashboard mission controller", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.data).toEqual([]);
+    });
+  });
+
+  describe("GET /mission/autocomplete?field=city", () => {
+    it("returns cities of missions moderated by the user's publisher, even without any diffusion snapshot entry", async () => {
+      const annonceur = await createTestPublisher();
+      const moderateur = await createTestPublisher({ moderator: true, publishers: [{ publisherId: annonceur.id }] });
+      const { token: moderateurToken } = await createTestUser({ role: "user", publishers: [moderateur.id] });
+      // Mission modérée par le user (aucune ligne mission_diffusion) : doit alimenter l'autocomplete.
+      await createTestMissionWithModeration({ publisherId: annonceur.id, city: "Nantes", moderatorPublisherId: moderateur.id });
+      // Mission du même annonceur non modérée par le user (statut JVA seulement) : hors périmètre.
+      await createTestMission({ publisherId: annonceur.id, city: "Nancy" });
+
+      const res = await request(app)
+        .get(`/mission/autocomplete?field=city&search=nan&publishers=${annonceur.id}`)
+        .set({ Authorization: `jwt ${moderateurToken}` });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data).toEqual([{ key: "Nantes", doc_count: 1 }]);
+    });
+
+    it("rejects a publisher the user neither owns nor moderates", async () => {
+      const otherPublisher = await createTestPublisher();
+
+      const res = await request(app).get(`/mission/autocomplete?field=city&search=nan&publishers=${otherPublisher.id}`).set(authHeader());
+
+      expect(res.status).toBe(403);
     });
   });
 
