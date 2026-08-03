@@ -3,9 +3,9 @@ import type { QuizAnswers } from "~/types/quiz";
 import { evalCondition } from "./conditions";
 
 const MOBILITY_RADIUS_KM = {
-  pied_transports: 10,
-  velo: 20,
-  voiture: 50,
+  pied_transports: 5,
+  velo: 10,
+  voiture: 30,
 } as const;
 
 const getMobilityRadiusKm = (answers: QuizAnswers): number | undefined => {

@@ -76,7 +76,7 @@ describe("buildPayload", () => {
 
     expect(buildPayload(answers)).toEqual({
       answers: [
-        { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 50 } },
+        { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 30 } },
         { taxonomy: "mobilite", value: "pied_transports" },
         { taxonomy: "mobilite", value: "voiture" },
       ],
