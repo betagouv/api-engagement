@@ -11,6 +11,7 @@ vi.mock("@/services/search/collections/missions/client", () => ({
 }));
 
 import { prisma } from "@/db/postgres";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { missionIndexService } from "@/services/mission-index";
 
 const prismaMock = prisma as unknown as {
@@ -132,6 +133,40 @@ describe("missionIndexService.upsert", () => {
         secteur_activite: ["sante_social_aide_personne"],
         tranche_age: ["entre_18_25_ans"],
         dispositif: ["service_civique"],
+      })
+    );
+  });
+
+  it("privilégie le scoring de la version de prompt active même s'il n'est pas le plus récent", async () => {
+    // Ordre renvoyé par la requête (completedAt DESC) : la version précalculée (non active) arrive en
+    // tête, la version active est plus ancienne. Le tri ISO matching doit remonter la version active.
+    prismaMock.mission.findUnique.mockResolvedValue(
+      buildMission({
+        missionScorings: [
+          {
+            missionEnrichment: { promptVersion: "v_precalcul" },
+            missionScoringValues: [
+              { taxonomyKey: "domaine", valueKey: "sport" },
+              { taxonomyKey: "secteur_activite", valueKey: "sante_social_aide_personne" },
+            ],
+          },
+          {
+            missionEnrichment: { promptVersion: CURRENT_PROMPT_VERSION },
+            missionScoringValues: [{ taxonomyKey: "domaine", valueKey: "social_solidarite" }],
+          },
+        ],
+      })
+    );
+    upsertDocumentMock.mockResolvedValue(undefined);
+
+    await missionIndexService.upsert("mission-1");
+
+    expect(upsertDocumentMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        // `domaine` vient de la version active (repli écarté), `secteur_activite` retombe sur le
+        // scoring précalculé qui est le seul à la renseigner.
+        domaine: ["social_solidarite"],
+        secteur_activite: ["sante_social_aide_personne"],
       })
     );
   });

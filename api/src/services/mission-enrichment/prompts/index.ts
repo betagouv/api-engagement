@@ -35,7 +35,10 @@ export const PROMPT_REGISTRY = {
 
 export type PromptVersion = keyof typeof PROMPT_REGISTRY;
 
-export const isPromptVersion = (value: string): value is PromptVersion => value in PROMPT_REGISTRY;
+// Test de propriété PROPRE (et non l'opérateur `in`) : une clé héritée du prototype comme "toString"
+// ou "__proto__" existe sur tout objet et passerait `in`, acceptant à tort une version inexistante
+// (puis `PROMPT_REGISTRY[clé]` renverrait une fonction/objet du prototype, pas un prompt).
+export const isPromptVersion = (value: string): value is PromptVersion => Object.prototype.hasOwnProperty.call(PROMPT_REGISTRY, value);
 
 /** Version de prompt utilisée par défaut si la variable d'env est absente ou invalide. */
 export const DEFAULT_PROMPT_VERSION = v3.VERSION;
