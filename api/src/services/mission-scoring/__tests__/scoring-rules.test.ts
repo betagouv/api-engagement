@@ -25,7 +25,7 @@ const ADULT_TRANCHE_AGE_KEYS = [
   "tranche_age.plus_72_ans",
 ];
 
-const ALL_TRANCHE_AGE_KEYS = ["tranche_age.moins_18_ans", ...ADULT_TRANCHE_AGE_KEYS, "tranche_age.entre_16_17_ans", "tranche_age.moins_31_ans_handicap"];
+const ALL_TRANCHE_AGE_KEYS = ["tranche_age.moins_18_ans", ...ADULT_TRANCHE_AGE_KEYS, "tranche_age.moins_31_ans_handicap"];
 
 const sorted = (keys: string[]): string[] => [...keys].sort();
 

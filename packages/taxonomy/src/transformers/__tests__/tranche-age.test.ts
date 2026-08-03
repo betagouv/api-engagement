@@ -7,7 +7,7 @@ describe("resolveTrancheAgeValues", () => {
   });
 
   it("ajoute le bucket caché 16-17 ans", () => {
-    expect(resolveTrancheAgeValues({ age: 16 })).toEqual(["moins_18_ans", "entre_16_17_ans"]);
+    expect(resolveTrancheAgeValues({ age: 16 })).toEqual(["moins_18_ans"]);
   });
 
   it("classe les 18-25 ans", () => {

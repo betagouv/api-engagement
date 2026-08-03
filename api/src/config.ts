@@ -86,6 +86,7 @@ export const PUBLISHER_IDS = {
   BOUYGUES_TELECOM: "616fefd119fb03075a0b0843",
   ECTI: "619faeb97d373e07aea8be24",
   EGEE: "619faf257d373e07aea8be27",
+  GENDARMERIE: "65d770d5c0d3764cbed3ac85",
   GRIMPIO: ENV === "production" ? "9ccdd7fdb2715f6c766fd989" : "237ff477c3c4bc897e81c249",
   FONDATION_RAOUL_FOLLEREAU: "634e641783b660072d4c597e",
   JAGIS_POUR_LA_NATURE: "5f59305b6c7ea514150a818e",
@@ -102,6 +103,7 @@ export const PUBLISHER_IDS = {
   VILLE_DE_NANTES: "6347be8883b660072d4c1c53",
   ROC: "65d7715cc0d3764cbed3afaf",
   PLATEFORME_ENGAGEMENT: "6c6a6ed4cf9795a1d770c1e2",
+  POLICE: "65f07ba338b232a6341ed1e2",
 };
 
 export const DEFAULT_AVATAR = "https://api-engagement-bucket.s3.fr-par.scw.cloud/img/default.jpg";

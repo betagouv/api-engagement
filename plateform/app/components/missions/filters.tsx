@@ -30,6 +30,7 @@ export default function MissionFiltersBar({ filters, onChange }: MissionFiltersP
             options={filter.options}
             selected={filter.selected}
             single={filter.single}
+            panelAlign={index === filters.length - 1 ? "right" : "left"}
             onChange={(next) => onChange(filter.key, next)}
             className={`py-5 ${index !== 0 ? "after:content-[''] after:absolute after:top-4 after:bottom-4 after:left-0 after:w-px after:bg-border-default-grey" : ""}`}
           />

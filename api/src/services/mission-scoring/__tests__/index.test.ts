@@ -224,7 +224,7 @@ describe("missionScoringService.score", () => {
         {
           missionEnrichmentValueId: null,
           taxonomyKey: "tranche_age",
-          valueKey: "entre_16_17_ans",
+          valueKey: "moins_18_ans",
           score: 1,
         },
         {

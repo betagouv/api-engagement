@@ -9,10 +9,11 @@ interface ComboboxProps {
   selected: string[];
   onChange: (next: string[]) => void;
   className?: string;
+  panelAlign?: "left" | "right";
   single?: boolean;
 }
 
-export default function Combobox({ label, placeholder, options, selected, onChange, className, single }: ComboboxProps) {
+export default function Combobox({ label, placeholder, options, selected, onChange, className, panelAlign = "left", single }: ComboboxProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   // Vrai pendant une interaction au pointeur (souris/tactile) : en sélection unique, seule une
@@ -101,7 +102,10 @@ export default function Combobox({ label, placeholder, options, selected, onChan
       </button>
 
       {open && (
-        <div id={panelId} className="absolute right-0 left-0 z-50 min-w-80 mt-1 border border-border-default-grey bg-background! shadow-lg">
+        <div
+          id={panelId}
+          className={`absolute z-50 mt-1 w-full min-w-80 border border-border-default-grey bg-background! shadow-lg ${panelAlign === "right" ? "right-0" : "left-0"}`}
+        >
           <div className="relative m-4">
             <input
               type="text"

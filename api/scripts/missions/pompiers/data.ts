@@ -413,7 +413,7 @@ export const SDIS_DATA: SdisEntry[] = [
 
 export const DESCRIPTION_SPV = `<h2>🔥 Et si vous deveniez sapeur-pompier volontaire près de chez vous ?</h2>
 <p>En donnant quelques heures par semaine, vous rejoignez une équipe soudée au cœur de votre territoire et vous agissez concrètement pour protéger et aider la population.</p>
-<p>Quel que soit votre profil – femme ou homme, étudiant·e, salarié·e, ou déjà engagé·e ailleurs – le volontariat s'adapte à vos disponibilités et à vos envies.</p>
+<p>Quel que soit votre profil – femme ou homme, étudiant, salarié, ou déjà engagé ailleurs – le volontariat s'adapte à vos disponibilités et à vos envies.</p>
 
 <h3>Ce que vous ferez</h3>
 <p>En tant que sapeur-pompier volontaire, vous accompagnerez les équipes de votre centre de secours pour des missions variées de secours et de protection :</p>
@@ -439,7 +439,7 @@ export const DESCRIPTION_SPV = `<h2>🔥 Et si vous deveniez sapeur-pompier volo
 <p>L'engagement s'adapte à votre rythme : que vous puissiez quelques heures par semaine ou davantage. Vous participerez à :</p>
 <ul>
 <li>des gardes ou astreintes, selon vos disponibilités</li>
-<li>des interventions lorsque vous êtes appelé·e</li>
+<li>des interventions lorsque vous êtes appelé</li>
 <li>des formations régulières en équipe</li>
 </ul>
 <p>Chaque centre de secours organise ses plannings pour permettre à chacun de concilier engagement et vie personnelle.</p>
@@ -455,7 +455,7 @@ export const DESCRIPTION_SPV = `<h2>🔥 Et si vous deveniez sapeur-pompier volo
 <p>Pas besoin d'être un grand sportif ou d'avoir déjà de l'expérience : vous serez préparé et formé pas à pas.</p>
 
 <h3>Comment candidater ?</h3>
-<p>Cliquez sur <strong>Je m'engage</strong> pour accéder au formulaire officiel. Vous serez ensuite contacté·e pour :</p>
+<p>Cliquez sur <strong>Je m'engage</strong> pour accéder au formulaire officiel. Vous serez ensuite contacté pour :</p>
 <ul>
 <li>un entretien pour échanger sur votre motivation</li>
 <li>des tests simples d'aptitude physique et médicale</li>

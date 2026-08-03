@@ -290,9 +290,7 @@ export const TAXONOMY = {
   },
 
   // Dispositif d'engagement de la mission. Valeur déterministe injectée depuis `mission.type`
-  // (cf. SCORING_RULES.type côté API), pas enrichie par le LLM. Pour l'instant seuls bénévolat,
-  // service civique et pompiers sont mappés ; les réserves arriveront quand un discriminant
-  // permettra de les distinguer (l'enum MissionType n'a qu'un seul `volontariat_reserve_operationnelle`).
+  // (cf. SCORING_RULES.type côté API), pas enrichie par le LLM.
   dispositif: {
     label: "Dispositif d'engagement",
     type: "categorical",
@@ -787,7 +785,6 @@ export const TAXONOMY = {
       entre_46_67_ans: { label: "46-67 ans", icon: null, enrichable: false },
       entre_68_72_ans: { label: "68-72 ans", icon: null, enrichable: false },
       plus_72_ans: { label: "72 ans et plus", icon: null, enrichable: false },
-      entre_16_17_ans: { label: "16-17 ans", icon: null, enrichable: false, hidden: true },
       entre_46_66_ans: { label: "46-66 ans", icon: null, enrichable: false, hidden: true },
       moins_31_ans_handicap: { label: "Moins de 31 ans — situation de handicap", icon: null, enrichable: false, hidden: true },
     },

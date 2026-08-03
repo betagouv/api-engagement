@@ -27,11 +27,11 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
         <>
           {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, le h1 « X missions pour toi » est le seul titre visible au-dessus. */}
           <h2 className="fr-sr-only">Les missions sélectionnées pour toi</h2>
-          <ul role="list" className="grid grid-cols-1 gap-6 pb-6 md:grid-cols-2 md:px-4 list-none! p-0! m-0!">
+          <ul role="list" className="grid grid-cols-1 gap-6 list-none! p-0! m-0! lg:grid-cols-2">
             {items.map((item, index) => (
               <li
                 key={item.mission.id}
-                className={`relative w-full transition-shadow md:max-w-[330px] ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun" : ""}`}
+                className={`relative w-full transition-shadow ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun" : ""}`}
                 onMouseEnter={() => onMissionHover?.(item.mission.id)}
                 onMouseLeave={() => onMissionHover?.(null)}
               >
@@ -41,7 +41,7 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
             ))}
           </ul>
 
-          <div className="pb-8 md:px-6">
+          <div className="mt-6 w-full pb-8">
             <EmailMissionsModal userScoringId={userScoringId} />
           </div>
         </>
