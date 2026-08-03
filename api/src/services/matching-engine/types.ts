@@ -4,9 +4,7 @@ export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonomy, number>>;
 
-export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4" | "m5";
-
-export type GeoRadiusScoreMode = "legacy" | "linear-cutoff";
+export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4";
 
 export type MatchingEngineVersionConfig = {
   taxonomyKeys: readonly MatchingEngineTaxonomy[];
@@ -16,8 +14,6 @@ export type MatchingEngineVersionConfig = {
   remoteFullGeoScore: number | null;
   // Score géo forcé pour les missions remote=local (sur site, à proximité). null = pas de traitement spécial.
   remoteLocalGeoScore: number | null;
-  // Manière dont radius_km influence le score géographique.
-  geoRadiusScoreMode: GeoRadiusScoreMode;
 };
 
 export type RankMissionsByUserScoringInput = {

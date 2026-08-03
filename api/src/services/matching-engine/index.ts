@@ -5,10 +5,10 @@ import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type {
-  GeoRadiusScoreMode,
   MatchMissionItem,
   MatchingEngineTaxonomy,
   MatchingEngineTaxonomyWeights,
+  MatchingEngineVersion,
   MissionMatchingResultItem,
   RankMissionsByUserScoringInput,
   RankMissionsByUserScoringResult,
@@ -55,6 +55,8 @@ const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
 const TAXONOMY_OR_BASE_SCORE = 0.8;
+// Rayon utilisé en m4 pour les scorings créés avant que le quiz n'envoie la mobilité.
+const DEFAULT_GEO_RADIUS_KM = 20;
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * TAXONOMY_CANDIDATE_MULTIPLIER, MIN_TAXONOMY_CANDIDATE_LIMIT);
@@ -85,6 +87,7 @@ const assertUserScoringExists = async (userScoringId: string): Promise<void> => 
 
 const buildRanking = (params: {
   userScoringId: string;
+  version: MatchingEngineVersion;
   publisherDiffusionJoinSql?: Prisma.Sql;
   taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>;
   taxonomyWeight: number;
@@ -93,7 +96,6 @@ const buildRanking = (params: {
   missingGeoScore: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
-  geoRadiusScoreMode: GeoRadiusScoreMode;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
@@ -106,13 +108,13 @@ const buildRanking = (params: {
   const remoteLocalGeoScoreSql =
     params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
   const legacyDistanceGeoScoreSql = Prisma.sql`EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))`;
+  const effectiveGeoRadiusKmSql = Prisma.sql`COALESCE(NULLIF(ug."radius_km", 0), CAST(${DEFAULT_GEO_RADIUS_KM} AS double precision))`;
   const distanceGeoScoreSql =
-    params.geoRadiusScoreMode === "linear-cutoff"
+    params.version === "m4"
       ? Prisma.sql`
         CASE
-          WHEN NULLIF(ug."radius_km", 0) IS NULL THEN ${legacyDistanceGeoScoreSql}
-          WHEN gs."distance_km" >= ug."radius_km" THEN 0.0
-          ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ug."radius_km"))
+          WHEN gs."distance_km" >= ${effectiveGeoRadiusKmSql} THEN 0.0
+          ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ${effectiveGeoRadiusKmSql}))
         END`
       : legacyDistanceGeoScoreSql;
 
@@ -713,7 +715,6 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     missingGeoScore: input.missingGeoScore ?? 0.1,
     remoteFullGeoScore: input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore,
     remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
-    geoRadiusScoreMode: versionConfig.geoRadiusScoreMode,
     taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
     geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
   };
@@ -724,6 +725,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 
   return buildRanking({
     userScoringId: input.userScoringId,
+    version: params.version,
     publisherDiffusionJoinSql: buildPublisherDiffusionJoinSql(input.publisherId),
     taxonomyWeights: params.taxonomyWeights,
     taxonomyWeight: params.taxonomyWeight,
@@ -732,7 +734,6 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
     missingGeoScore: params.missingGeoScore,
     remoteFullGeoScore: params.remoteFullGeoScore,
     remoteLocalGeoScore: params.remoteLocalGeoScore,
-    geoRadiusScoreMode: params.geoRadiusScoreMode,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
     limit: params.rankingLimit,

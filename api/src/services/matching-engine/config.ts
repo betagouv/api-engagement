@@ -1,7 +1,7 @@
 import { MATCHING_ENGINE_VERSION } from "@/config";
 import { captureMessage } from "@/error";
 import { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES } from "@engagement/taxonomy";
-import type { GeoRadiusScoreMode, MatchingEngineTaxonomy, MatchingEngineTaxonomyWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
+import type { MatchingEngineTaxonomy, MatchingEngineTaxonomyWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
 
 export const MATCHING_ENGINE_TAXONOMIES = [...ENRICHABLE_TAXONOMIES, ...GATE_TAXONOMIES] as readonly (keyof MatchingEngineTaxonomyWeights)[];
 
@@ -18,7 +18,6 @@ type MatchingEngineVersionDefinition = {
   geoWeight: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
-  geoRadiusScoreMode?: GeoRadiusScoreMode;
 };
 
 export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
@@ -35,7 +34,6 @@ export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDef
     geoWeight: definition.geoWeight,
     remoteFullGeoScore: definition.remoteFullGeoScore,
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
-    geoRadiusScoreMode: definition.geoRadiusScoreMode ?? "legacy",
   };
 };
 
@@ -86,8 +84,9 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
   }),
   m4: defineMatchingEngineVersion({
-    // Identique à m3 côté géo, mais pondère aussi les nouvelles taxonomies du parcours de
-    // recommandation (PR #1350). Les 7 anciennes restent pondérées pour la rétro-compatibilité :
+    // Étend m3 avec les nouvelles taxonomies du parcours de recommandation (PR #1350) et
+    // borne le score géographique avec le rayon de mobilité. Les 7 anciennes taxonomies restent
+    // pondérées pour la rétro-compatibilité :
     // une mission encore enrichie en v3 (prod, ou staging pas encore ré-enrichie) continue de
     // matcher sur les anciennes taxonomies ; les nouvelles sont inertes tant que la mission n'a
     // pas de score dessus (le score manquant dégrade à 0, sans exclure la mission).
@@ -111,31 +110,6 @@ export const MATCHING_ENGINE_VERSIONS = {
     geoWeight: 0.3,
     remoteFullGeoScore: 0.9,
     remoteLocalGeoScore: 0.95,
-  }),
-  m5: defineMatchingEngineVersion({
-    // Identique à m4, mais utilise le rayon de mobilité comme borne du score géographique :
-    // décroissance linéaire dans le périmètre, puis score nul à la borne et au-delà.
-    taxonomyWeights: {
-      domaine: 1,
-      secteur_activite: 1,
-      type_mission: 1,
-      competence_rome: 1,
-      region_internationale: 1,
-      engagement_intent: 1,
-      formation_onisep: 1,
-      domaine_engagement: 1,
-      rythme: 1,
-      activite: 1,
-      equipe: 1,
-      interaction: 1,
-      autonomie: 1,
-      imprevu: 1,
-      motivation_recherche: 1,
-    },
-    geoWeight: 0.3,
-    remoteFullGeoScore: 0.9,
-    remoteLocalGeoScore: 0.95,
-    geoRadiusScoreMode: "linear-cutoff",
   }),
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

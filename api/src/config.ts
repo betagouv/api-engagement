@@ -70,7 +70,7 @@ export const MISSION_ENRICHMENT_PROVIDER = process.env.MISSION_ENRICHMENT_PROVID
 // un couple prompt/modèle différent par environnement (ex. v4/Albert en staging). Défaut : "v3".
 export const MISSION_ENRICHMENT_PROMPT_VERSION = process.env.MISSION_ENRICHMENT_PROMPT_VERSION || "v3";
 // Version active du moteur de matching (clé de MATCHING_ENGINE_VERSIONS). Permet d'activer un jeu de
-// pondérations de taxonomies différent par environnement (ex. m5/nouvelles taxos et rayon de mobilité en staging). Défaut : "m3".
+// pondérations de taxonomies différent par environnement (ex. m4/nouvelles taxos en staging). Défaut : "m3".
 export const MATCHING_ENGINE_VERSION = process.env.MATCHING_ENGINE_VERSION || "m3";
 
 // Rate limit

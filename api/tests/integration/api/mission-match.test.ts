@@ -282,14 +282,14 @@ describe("GET /missions/match", () => {
     expect(item.match.geoScore).toBe(1);
   });
 
-  it("sets the geo score to zero outside the mobility radius in m5", async () => {
+  it("sets the geo score to zero outside the mobility radius in m4", async () => {
     const nearbyMission = await createRankableMissionAtDistance(5);
     const outsideMission = await createRankableMissionAtDistance(15);
     const userScoringId = await createGeoUserScoring(10);
 
     const response = await withApiKey(request(app).get("/missions/match")).query({
       userScoringId,
-      engineVersion: "m5",
+      engineVersion: "m4",
     });
 
     expect(response.status).toBe(200);
@@ -297,6 +297,14 @@ describe("GET /missions/match", () => {
     const outsideItem = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === outsideMission.id);
     expect(nearbyItem.match.geoScore).toBeCloseTo(0.5, 2);
     expect(outsideItem.match.geoScore).toBe(0);
+
+    const defaultRadiusUserScoringId = await createGeoUserScoring();
+    const defaultRadiusResponse = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId: defaultRadiusUserScoringId,
+      engineVersion: "m4",
+    });
+    const defaultRadiusItem = defaultRadiusResponse.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === outsideMission.id);
+    expect(defaultRadiusItem.match.geoScore).toBeCloseTo(0.25, 2);
   });
 
   it("does not surface the same full-remote mission under m2 (candidate pool gap it fixes)", async () => {
