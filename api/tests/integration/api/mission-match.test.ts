@@ -282,14 +282,14 @@ describe("GET /missions/match", () => {
     expect(item.match.geoScore).toBe(1);
   });
 
-  it("sets the geo score to zero outside the mobility radius in m4", async () => {
+  it("sets the geo score to zero outside the mobility radius", async () => {
     const nearbyMission = await createRankableMissionAtDistance(5);
     const outsideMission = await createRankableMissionAtDistance(15);
     const userScoringId = await createGeoUserScoring(10);
 
     const response = await withApiKey(request(app).get("/missions/match")).query({
       userScoringId,
-      engineVersion: "m4",
+      engineVersion: "m3",
     });
 
     expect(response.status).toBe(200);
@@ -301,7 +301,7 @@ describe("GET /missions/match", () => {
     const defaultRadiusUserScoringId = await createGeoUserScoring();
     const defaultRadiusResponse = await withApiKey(request(app).get("/missions/match")).query({
       userScoringId: defaultRadiusUserScoringId,
-      engineVersion: "m4",
+      engineVersion: "m3",
     });
     const defaultRadiusItem = defaultRadiusResponse.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === outsideMission.id);
     expect(defaultRadiusItem.match.geoScore).toBeCloseTo(0.25, 2);

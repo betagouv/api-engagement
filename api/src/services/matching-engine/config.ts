@@ -84,9 +84,8 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
   }),
   m4: defineMatchingEngineVersion({
-    // Étend m3 avec les nouvelles taxonomies du parcours de recommandation (PR #1350) et
-    // borne le score géographique avec le rayon de mobilité. Les 7 anciennes taxonomies restent
-    // pondérées pour la rétro-compatibilité :
+    // Identique à m3 côté géo, mais pondère aussi les nouvelles taxonomies du parcours de
+    // recommandation (PR #1350). Les 7 anciennes restent pondérées pour la rétro-compatibilité :
     // une mission encore enrichie en v3 (prod, ou staging pas encore ré-enrichie) continue de
     // matcher sur les anciennes taxonomies ; les nouvelles sont inertes tant que la mission n'a
     // pas de score dessus (le score manquant dégrade à 0, sans exclure la mission).

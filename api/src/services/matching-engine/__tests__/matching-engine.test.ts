@@ -575,37 +575,20 @@ describe("matchingEngineService", () => {
       expect(rankingSql).not.toContain("forced_remote_candidates");
     });
 
-    it("uses the mobility radius as a linear geo score cutoff in m4", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-m4" }]).mockResolvedValueOnce([]);
+    it("uses the mobility radius as a linear geo score cutoff", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-radius" }]).mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
-        id: "mission-matching-result-m4",
+        id: "mission-matching-result-radius",
       });
 
       await matchingEngineService.rankMissionsByUserScoring({
-        userScoringId: "user-scoring-m4",
-        version: "m4",
+        userScoringId: "user-scoring-radius",
       });
 
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingSql).toContain('COALESCE(NULLIF(ug."radius_km", 0), CAST(');
       expect(rankingSql).toContain('WHEN gs."distance_km" >= COALESCE(');
       expect(rankingSql).toContain('1.0 - (gs."distance_km" / COALESCE(');
-    });
-
-    it("keeps the legacy geo decay formula in m3", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-m3-legacy" }]).mockResolvedValueOnce([]);
-      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
-        id: "mission-matching-result-m3-legacy",
-      });
-
-      await matchingEngineService.rankMissionsByUserScoring({
-        userScoringId: "user-scoring-m3-legacy",
-        version: "m3",
-      });
-
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      expect(rankingSql).toContain('EXP(-LN(2) * gs."distance_km"');
-      expect(rankingSql).not.toContain('WHEN gs."distance_km" >= COALESCE(');
     });
 
     it("returns a geo score of 1 for a remote=full mission ranked with m3", async () => {

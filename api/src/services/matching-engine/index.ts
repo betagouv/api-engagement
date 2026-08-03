@@ -8,7 +8,6 @@ import type {
   MatchMissionItem,
   MatchingEngineTaxonomy,
   MatchingEngineTaxonomyWeights,
-  MatchingEngineVersion,
   MissionMatchingResultItem,
   RankMissionsByUserScoringInput,
   RankMissionsByUserScoringResult,
@@ -55,7 +54,6 @@ const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
 const TAXONOMY_OR_BASE_SCORE = 0.8;
-// Rayon utilisé en m4 pour les scorings créés avant que le quiz n'envoie la mobilité.
 const DEFAULT_GEO_RADIUS_KM = 20;
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
@@ -87,7 +85,6 @@ const assertUserScoringExists = async (userScoringId: string): Promise<void> => 
 
 const buildRanking = (params: {
   userScoringId: string;
-  version: MatchingEngineVersion;
   publisherDiffusionJoinSql?: Prisma.Sql;
   taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>;
   taxonomyWeight: number;
@@ -107,16 +104,12 @@ const buildRanking = (params: {
     params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
   const remoteLocalGeoScoreSql =
     params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
-  const legacyDistanceGeoScoreSql = Prisma.sql`EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))`;
-  const effectiveGeoRadiusKmSql = Prisma.sql`COALESCE(NULLIF(ug."radius_km", 0), CAST(${DEFAULT_GEO_RADIUS_KM} AS double precision))`;
-  const distanceGeoScoreSql =
-    params.version === "m4"
-      ? Prisma.sql`
-        CASE
-          WHEN gs."distance_km" >= ${effectiveGeoRadiusKmSql} THEN 0.0
-          ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ${effectiveGeoRadiusKmSql}))
-        END`
-      : legacyDistanceGeoScoreSql;
+  const geoRadiusKmSql = Prisma.sql`COALESCE(NULLIF(ug."radius_km", 0), CAST(${DEFAULT_GEO_RADIUS_KM} AS double precision))`;
+  const distanceGeoScoreSql = Prisma.sql`
+    CASE
+      WHEN gs."distance_km" >= ${geoRadiusKmSql} THEN 0.0
+      ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ${geoRadiusKmSql}))
+    END`;
 
   // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full/local éligibles
   // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
@@ -725,7 +718,6 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 
   return buildRanking({
     userScoringId: input.userScoringId,
-    version: params.version,
     publisherDiffusionJoinSql: buildPublisherDiffusionJoinSql(input.publisherId),
     taxonomyWeights: params.taxonomyWeights,
     taxonomyWeight: params.taxonomyWeight,
