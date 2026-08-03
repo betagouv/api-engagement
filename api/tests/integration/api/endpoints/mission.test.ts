@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
-import { createTestMission, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
+import { createTestMission, createTestMissionWithModeration, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
 
@@ -97,24 +97,24 @@ describe("Dashboard mission controller", () => {
   });
 
   describe("GET /mission/autocomplete?field=city", () => {
-    it("returns values of an annonceur diffused by the user's publisher", async () => {
+    it("returns cities of missions moderated by the user's publisher, even without any diffusion snapshot entry", async () => {
       const annonceur = await createTestPublisher();
-      const diffuseur = await createTestPublisher({ publishers: [{ publisherId: annonceur.id }] });
-      const { token: diffuseurToken } = await createTestUser({ role: "user", publishers: [diffuseur.id] });
-      const diffusedMission = await createTestMission({ publisherId: annonceur.id, city: "Nantes" });
-      // Mission de l'annonceur hors du périmètre de diffusion (absente du snapshot) : ne doit pas alimenter l'autocomplete.
+      const moderateur = await createTestPublisher({ moderator: true, publishers: [{ publisherId: annonceur.id }] });
+      const { token: moderateurToken } = await createTestUser({ role: "user", publishers: [moderateur.id] });
+      // Mission modérée par le user (aucune ligne mission_diffusion) : doit alimenter l'autocomplete.
+      await createTestMissionWithModeration({ publisherId: annonceur.id, city: "Nantes", moderatorPublisherId: moderateur.id });
+      // Mission du même annonceur non modérée par le user (statut JVA seulement) : hors périmètre.
       await createTestMission({ publisherId: annonceur.id, city: "Nancy" });
-      await prisma.missionDiffusion.create({ data: { missionId: diffusedMission.id, distributionPublisherId: diffuseur.id } });
 
       const res = await request(app)
         .get(`/mission/autocomplete?field=city&search=nan&publishers=${annonceur.id}`)
-        .set({ Authorization: `jwt ${diffuseurToken}` });
+        .set({ Authorization: `jwt ${moderateurToken}` });
 
       expect(res.status).toBe(200);
       expect(res.body.data).toEqual([{ key: "Nantes", doc_count: 1 }]);
     });
 
-    it("rejects a publisher without any diffusion relation", async () => {
+    it("rejects a publisher the user neither owns nor moderates", async () => {
       const otherPublisher = await createTestPublisher();
 
       const res = await request(app).get(`/mission/autocomplete?field=city&search=nan&publishers=${otherPublisher.id}`).set(authHeader());

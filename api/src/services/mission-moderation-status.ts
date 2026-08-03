@@ -110,6 +110,37 @@ export const missionModerationStatusService = {
     return toRecord(status as MissionModerationWithRelations);
   },
 
+  /**
+   * Where Prisma des missions visibles par ces modérateurs : leurs propres missions
+   * ou celles qu'ils modèrent (relation `mission_moderation_status`). Sert à cadrer
+   * l'autocomplete de la page de modération sur le périmètre réellement modéré.
+   */
+  buildModeratedMissionsWhere(moderatorIds: string[]): Prisma.MissionWhereInput {
+    return { OR: [{ publisherId: { in: moderatorIds } }, { moderationStatuses: { some: { publisherId: { in: moderatorIds } } } }] };
+  },
+
+  /**
+   * Filtre les annonceurs (parmi `publisherIds`) dont au moins une mission ACCEPTED est
+   * modérée par l'un des `moderatorIds`. Aligné sur le périmètre de la liste de modération
+   * (niveau `publisherId`), indépendamment de l'allowlist de diffusion.
+   */
+  async filterModeratedPublisherIds(publisherIds: string[], moderatorIds: string[]): Promise<string[]> {
+    if (!publisherIds.length || !moderatorIds.length) {
+      return [];
+    }
+    const missions = await missionRepository.findMany({
+      where: {
+        publisherId: { in: publisherIds },
+        deletedAt: null,
+        statusCode: "ACCEPTED",
+        moderationStatuses: { some: { publisherId: { in: moderatorIds } } },
+      },
+      select: { publisherId: true },
+      distinct: ["publisherId"],
+    });
+    return missions.map((mission) => mission.publisherId);
+  },
+
   async findModerationStatuses(filters: ModerationFilters) {
     // If ids are provided, use them directly instead of building where clause from filters
     if (filters.ids && filters.ids.length > 0) {
