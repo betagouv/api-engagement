@@ -31,6 +31,11 @@ describe("matching engine config", () => {
     }
   });
 
+  it("active la borne linéaire du rayon uniquement à partir de m5", () => {
+    expect(MATCHING_ENGINE_VERSIONS.m4.geoRadiusScoreMode).toBe("legacy");
+    expect(MATCHING_ENGINE_VERSIONS.m5.geoRadiusScoreMode).toBe("linear-cutoff");
+  });
+
   it("refuse d'attribuer un poids de ranking à une gate", () => {
     expect(() =>
       defineMatchingEngineVersion({

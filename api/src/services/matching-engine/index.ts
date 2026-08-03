@@ -5,6 +5,7 @@ import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type {
+  GeoRadiusScoreMode,
   MatchMissionItem,
   MatchingEngineTaxonomy,
   MatchingEngineTaxonomyWeights,
@@ -92,6 +93,7 @@ const buildRanking = (params: {
   missingGeoScore: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
+  geoRadiusScoreMode: GeoRadiusScoreMode;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
@@ -103,6 +105,16 @@ const buildRanking = (params: {
     params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
   const remoteLocalGeoScoreSql =
     params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
+  const legacyDistanceGeoScoreSql = Prisma.sql`EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))`;
+  const distanceGeoScoreSql =
+    params.geoRadiusScoreMode === "linear-cutoff"
+      ? Prisma.sql`
+        CASE
+          WHEN NULLIF(ug."radius_km", 0) IS NULL THEN ${legacyDistanceGeoScoreSql}
+          WHEN gs."distance_km" >= ug."radius_km" THEN 0.0
+          ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ug."radius_km"))
+        END`
+      : legacyDistanceGeoScoreSql;
 
   // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full/local éligibles
   // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
@@ -543,12 +555,12 @@ const buildRanking = (params: {
         ELSE 0
       END AS "taxonomy_score",
       CASE
-        WHEN EXISTS (SELECT 1 FROM user_geo) THEN
+        WHEN ug."lat" IS NOT NULL THEN
           CASE
             ${remoteFullGeoScoreSql}
             ${remoteLocalGeoScoreSql}
             WHEN gs."distance_km" IS NULL THEN CAST(${params.missingGeoScore} AS double precision)
-            ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
+            ELSE ${distanceGeoScoreSql}
           END
         ELSE NULL
       END AS "geo_score",${rankedGeoColumnsSql}
@@ -558,6 +570,8 @@ const buildRanking = (params: {
       ON m."id" = cm."mission_id"
     LEFT JOIN geo_scores gs
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
+    LEFT JOIN user_geo ug
+      ON TRUE
   )
   SELECT
     r."mission_id",
@@ -699,6 +713,7 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     missingGeoScore: input.missingGeoScore ?? 0.1,
     remoteFullGeoScore: input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore,
     remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
+    geoRadiusScoreMode: versionConfig.geoRadiusScoreMode,
     taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
     geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
   };
@@ -717,6 +732,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
     missingGeoScore: params.missingGeoScore,
     remoteFullGeoScore: params.remoteFullGeoScore,
     remoteLocalGeoScore: params.remoteLocalGeoScore,
+    geoRadiusScoreMode: params.geoRadiusScoreMode,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
     limit: params.rankingLimit,

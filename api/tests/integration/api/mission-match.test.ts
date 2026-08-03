@@ -21,11 +21,11 @@ const createUserScoring = async (): Promise<string> => {
 };
 
 // Utilisateur géolocalisé (Paris) : active la branche géo du moteur.
-const createGeoUserScoring = async (): Promise<string> => {
+const createGeoUserScoring = async (radiusKm?: number): Promise<string> => {
   const response = await withApiKey(request(app).post("/user-scoring")).send({
     answers: [
       { taxonomy: "domaine", value: "social_solidarite" },
-      { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+      { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, ...(radiusKm === undefined ? {} : { radius_km: radiusKm }) } },
     ],
   });
 
@@ -157,6 +157,34 @@ const createRankableMission = async () => {
   });
 };
 
+const createRankableMissionAtDistance = async (distanceKm: number) => {
+  const mission = await createTestMission({
+    publisherId,
+    title: `Mission à ${distanceKm} km`,
+    domain: "solidarite",
+    addresses: [
+      {
+        street: "1 rue de Test",
+        postalCode: "75001",
+        departmentCode: "75",
+        departmentName: "Paris",
+        city: "Paris",
+        region: "Ile-de-France",
+        country: "France",
+        location: { lat: 48.8566 + distanceKm / 111.195, lon: 2.3522 },
+        geolocStatus: "FOUND",
+      },
+    ],
+  });
+  const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+  await createTestMissionScoring({
+    missionId: mission.id,
+    missionEnrichmentId: enrichment.id,
+    values: [{ taxonomyKey: "domaine", valueKey: "social_solidarite", score: 1 }],
+  });
+  return mission;
+};
+
 beforeEach(async () => {
   const publisher = await createTestPublisher({ name: "Mission Match API Test Publisher" });
   apiKey = publisher.apikey!;
@@ -252,6 +280,23 @@ describe("GET /missions/match", () => {
     expect(item).toBeDefined();
     expect(item.match.taxonomyScore).toBe(0);
     expect(item.match.geoScore).toBe(1);
+  });
+
+  it("sets the geo score to zero outside the mobility radius in m5", async () => {
+    const nearbyMission = await createRankableMissionAtDistance(5);
+    const outsideMission = await createRankableMissionAtDistance(15);
+    const userScoringId = await createGeoUserScoring(10);
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m5",
+    });
+
+    expect(response.status).toBe(200);
+    const nearbyItem = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === nearbyMission.id);
+    const outsideItem = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === outsideMission.id);
+    expect(nearbyItem.match.geoScore).toBeCloseTo(0.5, 2);
+    expect(outsideItem.match.geoScore).toBe(0);
   });
 
   it("does not surface the same full-remote mission under m2 (candidate pool gap it fixes)", async () => {

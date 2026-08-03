@@ -68,6 +68,31 @@ describe("buildPayload", () => {
     });
   });
 
+  it("calibre le rayon de localisation sur la mobilité la plus étendue", () => {
+    const answers: QuizAnswers = {
+      localisation: { type: "params", taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },
+      mobilite: { type: "options", taxonomy: "mobilite", option_ids: ["pied_transports", "voiture"] },
+    };
+
+    expect(buildPayload(answers)).toEqual({
+      answers: [
+        { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 50 } },
+        { taxonomy: "mobilite", value: "pied_transports" },
+        { taxonomy: "mobilite", value: "voiture" },
+      ],
+    });
+  });
+
+  it("conserve les paramètres de localisation quand la mobilité est absente", () => {
+    const answers: QuizAnswers = {
+      localisation: { type: "params", taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 30 } },
+    };
+
+    expect(buildPayload(answers)).toEqual({
+      answers: [{ taxonomy: "location", params: { lat: 48.8566, lon: 2.3522, radius_km: 30 } }],
+    });
+  });
+
   it("ignore les réponses de type numeric et text", () => {
     const answers: QuizAnswers = {
       age: { type: "numeric", value: 28 },

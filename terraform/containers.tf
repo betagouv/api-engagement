@@ -46,7 +46,7 @@ resource "scaleway_container" "api" {
     "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
 
     # Version active du moteur de matching (/match est servi par l'api).
-    # Pilotée par workspace via var.matching_engine_version (m4 staging / m3 prod).
+    # Pilotée par workspace via var.matching_engine_version (m5 staging / m3 prod).
     "MATCHING_ENGINE_VERSION" = var.matching_engine_version
 
     # Feature flags ES migration
