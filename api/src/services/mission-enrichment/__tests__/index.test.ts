@@ -36,6 +36,14 @@ vi.mock("@/services/mission-enrichment/prompts", () => ({
       buildSystemPrompt: () => "system",
       buildUserMessage: () => "user",
     },
+    v5: {
+      TAXONOMY_KEYS: ["domaine"],
+      MODEL: {},
+      TEMPERATURE: 0,
+      ENRICHMENT_SCHEMA: {},
+      buildSystemPrompt: () => "system v5",
+      buildUserMessage: () => "user v5",
+    },
   },
   buildMissionBlock: () => "mission block",
   buildTaxonomyBlock: () => "taxonomy block",
@@ -178,6 +186,29 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
       payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-new", force: true },
+    });
+  });
+
+  it("uses an explicit prompt version independently from the active version", async () => {
+    (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
+    (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue("enrichment-v5");
+    (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
+    providerGenerate.mockResolvedValue({
+      object: { classifications: [] },
+      usage: { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+    });
+
+    await missionEnrichmentService.enrich("mission-1", { promptVersion: "v5" });
+
+    expect(missionEnrichmentRepository.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ promptVersion: "v5" }) })
+    );
+    expect(missionEnrichmentRepository.claimForRun).toHaveBeenCalledWith({ missionId: "mission-1", promptVersion: "v5" });
+    expect(providerGenerate).toHaveBeenCalledWith(expect.objectContaining({ systemPrompt: "system v5", userMessage: "user v5" }));
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+      type: "mission.scoring",
+      payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-v5", force: true },
     });
   });
 });

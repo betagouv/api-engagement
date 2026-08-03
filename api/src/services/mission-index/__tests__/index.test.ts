@@ -102,6 +102,40 @@ describe("missionIndexService.upsert", () => {
     expect(deleteDocumentMock).not.toHaveBeenCalled();
   });
 
+  it("conserve chaque facette depuis le scoring le plus récent qui la renseigne", async () => {
+    prismaMock.mission.findUnique.mockResolvedValue(
+      buildMission({
+        missionScorings: [
+          {
+            missionScoringValues: [
+              { taxonomyKey: "tranche_age", valueKey: "entre_18_25_ans" },
+              { taxonomyKey: "dispositif", valueKey: "service_civique" },
+            ],
+          },
+          {
+            missionScoringValues: [
+              { taxonomyKey: "domaine", valueKey: "social_solidarite" },
+              { taxonomyKey: "secteur_activite", valueKey: "sante_social_aide_personne" },
+              { taxonomyKey: "tranche_age", valueKey: "moins_18_ans" },
+            ],
+          },
+        ],
+      })
+    );
+    upsertDocumentMock.mockResolvedValue(undefined);
+
+    await missionIndexService.upsert("mission-1");
+
+    expect(upsertDocumentMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        domaine: ["social_solidarite"],
+        secteur_activite: ["sante_social_aide_personne"],
+        tranche_age: ["entre_18_25_ans"],
+        dispositif: ["service_civique"],
+      })
+    );
+  });
+
   it("indexe les diffuseurs du snapshot en dédupliquant", async () => {
     prismaMock.mission.findUnique.mockResolvedValue(
       buildMission({

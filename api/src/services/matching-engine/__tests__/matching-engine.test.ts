@@ -10,6 +10,7 @@ import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
@@ -123,6 +124,8 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
       expect(rankingSql).toContain("JOIN taxonomy_weights tw");
       expect(rankingValues).toContain("domaine");
+      expect(rankingValues).toContain(CURRENT_PROMPT_VERSION);
+      expect(rankingSql).toContain('me."prompt_version" =');
       expect(rankingValues).toContain("tranche_age");
       expect(taxonomyScoresValues).toContain("domaine");
       expect(taxonomyScoresValues).not.toContain("tranche_age");

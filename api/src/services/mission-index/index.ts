@@ -10,32 +10,45 @@ const buildEmptyTaxonomyIndex = (): Record<IndexedTaxonomyKey, string[]> => {
 };
 
 const buildTaxonomyIndex = (
-  values: Array<{
-    taxonomyKey: string | null;
-    valueKey: string | null;
+  scorings: Array<{
+    missionScoringValues: Array<{
+      taxonomyKey: string | null;
+      valueKey: string | null;
+    }>;
   }>
 ): Record<IndexedTaxonomyKey, string[]> => {
   const indexedValues = buildEmptyTaxonomyIndex();
+  const resolvedTaxonomies = new Set<IndexedTaxonomyKey>();
 
-  for (const value of values) {
-    if (!value.taxonomyKey || !value.valueKey) {
-      continue;
+  for (const scoring of scorings) {
+    const valuesByTaxonomy = new Map<IndexedTaxonomyKey, string[]>();
+    for (const value of scoring.missionScoringValues) {
+      if (!value.taxonomyKey || !value.valueKey) {
+        continue;
+      }
+
+      const taxonomyValueKey = `${value.taxonomyKey}.${value.valueKey}`;
+      if (!isValidTaxonomyValueKey(taxonomyValueKey)) {
+        continue;
+      }
+
+      const taxonomyKey = value.taxonomyKey as IndexedTaxonomyKey;
+      if (!(taxonomyKey in indexedValues) || resolvedTaxonomies.has(taxonomyKey)) {
+        continue;
+      }
+
+      const taxonomyValues = valuesByTaxonomy.get(taxonomyKey) ?? [];
+      taxonomyValues.push(value.valueKey);
+      valuesByTaxonomy.set(taxonomyKey, taxonomyValues);
     }
 
-    const taxonomyValueKey = `${value.taxonomyKey}.${value.valueKey}`;
-    if (!isValidTaxonomyValueKey(taxonomyValueKey)) {
-      continue;
+    for (const [taxonomyKey, values] of valuesByTaxonomy) {
+      indexedValues[taxonomyKey] = [...new Set(values)];
+      resolvedTaxonomies.add(taxonomyKey);
     }
-
-    const taxonomyKey = value.taxonomyKey as IndexedTaxonomyKey;
-    if (!(taxonomyKey in indexedValues)) {
-      continue;
-    }
-
-    indexedValues[taxonomyKey].push(value.valueKey);
   }
 
-  return Object.fromEntries(Object.entries(indexedValues).map(([key, values]) => [key, [...new Set(values)]])) as Record<IndexedTaxonomyKey, string[]>;
+  return indexedValues;
 };
 
 export const missionIndexService = {
@@ -80,8 +93,8 @@ export const missionIndexService = {
           select: { publisherId: true },
         },
         missionScorings: {
-          orderBy: { createdAt: "desc" },
-          take: 1,
+          where: { missionEnrichment: { status: "completed" } },
+          orderBy: [{ missionEnrichment: { completedAt: "desc" } }, { createdAt: "desc" }, { id: "desc" }],
           select: {
             missionScoringValues: {
               where: { score: { gt: 0 } },
@@ -105,7 +118,7 @@ export const missionIndexService = {
       .map((address) => [address.locationLat, address.locationLon] satisfies [number, number]);
     // Diffuseurs autorisés issus du snapshot mission_diffusion. Toujours renseigné, y compris `[]`.
     const distributionPublisherIds = uniqueStrings(mission.missionDiffusions.map((diffusion) => diffusion.distributionPublisherId));
-    const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings[0]?.missionScoringValues ?? []);
+    const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings);
 
     const document: MissionIndexDocument = {
       id: mission.id,
