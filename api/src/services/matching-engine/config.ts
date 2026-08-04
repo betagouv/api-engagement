@@ -18,6 +18,8 @@ type MatchingEngineVersionDefinition = {
   geoWeight: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
+  // Socle acquis d'office par taxonomie matchée (cf. MatchingEngineVersionConfig.taxonomyOrBaseScore).
+  taxonomyOrBaseScore: number;
 };
 
 export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
@@ -34,6 +36,7 @@ export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDef
     geoWeight: definition.geoWeight,
     remoteFullGeoScore: definition.remoteFullGeoScore,
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
+    taxonomyOrBaseScore: definition.taxonomyOrBaseScore,
   };
 };
 
@@ -51,6 +54,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     geoWeight: 0.7,
     remoteFullGeoScore: null,
     remoteLocalGeoScore: null,
+    taxonomyOrBaseScore: 0.8,
   }),
   m2: defineMatchingEngineVersion({
     taxonomyWeights: {
@@ -65,6 +69,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     geoWeight: 0.3,
     remoteFullGeoScore: null,
     remoteLocalGeoScore: null,
+    taxonomyOrBaseScore: 0.8,
   }),
   m3: defineMatchingEngineVersion({
     // Identique à m2, mais les missions remote=full/local sont considérées comme naturellement proches.
@@ -82,6 +87,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     geoWeight: 0.3,
     remoteFullGeoScore: 0.9,
     remoteLocalGeoScore: 0.95,
+    taxonomyOrBaseScore: 0.8,
   }),
   m4: defineMatchingEngineVersion({
     // Identique à m3 côté géo, mais pondère les taxonomies du nouveau parcours de recommandation
@@ -123,6 +129,9 @@ export const MATCHING_ENGINE_VERSIONS = {
     geoWeight: 0.3,
     remoteFullGeoScore: 0.9,
     remoteLocalGeoScore: 0.95,
+    // Socle abaissé (vs 0.8 des versions précédentes) : la qualité du match intra-taxonomie pèse
+    // désormais 50 % au lieu de 20 %, ce qui creuse l'écart entre bonnes et mauvaises missions.
+    taxonomyOrBaseScore: 0.5,
   }),
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

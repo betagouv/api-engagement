@@ -14,6 +14,9 @@ export type MatchingEngineVersionConfig = {
   remoteFullGeoScore: number | null;
   // Score géo forcé pour les missions remote=local (sur site, à proximité). null = pas de traitement spécial.
   remoteLocalGeoScore: number | null;
+  // Socle acquis d'office par taxonomie dès qu'une valeur est en commun (part matchée sur le reste).
+  // Plus il est bas, plus la qualité du match (part des valeurs matchées) pèse dans le taxonomy_score.
+  taxonomyOrBaseScore: number;
 };
 
 export type RankMissionsByUserScoringInput = {
@@ -28,6 +31,7 @@ export type RankMissionsByUserScoringInput = {
   missingGeoScore?: number;
   remoteFullGeoScore?: number | null;
   remoteLocalGeoScore?: number | null;
+  taxonomyOrBaseScore?: number;
 };
 
 export type MatchMissionItem = {
