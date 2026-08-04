@@ -1,6 +1,7 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type {
@@ -226,6 +227,7 @@ const buildRanking = (params: {
       AND m."status_code" = 'ACCEPTED'
     ORDER BY
       ms."mission_id" ASC,
+      (me."prompt_version" = ${CURRENT_PROMPT_VERSION}) DESC,
       me."completed_at" DESC NULLS LAST,
       ms."created_at" DESC,
       ms."id" DESC

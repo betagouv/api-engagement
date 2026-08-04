@@ -10,7 +10,7 @@ import type { MissionRecord, MissionSearchFilters } from "@/types/mission";
 import { resolveRomeSkills } from "@/utils/rome";
 import { CONFIDENCE_THRESHOLD } from "./config";
 import { validateEnrichmentClassifications, type ClassificationInput, type TaxonomyLookup } from "./parser";
-import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION, PROMPT_REGISTRY } from "./prompts";
+import { buildMissionBlock, buildTaxonomyBlock, CURRENT_PROMPT_VERSION, PROMPT_REGISTRY, type PromptVersion } from "./prompts";
 import type { MissionForPrompt, TaxonomyForPrompt } from "./prompts/types";
 import { getMissionEnrichmentProvider } from "./providers";
 import type { MissionEnrichmentProviderResult } from "./providers/types";
@@ -264,7 +264,9 @@ export const missionEnrichmentService = {
     );
   },
 
-  async enrich(missionId: string, options: { force?: boolean } = {}) {
+  async enrich(missionId: string, options: { force?: boolean; promptVersion?: PromptVersion } = {}) {
+    const currentPromptVersion = options.promptVersion ?? CURRENT_PROMPT_VERSION;
+
     // 1. Load mission (needed before idempotence check for updatedAt comparison)
     const mission = await missionRepository.findUnique({
       where: { id: missionId },
@@ -285,12 +287,12 @@ export const missionEnrichmentService = {
     //    or if an in-flight enrichment (pending/processing) already exists for this version
     if (!options.force) {
       const existing = await missionEnrichmentRepository.findFirst({
-        where: { missionId, promptVersion: CURRENT_PROMPT_VERSION, status: { in: ["completed", "pending", "processing"] } },
+        where: { missionId, promptVersion: currentPromptVersion, status: { in: ["completed", "pending", "processing"] } },
         orderBy: { createdAt: "desc" },
       });
 
       if (existing?.status === "completed" && mission.updatedAt <= existing.createdAt) {
-        console.log(`${LOG_PREFIX} skipping ${missionId} — already enriched for ${CURRENT_PROMPT_VERSION}`);
+        console.log(`${LOG_PREFIX} skipping ${missionId} — already enriched for ${currentPromptVersion}`);
         return;
       }
 
@@ -301,14 +303,14 @@ export const missionEnrichmentService = {
     }
 
     // 3. Resolve the prompt and load only its explicitly whitelisted taxonomies.
-    const promptVersion = PROMPT_REGISTRY[CURRENT_PROMPT_VERSION];
+    const promptVersion = PROMPT_REGISTRY[currentPromptVersion];
     const taxonomies = getTaxonomies(promptVersion.TAXONOMY_KEYS);
 
     // 4. Reserve the single enrichment row for this (mission, version) and mark it `processing`.
     // The unique constraint (mission_id, prompt_version) guarantees one row; claimForRun reuses it
     // (no accumulation) and atomically blocks concurrent workers: a null id means another worker
     // already holds the run, so we skip silently.
-    const enrichmentId = await missionEnrichmentRepository.claimForRun({ missionId, promptVersion: CURRENT_PROMPT_VERSION });
+    const enrichmentId = await missionEnrichmentRepository.claimForRun({ missionId, promptVersion: currentPromptVersion });
 
     if (!enrichmentId) {
       console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (concurrent worker)`);

@@ -28,21 +28,22 @@ resource "scaleway_container" "api" {
   }
 
   environment_variables = {
-    "ENV"                        = var.env
-    "IMAGE_VERSION"              = var.image_tag
-    "API_URL"                    = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
-    "APP_URL"                    = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
-    "PLATEFORM_URL"              = var.plateform_hostname != "" ? "https://${var.plateform_hostname}" : var.enable_plateform ? "https://${scaleway_container.plateform[0].domain_name}" : ""
-    "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
-    "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
-    "PILOTY_BASE_URL"            = var.piloty_hostname
-    "BUCKET_NAME"                = var.bucket_name
-    "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
-    "PRISMA_POOL_SIZE_CORE"      = "20"
-    "PRISMA_POOL_TIMEOUT"        = "20"
-    "PRISMA_CONNECT_TIMEOUT"     = "10"
-    "TYPESENSE_HOST"             = var.typesense_load_balancer_private_ip
-    "TYPESENSE_PORT"             = "8108"
+    "ENV"                               = var.env
+    "IMAGE_VERSION"                     = var.image_tag
+    "API_URL"                           = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
+    "APP_URL"                           = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
+    "PLATEFORM_URL"                     = var.plateform_hostname != "" ? "https://${var.plateform_hostname}" : var.enable_plateform ? "https://${scaleway_container.plateform[0].domain_name}" : ""
+    "BENEVOLAT_URL"                     = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
+    "VOLONTARIAT_URL"                   = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
+    "PILOTY_BASE_URL"                   = var.piloty_hostname
+    "BUCKET_NAME"                       = var.bucket_name
+    "SLACK_JOBTEASER_CHANNEL_ID"        = var.slack_jobteaser_channel_id
+    "PRISMA_POOL_SIZE_CORE"             = "20"
+    "PRISMA_POOL_TIMEOUT"               = "20"
+    "PRISMA_CONNECT_TIMEOUT"            = "10"
+    "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
+    "TYPESENSE_PORT"                    = "8108"
+    "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
 
     # Version active du moteur de matching (/match est servi par l'api).
     # Pilotée par workspace via var.matching_engine_version (m4 staging / m3 prod).

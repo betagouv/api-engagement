@@ -35,6 +35,11 @@ export const PROMPT_REGISTRY = {
 
 export type PromptVersion = keyof typeof PROMPT_REGISTRY;
 
+// Test de propriété PROPRE (et non l'opérateur `in`) : une clé héritée du prototype comme "toString"
+// ou "__proto__" existe sur tout objet et passerait `in`, acceptant à tort une version inexistante
+// (puis `PROMPT_REGISTRY[clé]` renverrait une fonction/objet du prototype, pas un prompt).
+export const isPromptVersion = (value: string): value is PromptVersion => Object.prototype.hasOwnProperty.call(PROMPT_REGISTRY, value);
+
 /** Version de prompt utilisée par défaut si la variable d'env est absente ou invalide. */
 export const DEFAULT_PROMPT_VERSION = v3.VERSION;
 
@@ -42,8 +47,8 @@ export const DEFAULT_PROMPT_VERSION = v3.VERSION;
 // défaut plutôt que de faire planter l'enrichissement (`PROMPT_REGISTRY[inconnu]` → undefined) ; on
 // signale le fallback via Sentry pour ne pas masquer une mauvaise configuration.
 const resolvePromptVersion = (raw: string): PromptVersion => {
-  if (raw in PROMPT_REGISTRY) {
-    return raw as PromptVersion;
+  if (isPromptVersion(raw)) {
+    return raw;
   }
   captureMessage(`[mission-enrichment] unknown prompt version "${raw}", falling back to "${DEFAULT_PROMPT_VERSION}"`);
   console.warn(`[mission-enrichment] unknown prompt version "${raw}", falling back to "${DEFAULT_PROMPT_VERSION}"`);

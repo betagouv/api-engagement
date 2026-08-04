@@ -1,6 +1,7 @@
 import { isValidTaxonomyValueKey } from "@engagement/taxonomy";
 
 import { prisma } from "@/db/postgres";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { INDEXED_TAXONOMY_KEYS, IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { MissionIndexDocument } from "@/services/search/collections/missions/types";
@@ -10,32 +11,60 @@ const buildEmptyTaxonomyIndex = (): Record<IndexedTaxonomyKey, string[]> => {
 };
 
 const buildTaxonomyIndex = (
-  values: Array<{
-    taxonomyKey: string | null;
-    valueKey: string | null;
+  scorings: Array<{
+    missionEnrichment: { promptVersion: string } | null;
+    missionScoringValues: Array<{
+      taxonomyKey: string | null;
+      valueKey: string | null;
+    }>;
   }>
 ): Record<IndexedTaxonomyKey, string[]> => {
+  // Sélection ISO au matching (cf. `active_mission_scorings` dans matching-engine) : le scoring de la
+  // version de prompt active gagne, avec repli sur le scoring complété le plus récent. Objectif :
+  // tant que l'env n'a pas basculé, précalculer une nouvelle version n'altère ni le matching ni les
+  // facettes de recherche. La requête trie déjà par `completedAt DESC` ; ce tri STABLE remonte les
+  // scorings de la version active en tête sans casser cet ordre.
+  const orderedScorings = [...scorings].sort(
+    (a, b) => Number(b.missionEnrichment?.promptVersion === CURRENT_PROMPT_VERSION) - Number(a.missionEnrichment?.promptVersion === CURRENT_PROMPT_VERSION)
+  );
+
+  // On fusionne les facettes à travers les scorings retenus : pour chaque taxonomie, on conserve la
+  // valeur du scoring le plus prioritaire qui la renseigne (`score > 0`). Une taxonomie absente de la
+  // version active (nouveau jeu réduit) ou mise à 0 retombe donc sur un scoring plus ancien, ce qui
+  // évite de perdre une facette historique — mais peut laisser réapparaître une facette qu'une version
+  // plus récente a volontairement retirée.
   const indexedValues = buildEmptyTaxonomyIndex();
+  const resolvedTaxonomies = new Set<IndexedTaxonomyKey>();
 
-  for (const value of values) {
-    if (!value.taxonomyKey || !value.valueKey) {
-      continue;
+  for (const scoring of orderedScorings) {
+    const valuesByTaxonomy = new Map<IndexedTaxonomyKey, string[]>();
+    for (const value of scoring.missionScoringValues) {
+      if (!value.taxonomyKey || !value.valueKey) {
+        continue;
+      }
+
+      const taxonomyValueKey = `${value.taxonomyKey}.${value.valueKey}`;
+      if (!isValidTaxonomyValueKey(taxonomyValueKey)) {
+        continue;
+      }
+
+      const taxonomyKey = value.taxonomyKey as IndexedTaxonomyKey;
+      if (!(taxonomyKey in indexedValues) || resolvedTaxonomies.has(taxonomyKey)) {
+        continue;
+      }
+
+      const taxonomyValues = valuesByTaxonomy.get(taxonomyKey) ?? [];
+      taxonomyValues.push(value.valueKey);
+      valuesByTaxonomy.set(taxonomyKey, taxonomyValues);
     }
 
-    const taxonomyValueKey = `${value.taxonomyKey}.${value.valueKey}`;
-    if (!isValidTaxonomyValueKey(taxonomyValueKey)) {
-      continue;
+    for (const [taxonomyKey, values] of valuesByTaxonomy) {
+      indexedValues[taxonomyKey] = [...new Set(values)];
+      resolvedTaxonomies.add(taxonomyKey);
     }
-
-    const taxonomyKey = value.taxonomyKey as IndexedTaxonomyKey;
-    if (!(taxonomyKey in indexedValues)) {
-      continue;
-    }
-
-    indexedValues[taxonomyKey].push(value.valueKey);
   }
 
-  return Object.fromEntries(Object.entries(indexedValues).map(([key, values]) => [key, [...new Set(values)]])) as Record<IndexedTaxonomyKey, string[]>;
+  return indexedValues;
 };
 
 export const missionIndexService = {
@@ -80,9 +109,10 @@ export const missionIndexService = {
           select: { publisherId: true },
         },
         missionScorings: {
-          orderBy: { createdAt: "desc" },
-          take: 1,
+          where: { missionEnrichment: { status: "completed" } },
+          orderBy: [{ missionEnrichment: { completedAt: "desc" } }, { createdAt: "desc" }, { id: "desc" }],
           select: {
+            missionEnrichment: { select: { promptVersion: true } },
             missionScoringValues: {
               where: { score: { gt: 0 } },
               select: { taxonomyKey: true, valueKey: true },
@@ -105,7 +135,7 @@ export const missionIndexService = {
       .map((address) => [address.locationLat, address.locationLon] satisfies [number, number]);
     // Diffuseurs autorisés issus du snapshot mission_diffusion. Toujours renseigné, y compris `[]`.
     const distributionPublisherIds = uniqueStrings(mission.missionDiffusions.map((diffusion) => diffusion.distributionPublisherId));
-    const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings[0]?.missionScoringValues ?? []);
+    const taxonomyIndex = buildTaxonomyIndex(mission.missionScorings);
 
     const document: MissionIndexDocument = {
       id: mission.id,

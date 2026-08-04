@@ -5,13 +5,14 @@ import { JobResult } from "@/jobs/types";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { JOB_ENRICH_SLEEP_MS } from "@/services/mission-enrichment/config";
 import { MissionEnrichmentRateLimitError } from "@/services/mission-enrichment/errors";
-import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
+import { CURRENT_PROMPT_VERSION, isPromptVersion, type PromptVersion } from "@/services/mission-enrichment/prompts";
 import fs from "fs";
 import { setTimeout as sleep } from "timers/promises";
 
 const LOG_PREFIX = "[update-mission-enrichment-job]";
 
 export interface UpdateMissionEnrichmentJobPayload {
+  promptVersion?: PromptVersion;
   publisherId?: string;
   limit?: number;
   onlyMissing?: boolean; // ne traite que les missions sans aucun enrichment
@@ -27,8 +28,13 @@ export interface UpdateMissionEnrichmentJobResult extends JobResult {
 export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMissionEnrichmentJobPayload, UpdateMissionEnrichmentJobResult> {
   name = "Enrichissement des missions";
 
-  async handle({ publisherId, limit, onlyMissing, missionIds, missionIdsFile }: UpdateMissionEnrichmentJobPayload = {}): Promise<UpdateMissionEnrichmentJobResult> {
+  async handle({ promptVersion, publisherId, limit, onlyMissing, missionIds, missionIdsFile }: UpdateMissionEnrichmentJobPayload = {}): Promise<UpdateMissionEnrichmentJobResult> {
     try {
+      if (promptVersion !== undefined && !isPromptVersion(promptVersion)) {
+        throw new Error(`Version de prompt inconnue : ${promptVersion}`);
+      }
+      const targetPromptVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
+
       if (missionIds !== undefined && (!Array.isArray(missionIds) || missionIds.some((missionId) => typeof missionId !== "string"))) {
         throw new Error("missionIds doit être un tableau de chaînes de caractères");
       }
@@ -84,7 +90,7 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
                 ...baseWhere,
                 enrichments: {
                   some: {},
-                  none: { promptVersion: CURRENT_PROMPT_VERSION, status: "completed" },
+                  none: { promptVersion: targetPromptVersion, status: "completed" },
                 },
               },
               select: { id: true },
@@ -99,10 +105,10 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
 
       console.log(
         hasFixedSelection
-          ? `${LOG_PREFIX} ${missions.length} missions to force enrich (fixed selection, version: ${CURRENT_PROMPT_VERSION})`
+          ? `${LOG_PREFIX} ${missions.length} missions to force enrich (fixed selection, version: ${targetPromptVersion})`
           : `${LOG_PREFIX} ${missions.length} missions to enrich ` +
               `(${missingMissions.length} sans enrichment + ${staleMissions.length} obsolètes, ` +
-              `publisher: ${publisherId ?? "all"}, version: ${CURRENT_PROMPT_VERSION}, onlyMissing: ${onlyMissing ?? false})`
+              `publisher: ${publisherId ?? "all"}, version: ${targetPromptVersion}, onlyMissing: ${onlyMissing ?? false})`
       );
 
       let processed = 0;
@@ -110,7 +116,7 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
 
       for (const mission of missions) {
         try {
-          await missionEnrichmentService.enrich(mission.id, { force: hasFixedSelection });
+          await missionEnrichmentService.enrich(mission.id, { force: hasFixedSelection, promptVersion: targetPromptVersion });
           processed++;
           console.log(`${LOG_PREFIX} [${processed}/${missions.length}] enriched ${mission.id}`);
         } catch (error) {
@@ -125,7 +131,7 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
         await sleep(JOB_ENRICH_SLEEP_MS);
       }
 
-      const message = `${processed} missions enrichies, ${failed} échecs (${hasFixedSelection ? "sélection fixe" : `publisher: ${publisherId ?? "all"}`})`;
+      const message = `${processed} missions enrichies, ${failed} échecs (${hasFixedSelection ? "sélection fixe" : `publisher: ${publisherId ?? "all"}`}, version: ${targetPromptVersion})`;
       console.log(`${LOG_PREFIX} done — ${message}`);
 
       return { success: failed === 0, timestamp: new Date(), processed, failed, message };
