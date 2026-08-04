@@ -84,11 +84,25 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
   }),
   m4: defineMatchingEngineVersion({
-    // Identique à m3 côté géo, mais pondère aussi les nouvelles taxonomies du parcours de
-    // recommandation (PR #1350). Les 7 anciennes restent pondérées pour la rétro-compatibilité :
-    // une mission encore enrichie en v3 (prod, ou staging pas encore ré-enrichie) continue de
-    // matcher sur les anciennes taxonomies ; les nouvelles sont inertes tant que la mission n'a
-    // pas de score dessus (le score manquant dégrade à 0, sans exclure la mission).
+    // Identique à m3 côté géo, mais pondère les taxonomies du nouveau parcours de recommandation
+    // (quiz v2) selon leur pouvoir discriminant, et non plus toutes à 1.
+    //
+    // Poids forts (nouvelles taxonomies bien enrichies, centrales dans le besoin exprimé) :
+    //   - domaine_engagement (é7) : question centrale du besoin ;
+    //   - activite (é9)           : quel rôle jouer, discrimine dans un même domaine ;
+    //   - rythme (é6)             : critère de compatibilité (mauvais rythme = mauvaise reco).
+    // Poids faibles (info rarement explicite côté annonces) :
+    //   - equipe / interaction / autonomie / imprevu.
+    // motivation_recherche reste à 1 : elle porte indemnisation/remote (injectés par SCORING_RULES)
+    // et les autres motivations enrichies par le LLM ; l'amplification conditionnelle éventuelle
+    // (indemnisation, sécurité du pays) relèvera de règles/boost, pas d'un poids de taxonomie.
+    //
+    // Les 7 anciennes taxonomies restent pondérées à 1 pour la rétro-compatibilité : une mission
+    // encore enrichie en v3 (prod, ou staging pas encore ré-enrichie) continue de matcher dessus.
+    // Comme le quiz v2 ne pose plus ces questions, un utilisateur v2 n'y répond pas → elles restent
+    // hors de son dénominateur et ces poids sont neutres pour lui. Symétriquement, les nouvelles
+    // taxonomies sont inertes tant que la mission n'a pas de score dessus (dégradation à 0, sans
+    // exclusion). ⚠️ Les poids forts ne mordent donc qu'après ré-enrichissement du corpus en v5.
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -97,13 +111,13 @@ export const MATCHING_ENGINE_VERSIONS = {
       region_internationale: 1,
       engagement_intent: 1,
       formation_onisep: 1,
-      domaine_engagement: 1,
-      rythme: 1,
-      activite: 1,
-      equipe: 1,
-      interaction: 1,
-      autonomie: 1,
-      imprevu: 1,
+      domaine_engagement: 1.5,
+      rythme: 1.2,
+      activite: 1.5,
+      equipe: 0.6,
+      interaction: 0.6,
+      autonomie: 0.6,
+      imprevu: 0.6,
       motivation_recherche: 1,
     },
     geoWeight: 0.3,

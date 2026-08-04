@@ -1,5 +1,5 @@
 import type { UserScoringCreateResponse, UserScoringUpdateResponse } from "@engagement/dto";
-import { TAXONOMY } from "@engagement/taxonomy";
+import { isNeutralTaxonomyValueKey, TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
 
@@ -121,6 +121,12 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
     }
 
     for (const valueKey of resolvedAnswer.values) {
+      // Les réponses « je ne sais pas » / « peu importe » ne sont jamais portées par une mission :
+      // les persister ne ferait que gonfler le dénominateur du taxonomy_score (dilution). On ne les
+      // enregistre donc pas ; la taxonomie concernée sort simplement du calcul de matching.
+      if (isNeutralTaxonomyValueKey(answer.taxonomy, valueKey)) {
+        continue;
+      }
       const key = `${answer.taxonomy}.${valueKey}`;
       if (!seen.has(key)) {
         seen.add(key);
