@@ -27,8 +27,6 @@ widget_memory_limit = 512
 widget_min_scale    = 0
 widget_max_scale    = 1
 
-worker_max_scale = 2
-
 enable_widget         = true
 enable_intern_jobs    = true
 enable_analytics_jobs = true
