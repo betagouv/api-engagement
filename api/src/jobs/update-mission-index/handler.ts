@@ -2,7 +2,7 @@ import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
-import { asyncTaskBus } from "@/services/async-task";
+import { missionIndexService } from "@/services/mission-index";
 
 const LOG_PREFIX = "[update-mission-index-job]";
 const DEFAULT_BATCH_SIZE = 50;
@@ -50,7 +50,7 @@ export class UpdateMissionIndexHandler implements BaseHandler<UpdateMissionIndex
           batch.map(async ({ id }) => {
             try {
               if (!dryRun) {
-                await asyncTaskBus.publish({ type: "mission.index", payload: { missionId: id, action: "upsert" } });
+                await missionIndexService.upsert(id);
               }
               indexed++;
             } catch (error) {
