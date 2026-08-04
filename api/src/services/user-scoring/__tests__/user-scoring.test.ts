@@ -63,6 +63,22 @@ describe("userScoringService.create — filtrage des réponses neutres", () => {
     expect(persistedKeys()).toEqual(["motivation_recherche.indemnisation"]);
   });
 
+  it("accepte un payload entièrement neutre sans géo (scoring sans valeur, pas de 400)", async () => {
+    await expect(
+      userScoringService.create({
+        missionAlertEnabled: false,
+        answers: [
+          { taxonomy: "equipe", value: "peu_importe" },
+          { taxonomy: "rythme", value: "je_ne_sais_pas" },
+        ],
+      })
+    ).resolves.toEqual({ id: "user-scoring-1" });
+
+    const arg = createMock.mock.calls[0][0];
+    expect(arg.values).toEqual([]);
+    expect(arg.geo).toBeUndefined();
+  });
+
   it("crée quand même la géolocalisation quand toutes les réponses taxonomiques sont neutres", async () => {
     await userScoringService.create({
       missionAlertEnabled: false,
