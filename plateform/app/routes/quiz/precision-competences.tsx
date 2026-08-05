@@ -1,0 +1,61 @@
+import { useState } from "react";
+import { useOutletContext } from "react-router";
+import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
+import NextButton from "~/components/quiz/next-button";
+import { OPTIONS } from "~/config/quiz-options";
+import { useQuizStore } from "~/stores/quiz";
+import type { QuizOutletContext } from "./_layout";
+
+const STEP_ID = "precision_competences";
+
+// Mapping référentiel ROME — 7 domaines de compétences.
+// La sémantique varie selon la motivation : "ce que je veux développer" (booster_cv / enrichir_cv)
+// vs. "ce que je sais déjà faire" (competences_interet_general). Même grille, titre adapté.
+const STEP_OPTIONS = [
+  OPTIONS["competence_rome.management_social_soin"],
+  OPTIONS["competence_rome.communication_creation_numerique"],
+  OPTIONS["competence_rome.production_construction_qualite_logistique"],
+  OPTIONS["competence_rome.gestion_pilotage_juridique"],
+  OPTIONS["competence_rome.relation_client_commerce_strategie"],
+  OPTIONS["competence_rome.cooperation_organisation_soft_skills"],
+  OPTIONS["competence_rome.securite_environnement_action_publique"],
+  OPTIONS["competence_rome.je_ne_sais_pas"],
+];
+
+const TITLE_BY_MOTIVATION: Record<string, string> = {
+  competences_interet_general: "Quel est ton domaine de compétences ?",
+};
+
+const DEFAULT_TITLE = "Quel domaine de compétences t'attire le plus ?";
+
+export default function PrecisionCompetencesStep() {
+  const { answers, setAnswer } = useQuizStore();
+  const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
+  const [error, setError] = useState<string | undefined>(undefined);
+
+  const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
+  const title = TITLE_BY_MOTIVATION[motivationId] ?? DEFAULT_TITLE;
+  const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
+
+  const handleSelect = (value: string[]) => {
+    setError(undefined);
+    setAnswer(STEP_ID, { type: "options", taxonomy: "competence_rome", option_ids: value });
+  };
+
+  const handleNext = () => {
+    const answer = answers[STEP_ID];
+    if (answer?.type !== "options" || answer.option_ids.length === 0) {
+      setError("Sélectionne une réponse");
+      return;
+    }
+    saveScoring();
+    goNext();
+  };
+
+  return (
+    <>
+      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <NextButton onClick={handleNext} skip />
+    </>
+  );
+}

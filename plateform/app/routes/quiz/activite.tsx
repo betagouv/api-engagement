@@ -8,23 +8,20 @@ import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "motivations";
+const STEP_ID = "activite";
 
 const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["motivation_recherche.premiere_experience"],
-  OPTIONS["motivation_recherche.decouverte_metier"],
-  OPTIONS["motivation_recherche.agir_pour_une_cause"],
-  OPTIONS["motivation_recherche.securite_pays"],
-  OPTIONS["motivation_recherche.remote"],
-  OPTIONS["motivation_recherche.rencontres"],
-  OPTIONS["motivation_recherche.indemnisation"],
-  OPTIONS["motivation_recherche.horaires_flexibles"],
-  OPTIONS["motivation_recherche.autre"],
+  OPTIONS["activite.aider_accompagner"],
+  OPTIONS["activite.transmettre_animer"],
+  OPTIONS["activite.fabriquer_reparer_terrain"],
+  OPTIONS["activite.secourir_proteger"],
+  OPTIONS["activite.organiser_coordonner"],
+  OPTIONS["activite.creer_communiquer"],
 ];
 
 const STEP = getStepDef(STEP_ID);
 
-export default function MotivationsStep() {
+export default function ActivitesStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
@@ -32,7 +29,7 @@ export default function MotivationsStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", taxonomy: "motivation_recherche", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "activite", option_ids: value });
   };
 
   const handleNext = () => {
@@ -47,7 +44,7 @@ export default function MotivationsStep() {
   return (
     <>
       <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
-      <NextButton onClick={handleNext} />
+      <NextButton onClick={handleNext} skip />
     </>
   );
 }

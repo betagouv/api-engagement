@@ -9,7 +9,7 @@ type Props = {
 };
 
 // Steps résumés à l'écran, dans l'ordre d'affichage (la localisation est traitée à part).
-const RECAP_STEP_IDS = ["motivations", "rythme", "domaines", "activites", "equipe"] as const;
+const RECAP_STEP_IDS = ["motivation_recherche", "rythme", "domaine_engagement", "activite", "equipe"] as const;
 
 // Délai entre l'apparition de deux points du récap.
 const REVEAL_INTERVAL_MS = 500;

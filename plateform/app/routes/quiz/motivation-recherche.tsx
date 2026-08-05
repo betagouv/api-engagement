@@ -8,23 +8,23 @@ import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
 import type { QuizOutletContext } from "./_layout";
 
-const STEP_ID = "domaines";
+const STEP_ID = "motivation_recherche";
 
 const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["domaine_engagement.sante_bien_etre"],
-  OPTIONS["domaine_engagement.sport"],
-  OPTIONS["domaine_engagement.solidarite_inclusion"],
-  OPTIONS["domaine_engagement.environnement_animaux"],
-  OPTIONS["domaine_engagement.art_culture"],
-  OPTIONS["domaine_engagement.securite_secours"],
-  OPTIONS["domaine_engagement.citoyennete"],
-  OPTIONS["domaine_engagement.numerique"],
-  OPTIONS["domaine_engagement.education"],
+  OPTIONS["motivation_recherche.premiere_experience"],
+  OPTIONS["motivation_recherche.decouverte_metier"],
+  OPTIONS["motivation_recherche.agir_pour_une_cause"],
+  OPTIONS["motivation_recherche.securite_pays"],
+  OPTIONS["motivation_recherche.remote"],
+  OPTIONS["motivation_recherche.rencontres"],
+  OPTIONS["motivation_recherche.indemnisation"],
+  OPTIONS["motivation_recherche.horaires_flexibles"],
+  OPTIONS["motivation_recherche.autre"],
 ];
 
 const STEP = getStepDef(STEP_ID);
 
-export default function DomainesStep() {
+export default function MotivationsStep() {
   const { answers, setAnswer } = useQuizStore();
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
   const [error, setError] = useState<string | undefined>(undefined);
@@ -32,7 +32,7 @@ export default function DomainesStep() {
 
   const handleSelect = (value: string[]) => {
     setError(undefined);
-    setAnswer(STEP_ID, { type: "options", taxonomy: "domaine_engagement", option_ids: value });
+    setAnswer(STEP_ID, { type: "options", taxonomy: "motivation_recherche", option_ids: value });
   };
 
   const handleNext = () => {
@@ -47,7 +47,7 @@ export default function DomainesStep() {
   return (
     <>
       <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
-      <NextButton onClick={handleNext} skip />
+      <NextButton onClick={handleNext} />
     </>
   );
 }

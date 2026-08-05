@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
-import { QUIZ_FLOW, type StepDef, type StepId } from "~/config/quiz-flow";
+import { QUIZ_FLOW, QUIZ_FLOW_REGISTRY, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
@@ -23,8 +23,13 @@ export type QuizOutletContext = {
 };
 
 // Titre par step (RGAA 8.6) : les routes enfants n'exportent pas de meta(), celui-ci s'applique à toutes.
+// Le flow actif est cherché en premier, puis les autres versions (leurs routes restent accessibles).
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  const step = QUIZ_FLOW.find((s) => s.route === location.pathname);
+  const step =
+    QUIZ_FLOW.find((s) => s.route === location.pathname) ??
+    Object.values(QUIZ_FLOW_REGISTRY)
+      .flat()
+      .find((s) => s.route === location.pathname);
   const title = step ? `${step.title} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
   return [{ title }, { name: "robots", content: "noindex, nofollow" }];
 }
@@ -59,7 +64,7 @@ export default function QuizLayout() {
     if (!currentStep) return;
     if (currentStep.condition && !evalCondition(currentStep.condition, answers)) {
       const firstVisible = QUIZ_FLOW.find((s) => !s.condition || evalCondition(s.condition, answers));
-      navigate(firstVisible?.route ?? "/quiz/age", { replace: true });
+      navigate(firstVisible?.route ?? QUIZ_FLOW[0].route, { replace: true });
     }
   }, [location.pathname, currentStep]);
 
@@ -143,7 +148,7 @@ export default function QuizLayout() {
     const freshAnswers = useQuizStore.getState().answers;
     const { prev, steps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(steps);
-    navigate(prev ? prev.route : "/quiz/age", { replace: true });
+    navigate(prev ? prev.route : QUIZ_FLOW[0].route, { replace: true });
   };
 
   // quiz.back_navigated : clic sur un bouton "Retour" (header mobile ou BackButton desktop).
