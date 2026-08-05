@@ -69,6 +69,7 @@ const buildTaxonomyIndex = (
 
 export const missionIndexService = {
   async upsert(missionId: string): Promise<void> {
+    const postgresStartedAt = Date.now();
     const mission = await prisma.mission.findUnique({
       where: { id: missionId },
       select: {
@@ -121,12 +122,14 @@ export const missionIndexService = {
         },
       },
     });
+    console.log(`[mission.index] dependency=postgres operation=mission.findUnique missionId=${missionId} durationMs=${Date.now() - postgresStartedAt}`);
 
     if (!mission || mission.deletedAt !== null || mission.statusCode !== "ACCEPTED") {
       await this.delete(missionId);
       return;
     }
 
+    const buildStartedAt = Date.now();
     const uniqueStrings = (values: Array<string | null | undefined>): string[] => [...new Set(values.filter((value): value is string => Boolean(value)))];
     const departmentCodes = uniqueStrings(mission.addresses.map((address) => address.departmentCode));
     const departmentNames = uniqueStrings(mission.addresses.map((address) => address.departmentName));
@@ -172,16 +175,22 @@ export const missionIndexService = {
       ...taxonomyIndex,
     };
 
+    console.log(`[mission.index] operation=document.build status=success missionId=${missionId} durationMs=${Date.now() - buildStartedAt}`);
+    const typesenseStartedAt = Date.now();
     await missionSearchClient.upsert(document);
+    console.log(`[mission.index] dependency=typesense operation=document.upsert missionId=${missionId} durationMs=${Date.now() - typesenseStartedAt}`);
   },
 
   async delete(missionId: string): Promise<void> {
+    const typesenseStartedAt = Date.now();
     try {
       await missionSearchClient.delete(missionId);
     } catch (err: unknown) {
       if ((err as { httpStatus?: number }).httpStatus !== 404) {
         throw err;
       }
+    } finally {
+      console.log(`[mission.index] dependency=typesense operation=document.delete missionId=${missionId} durationMs=${Date.now() - typesenseStartedAt}`);
     }
   },
 };
