@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { TAXONOMY } from "../taxonomy";
 import type { TaxonomyKey } from "../types";
-import { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES, getTaxonomyList, isValidTaxonomyValueKey, parseTaxonomyValueKey } from "../utils";
+import {
+  ENRICHABLE_TAXONOMIES,
+  GATE_TAXONOMIES,
+  getTaxonomyList,
+  isNeutralTaxonomyValueKey,
+  isValidTaxonomyValueKey,
+  NEUTRAL_TAXONOMY_VALUE_KEYS,
+  parseTaxonomyValueKey,
+} from "../utils";
 
 describe("parseTaxonomyValueKey", () => {
   it("découpe une clé plate valide en taxonomie + valeur", () => {
@@ -68,6 +76,34 @@ describe("getTaxonomyList", () => {
         expect(value.order).toBe(index);
       });
     }
+  });
+});
+
+describe("NEUTRAL_TAXONOMY_VALUE_KEYS / isNeutralTaxonomyValueKey", () => {
+  it("contient exactement les valeurs taguées neutral: true", () => {
+    const expected = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).flatMap(([taxonomyKey, dim]) =>
+      (Object.entries(dim.values) as [string, { neutral?: boolean }][]).filter(([, value]) => value.neutral === true).map(([valueKey]) => `${taxonomyKey}.${valueKey}`)
+    );
+    expect([...NEUTRAL_TAXONOMY_VALUE_KEYS].sort()).toEqual(expected.sort());
+  });
+
+  it("tague les réponses « je ne sais pas » / « peu importe » des taxonomies pondérées", () => {
+    expect(isNeutralTaxonomyValueKey("rythme", "je_ne_sais_pas")).toBe(true);
+    expect(isNeutralTaxonomyValueKey("equipe", "peu_importe")).toBe(true);
+    expect(isNeutralTaxonomyValueKey("interaction", "peu_importe")).toBe(true);
+    expect(isNeutralTaxonomyValueKey("engagement_intent", "exploration")).toBe(true);
+    expect(isNeutralTaxonomyValueKey("motivation_recherche", "autre")).toBe(true);
+  });
+
+  it("ne tague PAS les valeurs enrichable:false porteuses de signal (indemnisation, remote)", () => {
+    expect(isNeutralTaxonomyValueKey("motivation_recherche", "indemnisation")).toBe(false);
+    expect(isNeutralTaxonomyValueKey("motivation_recherche", "remote")).toBe(false);
+  });
+
+  it("ne tague pas une vraie réponse ni une valeur inconnue", () => {
+    expect(isNeutralTaxonomyValueKey("domaine_engagement", "sport")).toBe(false);
+    expect(isNeutralTaxonomyValueKey("rythme", "plusieurs_jours_semaine")).toBe(false);
+    expect(isNeutralTaxonomyValueKey("inconnue", "valeur")).toBe(false);
   });
 });
 

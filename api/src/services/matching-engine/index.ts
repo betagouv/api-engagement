@@ -53,7 +53,6 @@ const MIN_TAXONOMY_CANDIDATE_LIMIT = 1000;
 const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
-const TAXONOMY_OR_BASE_SCORE = 0.8;
 const DEFAULT_GEO_RADIUS_KM = 20;
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
@@ -63,9 +62,7 @@ const getGeoCandidateLimit = (params: { limit: number; offset: number }): number
   Math.max(params.offset + params.limit, params.limit * GEO_CANDIDATE_MULTIPLIER, MIN_GEO_CANDIDATE_LIMIT);
 
 const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>) =>
-  Prisma.join(
-    Object.entries(taxonomyWeights).map(([taxonomy, weight]) => Prisma.sql`(${taxonomy}, CAST(${weight} AS double precision))`)
-  );
+  Prisma.join(Object.entries(taxonomyWeights).map(([taxonomy, weight]) => Prisma.sql`(${taxonomy}, CAST(${weight} AS double precision))`));
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
@@ -93,6 +90,7 @@ const buildRanking = (params: {
   missingGeoScore: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
+  taxonomyOrBaseScore: number;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
@@ -310,8 +308,8 @@ const buildRanking = (params: {
       mv."mission_scoring_id",
       SUM(
         (
-          CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
-          ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
+          CAST(${params.taxonomyOrBaseScore} AS double precision) +
+          ((1.0 - CAST(${params.taxonomyOrBaseScore} AS double precision)) * LEAST(mv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
         ) * COALESCE(dw."taxonomy_weight", 1.0)
       ) AS "weighted_sum"
     FROM matched_values mv
@@ -447,8 +445,8 @@ const buildRanking = (params: {
       gc."distance_km",
       COALESCE(SUM(
         (
-          CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
-          ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(gmv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
+          CAST(${params.taxonomyOrBaseScore} AS double precision) +
+          ((1.0 - CAST(${params.taxonomyOrBaseScore} AS double precision)) * LEAST(gmv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
         ) * COALESCE(dw."taxonomy_weight", 1.0)
       ) FILTER (WHERE gmv."taxonomy_key" IS NOT NULL), 0) AS "weighted_sum"
     FROM geographic_candidates gc
@@ -608,7 +606,12 @@ const buildPublisherDiffusionJoinSql = (publisherId?: string): Prisma.Sql => {
    AND md."distribution_publisher_id" = ${publisherId}`;
 };
 
-const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringIds: string[]; taxonomyKeys: readonly MatchingEngineTaxonomy[] }) => Prisma.sql`
+const buildTaxonomyScoresSql = (params: {
+  userScoringId: string;
+  missionScoringIds: string[];
+  taxonomyKeys: readonly MatchingEngineTaxonomy[];
+  taxonomyOrBaseScore: number;
+}) => Prisma.sql`
   WITH user_values AS (
     SELECT
       usv."taxonomy_key" AS "taxonomy_key",
@@ -642,8 +645,8 @@ const buildTaxonomyScoresSql = (params: { userScoringId: string; missionScoringI
     mv."taxonomy_key",
     CASE
       WHEN udt."taxonomy_total" > 0 THEN
-        CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision) +
-        ((1.0 - CAST(${TAXONOMY_OR_BASE_SCORE} AS double precision)) * LEAST(mv."taxonomy_sum" / udt."taxonomy_total", 1.0))
+        CAST(${params.taxonomyOrBaseScore} AS double precision) +
+        ((1.0 - CAST(${params.taxonomyOrBaseScore} AS double precision)) * LEAST(mv."taxonomy_sum" / udt."taxonomy_total", 1.0))
       ELSE 0
     END AS "taxonomy_score"
   FROM matched_values mv
@@ -708,6 +711,7 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     missingGeoScore: input.missingGeoScore ?? 0.1,
     remoteFullGeoScore: input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore,
     remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
+    taxonomyOrBaseScore: input.taxonomyOrBaseScore ?? versionConfig.taxonomyOrBaseScore,
     taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
     geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
   };
@@ -726,6 +730,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
     missingGeoScore: params.missingGeoScore,
     remoteFullGeoScore: params.remoteFullGeoScore,
     remoteLocalGeoScore: params.remoteLocalGeoScore,
+    taxonomyOrBaseScore: params.taxonomyOrBaseScore,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
     limit: params.rankingLimit,
@@ -736,7 +741,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys } = resolveRankingParams(input);
+    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys, taxonomyOrBaseScore } = resolveRankingParams(input);
 
     await assertUserScoringExists(input.userScoringId);
 
@@ -749,6 +754,7 @@ export const matchingEngineService = {
               userScoringId: input.userScoringId,
               missionScoringIds: missionScoringIdsForDetails,
               taxonomyKeys: rankingTaxonomyKeys,
+              taxonomyOrBaseScore,
             })
           )
         : [];
