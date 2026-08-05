@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
 import RadioGroupRich from "~/components/quiz/radio-group-rich";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -9,6 +10,8 @@ import { evalCondition } from "~/utils/conditions";
 import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "statut";
+
+const STEP = getStepDef(STEP_ID);
 
 const STEP_OPTIONS: StepOption[] = [OPTIONS["statut.lyceen"], OPTIONS["statut.etudiant"], OPTIONS["statut.demandeur_emploi"], OPTIONS["statut.actif"], OPTIONS["statut.autre"]];
 
@@ -41,15 +44,7 @@ export default function StatutStep() {
 
   return (
     <>
-      <RadioGroupRich
-        title="Que fais-tu en ce moment ?"
-        subtitle="Ça nous aide à te proposer des missions adaptées à ton quotidien."
-        onChange={handleSelect}
-        options={options}
-        selected={selected}
-        error={error}
-        required
-      />
+      <RadioGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={options} selected={selected} error={error} required />
       <NextButton onClick={handleNext} />
     </>
   );

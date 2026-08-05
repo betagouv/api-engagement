@@ -16,9 +16,11 @@
   --color-raised-grey: var(--background-raised-grey);
   --color-raised-grey-hover: var(--background-raised-grey-hover);
   --color-beige-gris-galet: var(--beige-gris-galet-925-125);
+  /* Text */
   --color-title-grey: var(--text-title-grey);
   --color-mention-grey: var(--text-mention-grey);
   --color-inverted-blue-france: var(--text-inverted-blue-france);
+  --color-error: var(--text-default-error);
   /* Borders */
   --color-border-default-grey: var(--border-default-grey);
   --color-border-plain-error: var(--border-plain-error);

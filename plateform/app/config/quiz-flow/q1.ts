@@ -1,49 +1,34 @@
-import { and, not, numericRange, or, screenAnswer, type Condition } from "~/utils/conditions";
+import { and, not, numericRange, or, screenAnswer } from "~/utils/conditions";
+import type { StepDef } from "./types";
 
-// Union exhaustive des steps du quiz.
-// À étendre au fil des PR (autres precision_*, etc.).
-export type StepId =
-  | "age"
-  | "tranche_age"
-  | "handicap"
-  | "statut"
-  | "localisation"
-  | "duree"
-  | "motivation"
-  | "precision_thematique"
-  | "precision_parcoursup_formation"
-  | "precision_parcoursup_formation_nom"
-  | "precision_domaine"
-  | "precision_formation_onisep"
-  | "precision_competences"
-  | "precision_reprendre_activite"
-  | "precision_servir_pays"
-  | "precision_international";
-
-export interface StepDef {
-  id: StepId;
-  route: string;
-  // Titre de la question, utilisé pour le <title> de la page (RGAA 8.6). À garder synchronisé avec le wording affiché dans le step component.
-  title: string;
-  condition?: Condition;
-}
-
-// Séquence et conditions de visibilité des steps.
-// Le wording et les options de chaque step vivent dans le step component correspondant.
+// Parcours v1 (identifiant "q1") — conservé tel quel pour pouvoir rollback (cf. QUIZ_FLOW_VERSION dans index.ts).
+// Séquence, wording (titres/sous-titres) et conditions de visibilité des steps.
+// Les options de chaque step vivent dans le step component correspondant.
 // L'ordre ici dicte l'ordre de navigation (goNext/goBack).
-export const QUIZ_FLOW: StepDef[] = [
+export const QUIZ_FLOW_Q1: StepDef[] = [
   // Étape 1 — age.
-  { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?" },
+  { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?", subtitle: "Certaines missions dépendent de l'âge." },
   // Étape 2 — handicap.
-  { id: "handicap", route: "/quiz/handicap", title: "Es-tu en situation de handicap reconnue ?", condition: numericRange("age", 26, 30) },
+  {
+    id: "handicap",
+    route: "/quiz/handicap",
+    title: "Es-tu en situation de handicap reconnue ?",
+    subtitle: "Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.",
+    condition: numericRange("age", 26, 30),
+  },
   // Étape 3 — statut.
-  { id: "statut", route: "/quiz/statut", title: "Que fais-tu en ce moment ?" },
+  { id: "statut", route: "/quiz/statut", title: "Que fais-tu en ce moment ?", subtitle: "Ça nous aide à te proposer des missions adaptées à ton quotidien." },
   // Étape 4 — localisation.
-  { id: "localisation", route: "/quiz/localisation", title: "Où veux-tu chercher des missions ?" },
+  {
+    id: "localisation",
+    route: "/quiz/localisation",
+    title: "Où veux-tu chercher des missions ?",
+    subtitle: "Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.",
+  },
   // Étape 5 — duree.
-  { id: "duree", route: "/quiz/duree", title: "Combien de temps aimerais-tu consacrer à ta mission ?" },
+  { id: "duree", route: "/quiz/duree", title: "Combien de temps aimerais-tu consacrer à ta mission ?", subtitle: "Choisis ce qui te correspond le mieux." },
   // Étape 6 — motivation. Les options sont filtrées dans le step via `hiddenIf` selon la réponse à `statut`.
-  { id: "motivation", route: "/quiz/motivation", title: "Qu’est-ce qui te motive le plus ?" },
+  { id: "motivation", route: "/quiz/motivation", title: "Qu’est-ce qui te motive le plus ?", subtitle: "Choisis une motivation importante pour toi." },
 
   // Étape 7 — précisions sur la motivation (embranchement).
   // → me_sentir_utile (toutes branches) : mapping référentiel `engagement_intent`.

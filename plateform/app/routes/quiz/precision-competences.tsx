@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -26,7 +27,7 @@ const TITLE_BY_MOTIVATION: Record<string, string> = {
   competences_interet_general: "Quel est ton domaine de compétences ?",
 };
 
-const DEFAULT_TITLE = "Quel domaine de compétences t'attire le plus ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function PrecisionCompetencesStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -34,7 +35,7 @@ export default function PrecisionCompetencesStep() {
   const [error, setError] = useState<string | undefined>(undefined);
 
   const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
-  const title = TITLE_BY_MOTIVATION[motivationId] ?? DEFAULT_TITLE;
+  const title = TITLE_BY_MOTIVATION[motivationId] ?? STEP.title;
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleSelect = (value: string[]) => {
@@ -54,7 +55,7 @@ export default function PrecisionCompetencesStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <CheckboxGroupRich title={title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

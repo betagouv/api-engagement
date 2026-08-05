@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -21,7 +22,7 @@ const STEP_OPTIONS = [
   OPTIONS["secteur_activite.je_ne_sais_pas"],
 ];
 
-const DEFAULT_TITLE = "Quel secteur d'activité t'attirerait le plus ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function PrecisionReprendreActiviteStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -45,7 +46,7 @@ export default function PrecisionReprendreActiviteStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

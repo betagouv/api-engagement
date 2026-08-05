@@ -2,6 +2,21 @@ import { type StepDef, type StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
 import { evalCondition } from "./conditions";
 
+const MOBILITY_RADIUS_KM = {
+  pied_transports: 5,
+  velo: 10,
+  voiture: 30,
+} as const;
+
+const getMobilityRadiusKm = (answers: QuizAnswers): number | undefined => {
+  const mobilityAnswer = answers.mobilite;
+  if (mobilityAnswer?.type !== "options") return undefined;
+
+  const radii = mobilityAnswer.option_ids.map((optionId) => MOBILITY_RADIUS_KM[optionId as keyof typeof MOBILITY_RADIUS_KM]).filter((radius) => radius !== undefined);
+
+  return radii.length > 0 ? Math.max(...radii) : undefined;
+};
+
 export function refreshSteps(
   flow: StepDef[],
   currentStepId: StepId,
@@ -17,10 +32,12 @@ export function refreshSteps(
 
 export const buildPayload = (answers: QuizAnswers) => {
   const apiAnswers: Array<{ taxonomy: string; value: string } | { taxonomy: string; params: Record<string, unknown> }> = [];
+  const mobilityRadiusKm = getMobilityRadiusKm(answers);
 
   for (const [, answer] of Object.entries(answers)) {
     if (answer?.type === "params") {
-      apiAnswers.push({ taxonomy: answer.taxonomy, params: answer.params });
+      const params = answer.taxonomy === "location" && mobilityRadiusKm !== undefined ? { ...answer.params, radius_km: mobilityRadiusKm } : answer.params;
+      apiAnswers.push({ taxonomy: answer.taxonomy, params });
     } else if (answer?.type === "options") {
       for (const value of answer.option_ids) {
         apiAnswers.push({ taxonomy: answer.taxonomy, value });

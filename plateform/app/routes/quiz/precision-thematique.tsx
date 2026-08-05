@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -20,7 +21,7 @@ const STEP_OPTIONS = [
   OPTIONS["engagement_intent.exploration"],
 ];
 
-const DEFAULT_TITLE = "Parmi ces choix, quelle thématique te parle le plus ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function PrecisionThematiqueStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -44,7 +45,7 @@ export default function PrecisionThematiqueStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

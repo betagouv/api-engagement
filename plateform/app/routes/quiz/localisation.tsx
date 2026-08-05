@@ -2,14 +2,14 @@ import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } fro
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { reverseGeocode, searchAddress, type GeoSuggestion } from "~/services/geolocation";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
 const LISTBOX_ID = "localisation-listbox";
 
-const DEFAULT_TITLE = "Où veux-tu chercher des missions ?";
-const DEFAULT_SUBTITLE = "Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.";
+const STEP = getStepDef("localisation");
 
 export default function LocalisationStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -167,13 +167,12 @@ export default function LocalisationStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle={DEFAULT_SUBTITLE} htmlFor="localisation-input" required>
-        {DEFAULT_TITLE}
-      </Label>
-
-      <div className="flex flex-col gap-4 max-w-md!">
-        <div className="relative" ref={wrapperRef}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+      <div className={`fr-input-group ${error ? "fr-input-group--error" : ""}`}>
+        <Label subtitle={STEP.subtitle} htmlFor="localisation-input" error={error} required>
+          {STEP.title}
+        </Label>
+        <div className="relative max-w-sm!" ref={wrapperRef}>
           <input
             id="localisation-input"
             role="combobox"
@@ -218,15 +217,14 @@ export default function LocalisationStep() {
           )}
         </div>
 
+        <button type="button" className="fr-btn fr-btn--secondary justify-center! max-w-sm! w-full! mt-8!" onClick={handleUseMyLocation} disabled={locating}>
+          <span aria-hidden="true">📍</span> Utiliser ma position
+        </button>
         {error && (
           <div className="fr-messages-group" id="localisation-input-messages" aria-live="polite">
             <p className="fr-message fr-message--error mb-0!">{error}</p>
           </div>
         )}
-
-        <button type="button" className="fr-btn fr-btn--secondary justify-center! w-full!" onClick={handleUseMyLocation} disabled={locating}>
-          <span aria-hidden="true">📍</span> Utiliser ma position
-        </button>
       </div>
 
       <NextButton type="submit" />
