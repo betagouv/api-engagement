@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
 import RadioGroup from "~/components/quiz/radio-group";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -10,7 +11,7 @@ const STEP_ID = "precision_parcoursup_formation";
 
 const STEP_OPTIONS = [OPTIONS["parcoursup_formation.oui"], OPTIONS["parcoursup_formation.non"]];
 
-const DEFAULT_TITLE = "As-tu déjà une formation précise en tête ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function PrecisionParcoursupFormationStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -35,7 +36,7 @@ export default function PrecisionParcoursupFormationStep() {
 
   return (
     <>
-      <RadioGroup title={DEFAULT_TITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
+      <RadioGroup title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

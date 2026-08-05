@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -17,8 +18,7 @@ const STEP_OPTIONS: StepOption[] = [
   OPTIONS["type_mission.je_ne_sais_pas"],
 ];
 
-const DEFAULT_TITLE = "Combien de temps aimerais-tu consacrer à ta mission ?";
-const DEFAULT_SUBTITLE = "Choisis ce qui te correspond le mieux.";
+const STEP = getStepDef(STEP_ID);
 
 export default function DureeStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -48,7 +48,7 @@ export default function DureeStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={options} selected={selected} error={error} required />
+      <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={options} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );
