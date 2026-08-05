@@ -106,13 +106,11 @@ export const TAXONOMY = {
       sport: {
         label: "Sport",
         icon: "🏀",
-        sublabel: "Pratique sportive, animation et inclusion par le sport",
         enrichable: true,
       },
       solidarite_inclusion: {
         label: "Solidarité et inclusion",
         icon: "🍲",
-        sublabel: "Entraide, accompagnement et lutte contre l’exclusion",
         enrichable: true,
       },
       environnement_animaux: {
@@ -566,7 +564,7 @@ export const TAXONOMY = {
         enrichable: false,
       },
       agir_pour_une_cause: {
-        label: "Je veux aider une cause qui me tient à coeur cœur",
+        label: "Je veux aider une cause qui me tient à cœur",
         icon: "🌍",
         enrichable: true,
       },
@@ -576,7 +574,7 @@ export const TAXONOMY = {
         enrichable: true,
       },
       securite_pays: {
-        label: "Je veux contribuer à la sécurité du pays",
+        label: "Je veux contribuer à la sécurité de mon pays",
         icon: "🪖",
         enrichable: true,
       },
@@ -618,6 +616,20 @@ export const TAXONOMY = {
       oui: { label: "Oui", icon: null, enrichable: false },
       non: { label: "Non", icon: null, enrichable: false },
       ne_se_prononce_pas: { label: "Je préfère ne pas répondre", icon: null, enrichable: false },
+    },
+  },
+
+  // Mode de déplacement habituel. Sert à calibrer le rayon de recherche (`location.radius_km`)
+  // côté quiz ; pas utilisée directement par le matching.
+  mobilite: {
+    label: "Mode de déplacement",
+    type: "categorical",
+    enrichable: false,
+    gate: false,
+    values: {
+      pied_transports: { label: "À pied / en transports en commun", icon: "🚶", enrichable: false },
+      velo: { label: "En vélo", icon: "☺️🚲", enrichable: false },
+      voiture: { label: "En voiture", icon: "🚗", enrichable: false },
     },
   },
 

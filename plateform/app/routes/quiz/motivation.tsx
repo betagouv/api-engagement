@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
 import RadioGroupRich from "~/components/quiz/radio-group-rich";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { StepOption } from "~/types/quiz";
@@ -32,8 +33,7 @@ const STEP_OPTIONS: StepOption[] = [
   { ...OPTIONS["motivation.ne_sais_pas"] },
 ];
 
-const DEFAULT_TITLE = "Qu’est-ce qui te motive le plus ?";
-const DEFAULT_SUBTITLE = "Choisis une motivation importante pour toi.";
+const STEP = getStepDef(STEP_ID);
 
 export default function MotivationStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -64,7 +64,7 @@ export default function MotivationStep() {
 
   return (
     <>
-      <RadioGroupRich title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleChange} options={options} error={error} selected={selected} required />
+      <RadioGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleChange} options={options} error={error} selected={selected} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

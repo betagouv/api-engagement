@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
 import RadioGroup from "~/components/quiz/radio-group";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -10,8 +11,7 @@ const STEP_ID = "handicap";
 
 const STEP_OPTIONS = [OPTIONS["handicap.oui"], OPTIONS["handicap.non"], OPTIONS["handicap.ne_se_prononce_pas"]];
 
-const DEFAULT_TITLE = "Es-tu en situation de handicap reconnue ?";
-const DEFAULT_SUBTITLE = "Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.";
+const STEP = getStepDef(STEP_ID);
 
 export default function HandicapStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -40,7 +40,7 @@ export default function HandicapStep() {
 
   return (
     <>
-      <RadioGroup title={DEFAULT_TITLE} subtitle={DEFAULT_SUBTITLE} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
+      <RadioGroup title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
       <NextButton onClick={handleNext} />
     </>
   );

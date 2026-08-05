@@ -21,17 +21,17 @@ export default function RadioGroupRich({ title, subtitle, onChange, options, sel
       role="group"
       aria-describedby={error ? "radio-group-rich-legend radio-group-rich-messages" : "radio-group-rich-legend"}
     >
-      <legend className="mb-10! ml-2!" id="radio-group-rich-legend">
-        <h1 className="fr-h1 mb-0!">{title}</h1>
+      <legend className="mb-6! md:mb-8! fr-fieldset__legend--regular fr-fieldset__legend" id="radio-group-rich-legend">
+        <h1 className={`fr-h1 mb-4! ${error ? "text-error!" : ""}`}>{title}</h1>
         {subtitle && (
-          <span className="fr-text--lead font-normal block mt-4! mb-0!">
+          <span className="fr-text--lead block! mb-0!">
             {subtitle}
-            {required && <span className="fr-hint-text inline! font-normal mb-0!"> (Réponse obligatoire)</span>}
+            {required && <span className={`inline! mb-0! ml-2! ${error ? "text-error!" : ""}`}>(champ obligatoire)</span>}
           </span>
         )}
-        {!subtitle && required && <span className="fr-hint-text font-normal block mt-2! mb-0!">Réponse obligatoire</span>}
+        {!subtitle && required && <span className={`fr-text--lead mb-0! ${error ? "text-error!" : ""}`}>(champ obligatoire)</span>}
       </legend>
-      <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-4xl! mx-0! gap-x-6 gap-y-4!">
+      <div className="fr-fieldset__content grid grid-cols-1 md:grid-cols-2 max-w-5xl! mx-0! gap-x-6 gap-y-4!">
         {options.map((o) => (
           <div key={o.value} className={`fr-fieldset__element mb-0! ${o.disabled ? "opacity-60" : ""}`}>
             <div className="fr-radio-group fr-radio-rich mb-0!">

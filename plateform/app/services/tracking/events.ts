@@ -1,7 +1,7 @@
 import type { MissionBrowse, MissionMatchItem } from "@engagement/dto";
 import { resolveTrancheAgeValues } from "@engagement/taxonomy";
 
-import type { StepId } from "~/config/quiz-flow";
+import { QUIZ_FLOW_VERSION, type StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
 
 import { track } from "./index";
@@ -115,9 +115,12 @@ export function trackMissionClickedFromBrowse(
 // Évènements quiz
 // ============================================================================
 
-// `quiz.started` (lifecycle) : chargement de /quiz/age, début d'une tentative.
+// Tous les évènements quiz remontent `quiz_version` (version active du parcours, cf. config/quiz-flow)
+// pour pouvoir segmenter les analytics par version.
+
+// `quiz.started` (lifecycle) : chargement du premier step, début d'une tentative.
 export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void {
-  track("quiz.started", { entry_source: params.entrySource });
+  track("quiz.started", { entry_source: params.entrySource, quiz_version: QUIZ_FLOW_VERSION });
 }
 
 // `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
@@ -127,6 +130,7 @@ export function trackQuizStepCompleted(params: { stepName: StepId; answers: Quiz
   const answer = params.answers[params.stepName];
 
   track("quiz.step_completed", {
+    quiz_version: QUIZ_FLOW_VERSION,
     step_name: params.stepName,
     quiz_path: buildQuizPath(params.answers),
     step_index: params.stepIndex,
@@ -142,6 +146,7 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
   const trancheAge = answers["tranche_age"];
 
   track("quiz.completed", {
+    quiz_version: QUIZ_FLOW_VERSION,
     completion_type: params.completionType,
     quiz_path: buildQuizPath(answers),
     steps_completed_count: countAnsweredSteps(answers),
@@ -162,6 +167,7 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
 // `quiz.shortcut_taken` (feature_usage) : clic sur "Voir mes résultats" (raccourci depuis une étape).
 export function trackQuizShortcutTaken(params: { fromStepName: StepId; fromStepIndex: number; answers: QuizAnswers }): void {
   track("quiz.shortcut_taken", {
+    quiz_version: QUIZ_FLOW_VERSION,
     from_step_name: params.fromStepName,
     from_step_index: params.fromStepIndex,
     steps_completed_count: countAnsweredSteps(params.answers),
@@ -171,6 +177,7 @@ export function trackQuizShortcutTaken(params: { fromStepName: StepId; fromStepI
 // `quiz.back_navigated` (feature_usage) : clic sur le bouton "Retour" dans le quiz.
 export function trackQuizBackNavigated(params: { fromStepName: StepId; fromStepIndex: number }): void {
   track("quiz.back_navigated", {
+    quiz_version: QUIZ_FLOW_VERSION,
     from_step_name: params.fromStepName,
     from_step_index: params.fromStepIndex,
   });

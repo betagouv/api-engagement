@@ -1,6 +1,7 @@
 import { Navigate } from "react-router";
+import { QUIZ_FLOW } from "~/config/quiz-flow";
 
-// /quiz → /quiz/age (premier step).
+// /quiz → premier step de la version active du parcours.
 export default function QuizIndex() {
-  return <Navigate to="/quiz/age" replace />;
+  return <Navigate to={QUIZ_FLOW[0].route} replace />;
 }

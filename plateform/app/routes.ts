@@ -12,13 +12,26 @@ export default [
   route("api/email/mission", "routes/api.email.mission.ts"),
   route("api/newsletter", "routes/api.newsletter.ts"),
 
-  // Nouveau quiz — flow conditionnel, un step = une route, layout partagé.
+  // Quiz — flow conditionnel, un step = une route, layout partagé.
+  // Les steps de toutes les versions du parcours restent enregistrés (cf. config/quiz-flow) ;
+  // seule la version active (QUIZ_FLOW_VERSION) pilote la navigation.
   route("quiz", "routes/quiz/_layout.tsx", [
     index("routes/quiz/_index.tsx"),
+    // Steps du parcours v2 (q2).
     route("age", "routes/quiz/age.tsx"),
     route("handicap", "routes/quiz/handicap.tsx"),
-    route("statut", "routes/quiz/statut.tsx"),
     route("localisation", "routes/quiz/localisation.tsx"),
+    route("mobilite", "routes/quiz/mobilite.tsx"),
+    route("motivation-recherche", "routes/quiz/motivation-recherche.tsx"),
+    route("rythme", "routes/quiz/rythme.tsx"),
+    route("domaine-engagement", "routes/quiz/domaine-engagement.tsx"),
+    route("activite", "routes/quiz/activite.tsx"),
+    route("equipe", "routes/quiz/equipe.tsx"),
+    route("interaction", "routes/quiz/interaction.tsx"),
+    route("autonomie", "routes/quiz/autonomie.tsx"),
+    route("imprevu", "routes/quiz/imprevu.tsx"),
+    // Steps du parcours v1 (q1), conservés pour rollback.
+    route("statut", "routes/quiz/statut.tsx"),
     route("duree", "routes/quiz/duree.tsx"),
     route("motivation", "routes/quiz/motivation.tsx"),
     route("precision-thematique", "routes/quiz/precision-thematique.tsx"),

@@ -93,6 +93,8 @@ export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrows
     description: null,
     remote: item.mission.remote,
     city: item.mission.location.city,
+    country: null,
+    postalCode: null,
     departmentCode: null,
     departmentName: null,
     domain: item.mission.domain,
@@ -106,6 +108,9 @@ export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrows
     publisherLogo: item.mission.media.publisherLogo,
     applicationUrl: null,
     schedule: item.mission.schedule,
+    places: null,
+    tags: [],
+    addresses: [],
     compensation: item.mission.compensation,
   };
 }

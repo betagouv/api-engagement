@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
@@ -27,7 +28,7 @@ const TITLE_BY_MOTIVATION: Record<string, string> = {
   decouvrir_domaine: "Quel domaine t'attirerait le plus ?",
 };
 
-const DEFAULT_TITLE = "Dans quel domaine aimerais-tu avoir une expérience ?";
+const STEP = getStepDef(STEP_ID);
 
 export default function PrecisionDomaineStep() {
   const { answers, setAnswer } = useQuizStore();
@@ -35,7 +36,7 @@ export default function PrecisionDomaineStep() {
   const [error, setError] = useState<string | undefined>(undefined);
 
   const motivationId = answers.motivation?.type === "options" ? answers.motivation.option_ids[0] : "";
-  const title = TITLE_BY_MOTIVATION[motivationId] ?? DEFAULT_TITLE;
+  const title = TITLE_BY_MOTIVATION[motivationId] ?? STEP.title;
   const selected = answers[STEP_ID]?.type === "options" ? answers[STEP_ID].option_ids : [];
 
   const handleSelect = (value: string[]) => {
@@ -55,7 +56,7 @@ export default function PrecisionDomaineStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={title} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <CheckboxGroupRich title={title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
       <NextButton onClick={handleNext} skip />
     </>
   );

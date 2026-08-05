@@ -2,12 +2,13 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { useQuizStore } from "~/stores/quiz";
 import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "precision_parcoursup_formation_nom";
 
-const DEFAULT_TITLE = "Dans quel domaine aimerais-tu avoir une expérience ?";
+const STEP = getStepDef(STEP_ID);
 
 // Step custom : capture libre du nom de formation (texte brut).
 // Pas de taxonomyKey — la valeur est transmise telle quelle au backend pour mapping ultérieur
@@ -38,8 +39,8 @@ export default function PrecisionParcoursupFormationNomStep() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
-      <Label subtitle="Indique le nom de la formation." htmlFor="formation-input" required>
-        {DEFAULT_TITLE}
+      <Label subtitle={STEP.subtitle} htmlFor="formation-input" error={error} required>
+        {STEP.title}
       </Label>
 
       <div className={`fr-input-group max-w-md! ${error ? "fr-input-group--error" : ""}`}>
