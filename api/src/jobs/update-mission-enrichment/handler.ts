@@ -3,7 +3,7 @@ import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
-import { JOB_ENRICH_SLEEP_MS } from "@/services/mission-enrichment/config";
+import { DEFAULT_ENRICH_CONCURRENCY, DEFAULT_ENRICH_RPM } from "@/services/mission-enrichment/config";
 import { MissionEnrichmentRateLimitError } from "@/services/mission-enrichment/errors";
 import { CURRENT_PROMPT_VERSION, isPromptVersion, type PromptVersion } from "@/services/mission-enrichment/prompts";
 import fs from "fs";
@@ -18,6 +18,8 @@ export interface UpdateMissionEnrichmentJobPayload {
   onlyMissing?: boolean; // ne traite que les missions sans aucun enrichment
   missionIds?: string[];
   missionIdsFile?: string;
+  concurrency?: number; // nombre de missions traitées en parallèle (défaut DEFAULT_ENRICH_CONCURRENCY)
+  rpm?: number; // plafond de calls LLM par minute, respecte le TPM du provider (défaut DEFAULT_ENRICH_RPM)
 }
 
 export interface UpdateMissionEnrichmentJobResult extends JobResult {
@@ -28,12 +30,30 @@ export interface UpdateMissionEnrichmentJobResult extends JobResult {
 export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMissionEnrichmentJobPayload, UpdateMissionEnrichmentJobResult> {
   name = "Enrichissement des missions";
 
-  async handle({ promptVersion, publisherId, limit, onlyMissing, missionIds, missionIdsFile }: UpdateMissionEnrichmentJobPayload = {}): Promise<UpdateMissionEnrichmentJobResult> {
+  async handle({
+    promptVersion,
+    publisherId,
+    limit,
+    onlyMissing,
+    missionIds,
+    missionIdsFile,
+    concurrency,
+    rpm,
+  }: UpdateMissionEnrichmentJobPayload = {}): Promise<UpdateMissionEnrichmentJobResult> {
     try {
       if (promptVersion !== undefined && !isPromptVersion(promptVersion)) {
         throw new Error(`Version de prompt inconnue : ${promptVersion}`);
       }
       const targetPromptVersion = promptVersion ?? CURRENT_PROMPT_VERSION;
+
+      if (concurrency !== undefined && (!Number.isInteger(concurrency) || concurrency < 1)) {
+        throw new Error("concurrency doit être un entier >= 1");
+      }
+      if (rpm !== undefined && (typeof rpm !== "number" || !Number.isFinite(rpm) || rpm <= 0)) {
+        throw new Error("rpm doit être un nombre > 0");
+      }
+      const workerCount = concurrency ?? DEFAULT_ENRICH_CONCURRENCY;
+      const targetRpm = rpm ?? DEFAULT_ENRICH_RPM;
 
       if (missionIds !== undefined && (!Array.isArray(missionIds) || missionIds.some((missionId) => typeof missionId !== "string"))) {
         throw new Error("missionIds doit être un tableau de chaînes de caractères");
@@ -105,31 +125,61 @@ export class UpdateMissionEnrichmentHandler implements BaseHandler<UpdateMission
 
       console.log(
         hasFixedSelection
-          ? `${LOG_PREFIX} ${missions.length} missions to force enrich (fixed selection, version: ${targetPromptVersion})`
+          ? `${LOG_PREFIX} ${missions.length} missions to force enrich (fixed selection, version: ${targetPromptVersion}, concurrency: ${workerCount}, rpm: ${targetRpm})`
           : `${LOG_PREFIX} ${missions.length} missions to enrich ` +
               `(${missingMissions.length} sans enrichment + ${staleMissions.length} obsolètes, ` +
-              `publisher: ${publisherId ?? "all"}, version: ${targetPromptVersion}, onlyMissing: ${onlyMissing ?? false})`
+              `publisher: ${publisherId ?? "all"}, version: ${targetPromptVersion}, onlyMissing: ${onlyMissing ?? false}, ` +
+              `concurrency: ${workerCount}, rpm: ${targetRpm})`
       );
 
       let processed = 0;
       let failed = 0;
 
-      for (const mission of missions) {
-        try {
-          await missionEnrichmentService.enrich(mission.id, { force: hasFixedSelection, promptVersion: targetPromptVersion });
-          processed++;
-          console.log(`${LOG_PREFIX} [${processed}/${missions.length}] enriched ${mission.id}`);
-        } catch (error) {
-          failed++;
-          const rateLimitDetails = error instanceof MissionEnrichmentRateLimitError ? error.details : undefined;
-          console.error(`${LOG_PREFIX} failed to enrich ${mission.id}`, error, rateLimitDetails ?? {});
-          if ((error as { name?: string })?.name !== "AI_NoObjectGeneratedError") {
-            captureException(error, { extra: { missionId: mission.id, ...(rateLimitDetails ? { rateLimit: rateLimitDetails } : {}) } });
+      // Rate limiter à intervalle minimum : espace les DÉPARTS de calls d'au moins (60000 / rpm) ms.
+      // C'est lui qui gouverne le débit (respect du TPM du provider) ; la concurrence ne sert qu'à
+      // avoir assez de requêtes en vol pour atteindre cet intervalle malgré la latence par call.
+      const minIntervalMs = 60000 / targetRpm;
+      let nextSlot = 0;
+      const acquireSlot = async (): Promise<void> => {
+        const now = Date.now();
+        const slot = Math.max(now, nextSlot);
+        nextSlot = slot + minIntervalMs;
+        const wait = slot - now;
+        if (wait > 0) {
+          await sleep(wait);
+        }
+      };
+
+      // Pool de workers concurrents partageant un curseur sur `missions`. La sûreté vis-à-vis d'un
+      // double-traitement est garantie côté DB par `claimForRun` (réservation atomique de la ligne
+      // d'enrichment), donc plusieurs workers peuvent avancer en parallèle sans coordination ici.
+      let cursor = 0;
+      const worker = async (): Promise<void> => {
+        while (true) {
+          const index = cursor++;
+          if (index >= missions.length) {
+            return;
+          }
+          const mission = missions[index];
+
+          await acquireSlot();
+
+          try {
+            await missionEnrichmentService.enrich(mission.id, { force: hasFixedSelection, promptVersion: targetPromptVersion });
+            processed++;
+            console.log(`${LOG_PREFIX} [${processed + failed}/${missions.length}] enriched ${mission.id}`);
+          } catch (error) {
+            failed++;
+            const rateLimitDetails = error instanceof MissionEnrichmentRateLimitError ? error.details : undefined;
+            console.error(`${LOG_PREFIX} failed to enrich ${mission.id}`, error, rateLimitDetails ?? {});
+            if ((error as { name?: string })?.name !== "AI_NoObjectGeneratedError") {
+              captureException(error, { extra: { missionId: mission.id, ...(rateLimitDetails ? { rateLimit: rateLimitDetails } : {}) } });
+            }
           }
         }
+      };
 
-        await sleep(JOB_ENRICH_SLEEP_MS);
-      }
+      await Promise.all(Array.from({ length: Math.min(workerCount, missions.length) }, () => worker()));
 
       const message = `${processed} missions enrichies, ${failed} échecs (${hasFixedSelection ? "sélection fixe" : `publisher: ${publisherId ?? "all"}`}, version: ${targetPromptVersion})`;
       console.log(`${LOG_PREFIX} done — ${message}`);
