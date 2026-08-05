@@ -234,6 +234,20 @@ variable "plateform_max_scale" {
   default = 1
 }
 
+# Functions
+
+variable "enable_sentry_webhook" {
+  type        = bool
+  default     = false
+  description = "Deploy the sentry-webhook function (Sentry → Slack relay)"
+}
+
+variable "sentry_slack_channel_id" {
+  type        = string
+  default     = ""
+  description = "Slack channel id where the sentry-webhook function posts (sandbox uses the same channel as production)"
+}
+
 # Network
 
 variable "private_network_cidr" {
