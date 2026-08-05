@@ -1,30 +1,9 @@
-import { MissionBrowseFacets } from "@/types";
+import type { MissionBrowseResponse } from "@engagement/dto";
 import { fetchWithTimeout } from "./fetchWithTimeout";
 import { REQUEST_ID_HEADER } from "./requestId";
 
-type MissionBrowseResponse = {
+type WidgetMissionBrowseResponse = MissionBrowseResponse & {
   ok: boolean;
-  data: Array<{
-    id: string;
-    title: string | null;
-    domain: string | null;
-    domainLogo: string | null;
-    organizationName: string | null;
-    city: string | null;
-    country: string | null;
-    remote: string | null;
-    places: number | null;
-    tags: string[];
-    addresses: Array<{
-      city: string | null;
-      country: string | null;
-      location: { lat: number; lon: number } | null;
-    }>;
-  }>;
-  total: number;
-  page: number;
-  pageSize: number;
-  facets: MissionBrowseFacets;
   request?: string;
 };
 
@@ -37,7 +16,7 @@ const apiGet = async <T>(url: string, signal?: AbortSignal): Promise<T> => {
 };
 
 export const searchMissions = async (apiUrl: string, widgetId: string, params: URLSearchParams, signal?: AbortSignal) => {
-  return apiGet<MissionBrowseResponse>(`${apiUrl}/missions/browse/widget/${widgetId}?${params.toString()}`, signal);
+  return apiGet<WidgetMissionBrowseResponse>(`${apiUrl}/missions/browse/widget/${widgetId}?${params.toString()}`, signal);
 };
 
 export const fetchWidgetConfig = async (apiUrl: string, query: string, requestId: string) => {
