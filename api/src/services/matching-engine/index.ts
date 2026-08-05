@@ -54,6 +54,7 @@ const GEO_CANDIDATE_MULTIPLIER = 50;
 const MIN_GEO_CANDIDATE_LIMIT = 1000;
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
 const TAXONOMY_OR_BASE_SCORE = 0.8;
+const DEFAULT_GEO_RADIUS_KM = 20;
 
 const getTaxonomyCandidateLimit = (params: { limit: number; offset: number }): number =>
   Math.max(params.offset + params.limit, params.limit * TAXONOMY_CANDIDATE_MULTIPLIER, MIN_TAXONOMY_CANDIDATE_LIMIT);
@@ -103,6 +104,12 @@ const buildRanking = (params: {
     params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
   const remoteLocalGeoScoreSql =
     params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
+  const geoRadiusKmSql = Prisma.sql`COALESCE(NULLIF(ug."radius_km", 0), CAST(${DEFAULT_GEO_RADIUS_KM} AS double precision))`;
+  const distanceGeoScoreSql = Prisma.sql`
+    CASE
+      WHEN gs."distance_km" >= ${geoRadiusKmSql} THEN 0.0
+      ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ${geoRadiusKmSql}))
+    END`;
 
   // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full/local éligibles
   // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
@@ -543,12 +550,12 @@ const buildRanking = (params: {
         ELSE 0
       END AS "taxonomy_score",
       CASE
-        WHEN EXISTS (SELECT 1 FROM user_geo) THEN
+        WHEN ug."lat" IS NOT NULL THEN
           CASE
             ${remoteFullGeoScoreSql}
             ${remoteLocalGeoScoreSql}
             WHEN gs."distance_km" IS NULL THEN CAST(${params.missingGeoScore} AS double precision)
-            ELSE EXP(-LN(2) * gs."distance_km" / NULLIF(CAST(${params.geoHalfDecayKm} AS double precision), 0.0))
+            ELSE ${distanceGeoScoreSql}
           END
         ELSE NULL
       END AS "geo_score",${rankedGeoColumnsSql}
@@ -558,6 +565,8 @@ const buildRanking = (params: {
       ON m."id" = cm."mission_id"
     LEFT JOIN geo_scores gs
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
+    LEFT JOIN user_geo ug
+      ON TRUE
   )
   SELECT
     r."mission_id",
