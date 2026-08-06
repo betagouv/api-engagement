@@ -52,56 +52,69 @@ affected_months as (
     {% endif %}
 ),
 
-base as (
+events as (
   select
-    ge.stat_event_id,
+    ge.mission_id,
+    ge.created_at,
     extract(year from ge.created_at)::int as year,
     extract(month from ge.created_at)::int as month,
     date_trunc('month', ge.created_at)::date as month_start,
-    mad.department,
     ge.type,
-    coalesce(mad.publisher_category, 'unknown') as mission_type,
-    coalesce(mad.mission_domain, 'unknown') as mission_domain,
-    greatest(
-      coalesce(ge.updated_at, ge.created_at),
-      coalesce(mad.updated_at, ge.created_at)
-    ) as updated_at
+    coalesce(ge.updated_at, ge.created_at) as updated_at
   from {{ ref('global_events') }} as ge
-  left join {{ ref('int_mission_active_department_range') }} as mad
-    on
-      ge.mission_id = mad.mission_id
-      and date(ge.created_at)
-      between mad.start_date and coalesce(mad.end_date, current_date)
   where
     1 = 1
     {% if is_incremental() %}
-      and date_trunc('month', ge.created_at)::date in (
-        select am.month_start
+      and exists (
+        select 1
         from affected_months as am
+        where
+          ge.created_at >= am.month_start
+          and ge.created_at < am.month_start + interval '1 month'
       )
     {% endif %}
 ),
 
--- Le seul axe de fan-out du join de `base` est le département
--- (int_mission_active_department_range est unique sur (mission_id, department),
--- et mission_domain / mission_type y sont constants par mission) : il y a donc
--- au plus 1 ligne par (stat_event_id, department). Dans `dept` et
--- `dept_all_mission` (groupés par département), `count(*)` est donc exact.
--- Pour les rollups « tous départements » qui collapsent le département, on
--- déduplique d'abord au grain événement ici, puis on fera `count(*)`.
-events_all_department as (
+-- Les agrégats départementaux utilisent la relation au grain
+-- mission-département. Le join est volontairement interne : les événements sans
+-- département n'appartiennent à aucun agrégat départemental.
+department_events as (
   select
-    stat_event_id,
-    year,
-    month,
-    month_start,
-    mission_domain,
-    mission_type,
-    type,
-    max(updated_at) as updated_at
-  from base
-  group by
-    stat_event_id, year, month, month_start, mission_domain, mission_type, type
+    e.year,
+    e.month,
+    e.month_start,
+    mad.department,
+    e.type,
+    coalesce(mad.mission_domain, 'unknown') as mission_domain,
+    coalesce(mad.publisher_category, 'unknown') as mission_type,
+    greatest(e.updated_at, coalesce(mad.updated_at, e.created_at)) as updated_at
+  from events as e
+  inner join {{ ref('int_mission_active_department_range') }} as mad
+    on
+      e.mission_id = mad.mission_id
+      and date(e.created_at)
+      between mad.start_date and coalesce(mad.end_date, current_date)
+  where mad.department is not null
+),
+
+-- Les agrégats nationaux n'ont pas besoin des départements. La relation
+-- int_mission_active_range étant unique par mission, elle évite le fan-out puis
+-- la déduplication coûteuse au grain événement.
+all_department_events as (
+  select
+    e.year,
+    e.month,
+    e.month_start,
+    e.type,
+    coalesce(mar.mission_domain, 'unknown') as mission_domain,
+    coalesce(mar.publisher_category, 'unknown') as mission_type,
+    greatest(e.updated_at, coalesce(mar.updated_at, e.created_at)) as updated_at
+  from events as e
+  left join {{ ref('int_mission_active_range') }} as mar
+    on
+      e.mission_id = mar.mission_id
+      and date(e.created_at)
+      between mar.start_date and coalesce(mar.end_date, current_date)
 ),
 
 dept as (
@@ -116,8 +129,7 @@ dept as (
     type,
     count(*) as event_count,
     max(updated_at) as max_updated_at
-  from base
-  where department is not null
+  from department_events
   group by
     year, month, month_start, department, mission_domain, mission_type, type
 ),
@@ -134,8 +146,7 @@ dept_all_mission as (
     type,
     count(*) as event_count,
     max(updated_at) as max_updated_at
-  from base
-  where department is not null
+  from department_events
   group by year, month, month_start, department, mission_domain, type
 ),
 
@@ -151,7 +162,7 @@ all_dept as (
     type,
     count(*) as event_count,
     max(updated_at) as max_updated_at
-  from events_all_department
+  from all_department_events
   group by year, month, month_start, mission_domain, mission_type, type
 ),
 
@@ -167,7 +178,7 @@ all_dept_all_mission as (
     type,
     count(*) as event_count,
     max(updated_at) as max_updated_at
-  from events_all_department
+  from all_department_events
   group by year, month, month_start, mission_domain, type
 )
 
