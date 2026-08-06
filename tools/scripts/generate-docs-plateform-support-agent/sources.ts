@@ -23,14 +23,20 @@ export const collectDocuments = (repositoryRoot: string, docsDirectory: string, 
   const allowed = new Set(sourceFiles);
   return DOCUMENTS.map((document) => {
     const outputPath = path.join(docsDirectory, document.path);
-    const citations = fs.existsSync(outputPath) ? extractCitations(fs.readFileSync(outputPath, "utf8")) : [];
+    // Citations brutes : conservées telles quelles (y compris chemins supprimés) pour détecter les changements de périmètre.
+    const citations = fs.existsSync(outputPath) ? [...new Set(extractCitations(fs.readFileSync(outputPath, "utf8")))].sort() : [];
+    // Fichiers réellement lisibles et dans la frontière globale : servent à construire le contexte du modèle.
     const files = citations.filter((file) => allowed.has(file) && fs.existsSync(path.join(repositoryRoot, file)));
-    return { ...document, files: [...new Set(files)].sort() };
+    return { ...document, citations, files };
   });
 };
 
+// Un chapitre est régénéré s'il est manquant, ou si l'un des chemins qu'il cite figure parmi les fichiers modifiés.
 export const selectDocuments = (documents: CollectedDocument[], changedSourceFiles: string[], forceAll: boolean, docsDirectory: string): CollectedDocument[] => {
   if (forceAll) return documents;
-  if (changedSourceFiles.length === 0) return documents.filter((document) => !fs.existsSync(path.join(docsDirectory, document.path)));
-  return documents;
+  const changed = new Set(changedSourceFiles);
+  return documents.filter((document) => {
+    if (!fs.existsSync(path.join(docsDirectory, document.path))) return true;
+    return document.citations.some((file) => changed.has(file));
+  });
 };

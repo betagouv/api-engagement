@@ -7,8 +7,11 @@ import OpenAI from "openai";
 import { loadConfig, resolveRepositoryPaths } from "./config";
 import { generateDocument, generatePullRequestSummary } from "./generator";
 import { getChangedFiles, getHeadCommit, getRepositoryRoot, readPreviousSourceCommit } from "./git";
+import { TokenRateLimiter } from "./rate-limit";
 import { collectDocuments, collectSourceFiles, isSourceInScope, selectDocuments } from "./sources";
 import type { GenerationResult } from "./types";
+
+const DEFAULT_TOKENS_PER_MINUTE = 28_000;
 
 type CliOptions = {
   forceAll: boolean;
@@ -50,6 +53,16 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const changedSources = getChangedFiles(repositoryRoot, previousSourceCommit).filter((file) => isSourceInScope(file, config));
   const selected = selectDocuments(documents, changedSources, options.forceAll || !previousSourceCommit, paths.docsDirectory);
 
+  // Les fichiers modifiés qu'aucun chapitre ne cite ne déclenchent aucune régénération.
+  // On les signale pour qu'un `--all` (ou l'ajout manuel d'une citation) soit décidé si besoin.
+  const citedByAnyDocument = new Set(documents.flatMap((document) => document.citations));
+  const unmatchedChangedSources = changedSources.filter((file) => !citedByAnyDocument.has(file));
+  if (unmatchedChangedSources.length > 0) {
+    console.warn(
+      `Fichiers modifiés non rattachés à un chapitre (relancer avec --all pour les prendre en compte) :\n${unmatchedChangedSources.map((file) => `- ${file}`).join("\n")}`
+    );
+  }
+
   if (selected.length === 0) {
     console.log("Aucun chapitre concerné par les changements détectés.");
     return { changedDocuments: [], changedSources, sourceCommit };
@@ -59,22 +72,29 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY est requis pour générer la documentation");
   const model = process.env.PLATEFORM_SUPPORT_DOCS_OPENAI_MODEL || "gpt-4o";
-  const openai = new OpenAI({ apiKey });
+  const tokensPerMinute = Number(process.env.PLATEFORM_SUPPORT_DOCS_TPM) || DEFAULT_TOKENS_PER_MINUTE;
+  const openai = new OpenAI({ apiKey, maxRetries: 5 });
+  const limiter = new TokenRateLimiter(tokensPerMinute);
+  const changedSet = new Set(changedSources);
   const changedDocuments: string[] = [];
 
   for (const [index, document] of selected.entries()) {
     console.log(`[${index + 1}/${selected.length}] Génération de ${document.path}`);
     const outputPath = path.join(paths.docsDirectory, document.path);
     const previous = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, "utf8") : "";
-    const existingChangedSources = changedSources.filter((file) => fs.existsSync(path.join(repositoryRoot, file)));
-    const sources = [...new Set([...document.files, ...existingChangedSources])].sort();
+    // Périmètre propre au chapitre : ses citations modifiées (supprimées comprises pour l'invite),
+    // en priorité dans le contexte, puis le reste de ses sources citées.
+    const relevantChanged = document.citations.filter((file) => changedSet.has(file));
+    const relevantChangedExisting = relevantChanged.filter((file) => fs.existsSync(path.join(repositoryRoot, file)));
+    const sources = [...new Set([...relevantChangedExisting, ...document.files])];
     const generated = await generateDocument({
       openai,
       model,
       repositoryRoot,
       docsDirectory: paths.docsDirectory,
       document: { ...document, files: sources },
-      changedSources,
+      changedSources: relevantChanged,
+      limiter,
     });
     if (generated !== previous) {
       fs.writeFileSync(outputPath, generated, "utf8");
@@ -91,7 +111,7 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
 
   if (options.summaryFile) {
     const diff = gitDiffForDocuments(repositoryRoot, paths.docsDirectory, changedDocuments);
-    const summary = await generatePullRequestSummary({ openai, model, changedSources, changedDocuments, diffs: diff });
+    const summary = await generatePullRequestSummary({ openai, model, changedSources, changedDocuments, diffs: diff, limiter });
     fs.writeFileSync(options.summaryFile, summary, "utf8");
   }
 
