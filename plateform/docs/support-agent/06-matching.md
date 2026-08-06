@@ -12,7 +12,7 @@ Le code définit les versions `m1`, `m2`, `m3` et `m4`. La version par défaut e
 
 Les versions `m1` à `m3` pondèrent de manière égale les taxonomies `domaine`, `secteur_activite`, `type_mission`, `competence_rome`, `region_internationale`, `engagement_intent` et `formation_onisep`. Le poids géographique vaut `0.7` dans `m1`, puis `0.3` dans `m2` et `m3`.
 
-`m3` attribue un score géographique naturel de `0.9` aux missions entièrement à distance et de `0.95` aux missions de type `remote=local`. `m4` reprend cette géographie et ajoute les taxonomies `domaine_engagement`, `rythme`, `activite`, `equipe`, `interaction`, `autonomie`, `imprevu` et `motivation_recherche`, toutes avec un poids de 1.
+`m3` attribue un score géographique naturel de `0.9` aux missions entièrement à distance et de `0.95` aux missions de type `remote=local`. `m4` reprend cette géographie et ajoute les taxonomies `domaine_engagement`, `rythme`, `activite`, `equipe`, `interaction`, `autonomie`, `imprevu` et `motivation_recherche`, avec des poids variés, par exemple `1.5` pour `domaine_engagement` et `activite`, et `0.6` pour `equipe`, `interaction`, `autonomie` et `imprevu`.
 
 ## Taxonomies et gates
 
