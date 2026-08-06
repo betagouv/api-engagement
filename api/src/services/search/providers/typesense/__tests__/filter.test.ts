@@ -26,7 +26,7 @@ describe("search filter helpers", () => {
 
   it("construit les filtres textuels, booléens et numériques", () => {
     expect(buildSearchPartialFilter("title", "aide sociale")).toBe("title:`aide sociale`");
-    expect(buildSearchPrefixFilter("title", "Aide")).toBe("title:=`Aide*`");
+    expect(buildSearchPrefixFilter("title", "Aide")).toBe("title:`Aide`*");
     expect(buildSearchBooleanFilter("openToMinors", true)).toBe("openToMinors:=true");
     expect(buildSearchNumberFilter("duration", "<=", 30)).toBe("duration:<=30");
   });

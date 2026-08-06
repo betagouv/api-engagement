@@ -41,7 +41,7 @@ export type MissionBrowseParams = BrowseTaxonomyParams &
   Omit<MissionBrowseFilters, "page" | "pageSize"> &
   MissionBrowseSearchFilters & {
     diffuseurPublisherId: string;
-    baseFilterBy?: string | null;
+    baseFilterBy?: string;
     widgetMode?: boolean;
     moderatedBy?: string | null;
     offset?: number;
@@ -217,10 +217,6 @@ const mapFacetCounts = (spec: FacetSpec, result?: SearchQueryResponse<MissionInd
 
 export const missionBrowseService = {
   async browse(params: MissionBrowseParams): Promise<MissionBrowseResponse> {
-    if (params.baseFilterBy === null) {
-      return { data: [], total: 0, page: params.page, pageSize: params.pageSize, facets: {} };
-    }
-
     const { searches, facets: facetSpecs } = buildBrowseSearches(params);
     let searchResults: SearchQueryResponse<MissionIndexDocument>[];
     try {
