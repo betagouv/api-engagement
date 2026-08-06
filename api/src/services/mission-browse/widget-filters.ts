@@ -194,7 +194,7 @@ const buildEligibilityFilter = async (widget: WidgetRecord): Promise<string | un
     alternatives.push(buildSearchListFilter("publisherId", publishersWithFallback));
   }
 
-  return alternatives.length ? combineSearchOr(alternatives) : null;
+  return alternatives.length ? combineSearchOr(alternatives) : undefined;
 };
 
 const buildModerationFilter = (widget: WidgetRecord): string | undefined => {
