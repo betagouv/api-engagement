@@ -1,6 +1,6 @@
 {
   "name": "api-engagement",
-  "version": "1.21.0",
+  "version": "1.21.1",
   "workspaces": [
     "packages/dto",
     "packages/taxonomy",
