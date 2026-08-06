@@ -16,8 +16,11 @@ export const collectSourceFiles = async (repositoryRoot: string, config: Sources
   return files;
 };
 
-export const isSourceInScope = (file: string, config: SourcesConfig): boolean =>
-  config.include.some((pattern) => (pattern.endsWith("/**") ? file.startsWith(pattern.slice(0, -2)) : file === pattern));
+// Matcher commun aux motifs de portée : chemin exact ou préfixe `.../**` (aucun `*` intermédiaire).
+export const fileMatchesPatterns = (file: string, patterns: string[] | undefined): boolean =>
+  (patterns ?? []).some((pattern) => (pattern.endsWith("/**") ? file.startsWith(pattern.slice(0, -2)) : file === pattern));
+
+export const isSourceInScope = (file: string, config: SourcesConfig): boolean => fileMatchesPatterns(file, config.include);
 
 export const collectDocuments = (repositoryRoot: string, docsDirectory: string, sourceFiles: string[]): CollectedDocument[] => {
   const allowed = new Set(sourceFiles);
@@ -25,18 +28,22 @@ export const collectDocuments = (repositoryRoot: string, docsDirectory: string, 
     const outputPath = path.join(docsDirectory, document.path);
     // Citations brutes : conservées telles quelles (y compris chemins supprimés) pour détecter les changements de périmètre.
     const citations = fs.existsSync(outputPath) ? [...new Set(extractCitations(fs.readFileSync(outputPath, "utf8")))].sort() : [];
-    // Fichiers réellement lisibles et dans la frontière globale : servent à construire le contexte du modèle.
-    const files = citations.filter((file) => allowed.has(file) && fs.existsSync(path.join(repositoryRoot, file)));
+    // Contexte du chapitre : union des citations existantes et des fichiers couverts par son `scope`.
+    // Le scope capte les fichiers neufs ou renommés qu'aucune citation ne référence encore.
+    const citedFiles = citations.filter((file) => allowed.has(file) && fs.existsSync(path.join(repositoryRoot, file)));
+    const scopeFiles = document.scope ? sourceFiles.filter((file) => fileMatchesPatterns(file, document.scope)) : [];
+    const files = [...new Set([...citedFiles, ...scopeFiles])].sort();
     return { ...document, citations, files };
   });
 };
 
-// Un chapitre est régénéré s'il est manquant, ou si l'un des chemins qu'il cite figure parmi les fichiers modifiés.
+// Un chapitre est régénéré s'il est manquant, ou si l'un de ses fichiers modifiés (cité ou couvert par son scope) a changé.
 export const selectDocuments = (documents: CollectedDocument[], changedSourceFiles: string[], forceAll: boolean, docsDirectory: string): CollectedDocument[] => {
   if (forceAll) return documents;
   const changed = new Set(changedSourceFiles);
   return documents.filter((document) => {
     if (!fs.existsSync(path.join(docsDirectory, document.path))) return true;
-    return document.citations.some((file) => changed.has(file));
+    if (document.citations.some((file) => changed.has(file))) return true;
+    return changedSourceFiles.some((file) => fileMatchesPatterns(file, document.scope));
   });
 };
