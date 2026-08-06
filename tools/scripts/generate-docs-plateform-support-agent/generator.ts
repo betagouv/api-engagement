@@ -4,8 +4,8 @@ import OpenAI from "openai";
 import { estimateTokens, TokenRateLimiter } from "./rate-limit";
 import type { CollectedDocument } from "./types";
 
-const MAX_FILE_CHARS = 20_000;
-const MAX_TOTAL_SOURCE_CHARS = 45_000;
+const MAX_FILE_CHARS = 32_000;
+const MAX_TOTAL_SOURCE_CHARS = 52_000;
 const MAX_EXISTING_DOCUMENT_CHARS = 15_000;
 const MAX_DOCUMENT_OUTPUT_TOKENS = 4_000;
 const MAX_SUMMARY_OUTPUT_TOKENS = 2_000;
@@ -47,7 +47,9 @@ Règles impératives :
 - Ne rédige pas une FAQ et ne recommande pas ce qu'il faut communiquer à un utilisateur.
 - Sois complet et précis : conditions, effets, valeurs, bornes, exceptions, effets secondaires, persistance, erreurs et fallbacks.
 - Conserve les clés techniques lorsqu'elles sont nécessaires à la précision.
-- Ne reproduis pas de longs blocs de code.
+- La configuration déployée fournie fait autorité sur les valeurs par défaut du code : décris la valeur effectivement déployée (ex. version active), en mentionnant le défaut du code comme repli seulement si c'est utile.
+- Lorsque des consignes spécifiques au chapitre sont fournies, traite-les intégralement.
+- Ne reproduis pas de longs blocs de code, mais explicite les formules et calculs (facteurs, poids, agrégation, normalisation, bornes) en toutes lettres.
 - Cite uniquement des chemins réellement présents dans les sources fournies.
 - Termine obligatoirement par une section "## Sources" contenant une liste de chemins entre backticks.
 - Retourne uniquement le Markdown du document, sans bloc de code englobant ni commentaire.`;
@@ -59,9 +61,10 @@ export const generateDocument = async (params: {
   docsDirectory: string;
   document: CollectedDocument;
   changedSources: string[];
+  deployedConfig: string;
   limiter: TokenRateLimiter;
 }): Promise<string> => {
-  const { openai, model, repositoryRoot, docsDirectory, document, changedSources, limiter } = params;
+  const { openai, model, repositoryRoot, docsDirectory, document, changedSources, deployedConfig, limiter } = params;
   const outputPath = path.join(docsDirectory, document.path);
   const existing = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, "utf8") : "(document inexistant)";
   const sources = buildSourcesContext(repositoryRoot, document.files);
@@ -72,6 +75,10 @@ export const generateDocument = async (params: {
 Chemin : ${document.path}
 Titre attendu : ${document.title}
 Objectif : ${document.objective}
+${document.instructions ? `\n# Consignes spécifiques au chapitre\n\n${document.instructions}\n` : ""}
+# Configuration déployée en production (fait autorité sur les valeurs par défaut du code)
+
+${deployedConfig || "- (non disponible)"}
 
 # Document existant
 

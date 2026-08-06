@@ -5,10 +5,11 @@ import path from "node:path";
 import process from "node:process";
 import OpenAI from "openai";
 import { loadConfig, resolveRepositoryPaths } from "./config";
+import { loadDeployedConfig } from "./deployed-config";
 import { generateDocument, generatePullRequestSummary } from "./generator";
 import { getChangedFiles, getHeadCommit, getRepositoryRoot, readPreviousSourceCommit } from "./git";
 import { TokenRateLimiter } from "./rate-limit";
-import { collectDocuments, collectSourceFiles, isSourceInScope, selectDocuments } from "./sources";
+import { collectDocuments, collectSourceFiles, fileMatchesPatterns, isSourceInScope, selectDocuments } from "./sources";
 import type { GenerationResult } from "./types";
 
 const DEFAULT_TOKENS_PER_MINUTE = 28_000;
@@ -53,13 +54,13 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const changedSources = getChangedFiles(repositoryRoot, previousSourceCommit).filter((file) => isSourceInScope(file, config));
   const selected = selectDocuments(documents, changedSources, options.forceAll || !previousSourceCommit, paths.docsDirectory);
 
-  // Les fichiers modifiés qu'aucun chapitre ne cite ne déclenchent aucune régénération.
-  // On les signale pour qu'un `--all` (ou l'ajout manuel d'une citation) soit décidé si besoin.
+  // Les fichiers modifiés qu'aucun chapitre ne cite et qu'aucun scope ne couvre ne déclenchent
+  // aucune régénération. On les signale pour décider d'un `--all`, d'une citation ou d'un scope.
   const citedByAnyDocument = new Set(documents.flatMap((document) => document.citations));
-  const unmatchedChangedSources = changedSources.filter((file) => !citedByAnyDocument.has(file));
+  const unmatchedChangedSources = changedSources.filter((file) => !citedByAnyDocument.has(file) && !documents.some((document) => fileMatchesPatterns(file, document.scope)));
   if (unmatchedChangedSources.length > 0) {
     console.warn(
-      `Fichiers modifiés non rattachés à un chapitre (relancer avec --all pour les prendre en compte) :\n${unmatchedChangedSources.map((file) => `- ${file}`).join("\n")}`
+      `Fichiers modifiés non rattachés à un chapitre (relancer avec --all, ou ajouter une citation/un scope) :\n${unmatchedChangedSources.map((file) => `- ${file}`).join("\n")}`
     );
   }
 
@@ -75,16 +76,16 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const tokensPerMinute = Number(process.env.PLATEFORM_SUPPORT_DOCS_TPM) || DEFAULT_TOKENS_PER_MINUTE;
   const openai = new OpenAI({ apiKey, maxRetries: 5 });
   const limiter = new TokenRateLimiter(tokensPerMinute);
-  const changedSet = new Set(changedSources);
+  const deployedConfig = loadDeployedConfig(paths.deployedConfigPath);
   const changedDocuments: string[] = [];
 
   for (const [index, document] of selected.entries()) {
     console.log(`[${index + 1}/${selected.length}] Génération de ${document.path}`);
     const outputPath = path.join(paths.docsDirectory, document.path);
     const previous = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, "utf8") : "";
-    // Périmètre propre au chapitre : ses citations modifiées (supprimées comprises pour l'invite),
-    // en priorité dans le contexte, puis le reste de ses sources citées.
-    const relevantChanged = document.citations.filter((file) => changedSet.has(file));
+    // Périmètre propre au chapitre : ses fichiers modifiés (cités ou couverts par son scope,
+    // suppressions comprises pour l'invite), placés en priorité dans le contexte.
+    const relevantChanged = changedSources.filter((file) => document.citations.includes(file) || fileMatchesPatterns(file, document.scope));
     const relevantChangedExisting = relevantChanged.filter((file) => fs.existsSync(path.join(repositoryRoot, file)));
     const sources = [...new Set([...relevantChangedExisting, ...document.files])];
     const generated = await generateDocument({
@@ -94,6 +95,7 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
       docsDirectory: paths.docsDirectory,
       document: { ...document, files: sources },
       changedSources: relevantChanged,
+      deployedConfig,
       limiter,
     });
     if (generated !== previous) {
