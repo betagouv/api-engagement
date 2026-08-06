@@ -79,7 +79,7 @@ const Home = ({ widget, apiUrl, environment }: PageProps) => {
   const [showFilters, setShowFilters] = useState(false);
 
   const notrack = !!router.query.notrack;
-  const { missions, total, request, isLoading } = useMissions({ widget, filters, apiUrl, notrack });
+  const { missions, total, facets, request, isLoading } = useMissions({ widget, filters, apiUrl, notrack });
 
   useEffect(() => {
     if (!widget) return;
@@ -138,7 +138,7 @@ const Home = ({ widget, apiUrl, environment }: PageProps) => {
         </div>
         <Filters
           widget={widget}
-          apiUrl={apiUrl}
+          facets={facets}
           values={filters}
           total={total}
           onChange={(newFilters) => setFilters({ ...filters, ...newFilters, page: 1 })}

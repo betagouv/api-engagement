@@ -59,8 +59,12 @@ describe("buildWidgetBaseFilter", () => {
     findIdsMatchingNameMock.mockResolvedValue([]);
   });
 
-  it("retourne aucune éligibilité pour une sélection de publishers vide", async () => {
-    await expect(buildWidgetBaseFilter(buildWidget({ publishers: [] }))).resolves.toBeNull();
+  it("applique les règles sans restreindre les publishers lorsque la sélection est vide", async () => {
+    findIdsMatchingArrayValueMock.mockResolvedValue(["organization-1"]);
+
+    await expect(
+      buildWidgetBaseFilter(buildWidget({ publishers: [], rules: [buildRule({ field: "parentOrganization", operator: "contains", value: "AFEV" })] }))
+    ).resolves.toBe("publisherOrganizationId:=[`organization-1`]");
     expect(findRulesMock).not.toHaveBeenCalled();
   });
 
@@ -110,6 +114,12 @@ describe("buildWidgetBaseFilter", () => {
 
     expect(findIdsMatchingNameMock).toHaveBeenCalledWith("contains", "Secours");
     expect(filter).toContain("publisherOrganizationId:=[`organization-1`]");
+  });
+
+  it("traduit une recherche de titre en préfixe de mot", async () => {
+    const filter = await buildWidgetBaseFilter(buildWidget({ rules: [buildRule({ field: "title", operator: "contains", value: "brioche" })] }));
+
+    expect(filter).toContain("title:`brioche`*");
   });
 
   it("applique la modération JVA sans exclure les missions propres à JVA", async () => {

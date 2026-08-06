@@ -1,11 +1,9 @@
 import { usePlausible } from "next-plausible";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowUpSLine } from "react-icons/ri";
 
 import { ACCESSIBILITIES, ACTIONS, BENEFICIARIES, DOMAINS, MINORS, SCHEDULES } from "@/config";
-import { FilterOptions, Filters, Widget } from "@/types";
-import { fetchAggs } from "@/utils/api";
-import { buildSearchParams } from "@/utils/buildSearchParams";
+import { FilterOptions, Filters, MissionBrowseFacets, Widget } from "@/types";
 import useStore from "@/utils/store";
 import ComboboxFilter from "./ComboxFilter";
 import DateFilter from "./DateFilter";
@@ -14,7 +12,7 @@ import SelectFilter from "./SelectFilter";
 
 interface FiltersVolontariatProps {
   widget: Widget;
-  apiUrl: string;
+  facets: MissionBrowseFacets;
   values: Filters;
   total: number;
   onChange: (filters: Partial<Filters>) => void;
@@ -37,56 +35,31 @@ const hasFilters = (filters: Filters, disabledLocation: boolean) => {
   );
 };
 
-const FiltersVolontariat = ({ widget, apiUrl, values, total, onChange, show, onShow }: FiltersVolontariatProps) => {
+const FiltersVolontariat = ({ widget, facets, values, total, onChange, show, onShow }: FiltersVolontariatProps) => {
   const { mobile, url, color } = useStore();
   const plausible = usePlausible();
-  const [options, setOptions] = useState<FilterOptions>({
-    accessibility: [],
-    action: [],
-    beneficiary: [],
-    country: [],
-    domain: [],
-    minor: [],
-    schedule: [],
-  });
+  const options = useMemo<FilterOptions>(() => {
+    const countries = facets.country ?? [];
+    const france = countries.reduce((total, bucket) => total + (bucket.key === "FR" ? bucket.count : 0), 0);
+    const abroad = countries.reduce((total, bucket) => total + (bucket.key !== "FR" ? bucket.count : 0), 0);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const searchParams = buildSearchParams(values, false);
-        ["accessibility", "action", "beneficiary", "country", "domain", "minor", "schedule"].forEach((key) => searchParams.append("aggs", key));
-
-        const { ok, data } = await fetchAggs(apiUrl, widget.id, searchParams);
-
-        if (!ok) {
-          throw Error("Error fetching aggs");
-        }
-        const france = data.country.reduce((acc, c) => acc + (c.key === "FR" ? c.doc_count : 0), 0);
-        const abroad = data.country.reduce((acc, c) => acc + (c.key !== "FR" ? c.doc_count : 0), 0);
-        const country = [];
-        country.push({ value: "FR", count: france, label: "France" });
-        country.push({ value: "NOT_FR", count: abroad, label: "Etranger" });
-
-        const newOptions: FilterOptions = {
-          accessibility: data.accessibility.map((b) => ({ value: b.key, count: b.doc_count, label: ACCESSIBILITIES[b.key] || b.key })),
-          action: data.action.map((b) => ({ value: b.key, count: b.doc_count, label: ACTIONS[b.key] || b.key })),
-          beneficiary: data.beneficiary.map((b) => ({ value: b.key, count: b.doc_count, label: BENEFICIARIES[b.key] || b.key })),
-          country,
-          domain: data.domain.map((b) => ({
-            value: b.key,
-            count: b.doc_count,
-            label: DOMAINS[b.key] ? DOMAINS[b.key].label : b.key,
-          })),
-          minor: data.minor.map((b) => ({ value: b.key, count: b.doc_count, label: MINORS[b.key] || b.key })),
-          schedule: data.schedule.map((b) => ({ value: b.key, count: b.doc_count, label: SCHEDULES[b.key] || b.key })),
-        };
-        setOptions(newOptions);
-      } catch (error) {
-        console.error(error);
-      }
+    return {
+      accessibility: (facets.accessibility ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: ACCESSIBILITIES[bucket.key] || bucket.key })),
+      action: (facets.action ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: ACTIONS[bucket.key] || bucket.key })),
+      beneficiary: (facets.beneficiary ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: BENEFICIARIES[bucket.key] || bucket.key })),
+      country: [
+        { value: "FR", count: france, label: "France" },
+        { value: "NOT_FR", count: abroad, label: "Etranger" },
+      ],
+      domain: (facets.domain ?? []).map((bucket) => ({
+        value: bucket.key,
+        count: bucket.count,
+        label: DOMAINS[bucket.key] ? DOMAINS[bucket.key].label : bucket.key,
+      })),
+      minor: (facets.minor ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: MINORS[bucket.key] || bucket.key })),
+      schedule: (facets.schedule ?? []).map((bucket) => ({ value: bucket.key, count: bucket.count, label: SCHEDULES[bucket.key] || bucket.key })),
     };
-    fetchData();
-  }, [widget.id, values, apiUrl]);
+  }, [facets]);
 
   const handleReset = () => {
     onChange({

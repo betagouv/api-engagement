@@ -22,7 +22,6 @@ export type MissionBrowse = {
   remote: "no" | "possible" | "full" | "local" | null;
   city: string | null;
   country: string | null;
-  postalCode: string | null;
   departmentCode: string | null;
   departmentName: string | null;
   domain: string | null;
@@ -41,7 +40,6 @@ export type MissionBrowse = {
   addresses: Array<{
     city: string | null;
     country: string | null;
-    postalCode: string | null;
     location: { lat: number; lon: number } | null;
   }>;
   compensation: MissionDetailCompensation | null;

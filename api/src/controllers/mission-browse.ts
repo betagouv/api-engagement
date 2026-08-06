@@ -1,9 +1,8 @@
-import cors from "cors";
 import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { BENEVOLAT_URL, PUBLISHER_IDS, VOLONTARIAT_URL } from "@/config";
+import { PUBLISHER_IDS } from "@/config";
 import { INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, SERVICE_UNAVAILABLE, captureException } from "@/error";
 import { corsPublic } from "@/middlewares/cors";
 import { ipRateLimiter, plateformRateLimiter } from "@/middlewares/rate-limit";
@@ -79,7 +78,9 @@ const resolveLocationFilters = (widget: WidgetRecord, lon?: number, lat?: number
   }
 };
 
-router.get("/browse/widget/:id", cors({ origin: [BENEVOLAT_URL, VOLONTARIAT_URL] }), ipRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
+router.use(corsPublic);
+
+router.get("/browse/widget/:id", ipRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const params = zod.object({ id: zod.string() }).safeParse(req.params);
     const query = widgetBrowseQuerySchema.safeParse(req.query);
@@ -133,7 +134,6 @@ router.get("/browse/widget/:id", cors({ origin: [BENEVOLAT_URL, VOLONTARIAT_URL]
   }
 });
 
-router.use(corsPublic);
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
 router.use(plateformRateLimiter);
 

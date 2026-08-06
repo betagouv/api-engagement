@@ -9,7 +9,7 @@ export const WIDGET_IDS = {
   },
 };
 
-// Mock /iframe/widget/?id=xxxx result
+// Mock /iframe/widget?id=xxxx result
 export const mockWidgetResponse = (widgetId: string) => {
   return {
     ok: true,
@@ -37,7 +37,7 @@ export const mockWidgetResponse = (widgetId: string) => {
   };
 };
 
-// Mock /iframe/search
+// Source missions used by the /missions/browse/widget/:id mock.
 export const mockMissionsResponse = {
   ok: true,
   data: [
@@ -286,8 +286,7 @@ export const mockMissionsResponse = {
   total: 1771,
 };
 
-// Mock /iframe/xxxx/aggs
-export const mockAggsResponse = {
+const mockAggsResponse = {
   ok: true,
   data: {
     domain: [
@@ -322,5 +321,23 @@ export const mockAggsResponse = {
       { key: "full", doc_count: 1665 },
       { key: "no", doc_count: 107 },
     ],
+  },
+};
+
+export const mockBrowseResponse = {
+  ok: true,
+  data: mockMissionsResponse.data.map(({ _id, postalCode: _postalCode, addresses, ...mission }) => ({
+    id: _id,
+    ...mission,
+    addresses: addresses.map(({ postalCode: _addressPostalCode, ...address }) => address),
+  })),
+  total: mockMissionsResponse.total,
+  page: 1,
+  pageSize: 25,
+  facets: {
+    domain: mockAggsResponse.data.domain.map(({ key, doc_count }) => ({ key, count: doc_count })),
+    organization: mockAggsResponse.data.organization.map(({ key, doc_count }) => ({ key, count: doc_count })),
+    department: mockAggsResponse.data.department.map(({ key, doc_count }) => ({ key, count: doc_count })),
+    remote: mockAggsResponse.data.remote.map(({ key, doc_count }) => ({ key, count: doc_count })),
   },
 };

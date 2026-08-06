@@ -1,6 +1,6 @@
 import http from "http";
 import url from "url";
-import { mockAggsResponse, mockMissionsResponse, mockWidgetResponse } from "./fixtures/mockData";
+import { mockBrowseResponse, mockWidgetResponse } from "./fixtures/mockData";
 
 let mockServer: any;
 
@@ -44,15 +44,9 @@ function startMockServer() {
       return;
     }
 
-    if (pathname?.match(/\/api-mock\/iframe\/[^/]+\/search$/)) {
+    if (pathname?.match(/\/api-mock\/missions\/browse\/widget\/[^/]+$/)) {
       res.writeHead(200);
-      res.end(JSON.stringify(mockMissionsResponse));
-      return;
-    }
-
-    if (pathname?.match(/\/api-mock\/iframe\/[^/]+\/aggs$/)) {
-      res.writeHead(200);
-      res.end(JSON.stringify(mockAggsResponse));
+      res.end(JSON.stringify(mockBrowseResponse));
       return;
     }
 
