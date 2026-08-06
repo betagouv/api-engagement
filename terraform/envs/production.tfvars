@@ -10,8 +10,8 @@ bucket_name                = "api-engagement-bucket"
 slack_jobteaser_channel_id = "C080H9MH56W"
 core_database_id           = "9a0421d5-c618-4d88-956b-3f758ab9aa0e"
 
-mission_enrichment_prompt_version = "v3"
-matching_engine_version           = "m3"
+mission_enrichment_prompt_version = "v5"
+matching_engine_version           = "m4"
 
 api_cpu_limit    = 1500
 api_memory_limit = 2048
