@@ -12,6 +12,7 @@ export type SourcesConfig = {
 };
 
 export type CollectedDocument = DocumentConfig & {
+  citations: string[];
   files: string[];
 };
 

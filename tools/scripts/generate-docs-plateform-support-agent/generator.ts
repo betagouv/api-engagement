@@ -1,11 +1,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import OpenAI from "openai";
+import { estimateTokens, TokenRateLimiter } from "./rate-limit";
 import type { CollectedDocument } from "./types";
 
-const MAX_FILE_CHARS = 60_000;
-const MAX_TOTAL_SOURCE_CHARS = 320_000;
-const MAX_EXISTING_DOCUMENT_CHARS = 60_000;
+const MAX_FILE_CHARS = 20_000;
+const MAX_TOTAL_SOURCE_CHARS = 45_000;
+const MAX_EXISTING_DOCUMENT_CHARS = 15_000;
+const MAX_DOCUMENT_OUTPUT_TOKENS = 4_000;
+const MAX_SUMMARY_OUTPUT_TOKENS = 2_000;
 
 const truncate = (value: string, maxChars: number, label: string): string =>
   value.length <= maxChars ? value : `${value.slice(0, maxChars)}\n[… ${label} tronqué : ${value.length - maxChars} caractères omis]`;
@@ -56,21 +59,15 @@ export const generateDocument = async (params: {
   docsDirectory: string;
   document: CollectedDocument;
   changedSources: string[];
+  limiter: TokenRateLimiter;
 }): Promise<string> => {
-  const { openai, model, repositoryRoot, docsDirectory, document, changedSources } = params;
+  const { openai, model, repositoryRoot, docsDirectory, document, changedSources, limiter } = params;
   const outputPath = path.join(docsDirectory, document.path);
   const existing = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, "utf8") : "(document inexistant)";
   const sources = buildSourcesContext(repositoryRoot, document.files);
 
-  const response = await openai.chat.completions.create({
-    model,
-    temperature: 0.1,
-    max_tokens: 12_000,
-    messages: [
-      { role: "system", content: getSystemPrompt() },
-      {
-        role: "user",
-        content: `# Document à produire
+  const systemPrompt = getSystemPrompt();
+  const userPrompt = `# Document à produire
 
 Chemin : ${document.path}
 Titre attendu : ${document.title}
@@ -88,8 +85,16 @@ ${sources}
 
 # Fichiers modifiés ou supprimés depuis la génération précédente
 
-${changedSources.map((file) => `- ${file}`).join("\n") || "- Aucun (régénération complète)"}`,
-      },
+${changedSources.map((file) => `- ${file}`).join("\n") || "- Aucun (régénération complète)"}`;
+
+  await limiter.reserve(estimateTokens(systemPrompt.length + userPrompt.length, MAX_DOCUMENT_OUTPUT_TOKENS));
+  const response = await openai.chat.completions.create({
+    model,
+    temperature: 0.1,
+    max_tokens: MAX_DOCUMENT_OUTPUT_TOKENS,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
     ],
   });
 
@@ -104,21 +109,12 @@ export const generatePullRequestSummary = async (params: {
   changedSources: string[];
   changedDocuments: string[];
   diffs: string;
+  limiter: TokenRateLimiter;
 }): Promise<string> => {
-  const { openai, model, changedSources, changedDocuments, diffs } = params;
-  const response = await openai.chat.completions.create({
-    model,
-    temperature: 0.1,
-    max_tokens: 2_000,
-    messages: [
-      {
-        role: "system",
-        content:
-          "Tu résumes en français une mise à jour automatique de documentation fonctionnelle. Reste factuel. Ne qualifie aucun comportement de bug, d'ambiguïté ou d'incohérence. Retourne uniquement du Markdown.",
-      },
-      {
-        role: "user",
-        content: `Produis exactement les sections suivantes :
+  const { openai, model, changedSources, changedDocuments, diffs, limiter } = params;
+  const systemPrompt =
+    "Tu résumes en français une mise à jour automatique de documentation fonctionnelle. Reste factuel. Ne qualifie aucun comportement de bug, d'ambiguïté ou d'incohérence. Retourne uniquement du Markdown.";
+  const userPrompt = `Produis exactement les sections suivantes :
 ## Sources modifiées
 ## Chapitres mis à jour
 ## Règles ajoutées
@@ -134,8 +130,16 @@ Documents modifiés :
 ${changedDocuments.map((file) => `- ${file}`).join("\n")}
 
 Diff documentaire :
-${truncate(diffs, 100_000, "diff documentaire")}`,
-      },
+${truncate(diffs, 40_000, "diff documentaire")}`;
+
+  await limiter.reserve(estimateTokens(systemPrompt.length + userPrompt.length, MAX_SUMMARY_OUTPUT_TOKENS));
+  const response = await openai.chat.completions.create({
+    model,
+    temperature: 0.1,
+    max_tokens: MAX_SUMMARY_OUTPUT_TOKENS,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
     ],
   });
   const content = response.choices[0]?.message?.content;
