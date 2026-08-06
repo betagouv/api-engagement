@@ -10,6 +10,8 @@ Les règles déterministes produisent des valeurs taxonomiques avec un score de 
 - Une mission du publisher ROC reçoit les tranches 16–17, 18–25, 25–30, 30–45, 46–67 et 68–72 ans.
 - Une mission de type `benevolat` reçoit `dispositif.benevolat`.
 - Une mission de volontariat sapeur-pompier reçoit le dispositif correspondant et les tranches de 16–17 à 46–66 ans définies dans la règle.
+- Une mission du publisher GENDARMERIE reçoit `dispositif.reserve_gendarmerie`.
+- Une mission du publisher POLICE reçoit `dispositif.reserve_police_nationale`.
 
 ## Règles d'âge
 
