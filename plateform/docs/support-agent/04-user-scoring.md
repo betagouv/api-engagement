@@ -2,7 +2,7 @@
 
 ## Données enregistrées
 
-Un scoring utilisateur contient une liste de réponses taxonomiques. Une réponse possède soit une valeur, soit un objet de paramètres. La création peut aussi transmettre un `distinctId` et l'état d'activation des alertes de missions.
+Un scoring utilisateur contient une liste de réponses taxonomiques. Une réponse peut avoir soit une valeur, soit un objet de paramètres. Lors de la création, un `distinctId` et l'état d'activation des alertes de missions peuvent également être transmis.
 
 Le store du quiz conserve un `distinctId` stable entre plusieurs tentatives. Il conserve également l'identifiant du scoring créé par l'API. Une nouvelle tentative efface les réponses et l'identifiant du scoring, mais conserve le `distinctId`.
 
