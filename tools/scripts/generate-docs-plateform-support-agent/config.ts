@@ -14,8 +14,18 @@ export const DOCUMENTS: DocumentConfig[] = [
     instructions:
       "Décris le flow actif (version courante et sa provenance), puis, pour CHAQUE étape/question du flow sélectionné, liste EXHAUSTIVEMENT toutes les réponses possibles : donne pour chacune son libellé affiché et sa valeur technique, sous forme de tableau ou de liste par question. N'omets aucune option, y compris les options conditionnelles ou de repli. Indique le type de réponse (choix unique/multiple), les validations et les embranchements associés. Décris le flow effectivement sélectionné, pas une version historique.",
   },
-  { path: "04-user-scoring.md", title: "Scoring utilisateur", objective: "Décrire la création, la mise à jour et la persistance du scoring utilisateur." },
-  { path: "05-mission-search.md", title: "Recherche de missions", objective: "Décrire le catalogue, les filtres, facettes, pagination et états de résultat." },
+  {
+    path: "04-user-scoring.md",
+    title: "Scoring utilisateur",
+    objective: "Décrire la création, la mise à jour et la persistance du scoring utilisateur.",
+    scope: ["api/src/services/user-scoring/**", "plateform/app/stores/**"],
+  },
+  {
+    path: "05-mission-search.md",
+    title: "Recherche de missions",
+    objective: "Décrire le catalogue, les filtres, facettes, pagination et états de résultat.",
+    scope: ["api/src/services/mission-browse/**", "api/src/services/search/**", "plateform/app/components/missions/**"],
+  },
   {
     path: "06-matching.md",
     title: "Matching",
@@ -24,7 +34,12 @@ export const DOCUMENTS: DocumentConfig[] = [
     instructions:
       "Concentre-toi uniquement sur la version de moteur ACTIVE (celle indiquée par la configuration déployée). Détaille précisément SA formule de calcul du score en respectant la normalisation en DEUX temps réellement implémentée : (1) le score taxonomique est d'abord normalisé en divisant la somme pondérée des correspondances par la SOMME DES POIDS des seules taxonomies auxquelles l'utilisateur a répondu ; (2) le score total vaut ce score taxonomique tel quel s'il n'y a pas de score géographique, sinon `(taxonomyWeight * score_taxonomique + geoWeight * score_geo) / (taxonomyWeight + geoWeight)` — le dénominateur final est la somme des DEUX poids scalaires `taxonomyWeight` et `geoWeight`, et NON la somme des poids de taxonomies plus `geoWeight`. Précise aussi : socle par taxonomie matchée (`taxonomyOrBaseScore`) et part liée à la qualité intra-taxonomie, les poids `taxonomyWeights` de la version active, les cas remote (`remoteFullGeoScore`, `remoteLocalGeoScore`, `missingGeoScore`), les gates d'éligibilité (hors score), le classement et les tie-breakers. Explicite l'agrégation finale, pas seulement les composantes. Ne détaille PAS l'algorithme des versions antérieures : mentionne au plus leur existence et, en une phrase, ce que la version active change par rapport à la précédente.",
   },
-  { path: "07-eligibility-and-scoring.md", title: "Éligibilité et scoring des missions", objective: "Documenter les règles déterministes et contraintes d'éligibilité." },
+  {
+    path: "07-eligibility-and-scoring.md",
+    title: "Éligibilité et scoring des missions",
+    objective: "Documenter les règles déterministes et contraintes d'éligibilité.",
+    scope: ["api/src/services/mission-scoring/**"],
+  },
   {
     path: "08-taxonomies.md",
     title: "Taxonomies",
@@ -37,6 +52,9 @@ export const DOCUMENTS: DocumentConfig[] = [
     path: "09-mission-detail-and-application.md",
     title: "Détail d'une mission et candidature",
     objective: "Décrire le chargement, l'affichage, la candidature et les missions similaires.",
+    scope: ["plateform/app/components/mission-detail/**", "plateform/app/routes/mission-detail.tsx"],
+    instructions:
+      "Distingue clairement les données REÇUES de l'API de celles réellement AFFICHÉES par l'interface. Pour la fiche mission, n'énumère comme affichés que les champs effectivement rendus par les composants desktop et mobile de `plateform/app/components/mission-detail/` ; n'annonce pas comme visibles des informations (ex. mode remote, ouverture aux mineurs, accessibilité PMR, nombre de places) qui sont dans les données mais non rendues. En cas de doute, indique le champ comme reçu mais non affiché plutôt que de le présenter comme visible.",
   },
   {
     path: "10-emails-newsletter-and-consent.md",

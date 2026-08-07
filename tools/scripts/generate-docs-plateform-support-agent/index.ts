@@ -7,7 +7,7 @@ import OpenAI from "openai";
 import { loadConfig, resolveRepositoryPaths } from "./config";
 import { loadDeployedConfig } from "./deployed-config";
 import { generateDocument, generatePullRequestSummary } from "./generator";
-import { commitExists, getChangedFiles, getHeadCommit, getRepositoryRoot, readPreviousSourceCommit } from "./git";
+import { commitExists, getChangedFiles, getHeadCommit, getModifiedDocFiles, getRepositoryRoot, readPreviousSourceCommit } from "./git";
 import { TokenRateLimiter } from "./rate-limit";
 import { collectDocuments, collectSourceFiles, fileMatchesPatterns, isSourceInScope, selectDocuments } from "./sources";
 import type { GenerationResult } from "./types";
@@ -35,11 +35,10 @@ const updateReadmeMetadata = (readme: string, sourceCommit: string): string => {
   return readme.replace(/^generated_at:\s*.*$/m, `generated_at: ${date}`).replace(/^source_commit:\s*.*$/m, `source_commit: ${sourceCommit}`);
 };
 
-const gitDiffForDocuments = (repositoryRoot: string, docsDirectory: string, documents: string[]): string => {
-  if (documents.length === 0) return "";
-  const paths = documents.map((document) => path.relative(repositoryRoot, path.join(docsDirectory, document)));
+const gitDiffForDocuments = (repositoryRoot: string, documentFiles: string[]): string => {
+  if (documentFiles.length === 0) return "";
   try {
-    return execFileSync("git", ["diff", "--", ...paths], { cwd: repositoryRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
+    return execFileSync("git", ["diff", "HEAD", "--", ...documentFiles], { cwd: repositoryRoot, encoding: "utf8", maxBuffer: 10 * 1024 * 1024 });
   } catch {
     return "";
   }
@@ -128,15 +127,20 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
     }
   }
 
-  // Résumé PRODUIT AVANT d'avancer le point de reprise : si l'appel échoue, le commit source
-  // n'est pas persisté et une relance retentera au lieu de sauter le résumé demandé.
-  if (changedDocuments.length > 0 && options.summaryFile) {
-    const diff = gitDiffForDocuments(repositoryRoot, paths.docsDirectory, changedDocuments);
-    const summary = await generatePullRequestSummary({ openai, model, changedSources, changedDocuments, diffs: diff, limiter });
+  // Résumé basé sur les chapitres différant de HEAD (persistés sur disque), et non sur le seul run
+  // courant : si un run précédent a écrit les chapitres mais échoué sur le résumé, une relance
+  // produit des fichiers identiques (changedDocuments vide) mais doit tout de même recréer le résumé.
+  const pendingDocFiles = getModifiedDocFiles(repositoryRoot, path.relative(repositoryRoot, paths.docsDirectory));
+
+  // Résumé PRODUIT AVANT d'avancer le point de reprise : si l'appel échoue, le commit source n'est
+  // pas persisté et une relance retentera (les chapitres restent détectés comme modifiés vs HEAD).
+  if (options.summaryFile && pendingDocFiles.length > 0) {
+    const diff = gitDiffForDocuments(repositoryRoot, pendingDocFiles);
+    const summary = await generatePullRequestSummary({ openai, model, changedSources, changedDocuments: pendingDocFiles, diffs: diff, limiter });
     fs.writeFileSync(options.summaryFile, summary, "utf8");
   }
 
-  // Avance TOUJOURS le point de reprise (même si aucun chapitre n'a changé) une fois toute la
+  // Avance TOUJOURS le point de reprise (même si aucun chapitre n'a changé ce run) une fois toute la
   // génération réussie : sans ça, un diff sans effet documentaire serait retraité indéfiniment.
   fs.writeFileSync(paths.readmePath, updateReadmeMetadata(readme, sourceCommit), "utf8");
 

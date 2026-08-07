@@ -23,6 +23,14 @@ export const getChangedFiles = (repositoryRoot: string, previousCommit: string |
   return output ? output.split("\n").filter(Boolean) : [];
 };
 
+// Chapitres (fichiers `NN-*.md`) différant de HEAD, y compris ceux écrits par une exécution
+// précédente dont le résumé aurait échoué. Exclut README.md (avancé à chaque run) et sources.yml.
+export const getModifiedDocFiles = (repositoryRoot: string, docsDirectoryRelative: string): string[] => {
+  const output = git(["diff", "--name-only", "HEAD", "--", docsDirectoryRelative], repositoryRoot);
+  const files = output ? output.split("\n").filter(Boolean) : [];
+  return files.filter((file) => /\/\d\d-[^/]+\.md$/.test(file));
+};
+
 export const readPreviousSourceCommit = (readme: string): string | null => {
   const match = readme.match(/^source_commit:\s*([a-f0-9]{7,40}|null)\s*$/m);
   return match && match[1] !== "null" ? match[1] : null;
