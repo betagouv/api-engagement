@@ -22,7 +22,7 @@ export const DOCUMENTS: DocumentConfig[] = [
     objective: "Décrire les versions, taxonomies, pondérations, scores, gates, classement, pagination et cache.",
     scope: ["api/src/services/matching-engine/**", "api/src/services/mission-match/**"],
     instructions:
-      "Concentre-toi uniquement sur la version de moteur ACTIVE (celle indiquée par la configuration déployée). Détaille précisément SA formule de calcul du score : socle acquis par taxonomie matchée (`taxonomyOrBaseScore`) et part restante liée à la qualité intra-taxonomie, pondérations `taxonomyWeights` de la version active (donne les poids), score géographique et `geoWeight`, cas remote (`remoteFullGeoScore`, `remoteLocalGeoScore`), dénominateur de normalisation (somme des poids actifs), gates d'éligibilité (qui n'entrent pas dans le score), classement, tie-breakers et bornes. Explicite l'agrégation finale, pas seulement les composantes. Ne détaille PAS l'algorithme des versions antérieures : mentionne au plus leur existence et, en une phrase, ce que la version active change par rapport à la précédente.",
+      "Concentre-toi uniquement sur la version de moteur ACTIVE (celle indiquée par la configuration déployée). Détaille précisément SA formule de calcul du score en respectant la normalisation en DEUX temps réellement implémentée : (1) le score taxonomique est d'abord normalisé en divisant la somme pondérée des correspondances par la SOMME DES POIDS des seules taxonomies auxquelles l'utilisateur a répondu ; (2) le score total vaut ce score taxonomique tel quel s'il n'y a pas de score géographique, sinon `(taxonomyWeight * score_taxonomique + geoWeight * score_geo) / (taxonomyWeight + geoWeight)` — le dénominateur final est la somme des DEUX poids scalaires `taxonomyWeight` et `geoWeight`, et NON la somme des poids de taxonomies plus `geoWeight`. Précise aussi : socle par taxonomie matchée (`taxonomyOrBaseScore`) et part liée à la qualité intra-taxonomie, les poids `taxonomyWeights` de la version active, les cas remote (`remoteFullGeoScore`, `remoteLocalGeoScore`, `missingGeoScore`), les gates d'éligibilité (hors score), le classement et les tie-breakers. Explicite l'agrégation finale, pas seulement les composantes. Ne détaille PAS l'algorithme des versions antérieures : mentionne au plus leur existence et, en une phrase, ce que la version active change par rapport à la précédente.",
   },
   { path: "07-eligibility-and-scoring.md", title: "Éligibilité et scoring des missions", objective: "Documenter les règles déterministes et contraintes d'éligibilité." },
   {
@@ -75,4 +75,7 @@ export const resolveRepositoryPaths = (repositoryRoot: string) => ({
   readmePath: path.join(repositoryRoot, "plateform/docs/support-agent/README.md"),
   // Valeurs effectivement déployées (versions actives, flags) qui priment sur les défauts du code.
   deployedConfigPath: path.join(repositoryRoot, "terraform/envs/production.tfvars"),
+  // Code du générateur lui-même : un changement ici (config, prompts, logique) modifie la sortie
+  // sans qu'aucune source métier ne change, et doit donc forcer une régénération complète.
+  generatorDirectory: path.join(repositoryRoot, "tools/scripts/generate-docs-plateform-support-agent"),
 });

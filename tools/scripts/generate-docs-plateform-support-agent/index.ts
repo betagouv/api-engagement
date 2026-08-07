@@ -57,17 +57,21 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const sourceCommit = getHeadCommit(repositoryRoot);
   const rawChangedFiles = getChangedFiles(repositoryRoot, previousSourceCommit);
   const changedSources = rawChangedFiles.filter((file) => isSourceInScope(file, config));
-  // La configuration déployée (tfvars) fait autorité sur les valeurs par défaut du code mais vit
-  // hors de `sources.yml` : un changement de version/flag n'entre donc pas dans `changedSources`.
-  // On le détecte séparément et on force une régénération complète (l'overlay est injecté partout).
+  // Certains fichiers modifient la sortie sans correspondre à un motif `include` de `sources.yml` :
+  // la config déployée (tfvars, overlay injecté partout), la frontière `sources.yml` elle-même, et
+  // le code du générateur (scopes, objectifs, consignes, prompts, logique). Un changement de l'un
+  // d'eux force une régénération complète, sinon `changedSources` resterait vide et rien ne bougerait.
   const deployedConfigRelative = path.relative(repositoryRoot, paths.deployedConfigPath);
-  const deployedConfigChanged = rawChangedFiles.includes(deployedConfigRelative);
-  if (deployedConfigChanged) console.log(`Configuration déployée modifiée (${deployedConfigRelative}) : régénération complète.`);
+  const sourcesConfigRelative = path.relative(repositoryRoot, paths.configPath);
+  const generatorDirRelative = path.relative(repositoryRoot, paths.generatorDirectory);
+  const configChangedFiles = rawChangedFiles.filter((file) => file === deployedConfigRelative || file === sourcesConfigRelative || file.startsWith(`${generatorDirRelative}/`));
+  const configChanged = configChangedFiles.length > 0;
+  if (configChanged) console.log(`Configuration de génération modifiée (${configChangedFiles.join(", ")}) : régénération complète.`);
   // Commit de base enregistré mais introuvable (ex. clone frais de `main` après squash) : le diff
   // ne peut pas être calculé, on force une régénération complète plutôt que de ne rien faire.
   const previousCommitMissing = !!previousSourceCommit && !commitExists(repositoryRoot, previousSourceCommit);
   if (previousCommitMissing) console.log(`Commit de base introuvable (${previousSourceCommit}) : régénération complète.`);
-  const forceAll = options.forceAll || !previousSourceCommit || previousCommitMissing || deployedConfigChanged;
+  const forceAll = options.forceAll || !previousSourceCommit || previousCommitMissing || configChanged;
   const selected = selectDocuments(documents, changedSources, forceAll, paths.docsDirectory);
 
   // Les fichiers modifiés qu'aucun chapitre ne cite et qu'aucun scope ne couvre ne déclenchent
