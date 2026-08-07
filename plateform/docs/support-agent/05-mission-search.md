@@ -2,7 +2,7 @@
 
 ## Catalogue et pagination
 
-Le catalogue `/missions` affiche neuf missions par page. Le paramètre `page` est extrait de l'URL, est ramené à un minimum de 1 et prend la valeur 1 s'il est invalide. Le nombre total de pages est toujours d'au moins 1, même si aucun résultat n'est trouvé.
+Le catalogue `/missions` présente neuf missions par page. Le paramètre `page` est extrait de l'URL, est ramené à un minimum de 1 et prend la valeur 1 s'il est invalide. Le nombre total de pages est toujours d'au moins 1, même si aucun résultat n'est trouvé.
 
 Lorsqu'un filtre est modifié, le paramètre `page` est supprimé pour revenir à la première page. Passer à la page 1 supprime également le paramètre de l'URL, tandis que les pages suivantes utilisent une valeur explicite.
 
