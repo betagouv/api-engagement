@@ -14,6 +14,9 @@ import type { GenerationResult } from "./types";
 
 const DEFAULT_TOKENS_PER_MINUTE = 28_000;
 
+// Fichiers de test : injectés en dernier dans le contexte (priorité à l'implémentation sous budget).
+const isTestFile = (file: string): boolean => /(\.test\.|\.spec\.|(?:^|\/)__tests__\/)/.test(file);
+
 type CliOptions = {
   forceAll: boolean;
   summaryFile?: string;
@@ -51,8 +54,16 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const readme = fs.readFileSync(paths.readmePath, "utf8");
   const previousSourceCommit = readPreviousSourceCommit(readme);
   const sourceCommit = getHeadCommit(repositoryRoot);
-  const changedSources = getChangedFiles(repositoryRoot, previousSourceCommit).filter((file) => isSourceInScope(file, config));
-  const selected = selectDocuments(documents, changedSources, options.forceAll || !previousSourceCommit, paths.docsDirectory);
+  const rawChangedFiles = getChangedFiles(repositoryRoot, previousSourceCommit);
+  const changedSources = rawChangedFiles.filter((file) => isSourceInScope(file, config));
+  // La configuration déployée (tfvars) fait autorité sur les valeurs par défaut du code mais vit
+  // hors de `sources.yml` : un changement de version/flag n'entre donc pas dans `changedSources`.
+  // On le détecte séparément et on force une régénération complète (l'overlay est injecté partout).
+  const deployedConfigRelative = path.relative(repositoryRoot, paths.deployedConfigPath);
+  const deployedConfigChanged = rawChangedFiles.includes(deployedConfigRelative);
+  if (deployedConfigChanged) console.log(`Configuration déployée modifiée (${deployedConfigRelative}) : régénération complète.`);
+  const forceAll = options.forceAll || !previousSourceCommit || deployedConfigChanged;
+  const selected = selectDocuments(documents, changedSources, forceAll, paths.docsDirectory);
 
   // Les fichiers modifiés qu'aucun chapitre ne cite et qu'aucun scope ne couvre ne déclenchent
   // aucune régénération. On les signale pour décider d'un `--all`, d'une citation ou d'un scope.
@@ -87,7 +98,9 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
     // suppressions comprises pour l'invite), placés en priorité dans le contexte.
     const relevantChanged = changedSources.filter((file) => document.citations.includes(file) || fileMatchesPatterns(file, document.scope));
     const relevantChangedExisting = relevantChanged.filter((file) => fs.existsSync(path.join(repositoryRoot, file)));
-    const sources = [...new Set([...relevantChangedExisting, ...document.files])];
+    // Priorité aux fichiers d'implémentation : les tests passent en dernier pour ne jamais évincer
+    // un fichier de logique central (ex. matching-engine/index.ts) quand le budget de contexte est saturé.
+    const sources = [...new Set([...relevantChangedExisting, ...document.files])].sort((a, b) => Number(isTestFile(a)) - Number(isTestFile(b)));
     const generated = await generateDocument({
       openai,
       model,
