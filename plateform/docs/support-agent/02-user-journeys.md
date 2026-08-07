@@ -2,7 +2,7 @@
 
 ## Parcours de recommandation
 
-L'utilisateur commence sur la page d'accueil puis accède au quiz. Une arrivée directe sur la première étape démarre une nouvelle tentative, sauf lors d'un simple rafraîchissement. Le quiz enregistre chaque réponse, sauvegarde progressivement le scoring et calcule à nouveau les étapes visibles après chaque validation.
+L'utilisateur commence sur la page d'accueil et accède au quiz. Une arrivée directe sur la première étape démarre une nouvelle tentative, sauf lors d'un simple rafraîchissement. Le quiz enregistre chaque réponse, sauvegarde progressivement le scoring et calcule à nouveau les étapes visibles après chaque validation.
 
 À la fin du parcours, un écran de chargement précède la navigation vers `/results/:userScoringId`. La page de résultats affiche cinq missions prioritaires, puis une liste complémentaire paginée par groupes de huit. Une fiche ouverte depuis les résultats conserve l'identifiant du scoring dans son URL et propose des missions similaires.
 
