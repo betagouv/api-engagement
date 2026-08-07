@@ -4,7 +4,7 @@
 
 La plateforme utilise l'endpoint `/api/email/mission` pour relayer l'envoi d'emails de missions vers l'API backend. La requête peut être basée sur un scoring utilisateur ou une liste explicite de missions, selon le contrat partagé.
 
-- **Scoring utilisateur** : Le service recherche le dernier résultat de scoring correspondant à la version courante du moteur. Si aucun résultat n'est trouvé, il peut recalculer les résultats. Les missions sont ensuite chargées et triées selon l'ordre du matching.
+- **Scoring utilisateur** : Le service recherche le dernier résultat de scoring correspondant à la version courante du moteur. Si aucun résultat n'est trouvé, l'envoi est ignoré. Les missions sont ensuite chargées et triées selon l'ordre du matching.
 - **Liste explicite de missions** : Les missions sont conservées dans l'ordre spécifié si elles sont disponibles.
 
 Le résultat du service peut être l'un des suivants : `sent`, `skipped`, `failed`, `forbidden` ou `not_found`. En cas d'échec d'envoi, le contrôleur renvoie une réponse HTTP 502 et inclut l'identifiant du scoring si connu.
