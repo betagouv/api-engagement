@@ -8,7 +8,7 @@ La première page est mise en cache en mémoire par `userScoringId`. Une erreur 
 
 ## Versions du moteur
 
-Le code définit les versions `m1`, `m2`, `m3` et `m4`. La version par défaut est `m3`. Une valeur de configuration inconnue provoque un signalement puis un retour à `m3`.
+Le code définit les versions `m1`, `m2`, `m3` et `m4`. La version active est `m4`. Une valeur de configuration inconnue provoque un signalement puis un retour à `m3`.
 
 Les versions `m1` à `m3` pondèrent de manière égale les taxonomies `domaine`, `secteur_activite`, `type_mission`, `competence_rome`, `region_internationale`, `engagement_intent` et `formation_onisep`. Le poids géographique vaut `0.7` dans `m1`, puis `0.3` dans `m2` et `m3`.
 

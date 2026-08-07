@@ -11,11 +11,30 @@ La plateforme aide un utilisateur à trouver une mission d'engagement de deux ma
 - **Fiche mission** : La fiche mission rassemble les informations pratiques et redirige vers l'URL de candidature du diffuseur.
 - **Fonctionnalités d'email et de newsletter** : Des fonctions d'email, de newsletter et de gestion du consentement complètent le parcours.
 
+## Acteurs
+
+Les principaux acteurs de la plateforme incluent :
+
+- **Utilisateurs finaux** : Chercheurs de missions d'engagement qui interagissent avec le quiz, le moteur de matching, et le catalogue de missions.
+- **Administrateurs** : Gèrent les configurations et les mises à jour de la plateforme.
+- **Partenaires** : Organisations qui publient des missions d'engagement sur la plateforme.
+
 ## Architecture fonctionnelle
 
 Le navigateur appelle des routes `/api/...` internes à `plateform`. Ces routes constituent une façade SSR et appellent l'API backend avec la clé éditeur conservée côté serveur. Les contrats sont partagés dans `@engagement/dto` et les valeurs métier dans `@engagement/taxonomy`.
 
 Le parcours principal utilise les ressources backend de recherche de missions, de matching, de scoring utilisateur, d'email et de newsletter. La table des routes de `plateform` constitue la liste des pages et endpoints internes disponibles.
+
+### Routes et Endpoints
+
+- **Routes publiques** : Les routes telles que `api/missions/browse` et `api/missions/match` permettent de naviguer et de matcher les missions sans exposer la clé API au navigateur.
+- **Routes de quiz** : Les étapes du quiz sont organisées en un flow conditionnel, avec des routes spécifiques pour chaque étape.
+- **Pages légales et informatives** : Incluent des routes pour le plan du site, l'accessibilité, les mentions légales, et la politique de confidentialité.
+
+### Configuration et Services
+
+- **Configuration** : Les variables de configuration incluent des paramètres pour l'URL de l'API, l'environnement, et les clés pour les services tiers comme Sentry et PostHog.
+- **Services de tracking** : Utilisation de PostHog pour le tracking en production, avec un fallback local en développement.
 
 ## Sources
 

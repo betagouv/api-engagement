@@ -28,6 +28,116 @@ La version active du quiz est la version "q2". Les étapes du quiz sont organis�
 
 12. **Imprévu** : L'utilisateur sélectionne le niveau d'imprévu qui lui conviendrait le mieux.
 
+## Détails des étapes
+
+### Âge
+
+- **Type de réponse** : Numérique
+- **Validations** : L'âge doit être compris entre 16 et 99 ans.
+- **Embranchement** : Si l'âge est entre 26 et 30 ans, l'étape "Handicap" est affichée.
+
+### Handicap
+
+- **Type de réponse** : Choix unique
+- **Options** :
+  - Oui (`oui`)
+  - Non (`non`)
+  - Ne se prononce pas (`ne_se_prononce_pas`)
+- **Condition de visibilité** : Âge entre 26 et 30 ans.
+
+### Localisation
+
+- **Type de réponse** : Paramétrée
+- **Validations** : L'utilisateur doit sélectionner une adresse valide à partir des suggestions fournies.
+
+### Mobilité
+
+- **Type de réponse** : Choix multiple
+- **Options** :
+  - À pied ou transports en commun (`pied_transports`)
+  - Vélo (`velo`)
+  - Voiture (`voiture`)
+
+### Motivation de recherche
+
+- **Type de réponse** : Choix multiple
+- **Options** :
+  - Première expérience (`premiere_experience`)
+  - Découverte métier (`decouverte_metier`)
+  - Agir pour une cause (`agir_pour_une_cause`)
+  - Sécurité du pays (`securite_pays`)
+  - Télétravail (`remote`)
+  - Rencontres (`rencontres`)
+  - Indemnisation (`indemnisation`)
+  - Horaires flexibles (`horaires_flexibles`)
+  - Autre (`autre`)
+
+### Rythme
+
+- **Type de réponse** : Choix unique
+- **Options** : Non spécifiées dans les sources fournies.
+
+### Domaines d'engagement
+
+- **Type de réponse** : Choix multiple
+- **Options** :
+  - Santé et bien-être (`sante_bien_etre`)
+  - Sport (`sport`)
+  - Solidarité et inclusion (`solidarite_inclusion`)
+  - Environnement et animaux (`environnement_animaux`)
+  - Art et culture (`art_culture`)
+  - Sécurité et secours (`securite_secours`)
+  - Citoyenneté (`citoyennete`)
+  - Numérique (`numerique`)
+  - Éducation (`education`)
+
+### Activités
+
+- **Type de réponse** : Choix multiple
+- **Options** :
+  - Aider et accompagner (`aider_accompagner`)
+  - Transmettre et animer (`transmettre_animer`)
+  - Fabriquer, réparer, terrain (`fabriquer_reparer_terrain`)
+  - Secourir et protéger (`secourir_proteger`)
+  - Organiser et coordonner (`organiser_coordonner`)
+  - Créer et communiquer (`creer_communiquer`)
+
+### Équipe
+
+- **Type de réponse** : Choix unique
+- **Options** :
+  - Autonomie (`autonomie`)
+  - Petit groupe (`petit_groupe`)
+  - Grand collectif (`grand_collectif`)
+  - Peu importe (`peu_importe`)
+
+### Interaction
+
+- **Type de réponse** : Choix unique
+- **Options** :
+  - Interaction collective (`interaction_collective`)
+  - Équilibre collectif et autonomie (`equilibre_collectif_autonomie`)
+  - Autonomie principale (`autonomie_principale`)
+  - Peu importe (`peu_importe`)
+
+### Autonomie
+
+- **Type de réponse** : Choix unique
+- **Options** :
+  - Organisation libre (`organisation_libre`)
+  - Accompagnement initial (`accompagnement_initial`)
+  - Cadre avec suivi régulier (`cadre_suivi_regulier`)
+  - Je ne sais pas (`je_ne_sais_pas`)
+
+### Imprévu
+
+- **Type de réponse** : Choix unique
+- **Options** :
+  - Adaptation rapide (`adaptation_rapide`)
+  - Imprévu modéré (`imprevu_modere`)
+  - Cadre prévisible (`cadre_previsible`)
+  - Je ne sais pas (`je_ne_sais_pas`)
+
 ## Validation et navigation
 
 Chaque étape nécessite au moins une réponse pour permettre à l'utilisateur de continuer. Certaines étapes de précision permettent de passer la question. Les erreurs de validation sont affichées dans le composant de saisie.
