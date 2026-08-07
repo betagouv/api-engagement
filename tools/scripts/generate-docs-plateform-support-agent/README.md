@@ -23,4 +23,4 @@ npm run generate-docs-plateform-support-agent -- --all
 
 L'option `--all` force la régénération de tous les chapitres. Sans cette option, la génération s'arrête lorsqu'aucun fichier du périmètre global n'a changé depuis le commit enregistré dans le `README.md`.
 
-Le paramètre `--summary-file <chemin>` produit le résumé utilisé dans le corps de la pull request automatique.
+Le paramètre `--summary-file <chemin>` produit un résumé des changements, réutilisable dans le corps d'une pull request. La génération est déclenchée manuellement ; il n'y a pas encore de workflow planifié.
