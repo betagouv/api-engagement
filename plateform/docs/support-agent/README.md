@@ -1,7 +1,7 @@
 ---
 generated_at: 2026-08-06
 source_branch: main
-source_commit: f10b8adedff89b6e0c7340f14be45ee12721919b
+source_commit: d1970787a4acd55a64895f26288c414f0957a8d3
 scope: plateform-product
 ---
 

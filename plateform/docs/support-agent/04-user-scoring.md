@@ -2,13 +2,19 @@
 
 ## Données enregistrées
 
-Un scoring utilisateur contient une liste de réponses taxonomiques. Une réponse peut avoir soit une valeur, soit un objet de paramètres. Lors de la création, un `distinctId` et l'état d'activation des alertes de missions peuvent également être transmis.
+Un scoring utilisateur contient une liste de réponses taxonomiques. Chaque réponse peut être soit une valeur, soit un objet de paramètres. Lors de la création, un `distinctId` et l'état d'activation des alertes de missions peuvent également être transmis.
 
 Le store du quiz conserve un `distinctId` stable entre plusieurs tentatives. Il conserve également l'identifiant du scoring créé par l'API. Une nouvelle tentative efface les réponses et l'identifiant du scoring, mais conserve le `distinctId`.
 
 ## Création et mise à jour
 
-À la première sauvegarde contenant au moins une réponse taxonomique, la plateforme crée un scoring et stocke l'identifiant retourné. Les sauvegardes suivantes mettent à jour ce scoring avec le même `distinctId`.
+### Création
+
+Lors de la première sauvegarde contenant au moins une réponse taxonomique, la plateforme crée un scoring utilisateur. Le `distinctId` peut être fourni, mais n'est pas obligatoire. L'état de l'alerte de missions est par défaut désactivé, sauf indication contraire. L'API retourne un identifiant de scoring qui est stocké pour les mises à jour futures.
+
+### Mise à jour
+
+Les sauvegardes suivantes mettent à jour le scoring existant en utilisant le même `distinctId`. L'API de mise à jour exige que le `distinctId` soit fourni. Les mises à jour peuvent inclure des réponses taxonomiques et/ou l'état de l'alerte de missions. Si aucune réponse taxonomique n'est fournie, l'état de l'alerte de missions doit être présent pour que la mise à jour soit valide.
 
 Une promesse de sauvegarde en cours est partagée entre la validation de l'étape et la navigation afin d'éviter deux appels simultanés pour la même étape. Elle est réinitialisée lors d'un changement de route. Après une mise à jour réussie, le cache de la première page de résultats associé au scoring est invalidé.
 
