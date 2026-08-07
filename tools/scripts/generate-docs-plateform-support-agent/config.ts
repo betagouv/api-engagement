@@ -31,14 +31,21 @@ export const DOCUMENTS: DocumentConfig[] = [
     objective: "Décrire les taxonomies, leurs valeurs, transformations et usages.",
     scope: ["packages/taxonomy/src/**"],
     instructions:
-      "Liste l'INTÉGRALITÉ des taxonomies définies dans `TAXONOMY` (`packages/taxonomy/src/taxonomy.ts`), sans en omettre aucune, sous forme de tableau : clé, finalité et valeurs possibles. Pour chaque taxonomie, indique explicitement sa nature : (a) ENRICHIE PAR LLM lorsqu'elle porte le flag `enrichable` (cf. `ENRICHABLE_TAXONOMIES`) ; (b) DÉCLARATIVE/DÉRIVÉE sinon (issue des données ou d'un transformateur comme `tranche-age`, `location`, `department-code`). Signale à part les taxonomies GATE d'éligibilité (flag `gate`, cf. `GATE_TAXONOMIES`). Termine par une synthèse : quelles taxonomies sont enrichies par LLM vs uniquement déclaratives. Ne détaille pas la formule de score du matching (couverte par le chapitre 06).",
+      "Liste l'INTÉGRALITÉ des taxonomies définies dans `TAXONOMY` (`packages/taxonomy/src/taxonomy.ts`), sans en omettre aucune, sous forme de tableau : clé, finalité et valeurs possibles. Pour chaque taxonomie, énumère TOUTES ses valeurs définies dans `TAXONOMY` : n'utilise jamais « etc. », « … » ni aucune abréviation ou troncature ; si la liste est longue, mets-la sur plusieurs lignes mais reste exhaustif. Indique aussi les valeurs neutres (cf. `NEUTRAL_TAXONOMY_VALUE_KEYS`). Pour chaque taxonomie, indique explicitement sa nature : (a) ENRICHIE PAR LLM lorsqu'elle porte le flag `enrichable` (cf. `ENRICHABLE_TAXONOMIES`) ; (b) DÉCLARATIVE/DÉRIVÉE sinon (issue des données ou d'un transformateur comme `tranche-age`, `location`, `department-code`). Signale à part les taxonomies GATE d'éligibilité (flag `gate`, cf. `GATE_TAXONOMIES`). Termine par une synthèse : quelles taxonomies sont enrichies par LLM vs uniquement déclaratives. Ne détaille pas la formule de score du matching (couverte par le chapitre 06).",
   },
   {
     path: "09-mission-detail-and-application.md",
     title: "Détail d'une mission et candidature",
     objective: "Décrire le chargement, l'affichage, la candidature et les missions similaires.",
   },
-  { path: "10-emails-newsletter-and-consent.md", title: "Emails, newsletter et consentement", objective: "Décrire les emails, la newsletter et les règles de consentement." },
+  {
+    path: "10-emails-newsletter-and-consent.md",
+    title: "Emails, newsletter et consentement",
+    objective: "Décrire les emails, la newsletter et les règles de consentement.",
+    scope: ["api/src/services/mission-email/**", "api/src/services/newsletter/**", "api/src/controllers/email.ts", "api/src/controllers/newsletter.ts"],
+    instructions:
+      "Décris le comportement RÉELLEMENT implémenté pour l'envoi d'email de missions : conditions d'envoi, statuts de sortie (ex. `skipped`) et raisons (ex. `NO_MATCHING_RESULT`), et ce qui se passe en l'absence de résultat de matching pour la version courante. N'invente aucun mécanisme de récupération ou de recalcul qui ne figure pas dans les sources : si `buildMissionMatchingEmailParams` retourne `null` et que l'envoi est simplement ignoré, dis-le explicitement sans laisser entendre qu'un recalcul a lieu.",
+  },
   {
     path: "11-data-persistence-and-state.md",
     title: "Persistance des données et états",

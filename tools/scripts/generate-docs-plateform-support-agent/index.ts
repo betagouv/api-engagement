@@ -7,7 +7,7 @@ import OpenAI from "openai";
 import { loadConfig, resolveRepositoryPaths } from "./config";
 import { loadDeployedConfig } from "./deployed-config";
 import { generateDocument, generatePullRequestSummary } from "./generator";
-import { getChangedFiles, getHeadCommit, getRepositoryRoot, readPreviousSourceCommit } from "./git";
+import { commitExists, getChangedFiles, getHeadCommit, getRepositoryRoot, readPreviousSourceCommit } from "./git";
 import { TokenRateLimiter } from "./rate-limit";
 import { collectDocuments, collectSourceFiles, fileMatchesPatterns, isSourceInScope, selectDocuments } from "./sources";
 import type { GenerationResult } from "./types";
@@ -50,6 +50,7 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const paths = resolveRepositoryPaths(repositoryRoot);
   const config = loadConfig(paths.configPath);
   const sourceFiles = await collectSourceFiles(repositoryRoot, config);
+  const inScopeSourceFiles = new Set(sourceFiles);
   const documents = collectDocuments(repositoryRoot, paths.docsDirectory, sourceFiles);
   const readme = fs.readFileSync(paths.readmePath, "utf8");
   const previousSourceCommit = readPreviousSourceCommit(readme);
@@ -62,7 +63,11 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
   const deployedConfigRelative = path.relative(repositoryRoot, paths.deployedConfigPath);
   const deployedConfigChanged = rawChangedFiles.includes(deployedConfigRelative);
   if (deployedConfigChanged) console.log(`Configuration déployée modifiée (${deployedConfigRelative}) : régénération complète.`);
-  const forceAll = options.forceAll || !previousSourceCommit || deployedConfigChanged;
+  // Commit de base enregistré mais introuvable (ex. clone frais de `main` après squash) : le diff
+  // ne peut pas être calculé, on force une régénération complète plutôt que de ne rien faire.
+  const previousCommitMissing = !!previousSourceCommit && !commitExists(repositoryRoot, previousSourceCommit);
+  if (previousCommitMissing) console.log(`Commit de base introuvable (${previousSourceCommit}) : régénération complète.`);
+  const forceAll = options.forceAll || !previousSourceCommit || previousCommitMissing || deployedConfigChanged;
   const selected = selectDocuments(documents, changedSources, forceAll, paths.docsDirectory);
 
   // Les fichiers modifiés qu'aucun chapitre ne cite et qu'aucun scope ne couvre ne déclenchent
@@ -97,7 +102,9 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
     // Périmètre propre au chapitre : ses fichiers modifiés (cités ou couverts par son scope,
     // suppressions comprises pour l'invite), placés en priorité dans le contexte.
     const relevantChanged = changedSources.filter((file) => document.citations.includes(file) || fileMatchesPatterns(file, document.scope));
-    const relevantChangedExisting = relevantChanged.filter((file) => fs.existsSync(path.join(repositoryRoot, file)));
+    // Ne lit que des fichiers de `collectSourceFiles` (exclusions + interdits déjà appliqués) :
+    // un fichier modifié couvert par `include` mais exclu (ex. secret versionné) n'est jamais envoyé.
+    const relevantChangedExisting = relevantChanged.filter((file) => inScopeSourceFiles.has(file));
     // Priorité aux fichiers d'implémentation : les tests passent en dernier pour ne jamais évincer
     // un fichier de logique central (ex. matching-engine/index.ts) quand le budget de contexte est saturé.
     const sources = [...new Set([...relevantChangedExisting, ...document.files])].sort((a, b) => Number(isTestFile(a)) - Number(isTestFile(b)));
@@ -117,20 +124,19 @@ const generate = async (options: CliOptions): Promise<GenerationResult> => {
     }
   }
 
-  if (changedDocuments.length === 0) {
-    console.log("La documentation générée est identique à la version courante.");
-    return { changedDocuments, changedSources, sourceCommit };
-  }
-
-  fs.writeFileSync(paths.readmePath, updateReadmeMetadata(readme, sourceCommit), "utf8");
-
-  if (options.summaryFile) {
+  // Résumé PRODUIT AVANT d'avancer le point de reprise : si l'appel échoue, le commit source
+  // n'est pas persisté et une relance retentera au lieu de sauter le résumé demandé.
+  if (changedDocuments.length > 0 && options.summaryFile) {
     const diff = gitDiffForDocuments(repositoryRoot, paths.docsDirectory, changedDocuments);
     const summary = await generatePullRequestSummary({ openai, model, changedSources, changedDocuments, diffs: diff, limiter });
     fs.writeFileSync(options.summaryFile, summary, "utf8");
   }
 
-  console.log(`${changedDocuments.length} chapitre(s) mis à jour.`);
+  // Avance TOUJOURS le point de reprise (même si aucun chapitre n'a changé) une fois toute la
+  // génération réussie : sans ça, un diff sans effet documentaire serait retraité indéfiniment.
+  fs.writeFileSync(paths.readmePath, updateReadmeMetadata(readme, sourceCommit), "utf8");
+
+  console.log(changedDocuments.length === 0 ? "La documentation générée est identique à la version courante." : `${changedDocuments.length} chapitre(s) mis à jour.`);
   return { changedDocuments, changedSources, sourceCommit };
 };
 
