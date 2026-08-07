@@ -12,7 +12,7 @@ export const DOCUMENTS: DocumentConfig[] = [
     objective: "Documenter les étapes, options, validations, embranchements, navigation et réponses du quiz.",
     scope: ["plateform/app/config/quiz-flow/**", "plateform/app/routes/quiz/**", "plateform/app/utils/quiz.ts", "plateform/app/stores/quiz.ts"],
     instructions:
-      "Décris le flow actif (version courante et sa provenance) et énumère fidèlement ses étapes, questions et options à partir des définitions de `plateform/app/config/quiz-flow/`. Signale la version de flow effectivement sélectionnée plutôt qu'une version historique.",
+      "Décris le flow actif (version courante et sa provenance), puis, pour CHAQUE étape/question du flow sélectionné, liste EXHAUSTIVEMENT toutes les réponses possibles : donne pour chacune son libellé affiché et sa valeur technique, sous forme de tableau ou de liste par question. N'omets aucune option, y compris les options conditionnelles ou de repli. Indique le type de réponse (choix unique/multiple), les validations et les embranchements associés. Décris le flow effectivement sélectionné, pas une version historique.",
   },
   { path: "04-user-scoring.md", title: "Scoring utilisateur", objective: "Décrire la création, la mise à jour et la persistance du scoring utilisateur." },
   { path: "05-mission-search.md", title: "Recherche de missions", objective: "Décrire le catalogue, les filtres, facettes, pagination et états de résultat." },
@@ -22,10 +22,17 @@ export const DOCUMENTS: DocumentConfig[] = [
     objective: "Décrire les versions, taxonomies, pondérations, scores, gates, classement, pagination et cache.",
     scope: ["api/src/services/matching-engine/**", "api/src/services/mission-match/**"],
     instructions:
-      "Détaille précisément la formule de calcul du score : socle acquis par taxonomie matchée (`taxonomyOrBaseScore`) et part restante liée à la qualité intra-taxonomie, pondérations `taxonomyWeights` de la version active (donne les poids), score géographique et `geoWeight`, cas remote (`remoteFullGeoScore`, `remoteLocalGeoScore`), dénominateur de normalisation (somme des poids actifs), gates d'éligibilité (qui n'entrent pas dans le score), classement, tie-breakers et bornes. Explicite l'agrégation finale, pas seulement les composantes.",
+      "Concentre-toi uniquement sur la version de moteur ACTIVE (celle indiquée par la configuration déployée). Détaille précisément SA formule de calcul du score : socle acquis par taxonomie matchée (`taxonomyOrBaseScore`) et part restante liée à la qualité intra-taxonomie, pondérations `taxonomyWeights` de la version active (donne les poids), score géographique et `geoWeight`, cas remote (`remoteFullGeoScore`, `remoteLocalGeoScore`), dénominateur de normalisation (somme des poids actifs), gates d'éligibilité (qui n'entrent pas dans le score), classement, tie-breakers et bornes. Explicite l'agrégation finale, pas seulement les composantes. Ne détaille PAS l'algorithme des versions antérieures : mentionne au plus leur existence et, en une phrase, ce que la version active change par rapport à la précédente.",
   },
   { path: "07-eligibility-and-scoring.md", title: "Éligibilité et scoring des missions", objective: "Documenter les règles déterministes et contraintes d'éligibilité." },
-  { path: "08-taxonomies.md", title: "Taxonomies", objective: "Décrire les taxonomies, leurs valeurs, transformations et usages." },
+  {
+    path: "08-taxonomies.md",
+    title: "Taxonomies",
+    objective: "Décrire les taxonomies, leurs valeurs, transformations et usages.",
+    scope: ["packages/taxonomy/src/**"],
+    instructions:
+      "Liste l'INTÉGRALITÉ des taxonomies définies dans `TAXONOMY` (`packages/taxonomy/src/taxonomy.ts`), sans en omettre aucune, sous forme de tableau : clé, finalité et valeurs possibles. Pour chaque taxonomie, indique explicitement sa nature : (a) ENRICHIE PAR LLM lorsqu'elle porte le flag `enrichable` (cf. `ENRICHABLE_TAXONOMIES`) ; (b) DÉCLARATIVE/DÉRIVÉE sinon (issue des données ou d'un transformateur comme `tranche-age`, `location`, `department-code`). Signale à part les taxonomies GATE d'éligibilité (flag `gate`, cf. `GATE_TAXONOMIES`). Termine par une synthèse : quelles taxonomies sont enrichies par LLM vs uniquement déclaratives. Ne détaille pas la formule de score du matching (couverte par le chapitre 06).",
+  },
   {
     path: "09-mission-detail-and-application.md",
     title: "Détail d'une mission et candidature",
