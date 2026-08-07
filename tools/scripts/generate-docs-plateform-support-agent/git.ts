@@ -6,13 +6,19 @@ export const getRepositoryRoot = (): string => git(["rev-parse", "--show-topleve
 
 export const getHeadCommit = (repositoryRoot: string): string => git(["rev-parse", "HEAD"], repositoryRoot);
 
-export const getChangedFiles = (repositoryRoot: string, previousCommit: string | null): string[] => {
-  if (!previousCommit) return [];
+// Vrai si le commit existe dans le dépôt local. Après un squash de PR, un `source_commit`
+// intermédiaire enregistré peut être absent d'un clone frais de `main`.
+export const commitExists = (repositoryRoot: string, commit: string): boolean => {
   try {
-    git(["cat-file", "-e", `${previousCommit}^{commit}`], repositoryRoot);
+    git(["cat-file", "-e", `${commit}^{commit}`], repositoryRoot);
+    return true;
   } catch {
-    return [];
+    return false;
   }
+};
+
+export const getChangedFiles = (repositoryRoot: string, previousCommit: string | null): string[] => {
+  if (!previousCommit || !commitExists(repositoryRoot, previousCommit)) return [];
   const output = git(["diff", "--name-only", `${previousCommit}..HEAD`], repositoryRoot);
   return output ? output.split("\n").filter(Boolean) : [];
 };

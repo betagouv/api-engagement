@@ -20,7 +20,11 @@ export const collectSourceFiles = async (repositoryRoot: string, config: Sources
 export const fileMatchesPatterns = (file: string, patterns: string[] | undefined): boolean =>
   (patterns ?? []).some((pattern) => (pattern.endsWith("/**") ? file.startsWith(pattern.slice(0, -2)) : file === pattern));
 
-export const isSourceInScope = (file: string, config: SourcesConfig): boolean => fileMatchesPatterns(file, config.include);
+// Dans le périmètre incrémental : couvert par un `include` et jamais par un motif interdit
+// (secrets, node_modules, artefacts). Les fichiers réellement lus sont en plus bornés à la liste
+// de `collectSourceFiles` (qui applique `exclude` via fast-glob), cf. le chemin de lecture.
+export const isSourceInScope = (file: string, config: SourcesConfig): boolean =>
+  fileMatchesPatterns(file, config.include) && !FORBIDDEN_SOURCE_PATTERNS.some((pattern) => pattern.test(file));
 
 export const collectDocuments = (repositoryRoot: string, docsDirectory: string, sourceFiles: string[]): CollectedDocument[] => {
   const allowed = new Set(sourceFiles);
