@@ -2,21 +2,21 @@
 
 ## Chargement
 
-La fiche charge une mission à partir de son identifiant. Un paramètre optionnel `addressId` permet de sélectionner une adresse particulière. Pendant le chargement, la page affiche un état dédié. En cas d'échec, elle affiche « Impossible de charger cette mission. » ; si aucune mission n'est disponible sans message plus précis, elle affiche « Mission introuvable. »
+La fiche de mission est chargée à partir de son identifiant unique. Un paramètre optionnel `addressId` peut être utilisé pour spécifier une adresse particulière. Pendant le chargement, un état de chargement est affiché. En cas d'échec du chargement, le message « Impossible de charger cette mission. » est affiché. Si aucune mission n'est trouvée, le message « Mission introuvable. » est affiché.
 
-Une fiche peut être ouverte depuis `/missions/:missionId` ou depuis `/results/:userScoringId/missions/:missionId`. Dans le second cas, le scoring est conservé pour le retour vers les résultats, le suivi du parcours et l'affichage de missions similaires.
+Les fiches de mission peuvent être ouvertes depuis deux chemins : `/missions/:missionId` et `/results/:userScoringId/missions/:missionId`. Dans le second cas, le `userScoringId` est utilisé pour conserver le scoring lors du retour vers les résultats et pour l'affichage de missions similaires.
 
 ## Informations affichées
 
-Le contrat de détail peut contenir le titre, le domaine, le type, le diffuseur, l'organisation, la localisation, les dates, la durée, le rythme, la compensation, la description, la photo, le mode à distance, l'ouverture aux mineurs, l'accessibilité aux personnes à mobilité réduite et le nombre de places.
+Les informations détaillées sur la mission incluent le titre, le domaine, le type, le diffuseur, l'organisation, la localisation, les dates de début et de fin, la durée, le rythme, la compensation, la description, la photo, le mode de travail à distance, l'ouverture aux mineurs, l'accessibilité aux personnes à mobilité réduite et le nombre de places disponibles.
 
-Le titre du document est remplacé par le titre de la mission après son chargement. La localisation n'est affichée que lorsqu'elle existe. La date limite est formatée à partir de `endAt` lorsqu'elle est disponible.
+Le titre de la page est remplacé par le titre de la mission une fois celle-ci chargée. La localisation est affichée uniquement si elle est disponible. La date limite de candidature est formatée à partir de `endAt` si elle est présente.
 
 ## Candidature et navigation
 
-Le bouton « Postuler » ouvre l'URL de candidature dans une nouvelle fenêtre. La fonction de construction du lien peut y ajouter le `userScoringId`. Sur desktop, l'action figure dans un panneau latéral ; sur mobile, elle reste disponible dans une barre fixe.
+Le bouton « Postuler » permet d'ouvrir l'URL de candidature dans une nouvelle fenêtre. Le lien de candidature peut inclure le `userScoringId` pour le suivi. Sur les appareils de bureau, cette action est disponible dans un panneau latéral, tandis que sur les appareils mobiles, elle est accessible via une barre fixe.
 
-Depuis une fiche issue des résultats, le retour cible la page de résultats et une section de missions similaires est affichée. Sans scoring dans l'URL, le retour visible cible l'accueil ou le catalogue selon le contexte du composant.
+Lorsqu'une fiche est issue des résultats, le retour redirige vers la page de résultats, et une section de missions similaires est affichée. Si l'URL ne contient pas de scoring, le retour redirige vers l'accueil ou le catalogue, selon le contexte.
 
 ## Sources
 

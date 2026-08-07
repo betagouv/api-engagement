@@ -4,13 +4,12 @@ La plateforme aide un utilisateur à trouver une mission d'engagement de deux ma
 
 ## Fonctionnalités principales
 
-- Le quiz recueille l'âge, le statut, la localisation, les disponibilités et les motivations de l'utilisateur. Des questions de précision apparaissent selon les réponses précédentes.
-- Les réponses sont transformées en valeurs de taxonomies et enregistrées dans un scoring utilisateur.
-- Le moteur de matching classe les missions éligibles à partir des taxonomies du scoring et de la proximité géographique.
-- La page de résultats sépare les cinq premières recommandations des autres résultats paginés.
-- Le catalogue propose une recherche paginée avec des filtres issus des facettes disponibles.
-- La fiche mission rassemble les informations pratiques et redirige vers l'URL de candidature du diffuseur.
-- Des fonctions d'email, de newsletter et de gestion du consentement complètent le parcours.
+- **Quiz de profil utilisateur** : Le quiz recueille l'âge, le statut, la localisation, les disponibilités et les motivations de l'utilisateur. Des questions de précision apparaissent selon les réponses précédentes. Les réponses sont transformées en valeurs de taxonomies et enregistrées dans un scoring utilisateur.
+- **Moteur de matching** : Le moteur de matching classe les missions éligibles à partir des taxonomies du scoring et de la proximité géographique.
+- **Page de résultats** : La page de résultats sépare les cinq premières recommandations des autres résultats paginés.
+- **Catalogue de missions** : Le catalogue propose une recherche paginée avec des filtres issus des facettes disponibles.
+- **Fiche mission** : La fiche mission rassemble les informations pratiques et redirige vers l'URL de candidature du diffuseur.
+- **Fonctionnalités d'email et de newsletter** : Des fonctions d'email, de newsletter et de gestion du consentement complètent le parcours.
 
 ## Architecture fonctionnelle
 

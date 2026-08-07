@@ -7,9 +7,9 @@ Les règles déterministes produisent des valeurs taxonomiques avec un score de 
 ## Règles de dispositif et de type
 
 - Une mission Service Civique reçoit les tranches moins de 18 ans, 18–25 ans et moins de 31 ans avec handicap, ainsi que `type_mission.temps_plein` et `dispositif.service_civique`.
-- Une mission du publisher ROC reçoit les tranches 16–17, 18–25, 25–30, 30–45, 46–67 et 68–72 ans.
+- Une mission du publisher ROC reçoit les tranches moins de 18 ans, 18–25 ans, 25–30 ans, 30–45 ans, 46–67 ans et 68–72 ans.
 - Une mission de type `benevolat` reçoit `dispositif.benevolat`.
-- Une mission de volontariat sapeur-pompier reçoit le dispositif correspondant et les tranches de 16–17 à 46–66 ans définies dans la règle.
+- Une mission de volontariat sapeur-pompier reçoit `dispositif.sapeurs_pompiers` et les tranches moins de 18 ans, 18–25 ans, 25–30 ans, 30–45 ans et 46–66 ans.
 - Une mission du publisher GENDARMERIE reçoit `dispositif.reserve_gendarmerie`.
 - Une mission du publisher POLICE reçoit `dispositif.reserve_police_nationale`.
 
