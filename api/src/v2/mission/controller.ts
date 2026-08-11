@@ -9,6 +9,7 @@ import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord } from "@/types/publisher";
 import { getModeration } from "@/utils/mission-moderation";
+import { sanitizeHtml } from "@/utils/string";
 
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
@@ -130,7 +131,7 @@ const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCre
       preserveNewlines: true,
       selectors: [{ selector: "ul", options: { itemPrefix: " • " } }],
     }),
-    descriptionHtml: description,
+    descriptionHtml: sanitizeHtml(description),
   };
 };
 

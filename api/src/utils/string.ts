@@ -1,3 +1,16 @@
+import sanitizeHtmlLib from "sanitize-html";
+
+const SANITIZE_ALLOWED_TAGS = [...sanitizeHtmlLib.defaults.allowedTags, "h1", "h2"];
+
+/**
+ * Sanitize partner-provided HTML before storage: removes scripts, event handlers
+ * and unsafe URLs, keeps standard formatting tags (p, ul, li, strong, a, h1-h6, ...).
+ *
+ * @param html The raw HTML string
+ * @returns The sanitized HTML string
+ */
+export const sanitizeHtml = (html: string): string => sanitizeHtmlLib(html, { allowedTags: SANITIZE_ALLOWED_TAGS });
+
 /**
  * Slugify a string
  *

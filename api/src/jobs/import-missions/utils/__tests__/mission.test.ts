@@ -151,6 +151,15 @@ describe("parseMission", () => {
       expect(result?.descriptionHtml).toBe("<p>Hello <strong>World</strong></p>");
     });
 
+    it("should sanitize malicious HTML in descriptionHtml", () => {
+      const publisher = buildPublisher();
+      const missionXML = buildMissionXML({ description: '<p>Hello</p><script>alert(1)</script><img src="x" onerror="alert(1)" /><p onclick="alert(1)">World</p>' });
+
+      const result = parseMission(publisher, missionXML, null, startTime);
+
+      expect(result?.descriptionHtml).toBe("<p>Hello</p><p>World</p>");
+    });
+
     it("should set type from publisher missionType", () => {
       const publisher = buildPublisher({ missionType: PublisherMissionType.VOLONTARIAT_SAPEURS_POMPIERS });
       const missionXML = buildMissionXML();

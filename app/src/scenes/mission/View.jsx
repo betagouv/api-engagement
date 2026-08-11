@@ -283,10 +283,11 @@ const View = () => {
         <div className="border-grey-border grid grid-cols-1 gap-4 border p-4 lg:grid-cols-[minmax(0,2fr)_1px_minmax(280px,1fr)] lg:p-6">
           <div className="min-w-0">
             <p className="text-xl font-semibold">Presentation de la mission</p>
-            <div
-              className="mt-2 max-h-96 overflow-y-scroll text-xs leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: `<p>${mission.description.replace(/\n/g, "</p><p>")}</p>` }}
-            />
+            <div className="mt-2 max-h-96 overflow-y-scroll text-xs leading-relaxed">
+              {mission.description.split("\n").map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
+            </div>
           </div>
           <div className="hidden w-px bg-gray-900 lg:block" />
           <div className="min-w-0 border-t border-gray-900 pt-4 lg:border-t-0 lg:pt-0">
