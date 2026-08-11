@@ -1,0 +1,245 @@
+[
+  {
+    "id": "lea-parcoursup-ifsi",
+    "segment": "lyceen",
+    "label": "Léa, 17 ans, lycéenne en Terminale à Lyon, veut booster son dossier Parcoursup pour une formation en soins infirmiers, avec peu de temps hors week-ends",
+    "locationLabel": "Lyon (69)",
+    "age": 17,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 17, "handicap": false } },
+      { "taxonomy": "statut", "value": "lyceen" },
+      { "taxonomy": "location", "params": { "lat": 45.7578137, "lon": 4.8320114, "country_code": "fr", "label": "Lyon (69)" } },
+      { "taxonomy": "type_mission", "value": "ponctuelle" },
+      { "taxonomy": "motivation", "value": "booster_parcoursup" },
+      { "taxonomy": "parcoursup_formation", "value": "oui" },
+      { "taxonomy": "domaine", "value": "sante_soins" }
+    ],
+    "notes": ["Texte libre Parcoursup non envoye: buildPayload ignore les answers text et le moteur consomme domaine=sante_soins."]
+  },
+  {
+    "id": "noah-parcoursup-sans-formation",
+    "segment": "lyceen",
+    "label": "Noah, 16 ans, lycéen à Aurillac, veut booster Parcoursup sans formation précise et reste ouvert sur le domaine",
+    "locationLabel": "Aurillac (15)",
+    "age": 16,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 16, "handicap": false } },
+      { "taxonomy": "statut", "value": "lyceen" },
+      { "taxonomy": "location", "params": { "lat": 44.930953, "lon": 2.444997, "country_code": "fr", "label": "Aurillac (15)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "motivation", "value": "booster_parcoursup" },
+      { "taxonomy": "parcoursup_formation", "value": "non" },
+      { "taxonomy": "domaine", "value": "je_ne_sais_pas" }
+    ]
+  },
+  {
+    "id": "sami-orientation-securite",
+    "segment": "lyceen",
+    "label": "Sami, 16 ans, lycéen en Seconde à Marseille, attiré par les métiers en uniforme et la sécurité, veut tester avant de choisir sa voie",
+    "locationLabel": "Marseille (13)",
+    "age": 16,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 16, "handicap": false } },
+      { "taxonomy": "statut", "value": "lyceen" },
+      { "taxonomy": "location", "params": { "lat": 43.296482, "lon": 5.36978, "country_code": "fr", "label": "Marseille (13)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "motivation", "value": "tester_orientation" },
+      { "taxonomy": "formation_onisep", "value": "securite_defense_logistique" }
+    ]
+  },
+  {
+    "id": "manon-utile-terrain",
+    "segment": "lyceen",
+    "label": "Manon, 16 ans, lycéenne à Lille, cherche une mission ponctuelle utile et concrète sur le terrain",
+    "locationLabel": "Lille (59)",
+    "age": 16,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 16, "handicap": false } },
+      { "taxonomy": "statut", "value": "lyceen" },
+      { "taxonomy": "location", "params": { "lat": 50.636565, "lon": 3.063528, "country_code": "fr", "label": "Lille (59)" } },
+      { "taxonomy": "type_mission", "value": "ponctuelle" },
+      { "taxonomy": "motivation", "value": "me_sentir_utile" },
+      { "taxonomy": "engagement_intent", "value": "aide_directe" },
+      { "taxonomy": "engagement_intent", "value": "action_terrain" }
+    ]
+  },
+  {
+    "id": "emma-cv-communication",
+    "segment": "etudiant",
+    "label": "Emma, 20 ans, étudiante en L2 info-com à Paris, cherche à valoriser son CV avec des compétences en communication et numérique",
+    "locationLabel": "Paris (75)",
+    "age": 20,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 20, "handicap": false } },
+      { "taxonomy": "statut", "value": "etudiant" },
+      { "taxonomy": "location", "params": { "lat": 48.856614, "lon": 2.352222, "country_code": "fr", "label": "Paris (75)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "motivation", "value": "booster_cv" },
+      { "taxonomy": "competence_rome", "value": "communication_creation_numerique" }
+    ]
+  },
+  {
+    "id": "hugo-terrain-temps-plein",
+    "segment": "etudiant",
+    "label": "Hugo, 22 ans, étudiant en césure à Nantes, veut une vraie première expérience terrain à temps plein, ouvert au service civique indemnisé",
+    "locationLabel": "Nantes (44)",
+    "age": 22,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 22, "handicap": false } },
+      { "taxonomy": "statut", "value": "etudiant" },
+      { "taxonomy": "location", "params": { "lat": 47.218371, "lon": -1.553621, "country_code": "fr", "label": "Nantes (44)" } },
+      { "taxonomy": "type_mission", "value": "temps_plein" },
+      { "taxonomy": "motivation", "value": "experience_terrain" },
+      { "taxonomy": "formation_onisep", "value": "social_sante_sport" }
+    ]
+  },
+  {
+    "id": "camille-environnement",
+    "segment": "etudiant",
+    "label": "Camille, 24 ans, étudiante à Grenoble, veut découvrir le domaine de l'environnement et de la nature",
+    "locationLabel": "Grenoble (38)",
+    "age": 24,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 24, "handicap": false } },
+      { "taxonomy": "statut", "value": "etudiant" },
+      { "taxonomy": "location", "params": { "lat": 45.188529, "lon": 5.724524, "country_code": "fr", "label": "Grenoble (38)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "motivation", "value": "decouvrir_domaine" },
+      { "taxonomy": "domaine", "value": "environnement_nature" }
+    ]
+  },
+  {
+    "id": "ines-rural-aide-directe",
+    "segment": "etudiant",
+    "label": "Inès, 24 ans, étudiante en M1 à Figeac, veut se sentir utile et aider directement des personnes en zone rurale",
+    "locationLabel": "Figeac (46)",
+    "age": 24,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 24, "handicap": false } },
+      { "taxonomy": "statut", "value": "etudiant" },
+      { "taxonomy": "location", "params": { "lat": 44.608333, "lon": 2.031944, "country_code": "fr", "label": "Figeac (46)" } },
+      { "taxonomy": "type_mission", "value": "ponctuelle" },
+      { "taxonomy": "motivation", "value": "me_sentir_utile" },
+      { "taxonomy": "engagement_intent", "value": "aide_directe" }
+    ]
+  },
+  {
+    "id": "lucas-sans-signal",
+    "segment": "etudiant",
+    "label": "Lucas, 19 ans, étudiant à Toulouse, n'a pas encore de préférence claire et veut explorer les missions disponibles",
+    "locationLabel": "Toulouse (31)",
+    "age": 19,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 19, "handicap": false } },
+      { "taxonomy": "statut", "value": "etudiant" },
+      { "taxonomy": "location", "params": { "lat": 43.604652, "lon": 1.444209, "country_code": "fr", "label": "Toulouse (31)" } },
+      { "taxonomy": "type_mission", "value": "je_ne_sais_pas" },
+      { "taxonomy": "motivation", "value": "ne_sais_pas" },
+      { "taxonomy": "domaine", "value": "je_ne_sais_pas" }
+    ]
+  },
+  {
+    "id": "karim-reconversion",
+    "segment": "demandeur_emploi",
+    "label": "Karim, 28 ans, demandeur d'emploi à Saint-Étienne, en reconversion, veut tester un nouveau secteur avant de se former",
+    "locationLabel": "Saint-Etienne (42)",
+    "age": 28,
+    "handicap": "non",
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 28, "handicap": false } },
+      { "taxonomy": "handicap", "value": "non" },
+      { "taxonomy": "statut", "value": "demandeur_emploi" },
+      { "taxonomy": "location", "params": { "lat": 45.439695, "lon": 4.387178, "country_code": "fr", "label": "Saint-Etienne (42)" } },
+      { "taxonomy": "type_mission", "value": "temps_plein" },
+      { "taxonomy": "motivation", "value": "preparer_reconversion" },
+      { "taxonomy": "formation_onisep", "value": "technique_industrie_construction" }
+    ]
+  },
+  {
+    "id": "julie-handicap-confiance",
+    "segment": "demandeur_emploi",
+    "label": "Julie, 26 ans, demandeuse d'emploi à Montpellier, en situation de handicap, veut reprendre confiance",
+    "locationLabel": "Montpellier (34)",
+    "age": 26,
+    "handicap": "oui",
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 26, "handicap": true } },
+      { "taxonomy": "handicap", "value": "oui" },
+      { "taxonomy": "statut", "value": "demandeur_emploi" },
+      { "taxonomy": "location", "params": { "lat": 43.610769, "lon": 3.876716, "country_code": "fr", "label": "Montpellier (34)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "motivation", "value": "reprendre_confiance" },
+      { "taxonomy": "engagement_intent", "value": "animation" },
+      { "taxonomy": "engagement_intent", "value": "aide_directe" }
+    ]
+  },
+  {
+    "id": "nadia-reprendre-activite",
+    "segment": "demandeur_emploi",
+    "label": "Nadia, 24 ans, demandeuse d'emploi à Rouen, veut reprendre une activité dans le bâtiment, l'industrie ou la logistique",
+    "locationLabel": "Rouen (76)",
+    "age": 24,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 24, "handicap": false } },
+      { "taxonomy": "statut", "value": "demandeur_emploi" },
+      { "taxonomy": "location", "params": { "lat": 49.443232, "lon": 1.099971, "country_code": "fr", "label": "Rouen (76)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "motivation", "value": "reprendre_activite" },
+      { "taxonomy": "secteur_activite", "value": "batiment_industrie_logistique" }
+    ]
+  },
+  {
+    "id": "mehdi-cv-multi-duree",
+    "segment": "demandeur_emploi",
+    "label": "Mehdi, 29 ans, demandeur d'emploi à Bordeaux, veut enrichir son CV avec plusieurs formats possibles",
+    "locationLabel": "Bordeaux (33)",
+    "age": 29,
+    "handicap": "ne_se_prononce_pas",
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 29, "handicap": false } },
+      { "taxonomy": "handicap", "value": "ne_se_prononce_pas" },
+      { "taxonomy": "statut", "value": "demandeur_emploi" },
+      { "taxonomy": "location", "params": { "lat": 44.837789, "lon": -0.57918, "country_code": "fr", "label": "Bordeaux (33)" } },
+      { "taxonomy": "type_mission", "value": "reguliere" },
+      { "taxonomy": "type_mission", "value": "temps_plein" },
+      { "taxonomy": "motivation", "value": "enrichir_cv" },
+      { "taxonomy": "competence_rome", "value": "gestion_pilotage_juridique" }
+    ],
+    "notes": ["Le parcours multi-duree est accepte par l'API mais potentiellement non atteignable dans l'UI actuelle si l'ecran duree reste mono-selection."]
+  },
+  {
+    "id": "thomas-actif-competences",
+    "segment": "actif",
+    "label": "Thomas, 29 ans, salarié à Rennes, veut mettre ses compétences pro en gestion et management au service de l'intérêt général sur des missions ponctuelles",
+    "locationLabel": "Rennes (35)",
+    "age": 29,
+    "handicap": "non",
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 29, "handicap": false } },
+      { "taxonomy": "handicap", "value": "non" },
+      { "taxonomy": "statut", "value": "actif" },
+      { "taxonomy": "location", "params": { "lat": 48.117266, "lon": -1.677793, "country_code": "fr", "label": "Rennes (35)" } },
+      { "taxonomy": "type_mission", "value": "ponctuelle" },
+      { "taxonomy": "motivation", "value": "competences_interet_general" },
+      { "taxonomy": "competence_rome", "value": "management_social_soin" },
+      { "taxonomy": "competence_rome", "value": "gestion_pilotage_juridique" },
+      { "taxonomy": "competence_rome", "value": "cooperation_organisation_soft_skills" }
+    ]
+  },
+  {
+    "id": "clara-cesure-humanitaire",
+    "segment": "autre",
+    "label": "Clara, 25 ans, en césure à Paris, cherche une mission humanitaire ou solidaire à temps plein",
+    "locationLabel": "Paris (75)",
+    "age": 25,
+    "answers": [
+      { "taxonomy": "tranche_age", "params": { "age": 25, "handicap": false } },
+      { "taxonomy": "statut", "value": "autre" },
+      { "taxonomy": "location", "params": { "lat": 48.856614, "lon": 2.352222, "country_code": "fr", "label": "Paris (75)" } },
+      { "taxonomy": "type_mission", "value": "temps_plein" },
+      { "taxonomy": "motivation", "value": "decouvrir_domaine" },
+      { "taxonomy": "domaine", "value": "international_humanitaire" },
+      { "taxonomy": "domaine", "value": "social_solidarite" }
+    ]
+  }
+]
