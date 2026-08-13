@@ -16,9 +16,9 @@
  * La suppression est batchée via LIMIT dans la sous-requête pour limiter le lock/WAL.
  *
  * Exécution :
- *   npx ts-node scripts/purge-duplicate-mission-enrichments.ts            # dry-run (défaut)
- *   npx ts-node scripts/purge-duplicate-mission-enrichments.ts --execute  # supprime réellement
- *   npx ts-node scripts/purge-duplicate-mission-enrichments.ts --execute --batch 5000
+ *   npx tsx scripts/purge-duplicate-mission-enrichments.ts            # dry-run (défaut)
+ *   npx tsx scripts/purge-duplicate-mission-enrichments.ts --execute  # supprime réellement
+ *   npx tsx scripts/purge-duplicate-mission-enrichments.ts --execute --batch 5000
  *
  * À lancer AVANT de créer la contrainte unique (sinon la création de l'index échoue).
  */

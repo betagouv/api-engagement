@@ -3,7 +3,7 @@
  * Cas cible: click_id au format ES (non-uuid) avant migration ES -> Postgres.
  *
  * Usage (depuis api/):
- *   npx ts-node scripts/reconcile-apply-click-ids.ts --from 2025-10-01 --to 2025-10-20
+ *   npx tsx scripts/reconcile-apply-click-ids.ts --from 2025-10-01 --to 2025-10-20
  *
  * Options:
  *   --from <date>              Date de depart (obligatoire). Ex: 2025-10-01 ou 2025-10-01T00:00:00Z

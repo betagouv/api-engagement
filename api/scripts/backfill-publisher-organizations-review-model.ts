@@ -6,8 +6,8 @@
  * à leur publisher_organization correspondante.
  *
  * Exécuter avec :
- *   pnpm ts-node --transpile-only api/scripts/backfill-publisher-organizations-review-model.ts
- *   pnpm ts-node --transpile-only api/scripts/backfill-publisher-organizations-review-model.ts --dry-run
+ *   pnpm tsx api/scripts/backfill-publisher-organizations-review-model.ts
+ *   pnpm tsx api/scripts/backfill-publisher-organizations-review-model.ts --dry-run
  */
 import dotenv from "dotenv";
 dotenv.config();

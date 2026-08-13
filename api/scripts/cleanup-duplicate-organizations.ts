@@ -2,7 +2,7 @@
  * Nettoyage des organisations en doublon sans mission rattachee.
  *
  * Execution:
- *   npx ts-node scripts/cleanup-duplicate-organizations.ts [--dry-run]
+ *   npx tsx scripts/cleanup-duplicate-organizations.ts [--dry-run]
  *
  * Par defaut, le script supprime. Utiliser --dry-run pour simuler.
  */

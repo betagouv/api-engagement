@@ -22,15 +22,15 @@ Pré-requis: votre fichier `.env*` doit contenir au minimum les variables MongoD
 
 ```bash
 # Dry-run avec l'environnement production (utilise api/.env.production)
-npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env production --dry-run
+npx tsx api/scripts/mongo-backfill/backfill-email.ts --env production --dry-run
 
 # Exécution réelle en pointant explicitement un fichier .env
-npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env api/.env.production
+npx tsx api/scripts/mongo-backfill/backfill-email.ts --env api/.env.production
 ```
 
 ## backfill-moderation-event.ts
 
-- Exécution: `npx ts-node scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
+- Exécution: `npx tsx scripts/mongo-backfill/backfill-moderation-event.ts [--env <chemin>] [--dry-run]`
 - Usage: Migration des événements de modération depuis MongoDB vers PostgreSQL (bulk insert/update).
 
 ## backfill-campaign.ts
@@ -43,10 +43,10 @@ npx ts-node api/scripts/mongo-backfill/backfill-email.ts --env api/.env.producti
 
 ```bash
 # Dry-run avec l'environnement production (utilise api/.env.production)
-npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env production --dry-run
+npx tsx api/scripts/mongo-backfill/backfill-campaign.ts --env production --dry-run
 
 # Exécution réelle en pointant explicitement un fichier .env
-npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env api/.env.production
+npx tsx api/scripts/mongo-backfill/backfill-campaign.ts --env api/.env.production
 ```
 
 ## backfill-user.ts
@@ -59,10 +59,10 @@ npx ts-node api/scripts/mongo-backfill/backfill-campaign.ts --env api/.env.produ
 
 ```bash
 # Dry-run avec les variables de api/.env.production
-npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env production --dry-run
+npx tsx api/scripts/mongo-backfill/backfill-user.ts --env production --dry-run
 
 # Exécution réelle avec un fichier .env explicite
-npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env api/.env.production
+npx tsx api/scripts/mongo-backfill/backfill-user.ts --env api/.env.production
 ```
 
 ## backfill-login-history.ts
@@ -75,10 +75,10 @@ npx ts-node api/scripts/mongo-backfill/backfill-user.ts --env api/.env.productio
 
 ```bash
 # Simulation complète
-npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env production --dry-run
+npx tsx api/scripts/mongo-backfill/backfill-login-history.ts --env production --dry-run
 
 # Exécution réelle
-npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env api/.env.production
+npx tsx api/scripts/mongo-backfill/backfill-login-history.ts --env api/.env.production
 ```
 
 ## backfill-mission.ts
@@ -92,7 +92,7 @@ npx ts-node api/scripts/mongo-backfill/backfill-login-history.ts --env api/.env.
 
 ```bash
 # Exécution réelle en bulk (destination vide)
-npx ts-node api/scripts/mongo-backfill/backfill-mission.ts --env production --bulk-insert
+npx tsx api/scripts/mongo-backfill/backfill-mission.ts --env production --bulk-insert
 ```
 
 ## backfill-mission-domain-logo.ts
@@ -105,10 +105,10 @@ npx ts-node api/scripts/mongo-backfill/backfill-mission.ts --env production --bu
 
 ```bash
 # Simulation
-npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env production --dry-run
+npx tsx api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env production --dry-run
 
 # Exécution réelle
-npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env api/.env.production
+npx tsx api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env api/.env.production
 ```
 
 ## backfill-mission-event.ts
@@ -122,8 +122,8 @@ npx ts-node api/scripts/mongo-backfill/backfill-mission-domain-logo.ts --env api
 
 ```bash
 # Simulation
-npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env production --dry-run
+npx tsx scripts/mongo-backfill/backfill-mission-event.ts --env production --dry-run
 
 # Migration effective
-npx ts-node scripts/mongo-backfill/backfill-mission-event.ts --env api/.env.production
+npx tsx scripts/mongo-backfill/backfill-mission-event.ts --env api/.env.production
 ```

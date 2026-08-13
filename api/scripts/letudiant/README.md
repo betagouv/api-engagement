@@ -12,7 +12,7 @@ Scripts utilitaires liés à l’intégration Piloty.
 ## Commandes
 
 - **archive-piloty-jobs.ts**
-  - Exécution: `npx ts-node scripts/letudiant/archive-piloty-jobs.ts [--env <nom|chemin>]`
+  - Exécution: `npx tsx scripts/letudiant/archive-piloty-jobs.ts [--env <nom|chemin>]`
   - Usage: Archive des offres côté Piloty à partir d’une liste d’identifiants publics (liste à éditer directement dans le script).
   - Notes:
     - Nécessite `LETUDIANT_PILOTY_TOKEN`.

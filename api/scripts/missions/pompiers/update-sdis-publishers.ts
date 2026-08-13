@@ -8,7 +8,7 @@
  * ait une API key valide avant la création des missions.
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions/pompiers/update-sdis-publishers.ts [--dry-run]
+ *   npx tsx scripts/missions/pompiers/update-sdis-publishers.ts [--dry-run]
  *
  * Note : les variables Scaleway (SCW_ACCESS_KEY, SCW_SECRET_KEY, SCW_HOST,
  * BUCKET_NAME, REGION) doivent être présentes dans .env sauf en mode --dry-run.

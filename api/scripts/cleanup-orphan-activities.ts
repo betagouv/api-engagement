@@ -2,7 +2,7 @@
  * Nettoyage des activities sans mission rattachee.
  *
  * Execution:
- *   npx ts-node scripts/cleanup-orphan-activities.ts [--dry-run] [--batch <taille>]
+ *   npx tsx scripts/cleanup-orphan-activities.ts [--dry-run] [--batch <taille>]
  *
  * Par defaut, le script supprime. Utiliser --dry-run pour simuler.
  */

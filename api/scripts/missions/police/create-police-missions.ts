@@ -5,7 +5,7 @@
  * publisher unique (pas de déclinaison par département).
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions/police/create-police-missions.ts --env <prod|staging|local> [--dry-run]
+ *   npx tsx scripts/missions/police/create-police-missions.ts --env <prod|staging|local> [--dry-run]
  */
 
 import dotenv from "dotenv";

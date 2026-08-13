@@ -187,7 +187,7 @@ En dev/test, le worker peut être appelé directement en HTTP (sans SQS) via `np
 
 ### Scripts
 
-- `npm run dev:worker` — lance le worker en watch mode (nodemon + ts-node), écoute sur `PORT_WORKER` (défaut 8080)
+- `npm run dev:worker` — lance le worker en watch mode avec tsx, écoute sur `PORT_WORKER` (défaut 8080)
 - `npm run worker:run -- <type> '<json>'` — exécute un handler directement sans SQS (utile en dev)
 
 ```bash

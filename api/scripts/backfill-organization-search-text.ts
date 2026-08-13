@@ -2,7 +2,7 @@
  * Backfill : calcule le champ search_text normalisé des organisations.
  *
  * Exécution :
- *   npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]
+ *   npx tsx scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]
  */
 import dotenv from "dotenv";
 

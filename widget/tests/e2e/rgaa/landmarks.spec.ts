@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { WIDGET_IDS } from "../fixtures/mockData";
 
 test.describe("Accessibility Landmarks", () => {
@@ -29,7 +29,7 @@ test.describe("Accessibility Landmarks", () => {
   });
 });
 
-const checkLandmarks = async (page) => {
+const checkLandmarks = async (page: Page) => {
   const main = page.locator('main[role="main"]');
   await expect(main).toHaveCount(1, { timeout: 5000 });
 
@@ -45,7 +45,7 @@ const checkLandmarks = async (page) => {
   await expect(page.locator("footer main")).toHaveCount(0);
 };
 
-const checkFooter = async (page) => {
+const checkFooter = async (page: Page) => {
   const footer = page.locator('footer[role="contentinfo"]');
   await expect(footer).toHaveCount(1);
 };

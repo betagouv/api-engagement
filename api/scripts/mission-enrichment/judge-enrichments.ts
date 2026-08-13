@@ -605,7 +605,7 @@ const exportDataset = (missionIdsPath: string) => {
   const exportScriptPath = path.resolve(__dirname, "export-dataset.ts");
   const result = spawnSync(
     process.execPath,
-    ["-r", "ts-node/register", "-r", "tsconfig-paths/register", exportScriptPath, "--version", version, "--ids-file", missionIdsPath, "--output", datasetOutputPath],
+    ["--import", "tsx", exportScriptPath, "--version", version, "--ids-file", missionIdsPath, "--output", datasetOutputPath],
     { cwd: path.resolve(__dirname, "../.."), env: process.env, stdio: "inherit" }
   );
 

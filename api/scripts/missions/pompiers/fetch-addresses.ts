@@ -4,7 +4,7 @@
  * Seuls les points géolocalisés en France sont conservés.
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions/pompiers/fetch-addresses.ts
+ *   npx tsx scripts/missions/pompiers/fetch-addresses.ts
  *
  * Sortie : scripts/missions/pompiers/addresses.csv
  */

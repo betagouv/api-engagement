@@ -2,7 +2,7 @@
  * Crée (ou met à jour) 1 mission SPV par département SDIS.
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions/pompiers/create-spv-missions.ts --env <prod|staging|local> [--dry-run]
+ *   npx tsx scripts/missions/pompiers/create-spv-missions.ts --env <prod|staging|local> [--dry-run]
  */
 
 import dotenv from "dotenv";

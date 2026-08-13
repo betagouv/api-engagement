@@ -2,7 +2,7 @@
  * Exécute le matching engine puis explique de façon concise pourquoi les missions sont pertinentes.
  *
  * Exécution :
- *   npx ts-node scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]
+ *   npx tsx scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]
  *
  * Options :
  *   --limit N     Nombre max de missions affichées (défaut : 5)
@@ -147,7 +147,7 @@ const buildUserTaxonomySummary = (params: { values: ScoringValueWithKeys[]; look
 
 const run = async () => {
   if (!userScoringId) {
-    throw new Error("Usage: npx ts-node scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]");
+    throw new Error("Usage: npx tsx scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]");
   }
 
   if (!Number.isInteger(limit) || limit <= 0) {
