@@ -433,3 +433,20 @@ models:
         description: Timestamp de dernière mise à jour (curseur d'export).
         tests:
           - not_null
+  - name: stg_mission_diffusion
+    description: >
+      Staging des diffusions autorisées par mission depuis `analytics_raw.mission_diffusion`.
+      Le modèle conserve le grain du couple mission / partenaire diffuseur et type le timestamp de création.
+    columns:
+      - name: distribution_publisher_id
+        description: Identifiant du partenaire autorisé à diffuser la mission.
+        tests:
+          - not_null
+      - name: mission_id
+        description: Identifiant de la mission diffusée.
+        tests:
+          - not_null
+      - name: created_at
+        description: Horodatage de création de la diffusion autorisée.
+        tests:
+          - not_null

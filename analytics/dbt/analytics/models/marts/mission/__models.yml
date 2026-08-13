@@ -219,6 +219,31 @@ models:
         description: Timestamp de dernière mise à jour (curseur incrémental).
         tests:
           - not_null
+  - name: mission_diffusion
+    description: >
+      Vue des diffusions autorisées par mission, directement exposée depuis le staging
+      `stg_mission_diffusion`. Le grain est le couple mission / partenaire diffuseur.
+    columns:
+      - name: distribution_publisher_id
+        description: Identifiant du partenaire autorisé à diffuser la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: mission_id
+        description: Identifiant de la mission diffusée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: created_at
+        description: Horodatage de création de la diffusion autorisée.
+        tests:
+          - not_null
   - name: mission_jobboard_daily
     description: >
       Agrégat quotidien des diffusions jobboard au grain jour + domaine de mission +
