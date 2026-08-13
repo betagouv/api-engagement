@@ -281,3 +281,44 @@ models:
         description: Timestamp de dernière mise à jour propagé mission/événements.
         tests:
           - not_null
+  - name: int_mission_diffusion
+    description: >
+      Table intermédiaire incrémentale des périodes de diffusion de mission. Chaque ligne représente
+      un cycle mission / partenaire diffuseur ; les retraits sont conservés via `is_deleted`
+      et `deleted_at`.
+    columns:
+      - name: id
+        description: Identifiant technique unique de la diffusion.
+        tests:
+          - not_null
+          - unique
+      - name: distribution_publisher_id
+        description: Identifiant du partenaire diffuseur.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: mission_id
+        description: Identifiant de la mission diffusée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: is_deleted
+        description: Indique que la diffusion a été retirée du snapshot courant.
+        tests:
+          - not_null
+      - name: created_at
+        description: Horodatage de création de la diffusion.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière modification, utilisé pour l'incrémental.
+        tests:
+          - not_null
+      - name: deleted_at
+        description: Horodatage du retrait de la diffusion (nullable).

@@ -751,10 +751,10 @@ export const exportDefinitions: ExportDefinition[] = [
     source: {
       table: "mission_diffusion",
       cursor: {
-        field: "created_at",
+        field: "updated_at",
         idField: "id",
       },
-      columns: ["distribution_publisher_id", "mission_id", "created_at"],
+      columns: ["id", "distribution_publisher_id", "mission_id", "created_at", "is_deleted", "deleted_at", "updated_at"],
     },
     destination: {
       table: "mission_diffusion",

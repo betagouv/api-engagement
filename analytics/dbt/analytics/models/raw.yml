@@ -560,15 +560,23 @@ sources:
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
       - name: mission_diffusion
         description: >-
-          Instantané des diffusions autorisées d'une mission vers un partenaire diffuseur. Chaque ligne correspond
-          à un couple mission / partenaire diffuseur matérialisé dans la base opérationnelle.
+          Historique des périodes de diffusion autorisées d'une mission vers un partenaire diffuseur. Chaque ligne
+          correspond à un cycle de diffusion matérialisé dans la base opérationnelle.
         columns:
+          - name: id
+            description: Identifiant technique unique de la diffusion, utilisé pour l'export incrémental.
           - name: distribution_publisher_id
             description: Identifiant du partenaire autorisé à diffuser la mission.
           - name: mission_id
             description: Identifiant de la mission diffusée.
+          - name: is_deleted
+            description: Indique que la diffusion a été retirée du snapshot courant.
           - name: created_at
             description: Horodatage de création de la diffusion autorisée.
+          - name: updated_at
+            description: Horodatage de dernière modification de la diffusion, utilisé pour l'export incrémental.
+          - name: deleted_at
+            description: Horodatage du retrait de la diffusion du snapshot courant (nullable).
       - name: organization
         description: >-
           Référentiel des organisations synchronisé depuis la base opérationnelle (`core.Organization`). Ces données
