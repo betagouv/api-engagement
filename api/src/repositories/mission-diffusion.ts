@@ -60,16 +60,11 @@ export const missionDiffusionRepository = {
     if (missionIds.length === 0) {
       return 0;
     }
-    const now = new Date();
-    const restored = await client(tx).missionDiffusion.updateMany({
-      where: { distributionPublisherId, missionId: { in: missionIds }, isDeleted: true },
-      data: { isDeleted: false, deletedAt: null, updatedAt: now },
-    });
     const result = await client(tx).missionDiffusion.createMany({
       data: missionIds.map((missionId) => ({ distributionPublisherId, missionId })),
       skipDuplicates: true,
     });
-    return restored.count + result.count;
+    return result.count;
   },
 
   async deleteManyForDistributionPublisher(distributionPublisherId: string, missionIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
