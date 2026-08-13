@@ -17,7 +17,7 @@ import { join } from "node:path";
  *   FT_TOKEN_URL   (défaut: endpoint OAuth2 partenaire)
  *   FT_ROME_BASE_URL, FT_ROME_MACRO_PATH, FT_ROME_SCOPE
  *
- * Exécution : `cd api && npx ts-node scripts/generate-rome-macro-competences.ts`
+ * Exécution : `cd api && npx tsx scripts/generate-rome-macro-competences.ts`
  * (ajouter `--dry-run` pour n'afficher que le nombre d'entrées, sans écrire le fichier).
  *
  * Réf. doc : https://francetravail.io/produits-partages/catalogue/rome-4-0-competences

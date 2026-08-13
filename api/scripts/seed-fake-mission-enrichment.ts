@@ -2,7 +2,7 @@
  * Génère de faux enrichissements de mission pour tester le scoring à volume.
  *
  * Exécution :
- *   npx ts-node scripts/seed-fake-mission-enrichment.ts [--reset] [--limit N] [--publisher-id X] [--prompt-version V] [--dry-run]
+ *   npx tsx scripts/seed-fake-mission-enrichment.ts [--reset] [--limit N] [--publisher-id X] [--prompt-version V] [--dry-run]
  *
  * Options :
  *   --reset              Supprime tous les enrichissements fake (_fake: true) toutes versions confondues,

@@ -7,8 +7,8 @@
         "taxonomy:build": "tsc -p ../packages/taxonomy/tsconfig.json",
         "dto:build": "tsc -p ../packages/dto/tsconfig.json",
         "build": "npm run taxonomy:build && npm run dto:build && npm run prisma:generate && npx tsc --build --clean && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
-        "dev": "nodemon",
-        "dev:worker": "nodemon --exec \"ts-node src/worker/index.ts\"",
+        "dev": "tsx watch --env-file=.env src/index.ts",
+        "dev:worker": "tsx watch --env-file=.env src/worker/index.ts",
         "start": "npm run build && node dist/index.js",
         "prisma:migrate:dev": "prisma migrate dev",
         "prisma:migrate:deploy": "prisma migrate deploy",
@@ -23,8 +23,8 @@
         "test:integration:watch": "vitest --config vitest.integration.config.ts",
         "test:watch": "npm run test:unit:watch",
         "test:ci": "npm run prisma:generate && npm run test:unit && npm run test:integration",
-        "job": "ts-node src/jobs/run-job.ts",
-        "worker:run": "ts-node src/worker/run-handler.ts"
+        "job": "tsx --env-file=.env src/jobs/run-job.ts",
+        "worker:run": "tsx --env-file=.env src/worker/run-handler.ts"
     },
     "dependencies": {
         "@ai-sdk/mistral": "3.0.37",
@@ -97,11 +97,9 @@
         "eslint": "10.8.0",
         "eslint-plugin-import-x": "4.17.1",
         "express-openapi-validator": "5.6.2",
-        "nodemon": "3.1.14",
         "supertest": "7.2.2",
-        "ts-node": "10.9.2",
         "tsc-alias": "1.9.1",
-        "tsconfig-paths": "4.2.0",
+        "tsx": "4.23.1",
         "typescript": "7.0.2",
         "vitest": "4.1.10"
     }

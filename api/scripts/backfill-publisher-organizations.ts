@@ -2,7 +2,7 @@
  * Backfill : création/mise à jour des PublisherOrganization à partir des champs organization* de Mission.
  *
  * Exécuter avec :
- *   pnpm ts-node --transpile-only api/scripts/backfill-publisher-organizations.ts
+ *   pnpm tsx api/scripts/backfill-publisher-organizations.ts
  */
 import dotenv from "dotenv";
 dotenv.config();

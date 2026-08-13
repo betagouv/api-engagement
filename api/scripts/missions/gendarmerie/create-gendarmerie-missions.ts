@@ -5,7 +5,7 @@
  * (pas de déclinaison par département).
  *
  * Usage :
- *   npx ts-node -r tsconfig-paths/register scripts/missions/gendarmerie/create-gendarmerie-missions.ts --env <prod|sandbox|staging|local> [--dry-run]
+ *   npx tsx scripts/missions/gendarmerie/create-gendarmerie-missions.ts --env <prod|sandbox|staging|local> [--dry-run]
  */
 
 import dotenv from "dotenv";

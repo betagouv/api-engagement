@@ -34,10 +34,10 @@
  *
  * ```bash
  * # Voir ce qui serait archivé sans effectuer d'appels Piloty
- * npx ts-node -r tsconfig-paths/register scripts/letudiant/archive-phantom-piloty-jobs.ts --env staging --dry-run
+ * npx tsx scripts/letudiant/archive-phantom-piloty-jobs.ts --env staging --dry-run
  *
  * # Archiver pour de vrai
- * npx ts-node -r tsconfig-paths/register scripts/letudiant/archive-phantom-piloty-jobs.ts --env production
+ * npx tsx scripts/letudiant/archive-phantom-piloty-jobs.ts --env production
  * ```
  */
 

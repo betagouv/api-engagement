@@ -10,8 +10,8 @@
  * - "is_not" → "does_not_contain"
  *
  * Run with:
- *   npx ts-node --transpile-only scripts/migrate-widget-rules-reseaux.ts
- *   npx ts-node --transpile-only scripts/migrate-widget-rules-reseaux.ts --dry-run
+ *   npx tsx scripts/migrate-widget-rules-reseaux.ts
+ *   npx tsx scripts/migrate-widget-rules-reseaux.ts --dry-run
  */
 import dotenv from "dotenv";
 dotenv.config();

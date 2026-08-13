@@ -26,7 +26,7 @@ npm run job -- update-mission-enrichment \
   '{"missionIdsFile":"scripts/mission-enrichment/dataset/staging-mission-ids.txt"}' \
   --env staging
 
-npx ts-node -r tsconfig-paths/register scripts/mission-enrichment/judge-enrichments.ts \
+npx tsx scripts/mission-enrichment/judge-enrichments.ts \
   --version v5 \
   --mission-ids-file scripts/mission-enrichment/dataset/staging-mission-ids.txt
 ```

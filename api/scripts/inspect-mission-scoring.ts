@@ -10,7 +10,7 @@ const main = async () => {
   const [, , missionId, missionEnrichmentId] = process.argv;
 
   if (!missionId || !missionEnrichmentId) {
-    console.error("Usage: ts-node scripts/inspect-mission-scoring.ts <missionId> <missionEnrichmentId>");
+    console.error("Usage: tsx scripts/inspect-mission-scoring.ts <missionId> <missionEnrichmentId>");
     process.exit(1);
   }
 

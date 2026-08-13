@@ -1,26 +1,13 @@
 {
-  "ts-node": {
-    "transpileOnly": true,
-    "files": true,
-    "require": ["tsconfig-paths/register"],
-    "compilerOptions": {
-      "module": "commonjs",
-      "target": "es2021",
-      "moduleResolution": "node",
-      "resolveJsonModule": true,
-      "strict": true,
-      "typeRoots": ["../node_modules/@types", "../src/types"]
-    }
-  },
   "compilerOptions": {
     "target": "es2021",
-    "module": "commonjs",
+    "module": "Node16",
+    "rewriteRelativeImportExtensions": true,
     "sourceMap": true,
     "rootDir": "..",
-    "baseUrl": ".",
     "ignoreDeprecations": "6.0",
     "paths": {
-      "@/*": ["src/*"],
+      "@/*": ["./src/*"],
       "@engagement/taxonomy": ["../packages/taxonomy/src/index"],
       "@engagement/dto": ["../packages/dto/src/index"]
     },

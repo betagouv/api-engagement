@@ -2,7 +2,7 @@
  * Benchmark du matching engine sur les donnees PostgreSQL disponibles.
  *
  * Execution :
- *   npx ts-node scripts/benchmark-matching-engine.ts [options]
+ *   npx tsx scripts/benchmark-matching-engine.ts [options]
  *
  * Options :
  *   --user-scoring-id ID       Profil a benchmarker, repetable

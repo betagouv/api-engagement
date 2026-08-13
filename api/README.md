@@ -71,7 +71,7 @@ Pour démarrer le service API en mode développement avec rechargement à chaud 
 npm run dev
 ```
 
-Cela démarrera le serveur API en utilisant nodemon, qui redémarrera automatiquement lorsque des modifications de fichiers seront détectées.
+Cela démarrera le serveur API avec tsx, qui redémarrera automatiquement lorsque des modifications de fichiers seront détectées.
 
 ### Exécution d'une tâche spécifique
 

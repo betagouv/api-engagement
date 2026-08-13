@@ -9,8 +9,8 @@ const main = async () => {
   const [, , type, rawPayload] = process.argv;
 
   if (!type || !rawPayload) {
-    console.error("Usage: ts-node src/worker/run-handler.ts <type> '<json-payload>'");
-    console.error("Example: ts-node src/worker/run-handler.ts mission.enrichment '{\"missionId\":\"abc123\"}'");
+    console.error("Usage: tsx src/worker/run-handler.ts <type> '<json-payload>'");
+    console.error("Example: tsx src/worker/run-handler.ts mission.enrichment '{\"missionId\":\"abc123\"}'");
     console.error("\nTypes disponibles :", Object.keys(taskRegistry).join(", "));
     process.exit(1);
   }

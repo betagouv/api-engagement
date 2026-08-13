@@ -11,21 +11,21 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Exécution
 
-- Depuis `api/`, utiliser `npx ts-node`:
-  - `npx ts-node scripts/<script>.ts [options]`
+- Depuis `api/`, utiliser `npx tsx`:
+  - `npx tsx scripts/<script>.ts [options]`
   - Certains scripts acceptent `--env <chemin_ou_nom>` pour charger un fichier `.env` dédié
 
 ## Liste des scripts
 
 - **backfill-publisher-organizations.ts**
 
-  - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`
+  - Exécution: `npx tsx scripts/backfill-publisher-organizations.ts`
   - Usage: Crée/met à jour les `PublisherOrganization` à partir des champs `organization*` encore présents sur `Mission`.
   - Notes: À exécuter avant la suppression des colonnes `organization*` côté `mission`.
 
 - **backfill-organization-search-text.ts**
 
-  - Exécution: `npx ts-node scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]`
+  - Exécution: `npx tsx scripts/backfill-organization-search-text.ts [--batch <taille>] [--last-id <id>] [--only-null]`
   - Usage: Calcule `organization.search_text` en minuscules, sans accents et sans ponctuation (title + short_title + rna + siret + siren) pour accélérer la recherche.
   - Options: `--batch <taille>` (défaut: 500), `--last-id <id>` pour reprendre à un identifiant donné, `--only-null` pour ne traiter que les lignes non encore remplies.
 
@@ -33,18 +33,18 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
   - Sous-dossier dédié à la migration des modèles MongoDB vers PostgreSQL.
   - Voir `scripts/mongo-backfill/README.md` pour les commandes complètes:
-    - Email: `npx ts-node scripts/mongo-backfill/backfill-email.ts [--env <chemin>]`
+    - Email: `npx tsx scripts/mongo-backfill/backfill-email.ts [--env <chemin>]`
 
 - **fill-stat-event-updated-at.ts**
 
-  - Exécution: `npx ts-node scripts/fill-stat-event-updated-at.ts [--batch <taille>]`
+  - Exécution: `npx tsx scripts/fill-stat-event-updated-at.ts [--batch <taille>]`
   - Usage: Met à jour le champ `updated_at` de la table `StatEvent` lorsqu'il est `NULL`, en le remplaçant par `created_at` (traitement par lots).
   - Options: `--batch <taille>` pour définir la taille de lot (défaut: 5000).
   - Prérequis: Nécessite l'accès à Postgres `core`.
 
 - **reconcile-apply-click-ids.ts**
 
-  - Exécution: `npx ts-node scripts/reconcile-apply-click-ids.ts --from <date> [--to <date>] [--dry-run]`
+  - Exécution: `npx tsx scripts/reconcile-apply-click-ids.ts --from <date> [--to <date>] [--dry-run]`
   - Usage: Réconcilie les `click_id` des `stat_event` de type `apply` qui portent un identifiant ElasticSearch (non UUID) en retrouvant le `click` correspondant via `stat_event.es_id`.
   - Options:
     - `--from <date>` (obligatoire) : date de début (ex: `2025-10-01` ou `2025-10-01T00:00:00Z`).
@@ -56,7 +56,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 - **cleanup-duplicate-organizations.ts**
 
-  - Exécution: `npx ts-node scripts/cleanup-duplicate-organizations.ts [--dry-run] [--title "Nom"]`
+  - Exécution: `npx tsx scripts/cleanup-duplicate-organizations.ts [--dry-run] [--title "Nom"]`
   - Usage: Supprime les organisations en doublon qui n'ont plus de mission rattachée. Par defaut, suppression directe.
   - Options: `--dry-run` pour simuler, `--title` pour cibler un nom précis.
 
@@ -67,7 +67,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 - **explain-matching-result.ts**
 
-  - Exécution: `npx ts-node scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]`
+  - Exécution: `npx tsx scripts/explain-matching-result.ts <userScoringId> [--limit N] [--version V]`
   - Usage: Exécute le `matching-engine`, vérifie la persistance du `mission_matching_result`, affiche les dimensions du `user_scoring`, puis explique mission par mission pourquoi le matching est pertinent par taxonomy.
   - Options:
     - `--limit N` : nombre max de missions affichées (défaut: 5)
@@ -75,7 +75,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 - **benchmark-matching-engine.ts**
 
-  - Exécution: `npx ts-node scripts/benchmark-matching-engine.ts -- [options]`
+  - Exécution: `npx tsx scripts/benchmark-matching-engine.ts -- [options]`
   - Usage: Mesure les temps de réponse du `matching-engine` sur les données PostgreSQL disponibles.
   - Options principales:
     - `--user-scoring-id ID` : profil à benchmarker (répétable). Sans id, le script échantillonne des profils actifs variés.
