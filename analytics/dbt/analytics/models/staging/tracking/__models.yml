@@ -32,6 +32,8 @@ models:
         description: UUID de la tentative de quiz (présent sur tout le tunnel).
       - name: quiz_session_id
         description: Identifiant de session backend (`userScoringId`), présent sur les events post-quiz.
+      - name: quiz_version
+        description: Version du quiz ayant émis l'événement.
 
   - name: stg_tracking__quiz_started
     description: Entrée du tunnel quiz (`quiz.started`), événement de référence de tous les ratios.

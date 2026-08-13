@@ -16,6 +16,8 @@ models:
           - unique
       - name: quiz_session_id
         description: Identifiant backend, présent pour les sessions complétées.
+      - name: quiz_version
+        description: Version du quiz au démarrage de la tentative.
       - name: has_click_after_results
         description: >
           Vrai si la session a vu les résultats ET a cliqué sur au moins une mission (toutes sections

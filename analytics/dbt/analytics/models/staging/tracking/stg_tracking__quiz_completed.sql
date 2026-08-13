@@ -5,6 +5,7 @@ with base as (
     distinct_id,
     quiz_attempt_id,
     quiz_session_id,
+    quiz_version,
     prompt_version,
     algo_version,
     device_type,

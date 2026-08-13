@@ -37,6 +37,7 @@ select
   s.utm_source,
   s.utm_campaign,
   s.utm_medium,
+  s.quiz_version,
   s.prompt_version,
   s.algo_version,
   s.is_completed,

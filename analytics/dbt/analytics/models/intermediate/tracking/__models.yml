@@ -28,6 +28,8 @@ models:
           - unique
       - name: quiz_session_id
         description: Identifiant backend (`userScoringId`), présent si le quiz a été complété.
+      - name: quiz_version
+        description: Version du quiz au démarrage de la tentative.
       - name: is_completed
         description: Vrai si un événement `quiz.completed` a été observé pour la tentative.
 

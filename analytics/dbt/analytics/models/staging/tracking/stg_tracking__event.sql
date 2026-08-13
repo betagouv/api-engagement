@@ -14,6 +14,7 @@ with base as (
     (properties ->> '$screen_height')::int as screen_height,
     properties ->> 'quiz_attempt_id' as quiz_attempt_id,
     properties ->> 'quiz_session_id' as quiz_session_id,
+    properties ->> 'quiz_version' as quiz_version,
     properties ->> 'prompt_version' as prompt_version,
     properties ->> 'algo_version' as algo_version,
     properties ->> '$device_type' as device_type,
