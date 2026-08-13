@@ -26,6 +26,6 @@
     "eslint": "10.8.0",
     "eslint-plugin-import": "2.32.0",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   }
 }
