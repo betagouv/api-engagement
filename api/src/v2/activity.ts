@@ -142,7 +142,7 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       const canAccessMission =
         (await missionService.countBy({
           id: mission.id,
-          missionDiffusions: { some: { distributionPublisherId: user.id } },
+          missionDiffusions: { some: { distributionPublisherId: user.id, isDeleted: false } },
         })) > 0;
       if (!canAccessMission) {
         return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Mission not accessible" });

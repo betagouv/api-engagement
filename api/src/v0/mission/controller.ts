@@ -248,7 +248,7 @@ router.get("/:id", async (req: PublisherRequest, res: Response, next: NextFuncti
       id: params.data.id,
       statusCode: "ACCEPTED",
       deletedAt: null,
-      missionDiffusions: { some: { distributionPublisherId: user.id } },
+      missionDiffusions: { some: { distributionPublisherId: user.id, isDeleted: false } },
       ...(user.moderator ? { moderationStatuses: { some: { publisherId: user.id, status: "ACCEPTED" } } } : {}),
     };
 

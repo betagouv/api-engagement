@@ -245,7 +245,7 @@ export const missionBrowseService = {
   async findById(id: string, diffuseurPublisherId: string, addressId?: string): Promise<MissionDetailResponse | null> {
     const mission = await missionService.findOneMissionBy({
       id,
-      missionDiffusions: { some: { distributionPublisherId: diffuseurPublisherId } },
+      missionDiffusions: { some: { distributionPublisherId: diffuseurPublisherId, isDeleted: false } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

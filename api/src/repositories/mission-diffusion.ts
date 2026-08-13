@@ -9,7 +9,7 @@ export const missionDiffusionRepository = {
   // Utilise l'index `mission_diffusion_mission_id_idx`.
   async findDistributionPublishersByMission(missionId: string, tx?: Prisma.TransactionClient) {
     return client(tx).missionDiffusion.findMany({
-      where: { missionId },
+      where: { missionId, isDeleted: false },
       select: {
         createdAt: true,
         distributionPublisher: { select: { id: true, name: true, logo: true } },
@@ -21,7 +21,7 @@ export const missionDiffusionRepository = {
   // Liste des `mission_id` déjà matérialisés pour un publisher de diffusion (source du diff du rebuild).
   async findMissionIdsByDistributionPublisher(distributionPublisherId: string, tx?: Prisma.TransactionClient): Promise<string[]> {
     const rows = await client(tx).missionDiffusion.findMany({
-      where: { distributionPublisherId },
+      where: { distributionPublisherId, isDeleted: false },
       select: { missionId: true },
     });
     return rows.map((row) => row.missionId);
@@ -35,6 +35,7 @@ export const missionDiffusionRepository = {
     const rows = await client(tx).missionDiffusion.findMany({
       where: {
         distributionPublisherId,
+        isDeleted: false,
         ...(afterMissionId ? { missionId: { gt: afterMissionId } } : {}),
       },
       orderBy: { missionId: "asc" },
@@ -49,7 +50,7 @@ export const missionDiffusionRepository = {
       return [];
     }
     const rows = await client(tx).missionDiffusion.findMany({
-      where: { distributionPublisherId, missionId: { in: missionIds } },
+      where: { distributionPublisherId, missionId: { in: missionIds }, isDeleted: false },
       select: { missionId: true },
     });
     return rows.map((row) => row.missionId);
@@ -59,19 +60,26 @@ export const missionDiffusionRepository = {
     if (missionIds.length === 0) {
       return 0;
     }
+    const now = new Date();
+    const restored = await client(tx).missionDiffusion.updateMany({
+      where: { distributionPublisherId, missionId: { in: missionIds }, isDeleted: true },
+      data: { isDeleted: false, deletedAt: null, updatedAt: now },
+    });
     const result = await client(tx).missionDiffusion.createMany({
       data: missionIds.map((missionId) => ({ distributionPublisherId, missionId })),
       skipDuplicates: true,
     });
-    return result.count;
+    return restored.count + result.count;
   },
 
   async deleteManyForDistributionPublisher(distributionPublisherId: string, missionIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
     if (missionIds.length === 0) {
       return 0;
     }
-    const result = await client(tx).missionDiffusion.deleteMany({
-      where: { distributionPublisherId, missionId: { in: missionIds } },
+    const now = new Date();
+    const result = await client(tx).missionDiffusion.updateMany({
+      where: { distributionPublisherId, missionId: { in: missionIds }, isDeleted: false },
+      data: { isDeleted: true, deletedAt: now, updatedAt: now },
     });
     return result.count;
   },
@@ -84,7 +92,7 @@ export const missionDiffusionRepository = {
   async findMissionIdsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<string[]> {
     const rows = await client(tx).missionDiffusion.groupBy({
       by: ["missionId"],
-      where: distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {},
+      where: { isDeleted: false, ...(distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {}) },
     });
     return rows.map((row) => row.missionId);
   },
@@ -92,23 +100,25 @@ export const missionDiffusionRepository = {
   // Purge les lignes des publishers de diffusion sortis de la population du snapshot.
   // Liste vide ⇒ table vidée.
   async deleteRowsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
-    const result = await client(tx).missionDiffusion.deleteMany({
-      where: distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {},
+    const now = new Date();
+    const result = await client(tx).missionDiffusion.updateMany({
+      where: { isDeleted: false, ...(distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {}) },
+      data: { isDeleted: true, deletedAt: now, updatedAt: now },
     });
     return result.count;
   },
 
   async countRowsForDistributionPublishersNotIn(distributionPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<number> {
     return client(tx).missionDiffusion.count({
-      where: distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {},
+      where: { isDeleted: false, ...(distributionPublisherIds.length ? { distributionPublisherId: { notIn: distributionPublisherIds } } : {}) },
     });
   },
 
   async countByDistributionPublisher(distributionPublisherId: string, tx?: Prisma.TransactionClient): Promise<number> {
-    return client(tx).missionDiffusion.count({ where: { distributionPublisherId } });
+    return client(tx).missionDiffusion.count({ where: { distributionPublisherId, isDeleted: false } });
   },
 
   async count(tx?: Prisma.TransactionClient): Promise<number> {
-    return client(tx).missionDiffusion.count();
+    return client(tx).missionDiffusion.count({ where: { isDeleted: false } });
   },
 };
