@@ -8,6 +8,7 @@ with started as (
     max(utm_source) as utm_source,
     max(utm_campaign) as utm_campaign,
     max(utm_medium) as utm_medium,
+    max(quiz_version) as quiz_version,
     max(prompt_version) as prompt_version,
     max(algo_version) as algo_version
   from {{ ref('stg_tracking__quiz_started') }}
@@ -58,6 +59,7 @@ joined as (
     s.utm_source,
     s.utm_campaign,
     s.utm_medium,
+    s.quiz_version,
     s.prompt_version,
     s.algo_version,
     c.completed_at,
