@@ -215,7 +215,7 @@ describe("missionBrowseService.browse", () => {
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } },
+      missionDiffusions: { some: { distributionPublisherId: "diffuseur-1", deletedAt: null } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

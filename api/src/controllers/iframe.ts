@@ -242,7 +242,7 @@ const buildMissionFilters = async (widget: WidgetRecord, query: { [key: string]:
       if (publishersWithSnapshot.length > 0) {
         accessConditions.push({
           publisherId: { in: publishersWithSnapshot },
-          missionDiffusions: { some: { distributionPublisherId: widget.fromPublisherId } },
+          missionDiffusions: { some: { distributionPublisherId: widget.fromPublisherId, deletedAt: null } },
         });
       }
       if (publishersWithFallback.length > 0) {

@@ -20,7 +20,7 @@ describe("buildWhere diffusion publisher filter", () => {
   it("uses the whole diffusion snapshot when publisherIds is undefined", async () => {
     const where = await buildWhere({ diffuseurPublisherId: "diffuseur-1", skip: 0, limit: 10 });
 
-    expect(where.AND).toEqual([{ missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } } }]);
+    expect(where.AND).toEqual([{ missionDiffusions: { some: { distributionPublisherId: "diffuseur-1", deletedAt: null } } }]);
   });
 
   it("builds an impossible condition when publisherIds is explicitly empty", async () => {
@@ -34,7 +34,7 @@ describe("buildWhere diffusion publisher filter", () => {
 
     expect(where.AND).toEqual([
       {
-        AND: [{ missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } } }, { publisherId: { in: ["publisher-1"] } }],
+        AND: [{ missionDiffusions: { some: { distributionPublisherId: "diffuseur-1", deletedAt: null } } }, { publisherId: { in: ["publisher-1"] } }],
       },
     ]);
   });
