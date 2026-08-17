@@ -14,7 +14,6 @@ with source as (
     id,
     distribution_publisher_id,
     mission_id,
-    is_deleted,
     created_at,
     updated_at,
     deleted_at
@@ -33,7 +32,6 @@ select
   id,
   distribution_publisher_id,
   mission_id,
-  is_deleted,
   created_at,
   updated_at,
   deleted_at

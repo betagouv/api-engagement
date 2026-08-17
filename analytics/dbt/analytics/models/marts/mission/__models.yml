@@ -223,7 +223,7 @@ models:
     description: >
       Vue des périodes de diffusion de mission, directement exposée depuis l'intermediate
       `int_mission_diffusion`. Le grain est un cycle mission / partenaire diffuseur ;
-      les retraits restent disponibles grâce à `is_deleted` et `deleted_at`.
+      les retraits restent disponibles grâce à `deleted_at`.
     columns:
       - name: id
         description: Identifiant technique unique de la diffusion.
@@ -246,10 +246,6 @@ models:
               arguments:
                 to: ref('mission')
                 field: id
-      - name: is_deleted
-        description: Indique que la diffusion a été retirée du snapshot courant.
-        tests:
-          - not_null
       - name: created_at
         description: Horodatage de création de la diffusion autorisée.
         tests:

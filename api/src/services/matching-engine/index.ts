@@ -604,7 +604,7 @@ const buildPublisherDiffusionJoinSql = (publisherId?: string): Prisma.Sql => {
   return Prisma.sql`JOIN "mission_diffusion" md
     ON md."mission_id" = m."id"
    AND md."distribution_publisher_id" = ${publisherId}
-   AND md."is_deleted" = false`;
+   AND md."deleted_at" IS NULL`;
 };
 
 const buildTaxonomyScoresSql = (params: {

@@ -284,8 +284,7 @@ models:
   - name: int_mission_diffusion
     description: >
       Table intermédiaire incrémentale des périodes de diffusion de mission. Chaque ligne représente
-      un cycle mission / partenaire diffuseur ; les retraits sont conservés via `is_deleted`
-      et `deleted_at`.
+      un cycle mission / partenaire diffuseur ; les retraits sont conservés via `deleted_at`.
     columns:
       - name: id
         description: Identifiant technique unique de la diffusion.
@@ -308,10 +307,6 @@ models:
               arguments:
                 to: ref('mission')
                 field: id
-      - name: is_deleted
-        description: Indique que la diffusion a été retirée du snapshot courant.
-        tests:
-          - not_null
       - name: created_at
         description: Horodatage de création de la diffusion.
         tests:

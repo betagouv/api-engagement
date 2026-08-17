@@ -103,7 +103,7 @@ export const missionIndexService = {
           select: { activity: { select: { name: true } } },
         },
         missionDiffusions: {
-          where: { isDeleted: false },
+          where: { deletedAt: null },
           select: { distributionPublisherId: true },
         },
         moderationStatuses: {

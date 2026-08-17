@@ -214,7 +214,7 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
 
   // Le snapshot contient l'allowlist explicite et le scope propre du diffuseur.
   if (filters.diffuseurPublisherId) {
-    const diffusionWhere: Prisma.MissionWhereInput = { missionDiffusions: { some: { distributionPublisherId: filters.diffuseurPublisherId, isDeleted: false } } };
+    const diffusionWhere: Prisma.MissionWhereInput = { missionDiffusions: { some: { distributionPublisherId: filters.diffuseurPublisherId, deletedAt: null } } };
     const restrictedDiffusionWhere: Prisma.MissionWhereInput =
       filters.publisherIds === undefined
         ? diffusionWhere

@@ -436,12 +436,11 @@ model PublisherDiffusionRule {
 }
 
 // Historique des périodes de diffusion : une ligne représente un cycle de diffusion d'une mission
-// vers un publisher. Le statut courant reste évalué en lecture via `isDeleted = false`.
+// vers un publisher. Le statut courant reste évalué en lecture via `deletedAt = null`.
 model MissionDiffusion {
   id                      String    @id @default(uuid())
   distributionPublisherId String    @map("distribution_publisher_id")
   missionId               String    @map("mission_id")
-  isDeleted               Boolean   @default(false) @map("is_deleted")
   createdAt               DateTime  @default(now()) @map("created_at")
   updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at")
   deletedAt               DateTime? @map("deleted_at")
@@ -450,7 +449,6 @@ model MissionDiffusion {
   mission               Mission   @relation("MissionDiffusionMission", fields: [missionId], references: [id], onDelete: Cascade)
 
   @@index([missionId], map: "mission_diffusion_mission_id_idx")
-  @@index([distributionPublisherId, isDeleted, missionId], map: "mission_diffusion_distribution_publisher_active_idx")
   @@index([createdAt], map: "mission_diffusion_created_at_idx")
   @@map("mission_diffusion")
 }

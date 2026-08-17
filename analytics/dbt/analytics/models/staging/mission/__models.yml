@@ -451,10 +451,6 @@ models:
         description: Identifiant de la mission diffusée.
         tests:
           - not_null
-      - name: is_deleted
-        description: Indique que la diffusion a été retirée du snapshot courant.
-        tests:
-          - not_null
       - name: created_at
         description: Horodatage de création de la diffusion autorisée.
         tests:

@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS "analytics_raw"."mission_diffusion" (
   "id" TEXT PRIMARY KEY,
   "distribution_publisher_id" TEXT NOT NULL,
   "mission_id" TEXT NOT NULL,
-  "is_deleted" BOOLEAN NOT NULL DEFAULT FALSE,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "deleted_at" TIMESTAMP(3)
