@@ -1,0 +1,39 @@
+name: Security
+
+on:
+  pull_request:
+    branches: [staging]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    name: Scan new code
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Trust the GitHub workspace
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Fetch staging baseline
+        run: git fetch --no-tags origin staging:refs/remotes/origin/staging
+
+      - name: Scan changes introduced by the pull request
+        run: >-
+          semgrep scan
+          --config p/default
+          --baseline-commit origin/staging
+          --metrics=off
+          --error
+          .
