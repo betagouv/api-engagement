@@ -116,7 +116,8 @@
       }),
       // Impression tracking
       (window._apieng.getTrackers = function (e) {
-        const elements = document.querySelectorAll('[data-name="tracker_counter"]');
+        // Backward compatibility to ensure that older integrations continue to work. The official selector is data-name
+        const elements = document.querySelectorAll('[data-name="tracker_counter"], [name="tracker_counter"]');
         if (elements.length === 0)
           return document.querySelectorAll(`a[href*="${window._apieng.eventHost}"], a[href*="${window._apieng.eventHost.replace("https://", "http://")}"]`);
 
