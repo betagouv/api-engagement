@@ -88,10 +88,6 @@ body {
   cursor: not-allowed;
 }
 
-#__next {
-  height: 100%;
-}
-
 [data-icon]:before {
   font-family: var(--font-icomoon);
   content: attr(data-icon);

@@ -9,7 +9,8 @@ const sendHeightToParent = (): void => {
   }
 
   try {
-    const height = document.body.scrollHeight;
+    const root = document.getElementById("__next");
+    const height = root ? Math.ceil(root.getBoundingClientRect().height) : document.body.scrollHeight;
     window.parent.postMessage(
       {
         type: "resize",
