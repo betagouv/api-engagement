@@ -2,7 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useId, useMemo, useRef } from "react";
-import { MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
+import { AttributionControl, MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
 import { TILE_LAYER_PROPS } from "~/components/ui/location-map";
 import { type GeoPosition, getNearbyPosition } from "~/utils/geo";
 
@@ -112,6 +112,10 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
 
   const boundsPositions = useMemo<[number, number][]>(() => (missions.length > 0 ? missions.map((mission) => mission.position) : [center]), [missions, center]);
 
+  const handleRecenter = () => {
+    mapRef.current?.fitBounds(L.latLngBounds(boundsPositions), { padding: [64, 64], maxZoom: 13 });
+  };
+
   const descriptionId = useId();
   const accessibleLabel = `Carte des ${items.length} mission${items.length > 1 ? "s" : ""} proposée${items.length > 1 ? "s" : ""}`;
 
@@ -120,9 +124,11 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
       <p id={descriptionId} className="sr-only">
         Carte interactive localisant les missions proposées. La liste des missions présente les mêmes informations sous forme textuelle accessible.
       </p>
-      <MapContainer ref={mapRef} center={center} zoom={12} className="mission-map" zoomControl={false}>
+      <MapContainer ref={mapRef} center={center} zoom={12} className="mission-map" zoomControl={false} attributionControl={false}>
         {/* RGAA 13.10 : alternative en pointage simple au zoom par pincement (geste multipoint). */}
-        <ZoomControl zoomInTitle="Zoomer" zoomOutTitle="Dézoomer" />
+        <ZoomControl position="bottomright" zoomInTitle="Zoomer" zoomOutTitle="Dézoomer" />
+        {/* Attribution à gauche pour laisser les contrôles zoom + recentrage seuls en bas à droite. */}
+        <AttributionControl position="bottomleft" />
         <TileLayer {...TILE_LAYER_PROPS} />
         <BoundsFitter positions={boundsPositions} />
         {missions.map(({ item, position, addressLabel, icon, activeIcon }) => {
@@ -166,6 +172,11 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
           );
         })}
       </MapContainer>
+
+      {/* Recentrage sur l'ensemble des pins (même cadrage que BoundsFitter). Sur mobile, décalé au-dessus du panneau replié. */}
+      <button type="button" onClick={handleRecenter} aria-label="Recentrer la carte sur les missions" className="mission-map__recenter">
+        <i className="fr-icon-focus-3-fill" aria-hidden="true" />
+      </button>
     </div>
   );
 }

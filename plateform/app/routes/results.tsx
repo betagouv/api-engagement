@@ -8,14 +8,14 @@ import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
-import OtherMissions from "~/components/results/other-missions";
-import PinnedMissions from "~/components/results/pinned-missions";
+import ProfileModal from "~/components/results/profile-modal";
+import ResultsMissions from "~/components/results/results-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
-import { useMissionResults } from "~/hooks/useMissionResults";
+import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
 import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
@@ -37,8 +37,7 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { pinnedItems, otherItems, page, setPage, hasNextPage, totalResults, avgDistanceKmTop5, loading, pageLoading, error, visiblePageNumbers } =
-    useMissionResults(userScoringId);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error } = useMissionResults(userScoringId);
   const resultsViewedFired = useRef(false);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
@@ -75,11 +74,11 @@ export default function ResultsPage() {
     if (loading || error || resultsViewedFired.current) return;
     resultsViewedFired.current = true;
     trackResultsViewed({
-      pinnedCount: pinnedItems.length,
+      pinnedCount: items.length,
       totalResultsCount: totalResults,
       avgDistanceKmTop5,
     });
-  }, [loading, error, pinnedItems.length, totalResults, avgDistanceKmTop5]);
+  }, [loading, error, items.length, totalResults, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -111,8 +110,7 @@ export default function ResultsPage() {
     [answers],
   );
 
-  const showMap = !loading && pinnedItems.length > 0;
-  const showOther = !loading && !error && (otherItems.length > 0 || page > 1);
+  const showMap = !loading && items.length > 0;
   const showDebug = searchParams.get("debug") === "true";
 
   // Mission mise en avant (survol prioritaire sur sélection) : pin coloré + carte surlignée dans la liste.
@@ -121,6 +119,9 @@ export default function ResultsPage() {
   // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
   const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
   const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
+
+  // Rang global (toutes pages confondues) de la mission sélectionnée sur la map, pour le tracking.
+  const selectedMissionRank = selectedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1 : 0;
 
   const handleToggleSheet = () => {
     if (expanded && scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -143,12 +144,18 @@ export default function ResultsPage() {
     }
   };
 
+  // Changement de page : la liste du panneau mobile repart en haut.
+  const handlePageChange = (nextPage: number) => {
+    setPage(nextPage);
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  };
+
   if (isMobile) {
     return (
       <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
         {showMap && (
           <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-            <LazyMissionMap items={pinnedItems} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
+            <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
           </div>
         )}
 
@@ -163,12 +170,7 @@ export default function ResultsPage() {
             }}
           >
             <div className="relative">
-              <MatchMissionCard
-                item={selectedMission}
-                section="pinned"
-                rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
-                userScoringId={userScoringId}
-              />
+              <MatchMissionCard item={selectedMission} section="pinned" rank={selectedMissionRank} userScoringId={userScoringId} />
               <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                 <button
                   type="button"
@@ -221,7 +223,7 @@ export default function ResultsPage() {
                 >
                   <Highlight>
                     <span className="text-blue-france-sun">
-                      {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
+                      {totalResults} mission{totalResults > 1 ? "s" : ""}
                     </span>
                   </Highlight>
                   pour toi
@@ -238,30 +240,19 @@ export default function ResultsPage() {
           </div>
 
           <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-            <PinnedMissions
-              items={pinnedItems}
+            <ResultsMissions
+              items={items}
+              page={page}
+              totalPages={totalPages}
               loading={loading}
+              pageLoading={pageLoading}
               error={error}
               userScoringId={userScoringId}
               showDebug={showDebug}
               highlightedMissionId={activeMissionId}
               onEmailClick={setEmailMissionId}
+              onPageChange={handlePageChange}
             />
-
-            {showOther && (
-              <div className="px-6 pt-2 pb-8">
-                <OtherMissions
-                  items={otherItems}
-                  page={page}
-                  hasNextPage={hasNextPage}
-                  pageLoading={pageLoading}
-                  visiblePageNumbers={visiblePageNumbers}
-                  userScoringId={userScoringId}
-                  showDebug={showDebug}
-                  onPageChange={setPage}
-                />
-              </div>
-            )}
 
             <Newsletter
               title="Reçois tes missions par email"
@@ -274,7 +265,7 @@ export default function ResultsPage() {
           </div>
         </div>
 
-        <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
+        <MatchingDebugModal items={items} userValues={userValues} />
         <EmailMissionsModal
           userScoringId={userScoringId}
           missionId={emailMissionId ?? undefined}
@@ -292,115 +283,90 @@ export default function ResultsPage() {
     <>
       <main id="contenu" tabIndex={-1}>
         <GradientBg fixed className="px-12">
-          <section className="flex flex-row max-w-7xl mx-auto">
-            <div className="flex flex-col flex-1 py-12">
-              <div className="flex gap-2 mb-6 flex-row items-center justify-between gap-4 px-6">
-                {!loading && !error && (
-                  <h1 className="fr-h2 m-0!">
-                    <Highlight>
-                      <span className="text-blue-france-sun">
-                        {pinnedItems.length} mission{pinnedItems.length > 1 ? "s" : ""}
-                      </span>
-                    </Highlight>
-                    pour toi
-                  </h1>
-                )}
+          <section className="max-w-7xl mx-auto py-12">
+            <div className="flex mb-6 flex-row items-center justify-between gap-4 pl-6">
+              {/* RGAA 9.1 : en état d'erreur le h1 est rendu dans l'alerte de ResultsMissions. */}
+              {!error && <h1 className="fr-h3 m-0!">Découvre les missions qui te correspondent le mieux</h1>}
 
-                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
-                  Changer mes réponses
-                </Link>
-              </div>
-              <PinnedMissions
-                items={pinnedItems}
-                loading={loading}
-                error={error}
-                userScoringId={userScoringId}
-                showDebug={showDebug}
-                highlightedMissionId={activeMissionId}
-                onMissionHover={setHoveredMissionId}
-                onEmailClick={setEmailMissionId}
-              />
+              <ProfileModal quizHref={changeAnswersHref} />
             </div>
-            <div className="sticky top-0 max-h-[720px] flex-1 py-12">
-              {showMap && (
-                <div className="relative h-full">
-                  <LazyMissionMap
-                    items={pinnedItems}
-                    center={mapCenter}
-                    onMarkerClick={handleMarkerClick}
-                    selectionPadding={[380, 0]}
-                    activeMissionId={activeMissionId}
-                    onMissionHover={setHoveredMissionId}
-                  />
+            <div className="flex flex-row">
+              <div className="flex flex-col flex-1">
+                <ResultsMissions
+                  items={items}
+                  page={page}
+                  totalPages={totalPages}
+                  loading={loading}
+                  pageLoading={pageLoading}
+                  error={error}
+                  userScoringId={userScoringId}
+                  showDebug={showDebug}
+                  highlightedMissionId={activeMissionId}
+                  onMissionHover={setHoveredMissionId}
+                  onEmailClick={setEmailMissionId}
+                  onPageChange={setPage}
+                />
+              </div>
+              <div className="sticky top-6 max-h-[624px] flex-1">
+                {showMap && (
+                  <div className="relative h-full overflow-hidden rounded-lg">
+                    <LazyMissionMap
+                      items={items}
+                      center={mapCenter}
+                      onMarkerClick={handleMarkerClick}
+                      selectionPadding={[380, 0]}
+                      activeMissionId={activeMissionId}
+                      onMissionHover={setHoveredMissionId}
+                    />
 
-                  {selectedMission && (
-                    <div
-                      key={selectedMission.mission.id}
-                      className={`absolute right-4 top-4 z-[500] w-[330px] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
-                      onAnimationEnd={() => {
-                        if (!isClosingCard) return;
-                        setSelectedMission(null);
-                        setIsClosingCard(false);
-                      }}
-                    >
-                      <div className="relative">
-                        <MatchMissionCard
-                          item={selectedMission}
-                          section="pinned"
-                          rank={pinnedItems.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1}
-                          userScoringId={userScoringId}
-                        />
-                        <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-                          <button
-                            type="button"
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setEmailMissionId(selectedMission.mission.id);
-                            }}
-                            aria-label="Recevoir par email"
-                          >
-                            <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
-                          </button>
-                          <button
-                            type="button"
-                            className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setIsClosingCard(true);
-                            }}
-                            aria-label="Fermer la carte"
-                          >
-                            <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
-                          </button>
+                    {selectedMission && (
+                      <div
+                        key={selectedMission.mission.id}
+                        className={`absolute right-4 top-4 z-[500] w-[330px] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+                        onAnimationEnd={() => {
+                          if (!isClosingCard) return;
+                          setSelectedMission(null);
+                          setIsClosingCard(false);
+                        }}
+                      >
+                        <div className="relative">
+                          <MatchMissionCard item={selectedMission} section="pinned" rank={selectedMissionRank} userScoringId={userScoringId} />
+                          <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+                            <button
+                              type="button"
+                              className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setEmailMissionId(selectedMission.mission.id);
+                              }}
+                              aria-label="Recevoir par email"
+                            >
+                              <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setIsClosingCard(true);
+                              }}
+                              aria-label="Fermer la carte"
+                            >
+                              <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </section>
-          <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
+          <MatchingDebugModal items={items} userValues={userValues} />
         </GradientBg>
-
-        {showOther && (
-          <section className="mx-auto max-w-7xl py-10">
-            <OtherMissions
-              items={otherItems}
-              page={page}
-              hasNextPage={hasNextPage}
-              pageLoading={pageLoading}
-              visiblePageNumbers={visiblePageNumbers}
-              userScoringId={userScoringId}
-              showDebug={showDebug}
-              gridClassName="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 mx-auto"
-              onPageChange={setPage}
-            />
-          </section>
-        )}
 
         <Newsletter
           title="Reçois tes missions par email"
