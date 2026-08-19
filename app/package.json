@@ -9,9 +9,12 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier --write .",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:functional": "playwright test --grep-invert @a11y",
+    "test:e2e:a11y": "playwright test --grep @a11y"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.62.0",
     "@tailwindcss/postcss": "4.3.3",
