@@ -11,9 +11,10 @@ interface PinnedMissionsProps {
   showDebug: boolean;
   highlightedMissionId?: string | null;
   onMissionHover?: (missionId: string | null) => void;
+  onEmailClick?: (missionId: string) => void;
 }
 
-export default function PinnedMissions({ items, loading, error, userScoringId, showDebug, highlightedMissionId, onMissionHover }: PinnedMissionsProps) {
+export default function PinnedMissions({ items, loading, error, userScoringId, showDebug, highlightedMissionId, onMissionHover, onEmailClick }: PinnedMissionsProps) {
   return (
     <div className="relative w-full px-6">
       {!loading && error && (
@@ -31,11 +32,11 @@ export default function PinnedMissions({ items, loading, error, userScoringId, s
             {items.map((item, index) => (
               <li
                 key={item.mission.id}
-                className={`relative w-full transition-shadow ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun" : ""}`}
+                className={`relative w-full transition-shadow p-0! m-0! ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun hover:ring-0" : ""}`}
                 onMouseEnter={() => onMissionHover?.(item.mission.id)}
                 onMouseLeave={() => onMissionHover?.(null)}
               >
-                <MatchMissionCard item={item} section="pinned" rank={index + 1} userScoringId={userScoringId} />
+                <MatchMissionCard item={item} section="pinned" rank={index + 1} userScoringId={userScoringId} onEmailClick={onEmailClick} />
                 {showDebug && <DebugButton missionId={item.mission.id} />}
               </li>
             ))}

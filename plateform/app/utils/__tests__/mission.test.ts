@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { MissionMatchItem } from "@engagement/dto";
-import { buildMissionApplicationHref, formatCompensation, formatMissionType, formatStartDate, matchResultToBrowseMission } from "../mission";
+import type { MissionMatchItem, MissionMatchValue } from "@engagement/dto";
+import { buildMissionApplicationHref, buildMissionMatchTags, formatCompensation, formatMissionType, formatStartDate, matchResultToBrowseMission } from "../mission";
 
 describe("formatStartDate", () => {
   it("retourne null si startAt et duration sont tous les deux null", () => {
@@ -60,6 +60,11 @@ describe("formatCompensation", () => {
   it("préserve les unités inconnues telles quelles", () => {
     expect(formatCompensation({ amount: 100, amountMax: null, unit: "custom_unit", type: null })).toBe("100€ par custom_unit");
   });
+
+  it("formate l'unité en compact", () => {
+    expect(formatCompensation({ amount: 620, amountMax: null, unit: "month", type: null }, { compact: true })).toBe("620€/mois");
+    expect(formatCompensation({ amount: 620, amountMax: null, unit: null, type: null }, { compact: true })).toBe("620€");
+  });
 });
 
 describe("formatMissionType", () => {
@@ -90,6 +95,137 @@ describe("buildMissionApplicationHref", () => {
 
   it("conserve l'URL inchangée sans user_scoring_id", () => {
     expect(buildMissionApplicationHref("https://api.example.com/r/mission/publisher", undefined)).toBe("https://api.example.com/r/mission/publisher");
+  });
+});
+
+describe("buildMissionMatchTags", () => {
+  const matchValue = (taxonomyKey: string, valueKey: string): MissionMatchValue => ({
+    taxonomyKey,
+    taxonomyValueKey: valueKey,
+    taxonomyValueLabel: valueKey,
+    enrichmentConfidence: 1,
+    scoringScore: 1,
+    evidence: null,
+  });
+
+  const buildItem = (
+    match: Partial<MissionMatchItem["match"]>,
+    mission?: { city?: string | null; compensation?: MissionMatchItem["mission"]["compensation"] },
+  ): MissionMatchItem => ({
+    mission: {
+      id: "mission",
+      title: "Mission",
+      remote: null,
+      schedule: null,
+      domain: null,
+      domainOriginal: null,
+      organizationName: null,
+      publisherId: null,
+      publisherName: null,
+      media: { photo: null, domainLogo: null, organizationLogo: null, publisherLogo: null },
+      location: { city: mission?.city ?? null, closestLat: null, closestLon: null, closestAddress: null, addressId: null, distanceKm: null },
+      compensation: mission?.compensation ?? null,
+      applicationUrl: "https://example.com",
+    },
+    match: {
+      missionScoringId: "mission-scoring",
+      totalScore: 0.8,
+      taxonomyScore: 0.9,
+      geoScore: null,
+      taxonomyScores: {},
+      values: [],
+      ...match,
+    },
+  });
+
+  it("retourne les tags des valeurs demandées et portées par la mission, ordonnés par score décroissant", () => {
+    const item = buildItem({
+      taxonomyScores: { imprevu: 0.5, equipe: 1 },
+      values: [matchValue("imprevu", "adaptation_rapide"), matchValue("equipe", "petit_groupe")],
+    });
+
+    expect(buildMissionMatchTags(item, new Set(["imprevu.adaptation_rapide", "equipe.petit_groupe"]))).toEqual([
+      "Une équipe de moins de 10 bénévoles",
+      "Un environnement dynamique",
+    ]);
+  });
+
+  it("ignore les valeurs de la mission non demandées par l'utilisateur et les taxonomies sans score", () => {
+    const item = buildItem({
+      taxonomyScores: { equipe: 1, interaction: 0 },
+      values: [matchValue("equipe", "grand_collectif"), matchValue("interaction", "interaction_collective")],
+    });
+
+    expect(buildMissionMatchTags(item, new Set(["equipe.petit_groupe", "interaction.interaction_collective"]))).toEqual([]);
+  });
+
+  it("ajoute la ville quand le score géo est haut, ordonnée par score", () => {
+    const item = buildItem(
+      {
+        geoScore: 0.98,
+        taxonomyScores: { imprevu: 0.5 },
+        values: [matchValue("imprevu", "cadre_previsible")],
+      },
+      { city: "Grenoble" },
+    );
+
+    expect(buildMissionMatchTags(item, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable et rassurant"]);
+  });
+
+  it("n'affiche pas la ville quand le score géo est bas", () => {
+    const item = buildItem({ geoScore: 0.4 }, { city: "Grenoble" });
+
+    expect(buildMissionMatchTags(item, new Set())).toEqual([]);
+  });
+
+  it("affiche le montant de la rémunération quand l'utilisateur cherche une mission indemnisée", () => {
+    const item = buildItem(
+      {
+        taxonomyScores: { motivation_recherche: 1 },
+        values: [matchValue("motivation_recherche", "indemnisation")],
+      },
+      { compensation: { amount: 620, amountMax: null, unit: "month", type: null } },
+    );
+
+    expect(buildMissionMatchTags(item, new Set(["motivation_recherche.indemnisation"]))).toEqual(["620€/mois"]);
+  });
+
+  it("limite le nombre de tags à 6", () => {
+    const item = buildItem(
+      {
+        geoScore: 0.9,
+        taxonomyScores: { motivation_recherche: 1, equipe: 0.8, imprevu: 0.7, interaction: 0.6 },
+        values: [
+          matchValue("motivation_recherche", "premiere_experience"),
+          matchValue("motivation_recherche", "agir_pour_une_cause"),
+          matchValue("equipe", "petit_groupe"),
+          matchValue("imprevu", "adaptation_rapide"),
+          matchValue("interaction", "interaction_collective"),
+        ],
+      },
+      { city: "Grenoble" },
+    );
+
+    const tags = buildMissionMatchTags(
+      item,
+      new Set([
+        "motivation_recherche.premiere_experience",
+        "motivation_recherche.agir_pour_une_cause",
+        "equipe.petit_groupe",
+        "imprevu.adaptation_rapide",
+        "interaction.interaction_collective",
+      ]),
+    );
+
+    expect(tags).toHaveLength(6);
+    expect(tags).toEqual([
+      "Idéal pour débuter",
+      "Aucune expérience requise",
+      "Une mission qui a du sens",
+      "Une mission à un impact",
+      "Grenoble",
+      "Une équipe de moins de 10 bénévoles",
+    ]);
   });
 });
 

@@ -52,6 +52,16 @@ export function isValidTaxonomyValueKey(key: string): key is TaxonomyValueKey {
   return Object.prototype.hasOwnProperty.call(TAXONOMY[taxonomyKey].values, parsedKey.valueKey);
 }
 
+/** Tags à afficher sur une carte mission quand la valeur (taxonomie + valeur) a matché. */
+export function getTaxonomyValueTags(taxonomyKey: string, valueKey: string): string[] {
+  if (!Object.prototype.hasOwnProperty.call(TAXONOMY, taxonomyKey)) {
+    return [];
+  }
+
+  const values = TAXONOMY[taxonomyKey as TaxonomyKey].values as Record<string, { tags?: readonly string[] }>;
+  return [...(values[valueKey]?.tags ?? [])];
+}
+
 /** Retourne la liste des taxonomies avec leurs valeurs, prête à l'affichage. */
 export function getTaxonomyList(): TaxonomyListItem[] {
   return (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).map(([key, dim]) => ({
