@@ -46,5 +46,5 @@ resource "scaleway_function" "sentry_webhook" {
 }
 
 output "sentry_webhook_endpoint" {
-  value = var.enable_sentry_webhook ? "https://${scaleway_function.sentry_webhook[0].domain_name}" : ""
+  value = var.enable_sentry_webhook ? (var.sentry_webhook_hostname != "" ? "https://${var.sentry_webhook_hostname}" : "https://${scaleway_function.sentry_webhook[0].domain_name}") : ""
 }

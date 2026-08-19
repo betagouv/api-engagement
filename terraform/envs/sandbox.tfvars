@@ -28,3 +28,4 @@ private_network_cidr = "10.42.0.0/22"
 
 enable_sentry_webhook   = true
 sentry_slack_channel_id = "C052V2UF918"
+sentry_webhook_hostname = "sentry-webhook.api-engagement-dev.fr"

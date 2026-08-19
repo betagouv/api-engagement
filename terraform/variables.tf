@@ -248,6 +248,12 @@ variable "sentry_slack_channel_id" {
   description = "Slack channel id where the sentry-webhook function posts (sandbox uses the same channel as production)"
 }
 
+variable "sentry_webhook_hostname" {
+  type        = string
+  default     = ""
+  description = "Custom domain of the sentry-webhook function (empty to use the default Scaleway domain)"
+}
+
 # Network
 
 variable "private_network_cidr" {

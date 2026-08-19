@@ -11,6 +11,7 @@ bucket_name                = "api-engagement-bucket"
 enable_sentry_webhook   = true
 slack_jobteaser_channel_id = "C080H9MH56W"
 sentry_slack_channel_id = "C052V2UF918"
+sentry_webhook_hostname = "sentry-webhook.api-engagement-dev.fr"
 
 core_database_id           = "9a0421d5-c618-4d88-956b-3f758ab9aa0e"
 
