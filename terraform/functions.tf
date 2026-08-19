@@ -1,7 +1,7 @@
-# Fonction sentry-webhook : relais Sentry self-hosted → Slack, une fonction par workspace.
-# Le channel de destination est fourni par SLACK_CHANNEL_ID (le sandbox pointe sur le même
-# channel que la production). Le bundle est construit avant le plan (CI ou local) : voir
-# functions/README.md.
+# Fonction sentry-webhook : relais Sentry self-hosted → Slack. Une seule fonction pour tous
+# les environnements, déployée par le workspace production : elle choisit le channel selon
+# l'environnement de l'événement Sentry. Le bundle est construit avant le plan (CI ou local) :
+# voir functions/README.md.
 
 data "archive_file" "sentry_webhook" {
   count = var.enable_sentry_webhook ? 1 : 0
@@ -37,7 +37,8 @@ resource "scaleway_function" "sentry_webhook" {
   zip_hash     = data.archive_file.sentry_webhook[0].output_sha256
 
   environment_variables = {
-    "SLACK_CHANNEL_ID" = var.sentry_slack_channel_id
+    "SLACK_CHANNEL_ID_PRODUCTION" = var.sentry_slack_channel_id_production
+    "SLACK_CHANNEL_ID_STAGING"    = var.sentry_slack_channel_id_staging
   }
 
   secret_environment_variables = {

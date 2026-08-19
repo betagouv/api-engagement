@@ -1,6 +1,7 @@
-// Relais entre le webhook Sentry (plugin legacy WebHooks) et Slack. Une fonction par
-// environnement : le message est posté via l'app Slack (même token que l'api) dans le
-// channel indiqué par SLACK_CHANNEL_ID.
+// Relais entre le webhook Sentry (plugin legacy WebHooks) et Slack. Une seule fonction pour
+// tous les environnements : le message est posté via l'app Slack (même token que l'api) dans
+// le channel correspondant à l'environnement de l'événement — SLACK_CHANNEL_ID_STAGING pour
+// staging, SLACK_CHANNEL_ID_PRODUCTION pour le reste (le sandbox remonte en "production").
 // Payload « issue alerts » du plugin legacy : https://develop.sentry.dev/integrations/webhooks/
 type FunctionEvent = {
   httpMethod: string;
@@ -58,7 +59,7 @@ export const handle = async (event: FunctionEvent) => {
   }
 
   const sentryEvent = payload.event ?? {};
-  const channelId = process.env.SLACK_CHANNEL_ID || "";
+  const channelId = (sentryEvent.environment === "staging" ? process.env.SLACK_CHANNEL_ID_STAGING : process.env.SLACK_CHANNEL_ID_PRODUCTION) || "";
   const slackToken = process.env.SLACK_TOKEN || "";
   if (slackToken === "" || channelId === "") return json({ error: "Slack token or channel id is not set" }, 500);
 

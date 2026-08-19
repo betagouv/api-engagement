@@ -48,7 +48,3 @@ typesense_nodes = {
     typesense_version = "30.2"
   }
 }
-
-enable_sentry_webhook   = true
-sentry_slack_channel_id = "C08QQT4702D"
-sentry_webhook_hostname = "sentry-webhook.api-engagement-dev.fr"

@@ -2,7 +2,7 @@
 
 Scaleway Serverless Functions du projet. Pour l'instant une seule fonction :
 
-- **sentry-webhook** — relais entre le Sentry self-hosted et Slack : reçoit le payload du plugin legacy WebHooks de Sentry en `POST`, le reformate et le poste via l'app Slack (`chat.postMessage`, même token que l'api) dans le channel indiqué par `SLACK_CHANNEL_ID`. Une fonction par workspace (staging, production, sandbox), chacune avec son channel — le sandbox pointe sur le même channel que la production.
+- **sentry-webhook** — relais entre le Sentry self-hosted et Slack : reçoit le payload du plugin legacy WebHooks de Sentry en `POST`, le reformate et le poste via l'app Slack (`chat.postMessage`, même token que l'api). Une seule fonction pour tous les environnements : le channel est choisi selon l'`environment` de l'événement Sentry — staging → `SLACK_CHANNEL_ID_STAGING`, tout le reste → `SLACK_CHANNEL_ID_PRODUCTION` (le sandbox tourne avec `ENV=production`, il remonte donc dans le channel production).
 
 ## Structure
 
@@ -20,12 +20,12 @@ La fonction est déployée par Terraform (`terraform/functions.tf`) via le workf
 1. La CI bundle le handler avec esbuild vers `terraform/build/sentry-webhook/handler.mjs`.
 2. `terraform apply` zippe le bundle et crée/met à jour la fonction (namespace `functions`).
 
-Chaque workspace déploie sa propre fonction (`enable_sentry_webhook = true` dans `envs/<workspace>.tfvars`).
+La fonction est déployée une seule fois, par le workspace production (`enable_sentry_webhook = true` dans `envs/production.tfvars`).
 
 Variables de la fonction :
 
-- `SLACK_TOKEN` (secrète) — token de l'app Slack, repris du Secret Manager (`<workspace>-secret`, le même que l'api).
-- `SLACK_CHANNEL_ID` — id du channel Slack, renseigné via `sentry_slack_channel_id` dans `envs/<workspace>.tfvars` (le sandbox utilise le même id que la production).
+- `SLACK_TOKEN` (secrète) — token de l'app Slack, repris du Secret Manager (`production-secret`, le même que l'api).
+- `SLACK_CHANNEL_ID_PRODUCTION` / `SLACK_CHANNEL_ID_STAGING` — ids des channels Slack, renseignés via `sentry_slack_channel_id_production` et `sentry_slack_channel_id_staging` dans `envs/production.tfvars`.
 
 L'app Slack doit être invitée dans les channels (`/invite @NomDeLApp`).
 
@@ -47,7 +47,7 @@ npm run typecheck
 
 Dans le Sentry self-hosted, pour chaque projet à notifier :
 
-1. **Settings → Legacy Integrations → WebHooks** : activer le plugin et renseigner l'URL de la fonction correspondant à l'environnement du projet (`terraform output sentry_webhook_endpoint` sur le bon workspace pour la retrouver).
+1. **Settings → Legacy Integrations → WebHooks** : activer le plugin et renseigner l'URL de la fonction, la même pour tous les projets (`terraform output sentry_webhook_endpoint` sur le workspace production pour la retrouver).
 2. Dans les **Alert rules** du projet, ajouter l'action « Send a notification via WebHooks ».
 
 ## Notes
