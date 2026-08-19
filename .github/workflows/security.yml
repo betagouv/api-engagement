@@ -37,3 +37,27 @@ jobs:
           --metrics=off
           --error
           .
+
+  trivy:
+    name: Informational scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TRIVY_IMAGE: aquasec/trivy
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Scan pull request
+        continue-on-error: true
+        run: |
+          docker run --rm \
+            --volume "$GITHUB_WORKSPACE:/workspace:ro" \
+            "$TRIVY_IMAGE" filesystem \
+            --scanners vuln,misconfig,secret \
+            --include-dev-deps \
+            --severity HIGH,CRITICAL \
+            --format table \
+            --exit-code 0 \
+            --skip-version-check \
+            /workspace
