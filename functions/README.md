@@ -39,8 +39,8 @@ npx -y esbuild functions/src/functions/sentry-webhook/handler.ts --bundle --plat
 
 ```bash
 cd functions
-bun install
-bun run typecheck
+npm install
+npm run typecheck
 ```
 
 ## Brancher Sentry
