@@ -7,7 +7,14 @@ benevolat_hostname         = "mission.api-engagement.beta.gouv.fr"
 volontariat_hostname       = "sc.api-engagement.beta.gouv.fr"
 piloty_hostname            = "api.piloty.fr"
 bucket_name                = "api-engagement-bucket"
+
 slack_jobteaser_channel_id = "C080H9MH56W"
+
+enable_sentry_webhook              = true
+sentry_slack_channel_id_production = "C052V2UF918"
+sentry_slack_channel_id_staging    = "C08QQT4702D"
+sentry_webhook_hostname            = "sentry-webhook.api-engagement-dev.fr"
+
 core_database_id           = "9a0421d5-c618-4d88-956b-3f758ab9aa0e"
 
 mission_enrichment_prompt_version = "v5"

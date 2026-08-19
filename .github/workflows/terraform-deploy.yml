@@ -115,6 +115,9 @@ jobs:
           DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
         run: npm --workspace api run prisma:migrate:deploy
 
+      - name: Build functions bundle (sentry-webhook)
+        run: npx -y esbuild@0.25.5 functions/src/functions/sentry-webhook/handler.ts --bundle --platform=node --format=esm --outfile=terraform/build/sentry-webhook/handler.mjs
+
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init

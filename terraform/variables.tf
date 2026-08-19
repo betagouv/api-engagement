@@ -234,6 +234,32 @@ variable "plateform_max_scale" {
   default = 1
 }
 
+# Functions
+
+variable "enable_sentry_webhook" {
+  type        = bool
+  default     = false
+  description = "Deploy the sentry-webhook function (Sentry → Slack relay)"
+}
+
+variable "sentry_slack_channel_id_production" {
+  type        = string
+  default     = ""
+  description = "Slack channel id where the sentry-webhook function posts production (and sandbox) events"
+}
+
+variable "sentry_slack_channel_id_staging" {
+  type        = string
+  default     = ""
+  description = "Slack channel id where the sentry-webhook function posts staging events"
+}
+
+variable "sentry_webhook_hostname" {
+  type        = string
+  default     = ""
+  description = "Custom domain of the sentry-webhook function (empty to use the default Scaleway domain)"
+}
+
 # Network
 
 variable "private_network_cidr" {
