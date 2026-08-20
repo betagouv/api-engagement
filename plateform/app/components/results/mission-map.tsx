@@ -2,7 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useId, useMemo, useRef } from "react";
-import { AttributionControl, MapContainer, Marker, Popup, TileLayer, Tooltip, ZoomControl, useMap } from "react-leaflet";
+import { AttributionControl, MapContainer, Marker, Popup, TileLayer, ZoomControl, useMap } from "react-leaflet";
 import { TILE_LAYER_PROPS } from "~/components/ui/location-map";
 import { type GeoPosition, getNearbyPosition } from "~/utils/geo";
 
@@ -57,31 +57,20 @@ interface Props {
   items: MissionMatchItem[];
   center: [number, number];
   onMarkerClick?: (item: MissionMatchItem) => void;
-  // Marge (x, y en px) à garder dégagée à droite/en bas pour que le pin cliqué ne passe pas sous la carte mission.
+  // Marge (x, y en px) à garder dégagée en haut/à gauche pour que le pin cliqué ne passe pas sous la carte mission fixée.
   selectionPadding?: [number, number];
   // Mission actuellement survolée/sélectionnée : son pin est mis en couleur et passe au premier plan.
   activeMissionId?: string | null;
-  // Survol d'un pin → remonte l'id (ou null) pour surligner la carte correspondante dans la liste.
+  // Survol d'un pin → remonte l'id (ou null) : surligne la carte correspondante dans la liste
+  // et affiche la carte mission en overlay sur la map (rendu par la page résultats).
   onMissionHover?: (missionId: string | null) => void;
 }
 
 export default function MissionMap({ items, center, onMarkerClick, selectionPadding, activeMissionId, onMissionHover }: Props) {
   const mapRef = useRef<L.Map | null>(null);
 
-  // RGAA 10.13 : le contenu additionnel affiché au survol/focus doit pouvoir être masqué à la touche Échap.
-  useEffect(() => {
-    const closeTooltipsOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      mapRef.current?.eachLayer((layer) => {
-        if (layer instanceof L.Marker) layer.closeTooltip();
-      });
-    };
-    document.addEventListener("keydown", closeTooltipsOnEscape);
-    return () => document.removeEventListener("keydown", closeTooltipsOnEscape);
-  }, []);
-
   const handleMarkerSelect = (item: MissionMatchItem, position: GeoPosition) => {
-    if (selectionPadding && mapRef.current) mapRef.current.panInside(position, { paddingBottomRight: selectionPadding });
+    if (selectionPadding && mapRef.current) mapRef.current.panInside(position, { paddingTopLeft: selectionPadding });
     onMarkerClick?.(item);
   };
 
@@ -127,8 +116,9 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
       <MapContainer ref={mapRef} center={center} zoom={12} className="mission-map" zoomControl={false} attributionControl={false}>
         {/* RGAA 13.10 : alternative en pointage simple au zoom par pincement (geste multipoint). */}
         <ZoomControl position="bottomright" zoomInTitle="Zoomer" zoomOutTitle="Dézoomer" />
-        {/* Attribution à gauche pour laisser les contrôles zoom + recentrage seuls en bas à droite. */}
-        <AttributionControl position="bottomleft" />
+        {/* Attribution à gauche pour laisser les contrôles zoom + recentrage seuls en bas à droite.
+            Sans préfixe « Leaflet » ; les crédits MapTiler/OSM restent obligatoires (conditions MapTiler + licence ODbL). */}
+        <AttributionControl position="bottomleft" prefix={false} />
         <TileLayer {...TILE_LAYER_PROPS} />
         <BoundsFitter positions={boundsPositions} />
         {missions.map(({ item, position, addressLabel, icon, activeIcon }) => {
@@ -145,12 +135,6 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
                 ...(onMissionHover ? { mouseover: () => onMissionHover(item.mission.id), mouseout: () => onMissionHover(null) } : {}),
               }}
             >
-              {onMissionHover && (
-                <Tooltip interactive direction="top" offset={[0, -16]} opacity={1} className="mission-map__tooltip">
-                  <strong className="mission-map__tooltip-title">{item.mission.title}</strong>
-                  <span className="mission-map__tooltip-address">{addressLabel ?? getFallbackAddressLabel(item)}</span>
-                </Tooltip>
-              )}
               {!onMarkerClick && (
                 <Popup>
                   <strong>{item.mission.title}</strong>
@@ -175,7 +159,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
 
       {/* Recentrage sur l'ensemble des pins (même cadrage que BoundsFitter). Sur mobile, décalé au-dessus du panneau replié. */}
       <button type="button" onClick={handleRecenter} aria-label="Recentrer la carte sur les missions" className="mission-map__recenter">
-        <i className="fr-icon-focus-3-fill" aria-hidden="true" />
+        <span className="fr-icon-focus-3-fill fr-icon--sm" aria-hidden="true"></span>
       </button>
     </div>
   );

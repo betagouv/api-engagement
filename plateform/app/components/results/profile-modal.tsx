@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import Modal from "~/components/layout/modal";
+import MissionTag from "~/components/ui/mission-tag";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -38,8 +39,8 @@ export default function ProfileModal({ quizHref }: { quizHref: string }) {
         {answerLabels.length > 0 && (
           <ul className="m-0! flex list-none! flex-wrap gap-2 p-0!">
             {answerLabels.map((label, index) => (
-              <li key={`${index}-${label}`} className="text-blue-france-sun bg-blue-france-925 m-0! rounded-[4px] px-2 text-[12px] leading-[24px] font-bold">
-                {label}
+              <li key={`${index}-${label}`} className="m-0! p-0!">
+                <MissionTag>{label}</MissionTag>
               </li>
             ))}
           </ul>

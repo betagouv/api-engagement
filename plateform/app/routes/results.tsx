@@ -69,6 +69,16 @@ export default function ResultsPage() {
     return () => window.removeEventListener("hashchange", revealFooter);
   }, [isMobile]);
 
+  // RGAA 10.13 : le contenu additionnel affiché au survol (carte mission sur la map) doit pouvoir
+  // être masqué à la touche Échap.
+  useEffect(() => {
+    const clearHoverOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setHoveredMissionId(null);
+    };
+    document.addEventListener("keydown", clearHoverOnEscape);
+    return () => document.removeEventListener("keydown", clearHoverOnEscape);
+  }, []);
+
   // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
   useEffect(() => {
     if (loading || error || resultsViewedFired.current) return;
@@ -122,6 +132,13 @@ export default function ResultsPage() {
 
   // Rang global (toutes pages confondues) de la mission sélectionnée sur la map, pour le tracking.
   const selectedMissionRank = selectedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1 : 0;
+
+  // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
+  // la fixe (boutons email + fermer). Survoler un autre pin prévisualise par-dessus la carte fixée.
+  const hoveredMission = items.find((i) => i.mission.id === hoveredMissionId) ?? null;
+  const displayedMission = hoveredMission ?? selectedMission;
+  const displayedMissionRank = displayedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === displayedMission.mission.id) + 1 : 0;
+  const cardIsFixed = displayedMission !== null && displayedMission.mission.id === selectedMission?.mission.id;
 
   const handleToggleSheet = () => {
     if (expanded && scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -314,49 +331,43 @@ export default function ResultsPage() {
                       items={items}
                       center={mapCenter}
                       onMarkerClick={handleMarkerClick}
-                      selectionPadding={[380, 0]}
+                      selectionPadding={[360, 0]}
                       activeMissionId={activeMissionId}
                       onMissionHover={setHoveredMissionId}
                     />
 
-                    {selectedMission && (
-                      <div
-                        key={selectedMission.mission.id}
-                        className={`absolute right-4 top-4 z-[500] w-[330px] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
-                        onAnimationEnd={() => {
-                          if (!isClosingCard) return;
-                          setSelectedMission(null);
-                          setIsClosingCard(false);
-                        }}
-                      >
+                    {displayedMission && (
+                      <div className={`absolute top-4 left-4 z-[500] w-[290px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
                         <div className="relative">
-                          <MatchMissionCard item={selectedMission} section="pinned" rank={selectedMissionRank} userScoringId={userScoringId} />
-                          <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-                            <button
-                              type="button"
-                              className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setEmailMissionId(selectedMission.mission.id);
-                              }}
-                              aria-label="Recevoir par email"
-                            >
-                              <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
-                            </button>
-                            <button
-                              type="button"
-                              className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setIsClosingCard(true);
-                              }}
-                              aria-label="Fermer la carte"
-                            >
-                              <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
-                            </button>
-                          </div>
+                          <MatchMissionCard item={displayedMission} section="pinned" rank={displayedMissionRank} userScoringId={userScoringId} />
+                          {cardIsFixed && (
+                            <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
+                              <button
+                                type="button"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setEmailMissionId(displayedMission.mission.id);
+                                }}
+                                aria-label="Recevoir par email"
+                              >
+                                <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
+                              </button>
+                              <button
+                                type="button"
+                                className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  setSelectedMission(null);
+                                }}
+                                aria-label="Fermer la carte"
+                              >
+                                <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}

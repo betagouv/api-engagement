@@ -2,6 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
 import { Link } from "react-router";
 
+import MissionTag from "~/components/ui/mission-tag";
 import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
 import { buildMissionDetailHref } from "~/utils/mission";
@@ -75,11 +76,9 @@ export default function MatchMissionCard({
           </Link>
         </h3>
 
-        <div className="h-[76px] flex flex-wrap gap-2 overflow-hidden">
+        <div className="h-[76px] flex flex-wrap content-start gap-2 overflow-hidden">
           {DEFAULT_TAGS.map((tag) => (
-            <p key={tag} className="text-[12px]! font-bold text-blue-france-sun! bg-blue-france-925! m-0! px-[6px]! py-[0px]! rounded-[4px]! leading-[20px]!">
-              {tag}
-            </p>
+            <MissionTag key={tag}>{tag}</MissionTag>
           ))}
         </div>
 
