@@ -46,6 +46,9 @@ export default function ResultsPage() {
   // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la modale en mode mission unique.
   const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Carrousel mobile de cartes mission affiché au clic sur un pin.
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const carouselScrollTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // quiz_session_id vient de l'URL ici (accès direct possible) : on l'enregistre comme super
   // property pour qu'il soit attaché à results.viewed et aux mission.clicked de cette page.
@@ -78,6 +81,15 @@ export default function ResultsPage() {
     document.addEventListener("keydown", clearHoverOnEscape);
     return () => document.removeEventListener("keydown", clearHoverOnEscape);
   }, []);
+
+  // Mobile : cale le carrousel sur la carte de la mission cliquée (ouverture ou clic sur un autre pin).
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel || !selectedMission) return;
+    const card = carousel.children[items.findIndex((i) => i.mission.id === selectedMission.mission.id)] as HTMLElement | undefined;
+    // offsetLeft inclut le padding horizontal du carrousel (px-6 = 24px).
+    if (card) carousel.scrollLeft = card.offsetLeft - 24;
+  }, [selectedMission, items]);
 
   // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
   useEffect(() => {
@@ -130,9 +142,6 @@ export default function ResultsPage() {
   const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
   const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
 
-  // Rang global (toutes pages confondues) de la mission sélectionnée sur la map, pour le tracking.
-  const selectedMissionRank = selectedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === selectedMission.mission.id) + 1 : 0;
-
   // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
   // la fixe (boutons email + fermer). Survoler un autre pin prévisualise par-dessus la carte fixée.
   const hoveredMission = items.find((i) => i.mission.id === hoveredMissionId) ?? null;
@@ -167,6 +176,20 @@ export default function ResultsPage() {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   };
 
+  // Mobile : après un swipe du carrousel, sélectionne la mission de la carte visible (pin mis en avant).
+  const handleCarouselScroll = () => {
+    if (carouselScrollTimer.current) clearTimeout(carouselScrollTimer.current);
+    carouselScrollTimer.current = setTimeout(() => {
+      const carousel = carouselRef.current;
+      const firstCard = carousel?.children[0] as HTMLElement | undefined;
+      if (!carousel || !firstCard) return;
+      // Largeur d'une carte + gap de 12px (gap-3) → index de la carte alignée par le snap.
+      const index = Math.round(carousel.scrollLeft / (firstCard.offsetWidth + 12));
+      const item = items[Math.max(0, Math.min(items.length - 1, index))];
+      if (item && item.mission.id !== selectedMission?.mission.id) setSelectedMission(item);
+    }, 150);
+  };
+
   if (isMobile) {
     return (
       <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
@@ -178,57 +201,39 @@ export default function ResultsPage() {
 
         {selectedMission && !expanded && (
           <div
-            key={selectedMission.mission.id}
-            className={`absolute inset-x-3 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+            className={`absolute inset-x-0 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
             onAnimationEnd={() => {
               if (!isClosingCard) return;
               setSelectedMission(null);
               setIsClosingCard(false);
             }}
           >
-            <div className="relative">
-              <MatchMissionCard item={selectedMission} section="pinned" rank={selectedMissionRank} userScoringId={userScoringId} />
-              <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-                <button
-                  type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setEmailMissionId(selectedMission.mission.id);
-                  }}
-                  aria-label="Recevoir par email"
-                >
-                  <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
-                </button>
-                <button
-                  type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsClosingCard(true);
-                  }}
-                  aria-label="Fermer la carte"
-                >
-                  <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
-                </button>
-              </div>
+            {/* Carrousel : carte de la mission cliquée, swipe horizontal pour parcourir les autres. Fermeture en tapant la map. */}
+            <div
+              ref={carouselRef}
+              onScroll={handleCarouselScroll}
+              className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {items.map((item, index) => (
+                <div key={item.mission.id} className="w-full shrink-0 snap-center">
+                  <MatchMissionCard item={item} section="pinned" rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1} userScoringId={userScoringId} onEmailClick={setEmailMissionId} />
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         <div
-          className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-5rem)]"} ${selectedMission ? "hidden" : ""}`}
+          className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
         >
-          <div className={`flex flex-col gap-2 px-6 py-4 ${expanded ? "items-start!" : "items-center! justify-center! h-full"}`} onClick={handleToggleSheet}>
+          <div className={`flex flex-col gap-2 p-6 items-center! justify-center! ${!expanded ? "h-full" : ""}`} onClick={handleToggleSheet}>
             {!loading && error && (
               <p role="alert" className="fr-error-text m-0! text-center!">
                 {error}
               </p>
             )}
             {!loading && !error && (
-              <h1 className={`fr-h2 m-0! ${expanded ? "text-center!" : ""}`}>
+              <h1 className="fr-h5 m-0! text-center!">
                 <button
                   type="button"
                   aria-expanded={expanded}
@@ -238,12 +243,8 @@ export default function ResultsPage() {
                     handleToggleSheet();
                   }}
                 >
-                  <Highlight>
-                    <span className="text-blue-france-sun">
-                      {totalResults} mission{totalResults > 1 ? "s" : ""}
-                    </span>
-                  </Highlight>
-                  pour toi
+                  Découvre <Highlight>les missions</Highlight>
+                  <br /> qui te correspondent le mieux
                 </button>
               </h1>
             )}

@@ -272,12 +272,22 @@
   background-color: #1212ff;
 }
 
-/* Contrôles de zoom en bas à droite (cf. maquette) : carrés bordés, au-dessus du bouton de recentrage. */
+/* Contrôles de zoom (cf. maquette) : carrés bordés, au-dessus du bouton de recentrage.
+   Desktop : en bas à droite ; mobile : en haut à droite (position gérée par ZoomControl). */
 .mission-map .leaflet-control-zoom.leaflet-bar {
   border: 1px solid var(--border-default-grey);
   border-radius: 0;
-  margin-bottom: 60px;
   margin-right: 12px;
+}
+
+/* Desktop (zoom en bas à droite) : réserve la place du bouton de recentrage en dessous. */
+.mission-map .leaflet-bottom .leaflet-control-zoom.leaflet-bar {
+  margin-bottom: 60px;
+}
+
+/* Mobile (zoom en haut à droite). */
+.mission-map .leaflet-top .leaflet-control-zoom.leaflet-bar {
+  margin-top: 12px;
 }
 
 /* `background-image: none` : le DSFR dessine le soulignement des liens en background-image,
@@ -308,13 +318,14 @@
   align-items: center;
   background-color: var(--background-default-grey);
   border: 1px solid var(--border-default-grey);
-  bottom: 5.75rem;
   color: var(--blue-france-sun-113-625);
   display: flex;
   height: 32px;
   justify-content: center;
   position: absolute;
   right: 12px;
+  /* Mobile : sous le bloc de zoom en haut à droite (12px de marge + ~66px de zoom + 8px d'écart). */
+  top: 86px;
   width: 32px;
   z-index: 800;
 }
@@ -322,12 +333,6 @@
 @media (min-width: 768px) {
   .mission-map__recenter {
     bottom: 12px;
-  }
-}
-
-/* Mobile : remonte les contrôles au-dessus du panneau de résultats replié (5rem). */
-@media (max-width: 767px) {
-  .mission-map .leaflet-bottom.leaflet-right {
-    bottom: 5rem;
+    top: auto;
   }
 }
