@@ -105,6 +105,29 @@ export function useMissionResults(userScoringId: string | undefined) {
 
   const totalPages = Math.max(1, Math.ceil(totalResults / RESULTS_PAGE_SIZE));
 
+  // Rechargement doux après mise à jour du scoring (filtres) : retour page 1 et re-fetch de la
+  // première page (le cache vient d'être invalidé), en conservant les items courants pendant
+  // le chargement — même comportement qu'un changement de page.
+  const refresh = () => {
+    if (!userScoringId) return;
+    setPage(1);
+    setError(null);
+    setPageLoading(true);
+    fetchInitialMatches(userScoringId)
+      .then((res) => {
+        setFirstPageItems(res.items);
+        setItems(res.items);
+        setTotalResults(res.total);
+        setAvgDistanceKmTop5(res.avgDistanceKmTop5);
+      })
+      .catch(() => {
+        setError("Impossible de charger les missions. Réessaie plus tard.");
+      })
+      .finally(() => {
+        setPageLoading(false);
+      });
+  };
+
   return {
     items,
     page,
@@ -115,5 +138,6 @@ export function useMissionResults(userScoringId: string | undefined) {
     loading,
     pageLoading,
     error,
+    refresh,
   };
 }
