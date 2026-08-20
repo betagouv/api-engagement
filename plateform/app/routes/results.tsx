@@ -9,7 +9,7 @@ import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
 import ProfileModal from "~/components/results/profile-modal";
-import ResultsFilters from "~/components/results/results-filters";
+import ResultsFilters, { ResultsFiltersModal } from "~/components/results/results-filters";
 import ResultsMissions from "~/components/results/results-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
@@ -282,6 +282,13 @@ export default function ResultsPage() {
             <Partners style="compact" />
             <FooterContent landmark={false} />
           </div>
+
+          {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
+          {expanded && !error && (
+            <div className="border-t border-border-default-grey bg-background p-3">
+              <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+            </div>
+          )}
         </div>
 
         <MatchingDebugModal items={items} userValues={userValues} />
