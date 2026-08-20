@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import Modal from "~/components/layout/modal";
-import MissionTag from "~/components/ui/mission-tag";
+import MissionTag from "~/components/missions/mission-tag";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";

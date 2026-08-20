@@ -25,14 +25,18 @@
   --color-border-default-grey: var(--border-default-grey);
   --color-border-plain-error: var(--border-plain-error);
   /* Backgrounds */
+  --color-background-default-grey-hover: var(--background-default-grey-hover);
+  --color-background-default-grey-active: var(--background-default-grey-active);
+  --color-background: var(--background-default-grey);
+  --color-background-contrast-blue-france: var(--background-contrast-blue-france); /* not defined in the css dsfr but exists on the website */
+  /* Goals */
+  --color-action-high-blue-france: var(--background-action-high-blue-france);
+  /* Colors */
+  --color-blue-france-525: var(--blue-france-main-525);
   --color-blue-france-925: var(--blue-france-925-125);
   --color-blue-france-950: var(--blue-france-950-100); /* #ECECFE00 */
   --color-blue-france-975: var(--blue-france-975-75);
   --color-beige-gris-galet-975: var(--beige-gris-galet-975-75); /* #F9F6F2 */
-  --color-action-high-blue-france: var(--background-action-high-blue-france);
-  --color-background-default-grey-hover: var(--background-default-grey-hover);
-  --color-background-default-grey-active: var(--background-default-grey-active);
-  --color-background: var(--background-default-grey);
   --color-yellow-tournesol-925: var(--yellow-tournesol-925-125);
   --color-yellow-moutarde-975: var(--yellow-moutarde-925-125);
   --color-yellow-moutarde-850: var(--yellow-moutarde-850-200);
