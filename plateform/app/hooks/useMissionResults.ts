@@ -1,18 +1,33 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import { fetchInitialMatches, fetchMatches, RESULTS_PAGE_SIZE } from "~/services/matching";
 
 export { RESULTS_PAGE_SIZE };
 
 export function useMissionResults(userScoringId: string | undefined) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [firstPageItems, setFirstPageItems] = useState<MissionMatchItem[]>([]);
   const [items, setItems] = useState<MissionMatchItem[]>([]);
-  const [page, setPage] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
   const [avgDistanceKmTop5, setAvgDistanceKmTop5] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Page courante stockée dans l'URL (?page=N) : survit au refresh, au partage et au retour arrière.
+  const page = Math.max(1, Number.parseInt(searchParams.get("page") ?? "1", 10) || 1);
+
+  const setPage = (nextPage: number) => {
+    setSearchParams(
+      (params) => {
+        if (nextPage <= 1) params.delete("page");
+        else params.set("page", String(nextPage));
+        return params;
+      },
+      { preventScrollReset: true },
+    );
+  };
 
   useEffect(() => {
     if (!userScoringId) {
@@ -27,7 +42,6 @@ export function useMissionResults(userScoringId: string | undefined) {
 
     setLoading(true);
     setError(null);
-    setPage(1);
     setFirstPageItems([]);
     setItems([]);
 
