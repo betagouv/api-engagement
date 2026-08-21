@@ -110,20 +110,21 @@ describe("buildMissionMatchTags", () => {
 
   const buildItem = (
     match: Partial<MissionMatchItem["match"]>,
-    mission?: { city?: string | null; compensation?: MissionMatchItem["mission"]["compensation"] },
+    mission?: Partial<Pick<MissionMatchItem["mission"], "remote" | "requirements" | "compensation">> & { city?: string | null; distanceKm?: number | null },
   ): MissionMatchItem => ({
     mission: {
       id: "mission",
       title: "Mission",
-      remote: null,
+      remote: mission?.remote ?? null,
       schedule: null,
+      requirements: mission?.requirements ?? [],
       domain: null,
       domainOriginal: null,
       organizationName: null,
       publisherId: null,
       publisherName: null,
       media: { photo: null, domainLogo: null, organizationLogo: null, publisherLogo: null },
-      location: { city: mission?.city ?? null, closestLat: null, closestLon: null, closestAddress: null, addressId: null, distanceKm: null },
+      location: { city: mission?.city ?? null, closestLat: null, closestLon: null, closestAddress: null, addressId: null, distanceKm: mission?.distanceKm ?? null },
       compensation: mission?.compensation ?? null,
       applicationUrl: "https://example.com",
     },
@@ -190,6 +191,44 @@ describe("buildMissionMatchTags", () => {
     expect(buildMissionMatchTags(item, new Set(["motivation_recherche.indemnisation"]))).toEqual(["620€/mois"]);
   });
 
+  it("ignore le tag indemnisation quand la mission n'a pas de rémunération", () => {
+    const item = buildItem({
+      taxonomyScores: { motivation_recherche: 1 },
+      values: [matchValue("motivation_recherche", "indemnisation")],
+    });
+
+    expect(buildMissionMatchTags(item, new Set(["motivation_recherche.indemnisation"]))).toEqual([]);
+  });
+
+  it("affiche « Idéal pour débuter » quand la mission a des prérequis, « Aucune expérience requise » sinon", () => {
+    const match = {
+      taxonomyScores: { motivation_recherche: 1 },
+      values: [matchValue("motivation_recherche", "premiere_experience")],
+    };
+    const userValueKeys = new Set(["motivation_recherche.premiere_experience"]);
+
+    expect(buildMissionMatchTags(buildItem(match, { requirements: ["Permis B"] }), userValueKeys)).toEqual(["Idéal pour débuter"]);
+    expect(buildMissionMatchTags(buildItem(match), userValueKeys)).toEqual(["Aucune expérience requise"]);
+  });
+
+  it("ajoute le tag de proximité quand la mission est à moins de 3km", () => {
+    expect(buildMissionMatchTags(buildItem({}, { distanceKm: 2.4 }), new Set())).toEqual(["À moins de 3km de chez toi"]);
+    expect(buildMissionMatchTags(buildItem({}, { distanceKm: 5 }), new Set())).toEqual([]);
+  });
+
+  it("ajoute le tag « À distance » quand la mission est remote, sans doublon avec le matching", () => {
+    const item = buildItem(
+      {
+        taxonomyScores: { motivation_recherche: 1 },
+        values: [matchValue("motivation_recherche", "remote")],
+      },
+      { remote: "full" },
+    );
+
+    expect(buildMissionMatchTags(item, new Set(["motivation_recherche.remote"]))).toEqual(["À distance"]);
+    expect(buildMissionMatchTags(buildItem({}, { remote: "possible" }), new Set())).toEqual([]);
+  });
+
   it("limite le nombre de tags à 6", () => {
     const item = buildItem(
       {
@@ -203,7 +242,7 @@ describe("buildMissionMatchTags", () => {
           matchValue("interaction", "interaction_collective"),
         ],
       },
-      { city: "Grenoble" },
+      { city: "Grenoble", distanceKm: 2 },
     );
 
     const tags = buildMissionMatchTags(
@@ -219,12 +258,12 @@ describe("buildMissionMatchTags", () => {
 
     expect(tags).toHaveLength(6);
     expect(tags).toEqual([
-      "Idéal pour débuter",
+      "À moins de 3km de chez toi",
       "Aucune expérience requise",
       "Une mission qui a du sens",
-      "Une mission à un impact",
       "Grenoble",
       "Une équipe de moins de 10 bénévoles",
+      "Un environnement dynamique",
     ]);
   });
 });
@@ -237,6 +276,7 @@ describe("matchResultToBrowseMission", () => {
         title: "Mission près de chez moi",
         remote: "local",
         schedule: "Quelques jours par mois",
+        requirements: [],
         domain: "solidarite",
         domainOriginal: null,
         organizationName: "Organisation",
