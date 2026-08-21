@@ -15,7 +15,14 @@ interface LazyMissionMapProps {
 export default function LazyMissionMap({ items, center, onMarkerClick, selectionPadding, activeMissionId, onMissionHover }: LazyMissionMapProps) {
   return (
     <Suspense fallback={<div className="h-full fr-background-alt--grey" />}>
-      <MissionMap items={items} center={center} onMarkerClick={onMarkerClick} selectionPadding={selectionPadding} activeMissionId={activeMissionId} onMissionHover={onMissionHover} />
+      <MissionMap
+        items={items}
+        center={center}
+        onMarkerClick={onMarkerClick}
+        selectionPadding={selectionPadding}
+        activeMissionId={activeMissionId}
+        onMissionHover={onMissionHover}
+      />
     </Suspense>
   );
 }

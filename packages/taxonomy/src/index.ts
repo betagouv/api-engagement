@@ -6,6 +6,7 @@ export {
   GATE_TAXONOMIES,
   NEUTRAL_TAXONOMY_VALUE_KEYS,
   getTaxonomyList,
+  getTaxonomyValueTags,
   isNeutralTaxonomyValueKey,
   isValidTaxonomyValueKey,
   parseTaxonomyValueKey,
