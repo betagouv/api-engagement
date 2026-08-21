@@ -13,7 +13,8 @@
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 //   disabled   — true pour griser l'option en UI (fonctionnalité pas encore disponible)
-//   tags       — libellés courts affichés en tag sur les cartes mission quand la valeur a matché
+//   tags       — libellés courts affichés en tag sur les cartes mission quand la valeur a matché ;
+//                peuvent contenir des variables {nom} résolues par l'UI depuis les données mission
 
 import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
@@ -573,32 +574,32 @@ export const TAXONOMY = {
         label: "J'ai besoin d'une première expérience",
         icon: "🙏",
         enrichable: true,
+        // L'UI n'affiche qu'un des deux tags : le premier si la mission a des prérequis, le second sinon.
         tags: ["Idéal pour débuter", "Aucune expérience requise"],
       },
       rencontres: {
         label: "J'aimerais rencontrer de nouvelles personnes",
         icon: "🤝",
         enrichable: true,
-        tags: ["Une mission à vivre ensemble", "Fais de nouvelles rencontres"],
+        tags: ["Fais de nouvelles rencontres"],
       },
       decouverte_metier: {
         label: "Je veux découvrir un métier",
         icon: "🧭",
         enrichable: true,
-        tags: ["Formation assurée", "Teste avant de t’engager"],
+        tags: ["Teste avant de t’engager"],
       },
-      // Pas de tags : quand cette valeur matche, l'UI affiche le montant de la rémunération de la mission.
       indemnisation: {
         label: "Je cherche une mission indemnisée",
         icon: "💸",
         enrichable: false,
-        tags: ["620€/mois"],
+        tags: ["{compensationAmount}€/{compensationUnit}"],
       },
       agir_pour_une_cause: {
         label: "Je veux aider une cause qui me tient à cœur",
         icon: "🌍",
         enrichable: true,
-        tags: ["Une mission qui a du sens", "Une mission à un impact"],
+        tags: ["Une mission qui a du sens"],
       },
       horaires_flexibles: {
         label: "Je veux avoir des horaires flexibles",
