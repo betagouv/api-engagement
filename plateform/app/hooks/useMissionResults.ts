@@ -1,34 +1,39 @@
-import { useEffect, useMemo, useState } from "react";
 import type { MissionMatchItem } from "@engagement/dto";
-import { fetchInitialMatches, fetchMatches, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT } from "~/services/matching";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+import { fetchInitialMatches, fetchMatches, RESULTS_PAGE_SIZE } from "~/services/matching";
 
-export { OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT };
-export const VISIBLE_PAGE_COUNT = 6;
+export { RESULTS_PAGE_SIZE };
 
 export function useMissionResults(userScoringId: string | undefined) {
-  const [pinnedItems, setPinnedItems] = useState<MissionMatchItem[]>([]);
-  const [firstOtherItems, setFirstOtherItems] = useState<MissionMatchItem[]>([]);
-  const [otherItems, setOtherItems] = useState<MissionMatchItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [firstPageItems, setFirstPageItems] = useState<MissionMatchItem[]>([]);
+  const [items, setItems] = useState<MissionMatchItem[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const [avgDistanceKmTop5, setAvgDistanceKmTop5] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const visiblePageNumbers = useMemo(() => {
-    const firstVisiblePage = Math.max(1, page - (VISIBLE_PAGE_COUNT - 1));
-    return Array.from({ length: VISIBLE_PAGE_COUNT }, (_, i) => firstVisiblePage + i);
-  }, [page]);
+  // Page courante stockée dans l'URL (?page=N) : survit au refresh, au partage et au retour arrière.
+  const page = Math.max(1, Number.parseInt(searchParams.get("page") ?? "1", 10) || 1);
+
+  const setPage = (nextPage: number) => {
+    setSearchParams(
+      (params) => {
+        if (nextPage <= 1) params.delete("page");
+        else params.set("page", String(nextPage));
+        return params;
+      },
+      { preventScrollReset: true },
+    );
+  };
 
   useEffect(() => {
     if (!userScoringId) {
       setError("Identifiant de scoring manquant.");
-      setPinnedItems([]);
-      setFirstOtherItems([]);
-      setOtherItems([]);
-      setHasNextPage(false);
+      setFirstPageItems([]);
+      setItems([]);
       setLoading(false);
       return;
     }
@@ -37,22 +42,17 @@ export function useMissionResults(userScoringId: string | undefined) {
 
     setLoading(true);
     setError(null);
-    setPage(1);
-    setPinnedItems([]);
-    setFirstOtherItems([]);
-    setOtherItems([]);
-    setHasNextPage(false);
+    setFirstPageItems([]);
+    setItems([]);
 
     // Résultats mis en cache par userScoringId (voir matching.ts) : pas de re-fetch au retour sur la page.
     fetchInitialMatches(userScoringId)
-      .then(({ pinned, other }) => {
+      .then((res) => {
         if (!active) return;
-        setPinnedItems(pinned.items);
-        setFirstOtherItems(other.items);
-        setOtherItems(other.items);
-        setHasNextPage(other.items.length === OTHER_RESULTS_PAGE_SIZE);
-        setTotalResults(pinned.total);
-        setAvgDistanceKmTop5(pinned.avgDistanceKmTop5);
+        setFirstPageItems(res.items);
+        setItems(res.items);
+        setTotalResults(res.total);
+        setAvgDistanceKmTop5(res.avgDistanceKmTop5);
       })
       .catch(() => {
         if (!active) return;
@@ -68,14 +68,15 @@ export function useMissionResults(userScoringId: string | undefined) {
     };
   }, [userScoringId]);
 
+  // Changement de page : les items courants sont conservés pendant le chargement pour que la map
+  // ne se vide pas ; elle est reconstruite (pins + recadrage) à l'arrivée de la nouvelle page.
   useEffect(() => {
     if (!userScoringId) {
       return;
     }
 
     if (page === 1) {
-      setOtherItems(firstOtherItems);
-      setHasNextPage(firstOtherItems.length === OTHER_RESULTS_PAGE_SIZE);
+      setItems(firstPageItems);
       setPageLoading(false);
       return;
     }
@@ -83,12 +84,10 @@ export function useMissionResults(userScoringId: string | undefined) {
     let active = true;
 
     setPageLoading(true);
-    setOtherItems([]);
-    fetchMatches(userScoringId, OTHER_RESULTS_PAGE_SIZE, PINNED_RESULTS_LIMIT + (page - 1) * OTHER_RESULTS_PAGE_SIZE)
+    fetchMatches(userScoringId, RESULTS_PAGE_SIZE, (page - 1) * RESULTS_PAGE_SIZE)
       .then((res) => {
         if (!active) return;
-        setOtherItems(res.items);
-        setHasNextPage(res.items.length === OTHER_RESULTS_PAGE_SIZE);
+        setItems(res.items);
       })
       .catch(() => {
         if (!active) return;
@@ -102,19 +101,43 @@ export function useMissionResults(userScoringId: string | undefined) {
     return () => {
       active = false;
     };
-  }, [firstOtherItems, page, userScoringId]);
+  }, [firstPageItems, page, userScoringId]);
+
+  const totalPages = Math.max(1, Math.ceil(totalResults / RESULTS_PAGE_SIZE));
+
+  // Rechargement doux après mise à jour du scoring (filtres) : retour page 1 et re-fetch de la
+  // première page (le cache vient d'être invalidé), en conservant les items courants pendant
+  // le chargement — même comportement qu'un changement de page.
+  const refresh = () => {
+    if (!userScoringId) return;
+    setPage(1);
+    setError(null);
+    setPageLoading(true);
+    fetchInitialMatches(userScoringId)
+      .then((res) => {
+        setFirstPageItems(res.items);
+        setItems(res.items);
+        setTotalResults(res.total);
+        setAvgDistanceKmTop5(res.avgDistanceKmTop5);
+      })
+      .catch(() => {
+        setError("Impossible de charger les missions. Réessaie plus tard.");
+      })
+      .finally(() => {
+        setPageLoading(false);
+      });
+  };
 
   return {
-    pinnedItems,
-    otherItems,
+    items,
     page,
     setPage,
-    hasNextPage,
+    totalPages,
     totalResults,
     avgDistanceKmTop5,
     loading,
     pageLoading,
     error,
-    visiblePageNumbers,
+    refresh,
   };
 }

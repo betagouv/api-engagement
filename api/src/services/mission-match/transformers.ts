@@ -11,6 +11,7 @@ export const missionMatchMissionSelect = {
   title: true,
   remote: true,
   schedule: true,
+  requirements: true,
   domainOriginal: true,
   domainLogo: true,
   compensationAmount: true,
@@ -49,6 +50,7 @@ type MissionIndexEntry = {
   city: string | null;
   remote: MissionMatchDbRow["remote"];
   schedule: string | null;
+  requirements: string[];
   domain: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
@@ -80,6 +82,7 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
       city: m.addresses[0]?.city ?? null,
       remote: m.remote ?? null,
       schedule: m.schedule ?? null,
+      requirements: m.requirements,
       domain: m.domain?.name ?? null,
       domainOriginal: m.domainOriginal ?? null,
       domainLogo: m.domainLogo ?? null,
@@ -147,6 +150,7 @@ export const toMissionMatchItem = (
       title: mission?.title ?? "(unknown)",
       remote: mission?.remote ?? null,
       schedule: mission?.schedule ?? null,
+      requirements: mission?.requirements ?? [],
       domain: mission?.domain ?? mission?.domainOriginal ?? null,
       domainOriginal: mission?.domainOriginal ?? null,
       organizationName: mission?.organizationName ?? null,
