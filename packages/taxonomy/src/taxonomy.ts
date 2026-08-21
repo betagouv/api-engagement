@@ -13,6 +13,8 @@
 //   icon       — emoji optionnel
 //   enrichable — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 //   disabled   — true pour griser l'option en UI (fonctionnalité pas encore disponible)
+//   tags       — libellés courts affichés en tag sur les cartes mission quand la valeur a matché ;
+//                peuvent contenir des variables {nom} résolues par l'UI depuis les données mission
 
 import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
@@ -375,31 +377,37 @@ export const TAXONOMY = {
         label: "Aider et accompagner des personnes",
         icon: "❤️",
         enrichable: true,
+        tags: ["Aide des personnes"],
       },
       transmettre_animer: {
         label: "Transmettre et animer",
         icon: "📢",
         enrichable: true,
+        tags: ["Anime et accompagne"],
       },
       fabriquer_reparer_terrain: {
         label: "Fabriquer, réparer ou agir sur le terrain",
         icon: "🛠️",
         enrichable: true,
+        tags: ["Une mission concrète"],
       },
       secourir_proteger: {
         label: "Secourir et protéger",
         icon: "🛟",
         enrichable: true,
+        tags: ["Agis sur le terrain"],
       },
       organiser_coordonner: {
         label: "Organiser et coordonner",
         icon: "🗓️",
         enrichable: true,
+        tags: ["Coordonne des projets"],
       },
       creer_communiquer: {
         label: "Créer et communiquer",
         icon: "🎨",
         enrichable: true,
+        tags: ["Mets ta créativité au service d’une cause"],
       },
     },
   },
@@ -419,11 +427,13 @@ export const TAXONOMY = {
         label: "Dans un petit groupe où l’on prend le temps de se connaître",
         icon: "🌿",
         enrichable: true,
+        tags: ["Une équipe de moins de 10 bénévoles"],
       },
       grand_collectif: {
         label: "Dans un grand collectif où il y a beaucoup de monde",
         icon: "🌳",
         enrichable: true,
+        tags: ["Une grande équipe engagée"],
       },
       peu_importe: {
         label: "Peu importe",
@@ -444,16 +454,19 @@ export const TAXONOMY = {
         label: "J’aime échanger et agir avec les autres",
         icon: "🌱",
         enrichable: true,
+        tags: ["Beaucoup d’échanges au quotidien"],
       },
       equilibre_collectif_autonomie: {
         label: "J’aime alterner les moments en groupe et en autonomie",
         icon: "🌿",
         enrichable: true,
+        tags: ["Entre autonomie et échanges"],
       },
       autonomie_principale: {
         label: "Je préfère avancer principalement en autonomie",
         icon: "🌳",
         enrichable: true,
+        tags: ["Une mission plus autonome"],
       },
       peu_importe: {
         label: "Peu importe",
@@ -474,16 +487,19 @@ export const TAXONOMY = {
         label: "On me donne un objectif et je m’organise librement",
         icon: "🤝",
         enrichable: true,
+        tags: ["Autonome dans tes missions"],
       },
       accompagnement_initial: {
         label: "J’aime être accompagné·e au début, puis gagner en autonomie",
         icon: "🧭",
         enrichable: true,
+        tags: ["Accompagné dès ton arrivée"],
       },
       cadre_suivi_regulier: {
         label: "Je préfère avoir des consignes précises et un suivi régulier",
         icon: "🚀",
         enrichable: true,
+        tags: ["Des consignes bien définies"],
       },
       je_ne_sais_pas: {
         label: "Peu importe",
@@ -504,16 +520,19 @@ export const TAXONOMY = {
         label: "J’aime quand il faut s’adapter rapidement",
         icon: "🚀",
         enrichable: true,
+        tags: ["Un environnement dynamique"],
       },
       imprevu_modere: {
         label: "Un peu d’imprévu, ça me va",
         icon: "💪",
         enrichable: true,
+        tags: ["Des journées qui se ressemblent rarement"],
       },
       cadre_previsible: {
         label: "Je préfère savoir à quoi m’attendre",
         icon: "🧘",
         enrichable: true,
+        tags: ["Un cadre stable et rassurant"],
       },
       je_ne_sais_pas: {
         label: "Je ne sais pas encore",
@@ -555,41 +574,50 @@ export const TAXONOMY = {
         label: "J'ai besoin d'une première expérience",
         icon: "🙏",
         enrichable: true,
+        // L'UI n'affiche qu'un des deux tags : le premier si la mission a des prérequis, le second sinon.
+        tags: ["Idéal pour débuter", "Aucune expérience requise"],
       },
       rencontres: {
         label: "J'aimerais rencontrer de nouvelles personnes",
         icon: "🤝",
         enrichable: true,
+        tags: ["Fais de nouvelles rencontres"],
       },
       decouverte_metier: {
         label: "Je veux découvrir un métier",
         icon: "🧭",
         enrichable: true,
+        tags: ["Teste avant de t’engager"],
       },
       indemnisation: {
         label: "Je cherche une mission indemnisée",
         icon: "💸",
         enrichable: false,
+        tags: ["{compensationAmount}€/{compensationUnit}"],
       },
       agir_pour_une_cause: {
         label: "Je veux aider une cause qui me tient à cœur",
         icon: "🌍",
         enrichable: true,
+        tags: ["Une mission qui a du sens"],
       },
       horaires_flexibles: {
         label: "Je veux avoir des horaires flexibles",
         icon: "📅",
         enrichable: true,
+        tags: ["Horaires flexibles"],
       },
       securite_pays: {
         label: "Je veux contribuer à la sécurité de mon pays",
         icon: "🪖",
         enrichable: true,
+        tags: ["Contribue à la sécurité de tous"],
       },
       remote: {
         label: "Je veux pouvoir participer à distance",
         icon: "💻",
         enrichable: false,
+        tags: ["À distance"],
       },
       autre: {
         label: "Je ne sais pas encore",
