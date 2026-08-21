@@ -4,7 +4,33 @@ import { Link } from "react-router";
 
 import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
-import { buildMissionDetailHref } from "~/utils/mission";
+import { buildMissionDetailHref, buildMissionMatchTags } from "~/utils/mission";
+import MissionTag from "./mission-tag";
+
+// ─── Fake temporaire du matching ─────────────────────────────────────────────
+// L'API ne renvoie pas encore de vrai matching : on écrase match.values/taxonomyScores/geoScore
+// avec ce jeu en dur avant de calculer les tags. À supprimer quand le matching réel sera branché.
+const FAKE_VALUE_KEYS = [
+  ["motivation_recherche", "premiere_experience"],
+  ["motivation_recherche", "indemnisation"],
+  ["motivation_recherche", "agir_pour_une_cause"],
+  ["equipe", "petit_groupe"],
+  ["imprevu", "adaptation_rapide"],
+  ["interaction", "interaction_collective"],
+] as const;
+
+const FAKE_MATCH_VALUES = FAKE_VALUE_KEYS.map(([taxonomyKey, taxonomyValueKey]) => ({
+  taxonomyKey,
+  taxonomyValueKey,
+  taxonomyValueLabel: taxonomyValueKey,
+  enrichmentConfidence: 1,
+  scoringScore: 1,
+  evidence: null,
+}));
+
+const FAKE_TAXONOMY_SCORES = { motivation_recherche: 1, equipe: 0.9, imprevu: 0.8, interaction: 0.7 };
+
+const FAKE_USER_VALUE_KEYS: ReadonlySet<string> = new Set(FAKE_VALUE_KEYS.map(([taxonomyKey, valueKey]) => `${taxonomyKey}.${valueKey}`));
 
 // Sections de résultats (matching) et leur entry_source de fiche détail correspondante.
 // `similar` n'a pas de provenance détail dédiée (→ pas de nav state, resolve en "direct").
@@ -13,10 +39,6 @@ const DETAIL_ENTRY_SOURCE_BY_SECTION: Record<Exclude<MatchSection, "similar">, M
   pinned: "results_pinned",
   other: "results_other",
 };
-
-// Tags par défaut le temps de brancher les vrais tags de matching (cf. buildMissionMatchTags
-// dans ~/utils/mission) — focus design pour le moment.
-const DEFAULT_TAGS = ["Journée découverte", "Grenoble", "620€/mois", "Débutants bienvenus", "Petite équipe"];
 
 // Carte mission issue d'un résultat de matching : badge domaine sur l'image, tags résumant le
 // matching et bouton "Recevoir par email" optionnel. Instrumentation : `mission.clicked` au clic
@@ -35,6 +57,10 @@ export default function MatchMissionCard({
   onEmailClick?: (missionId: string) => void;
 }) {
   const { mission } = item;
+
+  // TODO fake : repasser sur item.match tel quel + les clés plates des réponses du quiz quand le matching réel sera branché.
+  const tags = buildMissionMatchTags({ ...item, match: { ...item.match, geoScore: 0.9, taxonomyScores: FAKE_TAXONOMY_SCORES, values: FAKE_MATCH_VALUES } }, FAKE_USER_VALUE_KEYS);
+
   const entrySource = section === "similar" ? undefined : DETAIL_ENTRY_SOURCE_BY_SECTION[section];
   const state: MissionDetailNavState | undefined = entrySource ? { entrySource, rank } : undefined;
 
@@ -75,11 +101,9 @@ export default function MatchMissionCard({
           </Link>
         </h3>
 
-        <div className="h-[76px] flex flex-wrap gap-2 overflow-hidden">
-          {DEFAULT_TAGS.map((tag) => (
-            <p key={tag} className="text-[12px]! font-bold text-blue-france-sun! bg-blue-france-925! m-0! px-[6px]! py-[0px]! rounded-[4px]! leading-[20px]!">
-              {tag}
-            </p>
+        <div className="h-[76px] flex flex-wrap content-start gap-2 overflow-hidden">
+          {tags.map((tag) => (
+            <MissionTag key={tag}>{tag}</MissionTag>
           ))}
         </div>
 

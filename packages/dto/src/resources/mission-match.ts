@@ -23,6 +23,8 @@ export type MissionMatchMission = {
   title: string;
   remote: "no" | "possible" | "full" | "local" | null;
   schedule: string | null;
+  // Optionnel : les déploiements antérieurs de l'API ne renvoient pas encore ce champ.
+  requirements?: string[];
   domain: string | null;
   domainOriginal: string | null;
   organizationName: string | null;
