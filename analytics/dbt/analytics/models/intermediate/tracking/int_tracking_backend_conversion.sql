@@ -4,15 +4,15 @@
 -- ces clics via `click_id`. Grain : une ligne par `quiz_session_id`.
 with backend_clicks as (
   select
-    stat_event_id,
-    user_scoring_id as quiz_session_id,
-    created_at as clicked_at,
-    mission_id,
-    source as click_channel
-  from {{ ref('stg_stat_event__click') }}
-  where
-    user_scoring_id is not null
-    and not is_bot
+    c.stat_event_id,
+    pde.user_scoring_id as quiz_session_id,
+    c.created_at as clicked_at,
+    c.mission_id,
+    c.source as click_channel
+  from {{ ref('stg_stat_event__click') }} as c
+  inner join {{ ref('click_pde_attrs') }} as pde
+    on c.stat_event_id = pde.click_id
+  where not c.is_bot
 ),
 
 applies as (
