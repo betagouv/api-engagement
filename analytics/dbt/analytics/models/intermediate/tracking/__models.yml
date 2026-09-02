@@ -88,13 +88,31 @@ models:
           clic. Même base que `score_top5` (sous-score thématique), donc PAS le score total pondéré géo
           (non persisté). Null si le clic n'est pas réconcilié au backend (`matched_to_backend = false`).
 
+  - name: int_tracking_backend_conversion
+    description: >
+      Attribution backend d'une session quiz (`quiz_session_id` = `user_scoring_id`) : clics sortants
+      trackés côté `stat_event` (porteurs de `custom_attributes.user_scoring_id`) et candidatures (`apply`)
+      rattachées via `apply.click_id = click.stat_event_id`. Bots exclus. Une ligne par session ayant
+      au moins un clic backend.
+    columns:
+      - name: quiz_session_id
+        tests:
+          - not_null
+          - unique
+      - name: backend_click_count
+        description: Nombre de clics backend trackés pour la session.
+      - name: apply_count
+        description: Nombre de candidatures rattachées aux clics backend de la session.
+      - name: has_apply
+        description: Vrai si au moins une candidature a été rattachée.
+
   - name: int_tracking_quiz_backend
     description: >
       Réconciliation d'une session quiz avec le backend via `quiz_session_id` = `user_scoring_id`.
       `score_top5` est la moyenne des `taxonomyScores` des 5 premiers résultats du dernier run de
       matching (`matching_engine_result` le plus récent par `user_scoring_id`, plusieurs runs possibles).
-      Les métriques de candidature (`has_apply`, `apply_count`, `first_apply_at`) restent des
-      placeholders à figer (clé d'attribution des candidatures). Personnes internes exclues au niveau du `distinct_id`.
+      Les métriques de conversion backend (clics sortants et candidatures) sont issues de
+      `int_tracking_backend_conversion`. Personnes internes exclues au niveau du `distinct_id`.
     columns:
       - name: quiz_session_id
         tests:
@@ -104,6 +122,12 @@ models:
         description: >
           Moyenne des `taxonomyScores` sur le top 5 des résultats du dernier run de matching de la
           session. Null si aucun `matching_engine_result` exploitable.
+      - name: has_backend_click
+        description: Vrai si la session a au moins un clic sortant tracké côté `stat_event`.
+      - name: has_apply
+        description: Vrai si au moins une candidature a été rattachée aux clics backend de la session.
+      - name: apply_count
+        description: Nombre de candidatures rattachées aux clics backend de la session.
 
   - name: int_tracking_recommendation
     description: >

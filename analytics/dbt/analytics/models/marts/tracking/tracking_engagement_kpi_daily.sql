@@ -31,6 +31,17 @@ pages as (
       as home_pageview_count
   from {{ ref('tracking_page_view_daily') }}
   group by kpi_date
+),
+
+backend as (
+  select
+    session_date as kpi_date,
+    count(*) filter (where has_backend_click) as sessions_with_backend_click,
+    count(*) filter (where has_apply) as sessions_with_apply,
+    sum(apply_count) as apply_count
+  from {{ ref('int_tracking_quiz_backend') }}
+  where session_date is not null
+  group by session_date
 )
 
 select
@@ -54,8 +65,16 @@ select
   s.change_results_count::numeric
   / nullif(r.results_viewed_count, 0) as change_results_rate,
   s.quiz_started_count::numeric
-  / nullif(p.home_pageview_count, 0) as quiz_start_rate
+  / nullif(p.home_pageview_count, 0) as quiz_start_rate,
+  coalesce(bk.sessions_with_backend_click, 0) as sessions_with_backend_click,
+  coalesce(bk.sessions_with_apply, 0) as sessions_with_apply,
+  coalesce(bk.apply_count, 0) as apply_count,
+  coalesce(bk.sessions_with_apply, 0)::numeric
+  / nullif(s.quiz_started_count, 0) as quiz_to_apply_rate,
+  coalesce(bk.sessions_with_apply, 0)::numeric
+  / nullif(r.sessions_with_click_after_results, 0) as click_to_apply_rate
 from sessions as s
 left join results as r on s.kpi_date = r.kpi_date
 left join pages as p on s.kpi_date = p.kpi_date
+left join backend as bk on s.kpi_date = bk.kpi_date
 order by s.kpi_date desc

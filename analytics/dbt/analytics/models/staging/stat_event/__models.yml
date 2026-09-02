@@ -70,6 +70,8 @@ models:
         description: Origine normalisée du clic (api/widget/campaign…).
       - name: click_id
         description: Identifiant du clic dans l’entrepôt analytics.
+      - name: custom_attributes
+        description: Payload JSON d’attributs personnalisés.
 
   - name: stg_stat_event__apply
     description: >
