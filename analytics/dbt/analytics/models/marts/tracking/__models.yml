@@ -9,6 +9,10 @@ models:
       ayant vu les résultats (`results.viewed`). Ils proviennent de `int_tracking_results_session`, piloté
       par les events `results.viewed`, les clics n'étant greffés qu'en `left join`. Une session sans
       `results.viewed` retombe donc à `false` sur ces flags même si un clic existait hors parcours résultats.
+      Porte aussi la géo DÉCLARÉE au quiz (`postcode`, `geo_lat`, `geo_lon`, `country_code`, `department_code`,
+      `department_name`, `region_code`, `region_name`). PIÈGE DE GRAIN : la géo n'existe qu'à partir de l'étape
+      `localisation` ; les tentatives abandonnées avant ont ces colonnes à null (analyses d'abandon par géo
+      valides seulement à partir de cette étape).
     columns:
       - name: quiz_attempt_id
         tests:
@@ -16,6 +20,22 @@ models:
           - unique
       - name: quiz_session_id
         description: Identifiant backend, présent pour les sessions complétées.
+      - name: postcode
+        description: Code postal DÉCLARÉ à l'étape `localisation` (géo quiz, pas GeoIP). Nullable.
+      - name: geo_lat
+        description: Latitude déclarée à l'étape `localisation`. Nullable.
+      - name: geo_lon
+        description: Longitude déclarée à l'étape `localisation`. Nullable.
+      - name: country_code
+        description: Code pays déclaré à l'étape `localisation` (ex. `fr`). Nullable.
+      - name: department_code
+        description: Département dérivé du code postal (Corse approximative, Outre-mer géré). Nullable.
+      - name: department_name
+        description: Nom du département (seed `department_codes`). Nullable.
+      - name: region_code
+        description: Code région INSEE 2016 (seed `department_codes`). Nullable.
+      - name: region_name
+        description: Nom de la région INSEE 2016 (seed `department_codes`). Nullable.
       - name: quiz_version
         description: Version du quiz au démarrage de la tentative.
       - name: has_click_after_results
