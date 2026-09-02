@@ -46,3 +46,6 @@ models:
 vars:
   PUBLISHER_SERVICE_CIVIQUE_NAME: "Service Civique"
   PUBLISHER_JEVEUXAIDER_NAME: "JeVeuxAider.gouv.fr"
+  # Publisher « Plateforme de l'engagement » (Trouve Ta Mission), diffuseur PDE.
+  # Référencé par ID car le nom est amené à évoluer.
+  PUBLISHER_PLATEFORME_ENGAGEMENT_ID: "6c6a6ed4cf9795a1d770c1e2"

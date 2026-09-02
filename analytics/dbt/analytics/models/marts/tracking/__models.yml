@@ -127,3 +127,37 @@ models:
         description: Nom de l'annonceur, pour l'agrégation « part par annonceur » côté Metabase.
       - name: backend_rank
         description: Rang de la mission dans le run de matching (position dans `results`).
+
+  - name: tracking_publisher_stock_share
+    description: >
+      KPIs de contrôle « relatif au stock » : par annonceur, croise le stock de missions diffusables sur la
+      Plateforme de l'Engagement (`mission_diffusion` filtré sur le diffuseur PDE, id figé en var
+      `PUBLISHER_PLATEFORME_ENGAGEMENT_ID`, `deleted_at is null`) avec les recommandations
+      (`int_tracking_recommendation`) et les clics (`int_tracking_mission_click`) du quiz. Grain : une ligne
+      par annonceur présent dans le stock diffusable PDE. PIÈGE flux vs stock : le stock est l'état COURANT
+      (miroir `mission_diffusion`), les recos/clics sont cumulés sur tout l'historique ; un alignement
+      temporel plus fin (stock à une date T via `created_at`/`deleted_at`) est une amélioration ultérieure.
+    columns:
+      - name: publisher_id
+        description: Annonceur (propriétaire des missions).
+        tests:
+          - not_null
+          - unique
+      - name: publisher_name
+        description: Nom de l'annonceur (jointure `stg_publisher`).
+      - name: stock_mission_count
+        description: Nombre de missions distinctes de l'annonceur diffusables sur la PDE (stock courant).
+      - name: reco_count
+        description: Nombre de missions recommandées appartenant à l'annonceur.
+      - name: click_count
+        description: Nombre de clics sur des missions de l'annonceur.
+      - name: stock_share
+        description: Part du stock diffusable PDE détenue par l'annonceur.
+      - name: reco_vs_stock_index
+        description: >
+          Part des recommandations ÷ part du stock. >1 = annonceur sur-représenté dans les recos par
+          rapport à son offre diffusable, <1 = sous-représenté.
+      - name: click_vs_stock_index
+        description: >
+          Part des clics ÷ part du stock. >1 = les missions de l'annonceur captent plus de clics que ne
+          le laisserait attendre son offre diffusable.
