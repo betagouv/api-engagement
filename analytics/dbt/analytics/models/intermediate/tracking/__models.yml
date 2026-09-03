@@ -18,8 +18,12 @@ models:
   - name: int_tracking_quiz_session
     description: >
       Colonne vertébrale du tracking : une ligne par `quiz_attempt_id`. Agrège tout le tunnel (started, steps,
-      completed), résout `quiz_session_id` et porte les flags de complétion. Les personnes internes sont exclues
-      au niveau du `distinct_id` (référentiel `int_internal_distinct_ids`).
+      completed), résout `quiz_session_id` et porte les flags de complétion. Porte aussi la géo DÉCLARÉE au quiz
+      (étape `localisation`), enrichie du département et de la région via le seed `department_codes`. Les personnes
+      internes sont exclues au niveau du `distinct_id` (référentiel `int_internal_distinct_ids`).
+      PIÈGE DE GRAIN : la géo n'existe que pour les tentatives ayant atteint l'étape `localisation` (les abandons
+      antérieurs ont les colonnes géo à null) ; les analyses d'abandon par géo ne sont valides qu'à partir de
+      cette étape.
     columns:
       - name: quiz_attempt_id
         description: UUID de la tentative de quiz.
@@ -32,6 +36,24 @@ models:
         description: Version du quiz au démarrage de la tentative.
       - name: is_completed
         description: Vrai si un événement `quiz.completed` a été observé pour la tentative.
+      - name: postcode
+        description: Code postal DÉCLARÉ à l'étape `localisation`. Null avant cette étape.
+      - name: geo_lat
+        description: Latitude déclarée à l'étape `localisation`. Nullable.
+      - name: geo_lon
+        description: Longitude déclarée à l'étape `localisation`. Nullable.
+      - name: country_code
+        description: Code pays déclaré à l'étape `localisation` (ex. `fr`). Nullable.
+      - name: department_code
+        description: >
+          Département dérivé du code postal (gère Outre-mer et Corse, approximatif pour la Corse).
+          Nullable ou hors référentiel si saisie hors périmètre code postal FR.
+      - name: department_name
+        description: Nom du département (jointure seed `department_codes`). Nullable.
+      - name: region_code
+        description: Code région INSEE 2016 (jointure seed `department_codes`). Nullable.
+      - name: region_name
+        description: Nom de la région INSEE 2016 (jointure seed `department_codes`). Nullable.
 
   - name: int_tracking_quiz_funnel_step
     description: >
