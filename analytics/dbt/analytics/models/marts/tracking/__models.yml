@@ -127,3 +127,37 @@ models:
         description: Nom de l'annonceur, pour l'agrégation « part par annonceur » côté Metabase.
       - name: backend_rank
         description: Rang de la mission dans le run de matching (position dans `results`).
+
+  - name: tracking_matching_engine_ranking_daily
+    description: >
+      Position moyenne quotidienne des missions recommandées cliquées, au grain date du clic + version du moteur.
+      Les compteurs et la somme des rangs permettent de recalculer une moyenne pondérée fiable sur une période
+      quelconque dans Metabase. Les clics non rattachés sont conservés sous la version `unknown` pour mesurer la
+      couverture du rapprochement.
+    columns:
+      - name: click_date
+        description: Date du clic sur la mission recommandée.
+        tests:
+          - not_null
+      - name: matching_engine_version
+        description: Version du moteur rattachée au clic ; vaut `unknown` lorsque le rattachement est impossible.
+        tests:
+          - not_null
+      - name: result_click_count
+        description: Nombre total de clics sur les résultats `pinned` ou `other`.
+        tests:
+          - not_null
+      - name: matched_result_click_count
+        description: Nombre total de clics de résultats rattachés à un rang du moteur.
+        tests:
+          - not_null
+      - name: clicked_matching_engine_rank_sum
+        description: >
+          Numérateur additif de la position moyenne de tous les clics. Pour une période, diviser sa somme par la
+          somme de `matched_result_click_count` plutôt que de moyenner les valeurs quotidiennes.
+      - name: avg_clicked_matching_engine_rank
+        description: >
+          Position moyenne dans le classement du moteur de tous les clics rattachés du jour et de la version ; plus
+          la valeur est basse, mieux les missions cliquées sont classées.
+      - name: all_clicks_matching_engine_match_rate
+        description: Part de l'ensemble des clics de résultats rattachés à un rang du moteur.
