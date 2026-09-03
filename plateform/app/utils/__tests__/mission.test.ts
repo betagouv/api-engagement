@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { MissionMatchItem, MissionMatchValue } from "@engagement/dto";
+import type { MissionMatchItem } from "@engagement/dto";
 import { buildMissionApplicationHref, buildMissionMatchTags, formatCompensation, formatMissionType, formatStartDate, matchResultToBrowseMission } from "../mission";
 
 describe("formatStartDate", () => {
@@ -99,33 +99,20 @@ describe("buildMissionApplicationHref", () => {
 });
 
 describe("buildMissionMatchTags", () => {
-  const matchValue = (taxonomyKey: string, valueKey: string): MissionMatchValue => ({
-    taxonomyKey,
-    taxonomyValueKey: valueKey,
-    taxonomyValueLabel: valueKey,
-    enrichmentConfidence: 1,
-    scoringScore: 1,
-    evidence: null,
-  });
-
-  const buildItem = (
-    match: Partial<MissionMatchItem["match"]>,
-    mission?: Partial<Pick<MissionMatchItem["mission"], "remote" | "requirements" | "compensation">> & { city?: string | null; distanceKm?: number | null },
-  ): MissionMatchItem => ({
+  const buildItem = (missionCardTagKeys: string[], city: string | null = null): MissionMatchItem => ({
     mission: {
       id: "mission",
       title: "Mission",
-      remote: mission?.remote ?? null,
+      remote: null,
       schedule: null,
-      requirements: mission?.requirements ?? [],
       domain: null,
       domainOriginal: null,
       organizationName: null,
       publisherId: null,
       publisherName: null,
       media: { photo: null, domainLogo: null, organizationLogo: null, publisherLogo: null },
-      location: { city: mission?.city ?? null, closestLat: null, closestLon: null, closestAddress: null, addressId: null, distanceKm: mission?.distanceKm ?? null },
-      compensation: mission?.compensation ?? null,
+      location: { city, closestLat: null, closestLon: null, closestAddress: null, addressId: null, distanceKm: null },
+      compensation: null,
       applicationUrl: "https://example.com",
     },
     match: {
@@ -135,136 +122,61 @@ describe("buildMissionMatchTags", () => {
       geoScore: null,
       taxonomyScores: {},
       values: [],
-      ...match,
+      missionCardTagKeys,
     },
   });
 
-  it("retourne les tags des valeurs demandées et portées par la mission, ordonnés par score décroissant", () => {
-    const item = buildItem({
-      taxonomyScores: { imprevu: 0.5, equipe: 1 },
-      values: [matchValue("imprevu", "adaptation_rapide"), matchValue("equipe", "petit_groupe")],
-    });
+  it("résout les clés de taxonomie en libellés, dans l'ordre renvoyé par l'API", () => {
+    const item = buildItem(["equipe.petit_groupe", "imprevu.adaptation_rapide"]);
 
-    expect(buildMissionMatchTags(item, new Set(["imprevu.adaptation_rapide", "equipe.petit_groupe"]))).toEqual([
-      "Une équipe de moins de 10 bénévoles",
-      "Un environnement dynamique",
-    ]);
+    expect(buildMissionMatchTags(item)).toEqual(["Une équipe de moins de 10 bénévoles", "Un environnement dynamique"]);
   });
 
-  it("ignore les valeurs de la mission non demandées par l'utilisateur et les taxonomies sans score", () => {
-    const item = buildItem({
-      taxonomyScores: { equipe: 1, interaction: 0 },
-      values: [matchValue("equipe", "grand_collectif"), matchValue("interaction", "interaction_collective")],
-    });
-
-    expect(buildMissionMatchTags(item, new Set(["equipe.petit_groupe", "interaction.interaction_collective"]))).toEqual([]);
+  it("résout la clé « city » avec la ville de la mission", () => {
+    expect(buildMissionMatchTags(buildItem(["city", "equipe.petit_groupe"], "Grenoble"))).toEqual(["Grenoble", "Une équipe de moins de 10 bénévoles"]);
   });
 
-  it("ajoute la ville quand le score géo est haut, ordonnée par score", () => {
-    const item = buildItem(
-      {
-        geoScore: 0.98,
-        taxonomyScores: { imprevu: 0.5 },
-        values: [matchValue("imprevu", "cadre_previsible")],
-      },
-      { city: "Grenoble" },
-    );
-
-    expect(buildMissionMatchTags(item, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable et rassurant"]);
+  it("ignore la clé « city » quand la mission n'a pas de ville", () => {
+    expect(buildMissionMatchTags(buildItem(["city"]))).toEqual([]);
   });
 
-  it("n'affiche pas la ville quand le score géo est bas", () => {
-    const item = buildItem({ geoScore: 0.4 }, { city: "Grenoble" });
-
-    expect(buildMissionMatchTags(item, new Set())).toEqual([]);
+  it("ignore les clés inconnues et les valeurs de taxonomie sans tag", () => {
+    expect(buildMissionMatchTags(buildItem(["inconnu", "equipe.valeur_inexistante", "statut.lyceen"]))).toEqual([]);
   });
 
-  it("affiche le montant de la rémunération quand l'utilisateur cherche une mission indemnisée", () => {
-    const item = buildItem(
-      {
-        taxonomyScores: { motivation_recherche: 1 },
-        values: [matchValue("motivation_recherche", "indemnisation")],
-      },
-      { compensation: { amount: 620, amountMax: null, unit: "month", type: null } },
-    );
-
-    expect(buildMissionMatchTags(item, new Set(["motivation_recherche.indemnisation"]))).toEqual(["620€/mois"]);
-  });
-
-  it("ignore le tag indemnisation quand la mission n'a pas de rémunération", () => {
-    const item = buildItem({
-      taxonomyScores: { motivation_recherche: 1 },
-      values: [matchValue("motivation_recherche", "indemnisation")],
-    });
-
-    expect(buildMissionMatchTags(item, new Set(["motivation_recherche.indemnisation"]))).toEqual([]);
-  });
-
-  it("affiche « Idéal pour débuter » quand la mission a des prérequis, « Aucune expérience requise » sinon", () => {
-    const match = {
-      taxonomyScores: { motivation_recherche: 1 },
-      values: [matchValue("motivation_recherche", "premiere_experience")],
-    };
-    const userValueKeys = new Set(["motivation_recherche.premiere_experience"]);
-
-    expect(buildMissionMatchTags(buildItem(match, { requirements: ["Permis B"] }), userValueKeys)).toEqual(["Idéal pour débuter"]);
-    expect(buildMissionMatchTags(buildItem(match), userValueKeys)).toEqual(["Aucune expérience requise"]);
-  });
-
-  it("ajoute le tag de proximité quand la mission est à moins de 3km", () => {
-    expect(buildMissionMatchTags(buildItem({}, { distanceKm: 2.4 }), new Set())).toEqual(["À moins de 3km de chez toi"]);
-    expect(buildMissionMatchTags(buildItem({}, { distanceKm: 5 }), new Set())).toEqual([]);
-  });
-
-  it("ajoute le tag « À distance » quand la mission est remote, sans doublon avec le matching", () => {
-    const item = buildItem(
-      {
-        taxonomyScores: { motivation_recherche: 1 },
-        values: [matchValue("motivation_recherche", "remote")],
-      },
-      { remote: "full" },
-    );
-
-    expect(buildMissionMatchTags(item, new Set(["motivation_recherche.remote"]))).toEqual(["À distance"]);
-    expect(buildMissionMatchTags(buildItem({}, { remote: "possible" }), new Set())).toEqual([]);
+  it("déduplique les libellés identiques", () => {
+    expect(buildMissionMatchTags(buildItem(["motivation_recherche.remote", "motivation_recherche.remote"]))).toEqual(["À distance"]);
   });
 
   it("limite le nombre de tags à 6", () => {
     const item = buildItem(
-      {
-        geoScore: 0.9,
-        taxonomyScores: { motivation_recherche: 1, equipe: 0.8, imprevu: 0.7, interaction: 0.6 },
-        values: [
-          matchValue("motivation_recherche", "premiere_experience"),
-          matchValue("motivation_recherche", "agir_pour_une_cause"),
-          matchValue("equipe", "petit_groupe"),
-          matchValue("imprevu", "adaptation_rapide"),
-          matchValue("interaction", "interaction_collective"),
-        ],
-      },
-      { city: "Grenoble", distanceKm: 2 },
-    );
-
-    const tags = buildMissionMatchTags(
-      item,
-      new Set([
+      [
+        "motivation_recherche.remote",
         "motivation_recherche.premiere_experience",
         "motivation_recherche.agir_pour_une_cause",
+        "city",
         "equipe.petit_groupe",
         "imprevu.adaptation_rapide",
         "interaction.interaction_collective",
-      ]),
+      ],
+      "Grenoble",
     );
 
-    expect(tags).toHaveLength(6);
-    expect(tags).toEqual([
-      "À moins de 3km de chez toi",
-      "Aucune expérience requise",
+    expect(buildMissionMatchTags(item)).toEqual([
+      "À distance",
+      "Idéal pour débuter",
       "Une mission qui a du sens",
       "Grenoble",
       "Une équipe de moins de 10 bénévoles",
       "Un environnement dynamique",
     ]);
+  });
+
+  it("retourne une liste vide quand l'API ne renvoie pas encore les clés de tags", () => {
+    const item = buildItem([]);
+    delete item.match.missionCardTagKeys;
+
+    expect(buildMissionMatchTags(item)).toEqual([]);
   });
 });
 
@@ -276,7 +188,6 @@ describe("matchResultToBrowseMission", () => {
         title: "Mission près de chez moi",
         remote: "local",
         schedule: "Quelques jours par mois",
-        requirements: [],
         domain: "solidarite",
         domainOriginal: null,
         organizationName: "Organisation",

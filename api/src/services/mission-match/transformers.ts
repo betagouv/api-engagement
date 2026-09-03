@@ -11,7 +11,6 @@ export const missionMatchMissionSelect = {
   title: true,
   remote: true,
   schedule: true,
-  requirements: true,
   domainOriginal: true,
   domainLogo: true,
   compensationAmount: true,
@@ -50,7 +49,6 @@ type MissionIndexEntry = {
   city: string | null;
   remote: MissionMatchDbRow["remote"];
   schedule: string | null;
-  requirements: string[];
   domain: string | null;
   domainOriginal: string | null;
   domainLogo: string | null;
@@ -82,7 +80,6 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
       city: m.addresses[0]?.city ?? null,
       remote: m.remote ?? null,
       schedule: m.schedule ?? null,
-      requirements: m.requirements,
       domain: m.domain?.name ?? null,
       domainOriginal: m.domainOriginal ?? null,
       domainLogo: m.domainLogo ?? null,
@@ -121,6 +118,49 @@ export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): 
   return index;
 };
 
+// Score géo minimal pour considérer la mission comme proche et proposer sa ville en tag de carte.
+const GEO_SCORE_TAG_THRESHOLD = 0.8;
+
+// Clés des tags de la carte mission, ordonnées : d'abord le tag "à distance" porté par la mission,
+// puis les valeurs à la fois demandées par l'utilisateur et portées par la mission, par score de
+// taxonomie décroissant, avec la ville quand le score géo est haut. Ce sont des clés plates de
+// taxonomie, que le client résout via `getMissionCardTag` ; seule "city" est résolue depuis la mission.
+const buildMissionCardTagKeys = (
+  item: MatchMissionItem,
+  values: MissionMatchValue[],
+  remote: MissionMatchDbRow["remote"],
+  city: string | null,
+  userValueKeys: ReadonlySet<string>
+): string[] => {
+  const keys: string[] = [];
+  if (remote === "full") {
+    keys.push("motivation_recherche.remote");
+  }
+
+  const entries: { score: number; keys: string[] }[] = [];
+  for (const [taxonomyKey, score] of Object.entries(item.taxonomyScores)) {
+    if (score === undefined || score <= 0) {
+      continue;
+    }
+
+    const matchedKeys = values
+      .filter((value) => value.taxonomyKey === taxonomyKey && userValueKeys.has(`${value.taxonomyKey}.${value.taxonomyValueKey}`))
+      .map((value) => `${value.taxonomyKey}.${value.taxonomyValueKey}`);
+    if (matchedKeys.length > 0) {
+      entries.push({ score, keys: matchedKeys });
+    }
+  }
+
+  if (item.geoScore !== null && item.geoScore >= GEO_SCORE_TAG_THRESHOLD && city) {
+    entries.push({ score: item.geoScore, keys: ["city"] });
+  }
+
+  entries.sort((a, b) => b.score - a.score);
+  keys.push(...entries.flatMap((entry) => entry.keys));
+
+  return [...new Set(keys)];
+};
+
 const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"]): Record<string, number> => {
   const result: Record<string, number> = {};
   for (const [taxonomyKey, score] of Object.entries(taxonomyScores)) {
@@ -136,6 +176,8 @@ export const toMissionMatchItem = (
   missionIndex: Record<string, MissionIndexEntry>,
   valuesIndex: Record<string, MissionMatchValue[]>,
   publisherId: string,
+  // Clés plates "taxonomie.valeur" des réponses de l'utilisateur, pour les tags de carte mission.
+  userValueKeys: ReadonlySet<string>,
   // Quand le moteur ignore l'adresse des missions remote=full/local, on neutralise aussi le fallback ville.
   ignoreRemoteAddress = false
 ): MissionMatchItem => {
@@ -143,6 +185,8 @@ export const toMissionMatchItem = (
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
   const hasCompensation = mission?.compensationAmount != null || mission?.compensationAmountMax != null;
   const isRemoteAddressIgnored = ignoreRemoteAddress && isAddressNeutralizedRemote(mission?.remote);
+  const city = item.closestCity ?? (isRemoteAddressIgnored ? null : mission?.city) ?? null;
+  const values = valuesIndex[item.missionScoringId] ?? [];
 
   return {
     mission: {
@@ -150,7 +194,6 @@ export const toMissionMatchItem = (
       title: mission?.title ?? "(unknown)",
       remote: mission?.remote ?? null,
       schedule: mission?.schedule ?? null,
-      requirements: mission?.requirements ?? [],
       domain: mission?.domain ?? mission?.domainOriginal ?? null,
       domainOriginal: mission?.domainOriginal ?? null,
       organizationName: mission?.organizationName ?? null,
@@ -163,7 +206,7 @@ export const toMissionMatchItem = (
         publisherLogo: mission?.publisherLogo ?? null,
       },
       location: {
-        city: item.closestCity ?? (isRemoteAddressIgnored ? null : mission?.city) ?? null,
+        city,
         closestLat: item.closestLat,
         closestLon: item.closestLon,
         closestAddress: item.closestAddress,
@@ -186,7 +229,8 @@ export const toMissionMatchItem = (
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
       taxonomyScores: toTaxonomyScoresDto(item.taxonomyScores),
-      values: valuesIndex[item.missionScoringId] ?? [],
+      values,
+      missionCardTagKeys: buildMissionCardTagKeys(item, values, mission?.remote ?? null, city, userValueKeys),
     },
   };
 };

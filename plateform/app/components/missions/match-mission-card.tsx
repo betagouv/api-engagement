@@ -7,31 +7,6 @@ import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services
 import { buildMissionDetailHref, buildMissionMatchTags } from "~/utils/mission";
 import MissionTag from "./mission-tag";
 
-// ─── Fake temporaire du matching ─────────────────────────────────────────────
-// L'API ne renvoie pas encore de vrai matching : on écrase match.values/taxonomyScores/geoScore
-// avec ce jeu en dur avant de calculer les tags. À supprimer quand le matching réel sera branché.
-const FAKE_VALUE_KEYS = [
-  ["motivation_recherche", "premiere_experience"],
-  ["motivation_recherche", "indemnisation"],
-  ["motivation_recherche", "agir_pour_une_cause"],
-  ["equipe", "petit_groupe"],
-  ["imprevu", "adaptation_rapide"],
-  ["interaction", "interaction_collective"],
-] as const;
-
-const FAKE_MATCH_VALUES = FAKE_VALUE_KEYS.map(([taxonomyKey, taxonomyValueKey]) => ({
-  taxonomyKey,
-  taxonomyValueKey,
-  taxonomyValueLabel: taxonomyValueKey,
-  enrichmentConfidence: 1,
-  scoringScore: 1,
-  evidence: null,
-}));
-
-const FAKE_TAXONOMY_SCORES = { motivation_recherche: 1, equipe: 0.9, imprevu: 0.8, interaction: 0.7 };
-
-const FAKE_USER_VALUE_KEYS: ReadonlySet<string> = new Set(FAKE_VALUE_KEYS.map(([taxonomyKey, valueKey]) => `${taxonomyKey}.${valueKey}`));
-
 // Sections de résultats (matching) et leur entry_source de fiche détail correspondante.
 // `similar` n'a pas de provenance détail dédiée (→ pas de nav state, resolve en "direct").
 type MatchSection = "pinned" | "other" | "similar";
@@ -58,8 +33,7 @@ export default function MatchMissionCard({
 }) {
   const { mission } = item;
 
-  // TODO fake : repasser sur item.match tel quel + les clés plates des réponses du quiz quand le matching réel sera branché.
-  const tags = buildMissionMatchTags({ ...item, match: { ...item.match, geoScore: 0.9, taxonomyScores: FAKE_TAXONOMY_SCORES, values: FAKE_MATCH_VALUES } }, FAKE_USER_VALUE_KEYS);
+  const tags = buildMissionMatchTags(item);
 
   const entrySource = section === "similar" ? undefined : DETAIL_ENTRY_SOURCE_BY_SECTION[section];
   const state: MissionDetailNavState | undefined = entrySource ? { entrySource, rank } : undefined;

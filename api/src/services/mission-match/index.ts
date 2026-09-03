@@ -25,7 +25,7 @@ export const missionMatchService = {
     const missionIds = result.items.map((item) => item.missionId);
     const missionScoringIds = result.items.map((item) => item.missionScoringId);
 
-    const [missionRows, scoringValueRows] = await Promise.all([
+    const [missionRows, scoringValueRows, userValueRows] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
         select: missionMatchMissionSelect,
@@ -34,17 +34,22 @@ export const missionMatchService = {
         where: { missionScoringId: { in: missionScoringIds } },
         select: missionMatchScoringValueSelect,
       }),
+      prisma.userScoringValue.findMany({
+        where: { userScoringId: input.userScoringId },
+        select: { taxonomyKey: true, valueKey: true },
+      }),
     ]);
 
     const missionIndex = buildMissionIndex(missionRows);
     const valuesIndex = buildValuesIndex(scoringValueRows);
+    const userValueKeys = new Set(userValueRows.map((row) => `${row.taxonomyKey}.${row.valueKey}`));
     // La version active ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur)
     const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[result.version].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[result.version].remoteLocalGeoScore != null;
 
     return {
       tookMs: result.tookMs,
       engineVersion: result.version,
-      items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex, input.publisherId, ignoreRemoteAddress)),
+      items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex, input.publisherId, userValueKeys, ignoreRemoteAddress)),
       total: result.total,
       avgDistanceKmTop5: result.avgDistanceKmTop5,
     };
