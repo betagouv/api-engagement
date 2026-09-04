@@ -51,6 +51,25 @@ describe("matching engine config", () => {
     }
   });
 
+  it("ne conditionne le boost remote=full à l'intention que pour m5", () => {
+    expect(MATCHING_ENGINE_VERSIONS.m5.gateRemoteFullGeoScoreOnIntent).toBe(true);
+    for (const version of ["m1", "m2", "m3", "m4"] as const) {
+      expect(MATCHING_ENGINE_VERSIONS[version].gateRemoteFullGeoScoreOnIntent).toBe(false);
+    }
+  });
+
+  it("applique false par défaut au flag gateRemoteFullGeoScoreOnIntent", () => {
+    const config = defineMatchingEngineVersion({
+      taxonomyWeights: { domaine: 0.5 },
+      geoWeight: 0.3,
+      remoteFullGeoScore: 0.9,
+      remoteLocalGeoScore: 0.95,
+      taxonomyOrBaseScore: 0.8,
+    });
+
+    expect(config.gateRemoteFullGeoScoreOnIntent).toBe(false);
+  });
+
   it.each(["constructor", "toString", "__proto__"])("rejette la propriété Object.prototype '%s' comme version", (version) => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
