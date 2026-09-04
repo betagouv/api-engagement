@@ -35,4 +35,5 @@ COPY --from=builder /workspace/plateform/build ./plateform/build
 ENV NODE_ENV=production
 EXPOSE 8080
 WORKDIR /workspace/plateform
+USER node
 CMD ["npm", "run", "start"]
