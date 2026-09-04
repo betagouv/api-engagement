@@ -99,7 +99,11 @@ describe("buildMissionApplicationHref", () => {
 });
 
 describe("buildMissionMatchTags", () => {
-  const buildItem = (missionCardTagKeys: string[], city: string | null = null): MissionMatchItem => ({
+  const buildItem = (
+    values: [string, string][],
+    match: { taxonomyScores?: Record<string, number>; geoScore?: number | null } = {},
+    city: string | null = null,
+  ): MissionMatchItem => ({
     mission: {
       id: "mission",
       title: "Mission",
@@ -119,50 +123,86 @@ describe("buildMissionMatchTags", () => {
       missionScoringId: "mission-scoring",
       totalScore: 0.8,
       taxonomyScore: 0.9,
-      geoScore: null,
-      taxonomyScores: {},
-      values: [],
-      missionCardTagKeys,
+      geoScore: match.geoScore ?? null,
+      taxonomyScores: match.taxonomyScores ?? {},
+      values: values.map(([taxonomyKey, taxonomyValueKey]) => ({
+        taxonomyKey,
+        taxonomyValueKey,
+        taxonomyValueLabel: taxonomyValueKey,
+        enrichmentConfidence: 1,
+        scoringScore: 1,
+        evidence: null,
+      })),
     },
   });
 
-  it("résout les clés de taxonomie en libellés, dans l'ordre renvoyé par l'API", () => {
-    const item = buildItem(["equipe.petit_groupe", "imprevu.adaptation_rapide"]);
+  it("retourne les tags des valeurs demandées et portées par la mission, par score décroissant", () => {
+    const item = buildItem(
+      [
+        ["imprevu", "adaptation_rapide"],
+        ["equipe", "petit_groupe"],
+      ],
+      { taxonomyScores: { imprevu: 0.5, equipe: 1 } },
+    );
 
-    expect(buildMissionMatchTags(item)).toEqual(["Une équipe de moins de 10 bénévoles", "Un environnement dynamique"]);
+    expect(buildMissionMatchTags(item, new Set(["imprevu.adaptation_rapide", "equipe.petit_groupe"]))).toEqual([
+      "Une équipe de moins de 10 bénévoles",
+      "Un environnement dynamique",
+    ]);
   });
 
-  it("résout la clé « city » avec la ville de la mission", () => {
-    expect(buildMissionMatchTags(buildItem(["city", "equipe.petit_groupe"], "Grenoble"))).toEqual(["Grenoble", "Une équipe de moins de 10 bénévoles"]);
+  it("ignore les valeurs non demandées par l'utilisateur et les taxonomies sans score", () => {
+    const item = buildItem(
+      [
+        ["equipe", "grand_collectif"],
+        ["interaction", "interaction_collective"],
+      ],
+      { taxonomyScores: { equipe: 1, interaction: 0 } },
+    );
+
+    expect(buildMissionMatchTags(item, new Set(["equipe.petit_groupe", "interaction.interaction_collective"]))).toEqual([]);
   });
 
-  it("ignore la clé « city » quand la mission n'a pas de ville", () => {
-    expect(buildMissionMatchTags(buildItem(["city"]))).toEqual([]);
+  it("ajoute la ville quand le score géo est haut, ordonnée par score", () => {
+    const item = buildItem([["imprevu", "cadre_previsible"]], { taxonomyScores: { imprevu: 0.5 }, geoScore: 0.98 }, "Grenoble");
+
+    expect(buildMissionMatchTags(item, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable et rassurant"]);
   });
 
-  it("ignore les clés inconnues et les valeurs de taxonomie sans tag", () => {
-    expect(buildMissionMatchTags(buildItem(["inconnu", "equipe.valeur_inexistante", "statut.lyceen"]))).toEqual([]);
+  it("n'ajoute pas la ville quand le score géo est bas ou que la mission n'en a pas", () => {
+    expect(buildMissionMatchTags(buildItem([], { geoScore: 0.4 }, "Grenoble"), new Set())).toEqual([]);
+    expect(buildMissionMatchTags(buildItem([], { geoScore: 0.98 }), new Set())).toEqual([]);
   });
 
-  it("déduplique les libellés identiques", () => {
-    expect(buildMissionMatchTags(buildItem(["motivation_recherche.remote", "motivation_recherche.remote"]))).toEqual(["À distance"]);
+  it("ignore les valeurs de taxonomie sans tag de carte", () => {
+    const item = buildItem([["statut", "lyceen"]], { taxonomyScores: { statut: 1 } });
+
+    expect(buildMissionMatchTags(item, new Set(["statut.lyceen"]))).toEqual([]);
   });
 
   it("limite le nombre de tags à 6", () => {
     const item = buildItem(
       [
-        "motivation_recherche.remote",
-        "motivation_recherche.premiere_experience",
-        "motivation_recherche.agir_pour_une_cause",
-        "city",
-        "equipe.petit_groupe",
-        "imprevu.adaptation_rapide",
-        "interaction.interaction_collective",
+        ["motivation_recherche", "remote"],
+        ["motivation_recherche", "premiere_experience"],
+        ["motivation_recherche", "agir_pour_une_cause"],
+        ["equipe", "petit_groupe"],
+        ["imprevu", "adaptation_rapide"],
+        ["interaction", "interaction_collective"],
       ],
+      { taxonomyScores: { motivation_recherche: 1, equipe: 0.9, imprevu: 0.8, interaction: 0.7 }, geoScore: 0.98 },
       "Grenoble",
     );
+    const userValueKeys = new Set([
+      "motivation_recherche.remote",
+      "motivation_recherche.premiere_experience",
+      "motivation_recherche.agir_pour_une_cause",
+      "equipe.petit_groupe",
+      "imprevu.adaptation_rapide",
+      "interaction.interaction_collective",
+    ]);
 
-    expect(buildMissionMatchTags(item)).toEqual([
+    expect(buildMissionMatchTags(item, userValueKeys)).toEqual([
       "À distance",
       "Idéal pour débuter",
       "Une mission qui a du sens",
@@ -170,13 +210,6 @@ describe("buildMissionMatchTags", () => {
       "Une équipe de moins de 10 bénévoles",
       "Un environnement dynamique",
     ]);
-  });
-
-  it("retourne une liste vide quand l'API ne renvoie pas encore les clés de tags", () => {
-    const item = buildItem([]);
-    delete item.match.missionCardTagKeys;
-
-    expect(buildMissionMatchTags(item)).toEqual([]);
   });
 });
 

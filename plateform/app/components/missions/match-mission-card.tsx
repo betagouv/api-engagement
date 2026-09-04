@@ -1,9 +1,11 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
+import { useMemo } from "react";
 import { Link } from "react-router";
 
 import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
+import { useQuizStore } from "~/stores/quiz";
 import { buildMissionDetailHref, buildMissionMatchTags } from "~/utils/mission";
 import MissionTag from "./mission-tag";
 
@@ -32,8 +34,15 @@ export default function MatchMissionCard({
   onEmailClick?: (missionId: string) => void;
 }) {
   const { mission } = item;
+  const answers = useQuizStore((s) => s.answers);
 
-  const tags = buildMissionMatchTags(item);
+  // Clés plates "taxonomie.valeur" des réponses du quiz : les tags ne retiennent que les valeurs
+  // de la mission que l'utilisateur a effectivement demandées.
+  const userValueKeys = useMemo(
+    () => new Set(Object.values(answers).flatMap((answer) => (answer?.type === "options" ? answer.option_ids.map((optionId) => `${answer.taxonomy}.${optionId}`) : []))),
+    [answers],
+  );
+  const tags = buildMissionMatchTags(item, userValueKeys);
 
   const entrySource = section === "similar" ? undefined : DETAIL_ENTRY_SOURCE_BY_SECTION[section];
   const state: MissionDetailNavState | undefined = entrySource ? { entrySource, rank } : undefined;

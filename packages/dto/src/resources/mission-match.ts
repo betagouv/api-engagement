@@ -50,11 +50,6 @@ export type MissionMatchScore = {
   geoScore: number | null;
   taxonomyScores: Record<string, number>;
   values: MissionMatchValue[];
-  // Clés des tags à afficher sur la carte mission, ordonnées par pertinence décroissante.
-  // Chaque clé est une clé plate de taxonomie ("equipe.petit_groupe"), résolue en libellé par le
-  // client, sauf "city" dont le libellé est la ville de la mission.
-  // Optionnel : les déploiements antérieurs de l'API ne renvoient pas encore ce champ.
-  missionCardTagKeys?: string[];
 };
 
 export type MissionMatchItem = {

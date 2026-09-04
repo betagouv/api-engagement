@@ -1,5 +1,5 @@
 import type { MissionBrowse, MissionDetailCompensation, MissionMatchItem } from "@engagement/dto";
-import { getMissionCardTag, parseTaxonomyValueKey } from "@engagement/taxonomy";
+import { getMissionCardTag } from "@engagement/taxonomy";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
@@ -88,22 +88,36 @@ export function buildMissionApplicationHref(applicationUrl: string, userScoringI
   return url.toString();
 }
 
+// Score géo minimal pour considérer la mission comme proche et afficher sa ville en tag.
+const GEO_SCORE_TAG_THRESHOLD = 0.8;
 const MAX_MATCH_TAGS = 6;
 
 /**
- * Résout en libellés les clés de tags renvoyées par l'API (`match.missionCardTagKeys`), déjà
- * ordonnées par pertinence : clés plates de taxonomie via `getMissionCardTag`, sauf "city" dont le
- * libellé est la ville de la mission. Les clés sans libellé sont ignorées.
+ * Construit les tags résumant pourquoi une mission a matché : pour chaque taxonomie avec un score
+ * positif, les tags des valeurs à la fois demandées par l'utilisateur (`userValueKeys`, clés plates
+ * "taxonomie.valeur") et portées par la mission, ordonnés par score de taxonomie décroissant, avec
+ * la ville quand le score géo est haut. Les valeurs sans `mission_card_tag` sont ignorées.
  */
-export function buildMissionMatchTags(item: MissionMatchItem): string[] {
-  const labels = (item.match.missionCardTagKeys ?? []).map((key) => {
-    if (key === "city") return item.mission.location.city;
+export function buildMissionMatchTags(item: MissionMatchItem, userValueKeys: ReadonlySet<string>): string[] {
+  const entries: { score: number; tags: string[] }[] = [];
 
-    const parsedKey = parseTaxonomyValueKey(key);
-    return parsedKey ? getMissionCardTag(parsedKey.taxonomyKey, parsedKey.valueKey) : null;
-  });
+  for (const [taxonomyKey, score] of Object.entries(item.match.taxonomyScores)) {
+    if (score <= 0) continue;
 
-  return [...new Set(labels.filter((label): label is string => label !== null))].slice(0, MAX_MATCH_TAGS);
+    const tags = item.match.values
+      .filter((value) => value.taxonomyKey === taxonomyKey && userValueKeys.has(`${value.taxonomyKey}.${value.taxonomyValueKey}`))
+      .map((value) => getMissionCardTag(value.taxonomyKey, value.taxonomyValueKey))
+      .filter((tag): tag is string => tag !== null);
+    if (tags.length > 0) entries.push({ score, tags });
+  }
+
+  const city = item.mission.location.city;
+  if (item.match.geoScore !== null && item.match.geoScore >= GEO_SCORE_TAG_THRESHOLD && city) {
+    entries.push({ score: item.match.geoScore, tags: [city] });
+  }
+
+  entries.sort((a, b) => b.score - a.score);
+  return [...new Set(entries.flatMap((entry) => entry.tags))].slice(0, MAX_MATCH_TAGS);
 }
 
 export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrowse {

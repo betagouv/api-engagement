@@ -118,38 +118,6 @@ export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): 
   return index;
 };
 
-// Score géo minimal pour considérer la mission comme proche et proposer sa ville en tag de carte.
-const GEO_SCORE_TAG_THRESHOLD = 0.8;
-
-// Clés des tags de la carte mission : les valeurs à la fois demandées par l'utilisateur et portées
-// par la mission, ordonnées par score de taxonomie décroissant, avec la ville quand le score géo est
-// haut. Ce sont des clés plates de taxonomie, que le client résout via `getMissionCardTag` ; seule
-// "city" est résolue depuis la mission. Le tag "à distance" passe par la taxonomie comme les autres :
-// `motivation_recherche.remote` est injecté dans les valeurs de scoring des missions remote=full
-// (cf. SCORING_RULES), il n'y a donc pas de cas particulier ici.
-const buildMissionCardTagKeys = (item: MatchMissionItem, values: MissionMatchValue[], city: string | null, userValueKeys: ReadonlySet<string>): string[] => {
-  const entries: { score: number; keys: string[] }[] = [];
-  for (const [taxonomyKey, score] of Object.entries(item.taxonomyScores)) {
-    if (score === undefined || score <= 0) {
-      continue;
-    }
-
-    const matchedKeys = values
-      .filter((value) => value.taxonomyKey === taxonomyKey && userValueKeys.has(`${value.taxonomyKey}.${value.taxonomyValueKey}`))
-      .map((value) => `${value.taxonomyKey}.${value.taxonomyValueKey}`);
-    if (matchedKeys.length > 0) {
-      entries.push({ score, keys: matchedKeys });
-    }
-  }
-
-  if (item.geoScore !== null && item.geoScore >= GEO_SCORE_TAG_THRESHOLD && city) {
-    entries.push({ score: item.geoScore, keys: ["city"] });
-  }
-
-  entries.sort((a, b) => b.score - a.score);
-  return entries.flatMap((entry) => entry.keys);
-};
-
 const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"]): Record<string, number> => {
   const result: Record<string, number> = {};
   for (const [taxonomyKey, score] of Object.entries(taxonomyScores)) {
@@ -165,8 +133,6 @@ export const toMissionMatchItem = (
   missionIndex: Record<string, MissionIndexEntry>,
   valuesIndex: Record<string, MissionMatchValue[]>,
   publisherId: string,
-  // Clés plates "taxonomie.valeur" des réponses de l'utilisateur, pour les tags de carte mission.
-  userValueKeys: ReadonlySet<string>,
   // Quand le moteur ignore l'adresse des missions remote=full/local, on neutralise aussi le fallback ville.
   ignoreRemoteAddress = false
 ): MissionMatchItem => {
@@ -219,7 +185,6 @@ export const toMissionMatchItem = (
       geoScore: item.geoScore,
       taxonomyScores: toTaxonomyScoresDto(item.taxonomyScores),
       values,
-      missionCardTagKeys: buildMissionCardTagKeys(item, values, city, userValueKeys),
     },
   };
 };
