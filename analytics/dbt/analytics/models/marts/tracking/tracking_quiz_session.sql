@@ -23,7 +23,11 @@ backend as (
     quiz_session_id,
     score_top5,
     has_apply,
-    apply_count
+    apply_count,
+    first_apply_at,
+    backend_click_count,
+    has_backend_click,
+    first_backend_click_at
   from {{ ref('int_tracking_quiz_backend') }}
 )
 
@@ -53,19 +57,31 @@ select
   s.motivation,
   s.age_bracket,
   s.has_localisation,
+  s.postcode,
+  s.geo_lat,
+  s.geo_lon,
+  s.country_code,
+  s.department_code,
+  s.department_name,
+  s.region_code,
+  s.region_name,
   r.has_results,
   r.total_results_count,
   r.pinned_count,
   r.avg_distance_km_top5,
   b.score_top5,
   b.has_apply,
+  b.first_apply_at,
+  b.first_backend_click_at,
   coalesce(r.click_count, 0) as click_count,
   coalesce(r.has_click_after_results, false) as has_click_after_results,
   coalesce(r.has_click_results, false) as has_click_results,
   coalesce(r.has_click_pinned, false) as has_click_pinned,
   coalesce(r.has_click_external, false) as has_click_external,
   coalesce(r.is_zero_click, false) as is_zero_click,
-  coalesce(b.apply_count, 0) as apply_count
+  coalesce(b.apply_count, 0) as apply_count,
+  coalesce(b.backend_click_count, 0) as backend_click_count,
+  coalesce(b.has_backend_click, false) as has_backend_click
 from sessions as s
 left join results as r on s.quiz_session_id = r.quiz_session_id
 left join backend as b on s.quiz_session_id = b.quiz_session_id

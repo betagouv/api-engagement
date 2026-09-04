@@ -34,6 +34,18 @@ backend_scoring as (
     with ordinality as t (elem, ord)
   where t.ord <= 5
   group by lr.user_scoring_id
+),
+
+backend_conversion as (
+  select
+    quiz_session_id,
+    backend_click_count,
+    backend_clicked_mission_count,
+    first_backend_click_at,
+    apply_count,
+    has_apply,
+    first_apply_at
+  from {{ ref('int_tracking_backend_conversion') }}
 )
 
 select
@@ -42,9 +54,14 @@ select
   s.session_date,
   bsc.matching_engine_version,
   bsc.score_top5,
-  null::boolean as has_apply,
-  0::integer as apply_count,
-  null::timestamp as first_apply_at
+  bc.backend_clicked_mission_count,
+  bc.first_backend_click_at,
+  bc.first_apply_at,
+  coalesce(bc.backend_click_count, 0) as backend_click_count,
+  coalesce(bc.backend_click_count, 0) > 0 as has_backend_click,
+  coalesce(bc.has_apply, false) as has_apply,
+  coalesce(bc.apply_count, 0) as apply_count
 from sessions as s
 left join backend_scoring as bsc on s.quiz_session_id = bsc.quiz_session_id
+left join backend_conversion as bc on s.quiz_session_id = bc.quiz_session_id
 where {{ exclude_internal_distinct_ids('s.distinct_id') }}

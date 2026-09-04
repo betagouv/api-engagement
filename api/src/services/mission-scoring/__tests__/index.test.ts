@@ -251,6 +251,30 @@ describe("missionScoringService.score", () => {
           valueKey: "entre_46_66_ans",
           score: 1,
         },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "domaine_engagement",
+          valueKey: "sante_bien_etre",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "domaine_engagement",
+          valueKey: "solidarite_inclusion",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "activite",
+          valueKey: "aider_accompagner",
+          score: 1,
+        },
+        {
+          missionEnrichmentValueId: null,
+          taxonomyKey: "motivation_recherche",
+          valueKey: "decouverte_metier",
+          score: 1,
+        },
       ],
     });
   });

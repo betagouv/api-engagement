@@ -121,6 +121,43 @@ describe("getMissionScoringRuleKeys — remote", () => {
   });
 });
 
+describe("getMissionScoringRuleKeys — élargissement thématique des dispositifs de sécurité", () => {
+  it("référence les sapeurs-pompiers volontaires sur Santé, Solidarité, l'activité d'accompagnement et la découverte métier", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ type: "volontariat_sapeurs_pompiers" }));
+
+    expect(keys).toContain("domaine_engagement.sante_bien_etre");
+    expect(keys).toContain("domaine_engagement.solidarite_inclusion");
+    expect(keys).toContain("activite.aider_accompagner");
+    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    // Les valeurs de l'ancienne règle SPV (mode replace) restent produites.
+    expect(keys).toContain("dispositif.sapeurs_pompiers");
+  });
+
+  it("rattache la découverte métier à toutes les réserves opérationnelles, sans leur ajouter Citoyenneté par défaut", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ type: "volontariat_reserve_operationnelle" }));
+
+    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    // Citoyenneté est réservée à la gendarmerie / police (ciblage publisher), pas au type seul.
+    expect(keys).not.toContain("domaine_engagement.citoyennete");
+  });
+
+  it("ajoute Citoyenneté et la découverte métier à la réserve gendarmerie", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.GENDARMERIE, type: "volontariat_reserve_operationnelle" }));
+
+    expect(keys).toContain("domaine_engagement.citoyennete");
+    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    expect(keys).toContain("dispositif.reserve_gendarmerie");
+  });
+
+  it("ajoute Citoyenneté et la découverte métier à la réserve police", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.POLICE, type: "volontariat_reserve_operationnelle" }));
+
+    expect(keys).toContain("domaine_engagement.citoyennete");
+    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    expect(keys).toContain("dispositif.reserve_police_nationale");
+  });
+});
+
 // Note : la co-occurrence de DEUX règles sur la même taxonomie `tranche_age` est exercée par
 // le cas réel « Service Civique + openToMinors=false » du bloc ci-dessus (deux ensembles
 // tranche_age → intersection → {entre_18_25_ans}). Aucun couple de règles `publisherId`/`type`
