@@ -11,9 +11,13 @@ COPY api/package.json ./api/
 COPY packages/taxonomy ./packages/taxonomy
 COPY packages/dto ./packages/dto
 
+RUN chown -R node:node /workspace
+
+USER node
+
 RUN npm ci --workspace=api
 
-COPY api ./api
+COPY --chown=node:node api ./api
 
 WORKDIR /workspace/api
 

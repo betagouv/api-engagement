@@ -35,10 +35,12 @@ WORKDIR /workspace/analytics
 
 COPY --from=builder /workspace/analytics/dist ./dist
 COPY --from=builder /workspace/analytics/db ./db
-COPY --from=builder /workspace/analytics/dbt ./dbt
+COPY --from=builder --chown=node:node /workspace/analytics/dbt ./dbt
 COPY --from=builder /workspace/analytics/scripts ./scripts
 
 COPY analytics/docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
+
+USER node
 
 ENTRYPOINT ["/workspace/analytics/docker-entrypoint.sh"]

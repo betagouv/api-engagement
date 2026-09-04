@@ -8,11 +8,15 @@ WORKDIR /workspace
 COPY package.json package-lock.json ./
 COPY app/package.json ./app/
 
+RUN chown -R node:node /workspace
+
+USER node
+
 RUN npm ci --workspace=app
 
 WORKDIR /workspace/app
 
-COPY app/ .
+COPY --chown=node:node app/ .
 
 EXPOSE 3000
 
