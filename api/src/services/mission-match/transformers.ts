@@ -121,22 +121,13 @@ export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): 
 // Score géo minimal pour considérer la mission comme proche et proposer sa ville en tag de carte.
 const GEO_SCORE_TAG_THRESHOLD = 0.8;
 
-// Clés des tags de la carte mission, ordonnées : d'abord le tag "à distance" porté par la mission,
-// puis les valeurs à la fois demandées par l'utilisateur et portées par la mission, par score de
-// taxonomie décroissant, avec la ville quand le score géo est haut. Ce sont des clés plates de
-// taxonomie, que le client résout via `getMissionCardTag` ; seule "city" est résolue depuis la mission.
-const buildMissionCardTagKeys = (
-  item: MatchMissionItem,
-  values: MissionMatchValue[],
-  remote: MissionMatchDbRow["remote"],
-  city: string | null,
-  userValueKeys: ReadonlySet<string>
-): string[] => {
-  const keys: string[] = [];
-  if (remote === "full") {
-    keys.push("motivation_recherche.remote");
-  }
-
+// Clés des tags de la carte mission : les valeurs à la fois demandées par l'utilisateur et portées
+// par la mission, ordonnées par score de taxonomie décroissant, avec la ville quand le score géo est
+// haut. Ce sont des clés plates de taxonomie, que le client résout via `getMissionCardTag` ; seule
+// "city" est résolue depuis la mission. Le tag "à distance" passe par la taxonomie comme les autres :
+// `motivation_recherche.remote` est injecté dans les valeurs de scoring des missions remote=full
+// (cf. SCORING_RULES), il n'y a donc pas de cas particulier ici.
+const buildMissionCardTagKeys = (item: MatchMissionItem, values: MissionMatchValue[], city: string | null, userValueKeys: ReadonlySet<string>): string[] => {
   const entries: { score: number; keys: string[] }[] = [];
   for (const [taxonomyKey, score] of Object.entries(item.taxonomyScores)) {
     if (score === undefined || score <= 0) {
@@ -156,9 +147,7 @@ const buildMissionCardTagKeys = (
   }
 
   entries.sort((a, b) => b.score - a.score);
-  keys.push(...entries.flatMap((entry) => entry.keys));
-
-  return [...new Set(keys)];
+  return entries.flatMap((entry) => entry.keys);
 };
 
 const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"]): Record<string, number> => {
@@ -230,7 +219,7 @@ export const toMissionMatchItem = (
       geoScore: item.geoScore,
       taxonomyScores: toTaxonomyScoresDto(item.taxonomyScores),
       values,
-      missionCardTagKeys: buildMissionCardTagKeys(item, values, mission?.remote ?? null, city, userValueKeys),
+      missionCardTagKeys: buildMissionCardTagKeys(item, values, city, userValueKeys),
     },
   };
 };

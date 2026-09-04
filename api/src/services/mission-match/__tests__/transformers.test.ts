@@ -5,10 +5,10 @@ import type { MissionMatchValue } from "@engagement/dto";
 import type { MatchMissionItem } from "@/services/matching-engine/types";
 import { toMissionMatchItem } from "@/services/mission-match/transformers";
 
-const missionEntry = (overrides: { city?: string | null; remote?: "no" | "possible" | "full" | "local" | null } = {}) => ({
+const missionEntry = (overrides: { city?: string | null } = {}) => ({
   title: "Mission",
   city: overrides.city ?? null,
-  remote: overrides.remote ?? null,
+  remote: null,
   schedule: null,
   domain: null,
   domainOriginal: null,
@@ -50,27 +50,18 @@ const matchValue = (taxonomyKey: string, valueKey: string): MissionMatchValue =>
   evidence: null,
 });
 
-const buildTagKeys = (
-  item: MatchMissionItem,
-  values: MissionMatchValue[],
-  userValueKeys: string[],
-  mission: { city?: string | null; remote?: "no" | "possible" | "full" | "local" | null } = {}
-): string[] => {
+const buildTagKeys = (item: MatchMissionItem, values: MissionMatchValue[], userValueKeys: string[], mission: { city?: string | null } = {}): string[] => {
   const result = toMissionMatchItem(item, { mission: missionEntry(mission) }, { "mission-scoring": values }, "publisher", new Set(userValueKeys));
   return result.match.missionCardTagKeys ?? [];
 };
 
 describe("toMissionMatchItem — missionCardTagKeys", () => {
-  it("place la clé de taxonomie « à distance » en tête quand la mission est remote", () => {
-    expect(buildTagKeys(matchItem(), [], [], { remote: "full" })).toEqual(["motivation_recherche.remote"]);
-    expect(buildTagKeys(matchItem(), [], [], { remote: "possible" })).toEqual([]);
-  });
-
-  it("ne duplique pas la clé « à distance » quand elle vient aussi du matching", () => {
+  it("remonte la clé « à distance » via la taxonomie, sans cas particulier sur le champ remote", () => {
     const item = matchItem({ taxonomyScores: { motivation_recherche: 1 } });
     const values = [matchValue("motivation_recherche", "remote")];
 
-    expect(buildTagKeys(item, values, ["motivation_recherche.remote"], { remote: "full" })).toEqual(["motivation_recherche.remote"]);
+    expect(buildTagKeys(item, values, ["motivation_recherche.remote"])).toEqual(["motivation_recherche.remote"]);
+    expect(buildTagKeys(item, values, [])).toEqual([]);
   });
 
   it("retourne les valeurs demandées et portées par la mission, ordonnées par score décroissant", () => {
