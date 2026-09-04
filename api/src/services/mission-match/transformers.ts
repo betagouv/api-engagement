@@ -140,6 +140,8 @@ export const toMissionMatchItem = (
   const photo = mission?.domainLogo ?? mission?.organizationLogo ?? mission?.publisherDefaultMissionLogo ?? mission?.publisherLogo ?? null;
   const hasCompensation = mission?.compensationAmount != null || mission?.compensationAmountMax != null;
   const isRemoteAddressIgnored = ignoreRemoteAddress && isAddressNeutralizedRemote(mission?.remote);
+  const city = item.closestCity ?? (isRemoteAddressIgnored ? null : mission?.city) ?? null;
+  const values = valuesIndex[item.missionScoringId] ?? [];
 
   return {
     mission: {
@@ -159,7 +161,7 @@ export const toMissionMatchItem = (
         publisherLogo: mission?.publisherLogo ?? null,
       },
       location: {
-        city: item.closestCity ?? (isRemoteAddressIgnored ? null : mission?.city) ?? null,
+        city,
         closestLat: item.closestLat,
         closestLon: item.closestLon,
         closestAddress: item.closestAddress,
@@ -182,7 +184,7 @@ export const toMissionMatchItem = (
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
       taxonomyScores: toTaxonomyScoresDto(item.taxonomyScores),
-      values: valuesIndex[item.missionScoringId] ?? [],
+      values,
     },
   };
 };

@@ -44,7 +44,8 @@ export default function ResultsPage() {
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
-  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la modale en mode mission unique.
+  const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // quiz_session_id vient de l'URL ici (accès direct possible) : on l'enregistre comme super
@@ -175,7 +176,7 @@ export default function ResultsPage() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    setEmailModalOpen(true);
+                    setEmailMissionId(selectedMission.mission.id);
                   }}
                   aria-label="Recevoir par email"
                 >
@@ -237,7 +238,15 @@ export default function ResultsPage() {
           </div>
 
           <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-            <PinnedMissions items={pinnedItems} loading={loading} error={error} userScoringId={userScoringId} showDebug={showDebug} highlightedMissionId={activeMissionId} />
+            <PinnedMissions
+              items={pinnedItems}
+              loading={loading}
+              error={error}
+              userScoringId={userScoringId}
+              showDebug={showDebug}
+              highlightedMissionId={activeMissionId}
+              onEmailClick={setEmailMissionId}
+            />
 
             {showOther && (
               <div className="px-6 pt-2 pb-8">
@@ -266,7 +275,15 @@ export default function ResultsPage() {
         </div>
 
         <MatchingDebugModal items={[...pinnedItems, ...otherItems]} userValues={userValues} />
-        <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
+        <EmailMissionsModal
+          userScoringId={userScoringId}
+          missionId={emailMissionId ?? undefined}
+          open={emailMissionId !== null}
+          onOpenChange={(open) => {
+            if (!open) setEmailMissionId(null);
+          }}
+          hideTrigger
+        />
       </main>
     );
   }
@@ -301,6 +318,7 @@ export default function ResultsPage() {
                 showDebug={showDebug}
                 highlightedMissionId={activeMissionId}
                 onMissionHover={setHoveredMissionId}
+                onEmailClick={setEmailMissionId}
               />
             </div>
             <div className="sticky top-0 max-h-[720px] flex-1 py-12">
@@ -339,7 +357,7 @@ export default function ResultsPage() {
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
-                              setEmailModalOpen(true);
+                              setEmailMissionId(selectedMission.mission.id);
                             }}
                             aria-label="Recevoir par email"
                           >
@@ -392,7 +410,15 @@ export default function ResultsPage() {
         />
         <Partners style="compact" />
       </main>
-      <EmailMissionsModal userScoringId={userScoringId} open={emailModalOpen} onOpenChange={setEmailModalOpen} hideTrigger />
+      <EmailMissionsModal
+        userScoringId={userScoringId}
+        missionId={emailMissionId ?? undefined}
+        open={emailMissionId !== null}
+        onOpenChange={(open) => {
+          if (!open) setEmailMissionId(null);
+        }}
+        hideTrigger
+      />
     </>
   );
 }

@@ -9,12 +9,15 @@ import { useQuizStore } from "~/stores/quiz";
 
 interface EmailMissionsModalProps {
   userScoringId: string | undefined;
+  // Renseigné depuis le bouton email d'une carte : la modale n'envoie que cette mission
+  // (wording au singulier), sinon toute la sélection de résultats.
+  missionId?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   hideTrigger?: boolean;
 }
 
-export default function EmailMissionsModal({ userScoringId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
+export default function EmailMissionsModal({ userScoringId, missionId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -49,7 +52,7 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
 
     try {
       await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
-      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID, userScoringId, distinctId });
+      const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID, userScoringId, distinctId, missionIds: missionId ? [missionId] : undefined });
       if (!result.email_sent) {
         setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");
       } else {
@@ -75,11 +78,17 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
         </button>
       )}
 
-      <Modal open={open} onClose={handleClose} title="Reçois tes missions par email" beforeTitle={<MailIllustration className="mx-auto mb-6 h-[100px]" />} className="">
+      <Modal
+        open={open}
+        onClose={handleClose}
+        title={missionId ? "Reçois ta mission par email" : "Reçois tes missions par email"}
+        beforeTitle={<MailIllustration className="mx-auto mb-6 h-[100px]" />}
+        className=""
+      >
         {success ? (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <div role="status" className="fr-alert fr-alert--success w-full">
-              <p>Tes missions ont bien été envoyées ! Vérifie ta boîte mail.</p>
+              <p>{missionId ? "Ta mission a bien été envoyée !" : "Tes missions ont bien été envoyées !"} Vérifie ta boîte mail.</p>
             </div>
             <button type="button" onClick={handleClose} className="fr-btn fr-btn--secondary w-full! justify-center!">
               Fermer
@@ -87,7 +96,11 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
           </div>
         ) : (
           <>
-            <p className="fr-text--lead fr-mb-2w">On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement.</p>
+            <p className="fr-text--lead fr-mb-2w">
+              {missionId
+                ? "On t'envoie cette mission pour que tu puisses la retrouver facilement."
+                : "On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement."}
+            </p>
 
             <form onSubmit={handleSubmit}>
               <p className="fr-hint-text fr-mb-2w">
@@ -129,10 +142,10 @@ export default function EmailMissionsModal({ userScoringId, open: controlledOpen
 
               <div className="flex flex-col gap-2">
                 <button type="submit" disabled={submitting} className="fr-btn w-full! justify-center!">
-                  {submitting ? "Envoi en cours…" : "Recevoir mes missions"}
+                  {submitting ? "Envoi en cours…" : missionId ? "Recevoir ma mission" : "Recevoir mes missions"}
                 </button>
                 <button type="button" onClick={handleClose} disabled={submitting} className="fr-btn fr-btn--secondary w-full! justify-center!">
-                  Continuer sans recevoir ma sélection
+                  {missionId ? "Continuer sans recevoir ma mission" : "Continuer sans recevoir ma sélection"}
                 </button>
                 <p className="fr-hint-text text-center fr-mb-0!">Tu peux te désinscrire à tout moment</p>
               </div>
