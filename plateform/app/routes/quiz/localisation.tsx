@@ -198,6 +198,7 @@ export default function LocalisationStep() {
               role="listbox"
               className="absolute z-50 top-full left-0 right-0 mt-1 bg-background border border-border-default-grey max-h-60 overflow-auto shadow-md list-none! p-0! m-0!"
             >
+              {/* eslint-disable jsx-a11y/click-events-have-key-events -- Le clavier pilote les options depuis la combobox via aria-activedescendant ; les options ne doivent pas devenir des arrêts de tabulation. */}
               {options.map((option, index) => (
                 <li
                   key={`${option.lat}-${option.lon}`}
@@ -213,6 +214,7 @@ export default function LocalisationStep() {
                   {option.label}
                 </li>
               ))}
+              {/* eslint-enable jsx-a11y/click-events-have-key-events */}
             </ul>
           )}
         </div>
