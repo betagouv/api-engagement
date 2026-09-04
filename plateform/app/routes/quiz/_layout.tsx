@@ -5,6 +5,7 @@ import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import { QUIZ_FLOW, QUIZ_FLOW_REGISTRY, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
+import { captureException } from "~/services/sentry";
 import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
@@ -90,6 +91,11 @@ export default function QuizLayout() {
       return true;
     } catch (err) {
       console.error("[quiz] saveCurrentScoring failed", err);
+      captureException(err, {
+        action: "saveScoring",
+        currentStepId: currentStep?.id,
+        hasUserScoringId: Boolean(freshUserScoringId),
+      });
       return false;
     }
   };
