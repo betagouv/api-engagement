@@ -4,7 +4,7 @@ export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonomy, number>>;
 
-export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4";
+export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4" | "m5";
 
 export type MatchingEngineVersionConfig = {
   taxonomyKeys: readonly MatchingEngineTaxonomy[];
@@ -14,6 +14,9 @@ export type MatchingEngineVersionConfig = {
   remoteFullGeoScore: number | null;
   // Score géo forcé pour les missions remote=local (sur site, à proximité). null = pas de traitement spécial.
   remoteLocalGeoScore: number | null;
+  // Quand true, le score forcé remote=full n'est appliqué qu'aux utilisateurs ayant coché
+  // « je veux participer à distance » (motivation_recherche.remote) ; sinon leur score géo vaut 0.
+  gateRemoteFullGeoScoreOnIntent: boolean;
   // Socle acquis d'office par taxonomie dès qu'une valeur est en commun (part matchée sur le reste).
   // Plus il est bas, plus la qualité du match (part des valeurs matchées) pèse dans le taxonomy_score.
   taxonomyOrBaseScore: number;

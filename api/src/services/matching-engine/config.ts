@@ -18,6 +18,9 @@ type MatchingEngineVersionDefinition = {
   geoWeight: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
+  // Optionnel (défaut false). Quand true, le score forcé remote=full est réservé aux utilisateurs
+  // ayant coché « je veux participer à distance » ; les autres reçoivent un score géo de 0.
+  gateRemoteFullGeoScoreOnIntent?: boolean;
   // Socle acquis d'office par taxonomie matchée (cf. MatchingEngineVersionConfig.taxonomyOrBaseScore).
   taxonomyOrBaseScore: number;
 };
@@ -36,6 +39,7 @@ export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDef
     geoWeight: definition.geoWeight,
     remoteFullGeoScore: definition.remoteFullGeoScore,
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
+    gateRemoteFullGeoScoreOnIntent: definition.gateRemoteFullGeoScoreOnIntent ?? false,
     taxonomyOrBaseScore: definition.taxonomyOrBaseScore,
   };
 };
@@ -131,6 +135,35 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
     // Socle abaissé (vs 0.8 des versions précédentes) : la qualité du match intra-taxonomie pèse
     // désormais 50 % au lieu de 20 %, ce qui creuse l'écart entre bonnes et mauvaises missions.
+    taxonomyOrBaseScore: 0.5,
+  }),
+  m5: defineMatchingEngineVersion({
+    // Identique à m4, mais le score de proximité forcé des missions entièrement à distance
+    // (remote=full) n'est accordé qu'aux utilisateurs ayant coché « je veux participer à distance »
+    // (motivation_recherche.remote). Les autres reçoivent un score géo de 0 sur ces missions : elles
+    // restent affichables mais ne concurrencent plus les missions en présentiel proches. remote=local
+    // (engagement de proximité) conserve son score inconditionnel.
+    taxonomyWeights: {
+      domaine: 1,
+      secteur_activite: 1,
+      type_mission: 1,
+      competence_rome: 1,
+      region_internationale: 1,
+      engagement_intent: 1,
+      formation_onisep: 1,
+      domaine_engagement: 1.5,
+      rythme: 1.2,
+      activite: 1.5,
+      equipe: 0.6,
+      interaction: 0.6,
+      autonomie: 0.6,
+      imprevu: 0.6,
+      motivation_recherche: 1,
+    },
+    geoWeight: 0.3,
+    remoteFullGeoScore: 0.9,
+    remoteLocalGeoScore: 0.95,
+    gateRemoteFullGeoScoreOnIntent: true,
     taxonomyOrBaseScore: 0.5,
   }),
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
