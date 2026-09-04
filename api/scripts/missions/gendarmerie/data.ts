@@ -6,7 +6,7 @@ export const DESCRIPTION_DGGN = `<h2>👮 Et si vous deveniez réserviste de la 
 <p>En tant que réserviste, vous participez aux côtés des gendarmes à des missions très variées, par exemple :</p>
 <ul>
 <li>effectuer des patrouilles de surveillance sur le terrain ;</li>
-<li>contribuer à la protection de sites sensibles et participer à certains dispositifs de lutte contre le terrorisme ;/li>
+<li>contribuer à la protection de sites sensibles et participer à certains dispositifs de lutte contre le terrorisme ;</li>
 <li>sécuriser des événements sportifs, culturels ou des rassemblements ;</li>
 <li>accueillir le public et participer aux interventions du quotidien ;</li>
 <li> participer à certaines opérations de police judiciaire (appui aux enquêteurs).</li>
