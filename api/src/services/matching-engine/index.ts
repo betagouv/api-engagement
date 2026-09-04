@@ -90,6 +90,7 @@ const buildRanking = (params: {
   missingGeoScore: number;
   remoteFullGeoScore: number | null;
   remoteLocalGeoScore: number | null;
+  gateRemoteFullGeoScoreOnIntent: boolean;
   taxonomyOrBaseScore: number;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
@@ -98,8 +99,24 @@ const buildRanking = (params: {
 }) => {
   // Missions remote=full/local : proximité naturelle (score géo forcé), uniquement si la version l'active.
   const forcedRemoteActive = params.remoteFullGeoScore != null || params.remoteLocalGeoScore != null;
+  // L'utilisateur a-t-il coché « je veux participer à distance » ? Sous-requête non corrélée (InitPlan).
+  const userWantsRemoteSql = Prisma.sql`EXISTS (
+      SELECT 1
+      FROM "user_scoring_value" usv
+      WHERE usv."user_scoring_id" = ${params.userScoringId}
+        AND usv."taxonomy_key" = 'motivation_recherche'
+        AND usv."value_key" = 'remote'
+    )`;
   const remoteFullGeoScoreSql =
-    params.remoteFullGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
+    params.remoteFullGeoScore == null
+      ? Prisma.empty
+      : params.gateRemoteFullGeoScoreOnIntent
+        ? // Score forcé seulement si l'utilisateur veut du remote ; sinon 0 (aucun signal de proximité).
+          Prisma.sql`WHEN m."remote"::text = 'full' THEN CASE
+            WHEN ${userWantsRemoteSql} THEN CAST(${params.remoteFullGeoScore} AS double precision)
+            ELSE CAST(0 AS double precision)
+          END`
+        : Prisma.sql`WHEN m."remote"::text = 'full' THEN CAST(${params.remoteFullGeoScore} AS double precision)`;
   const remoteLocalGeoScoreSql =
     params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
   const geoRadiusKmSql = Prisma.sql`COALESCE(NULLIF(ug."radius_km", 0), CAST(${DEFAULT_GEO_RADIUS_KM} AS double precision))`;
@@ -712,6 +729,7 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     missingGeoScore: input.missingGeoScore ?? 0.1,
     remoteFullGeoScore: input.remoteFullGeoScore !== undefined ? input.remoteFullGeoScore : versionConfig.remoteFullGeoScore,
     remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
+    gateRemoteFullGeoScoreOnIntent: versionConfig.gateRemoteFullGeoScoreOnIntent,
     taxonomyOrBaseScore: input.taxonomyOrBaseScore ?? versionConfig.taxonomyOrBaseScore,
     taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
     geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
@@ -731,6 +749,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
     missingGeoScore: params.missingGeoScore,
     remoteFullGeoScore: params.remoteFullGeoScore,
     remoteLocalGeoScore: params.remoteLocalGeoScore,
+    gateRemoteFullGeoScoreOnIntent: params.gateRemoteFullGeoScoreOnIntent,
     taxonomyOrBaseScore: params.taxonomyOrBaseScore,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
