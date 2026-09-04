@@ -107,6 +107,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
           className={`absolute z-50 mt-1 w-full min-w-80 border border-border-default-grey bg-background! shadow-lg ${panelAlign === "right" ? "right-0" : "left-0"}`}
         >
           <div className="relative m-4">
+            {/* eslint-disable jsx-a11y/no-autofocus -- À l'ouverture, le focus est volontairement placé dans la recherche puis restitué au bouton à la fermeture. */}
             <input
               type="text"
               autoFocus
@@ -116,6 +117,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
               className="fr-input w-full pr-10"
               aria-label={`Rechercher dans ${label.toLowerCase()}`}
             />
+            {/* eslint-enable jsx-a11y/no-autofocus */}
             <i className="fr-icon-search-line fr-icon--sm pointer-events-none absolute top-1/2 right-3 -translate-y-1/2" aria-hidden="true" />
           </div>
 
@@ -124,6 +126,7 @@ export default function Combobox({ label, placeholder, options, selected, onChan
             {search ? `${visibleOptions.length} option${visibleOptions.length > 1 ? "s" : ""} disponible${visibleOptions.length > 1 ? "s" : ""}` : ""}
           </p>
 
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Le fieldset délègue aux contrôles natifs le suivi du pointeur et la validation clavier du panneau. */}
           <fieldset
             className="max-h-60 w-full min-w-0 overflow-y-auto"
             tabIndex={-1}
