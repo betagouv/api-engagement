@@ -7,6 +7,7 @@ export {
   NEUTRAL_TAXONOMY_VALUE_KEYS,
   getMissionCardTag,
   getTaxonomyList,
+  getTaxonomyValueTags,
   isNeutralTaxonomyValueKey,
   isValidTaxonomyValueKey,
   parseTaxonomyValueKey,

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import type { MissionMatchItem } from "@engagement/dto";
+import { describe, expect, it } from "vitest";
 import { buildMissionApplicationHref, buildMissionMatchTags, formatCompensation, formatMissionType, formatStartDate, matchResultToBrowseMission } from "../mission";
 
 describe("formatStartDate", () => {
@@ -221,6 +221,7 @@ describe("matchResultToBrowseMission", () => {
         title: "Mission près de chez moi",
         remote: "local",
         schedule: "Quelques jours par mois",
+        requirements: [],
         domain: "solidarite",
         domainOriginal: null,
         organizationName: "Organisation",

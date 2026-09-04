@@ -93,7 +93,9 @@ export default function MatchMissionCard({
         {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
         {mission.publisherName && (
           <div className="text-mention-grey mt-auto flex items-center gap-2 text-xs">
-            {mission.media.publisherLogo && <img src={mission.media.publisherLogo} alt="" aria-hidden="true" className="h-8 max-w-20 object-contain" loading="lazy" />}
+            {mission.media.publisherLogo && (
+              <img src={mission.media.publisherLogo} alt="" aria-hidden="true" className="h-8 max-w-20 object-contain bg-white rounded-lg" loading="lazy" />
+            )}
             <span className="line-clamp-1">{mission.publisherName}</span>
           </div>
         )}
