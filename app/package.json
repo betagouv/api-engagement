@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@headlessui/react": "2.2.10",
-    "@sentry/react": "10.69.0",
+    "@sentry/react": "10.71.0",
     "@sentry/vite-plugin": "5.4.0",
     "chart.js": "4.5.1",
     "date-fns": "4.4.0",
@@ -48,6 +48,6 @@
     "react-tooltip": "6.0.8",
     "recharts": "3.10.1",
     "url": "0.11.4",
-    "zustand": "5.0.14"
+    "zustand": "5.0.15"
   }
 }
