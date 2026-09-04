@@ -27,6 +27,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
   if (!mounted) return null;
 
   return createPortal(
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- Le clic ne concerne que l'arrière-plan du dialogue, qui reste fermable au clavier via Échap et le bouton dédié.
     <div
       ref={dialogRef}
       tabIndex={-1}

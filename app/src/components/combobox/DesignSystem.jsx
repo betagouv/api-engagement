@@ -211,6 +211,7 @@ const Combobox = ({
 
         <p className="mx-4 mb-2 text-base">{placeholder}</p>
         <ul id={`${id}-list`} aria-label={placeholder} className="max-h-60 w-full overflow-auto py-2" tabIndex={-1} role="listbox" aria-multiselectable="true">
+          {/* eslint-disable jsx-a11y/role-has-required-aria-props -- Une listbox multisélection avec cases à cocher peut exposer son état avec aria-checked. */}
           {options?.length === 0 ? (
             <li className="py-2 text-center text-sm">Aucune option disponible</li>
           ) : loading ? (
@@ -246,6 +247,7 @@ const Combobox = ({
               );
             })
           )}
+          {/* eslint-enable jsx-a11y/role-has-required-aria-props */}
         </ul>
       </div>
     </div>

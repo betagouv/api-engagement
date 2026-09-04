@@ -198,7 +198,7 @@ export const DateInput = ({ value, onChange }) => {
       <fieldset className="m-0 flex flex-wrap items-center gap-2 border-0 p-0">
         <legend className="sr-only">Période personnalisée</legend>
         <div className="input focus-within:outline-outline-blue flex items-center gap-1 px-2 py-1 focus-within:outline-2 focus-within:outline-offset-2">
-          <label htmlFor={`${id}-from`} className="text-sm text-gray-500">
+          <label htmlFor={`${id}-from`} className="text-text-mention text-sm">
             Du
           </label>
           <input
@@ -214,7 +214,7 @@ export const DateInput = ({ value, onChange }) => {
           />
         </div>
         <div className="input focus-within:outline-outline-blue flex items-center gap-1 px-2 py-1 focus-within:outline-2 focus-within:outline-offset-2">
-          <label htmlFor={`${id}-to`} className="text-sm text-gray-500">
+          <label htmlFor={`${id}-to`} className="text-text-mention text-sm">
             Au
           </label>
           <input
@@ -243,6 +243,7 @@ export const DateInput = ({ value, onChange }) => {
         </button>
       </fieldset>
 
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Le dialogue intercepte Tab pour maintenir le focus dans la fenêtre modale. */}
       <div
         role="dialog"
         aria-modal="true"

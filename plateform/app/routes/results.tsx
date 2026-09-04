@@ -226,6 +226,7 @@ export default function ResultsPage() {
         <div
           className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
         >
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- Le panneau est aussi commandé par le bouton adjacent, accessible au clavier et exposant aria-expanded. */}
           <div className={`flex flex-col gap-2 p-6 items-center! justify-center! ${!expanded ? "h-full" : ""}`} onClick={handleToggleSheet}>
             {!loading && error && (
               <p role="alert" className="fr-error-text m-0! text-center!">
