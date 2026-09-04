@@ -9,6 +9,8 @@ import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
 import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
 import ProfileModal from "~/components/results/profile-modal";
+import ResultsFilters from "~/components/results/results-filters";
+import ResultsFiltersModal from "~/components/results/results-filters-modal";
 import ResultsMissions from "~/components/results/results-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
@@ -37,7 +39,7 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error } = useMissionResults(userScoringId);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, refresh } = useMissionResults(userScoringId);
   const resultsViewedFired = useRef(false);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
@@ -281,6 +283,13 @@ export default function ResultsPage() {
             <Partners style="compact" />
             <FooterContent landmark={false} />
           </div>
+
+          {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
+          {expanded && !error && (
+            <div className="border-t border-border-default-grey bg-background p-3">
+              <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+            </div>
+          )}
         </div>
 
         <MatchingDebugModal items={items} userValues={userValues} />
@@ -300,6 +309,7 @@ export default function ResultsPage() {
   return (
     <>
       <main id="contenu" tabIndex={-1}>
+        {!error && <ResultsFilters userScoringId={userScoringId} onResultsChange={refresh} />}
         <GradientBg fixed className="px-12">
           <section className="max-w-7xl mx-auto py-12">
             <div className="flex mb-6 flex-row items-center justify-between gap-4 pl-6">
