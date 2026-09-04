@@ -1,8 +1,7 @@
 import * as Sentry from "@sentry/react";
 import { ENV, SENTRY_DSN } from "~/services/config";
 
-const sentryDsn = SENTRY_DSN?.trim();
-const isSentryEnabled = ENV !== "development" && Boolean(sentryDsn);
+const isSentryEnabled = ENV !== "development" && Boolean(SENTRY_DSN);
 
 let isSentryInitialized = false;
 
@@ -22,10 +21,10 @@ const normalizeError = (error: unknown): Error => {
 };
 
 export const initSentry = () => {
-  if (!isSentryEnabled || isSentryInitialized || !sentryDsn) return;
+  if (!isSentryEnabled || isSentryInitialized || !SENTRY_DSN) return;
 
   Sentry.init({
-    dsn: sentryDsn,
+    dsn: SENTRY_DSN,
     environment: ENV,
     tracesSampleRate: ENV === "production" ? 0.1 : 1,
     beforeSend(event, hint) {

@@ -9,7 +9,7 @@ if (SENTRY_DSN_API && ENV !== "development") {
     dsn: SENTRY_DSN_API,
     environment: ENV,
     release: IMAGE_VERSION,
-    integrations: [nodeProfilingIntegration()],
+    integrations: [nodeProfilingIntegration],
     tracesSampleRate: ENV === "production" ? 0.1 : 1,
     profilesSampleRate: ENV === "production" ? 0.1 : 1,
     debug: isSentryDebugEnabled,
