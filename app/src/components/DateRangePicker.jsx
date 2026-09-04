@@ -243,6 +243,7 @@ export const DateInput = ({ value, onChange }) => {
         </button>
       </fieldset>
 
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Le dialogue intercepte Tab pour maintenir le focus dans la fenêtre modale. */}
       <div
         role="dialog"
         aria-modal="true"
