@@ -2,13 +2,13 @@ import fs from "fs";
 
 import { ENV, PUBLISHER_IDS } from "@/config";
 import { captureException } from "@/error";
-import { importService } from "@/services/import";
-import { publisherService } from "@/services/publisher";
 import { BaseHandler } from "@/jobs/base/handler";
-import { JobResult } from "@/jobs/types";
 import { PARTNERS_IDS } from "@/jobs/linkedin/config";
 import { LinkedInJob } from "@/jobs/linkedin/types";
 import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/linkedin/utils";
+import { JobResult } from "@/jobs/types";
+import { importService } from "@/services/import";
+import { publisherService } from "@/services/publisher";
 
 export interface LinkedinJobPayload {}
 
@@ -46,8 +46,11 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       const jobs: LinkedInJob[] = [];
 
       console.log(`[LinkedinHandler] Querying and processing missions of JeVeuxAider.gouv.fr`);
+      // On filtre les missions JVA via le snapshot de diffusion `mission_diffusion` de LinkedIn
+      // (diffuseurPublisherId), pour appliquer les exclusions d'organisations configurées pour LinkedIn.
       const JvaMissionsCursor = getMissionsCursor({
         publisherIds: [PUBLISHER_IDS.JEVEUXAIDER],
+        diffuseurPublisherId: PUBLISHER_IDS.LINKEDIN,
       });
 
       const jvaJobs = await generateJvaJobs(JvaMissionsCursor);

@@ -11,6 +11,7 @@ vi.mock("@/config", async (importOriginal) => {
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
 import { GrimpioHandler } from "@/jobs/grimpio/handler";
+import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { putObject } from "@/services/s3";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
@@ -20,8 +21,9 @@ import { createTestMission, createTestPublisher } from "../../../fixtures";
  *
  * Grimpio est un *diffuseur* : ses annonceurs (JVA, ASC) sont configurés en DB
  * via des PublisherDiffusionRule (rule racine field=publisherId). Le handler
- * récupère les missions candidates via ces règles, puis génère un feed XML par
- * publisher.
+ * lit les missions candidates depuis le snapshot `mission_diffusion` (matérialisation
+ * de ces règles), puis génère un feed XML par publisher. Les tests reconstruisent
+ * donc le snapshot après avoir configuré les règles et les missions.
  *
  * - putObject (S3) est mocké globalement (tests/vitest/shared.ts).
  */
@@ -72,6 +74,8 @@ describe("GrimpioHandler (integration test)", () => {
     await createTestMission({ publisherId: ASC_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "asc-mission-1", title: "Mission ASC" });
     await createTestMission({ publisherId: otherPublisher.id, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "other-mission-1", title: "Mission Autre" });
 
+    await missionDiffusionService.rebuildForDistributionPublisher(GRIMPIO_ID);
+
     const result = await handler.handle({});
 
     expect(result.success).toBe(true);
@@ -107,6 +111,8 @@ describe("GrimpioHandler (integration test)", () => {
     await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-mission-1" });
     await createTestMission({ publisherId: ASC_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "asc-mission-1" });
 
+    await missionDiffusionService.rebuildForDistributionPublisher(GRIMPIO_ID);
+
     const result = await handler.handle({});
 
     expect(result.success).toBe(true);
@@ -139,6 +145,8 @@ describe("GrimpioHandler (integration test)", () => {
     await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-active" });
     await createTestMission({ publisherId: ASC_ID, statusCode: "ACCEPTED", endAt: PAST_END, clientId: "asc-expired" });
 
+    await missionDiffusionService.rebuildForDistributionPublisher(GRIMPIO_ID);
+
     const result = await handler.handle({});
 
     expect(result.success).toBe(true);
@@ -170,6 +178,8 @@ describe("GrimpioHandler (integration test)", () => {
     await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-kept", organizationClientId: "kept-org" });
     await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-excluded", organizationClientId: "excluded-org" });
 
+    await missionDiffusionService.rebuildForDistributionPublisher(GRIMPIO_ID);
+
     const result = await handler.handle({});
 
     expect(result.success).toBe(true);
@@ -178,6 +188,32 @@ describe("GrimpioHandler (integration test)", () => {
     expect(jvaXml).toBeDefined();
     expect(jvaXml).toContain("jva-kept");
     expect(jvaXml).not.toContain("jva-excluded");
+  });
+
+  it("ne diffuse que les missions matérialisées dans le snapshot (pas de recalcul live des règles)", async () => {
+    await createTestPublisher({ id: GRIMPIO_ID, name: "Grimpio" });
+    await createTestPublisher({ id: JVA_ID, name: "JeVeuxAider" });
+
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(GRIMPIO_ID, JVA_ID);
+
+    // Mission éligible aux règles mais créée après le rebuild → absente du snapshot.
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-not-in-snapshot" });
+    await missionDiffusionService.rebuildForDistributionPublisher(GRIMPIO_ID);
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", endAt: FUTURE_END, clientId: "jva-added-after-rebuild" });
+
+    const firstRun = await handler.handle({});
+    expect(firstRun.success).toBe(true);
+    const jvaXmlBefore = getStoredXmlForPublisher(JVA_ID);
+    expect(jvaXmlBefore).toContain("jva-not-in-snapshot");
+    // La mission ajoutée après le rebuild n'est pas encore dans le snapshot → pas diffusée.
+    expect(jvaXmlBefore).not.toContain("jva-added-after-rebuild");
+
+    // Après un nouveau rebuild, la mission entre dans le snapshot et est diffusée.
+    await missionDiffusionService.rebuildForDistributionPublisher(GRIMPIO_ID);
+    vi.mocked(putObject).mockClear();
+    const secondRun = await handler.handle({});
+    expect(secondRun.success).toBe(true);
+    expect(getStoredXmlForPublisher(JVA_ID)).toContain("jva-added-after-rebuild");
   });
 
   it("ne génère aucun feed quand grimpio n'a aucune diffusion rule", async () => {
