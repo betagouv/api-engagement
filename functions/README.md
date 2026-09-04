@@ -2,7 +2,7 @@
 
 Scaleway Serverless Functions du projet. Pour l'instant une seule fonction :
 
-- **sentry-webhook** — relais entre le Sentry self-hosted et Slack : reçoit le payload du plugin legacy WebHooks de Sentry en `POST`, le reformate et le poste via l'app Slack (`chat.postMessage`, même token que l'api). Une seule fonction pour tous les environnements : le channel est choisi selon l'`environment` de l'événement Sentry — staging → `SLACK_CHANNEL_ID_STAGING`, tout le reste → `SLACK_CHANNEL_ID_PRODUCTION` (le sandbox tourne avec `ENV=production`, il remonte donc dans le channel production).
+- **sentry-webhook** — relais entre le Sentry self-hosted et Slack : reçoit le payload d'une alerte Sentry en `POST` (plugin legacy WebHooks ou intégration Sentry), le reformate et le poste via l'app Slack (`chat.postMessage`, même token que l'api). Une seule fonction pour tous les environnements : le channel est choisi selon l'`environment` de l'événement Sentry — staging → `SLACK_CHANNEL_ID_STAGING`, tout le reste → `SLACK_CHANNEL_ID_PRODUCTION` (le sandbox tourne avec `ENV=production`, il remonte donc dans le channel production).
 
 ## Structure
 
@@ -45,10 +45,12 @@ npm run typecheck
 
 ## Brancher Sentry
 
-Dans le Sentry self-hosted, pour chaque projet à notifier :
+L'URL de la fonction est la même pour tous les projets (`terraform output sentry_webhook_endpoint` sur le workspace production pour la retrouver). Deux branchements possibles, la fonction accepte les deux formats de payload :
 
-1. **Settings → Legacy Integrations → WebHooks** : activer le plugin et renseigner l'URL de la fonction, la même pour tous les projets (`terraform output sentry_webhook_endpoint` sur le workspace production pour la retrouver).
-2. Dans les **Alert rules** du projet, ajouter l'action « Send a notification via WebHooks ».
+- **Plugin legacy WebHooks** — pour chaque projet : **Settings → Legacy Integrations → WebHooks**, activer le plugin et renseigner l'URL, puis ajouter l'action « Send a notification via WebHooks » dans les **Alert rules** du projet. Le payload a les champs à la racine (`project_name`, `message`, `url`, `event`).
+- **Intégration Sentry (Internal Integration)** — **Settings → Custom Integrations**, renseigner la Webhook URL, cocher **Alert Rule Action**, puis choisir l'intégration comme action dans les **Alert rules**. Le payload est de la forme `{ action, data: { event, triggered_rule } }` : le nom du projet n'y est pas, il est déduit de l'url d'api de l'événement, et le lien vers l'issue vient de `web_url`.
+
+Si le message Slack arrive avec un titre « Nouvel événement Sentry » et « Projet : ? », c'est que le payload reçu ne correspond à aucun des deux formats : la fonction logue alors les clés reçues (`Sentry webhook: payload inattendu`), visibles dans les logs de la fonction (Scaleway/Cockpit).
 
 ## Notes
 
