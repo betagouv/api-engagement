@@ -17,7 +17,7 @@ resource "scaleway_container_domain" "plateform" {
 }
 
 resource "scaleway_function_domain" "sentry_webhook" {
-  count       = var.enable_sentry_webhook && var.sentry_webhook_hostname != "" ? 1 : 0
+  count       = local.deploy_sentry_webhook && var.sentry_webhook_hostname != "" ? 1 : 0
   function_id = scaleway_function.sentry_webhook[0].id
   hostname    = var.sentry_webhook_hostname
 }

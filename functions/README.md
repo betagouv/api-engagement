@@ -20,7 +20,7 @@ La fonction est déployée par Terraform (`terraform/functions.tf`) via le workf
 1. La CI lance `npm --prefix functions run build` : esbuild bundle chaque `src/functions/<nom>/handler.ts` vers `terraform/build/<nom>/handler.mjs` (une seule commande, quel que soit le nombre de fonctions).
 2. `terraform apply` zippe le bundle et crée/met à jour la fonction (namespace `functions`).
 
-La fonction est déployée une seule fois, par le workspace production (`enable_sentry_webhook = true` dans `envs/production.tfvars`).
+La fonction est déployée une seule fois, par le workspace production : `terraform/locals.tf` la conditionne à `var.workspace == "production"`, il n'y a rien à activer dans les `tfvars`.
 
 Variables de la fonction :
 

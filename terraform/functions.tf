@@ -4,7 +4,7 @@
 # voir functions/README.md.
 
 data "archive_file" "sentry_webhook" {
-  count = var.enable_sentry_webhook ? 1 : 0
+  count = local.deploy_sentry_webhook ? 1 : 0
 
   type        = "zip"
   source_file = "${path.module}/build/sentry-webhook/handler.mjs"
@@ -12,7 +12,7 @@ data "archive_file" "sentry_webhook" {
 }
 
 resource "scaleway_function_namespace" "functions" {
-  count = var.enable_sentry_webhook ? 1 : 0
+  count = local.deploy_sentry_webhook ? 1 : 0
 
   name        = "${var.workspace}-functions"
   description = "${var.workspace} functions namespace"
@@ -20,7 +20,7 @@ resource "scaleway_function_namespace" "functions" {
 }
 
 resource "scaleway_function" "sentry_webhook" {
-  count = var.enable_sentry_webhook ? 1 : 0
+  count = local.deploy_sentry_webhook ? 1 : 0
 
   name         = "sentry-webhook"
   description  = "Relais Sentry → Slack"
@@ -47,5 +47,5 @@ resource "scaleway_function" "sentry_webhook" {
 }
 
 output "sentry_webhook_endpoint" {
-  value = var.enable_sentry_webhook ? (var.sentry_webhook_hostname != "" ? "https://${var.sentry_webhook_hostname}" : "https://${scaleway_function.sentry_webhook[0].domain_name}") : ""
+  value = local.deploy_sentry_webhook ? (var.sentry_webhook_hostname != "" ? "https://${var.sentry_webhook_hostname}" : "https://${scaleway_function.sentry_webhook[0].domain_name}") : ""
 }
