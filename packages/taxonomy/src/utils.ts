@@ -52,14 +52,14 @@ export function isValidTaxonomyValueKey(key: string): key is TaxonomyValueKey {
   return Object.prototype.hasOwnProperty.call(TAXONOMY[taxonomyKey].values, parsedKey.valueKey);
 }
 
-/** Tags à afficher sur une carte mission quand la valeur (taxonomie + valeur) a matché. */
-export function getTaxonomyValueTags(taxonomyKey: string, valueKey: string): string[] {
+/** Tag à afficher sur une carte mission quand la valeur (taxonomie + valeur) a matché. */
+export function getMissionCardTag(taxonomyKey: string, valueKey: string): string | null {
   if (!Object.prototype.hasOwnProperty.call(TAXONOMY, taxonomyKey)) {
-    return [];
+    return null;
   }
 
-  const values = TAXONOMY[taxonomyKey as TaxonomyKey].values as Record<string, { tags?: readonly string[] }>;
-  return [...(values[valueKey]?.tags ?? [])];
+  const values = TAXONOMY[taxonomyKey as TaxonomyKey].values as Record<string, { mission_card_tag?: string }>;
+  return values[valueKey]?.mission_card_tag ?? null;
 }
 
 /** Retourne la liste des taxonomies avec leurs valeurs, prête à l'affichage. */

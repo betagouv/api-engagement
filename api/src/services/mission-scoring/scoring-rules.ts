@@ -116,6 +116,44 @@ export const SCORING_RULES = [
     values: ["dispositif.reserve_police_nationale"],
   },
 
+  // Élargissement thématique des dispositifs de sécurité (référencement manuel, hors enrichissement).
+  //
+  // Toutes les règles ci-dessous sont en mode `add` : elles complètent les domaines/activités/
+  // motivations produits par l'enrichissement (« Sécurité et secours » / « Secourir et protéger »)
+  // au lieu de les remplacer, pour ouvrir ces missions à de nouvelles portes d'entrée du quiz.
+
+  // Sapeurs-pompiers volontaires : le secours à personne est l'essentiel de l'activité, on
+  // référence donc aussi Santé et bien-être, Solidarité et l'activité « Aider et accompagner ».
+  // On leur rattache également « Je veux découvrir un métier » (mission de découverte métier).
+  {
+    field: "type",
+    condition: { operator: "equals", value: "volontariat_sapeurs_pompiers" },
+    mode: "add",
+    values: ["domaine_engagement.sante_bien_etre", "domaine_engagement.solidarite_inclusion", "activite.aider_accompagner", "motivation_recherche.decouverte_metier"],
+  },
+  // Réserves opérationnelles (police, gendarmerie, et armées à venir) : missions de découverte
+  // d'un métier. Ciblé sur le type pour couvrir toutes les réserves, y compris sans publisher dédié.
+  {
+    field: "type",
+    condition: { operator: "equals", value: "volontariat_reserve_operationnelle" },
+    mode: "add",
+    values: ["motivation_recherche.decouverte_metier"],
+  },
+  // Réserve gendarmerie / police : on ajoute Citoyenneté aux missions de réserve. Ciblé sur le
+  // publisher (et non le type) pour n'inclure que ces deux réserves, à l'exclusion des armées.
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.GENDARMERIE },
+    mode: "add",
+    values: ["domaine_engagement.citoyennete"],
+  },
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.POLICE },
+    mode: "add",
+    values: ["domaine_engagement.citoyennete"],
+  },
+
   // Mission fermée aux mineurs : seules les tranches d'âge adultes sont autorisées.
   // Combinée par intersection avec les autres règles (cf. getMissionScoringRuleKeys),
   // cette contrainte exclut du matching tout utilisateur de moins de 18 ans.

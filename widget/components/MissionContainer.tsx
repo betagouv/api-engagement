@@ -62,9 +62,10 @@ const CarouselSkeleton = () => (
 
 const MissionContainer = ({ widget, missions, total, request, isLoading, page, onPageChange }: MissionContainerProps) => {
   const isCarousel = widget.style === "carousel";
+  const containerHeight = isLoading || isCarousel ? getContainerHeight(widget) : "h-auto";
 
   return (
-    <div className={getContainerHeight(widget)}>
+    <div className={containerHeight}>
       {isLoading ? (
         isCarousel ? (
           <CarouselSkeleton />

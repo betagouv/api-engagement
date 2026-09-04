@@ -18,8 +18,12 @@ models:
   - name: int_tracking_quiz_session
     description: >
       Colonne vertébrale du tracking : une ligne par `quiz_attempt_id`. Agrège tout le tunnel (started, steps,
-      completed), résout `quiz_session_id` et porte les flags de complétion. Les personnes internes sont exclues
-      au niveau du `distinct_id` (référentiel `int_internal_distinct_ids`).
+      completed), résout `quiz_session_id` et porte les flags de complétion. Porte aussi la géo DÉCLARÉE au quiz
+      (étape `localisation`), enrichie du département et de la région via le seed `department_codes`. Les personnes
+      internes sont exclues au niveau du `distinct_id` (référentiel `int_internal_distinct_ids`).
+      PIÈGE DE GRAIN : la géo n'existe que pour les tentatives ayant atteint l'étape `localisation` (les abandons
+      antérieurs ont les colonnes géo à null) ; les analyses d'abandon par géo ne sont valides qu'à partir de
+      cette étape.
     columns:
       - name: quiz_attempt_id
         description: UUID de la tentative de quiz.
@@ -32,6 +36,24 @@ models:
         description: Version du quiz au démarrage de la tentative.
       - name: is_completed
         description: Vrai si un événement `quiz.completed` a été observé pour la tentative.
+      - name: postcode
+        description: Code postal DÉCLARÉ à l'étape `localisation`. Null avant cette étape.
+      - name: geo_lat
+        description: Latitude déclarée à l'étape `localisation`. Nullable.
+      - name: geo_lon
+        description: Longitude déclarée à l'étape `localisation`. Nullable.
+      - name: country_code
+        description: Code pays déclaré à l'étape `localisation` (ex. `fr`). Nullable.
+      - name: department_code
+        description: >
+          Département dérivé du code postal (gère Outre-mer et Corse, approximatif pour la Corse).
+          Nullable ou hors référentiel si saisie hors périmètre code postal FR.
+      - name: department_name
+        description: Nom du département (jointure seed `department_codes`). Nullable.
+      - name: region_code
+        description: Code région INSEE 2016 (jointure seed `department_codes`). Nullable.
+      - name: region_name
+        description: Nom de la région INSEE 2016 (jointure seed `department_codes`). Nullable.
 
   - name: int_tracking_quiz_funnel_step
     description: >
@@ -88,13 +110,31 @@ models:
           clic. Même base que `score_top5` (sous-score thématique), donc PAS le score total pondéré géo
           (non persisté). Null si le clic n'est pas réconcilié au backend (`matched_to_backend = false`).
 
+  - name: int_tracking_backend_conversion
+    description: >
+      Attribution backend d'une session quiz (`quiz_session_id` = `user_scoring_id`) : clics sortants
+      trackés côté `stat_event` (porteurs de `custom_attributes.user_scoring_id`) et candidatures (`apply`)
+      rattachées via `apply.click_id = click.stat_event_id`. Bots exclus. Une ligne par session ayant
+      au moins un clic backend.
+    columns:
+      - name: quiz_session_id
+        tests:
+          - not_null
+          - unique
+      - name: backend_click_count
+        description: Nombre de clics backend trackés pour la session.
+      - name: apply_count
+        description: Nombre de candidatures rattachées aux clics backend de la session.
+      - name: has_apply
+        description: Vrai si au moins une candidature a été rattachée.
+
   - name: int_tracking_quiz_backend
     description: >
       Réconciliation d'une session quiz avec le backend via `quiz_session_id` = `user_scoring_id`.
       `score_top5` est la moyenne des `taxonomyScores` des 5 premiers résultats du dernier run de
       matching (`matching_engine_result` le plus récent par `user_scoring_id`, plusieurs runs possibles).
-      Les métriques de candidature (`has_apply`, `apply_count`, `first_apply_at`) restent des
-      placeholders à figer (clé d'attribution des candidatures). Personnes internes exclues au niveau du `distinct_id`.
+      Les métriques de conversion backend (clics sortants et candidatures) sont issues de
+      `int_tracking_backend_conversion`. Personnes internes exclues au niveau du `distinct_id`.
     columns:
       - name: quiz_session_id
         tests:
@@ -104,6 +144,12 @@ models:
         description: >
           Moyenne des `taxonomyScores` sur le top 5 des résultats du dernier run de matching de la
           session. Null si aucun `matching_engine_result` exploitable.
+      - name: has_backend_click
+        description: Vrai si la session a au moins un clic sortant tracké côté `stat_event`.
+      - name: has_apply
+        description: Vrai si au moins une candidature a été rattachée aux clics backend de la session.
+      - name: apply_count
+        description: Nombre de candidatures rattachées aux clics backend de la session.
 
   - name: int_tracking_recommendation
     description: >

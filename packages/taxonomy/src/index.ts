@@ -5,6 +5,7 @@ export {
   ENRICHABLE_TAXONOMIES,
   GATE_TAXONOMIES,
   NEUTRAL_TAXONOMY_VALUE_KEYS,
+  getMissionCardTag,
   getTaxonomyList,
   getTaxonomyValueTags,
   isNeutralTaxonomyValueKey,

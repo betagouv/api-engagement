@@ -553,6 +553,57 @@ describe("matchingEngineService", () => {
       expect(rankingValues).toContain(0.95);
     });
 
+    it("gates the remote=full geo score on the user's remote intent for the m5 version", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m5",
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m5",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m5",
+        version: "m5",
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(result.version).toBe("m5");
+      // Le score forcé remote=full est conditionné à l'intention de l'utilisateur.
+      expect(rankingSql).toContain("usv.\"taxonomy_key\" = 'motivation_recherche'");
+      expect(rankingSql).toContain("usv.\"value_key\" = 'remote'");
+      expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'full' THEN CASE");
+      expect(rankingSql).toContain("ELSE CAST(0 AS double precision)");
+      // remote=local reste inconditionnel.
+      expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'local' THEN CAST(");
+    });
+
+    it("does not gate the remote=full geo score for the m3 version (non-regression)", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([
+          {
+            id: "user-scoring-m3-ungated",
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m3-ungated",
+      });
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m3-ungated",
+        version: "m3",
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(result.version).toBe("m3");
+      expect(rankingSql).not.toContain("usv.\"value_key\" = 'remote'");
+      expect(rankingSql).not.toContain("WHEN m.\"remote\"::text = 'full' THEN CASE");
+    });
+
     it("does not inject the remote=full branch for the m2 version (non-regression)", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
