@@ -10,6 +10,7 @@ with events as (
     e.click_id,
     e.source,
     e.tags,
+    e.custom_attributes,
     nullif(e.mission_id, '') as mission_id,
     nullif(e.to_publisher_id, '') as to_publisher_id_clean,
     nullif(e.from_publisher_id, '') as from_publisher_id_clean,
@@ -31,6 +32,7 @@ select
   e.from_publisher_id_clean as from_publisher_id,
   e.to_publisher_id_clean as to_publisher_id,
   e.source_id_clean as source_id,
+  e.custom_attributes,
   coalesce(e.tags, array[]::text []) as tags,
   case
     when coalesce(e.source, 'publisher') in ('publisher', 'api') then 'api'

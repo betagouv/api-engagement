@@ -219,6 +219,43 @@ models:
         description: Timestamp de dernière mise à jour (curseur incrémental).
         tests:
           - not_null
+  - name: mission_diffusion
+    description: >
+      Vue des périodes de diffusion de mission, directement exposée depuis l'intermediate
+      `int_mission_diffusion`. Le grain est un cycle mission / partenaire diffuseur ;
+      les retraits restent disponibles grâce à `deleted_at`.
+    columns:
+      - name: id
+        description: Identifiant technique unique de la diffusion.
+        tests:
+          - not_null
+          - unique
+      - name: distribution_publisher_id
+        description: Identifiant du partenaire autorisé à diffuser la mission.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: mission_id
+        description: Identifiant de la mission diffusée.
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('mission')
+                field: id
+      - name: created_at
+        description: Horodatage de création de la diffusion autorisée.
+        tests:
+          - not_null
+      - name: updated_at
+        description: Horodatage de dernière modification de la diffusion.
+        tests:
+          - not_null
+      - name: deleted_at
+        description: Horodatage du retrait de la diffusion du snapshot courant (nullable).
   - name: mission_jobboard_daily
     description: >
       Agrégat quotidien des diffusions jobboard au grain jour + domaine de mission +

@@ -1,10 +1,10 @@
-import { Filters as FilterTypes, Widget } from "@/types";
+import { Filters as FilterTypes, MissionBrowseFacets, Widget } from "@/types";
 import FiltersBenevolat from "./FiltersBenevolat";
 import FiltersVolontariat from "./FiltersVolontariat";
 
 interface FiltersProps {
   widget: Widget;
-  apiUrl: string;
+  facets: MissionBrowseFacets;
   values: FilterTypes;
   total: number;
   onChange: (filters: Partial<FilterTypes>) => void;

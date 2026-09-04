@@ -23,6 +23,7 @@ describe("matching engine config", () => {
       geoWeight: 0.3,
       remoteFullGeoScore: null,
       remoteLocalGeoScore: null,
+      taxonomyOrBaseScore: 0.8,
     });
 
     for (const gate of GATE_TAXONOMIES) {
@@ -38,8 +39,16 @@ describe("matching engine config", () => {
         geoWeight: 0.3,
         remoteFullGeoScore: null,
         remoteLocalGeoScore: null,
+        taxonomyOrBaseScore: 0.8,
       })
     ).toThrow("cannot have a ranking weight");
+  });
+
+  it("abaisse le socle de base (taxonomyOrBaseScore) à 0.5 pour m4, 0.8 pour les versions précédentes", () => {
+    expect(MATCHING_ENGINE_VERSIONS.m4.taxonomyOrBaseScore).toBe(0.5);
+    for (const version of ["m1", "m2", "m3"] as const) {
+      expect(MATCHING_ENGINE_VERSIONS[version].taxonomyOrBaseScore).toBe(0.8);
+    }
   });
 
   it.each(["constructor", "toString", "__proto__"])("rejette la propriété Object.prototype '%s' comme version", (version) => {

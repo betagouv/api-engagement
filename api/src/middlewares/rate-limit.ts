@@ -1,8 +1,30 @@
 import { ipKeyGenerator, rateLimit, RateLimitRequestHandler } from "express-rate-limit";
 
 import { RATE_LIMIT_IP_MAX, RATE_LIMIT_PUBLISHER_MAX } from "@/config";
+import { appendAuditEvent } from "@/utils/audit-log";
 
 const handler = (req: any, res: any) => {
+  const user = req.user as { id?: string; role?: string } | undefined;
+  const rateLimitInfo = req.rateLimit;
+  const platformClientIp = req.headers["x-platform-client-ip"];
+
+  appendAuditEvent(req, {
+    action: "access.denied",
+    outcome: "denied",
+    target: {
+      type: "route",
+      id: req.route ? req.baseUrl + req.route.path : req.originalUrl.split("?")[0],
+    },
+    metadata: {
+      reason: "rate_limit",
+      rateLimitKey: rateLimitInfo?.key,
+      sourceIp: req.ip,
+      platformClientIp: typeof platformClientIp === "string" ? platformClientIp : undefined,
+      userId: user?.id,
+      userRole: user?.role,
+    },
+  });
+
   res.status(429).send({
     ok: false,
     code: "TOO_MANY_REQUESTS",

@@ -435,18 +435,19 @@ model PublisherDiffusionRule {
   @@map("publisher_diffusion_rule")
 }
 
-// Snapshot batch du périmètre de diffusion complet : une ligne (publisher de diffusion, mission)
-// encode l'allowlist explicite ou le scope propre du publisher. Le statut, le soft-delete et la
-// restriction `publisher` restent évalués en lecture (cf. mission-diffusion service).
+// Historique des périodes de diffusion : une ligne représente un cycle de diffusion d'une mission
+// vers un publisher. Le statut courant reste évalué en lecture via `deletedAt = null`.
 model MissionDiffusion {
-  distributionPublisherId String   @map("distribution_publisher_id")
-  missionId               String   @map("mission_id")
-  createdAt               DateTime @default(now()) @map("created_at")
+  id                      String    @id @default(uuid())
+  distributionPublisherId String    @map("distribution_publisher_id")
+  missionId               String    @map("mission_id")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @default(now()) @updatedAt @map("updated_at")
+  deletedAt               DateTime? @map("deleted_at")
 
   distributionPublisher Publisher @relation("MissionDiffusionDistributionPublisher", fields: [distributionPublisherId], references: [id], onDelete: Cascade)
   mission               Mission   @relation("MissionDiffusionMission", fields: [missionId], references: [id], onDelete: Cascade)
 
-  @@id([distributionPublisherId, missionId], map: "mission_diffusion_pkey")
   @@index([missionId], map: "mission_diffusion_mission_id_idx")
   @@index([createdAt], map: "mission_diffusion_created_at_idx")
   @@map("mission_diffusion")

@@ -5,6 +5,20 @@ export const ENRICHABLE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, 
 
 export const GATE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.gate).map(([k]) => k);
 
+// Clés plates "taxonomie.valeur" des réponses « je ne sais pas » / « peu importe ». Elles n'apportent
+// aucun signal (aucune mission ne les porte) et diluent le taxonomy_score si elles restent au
+// dénominateur : elles sont filtrées à l'écriture des réponses utilisateur (cf. user-scoring service).
+export const NEUTRAL_TAXONOMY_VALUE_KEYS: ReadonlySet<string> = new Set(
+  (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).flatMap(([taxonomyKey, d]) =>
+    (Object.entries(d.values) as [string, { neutral?: boolean }][]).filter(([, v]) => v.neutral === true).map(([valueKey]) => `${taxonomyKey}.${valueKey}`)
+  )
+);
+
+/** Indique si une réponse (taxonomie + valeur) est une valeur neutre « je ne sais pas » / « peu importe ». */
+export function isNeutralTaxonomyValueKey(taxonomyKey: string, valueKey: string): boolean {
+  return NEUTRAL_TAXONOMY_VALUE_KEYS.has(`${taxonomyKey}.${valueKey}`);
+}
+
 export type ParsedTaxonomyValueKey = {
   taxonomyKey: string;
   valueKey: string;
@@ -46,17 +60,21 @@ export function getTaxonomyList(): TaxonomyListItem[] {
     type: dim.type,
     enrichable: dim.enrichable,
     gate: dim.gate,
-    values: (Object.entries(dim.values) as [string, { label: string; sublabel?: string; icon: string | null; enrichable: boolean; hidden?: boolean; disabled?: boolean }][]).map(
-      ([vKey, val], i) => ({
-        key: vKey,
-        label: val.label,
-        sublabel: val.sublabel,
-        icon: val.icon,
-        order: i,
-        enrichable: val.enrichable,
-        hidden: val.hidden,
-        disabled: val.disabled,
-      })
-    ),
+    values: (
+      Object.entries(dim.values) as [
+        string,
+        { label: string; sublabel?: string; icon: string | null; enrichable: boolean; hidden?: boolean; disabled?: boolean; neutral?: boolean },
+      ][]
+    ).map(([vKey, val], i) => ({
+      key: vKey,
+      label: val.label,
+      sublabel: val.sublabel,
+      icon: val.icon,
+      order: i,
+      enrichable: val.enrichable,
+      hidden: val.hidden,
+      disabled: val.disabled,
+      neutral: val.neutral,
+    })),
   }));
 }

@@ -5,9 +5,8 @@ import {
   buildSearchBooleanFilter,
   buildSearchEqualFilter,
   buildSearchListFilter,
-  buildSearchNotListFilter,
   buildSearchNotEqualFilter,
-  buildSearchPartialFilter,
+  buildSearchNotListFilter,
   buildSearchPrefixFilter,
   combineSearchAnd,
   combineSearchOr,
@@ -83,9 +82,7 @@ const buildOrganizationArrayRule = async (rule: WidgetRuleRecord, column: OrgArr
   if (!ids.length) {
     return operator === "does_not_contain" ? "" : NEVER_FILTER;
   }
-  return operator === "does_not_contain"
-    ? buildSearchNotListFilter("publisherOrganizationId", ids)
-    : buildSearchListFilter("publisherOrganizationId", ids);
+  return operator === "does_not_contain" ? buildSearchNotListFilter("publisherOrganizationId", ids) : buildSearchListFilter("publisherOrganizationId", ids);
 };
 
 const buildOrganizationNameRule = async (rule: WidgetRuleRecord): Promise<string> => {
@@ -124,13 +121,7 @@ const buildRule = async (rule: WidgetRuleRecord): Promise<string> => {
   if (!field) {
     return NEVER_FILTER;
   }
-  const operator = ARRAY_FIELDS.has(rule.field)
-    ? rule.operator === "is"
-      ? "contains"
-      : rule.operator === "is_not"
-        ? "does_not_contain"
-        : rule.operator
-    : rule.operator;
+  const operator = ARRAY_FIELDS.has(rule.field) ? (rule.operator === "is" ? "contains" : rule.operator === "is_not" ? "does_not_contain" : rule.operator) : rule.operator;
 
   if (field === "openToMinors") {
     const value = normalizeBoolean(rule.value);
@@ -146,7 +137,11 @@ const buildRule = async (rule: WidgetRuleRecord): Promise<string> => {
     case "is_not":
       return buildSearchNotEqualFilter(field, rule.value);
     case "contains":
-      return ARRAY_FIELDS.has(rule.field) ? buildSearchEqualFilter(field, rule.value) : buildSearchPartialFilter(field, rule.value);
+      if (ARRAY_FIELDS.has(rule.field)) {
+        return buildSearchEqualFilter(field, rule.value);
+      }
+      // Les règles texte historiques sont des recherches de mots. Le préfixe couvre
+      return buildSearchPrefixFilter(field, rule.value);
     case "does_not_contain":
       return NEVER_FILTER;
     case "starts_with":
@@ -178,9 +173,9 @@ const buildRulesFilter = async (rules: WidgetRuleRecord[]): Promise<string | und
   return groups.length ? combineSearchAnd(groups) : undefined;
 };
 
-const buildEligibilityFilter = async (widget: WidgetRecord): Promise<string | null> => {
+const buildEligibilityFilter = async (widget: WidgetRecord): Promise<string | undefined> => {
   if (!widget.publishers.length) {
-    return null;
+    return undefined;
   }
 
   const roots = await publisherDiffusionRuleService.findRules({
@@ -193,18 +188,13 @@ const buildEligibilityFilter = async (widget: WidgetRecord): Promise<string | nu
   const alternatives: string[] = [];
 
   if (publishersWithSnapshot.length) {
-    alternatives.push(
-      combineSearchAnd([
-        buildSearchListFilter("publisherId", publishersWithSnapshot),
-        buildSearchEqualFilter("distributionPublisherIds", widget.fromPublisherId),
-      ])
-    );
+    alternatives.push(combineSearchAnd([buildSearchListFilter("publisherId", publishersWithSnapshot), buildSearchEqualFilter("distributionPublisherIds", widget.fromPublisherId)]));
   }
   if (publishersWithFallback.length) {
     alternatives.push(buildSearchListFilter("publisherId", publishersWithFallback));
   }
 
-  return alternatives.length ? combineSearchOr(alternatives) : null;
+  return alternatives.length ? combineSearchOr(alternatives) : undefined;
 };
 
 const buildModerationFilter = (widget: WidgetRecord): string | undefined => {
@@ -219,12 +209,10 @@ const buildModerationFilter = (widget: WidgetRecord): string | undefined => {
   return combineSearchOr([jvaPublisherFilter, moderatedPublisherFilter]);
 };
 
-export const buildWidgetBaseFilter = async (widget: WidgetRecord): Promise<string | null> => {
+export const buildWidgetBaseFilter = async (widget: WidgetRecord): Promise<string> => {
   const eligibility = await buildEligibilityFilter(widget);
-  if (!eligibility) {
-    return null;
-  }
   const rules = await buildRulesFilter(widget.rules);
   const moderation = buildModerationFilter(widget);
-  return combineSearchAnd([eligibility, rules, moderation].filter((part): part is string => Boolean(part)));
+  const parts = [eligibility, rules, moderation].filter((part): part is string => Boolean(part));
+  return parts.length ? combineSearchAnd(parts) : "";
 };

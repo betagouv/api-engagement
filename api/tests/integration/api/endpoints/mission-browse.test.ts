@@ -18,7 +18,7 @@ vi.mock("@/services/mission-browse/widget-filters", () => ({
   isWidgetRuleSupported: vi.fn(() => true),
 }));
 
-import { BENEVOLAT_URL, PUBLISHER_IDS } from "@/config";
+import { PUBLISHER_IDS } from "@/config";
 import { createTestPublisher, createTestWidget } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
 
@@ -112,12 +112,12 @@ describe("GET /missions/browse/widget/:id", () => {
     expect(browseMock).not.toHaveBeenCalled();
   });
 
-  it("applique l'origine CORS du widget", async () => {
+  it("autorise les origines publiques du widget", async () => {
     const widget = await createTestWidget();
 
-    const response = await request(app).get(`/missions/browse/widget/${widget.id}`).set("Origin", BENEVOLAT_URL).expect(200);
+    const response = await request(app).get(`/missions/browse/widget/${widget.id}`).set("Origin", "http://localhost:3003").expect(200);
 
-    expect(response.headers["access-control-allow-origin"]).toBe(BENEVOLAT_URL);
+    expect(response.headers["access-control-allow-origin"]).toBe("*");
   });
 
   it("retourne 503 lorsque Typesense est indisponible", async () => {

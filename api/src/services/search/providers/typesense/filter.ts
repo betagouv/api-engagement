@@ -12,7 +12,7 @@ export const buildSearchNotListFilter = (field: string, values: string[]): strin
 
 export const buildSearchPartialFilter = (field: string, value: string): string => `${field}:${escapeSearchFilterValue(value)}`;
 
-export const buildSearchPrefixFilter = (field: string, value: string): string => `${field}:=${escapeSearchFilterValue(`${value}*`)}`;
+export const buildSearchPrefixFilter = (field: string, value: string): string => `${field}:${escapeSearchFilterValue(value)}*`;
 
 export const buildSearchBooleanFilter = (field: string, value: boolean): string => `${field}:=${value}`;
 

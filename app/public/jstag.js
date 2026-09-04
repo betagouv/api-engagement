@@ -105,17 +105,19 @@
         if (window._apieng.humanConfirmed) return;
         if (!window._apieng.pageLoadTime || Date.now() - window._apieng.pageLoadTime < 2000) return;
 
-        const apiengagementId = window._apieng.getCookieValue("apiengagement");
-        const trackingToken = window._apieng.getCookieValue("apiengagement_tracking_token");
-        if (!apiengagementId || !trackingToken) return;
+        const apiengagementId = window.sessionStorage.getItem("apiengagement_tracking_id");
+        const trackingToken = window.sessionStorage.getItem("apiengagement_tracking_token");
+        if (!apiengagementId) return;
 
-        fetch(`${window._apieng.eventHost}/r/${apiengagementId}/confirm-human?token=${encodeURIComponent(trackingToken)}`).then((response) =>
-          response.ok ? (window._apieng.humanConfirmed = true) : null,
-        );
+        const confirmationUrl = new URL(`${window._apieng.eventHost}/r/${apiengagementId}/confirm-human`);
+        if (trackingToken) confirmationUrl.searchParams.set("token", trackingToken);
+
+        fetch(confirmationUrl.href).then((response) => (response.ok ? (window._apieng.humanConfirmed = true) : null));
       }),
       // Impression tracking
       (window._apieng.getTrackers = function (e) {
-        const elements = document.querySelectorAll('[data-name="tracker_counter"]');
+        // Backward compatibility to ensure that older integrations continue to work. The official selector is data-name
+        const elements = document.querySelectorAll('[data-name="tracker_counter"], [name="tracker_counter"]');
         if (elements.length === 0)
           return document.querySelectorAll(`a[href*="${window._apieng.eventHost}"], a[href*="${window._apieng.eventHost.replace("https://", "http://")}"]`);
 
@@ -246,5 +248,10 @@
     };
     let e = window._apieng.getQueryParameter("apiengagement_id");
     let n = window._apieng.getQueryParameter("apiengagement_tracking_token");
-    (null != e && window._apieng.setCookieValue("apiengagement", e), null != n && window._apieng.setCookieValue("apiengagement_tracking_token", n));
+    if (null != e) {
+      window._apieng.setCookieValue("apiengagement", e);
+      window.sessionStorage.setItem("apiengagement_tracking_id", e);
+      if (null != n) window.sessionStorage.setItem("apiengagement_tracking_token", n);
+      else window.sessionStorage.removeItem("apiengagement_tracking_token");
+    }
   })());

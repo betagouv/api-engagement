@@ -4,6 +4,7 @@ WORKDIR /workspace
 
 COPY package.json package-lock.json ./
 COPY widget/package.json ./widget/
+COPY packages/dto ./packages/dto
 
 RUN npm ci --workspace=widget
 

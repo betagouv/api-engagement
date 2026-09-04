@@ -188,6 +188,7 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain('JOIN "mission_diffusion" md');
       expect(rankingSql).toContain('md."mission_id" = m."id"');
       expect(rankingSql).toContain('md."distribution_publisher_id" =');
+      expect(rankingSql).toContain('md."deleted_at" IS NULL');
       expect(rankingSql).not.toContain('FROM "mission_diffusion" md\n      WHERE');
     });
 

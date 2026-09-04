@@ -274,3 +274,25 @@ models:
         description: Identifiant utilisateur transmis par JeVeuxAider.
       - name: candidate_postal_code
         description: Code postal déclaré du candidat.
+
+  - name: click_pde_attrs
+    description: >
+      Extraction des attributs personnalisés portés par les clics de la Plateforme de
+      l'Engagement (Trouve Ta Mission), dérivés du JSON `custom_attributes` des `stat_event`
+      de type `click`. Une ligne par clic porteur d'un `user_scoring_id`.
+    columns:
+      - name: click_id
+        description: Identifiant du clic (référence à `public."StatEvent"`).
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: Horodatage de création de l'événement de clic.
+      - name: updated_at
+        description: Horodatage de dernière mise à jour de l'événement source.
+      - name: user_scoring_id
+        description: >
+          Identifiant de la session quiz (`userScoringId`) porté par le clic quand il vient
+          des résultats du quiz ou d'un email.
+        tests:
+          - not_null

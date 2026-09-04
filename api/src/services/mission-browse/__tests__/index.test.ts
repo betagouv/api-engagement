@@ -186,6 +186,7 @@ describe("missionBrowseService.browse", () => {
     });
 
     expect(resultsSearch().filter_by).toContain("(locations:(48.8566,2.3522,50 km) || remote:=`local`)");
+    expect(resultsSearch().sort_by).toBe("startAt:desc,createdAt:desc");
   });
 
   it("impose le rayon quand le filtre remote exclut les missions locales", async () => {
@@ -214,7 +215,7 @@ describe("missionBrowseService.browse", () => {
 
     expect(findOneMissionByMock).toHaveBeenCalledWith({
       id: "mission-1",
-      missionDiffusions: { some: { distributionPublisherId: "diffuseur-1" } },
+      missionDiffusions: { some: { distributionPublisherId: "diffuseur-1", deletedAt: null } },
       deletedAt: null,
       statusCode: "ACCEPTED",
     });

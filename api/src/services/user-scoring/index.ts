@@ -1,5 +1,5 @@
 import type { UserScoringCreateResponse, UserScoringUpdateResponse } from "@engagement/dto";
-import { TAXONOMY } from "@engagement/taxonomy";
+import { isNeutralTaxonomyValueKey, TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
 
@@ -111,6 +111,10 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
   const seen = new Set<string>();
   const uniquePairs: Array<{ taxonomyKey: string; valueKey: string }> = [];
   let geo: UserScoringGeoInput | undefined;
+  // Vrai dès qu'une réponse valide a été résolue (valeur — neutre incluse — ou géo). Sert à
+  // distinguer un payload vide/illisible d'un payload légitime dont il ne reste aucune valeur
+  // après filtrage des réponses neutres.
+  let hasResolvedInput = false;
   for (const answer of answers) {
     const resolvedAnswer = resolveAnswer(answer);
     if (resolvedAnswer.geo) {
@@ -118,9 +122,17 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
         throw new UserScoringAnswerValidationError("Multiple location answers are not supported");
       }
       geo = resolvedAnswer.geo;
+      hasResolvedInput = true;
     }
 
     for (const valueKey of resolvedAnswer.values) {
+      hasResolvedInput = true;
+      // Les réponses « je ne sais pas » / « peu importe » ne sont jamais portées par une mission :
+      // les persister ne ferait que gonfler le dénominateur du taxonomy_score (dilution). On ne les
+      // enregistre donc pas ; la taxonomie concernée sort simplement du calcul de matching.
+      if (isNeutralTaxonomyValueKey(answer.taxonomy, valueKey)) {
+        continue;
+      }
       const key = `${answer.taxonomy}.${valueKey}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -129,7 +141,10 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
     }
   }
 
-  if (uniquePairs.length === 0 && !geo) {
+  // Un payload valide mais entièrement neutre (ex. equipe.peu_importe, rythme.je_ne_sais_pas) est
+  // légitime : il ne produit aucune valeur de scoring et pas de géo, mais ne doit pas être rejeté —
+  // le moteur sait classer un scoring sans valeur taxonomique. On ne lève que si RIEN n'a été résolu.
+  if (!hasResolvedInput) {
     throw new UserScoringAnswerValidationError("No taxonomy value resolved from answers");
   }
 

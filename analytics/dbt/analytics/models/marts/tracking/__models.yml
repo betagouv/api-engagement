@@ -9,6 +9,10 @@ models:
       ayant vu les résultats (`results.viewed`). Ils proviennent de `int_tracking_results_session`, piloté
       par les events `results.viewed`, les clics n'étant greffés qu'en `left join`. Une session sans
       `results.viewed` retombe donc à `false` sur ces flags même si un clic existait hors parcours résultats.
+      Porte aussi la géo DÉCLARÉE au quiz (`postcode`, `geo_lat`, `geo_lon`, `country_code`, `department_code`,
+      `department_name`, `region_code`, `region_name`). PIÈGE DE GRAIN : la géo n'existe qu'à partir de l'étape
+      `localisation` ; les tentatives abandonnées avant ont ces colonnes à null (analyses d'abandon par géo
+      valides seulement à partir de cette étape).
     columns:
       - name: quiz_attempt_id
         tests:
@@ -16,6 +20,24 @@ models:
           - unique
       - name: quiz_session_id
         description: Identifiant backend, présent pour les sessions complétées.
+      - name: postcode
+        description: Code postal DÉCLARÉ à l'étape `localisation` (géo quiz, pas GeoIP). Nullable.
+      - name: geo_lat
+        description: Latitude déclarée à l'étape `localisation`. Nullable.
+      - name: geo_lon
+        description: Longitude déclarée à l'étape `localisation`. Nullable.
+      - name: country_code
+        description: Code pays déclaré à l'étape `localisation` (ex. `fr`). Nullable.
+      - name: department_code
+        description: Département dérivé du code postal (Corse approximative, Outre-mer géré). Nullable.
+      - name: department_name
+        description: Nom du département (seed `department_codes`). Nullable.
+      - name: region_code
+        description: Code région INSEE 2016 (seed `department_codes`). Nullable.
+      - name: region_name
+        description: Nom de la région INSEE 2016 (seed `department_codes`). Nullable.
+      - name: quiz_version
+        description: Version du quiz au démarrage de la tentative.
       - name: has_click_after_results
         description: >
           Vrai si la session a vu les résultats ET a cliqué sur au moins une mission (toutes sections
@@ -125,3 +147,70 @@ models:
         description: Nom de l'annonceur, pour l'agrégation « part par annonceur » côté Metabase.
       - name: backend_rank
         description: Rang de la mission dans le run de matching (position dans `results`).
+
+  - name: tracking_publisher_stock_share
+    description: >
+      KPIs de contrôle « relatif au stock » : par annonceur, croise le stock de missions diffusables sur la
+      Plateforme de l'Engagement (`mission_diffusion` filtré sur le diffuseur PDE, id figé en var
+      `PUBLISHER_PLATEFORME_ENGAGEMENT_ID`, `deleted_at is null`) avec les recommandations
+      (`int_tracking_recommendation`) et les clics (`int_tracking_mission_click`) du quiz. Grain : une ligne
+      par annonceur présent dans le stock diffusable PDE. PIÈGE flux vs stock : le stock est l'état COURANT
+      (miroir `mission_diffusion`), les recos/clics sont cumulés sur tout l'historique ; un alignement
+      temporel plus fin (stock à une date T via `created_at`/`deleted_at`) est une amélioration ultérieure.
+    columns:
+      - name: publisher_id
+        description: Annonceur (propriétaire des missions).
+        tests:
+          - not_null
+          - unique
+      - name: publisher_name
+        description: Nom de l'annonceur (jointure `stg_publisher`).
+      - name: stock_mission_count
+        description: Nombre de missions distinctes de l'annonceur diffusables sur la PDE (stock courant).
+      - name: reco_count
+        description: Nombre de missions recommandées appartenant à l'annonceur.
+      - name: click_count
+        description: Nombre de clics sur des missions de l'annonceur.
+      - name: stock_share
+        description: Part du stock diffusable PDE détenue par l'annonceur.
+      - name: reco_vs_stock_index
+        description: >
+          Part des recommandations ÷ part du stock. >1 = annonceur sur-représenté dans les recos par
+          rapport à son offre diffusable, <1 = sous-représenté.
+      - name: click_vs_stock_index
+        description: >
+          Part des clics ÷ part du stock. >1 = les missions de l'annonceur captent plus de clics que ne
+          le laisserait attendre son offre diffusable.
+  - name: tracking_matching_engine_ranking_daily
+    description: >
+      Position moyenne quotidienne des missions recommandées cliquées, au grain date du clic + version du moteur.
+      Les compteurs et la somme des rangs permettent de recalculer une moyenne pondérée fiable sur une période
+      quelconque dans Metabase. Les clics non rattachés sont conservés sous la version `unknown` pour mesurer la
+      couverture du rapprochement.
+    columns:
+      - name: click_date
+        description: Date du clic sur la mission recommandée.
+        tests:
+          - not_null
+      - name: matching_engine_version
+        description: Version du moteur rattachée au clic ; vaut `unknown` lorsque le rattachement est impossible.
+        tests:
+          - not_null
+      - name: result_click_count
+        description: Nombre total de clics sur les résultats `pinned` ou `other`.
+        tests:
+          - not_null
+      - name: matched_result_click_count
+        description: Nombre total de clics de résultats rattachés à un rang du moteur.
+        tests:
+          - not_null
+      - name: clicked_matching_engine_rank_sum
+        description: >
+          Numérateur additif de la position moyenne de tous les clics. Pour une période, diviser sa somme par la
+          somme de `matched_result_click_count` plutôt que de moyenner les valeurs quotidiennes.
+      - name: avg_clicked_matching_engine_rank
+        description: >
+          Position moyenne dans le classement du moteur de tous les clics rattachés du jour et de la version ; plus
+          la valeur est basse, mieux les missions cliquées sont classées.
+      - name: all_clicks_matching_engine_match_rate
+        description: Part de l'ensemble des clics de résultats rattachés à un rang du moteur.

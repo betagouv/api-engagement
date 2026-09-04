@@ -32,6 +32,8 @@ models:
         description: UUID de la tentative de quiz (présent sur tout le tunnel).
       - name: quiz_session_id
         description: Identifiant de session backend (`userScoringId`), présent sur les events post-quiz.
+      - name: quiz_version
+        description: Version du quiz ayant émis l'événement.
 
   - name: stg_tracking__quiz_started
     description: Entrée du tunnel quiz (`quiz.started`), événement de référence de tous les ratios.
@@ -66,6 +68,16 @@ models:
           - not_null
       - name: step_index
         description: Position 1-based dans la séquence visible.
+      - name: geo_postcode
+        description: >
+          Code postal DÉCLARÉ à l'étape `localisation` (JSON `properties`). Null sur les
+          autres étapes. À ne pas confondre avec la géo GeoIP de PostHog.
+      - name: geo_lat
+        description: Latitude déclarée à l'étape `localisation`. Null sinon.
+      - name: geo_lon
+        description: Longitude déclarée à l'étape `localisation`. Null sinon.
+      - name: geo_country_code
+        description: Code pays déclaré à l'étape `localisation` (ex. `fr`). Null sinon.
 
   - name: stg_tracking__quiz_completed
     description: Fin du quiz (`quiz.completed`). Fait le lien `quiz_attempt_id` ↔ `quiz_session_id`.
