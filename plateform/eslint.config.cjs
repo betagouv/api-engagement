@@ -29,6 +29,7 @@ module.exports = [
     rules: {
       ...tsPlugin.configs.recommended.rules,
       ...jsxA11y.flatConfigs.recommended.rules,
+      "jsx-a11y/no-redundant-roles": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },

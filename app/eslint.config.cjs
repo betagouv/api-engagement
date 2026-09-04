@@ -29,6 +29,7 @@ module.exports = [
     },
     rules: {
       ...jsxA11y.flatConfigs.recommended.rules,
+      "jsx-a11y/no-redundant-roles": "off",
       "import/prefer-default-export": "off",
       "no-console": "off",
       "no-control-regex": "off",
