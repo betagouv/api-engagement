@@ -1,0 +1,27 @@
+version: 1
+
+# Frontière volontairement large pour ne rien maintenir au fil de l'eau :
+# - tout le front `plateform` et ses packages dépendants (taxonomy, dto) ;
+# - toute la surface API (`api/src/**`) : les endpoints ne vivent pas que dans controllers/
+#   (aussi v0/, v2/, worker/, jobs/), donc on prend l'arbre entier plutôt que d'énumérer.
+# Le scope ne fait qu'autoriser ce que les docs peuvent citer et repérer les fichiers modifiés :
+# rien n'est injecté en masse dans les prompts. Le vrai ciblage se fait par les citations de
+# chaque chapitre, donc élargir ici n'augmente ni les tokens ni le nombre de chapitres régénérés.
+# Les motifs restent en préfixe `.../**` (aucun `*` intermédiaire) pour rester compatibles avec
+# le filtre de portée des fichiers modifiés (voir sources.ts:isSourceInScope).
+include:
+  - "plateform/app/**"
+  - "packages/taxonomy/src/**"
+  - "packages/dto/src/**"
+  - "api/src/**"
+
+exclude:
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/build/**"
+  - "**/.next/**"
+  - "**/coverage/**"
+  - "**/__snapshots__/**"
+  - "**/eval-runs/**"
+  - "**/.env"
+  - "**/.env.*"
