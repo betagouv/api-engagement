@@ -4,7 +4,7 @@ import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
 import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
 import CookieConsentManager from "~/components/layout/cookie-consent-manager";
 import Footer, { FooterContent } from "~/components/layout/footer";
@@ -12,6 +12,7 @@ import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
 import { PUBLISHER_ID } from "~/services/config";
+import { captureException } from "~/services/sentry";
 import { serializeForInlineScript } from "~/utils/string";
 import type { Route } from "./+types/root";
 import "./main.css";
@@ -72,6 +73,21 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
   const title = isNotFound ? "Page introuvable" : "Une erreur est survenue";
   const description = isNotFound ? "La page que tu cherches n'existe pas ou a été déplacée." : "Une erreur inattendue s'est produite. Réessaie plus tard.";
+
+  useEffect(() => {
+    if (isNotFound) return;
+
+    if (isRouteErrorResponse(error)) {
+      captureException(new Error(`Route error ${error.status} ${error.statusText}`), {
+        routeErrorData: error.data,
+        status: error.status,
+        statusText: error.statusText,
+      });
+      return;
+    }
+
+    captureException(error);
+  }, [error, isNotFound]);
 
   return (
     <>

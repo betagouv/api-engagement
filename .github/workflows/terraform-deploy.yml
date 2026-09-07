@@ -115,6 +115,9 @@ jobs:
           DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
         run: npm --workspace api run prisma:migrate:deploy
 
+      - name: Build functions bundles
+        run: npm --prefix functions run build
+
       - name: Terraform Init
         working-directory: ./terraform
         run: terraform init

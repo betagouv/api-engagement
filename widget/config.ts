@@ -1,7 +1,7 @@
-const ENV = process.env.ENV || "development";
-const API_URL = process.env.API_URL || "http://localhost:4000";
-const SENTRY_DSN = process.env.SENTRY_DSN || "";
-const SSR_API_TIMEOUT_MS = 30000;
+export const ENV = process.env.ENV || "development";
+export const API_URL = process.env.API_URL || "http://localhost:4000";
+export const SENTRY_DSN = process.env.SENTRY_DSN?.trim() ?? undefined;
+export const SSR_API_TIMEOUT_MS = 30000;
 
 interface DomainConfig {
   label: string;
@@ -9,7 +9,7 @@ interface DomainConfig {
   color: string;
 }
 
-const DOMAINS: Record<string, DomainConfig> = {
+export const DOMAINS: Record<string, DomainConfig> = {
   environnement: {
     label: "Environnement",
     icon: "",
@@ -87,13 +87,13 @@ const DOMAINS: Record<string, DomainConfig> = {
   },
 };
 
-const SCHEDULES: Record<string, string> = {
+export const SCHEDULES: Record<string, string> = {
   part_time: "24 à 30h par semaine",
   full_time: "Plus de 30h par semaine",
   special: "Horaires spécifiques",
 };
 
-const BENEFICIARIES: Record<string, string> = {
+export const BENEFICIARIES: Record<string, string> = {
   tous_publics: "Tous publics",
   young: "Jeunes",
   seniors: "Seniors",
@@ -103,7 +103,7 @@ const BENEFICIARIES: Record<string, string> = {
   adultes: "Adultes",
 };
 
-const ACTIONS: Record<string, string> = {
+export const ACTIONS: Record<string, string> = {
   soutien_accompagnement: "Soutien, accompagnement",
   animation_valorisation: "Animation, valorisation",
   transmission_pedagogie: "Transmission, pédagogie",
@@ -113,14 +113,12 @@ const ACTIONS: Record<string, string> = {
   prevention_sensibilisation: "Prévention, sensibilisation",
 };
 
-const ACCESSIBILITIES: Record<string, string> = {
+export const ACCESSIBILITIES: Record<string, string> = {
   reducedMobilityAccessible: "Aux personnes à mobilité réduite",
   closeToTransport: "En transports en commun",
 };
 
-const MINORS: Record<string, string> = {
+export const MINORS: Record<string, string> = {
   yes: "Accessible à tous dès 16 ans",
   no: "Majeur uniquement",
 };
-
-export { ACCESSIBILITIES, ACTIONS, API_URL, BENEFICIARIES, DOMAINS, ENV, MINORS, SCHEDULES, SENTRY_DSN, SSR_API_TIMEOUT_MS };

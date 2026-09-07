@@ -1,6 +1,8 @@
+import fs from "fs";
 import http from "http";
+import path from "path";
 import url from "url";
-import { mockBrowseResponse, mockWidgetResponse } from "./fixtures/mockData";
+import { MISSION_IMAGE_PATH, mockBrowseResponse, mockWidgetResponse } from "./fixtures/mockData";
 
 let mockServer: any;
 
@@ -10,6 +12,8 @@ let mockServer: any;
  * Run mock HTTP server on specific port:
  * - It will be used by Next app during tests
  * - Each needed route is mocked to return fake data
+ * - Les images des missions sont servies en local : les tirer d'internet rendait les
+ *   captures de régression visuelle dépendantes du réseau, donc instables en CI
  * - Other ones will return 404 error code
  */
 async function globalSetup() {
@@ -37,6 +41,13 @@ function startMockServer() {
 
     const parsedUrl = url.parse(req.url || "", true);
     const pathname = parsedUrl.pathname;
+
+    if (pathname === MISSION_IMAGE_PATH) {
+      res.setHeader("Content-Type", "image/jpeg");
+      res.writeHead(200);
+      res.end(fs.readFileSync(path.join(__dirname, "fixtures/images/mission.jpg")));
+      return;
+    }
 
     if (pathname === "/api-mock/iframe/widget") {
       res.writeHead(200);
