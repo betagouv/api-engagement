@@ -4,6 +4,7 @@ select
   id,
   distinct_id,
   mission_alert_enabled,
+  matching_engine_version,
   created_at,
   updated_at
 from {{ ref('stg_user_scoring') }}

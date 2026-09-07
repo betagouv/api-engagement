@@ -77,6 +77,10 @@ models:
         description: Indique si l'utilisateur a activé l'alerte mission associée à ce scoring.
         tests:
           - not_null
+      - name: matching_engine_version
+        description: >
+          Version du moteur de matching figée à la création du scoring. Les résultats restent scorés par ce moteur et
+          ne suivent pas les évolutions ultérieures de la version active (nullable avant backfill).
       - name: created_at
         description: Timestamp de création du scoring utilisateur.
         tests:

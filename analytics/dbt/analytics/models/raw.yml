@@ -734,6 +734,11 @@ sources:
             description: Identifiant anonyme ou technique permettant de rattacher plusieurs interactions utilisateur.
           - name: mission_alert_enabled
             description: Indique si l'utilisateur a activé l'alerte mission associée à ce scoring.
+          - name: matching_engine_version
+            description: >-
+              Version du moteur de matching figée à la création du scoring. Les résultats restent scorés par ce
+              moteur et ne suivent pas les évolutions ultérieures de la version active (nullable pour les scorings
+              antérieurs au backfill).
           - name: created_at
             description: Timestamp de création du scoring.
           - name: updated_at
