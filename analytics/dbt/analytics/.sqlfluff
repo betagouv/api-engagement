@@ -1,6 +1,15 @@
 [sqlfluff]
 dialect = postgres
 indent_unit = space
+# Désactive le garde-fou de profondeur de parsing introduit en sqlfluff 4.x
+# (limite 255). Le macro `slugify` (avec null_if_empty) réexpanse une chaîne
+# de regexp_replace imbriqués et dépasse cette limite alors que le SQL est valide.
+max_parse_depth = 0
+# Règles durcies en sqlfluff 4.x, jamais déclenchées sous 3.5.0 :
+# - structure.subquery (ST05) : détecte désormais les `inner join lateral (select ...)`,
+#   qui sont des sous-requêtes légitimes non remplaçables par des CTE.
+# - structure.column_order (ST06) : ordonnancement stylistique des colonnes du SELECT.
+exclude_rules = structure.subquery, structure.column_order
 
 [sqlfluff:templater]
 templater = jinja

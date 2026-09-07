@@ -12,31 +12,32 @@
 ) }}
 
 {% if not is_incremental() %}
-with all_events as (
-  select
-    stat_event_id,
-    created_at,
-    type,
-    from_publisher_id,
-    to_publisher_id,
-    mission_id
-  from {{ ref('global_events') }}
-  where mission_id is not null
-),
-aggregated as (
-  select
-    mission_id,
-    type,
-    from_publisher_id,
-    to_publisher_id,
-    min(created_at) as first_created_at,
-    max(created_at) as last_created_at
-  from all_events
-  group by mission_id, type, from_publisher_id, to_publisher_id
-)
+  with all_events as (
+    select
+      stat_event_id,
+      created_at,
+      type,
+      from_publisher_id,
+      to_publisher_id,
+      mission_id
+    from {{ ref('global_events') }}
+    where mission_id is not null
+  ),
 
-select *
-from aggregated
+  aggregated as (
+    select
+      mission_id,
+      type,
+      from_publisher_id,
+      to_publisher_id,
+      min(created_at) as first_created_at,
+      max(created_at) as last_created_at
+    from all_events
+    group by mission_id, type, from_publisher_id, to_publisher_id
+  )
+
+  select *
+  from aggregated
 
 {% else %}
   with existing as (
