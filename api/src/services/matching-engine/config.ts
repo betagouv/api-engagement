@@ -138,19 +138,18 @@ export const MATCHING_ENGINE_VERSIONS = {
     taxonomyOrBaseScore: 0.5,
   }),
   m5: defineMatchingEngineVersion({
-    // Identique à m4, mais le score de proximité forcé des missions entièrement à distance
+    // Reprend m4 côté géo (le score de proximité forcé des missions entièrement à distance
     // (remote=full) n'est accordé qu'aux utilisateurs ayant coché « je veux participer à distance »
-    // (motivation_recherche.remote). Les autres reçoivent un score géo de 0 sur ces missions : elles
+    // (motivation_recherche.remote) ; les autres reçoivent un score géo de 0 sur ces missions : elles
     // restent affichables mais ne concurrencent plus les missions en présentiel proches. remote=local
-    // (engagement de proximité) conserve son score inconditionnel.
+    // (engagement de proximité) conserve son score inconditionnel).
+    //
+    // Contrairement à m4, on ne pondère plus les 7 taxonomies de l'ancien parcours (quiz q1 :
+    // domaine, secteur_activite, type_mission, competence_rome, region_internationale,
+    // engagement_intent, formation_onisep) : ce parcours n'est plus servi, le quiz v2 ne pose plus
+    // ces questions, donc ces taxonomies n'entrent jamais dans le dénominateur d'un utilisateur v2 et
+    // leur poids était inerte. Seules les taxonomies du parcours v2 sont conservées.
     taxonomyWeights: {
-      domaine: 1,
-      secteur_activite: 1,
-      type_mission: 1,
-      competence_rome: 1,
-      region_internationale: 1,
-      engagement_intent: 1,
-      formation_onisep: 1,
       domaine_engagement: 1.5,
       rythme: 1.2,
       activite: 1.5,
