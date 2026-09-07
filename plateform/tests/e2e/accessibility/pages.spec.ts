@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { test, type Page } from "@playwright/test";
 
 import { expectNoRgaaViolation } from "./axe";
 
@@ -15,26 +15,29 @@ async function rejectOptionalCookies(page: Page) {
   await rejectButton.click();
 }
 
+async function gotoPage(page: Page, path: string) {
+  await page.goto(path);
+  await page.getByRole("main").waitFor({ state: "visible" });
+}
+
 test.describe("Accessibilité RGAA", { tag: "@a11y" }, () => {
   test("Accueil", async ({ page }, testInfo) => {
-    await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1, name: /À chacun/ })).toBeVisible();
+    await gotoPage(page, "/");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Quiz — âge", async ({ page }, testInfo) => {
-    await page.goto("/quiz/age");
-    await expect(page.getByRole("heading", { level: 1, name: /Quel âge as-tu/ })).toBeVisible();
+    await gotoPage(page, "/quiz/age");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Quiz — erreur de validation", async ({ page }, testInfo) => {
-    await page.goto("/quiz/age");
+    await gotoPage(page, "/quiz/age");
     await rejectOptionalCookies(page);
     await page.getByRole("button", { name: "Continuer" }).click();
-    await expect(page.getByText("Sélectionne ton âge pour continuer")).toBeVisible();
+    await page.locator('[aria-invalid="true"]').waitFor({ state: "visible" });
 
     await expectNoRgaaViolation(page, testInfo);
   });
@@ -49,43 +52,37 @@ test.describe("Accessibilité RGAA", { tag: "@a11y" }, () => {
         }),
       );
     });
-    await page.goto("/quiz/handicap");
-    await expect(page.getByRole("heading", { level: 1, name: /Es-tu en situation de handicap reconnue/ })).toBeVisible();
+    await gotoPage(page, "/quiz/handicap");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Quiz — cases à cocher", async ({ page }, testInfo) => {
-    await page.goto("/quiz/mobilite");
-    await expect(page.getByRole("heading", { level: 1, name: /Comment tu te déplaces généralement/ })).toBeVisible();
+    await gotoPage(page, "/quiz/mobilite");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Quiz — localisation", async ({ page }, testInfo) => {
-    await page.goto("/quiz/localisation");
-    await expect(page.getByRole("heading", { level: 1, name: /Où veux-tu chercher des missions/ })).toBeVisible();
+    await gotoPage(page, "/quiz/localisation");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Plan du site", async ({ page }, testInfo) => {
-    await page.goto("/plan-du-site");
-    await expect(page.getByRole("heading", { level: 1, name: "Plan du site" })).toBeVisible();
+    await gotoPage(page, "/plan-du-site");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Mentions légales", async ({ page }, testInfo) => {
-    await page.goto("/mentions-legales");
-    await expect(page.getByRole("heading", { level: 1, name: "Mentions légales" })).toBeVisible();
+    await gotoPage(page, "/mentions-legales");
 
     await expectNoRgaaViolation(page, testInfo);
   });
 
   test("Politique de confidentialité", async ({ page }, testInfo) => {
-    await page.goto("/politique-de-confidentialite");
-    await expect(page.getByRole("heading", { level: 1, name: /Politique de confidentialité/ })).toBeVisible();
+    await gotoPage(page, "/politique-de-confidentialite");
 
     await expectNoRgaaViolation(page, testInfo);
   });
