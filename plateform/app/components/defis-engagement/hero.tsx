@@ -5,9 +5,9 @@ import HeroPng from "~/assets/images/people-landing.png";
 
 export default function Hero({ onStartQuiz }: { onStartQuiz: () => void }) {
   return (
-    <section className="bg-blue-france-975 relative overflow-hidden">
-      <div className="fr-container relative pb-8 lg:min-h-[715px] lg:pb-0">
-        <div className="relative z-10 pt-8 lg:max-w-[620px] lg:pt-[100px]">
+    <section className="bg-blue-france-975 relative overflow-hidden lg:min-h-[max(700px,45vw)]">
+      <div className="fr-container relative z-10 pb-8 lg:pb-0">
+        <div className="pt-8 lg:max-w-[620px] lg:pt-[100px]">
           <p className="fr-h4 text-blue-france-sun mb-2!">Tu veux te rendre utile ?</p>
           <h1 className="text-blue-france-sun! fr-mb-2w text-5xl! leading-tight! md:text-6xl! lg:text-7xl! xl:text-8xl!">À chacun sa façon d'agir</h1>
           <p className="fr-text--lead fr-mb-4w">
@@ -17,19 +17,17 @@ export default function Hero({ onStartQuiz }: { onStartQuiz: () => void }) {
           <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! justify-center! lg:w-[349px]!">
             Trouve ta mission
           </button>
-          <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! italic">Réponds en quelques clics, on te propose une mission qui te correspond</p>
+          <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! italic lg:max-w-[349px]">Réponds en quelques clics, on te propose une mission qui te correspond</p>
         </div>
+      </div>
 
-        {/* Desktop : le visuel démarre après la colonne de titre et déborde à droite du conteneur (débord clippé par la section). */}
-        <div className="relative h-[360px] w-full md:h-[520px] lg:absolute lg:inset-y-0 lg:right-[-116px] lg:h-auto lg:w-[812px]">
-          <svg aria-hidden viewBox="0 0 100 100" preserveAspectRatio="none" className="text-yellow-moutarde-975 absolute top-[11%] left-1/2 h-[76%] w-[63%] -translate-x-1/2">
-            <ellipse cx="50" cy="50" rx="50" ry="50" fill="currentColor" />
-          </svg>
-          <img src={HeroPng} alt="" className="absolute inset-0 size-full object-contain object-bottom lg:object-cover" />
-          <img src={NavyBachiSvg} alt="" aria-hidden="true" className="absolute top-[20%] left-[41%] hidden w-[16%] lg:block" />
-          <img src={FirefighterSvg} alt="" aria-hidden="true" className="absolute top-[9%] left-[27%] hidden w-[14%] lg:block" />
-          <img src={BackpackSvg} alt="" aria-hidden="true" className="absolute top-[10%] left-[84%] hidden w-[21%] lg:block" />
-        </div>
+      {/* Le visuel garde le ratio de la photo : les décors sont positionnés en % de cette boîte. Sur desktop il déborde à droite (débord clippé par la section). */}
+      <div className="relative aspect-[4080/2724] w-full lg:absolute lg:bottom-0 lg:left-[42.6%] lg:w-[66.2%]">
+        <div className="bg-yellow-moutarde-975 absolute top-0 left-[22.8%] aspect-square w-[50.4%] rounded-full" />
+        <img src={HeroPng} alt="" className="relative size-full" />
+        <img src={FirefighterSvg} alt="" aria-hidden="true" className="absolute -top-[0.7%] left-[25.4%] hidden w-[9.1%] rotate-[18deg] lg:block" />
+        <img src={NavyBachiSvg} alt="" aria-hidden="true" className="absolute top-[11.9%] left-[37.6%] hidden w-[10.7%] rotate-[15deg] lg:block" />
+        <img src={BackpackSvg} alt="" aria-hidden="true" className="absolute top-[2%] left-[74.9%] hidden w-[12.8%] rotate-[-27deg] lg:block" />
       </div>
     </section>
   );

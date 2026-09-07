@@ -1,4 +1,17 @@
-const GARANTIES = ["Missions vérifiées par l'État", "Encadrement adapté à ton âge", "Autorisation parentale requise"];
+const GARANTIES = [
+  <>
+    Missions
+    <br /> vérifiées par l'État
+  </>,
+  <>
+    Encadrement
+    <br /> adapté à ton âge
+  </>,
+  <>
+    Autorisation
+    <br /> parentale requise
+  </>,
+];
 
 export default function CadreMineurs() {
   return (
@@ -9,8 +22,8 @@ export default function CadreMineurs() {
         </h2>
 
         <ul role="list" className="m-0! flex list-none! flex-col items-center gap-8 p-0! md:flex-row md:justify-center md:gap-16">
-          {GARANTIES.map((garantie) => (
-            <li key={garantie} className="text-inverted-blue-france flex flex-col items-center gap-3.5 text-center text-2xl font-bold">
+          {GARANTIES.map((garantie, index) => (
+            <li key={`garantie-${index}`} className="text-inverted-blue-france flex flex-col items-center gap-3.5 text-center text-2xl font-bold">
               <span className="fr-icon-checkbox-circle-line" aria-hidden="true" />
               {garantie}
             </li>

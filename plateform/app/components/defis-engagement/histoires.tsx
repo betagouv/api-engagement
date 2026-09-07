@@ -28,7 +28,7 @@ function Temoignage({ quote, name, role }: { quote: string; name: string; role: 
       <img src={DoubleQuotesSvg} alt="" aria-hidden="true" className="size-8" />
       <blockquote className="fr-text--lg text-default-grey m-0! p-0!">{quote}</blockquote>
       <figcaption className="text-mention-grey">
-        <span className="block font-bold">{name}</span>
+        <span className="block font-bold mb-4!">{name}</span>
         {role}
       </figcaption>
     </figure>

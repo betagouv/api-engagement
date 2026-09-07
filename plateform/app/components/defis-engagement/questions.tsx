@@ -27,7 +27,7 @@ export default function Questions({ onStartQuiz }: { onStartQuiz: () => void }) 
 
       <ul role="list" className="fr-mb-6w m-0! grid list-none! grid-cols-1 gap-6 p-0! md:grid-cols-3 lg:gap-13">
         {QUESTIONS.map((item) => (
-          <li key={item.question} className="bg-blue-france-950 border-border-default-grey flex flex-col gap-2 rounded-2xl border p-6">
+          <li key={item.question} className="bg-blue-france-950 border-border-default-grey flex flex-col gap-2! rounded-2xl! border p-6!">
             <div className="bg-background fr-mb-1w flex size-24 items-center justify-center rounded-full">
               <img src={item.icon} alt="" aria-hidden="true" className="size-[72px] dark:rounded-full dark:bg-white" />
             </div>
@@ -37,7 +37,7 @@ export default function Questions({ onStartQuiz }: { onStartQuiz: () => void }) 
         ))}
       </ul>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-16!">
         <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
           Trouve ta mission
         </button>

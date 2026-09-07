@@ -19,7 +19,7 @@ export default function TerrainDeJeu() {
 
         <ul role="list" className="m-0! flex list-none! flex-wrap gap-4 p-0! md:gap-6">
           {TAGS.map((tag) => (
-            <li key={tag.label} className="bg-background text-title-grey flex items-center gap-4 px-4 py-3 text-lg font-bold shadow-lg md:px-6 md:py-5 md:text-2xl">
+            <li key={tag.label} className="bg-background text-title-grey flex items-center gap-4 px-4! py-3! text-lg font-bold shadow-lg md:px-6! md:py-5! md:text-2xl">
               <span aria-hidden="true">{tag.emoji}</span>
               {tag.label}
             </li>

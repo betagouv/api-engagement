@@ -15,7 +15,7 @@ export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
 
       <ol className="fr-mb-6w m-0! grid list-none! grid-cols-1 gap-6 p-0! md:grid-cols-3">
         {ETAPES.map((etape) => (
-          <li key={etape.title} className="bg-background flex flex-col items-center gap-4 px-6 py-10 text-center shadow-lg">
+          <li key={etape.title} className="bg-background flex flex-col items-center gap-4! px-6! py-9! text-center shadow-lg">
             <div className="bg-blue-france-975 flex size-24 items-center justify-center rounded-full">
               <img src={etape.icon} alt="" aria-hidden="true" className="size-[72px] dark:rounded-full dark:bg-white" />
             </div>
@@ -27,7 +27,7 @@ export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
         ))}
       </ol>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-16!">
         <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
           Trouve ta mission
         </button>
