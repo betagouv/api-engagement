@@ -3,7 +3,8 @@ import type { StepDef } from "./types";
 
 // Parcours v1 (identifiant "q1") — conservé tel quel pour pouvoir rollback (cf. QUIZ_FLOW_VERSION dans index.ts).
 // Séquence, wording (titres/sous-titres) et conditions de visibilité des steps.
-// Les options de chaque step vivent dans le step component correspondant.
+// Les options des steps propres à q1 vivent dans leur step component : elles sont filtrées
+// dynamiquement (`hiddenIf`, réponses précédentes). Seul `handicap`, partagé avec q2/q3, les déclare ici.
 // L'ordre ici dicte l'ordre de navigation (goNext/goBack).
 export const QUIZ_FLOW_Q1: StepDef[] = [
   // Étape 1 — age.
@@ -14,6 +15,7 @@ export const QUIZ_FLOW_Q1: StepDef[] = [
     route: "/quiz/handicap",
     title: "Es-tu en situation de handicap reconnue ?",
     subtitle: "Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.",
+    options: ["handicap.oui", "handicap.non", "handicap.ne_se_prononce_pas"],
     condition: numericRange("age", 26, 30),
   },
   // Étape 3 — statut.

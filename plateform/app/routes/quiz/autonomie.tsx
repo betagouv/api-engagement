@@ -10,14 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "autonomie";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["autonomie.organisation_libre"],
-  OPTIONS["autonomie.accompagnement_initial"],
-  OPTIONS["autonomie.cadre_suivi_regulier"],
-  OPTIONS["autonomie.je_ne_sais_pas"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function AutonomieStep() {
   const { answers, setAnswer } = useQuizStore();

@@ -1,7 +1,7 @@
 import type { StepId } from "~/config/quiz-flow";
 import type { QuizOptionKey } from "~/config/quiz-options";
 
-// Un filtre = une question du quiz (steps q2, nommés comme leur taxonomy). Le tag affiche la
+// Un filtre = une question du quiz (steps q3, nommés comme leur taxonomy). Le tag affiche la
 // réponse courante (bleu plein) ou un libellé générique si la question est sans réponse (bleu clair).
 // Les listes d'options reprennent celles des steps correspondants (app/routes/quiz/*.tsx), sans les
 // options neutres (« Je ne sais pas », « Peu importe ») qui n'ont pas de sens comme filtre.
@@ -68,14 +68,7 @@ export const FILTERS: ResultsFilterDef[] = [
     label: "l’équipe",
     placeholder: "Ton équipe",
     single: true,
-    optionKeys: ["equipe.autonomie", "equipe.petit_groupe", "equipe.grand_collectif"],
-  },
-  {
-    stepId: "interaction",
-    label: "la participation",
-    placeholder: "Ta participation",
-    single: true,
-    optionKeys: ["interaction.interaction_collective", "interaction.equilibre_collectif_autonomie", "interaction.autonomie_principale"],
+    optionKeys: ["equipe.petit_groupe", "equipe.grand_collectif"],
   },
   {
     stepId: "autonomie",
@@ -83,13 +76,6 @@ export const FILTERS: ResultsFilterDef[] = [
     placeholder: "Ton cadre",
     single: true,
     optionKeys: ["autonomie.organisation_libre", "autonomie.accompagnement_initial", "autonomie.cadre_suivi_regulier"],
-  },
-  {
-    stepId: "imprevu",
-    label: "les imprévus",
-    placeholder: "Ton niveau d’imprévu",
-    single: true,
-    optionKeys: ["imprevu.adaptation_rapide", "imprevu.imprevu_modere", "imprevu.cadre_previsible"],
   },
 ];
 

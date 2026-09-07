@@ -14,6 +14,7 @@
 //   enrichable        — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
 //   disabled          — true pour griser l'option en UI (fonctionnalité pas encore disponible)
 //   mission_card_tag  — libellé court affiché en tag sur les cartes mission quand la valeur a matché
+//   neutral           — true pour exclure la valeur du scoring utilisateur (cf. NEUTRAL_TAXONOMY_VALUE_KEYS)
 
 import { DEPARTMENT_CODE_VALUES, resolveDepartmentCodeValues } from "./transformers/department-code";
 import { resolveLocationValues } from "./transformers/location";
@@ -489,7 +490,7 @@ export const TAXONOMY = {
         mission_card_tag: "Autonome dans tes missions",
       },
       accompagnement_initial: {
-        label: "J’aime être accompagné·e au début, puis gagner en autonomie",
+        label: "J’aime être accompagné(e) au début, puis gagner en autonomie",
         icon: "🧭",
         enrichable: true,
         mission_card_tag: "Accompagné dès ton arrivée",
@@ -571,6 +572,7 @@ export const TAXONOMY = {
     values: {
       premiere_experience: {
         label: "J'ai besoin d'une première expérience",
+        sublabel: "Par exemple pour enrichir ton dossier Parcoursup",
         icon: "🙏",
         enrichable: true,
         mission_card_tag: "Idéal pour débuter",
@@ -598,6 +600,9 @@ export const TAXONOMY = {
         icon: "🌍",
         enrichable: true,
         mission_card_tag: "Une mission qui a du sens",
+        // Portée par 99 % des missions : la cocher avantage tout le catalogue, donc personne.
+        // Exclue du scoring (poids 0) tout en restant proposée dans le quiz et enrichie côté mission.
+        neutral: true,
       },
       horaires_flexibles: {
         label: "Je veux avoir des horaires flexibles",

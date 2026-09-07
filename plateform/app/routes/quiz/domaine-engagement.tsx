@@ -10,19 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "domaine_engagement";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["domaine_engagement.sante_bien_etre"],
-  OPTIONS["domaine_engagement.sport"],
-  OPTIONS["domaine_engagement.solidarite_inclusion"],
-  OPTIONS["domaine_engagement.environnement_animaux"],
-  OPTIONS["domaine_engagement.art_culture"],
-  OPTIONS["domaine_engagement.securite_secours"],
-  OPTIONS["domaine_engagement.citoyennete"],
-  OPTIONS["domaine_engagement.numerique"],
-  OPTIONS["domaine_engagement.education"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function DomainesStep() {
   const { answers, setAnswer } = useQuizStore();

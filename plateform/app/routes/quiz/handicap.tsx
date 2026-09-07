@@ -9,9 +9,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "handicap";
 
-const STEP_OPTIONS = [OPTIONS["handicap.oui"], OPTIONS["handicap.non"], OPTIONS["handicap.ne_se_prononce_pas"]];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function HandicapStep() {
   const { answers, setAnswer } = useQuizStore();
