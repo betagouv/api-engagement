@@ -2,6 +2,8 @@ import MentalDisabilitiesSvg from "@gouvfr/dsfr/dist/artwork/pictograms/accessib
 import EnvironmentSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/environment.svg?url";
 import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
 
+import Carousel from "~/components/ui/carousel";
+
 const QUESTIONS = [
   {
     icon: EnvironmentSvg,
@@ -25,23 +27,28 @@ export default function Questions({ onStartQuiz }: { onStartQuiz: () => void }) 
     <section className="fr-container fr-mb-8w">
       <h2 className="fr-h1 fr-mb-6w text-center">Tu te poses les mêmes questions ?</h2>
 
-      <ul role="list" className="fr-mb-6w m-0! grid list-none! grid-cols-1 gap-6 p-0! md:grid-cols-3 lg:gap-13">
+      <Carousel
+        label="Les questions que tu te poses"
+        previousLabel="Voir la question précédente"
+        nextLabel="Voir la question suivante"
+        listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 lg:gap-13"
+        itemClassName="w-[82vw] max-w-[320px] md:w-auto md:max-w-none"
+        action={
+          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+            Trouve ta mission
+          </button>
+        }
+      >
         {QUESTIONS.map((item) => (
-          <li key={item.question} className="bg-blue-france-950 border-border-default-grey flex flex-col gap-2! rounded-2xl! border p-6!">
-            <div className="bg-background fr-mb-1w flex size-24 items-center justify-center rounded-full">
-              <img src={item.icon} alt="" aria-hidden="true" className="size-[72px] dark:rounded-full dark:bg-white" />
+          <div key={item.question} className="bg-blue-france-950 border-border-default-grey flex h-full flex-col gap-2! rounded-2xl! border p-6!">
+            <div className="bg-background fr-mb-1w flex size-20 items-center justify-center rounded-full md:size-24">
+              <img src={item.icon} alt="" aria-hidden="true" className="size-[60px] md:size-[72px] dark:rounded-full dark:bg-white" />
             </div>
             <h3 className="fr-h4 mb-0!">{item.question}</h3>
             <p className="fr-text--lg mb-0!">{item.answer}</p>
-          </li>
+          </div>
         ))}
-      </ul>
-
-      <div className="flex justify-center mt-16!">
-        <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">
-          Trouve ta mission
-        </button>
-      </div>
+      </Carousel>
     </section>
   );
 }

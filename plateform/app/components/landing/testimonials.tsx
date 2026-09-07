@@ -1,12 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-
 import AscLogo from "~/assets/images/asc-logo.png";
 import RocLogo from "~/assets/images/roc-logo.png";
 import SpvLogo from "~/assets/images/spv-logo.png";
+import Carousel from "~/components/ui/carousel";
 
 import Highlight from "../ui/highlight";
-
-import { getScrollBehavior } from "~/utils/motion";
 
 type Testimonial = {
   id: string;
@@ -68,29 +65,10 @@ const TESTIMONIALS: Testimonial[] = [
 ];
 
 export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const updateScrollState = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  };
-
-  useEffect(() => {
-    updateScrollState();
-  }, []);
-
-  const handleScroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const offset = direction === "left" ? -352 : 352;
-    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
-  };
-
+  // `overflow-x-clip` : les cartes débordent du bandeau jusqu'au bord de l'écran, sans scroll horizontal
+  // (`50vw` inclut la barre de défilement, contrairement à la largeur du document).
   return (
-    <section className="fr-container" aria-roledescription="carousel" aria-label="Témoignages d'engagés">
+    <section className="fr-container overflow-x-clip">
       <div className="bg-yellow-moutarde-975 fr-py-8w px-8">
         <div className="flex flex-col items-center fr-mb-6w">
           <h2 className="fr-h1 mb-0! md:mb-3!">
@@ -102,68 +80,40 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
           </p>
         </div>
 
-        <div
-          ref={scrollRef}
-          id="testimonials-carousel"
-          onScroll={updateScrollState}
-          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden mb-0! md:mb-6! [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:ml-0"
-          aria-live="polite"
-          aria-atomic="false"
+        <Carousel
+          label="Témoignages d'engagés"
+          previousLabel="Voir les témoignages précédents"
+          nextLabel="Voir les témoignages suivants"
+          listClassName="-ml-32! scroll-pl-32! pl-32! mr-[calc(50%-50vw)]!"
+          itemClassName="w-[80vw] max-w-[330px] md:w-[330px]"
+          action={
+            <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary w-full! justify-center md:w-auto!">
+              Je veux trouver ma mission
+            </button>
+          }
         >
-          <div className="flex w-max gap-6 px-[10vw] pb-4 items-stretch md:pl-0 md:pr-8">
-            {TESTIMONIALS.map((testimonial, i) => (
-              <article
-                key={testimonial.id}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`Témoignage ${i + 1} sur ${TESTIMONIALS.length}`}
-                className="bg-background w-[80vw] max-w-[330px] shrink-0 snap-center md:w-[330px] flex flex-col shadow-sm"
-              >
-                <img src={testimonial.image} alt="" loading="lazy" className="block h-[280px] w-full object-cover" />
-                <div className="flex flex-1 flex-col gap-4 p-6">
-                  <div className="flex flex-wrap gap-2">
-                    <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center rounded-full px-2 text-sm font-bold">{testimonial.domain}</span>
-                    <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center gap-1 rounded-full px-2 text-sm font-bold">
-                      <span aria-hidden="true">{testimonial.skillIcon}</span>
-                      {testimonial.skill}
-                    </span>
-                  </div>
-                  <h3 className="fr-h6 text-title-grey mb-0!">{testimonial.title}</h3>
-                  <div className="flex items-center gap-3 fr-mt-auto pt-2">
-                    <div className="h-6 w-auto rounded object-contain bg-white p-1">
-                      <img src={testimonial.publisherLogo} alt="" className="h-full w-auto object-contain" />
-                    </div>
-                    <span className="text-mention-grey fr-text--xs mb-0!">{testimonial.publisherName}</span>
-                  </div>
+          {TESTIMONIALS.map((testimonial) => (
+            <article key={testimonial.id} className="bg-background flex h-full flex-col shadow-sm">
+              <img src={testimonial.image} alt="" loading="lazy" className="block h-[280px] w-full object-cover" />
+              <div className="flex flex-1 flex-col gap-4 p-6">
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center rounded-full px-2 text-sm font-bold">{testimonial.domain}</span>
+                  <span className="bg-blue-france-950 text-blue-france-sun inline-flex items-center gap-1 rounded-full px-2 text-sm font-bold">
+                    <span aria-hidden="true">{testimonial.skillIcon}</span>
+                    {testimonial.skill}
+                  </span>
                 </div>
-              </article>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-3">
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => handleScroll("left")}
-              disabled={!canScrollLeft}
-              aria-label="Voir les témoignages précédents"
-              aria-controls="testimonials-carousel"
-              className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
-            ></button>
-            <button
-              type="button"
-              onClick={() => handleScroll("right")}
-              disabled={!canScrollRight}
-              aria-label="Voir les témoignages suivants"
-              aria-controls="testimonials-carousel"
-              className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
-            ></button>
-          </div>
-          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary w-full justify-center md:w-auto">
-            Je veux trouver ma mission
-          </button>
-        </div>
+                <h3 className="fr-h6 text-title-grey mb-0!">{testimonial.title}</h3>
+                <div className="flex items-center gap-3 fr-mt-auto pt-2">
+                  <div className="h-6 w-auto rounded object-contain bg-white p-1">
+                    <img src={testimonial.publisherLogo} alt="" className="h-full w-auto object-contain" />
+                  </div>
+                  <span className="text-mention-grey fr-text--xs mb-0!">{testimonial.publisherName}</span>
+                </div>
+              </div>
+            </article>
+          ))}
+        </Carousel>
       </div>
     </section>
   );
