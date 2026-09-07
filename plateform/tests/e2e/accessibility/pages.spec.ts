@@ -1,6 +1,19 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 import { expectNoRgaaViolation } from "./axe";
+
+async function rejectOptionalCookies(page: Page) {
+  const rejectButton = page.getByRole("button", { name: "Tout refuser" });
+
+  try {
+    // Le bandeau n'est pas rendu en CI lorsque aucun service de suivi n'est configuré.
+    await rejectButton.waitFor({ state: "visible", timeout: 1_000 });
+  } catch {
+    return;
+  }
+
+  await rejectButton.click();
+}
 
 test.describe("Accessibilité RGAA", { tag: "@a11y" }, () => {
   test("Accueil", async ({ page }, testInfo) => {
@@ -19,7 +32,7 @@ test.describe("Accessibilité RGAA", { tag: "@a11y" }, () => {
 
   test("Quiz — erreur de validation", async ({ page }, testInfo) => {
     await page.goto("/quiz/age");
-    await page.getByRole("button", { name: "Tout refuser" }).click();
+    await rejectOptionalCookies(page);
     await page.getByRole("button", { name: "Continuer" }).click();
     await expect(page.getByText("Sélectionne ton âge pour continuer")).toBeVisible();
 
