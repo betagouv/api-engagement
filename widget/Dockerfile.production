@@ -41,9 +41,11 @@ RUN npm ci --workspace=widget --omit=dev
 
 WORKDIR /workspace/widget
 
-COPY --from=builder /workspace/widget/.next ./.next
+COPY --from=builder --chown=node:node /workspace/widget/.next ./.next
 COPY --from=builder /workspace/widget/public ./public
 COPY --from=builder /workspace/widget/next.config.js ./next.config.js
+
+USER node
 
 EXPOSE 8080
 

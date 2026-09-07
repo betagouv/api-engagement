@@ -43,6 +43,8 @@ COPY --from=builder /workspace/api/dist ./dist
 COPY --from=builder /workspace/api/src/db ./dist/db
 COPY --from=builder /workspace/api/prisma ./prisma
 
+USER node
+
 EXPOSE 8080
 
 CMD ["node", "/workspace/api/dist/worker/index.js"]

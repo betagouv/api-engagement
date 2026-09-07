@@ -7,11 +7,15 @@ COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
 COPY packages/dto ./packages/dto
 
+RUN chown -R node:node /workspace
+
+USER node
+
 WORKDIR /workspace/plateform
 
 RUN npm ci --workspace=plateform
 
-COPY plateform/ .
+COPY --chown=node:node plateform/ .
 
 EXPOSE 3005
 
