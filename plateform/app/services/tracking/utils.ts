@@ -75,7 +75,7 @@ export function resolveGeoProps(answer: ScreenAnswer | undefined): {
 // Résolveurs d'entry_source
 // ============================================================================
 
-const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]);
+const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external", "defis_engagement_cta"]);
 
 // Priorité à l'état de navigation (CTA in-app qui le transmet), sinon on déduit direct/external
 // depuis le referrer du document. (Le referrer ne reflète pas la navigation SPA interne, d'où le
@@ -92,7 +92,7 @@ export function resolveQuizEntrySource(stateHint?: string | null): QuizEntrySour
   }
 }
 
-const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct"]);
+const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct", "defis_engagement"]);
 
 export function resolveMissionDetailEntrySource(stateHint?: string | null): MissionDetailEntrySource {
   return stateHint && MISSION_DETAIL_ENTRY_SOURCES.has(stateHint as MissionDetailEntrySource) ? (stateHint as MissionDetailEntrySource) : "direct";

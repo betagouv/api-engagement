@@ -90,7 +90,7 @@ export function trackMissionClickedFromMatch(
 export function trackMissionClickedFromBrowse(
   mission: MissionBrowse,
   context: {
-    section: Extract<MissionClickedSection, "missions_list" | "homepage_examples">;
+    section: Extract<MissionClickedSection, "missions_list" | "homepage_examples" | "defis_engagement">;
     entryPage: MissionClickedEntryPage;
     opensExternal: boolean;
   },

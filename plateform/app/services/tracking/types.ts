@@ -46,13 +46,13 @@ export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
 
 // --- page.viewed ---
 // Page visitée (discriminant du pageview manuel : capture_pageview est désactivé côté PostHog).
-export type PageViewedPageName = "homepage" | "missions_list";
+export type PageViewedPageName = "homepage" | "missions_list" | "defis_engagement";
 
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission.
-export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar";
+export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar" | "defis_engagement";
 // Page sur laquelle se trouve l'utilisateur au moment du clic.
-export type MissionClickedEntryPage = "results" | "homepage" | "missions_list";
+export type MissionClickedEntryPage = "results" | "homepage" | "missions_list" | "defis_engagement";
 
 export interface MissionClickedPayload {
   mission_id: string;
@@ -73,13 +73,13 @@ export interface MissionClickedPayload {
 
 // --- quiz ---
 // Provenance de l'entrée dans le quiz.
-export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external";
+export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external" | "defis_engagement_cta";
 // Mode de complétion : "full" (parcours jusqu'au bout) ou "shortcut" (bouton "Voir mes résultats").
 export type QuizCompletionType = "full" | "shortcut";
 
 // --- mission_detail.viewed ---
 // Provenance de l'ouverture d'une fiche mission.
-export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct";
+export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct" | "defis_engagement";
 // State de navigation transmis par les cartes mission vers la fiche détail (entry_source + rang).
 export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
 

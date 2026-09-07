@@ -45,6 +45,9 @@ export default [
     route("precision-international", "routes/quiz/precision-international.tsx"),
   ]),
 
+  // Landing dédiée au programme « Les défis de l'engagement » (16-18 ans).
+  route("defis-engagement", "routes/defis-engagement.tsx"),
+
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),
   route("accessibilite", "routes/accessibilite.tsx"),
