@@ -1,0 +1,6 @@
+# Acceptation des modalités d'utilisation du DSFR (@gouvfr/dsfr >= 1.15.0).
+# Depuis la 1.15.0, le paquet exécute un script `preinstall` qui bloque
+# `npm ci` tant que les modalités d'utilisation n'ont pas été acceptées.
+# La version ci-dessous doit correspondre au `cguVersion` déclaré dans
+# `node_modules/@gouvfr/dsfr/doc/legal/cgu.md` (mettre à jour lors d'un bump).
+accept-license: '1.0.1'

@@ -1,5 +1,7 @@
 FROM node:24-slim AS builder
 WORKDIR /workspace
+# @gouvfr/dsfr >= 1.15.0 gate le preinstall sur l'acceptation des CGU.
+ENV DSFR_ACCEPT_LICENSE=1
 ARG VITE_API_URL=
 ENV VITE_API_URL=$VITE_API_URL
 ARG VITE_ENV=
@@ -26,6 +28,8 @@ RUN npm --workspace=plateform run build
 
 FROM node:24-slim AS runner
 WORKDIR /workspace
+# @gouvfr/dsfr >= 1.15.0 gate le preinstall sur l'acceptation des CGU.
+ENV DSFR_ACCEPT_LICENSE=1
 COPY package*.json ./
 COPY plateform/package.json ./plateform/
 COPY packages/taxonomy ./packages/taxonomy
