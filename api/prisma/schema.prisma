@@ -1054,6 +1054,10 @@ model UserScoring {
   id                  String    @id @default(uuid())
   distinctId          String?   @map("distinct_id")
   missionAlertEnabled Boolean   @default(false) @map("mission_alert_enabled")
+  // Version du moteur de matching figée à la création : les résultats du scoring restent scorés par
+  // ce moteur et ne bénéficient pas des mises à jour ultérieures (cf. resolveRankingParams). Nullable
+  // le temps du backfill ; absent = retombe sur CURRENT_MATCHING_ENGINE_VERSION.
+  matchingEngineVersion String? @map("matching_engine_version")
   createdAt           DateTime  @default(now()) @map("created_at")
   updatedAt           DateTime  @updatedAt @map("updated_at")
 

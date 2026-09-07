@@ -1,6 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { prisma } from "@/db/postgres";
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
@@ -230,6 +231,32 @@ describe("GET /missions/match", () => {
     expect(response.body.ok).toBe(true);
     expect(response.body.data.engineVersion).toBe("m3");
     expect(response.body.data.items).toHaveLength(1);
+  });
+
+  it("uses the engine version pinned on the user scoring", async () => {
+    await createRankableMission();
+    const userScoringId = await createUserScoring();
+    // Fige le scoring sur une version différente de la version active (m3) : le ranking doit la suivre.
+    await prisma.userScoring.update({ where: { id: userScoringId }, data: { matchingEngineVersion: "m1" } });
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.engineVersion).toBe("m1");
+  });
+
+  it("keeps the explicit engineVersion override above the pinned version", async () => {
+    await createRankableMission();
+    const userScoringId = await createUserScoring();
+    await prisma.userScoring.update({ where: { id: userScoringId }, data: { matchingEngineVersion: "m1" } });
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId,
+      engineVersion: "m2",
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.engineVersion).toBe("m2");
   });
 
   it("ranks an eligible full-remote mission without taxonomy match nor address for a geolocated user (m3)", async () => {

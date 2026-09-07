@@ -2,10 +2,10 @@ import type { UserScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
 
 export const userScoringRepository = {
-  findById(id: string): Promise<Pick<UserScoring, "id" | "distinctId" | "missionAlertEnabled"> | null> {
+  findById(id: string): Promise<Pick<UserScoring, "id" | "distinctId" | "missionAlertEnabled" | "matchingEngineVersion"> | null> {
     return prisma.userScoring.findUnique({
       where: { id },
-      select: { id: true, distinctId: true, missionAlertEnabled: true },
+      select: { id: true, distinctId: true, missionAlertEnabled: true, matchingEngineVersion: true },
     });
   },
 
@@ -14,11 +14,13 @@ export const userScoringRepository = {
     geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
     distinctId?: string;
     missionAlertEnabled: boolean;
+    matchingEngineVersion: string;
   }): Promise<UserScoring> {
     return prisma.userScoring.create({
       data: {
         distinctId: params.distinctId,
         missionAlertEnabled: params.missionAlertEnabled,
+        matchingEngineVersion: params.matchingEngineVersion,
         ...(params.values.length
           ? {
               values: {

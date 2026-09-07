@@ -184,4 +184,11 @@ export const resolveMatchingEngineVersion = (raw: string): MatchingEngineVersion
 /** Version de matching active (pilotée par env, cf. `MATCHING_ENGINE_VERSION`). */
 export const CURRENT_MATCHING_ENGINE_VERSION = resolveMatchingEngineVersion(MATCHING_ENGINE_VERSION);
 
+// Résout la version figée sur un user_scoring (`matchingEngineVersion`). Absente (scoring pas encore
+// backfillé) → version courante ; présente mais inconnue (version supprimée) → fallback signalé via
+// `resolveMatchingEngineVersion`. Les résultats d'un scoring restent ainsi scorés par le moteur figé
+// à sa création, indépendamment des évolutions ultérieures de la version active.
+export const resolveMatchingEngineVersionForScoring = (stored: string | null | undefined): MatchingEngineVersion =>
+  stored == null ? CURRENT_MATCHING_ENGINE_VERSION : resolveMatchingEngineVersion(stored);
+
 export const MATCHING_ENGINE_TAXONOMY_WEIGHTS = MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].taxonomyWeights;

@@ -3,7 +3,7 @@ import { missionMatchingResultRepository } from "@/repositories/mission-matching
 import { userScoringRepository } from "@/repositories/user-scoring";
 import type { MissionContent } from "@/services/brevo";
 import { buildMissionContentHtml, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
-import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
+import { MATCHING_ENGINE_VERSIONS, resolveMatchingEngineVersionForScoring } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 import { subscribeToNewsletter } from "@/services/newsletter";
@@ -117,7 +117,15 @@ const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userS
 });
 
 const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionContent[] | null> => {
-  const matchingResult = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, CURRENT_MATCHING_ENGINE_VERSION);
+  const userScoring = await userScoringRepository.findById(userScoringId);
+  if (!userScoring) {
+    return null;
+  }
+
+  // Version figée sur le scoring : on lit le snapshot produit par ce moteur (et non la version active),
+  // pour que la newsletter reste stable même après un changement de CURRENT_MATCHING_ENGINE_VERSION.
+  const engineVersion = resolveMatchingEngineVersionForScoring(userScoring.matchingEngineVersion);
+  const matchingResult = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, engineVersion);
   if (!matchingResult) {
     return null;
   }
@@ -127,10 +135,8 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  // La version courante ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur / l'API)
-  const ignoreRemoteAddress =
-    MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteFullGeoScore != null ||
-    MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteLocalGeoScore != null;
+  // Ce moteur ignore-t-il l'adresse des missions remote=full/local ? (aligné sur le moteur / l'API)
+  const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[engineVersion].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[engineVersion].remoteLocalGeoScore != null;
   const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems, ignoreRemoteAddress);
   const missionsByScoringId = new Map(missions.map((item) => [item.missionScoringId, item]));
   const orderedMissions = matchingItems.map((item) => missionsByScoringId.get(item.missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));

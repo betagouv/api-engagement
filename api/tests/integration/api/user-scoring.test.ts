@@ -94,6 +94,18 @@ describe("POST /user-scoring", () => {
     expect(geo).toBeNull();
   });
 
+  it("pins the current matching engine version on creation", async () => {
+    const res = await postUserScoringRequest().send({ answers: [taxonomyAnswer] });
+
+    expect(res.status).toBe(201);
+
+    const userScoring = await prisma.userScoring.findUniqueOrThrow({
+      where: { id: res.body.data.id },
+      select: { matchingEngineVersion: true },
+    });
+    expect(userScoring.matchingEngineVersion).toBe(CURRENT_MATCHING_ENGINE_VERSION);
+  });
+
   it("should create a user scoring with location params (lat/lon only)", async () => {
     const res = await postUserScoringRequest().send({
       answers: [taxonomyAnswer, { taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } }],
@@ -619,6 +631,30 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const contentHtml = brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml;
     expect(contentHtml).toContain(currentMatching.missions[0].title);
     expect(contentHtml).not.toContain(legacyMatching.missions[0].title);
+  });
+
+  it("uses the snapshot of the version pinned on the scoring, not the current one", async () => {
+    const userScoringId = await createUserScoring();
+    // Fige le scoring sur une version différente de la version active (simule un changement d'env
+    // après création) : la newsletter doit rester sur le snapshot de la version figée.
+    await prisma.userScoring.update({ where: { id: userScoringId }, data: { matchingEngineVersion: "m1" } });
+    const pinnedMatching = await createStoredMatchingResult(userScoringId, 1, "m1");
+    const currentMatching = await createStoredMatchingResult(userScoringId, 1, CURRENT_MATCHING_ENGINE_VERSION);
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await postMissionEmailRequest().send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+    });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
+
+    const contentHtml = brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml;
+    expect(contentHtml).toContain(pinnedMatching.missions[0].title);
+    expect(contentHtml).not.toContain(currentMatching.missions[0].title);
   });
 
   it("should send matching email with the city from the matched mission address", async () => {

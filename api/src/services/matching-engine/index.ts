@@ -3,7 +3,7 @@ import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
-import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
+import { MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS, resolveMatchingEngineVersionForScoring } from "./config";
 import type {
   MatchMissionItem,
   MatchingEngineTaxonomy,
@@ -36,6 +36,11 @@ type DbTaxonomyScoreRow = {
 
 type UserScoringStateRow = {
   id: string;
+  matching_engine_version: string | null;
+};
+
+export type UserScoringState = {
+  matchingEngineVersion: string | null;
 };
 
 const clampScore = (value: number | null): number => {
@@ -66,9 +71,9 @@ const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Readonly<MatchingEngineT
 
 const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
-const assertUserScoringExists = async (userScoringId: string): Promise<void> => {
+const loadUserScoringState = async (userScoringId: string): Promise<UserScoringState> => {
   const rows = await prisma.$queryRaw<UserScoringStateRow[]>`
-    SELECT "id"
+    SELECT "id", "matching_engine_version"
     FROM "user_scoring"
     WHERE "id" = ${userScoringId}
     LIMIT 1
@@ -78,6 +83,8 @@ const assertUserScoringExists = async (userScoringId: string): Promise<void> => 
   if (!userScoring) {
     throw new Error(`[matchingEngineService] user_scoring '${userScoringId}' not found.`);
   }
+
+  return { matchingEngineVersion: userScoring.matching_engine_version };
 };
 
 const buildRanking = (params: {
@@ -706,8 +713,9 @@ const buildMissionMatchingResultItems = (params: {
 
 // Dérive les paramètres de ranking depuis l'input (defaults par version). Partagé entre l'exécution
 // et le debug (explainRanking) pour garantir un SQL identique.
-const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
-  const version = input.version ?? CURRENT_MATCHING_ENGINE_VERSION;
+// Priorité de la version : override explicite (debug/xp) > version figée sur le scoring > courante.
+const resolveRankingParams = (input: RankMissionsByUserScoringInput, scoring: UserScoringState) => {
+  const version = input.version ?? resolveMatchingEngineVersionForScoring(scoring.matchingEngineVersion);
   const versionConfig = MATCHING_ENGINE_VERSIONS[version];
   const limit = Math.max(1, Math.min(500, input.limit ?? 20));
   const offset = Math.max(0, input.offset ?? 0);
@@ -736,8 +744,8 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
   };
 };
 
-const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): Promise<Prisma.Sql> => {
-  const params = resolveRankingParams(input);
+const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput, scoring: UserScoringState): Promise<Prisma.Sql> => {
+  const params = resolveRankingParams(input, scoring);
 
   return buildRanking({
     userScoringId: input.userScoringId,
@@ -761,11 +769,10 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys, taxonomyOrBaseScore } = resolveRankingParams(input);
+    const scoring = await loadUserScoringState(input.userScoringId);
+    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys, taxonomyOrBaseScore } = resolveRankingParams(input, scoring);
 
-    await assertUserScoringExists(input.userScoringId);
-
-    const rows = await prisma.$queryRaw<DbRankRow[]>(await buildRankingSqlForInput(input));
+    const rows = await prisma.$queryRaw<DbRankRow[]>(await buildRankingSqlForInput(input, scoring));
     const missionScoringIdsForDetails = rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT).map((row) => row.mission_scoring_id);
     const taxonomyScoresRows =
       missionScoringIdsForDetails.length > 0
@@ -830,8 +837,8 @@ export const matchingEngineService = {
   // Debug/diagnostic : renvoie le plan `EXPLAIN (ANALYZE, BUFFERS)` du SQL de ranking pour un input
   // donné (mêmes paramètres que rankMissionsByUserScoring). Utilisé par scripts/explain-matching-ranking.ts.
   async explainRanking(input: RankMissionsByUserScoringInput): Promise<string> {
-    await assertUserScoringExists(input.userScoringId);
-    const sql = await buildRankingSqlForInput(input);
+    const scoring = await loadUserScoringState(input.userScoringId);
+    const sql = await buildRankingSqlForInput(input, scoring);
     const rows = await prisma.$queryRaw<Array<Record<string, string>>>(Prisma.sql`EXPLAIN (ANALYZE, BUFFERS) ${sql}`);
 
     return rows.map((row) => row["QUERY PLAN"]).join("\n");
