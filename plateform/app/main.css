@@ -31,6 +31,9 @@
   --color-background-contrast-blue-france: var(--background-contrast-blue-france); /* not defined in the css dsfr but exists on the website */
   /* Goals */
   --color-action-high-blue-france: var(--background-action-high-blue-france);
+  --color-action-high-blue-france-hover: var(--background-action-high-blue-france-hover);
+  --color-action-low-blue-france: var(--background-action-low-blue-france);
+  --color-action-low-blue-france-hover: var(--background-action-low-blue-france-hover);
   /* Colors */
   --color-blue-france-525: var(--blue-france-main-525);
   --color-blue-france-925: var(--blue-france-925-125);
