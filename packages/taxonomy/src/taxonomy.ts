@@ -572,7 +572,6 @@ export const TAXONOMY = {
     values: {
       premiere_experience: {
         label: "J'ai besoin d'une première expérience",
-        sublabel: "Par exemple pour enrichir ton dossier Parcoursup",
         icon: "🙏",
         enrichable: true,
         mission_card_tag: "Idéal pour débuter",

@@ -44,6 +44,7 @@ export const QUIZ_FLOW_Q3: StepDef[] = [
     title: "Qu’est-ce qui t’amène aujourd’hui ?",
     options: [
       "motivation_recherche.premiere_experience",
+      "motivation_recherche.parcoursup",
       "motivation_recherche.decouverte_metier",
       "motivation_recherche.agir_pour_une_cause",
       "motivation_recherche.securite_pays",

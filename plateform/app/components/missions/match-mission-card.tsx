@@ -3,6 +3,7 @@ import { getDomainLabel } from "@engagement/dto";
 import { useMemo } from "react";
 import { Link } from "react-router";
 
+import { getTaxonomyValue } from "~/config/quiz-options";
 import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
@@ -39,7 +40,12 @@ export default function MatchMissionCard({
   // Clés plates "taxonomie.valeur" des réponses du quiz : les tags ne retiennent que les valeurs
   // de la mission que l'utilisateur a effectivement demandées.
   const userValueKeys = useMemo(
-    () => new Set(Object.values(answers).flatMap((answer) => (answer?.type === "options" ? answer.option_ids.map((optionId) => `${answer.taxonomy}.${optionId}`) : []))),
+    () =>
+      new Set(
+        Object.values(answers).flatMap((answer) =>
+          answer?.type === "options" ? answer.option_ids.map((optionId) => `${answer.taxonomy}.${getTaxonomyValue(answer.taxonomy, optionId)}`) : [],
+        ),
+      ),
     [answers],
   );
   const tags = buildMissionMatchTags(item, userValueKeys);

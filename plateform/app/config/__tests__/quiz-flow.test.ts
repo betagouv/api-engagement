@@ -25,6 +25,11 @@ describe("parcours q3", () => {
     expect(optionsOf(QUIZ_FLOW_REGISTRY.q3, "equipe")).not.toContain("equipe.autonomie");
   });
 
+  it("propose la réponse Parcoursup, absente de q2", () => {
+    expect(optionsOf(QUIZ_FLOW_REGISTRY.q3, "motivation_recherche")).toContain("motivation_recherche.parcoursup");
+    expect(optionsOf(QUIZ_FLOW_REGISTRY.q2, "motivation_recherche")).not.toContain("motivation_recherche.parcoursup");
+  });
+
   it("conserve interaction et imprevu dans q2 pour permettre un rollback", () => {
     expect(QUIZ_FLOW_REGISTRY.q2.map((step) => step.id)).toEqual(expect.arrayContaining(["interaction", "imprevu"]));
   });
