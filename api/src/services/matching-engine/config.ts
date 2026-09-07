@@ -191,4 +191,25 @@ export const CURRENT_MATCHING_ENGINE_VERSION = resolveMatchingEngineVersion(MATC
 export const resolveMatchingEngineVersionForScoring = (stored: string | null | undefined): MatchingEngineVersion =>
   stored == null ? CURRENT_MATCHING_ENGINE_VERSION : resolveMatchingEngineVersion(stored);
 
+// Taxonomies produites par chaque génération de parcours (source de vérité pour classer un scoring).
+// ⚠️ Le backfill SQL (migration add_user_scoring_matching_engine_version) réplique ces listes : les
+// garder synchronisées.
+export const Q1_TAXONOMY_KEYS = ["domaine", "secteur_activite", "type_mission", "competence_rome", "region_internationale", "engagement_intent", "formation_onisep"] as const;
+export const Q2_TAXONOMY_KEYS = ["domaine_engagement", "rythme", "activite", "equipe", "interaction", "autonomie", "imprevu", "motivation_recherche"] as const;
+
+// Dernier moteur pondérant les taxonomies q1 : un scoring identifiable q1 y est figé même quand la
+// version active (m5) les ignore.
+const Q1_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "m3";
+
+// Choisit le moteur à figer sur un scoring d'après les taxonomies qu'il porte. On réserve le moteur q1
+// aux scorings identifiables q1 (au moins une taxonomie q1, aucune taxonomie q2) ; tout le reste (q2,
+// q2 partiel, géo-only, sans réponse) prend la version courante — sans régression puisqu'elle est déjà
+// active. Utilisé à la création (depuis les réponses) et répliqué au backfill (depuis user_scoring_value).
+export const inferMatchingEngineVersion = (taxonomyKeys: readonly (string | null | undefined)[], current: MatchingEngineVersion): MatchingEngineVersion => {
+  const keys = new Set(taxonomyKeys.filter((key): key is string => Boolean(key)));
+  const hasQ1 = Q1_TAXONOMY_KEYS.some((key) => keys.has(key));
+  const hasQ2 = Q2_TAXONOMY_KEYS.some((key) => keys.has(key));
+  return hasQ1 && !hasQ2 ? Q1_MATCHING_ENGINE_VERSION : current;
+};
+
 export const MATCHING_ENGINE_TAXONOMY_WEIGHTS = MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].taxonomyWeights;

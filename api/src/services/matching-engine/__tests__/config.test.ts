@@ -2,7 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
-import { DEFAULT_MATCHING_ENGINE_VERSION, defineMatchingEngineVersion, MATCHING_ENGINE_VERSIONS, resolveMatchingEngineVersion } from "@/services/matching-engine/config";
+import {
+  DEFAULT_MATCHING_ENGINE_VERSION,
+  defineMatchingEngineVersion,
+  inferMatchingEngineVersion,
+  MATCHING_ENGINE_VERSIONS,
+  resolveMatchingEngineVersion,
+} from "@/services/matching-engine/config";
 
 vi.mock("@/error", () => ({ captureMessage: vi.fn() }));
 
@@ -76,5 +82,27 @@ describe("matching engine config", () => {
     expect(resolveMatchingEngineVersion(version)).toBe(DEFAULT_MATCHING_ENGINE_VERSION);
 
     warnSpy.mockRestore();
+  });
+
+  describe("inferMatchingEngineVersion", () => {
+    it("fige un scoring identifiable q1 (taxonomie q1, aucune q2) sur m3, quelle que soit la version courante", () => {
+      expect(inferMatchingEngineVersion(["domaine", "type_mission"], "m5")).toBe("m3");
+      expect(inferMatchingEngineVersion(["formation_onisep"], "m5")).toBe("m3");
+    });
+
+    it("rattache un scoring q2 à la version courante", () => {
+      expect(inferMatchingEngineVersion(["domaine_engagement", "rythme"], "m5")).toBe("m5");
+    });
+
+    it("rattache un parcours q2 partiel (taxonomies q1/gate uniquement) à la version courante", () => {
+      // Un q2 commencé n'ayant encore que tranche_age (gate) ou une taxonomie q1 ne doit pas être classé q1.
+      expect(inferMatchingEngineVersion(["tranche_age"], "m5")).toBe("m5");
+      expect(inferMatchingEngineVersion(["domaine", "domaine_engagement"], "m5")).toBe("m5");
+    });
+
+    it("rattache un scoring sans taxonomie (géo-only, sans réponse) à la version courante", () => {
+      expect(inferMatchingEngineVersion([], "m5")).toBe("m5");
+      expect(inferMatchingEngineVersion([null, undefined], "m5")).toBe("m5");
+    });
   });
 });

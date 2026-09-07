@@ -2,7 +2,7 @@ import type { UserScoringCreateResponse, UserScoringUpdateResponse } from "@enga
 import { isNeutralTaxonomyValueKey, TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import { CURRENT_MATCHING_ENGINE_VERSION, inferMatchingEngineVersion } from "@/services/matching-engine/config";
 
 type UserScoringAnswerInput = {
   taxonomy: string;
@@ -172,9 +172,13 @@ export const userScoringService = {
       geo: scoringData.geo,
       distinctId: input?.distinctId,
       missionAlertEnabled: input.missionAlertEnabled,
-      // Fige le moteur de matching à la version active : les résultats de ce scoring ne suivront pas
-      // les évolutions ultérieures de CURRENT_MATCHING_ENGINE_VERSION (cf. resolveRankingParams).
-      matchingEngineVersion: CURRENT_MATCHING_ENGINE_VERSION,
+      // Fige le moteur de matching à la création : version courante par défaut (les résultats ne
+      // suivront pas ses évolutions ultérieures, cf. resolveRankingParams), sauf pour un scoring
+      // identifiable q1 rattaché au moteur qui pondère ses taxonomies.
+      matchingEngineVersion: inferMatchingEngineVersion(
+        scoringData.values.map((value) => value.taxonomyKey),
+        CURRENT_MATCHING_ENGINE_VERSION
+      ),
     });
 
     return { id: userScoring.id } satisfies UserScoringCreateResponse;
