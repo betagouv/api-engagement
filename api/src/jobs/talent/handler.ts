@@ -2,12 +2,12 @@ import fs from "fs";
 
 import { ENV, PUBLISHER_IDS } from "@/config";
 import { captureException } from "@/error";
-import { importService } from "@/services/import";
-import { publisherService } from "@/services/publisher";
 import { BaseHandler } from "@/jobs/base/handler";
-import { JobResult } from "@/jobs/types";
 import { TALENT_PUBLISHER_ID } from "@/jobs/talent/config";
 import { generateJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/talent/utils";
+import { JobResult } from "@/jobs/types";
+import { importService } from "@/services/import";
+import { publisherService } from "@/services/publisher";
 
 export interface TalentJobPayload {}
 
@@ -43,8 +43,11 @@ export class TalentHandler implements BaseHandler<TalentJobPayload, TalentJobRes
       const jobs = [];
 
       console.log(`[Talent Job] Querying and processing missions of JeVeuxAider.gouv.fr`);
+      // On filtre les missions JVA via le snapshot de diffusion `mission_diffusion` de Talent
+      // (diffuseurPublisherId), pour appliquer les exclusions d'organisations configurées pour Talent.
       const JvaMissionsCursor = getMissionsCursor({
         publisherIds: [PUBLISHER_IDS.JEVEUXAIDER],
+        diffuseurPublisherId: TALENT_PUBLISHER_ID,
       });
 
       const jvaJobs = await generateJobs(JvaMissionsCursor);
