@@ -37,7 +37,7 @@ if (envPath && fs.existsSync(envPath)) {
   dotenv.config();
 }
 
-import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID } from "@/config";
+import { ENV, SENTRY_DSN_JOBS, SLACK_CRON_CHANNEL_ID, WORKSPACE } from "@/config";
 import { pgConnected, pgDisconnect } from "@/db/postgres";
 import { captureException } from "@/error";
 import { postMessage } from "@/services/slack";
