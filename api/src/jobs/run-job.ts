@@ -122,7 +122,7 @@ async function runJob() {
     const time = getJobTime(start);
     await postMessage(
       {
-        title: `${handler.name} terminée en ${time}`,
+        title: `[${ENV}] ${handler.name} terminée en ${time}`,
         text: result.message || (result.success ? "Job executed successfully" : "Job failed"),
         color: result.success ? "good" : "danger",
       },
