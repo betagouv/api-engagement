@@ -1,6 +1,7 @@
 locals {
   common_env_vars = {
     "ENV"                        = var.env
+    "WORKSPACE"                  = var.workspace
     "API_URL"                    = "https://${var.api_hostname}"
     "APP_URL"                    = "https://${var.app_hostname}"
     "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
