@@ -41,20 +41,23 @@ export default function EmailMissionsModal({ userScoringId, missionId, open: con
 
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userScoringId) return;
+    // Hors parcours de quiz (page défis), il n'y a pas de scoring : l'API accepte alors `missionIds`
+    // seul, mais on ne peut pas enregistrer l'alerte, faute d'utilisateur à qui la rattacher.
+    if (!userScoringId && !missionId) return;
 
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const missionAlertEnabled = (form.elements.namedItem("nearby") as HTMLInputElement).checked;
+    const nearby = form.elements.namedItem("nearby") as HTMLInputElement | null;
+    const missionAlertEnabled = nearby?.checked ?? false;
 
     setSubmitting(true);
     setError(null);
 
     try {
-      await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
+      if (userScoringId) await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
       const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID, userScoringId, distinctId, missionIds: missionId ? [missionId] : undefined });
       if (!result.email_sent) {
-        setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");
+        setError(userScoringId ? "Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats." : "Cette mission n'a pas pu être envoyée. Merci de réessayer.");
       } else {
         trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
         setSuccess(true);
@@ -130,15 +133,18 @@ export default function EmailMissionsModal({ userScoringId, missionId, open: con
                 )}
               </div>
 
-              <div className="fr-checkbox-group fr-mb-2w">
-                <input id={nearbyId} name="nearby" type="checkbox" />
-                <label className="fr-label" htmlFor={nearbyId}>
-                  Recevoir aussi les nouvelles missions près de chez moi
-                </label>
-                <div className="fr-messages-group pl-8">
-                  <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+              {/* L'alerte se rattache au scoring de l'utilisateur : sans quiz fait, on ne la propose pas. */}
+              {userScoringId && (
+                <div className="fr-checkbox-group fr-mb-2w">
+                  <input id={nearbyId} name="nearby" type="checkbox" />
+                  <label className="fr-label" htmlFor={nearbyId}>
+                    Recevoir aussi les nouvelles missions près de chez moi
+                  </label>
+                  <div className="fr-messages-group pl-8">
+                    <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex flex-col gap-2">
                 <button type="submit" disabled={submitting} className="fr-btn w-full! justify-center!">

@@ -1,88 +1,83 @@
-import type { MissionBrowse } from "@engagement/dto";
-import { getDomainLabel } from "@engagement/dto";
 import { Link } from "react-router";
 
-import { formatCompensation } from "~/utils/mission";
+import MissionTag from "./mission-tag";
 
-// `state` est transmis à la navigation interne (React Router) — utilisé pour l'entry_source de
-// `mission_detail.viewed` (provenance + rang de la carte).
-type MissionCardLink = { type: "internal"; to: string; state?: unknown } | { type: "external"; href: string };
-
-interface MissionCardProps {
-  mission: MissionBrowse;
-  link?: MissionCardLink;
-  // Déclenché quand l'utilisateur ouvre la mission via le lien de la carte (DSFR `fr-enlarge-link`
-  // étend la zone cliquable à toute la carte). Sert notamment au tracking `mission.clicked`.
+// Présentation unique des cartes mission (résultats de matching, liste /missions, landings) : image
+// + badge domaine, titre cliquable (zone étendue à toute la carte via `fr-enlarge-link`), tags et
+// annonceur, plus un bouton email optionnel. Les appelants n'ont pas les mêmes données (matching vs
+// browse) ni le même tracking : la carte ne reçoit que du déjà mis en forme et ne calcule ni les
+// tags ni le lien.
+export default function MissionCard({
+  image,
+  domainLabel,
+  title,
+  to,
+  state,
+  onClick,
+  tags,
+  publisherName,
+  publisherLogo,
+  onEmailClick,
+}: {
+  image: string | null;
+  domainLabel: string | null;
+  title: string;
+  to: string;
+  state?: unknown;
   onClick?: () => void;
-}
-
-export default function MissionCard({ mission, link, onClick }: MissionCardProps) {
-  const domainLabel = getDomainLabel(mission.domain);
-  const cardImage = mission.photo ?? mission.organizationLogo ?? mission.domainLogo;
-  const compensationLabel = mission.compensation ? formatCompensation(mission.compensation) : null;
-  const locationLabel = mission.remote === "local" ? "Près de chez moi" : mission.city;
-
-  const clampStyle = { display: "-webkit-box", WebkitBoxOrient: "vertical" as const, WebkitLineClamp: 3, overflow: "hidden" };
-
-  const title =
-    link?.type === "internal" ? (
-      <Link to={link.to} state={link.state} onClick={onClick} className="text-title-grey! fr-h6! bg-none! mb-0!" style={clampStyle}>
-        {mission.title}
-      </Link>
-    ) : link?.type === "external" ? (
-      <a
-        href={link.href}
-        onClick={onClick}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={`${mission.title} - nouvelle fenêtre`}
-        className="text-title-grey! fr-h6! bg-none! mb-0!"
-        style={clampStyle}
-      >
-        {mission.title}
-      </a>
-    ) : (
-      <span className="text-title-grey! fr-h6! mb-0!" style={clampStyle}>
-        {mission.title}
-      </span>
-    );
-
+  tags: string[];
+  publisherName: string | null;
+  publisherLogo: string | null;
+  onEmailClick?: () => void;
+}) {
   return (
-    <div className="mission-card fr-card fr-card--no-icon fr-enlarge-link relative h-full w-full">
-      {compensationLabel && <p className="fr-badge fr-badge--sm fr-badge--purple-glycine absolute top-3 left-3 z-1 m-0!">{compensationLabel}</p>}
+    <div className="fr-enlarge-link border-border-default-grey bg-background shadow-card relative flex h-full w-full flex-col border">
+      {image ? <img className="h-[120px] w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-[120px] w-full" />}
 
-      <div className="fr-card__body px-6! py-4!">
-        <div className="fr-card__content m-0! p-0!">
-          {domainLabel && (
-            <div className="fr-card__start mb-3! leading-none!">
-              <p className="fr-tag fr-tag--sm m-0!">{domainLabel}</p>
-            </div>
-          )}
+      {domainLabel && <p className="fr-badge fr-badge--sm fr-badge--purple-glycine absolute top-3 left-3 z-1 m-0! px-[6px]! text-[12px]!">{domainLabel}</p>}
 
-          <h3 className="fr-card__title mb-0! leading-tight!">{title}</h3>
+      {onEmailClick && (
+        <button
+          type="button"
+          className="bg-background! hover:bg-background-default-grey-hover! hover:ring-blue-france-sun absolute top-[9px] right-[9px] z-10 flex h-[25px] w-[25px] items-center justify-center rounded-full shadow-[0_0_24px_0_rgba(0,0,18,0.12)] hover:ring-1"
+          onClick={(e) => {
+            // La carte entière est un lien (`fr-enlarge-link`) : sans ça le clic ouvrirait la mission.
+            e.preventDefault();
+            e.stopPropagation();
+            onEmailClick();
+          }}
+          aria-label="Recevoir par email"
+        >
+          <i className="fr-icon-mail-send-line fr-icon--sm text-blue-france-sun" aria-hidden="true" />
+        </button>
+      )}
 
-          <div className="fr-card__end flex flex-col gap-2 justify-between mt-3! p-0!">
-            <div className="flex flex-col gap-1">
-              {locationLabel && <p className="fr-card__detail fr-icon-map-pin-2-line m-0! block! truncate!">{locationLabel}</p>}
-              {mission.schedule && <p className="fr-card__detail fr-icon-time-line m-0! block! truncate!">{mission.schedule}</p>}
-              {mission.organizationName && <p className="fr-card__detail fr-icon-building-line m-0! block! truncate!">{mission.organizationName}</p>}
-            </div>
+      <div className="flex flex-1 flex-col gap-4 px-4 py-3">
+        <h3 className="m-0! text-[16px]! leading-tight!">
+          <Link
+            to={to}
+            state={state}
+            onClick={onClick}
+            className="text-title-grey! fr-h6! bg-none! mb-0!"
+            style={{ display: "-webkit-box", WebkitBoxOrient: "vertical" as const, WebkitLineClamp: 2, overflow: "hidden" }}
+          >
+            {title}
+          </Link>
+        </h3>
 
-            {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
-            {mission.publisherName && (
-              <div className="text-mention-grey fr-mt-2w flex items-center justify-end gap-2 text-xs">
-                <span className="line-clamp-1">{mission.publisherName}</span>
-                {mission.publisherLogo && <img src={mission.publisherLogo} alt="" aria-hidden="true" className="max-w-20 object-contain" loading="lazy" />}
-              </div>
-            )}
+        <div className="flex h-[76px] flex-wrap content-start gap-2 overflow-hidden">
+          {tags.map((tag) => (
+            <MissionTag key={tag}>{tag}</MissionTag>
+          ))}
+        </div>
+
+        {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
+        {publisherName && (
+          <div className="text-mention-grey mt-auto flex items-center gap-2 text-xs">
+            {publisherLogo && <img src={publisherLogo} alt="" aria-hidden="true" className="h-8 max-w-20 rounded-lg bg-white object-contain" loading="lazy" />}
+            <span className="line-clamp-1">{publisherName}</span>
           </div>
-        </div>
-      </div>
-
-      <div className="fr-card__header">
-        <div className="fr-card__img">
-          {cardImage ? <img className="fr-responsive-img" src={cardImage} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet aspect-video w-full" />}
-        </div>
+        )}
       </div>
     </div>
   );

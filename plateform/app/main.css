@@ -191,10 +191,6 @@
   display: none;
 }
 
-.mission-card .fr-card__title a::after {
-  content: none;
-}
-
 .mission-map {
   height: 100%;
   width: 100%;

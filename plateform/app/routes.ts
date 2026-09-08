@@ -45,6 +45,11 @@ export default [
     route("precision-international", "routes/quiz/precision-international.tsx"),
   ]),
 
+  // Landings marketing, isolées dans `routes/landings` (composants dans `components/landings`) :
+  // souvent éphémères, elles restent identifiables et supprimables d'un bloc.
+  // « Les défis de l'engagement » : programme dédié aux 16-18 ans.
+  route("defis-engagement", "routes/landings/defis-engagement.tsx"),
+
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),
   route("accessibilite", "routes/accessibilite.tsx"),
