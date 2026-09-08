@@ -275,10 +275,11 @@ variable "enable_typesense" {
 
 variable "typesense_nodes" {
   type = map(object({
-    zone              = string
-    private_ip        = string
-    instance_type     = string
-    typesense_version = string
+    zone                   = string
+    private_ip             = string
+    instance_type          = string
+    typesense_version      = string
+    root_volume_size_in_gb = number
   }))
   default     = {}
   description = "Typesense nodes keyed by stable node name, with one private IP per node."
