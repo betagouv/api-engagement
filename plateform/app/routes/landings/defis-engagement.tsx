@@ -26,6 +26,15 @@ const MISSION_SLOTS: MissionBrowseFilters[] = [
   { dispositif: "reserve_gendarmerie" },
 ];
 
+// Campagnes de redirection dédiées à la landing : les clics partenaires sont attribués à cette page
+// plutôt qu'aux campagnes génériques. SPV et Gendarmerie gardent leur lien par défaut, faute de campagne.
+const PARTNER_CAMPAIGN_URLS = {
+  jva: "https://api.api-engagement.beta.gouv.fr/r/campaign/5ebb9958-8364-4944-8e66-fdc3ef654417",
+  service_civique: "https://api.api-engagement.beta.gouv.fr/r/campaign/4b196cba-74f0-48ab-9baf-e518129a45e3",
+  spv: "https://api.api-engagement.beta.gouv.fr/r/campaign/8e663030-0173-4fed-9988-6323a4479d8d",
+  gendarmerie: "https://api.api-engagement.beta.gouv.fr/r/campaign/66bb4451-03a8-4dbd-9de6-a662da9ed531",
+};
+
 export function meta(): Route.MetaDescriptors {
   return [
     { title: "Les défis de l'engagement — Trouve ta mission" },
@@ -80,7 +89,7 @@ export default function DefisEngagement() {
       <Questions />
       <CadreMineurs />
       <Histoires />
-      <Partners style="compact" />
+      <Partners style="compact" campaignUrls={PARTNER_CAMPAIGN_URLS} />
     </main>
   );
 }

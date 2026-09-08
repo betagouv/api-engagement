@@ -45,7 +45,7 @@ export default function Questions() {
             <div className="bg-background fr-mb-1w flex size-20 items-center justify-center rounded-full md:size-24">
               <img src={item.icon} alt="" aria-hidden="true" className="size-[60px] md:size-[72px] dark:rounded-full dark:bg-white" />
             </div>
-            <h3 className="fr-h4 mb-0!">{item.question}</h3>
+            <h3 className="fr-h6 mb-0!">{item.question}</h3>
             <p className="fr-text--lg mb-0!">{item.answer}</p>
           </div>
         ))}
