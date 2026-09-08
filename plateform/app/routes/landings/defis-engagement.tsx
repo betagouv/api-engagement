@@ -1,4 +1,4 @@
-import type { MissionBrowse } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
@@ -16,7 +16,15 @@ import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/defis-engagement";
 
-const MISSIONS_COUNT = 4;
+// Les 4 missions mises en avant, une par dispositif (demande des testeurs) : bénévolat JeVeuxAider
+// ouvert aux mineurs, service civique sportif, sapeur-pompier volontaire en Gironde (SDIS 33) et
+// réserve de la Gendarmerie. Un créneau sans résultat est simplement absent du carrousel.
+const MISSION_SLOTS: MissionBrowseFilters[] = [
+  { dispositif: "benevolat", domaine: "social_solidarite", tranche_age: "moins_18_ans" },
+  { dispositif: "service_civique", domaine: "sport_animation" },
+  { dispositif: "sapeurs_pompiers", departmentCode: "33" },
+  { dispositif: "reserve_gendarmerie" },
+];
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -32,12 +40,18 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export async function loader({ request }: Route.LoaderArgs): Promise<{ missions: MissionBrowse[] }> {
-  try {
-    const res = await browseMissions({ pageSize: MISSIONS_COUNT }, request);
-    return { missions: res.data.slice(0, MISSIONS_COUNT) };
-  } catch {
-    return { missions: [] };
-  }
+  const missions = await Promise.all(
+    MISSION_SLOTS.map(async (slot) => {
+      try {
+        const res = await browseMissions({ ...slot, pageSize: 1 }, request);
+        return res.data[0] ?? null;
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return { missions: missions.filter((mission): mission is MissionBrowse => mission !== null) };
 }
 
 export default function DefisEngagement() {
@@ -58,14 +72,14 @@ export default function DefisEngagement() {
   };
 
   return (
-    <main id="contenu" tabIndex={-1}>
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
       <Hero onStartQuiz={handleStartQuiz} />
-      <TerrainDeJeu />
+      <Missions missions={missions} />
       <Etapes onStartQuiz={handleStartQuiz} />
-      <Missions missions={missions} onStartQuiz={handleStartQuiz} />
-      <Questions onStartQuiz={handleStartQuiz} />
+      <TerrainDeJeu />
+      <Questions />
       <CadreMineurs />
-      <Histoires onStartQuiz={handleStartQuiz} />
+      <Histoires />
       <Partners style="compact" />
     </main>
   );

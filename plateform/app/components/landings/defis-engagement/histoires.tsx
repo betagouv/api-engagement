@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage-1.jpg";
 import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
 import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
@@ -36,9 +38,9 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
   );
 }
 
-export default function Histoires({ onStartQuiz }: { onStartQuiz: () => void }) {
+export default function Histoires() {
   return (
-    <section className="fr-container fr-mb-8w">
+    <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">
         Des histoires vraies
         <br />
@@ -74,9 +76,9 @@ export default function Histoires({ onStartQuiz }: { onStartQuiz: () => void }) 
       </div>
 
       <div className="flex justify-center">
-        <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-          Trouve ta mission
-        </button>
+        <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+          Voir toutes les missions
+        </Link>
       </div>
     </section>
   );

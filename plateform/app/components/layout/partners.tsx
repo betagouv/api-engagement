@@ -12,12 +12,6 @@ type Partner = {
 
 const PARTNERS: Partner[] = [
   {
-    name: "Les réserves des armées",
-    description: "Des missions rémunérées de réservistes.",
-    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/11c926dd-ead5-4bd7-8673-04457e7ad37a",
-    logo: RocPng,
-  },
-  {
     name: "JeVeuxAider.gouv.fr",
     description: "La plateforme publique du bénévolat.",
     url: "https://api.api-engagement.beta.gouv.fr/r/campaign/4de09e85-0651-4eff-af78-a825041ef303",
@@ -34,6 +28,13 @@ const PARTNERS: Partner[] = [
     description: "Deviens sapeur-pompier volontaire près de chez toi.",
     url: "https://api.api-engagement.beta.gouv.fr/r/campaign/e681deef-81d8-40b7-b78f-af40eb29f151",
     logo: SpvPng,
+  },
+  {
+    // Lien direct vers le site de la Gendarmerie : pas de redirection /r/campaign, les clics ne sont donc pas tracés.
+    name: "La réserve de la Gendarmerie nationale",
+    description: "Des missions rémunérées de réservistes.",
+    url: "https://www.gendarmerie.interieur.gouv.fr/reserves/reserve-operationnelle-de-la-gendarmerie-nationale",
+    logo: RocPng,
   },
 ];
 

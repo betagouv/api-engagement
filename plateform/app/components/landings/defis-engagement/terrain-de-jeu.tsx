@@ -8,7 +8,7 @@ const TAGS = [
 
 export default function TerrainDeJeu() {
   return (
-    <section className="fr-container fr-mt-6w fr-mb-8w">
+    <section className="fr-container">
       <div className="bg-action-high-blue-france rounded p-4 shadow-lg md:p-12 lg:px-[100px]! lg:py-[60px]!">
         <h2 className="fr-h1 text-inverted-blue-france! mb-4!">
           Choisis ton terrain de <span className="text-yellow-moutarde-850">jeu</span>

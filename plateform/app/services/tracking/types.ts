@@ -86,7 +86,8 @@ export type QuizCompletionType = "full" | "shortcut";
 // Provenance de l'ouverture d'une fiche mission.
 export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct" | LandingName;
 // State de navigation transmis par les cartes mission vers la fiche détail (entry_source + rang).
-export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
+// `backTo` : page vers laquelle renvoie le bouton "Retour" hors parcours résultats (ex. landings).
+export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number; backTo?: string };
 
 // --- missions_filter.applied ---
 export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";

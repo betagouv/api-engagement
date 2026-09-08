@@ -33,6 +33,7 @@ export default function MissionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const viewedFiredRef = useRef<string | null>(null);
+  const navState = location.state as MissionDetailNavState | null;
 
   useEffect(() => {
     if (!missionId) return;
@@ -60,7 +61,6 @@ export default function MissionDetailPage() {
   useEffect(() => {
     if (!mission || !missionId || viewedFiredRef.current === missionId) return;
     viewedFiredRef.current = missionId;
-    const navState = location.state as MissionDetailNavState | null;
     trackMissionDetailViewed({
       missionId,
       publisherId: mission.publisherId ?? "",
@@ -68,10 +68,11 @@ export default function MissionDetailPage() {
       entrySource: resolveMissionDetailEntrySource(navState?.entrySource),
       rank: navState?.rank ?? null,
     });
-  }, [mission, missionId, location.state]);
+  }, [mission, missionId, navState]);
 
-  const backPath = userScoringId ? `/results/${userScoringId}` : "/";
-  const backLabel = userScoringId ? "Retour aux résultats" : "Accueil";
+  // Hors parcours résultats, on revient sur la page d'où vient la carte (landing) plutôt que sur l'accueil.
+  const backPath = userScoringId ? `/results/${userScoringId}` : (navState?.backTo ?? "/");
+  const backLabel = userScoringId ? "Retour aux résultats" : navState?.backTo ? "Retour" : "Accueil";
   const deadlineLabel = mission ? formatDeadline(mission.endAt) : null;
   const applicationHref = mission ? buildMissionApplicationHref(mission.applicationUrl, userScoringId) : "";
 
