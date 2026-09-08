@@ -120,6 +120,16 @@ export function buildMissionMatchTags(item: MissionMatchItem, userValueKeys: Rea
   return [...new Set(entries.flatMap((entry) => entry.tags))].slice(0, MAX_MATCH_TAGS);
 }
 
+/**
+ * Tags d'une mission issue du flux browse (liste /missions, landings) : lieu, rythme et indemnité.
+ * Le matching n'a pas tourné sur ce flux, il n'y a donc pas de tags de scoring (cf. buildMissionMatchTags).
+ */
+export function buildMissionBrowseTags(mission: MissionBrowse): string[] {
+  const location = mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city;
+  const compensation = mission.compensation ? formatCompensation(mission.compensation) : null;
+  return [location, mission.schedule, compensation].filter((tag): tag is string => Boolean(tag));
+}
+
 export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrowse {
   return {
     id: item.mission.id,

@@ -75,13 +75,14 @@ export function resolveGeoProps(answer: ScreenAnswer | undefined): {
 // Résolveurs d'entry_source
 // ============================================================================
 
-const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external", "defis_engagement_cta"]);
+const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]);
 
 // Priorité à l'état de navigation (CTA in-app qui le transmet), sinon on déduit direct/external
 // depuis le referrer du document. (Le referrer ne reflète pas la navigation SPA interne, d'où le
 // besoin du state pour les CTA in-app.)
 export function resolveQuizEntrySource(stateHint?: string | null): QuizEntrySource {
-  if (stateHint && QUIZ_ENTRY_SOURCES.has(stateHint as QuizEntrySource)) return stateHint as QuizEntrySource;
+  // Les landings envoient `landing_<slug>_cta` (cf. LandingName) : accepté sans énumération.
+  if (stateHint && (stateHint.startsWith("landing_") || QUIZ_ENTRY_SOURCES.has(stateHint as QuizEntrySource))) return stateHint as QuizEntrySource;
   if (typeof document === "undefined") return "direct";
   const referrer = document.referrer;
   if (!referrer) return "direct";
@@ -92,10 +93,12 @@ export function resolveQuizEntrySource(stateHint?: string | null): QuizEntrySour
   }
 }
 
-const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct", "defis_engagement"]);
+const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct"]);
 
+// Idem : `landing_<slug>` est accepté tel quel comme provenance de fiche détail.
 export function resolveMissionDetailEntrySource(stateHint?: string | null): MissionDetailEntrySource {
-  return stateHint && MISSION_DETAIL_ENTRY_SOURCES.has(stateHint as MissionDetailEntrySource) ? (stateHint as MissionDetailEntrySource) : "direct";
+  if (!stateHint) return "direct";
+  return stateHint.startsWith("landing_") || MISSION_DETAIL_ENTRY_SOURCES.has(stateHint as MissionDetailEntrySource) ? (stateHint as MissionDetailEntrySource) : "direct";
 }
 
 export function resolveEmailMissionDetailEntrySource(navStateHint: string | null | undefined, hasUserScoringId: boolean): EmailMissionDetailEntrySource {

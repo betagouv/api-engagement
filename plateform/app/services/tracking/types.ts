@@ -44,15 +44,20 @@ export type TrackingProviderName = "local" | "posthog";
 // Catégorie du plan de télémétrie (documentation/priorisation, non envoyée à PostHog).
 export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
 
+// Landings marketing (cf. routes/landings) : identifiées par un slug préfixé `landing_` plutôt
+// qu'énumérées, pour ne pas avoir à étendre les unions ci-dessous à chaque nouvelle landing.
+// Ex. "landing_defis_engagement".
+export type LandingName = `landing_${string}`;
+
 // --- page.viewed ---
 // Page visitée (discriminant du pageview manuel : capture_pageview est désactivé côté PostHog).
-export type PageViewedPageName = "homepage" | "missions_list" | "defis_engagement";
+export type PageViewedPageName = "homepage" | "missions_list" | LandingName;
 
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission.
-export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar" | "defis_engagement";
+export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar" | LandingName;
 // Page sur laquelle se trouve l'utilisateur au moment du clic.
-export type MissionClickedEntryPage = "results" | "homepage" | "missions_list" | "defis_engagement";
+export type MissionClickedEntryPage = "results" | "homepage" | "missions_list" | LandingName;
 
 export interface MissionClickedPayload {
   mission_id: string;
@@ -73,13 +78,13 @@ export interface MissionClickedPayload {
 
 // --- quiz ---
 // Provenance de l'entrée dans le quiz.
-export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external" | "defis_engagement_cta";
+export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external" | `${LandingName}_cta`;
 // Mode de complétion : "full" (parcours jusqu'au bout) ou "shortcut" (bouton "Voir mes résultats").
 export type QuizCompletionType = "full" | "shortcut";
 
 // --- mission_detail.viewed ---
 // Provenance de l'ouverture d'une fiche mission.
-export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct" | "defis_engagement";
+export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct" | LandingName;
 // State de navigation transmis par les cartes mission vers la fiche détail (entry_source + rang).
 export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
 

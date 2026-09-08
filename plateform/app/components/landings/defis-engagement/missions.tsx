@@ -2,20 +2,12 @@ import type { MissionBrowse } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
 import { useState } from "react";
 
-import MissionResultCard from "~/components/missions/mission-result-card";
+import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import Carousel from "~/components/ui/carousel";
 import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
 import type { MissionDetailNavState } from "~/services/tracking/types";
-import { formatCompensation } from "~/utils/mission";
-
-// Tags bleus de la carte (cf. maquette : lieu, rythme, indemnité) construits depuis les champs browse.
-// Le matching n'a pas tourné ici : pas de tags de scoring comme sur la page de résultats.
-const buildTags = (mission: MissionBrowse): string[] => {
-  const location = mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city;
-  const compensation = mission.compensation ? formatCompensation(mission.compensation) : null;
-  return [location, mission.schedule, compensation].filter((tag): tag is string => Boolean(tag));
-};
+import { buildMissionBrowseTags } from "~/utils/mission";
 
 export default function Missions({ missions, onStartQuiz }: { missions: MissionBrowse[]; onStartQuiz: () => void }) {
   const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
@@ -50,15 +42,15 @@ export default function Missions({ missions, onStartQuiz }: { missions: MissionB
             }
           >
             {missions.map((mission) => (
-              <MissionResultCard
+              <MissionCard
                 key={mission.id}
                 image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
                 domainLabel={getDomainLabel(mission.domain)}
                 title={mission.title}
                 to={`/missions/${mission.id}`}
-                state={{ entrySource: "defis_engagement" } satisfies MissionDetailNavState}
-                onClick={() => trackMissionClickedFromBrowse(mission, { section: "defis_engagement", entryPage: "defis_engagement", opensExternal: false })}
-                tags={buildTags(mission)}
+                state={{ entrySource: "landing_defis_engagement" } satisfies MissionDetailNavState}
+                onClick={() => trackMissionClickedFromBrowse(mission, { section: "landing_defis_engagement", entryPage: "landing_defis_engagement", opensExternal: false })}
+                tags={buildMissionBrowseTags(mission)}
                 publisherName={mission.publisherName}
                 publisherLogo={mission.publisherLogo}
                 onEmailClick={() => setEmailMissionId(mission.id)}

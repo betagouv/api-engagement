@@ -2,13 +2,13 @@ import type { MissionBrowse } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
-import CadreMineurs from "~/components/defis-engagement/cadre-mineurs";
-import Etapes from "~/components/defis-engagement/etapes";
-import Hero from "~/components/defis-engagement/hero";
-import Histoires from "~/components/defis-engagement/histoires";
-import Missions from "~/components/defis-engagement/missions";
-import Questions from "~/components/defis-engagement/questions";
-import TerrainDeJeu from "~/components/defis-engagement/terrain-de-jeu";
+import CadreMineurs from "~/components/landings/defis-engagement/cadre-mineurs";
+import Etapes from "~/components/landings/defis-engagement/etapes";
+import Hero from "~/components/landings/defis-engagement/hero";
+import Histoires from "~/components/landings/defis-engagement/histoires";
+import Missions from "~/components/landings/defis-engagement/missions";
+import Questions from "~/components/landings/defis-engagement/questions";
+import TerrainDeJeu from "~/components/landings/defis-engagement/terrain-de-jeu";
 import Partners from "~/components/layout/partners";
 import { browseMissions } from "~/services/api/missions";
 import { trackPageViewed } from "~/services/tracking/events";
@@ -49,12 +49,12 @@ export default function DefisEngagement() {
   useEffect(() => {
     if (pageViewedFired.current) return;
     pageViewedFired.current = true;
-    trackPageViewed({ pageName: "defis_engagement" });
+    trackPageViewed({ pageName: "landing_defis_engagement" });
   }, []);
 
   const handleStartQuiz = () => {
     reset();
-    navigate("/quiz/age", { state: { entrySource: "defis_engagement_cta" } });
+    navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta" } });
   };
 
   return (

@@ -8,6 +8,7 @@ import { track } from "./index";
 import type {
   EmailMissionDetailEntrySource,
   EventCategory,
+  LandingName,
   MissionClickedEntryPage,
   MissionClickedPayload,
   MissionClickedSection,
@@ -90,7 +91,7 @@ export function trackMissionClickedFromMatch(
 export function trackMissionClickedFromBrowse(
   mission: MissionBrowse,
   context: {
-    section: Extract<MissionClickedSection, "missions_list" | "homepage_examples" | "defis_engagement">;
+    section: Extract<MissionClickedSection, "missions_list" | "homepage_examples" | LandingName>;
     entryPage: MissionClickedEntryPage;
     opensExternal: boolean;
   },

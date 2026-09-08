@@ -6,7 +6,7 @@ import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import { buildMissionDetailHref, buildMissionMatchTags } from "~/utils/mission";
-import MissionResultCard from "./mission-result-card";
+import MissionCard from "./mission-card";
 
 // Sections de résultats (matching) et leur entry_source de fiche détail correspondante.
 // `similar` n'a pas de provenance détail dédiée (→ pas de nav state, resolve en "direct").
@@ -18,7 +18,7 @@ const DETAIL_ENTRY_SOURCE_BY_SECTION: Record<Exclude<MatchSection, "similar">, M
 
 // Carte mission issue d'un résultat de matching : tags résumant le matching et bouton "Recevoir par
 // email" optionnel. Instrumentation : `mission.clicked` au clic + transmission de l'entry_source/rank
-// à la fiche détail (pour `mission_detail.viewed`). Le rendu vit dans `MissionResultCard`.
+// à la fiche détail (pour `mission_detail.viewed`). Le rendu vit dans `MissionCard`.
 export default function MatchMissionCard({
   item,
   section,
@@ -46,7 +46,7 @@ export default function MatchMissionCard({
   const state: MissionDetailNavState | undefined = entrySource ? { entrySource, rank } : undefined;
 
   return (
-    <MissionResultCard
+    <MissionCard
       image={mission.media.photo ?? mission.media.organizationLogo ?? mission.media.domainLogo}
       domainLabel={getDomainLabel(mission.domain)}
       title={mission.title}
