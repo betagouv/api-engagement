@@ -15,7 +15,7 @@ import { userScoringService } from "@/services/user-scoring";
 import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
-import { createClickRedirect, isValidTrackingToken, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { buildTrackingUrl, createClickRedirect, isValidTrackingToken, updateBotFlagAfterRedirect } from "@/utils/redirect";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -332,7 +332,7 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    href = href.includes("?") ? `${href}&apiengagement_id=${clickId}` : `${href}?apiengagement_id=${clickId}`;
+    href = buildTrackingUrl(href, clickId).href;
     res.redirect(302, href);
     redirected = true;
 
