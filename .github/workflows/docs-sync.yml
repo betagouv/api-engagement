@@ -2,6 +2,13 @@ name: Sync OpenAPI to GitBook
 
 on:
   workflow_call:
+    secrets:
+      GITBOOK_ORGANIZATION_ID:
+        required: true
+      GITBOOK_SPEC_NAME:
+        required: true
+      GITBOOK_TOKEN:
+        required: true
 
 jobs:
   publish-openapi:

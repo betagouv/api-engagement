@@ -21,6 +21,13 @@ on:
         required: false
         type: string
         description: "Force environment (production, staging)"
+    secrets:
+      SENTRY_AUTH_TOKEN:
+        required: false
+      SENTRY_DNS_APP:
+        required: false
+      SENTRY_DSN_PLATEFORM:
+        required: false
   workflow_dispatch:
 
 permissions:
@@ -147,7 +154,6 @@ jobs:
             ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.image_name, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
-            "test_secret=${{ secrets.TEST_SECRET }}"
           build-args: |
             ENV=${{ steps.app_args.outputs.ENV }}
             API_URL=${{ steps.app_args.outputs.API_URL }}

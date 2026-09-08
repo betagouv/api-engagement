@@ -10,6 +10,15 @@ on:
         required: false
         type: string
         description: "Force environment (sandbox, production, staging)"
+    secrets:
+      DATABASE_URL_CORE:
+        required: false
+      SCW_ACCESS_KEY:
+        required: false
+      SCW_PROJECT_ID:
+        required: false
+      SCW_SECRET_KEY:
+        required: false
   workflow_dispatch:
 
 permissions:
