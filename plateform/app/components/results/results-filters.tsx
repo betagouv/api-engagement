@@ -1,18 +1,14 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import FilterOptionRows, { type FilterOptionsProps } from "~/components/results/filter-option-rows";
 import type { StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { FILTERS, type ResultsFilterDef } from "~/config/results-filters";
-import { saveQuizScoring } from "~/services/user-scoring";
+import { createQuizScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
-interface ResultsFiltersProps {
-  userScoringId: string | undefined;
-  // Appelé après la mise à jour du scoring : la page recharge les résultats (retour page 1).
-  onResultsChange: () => void;
-}
-
-export default function ResultsFilters({ userScoringId, onResultsChange }: ResultsFiltersProps) {
+export default function ResultsFilters() {
+  const navigate = useNavigate();
   const answers = useQuizStore((s) => s.answers);
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const [loading, setLoading] = useState(false);
@@ -26,8 +22,9 @@ export default function ResultsFilters({ userScoringId, onResultsChange }: Resul
     setDraft((prev) => ({ ...prev, [filter.stepId]: optionIds }));
   };
 
+  // Les critères choisis donnent un nouveau scoring : on bascule sur ses résultats (nouvelle URL).
   const handleApply = async () => {
-    if (!userScoringId || loading) return;
+    if (loading) return;
     for (const filter of FILTERS) {
       const optionIds = draft[filter.stepId];
       if (!optionIds) continue;
@@ -35,9 +32,9 @@ export default function ResultsFilters({ userScoringId, onResultsChange }: Resul
     }
     setLoading(true);
     try {
-      await saveQuizScoring(userScoringId);
+      const newUserScoringId = await createQuizScoring();
       setSaveError(false);
-      onResultsChange();
+      if (newUserScoringId) navigate(`/results/${newUserScoringId}`);
     } catch {
       setSaveError(true);
     } finally {

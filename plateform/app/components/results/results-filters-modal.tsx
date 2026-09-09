@@ -1,26 +1,24 @@
 import { useId, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import Modal from "~/components/layout/modal";
 import MissionTag from "~/components/missions/mission-tag";
 import FilterOptionRows, { type FilterOptionsProps } from "~/components/results/filter-option-rows";
 import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { FILTERS, FILTER_STEP_IDS } from "~/config/results-filters";
-import { saveQuizScoring } from "~/services/user-scoring";
+import { createQuizScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
 interface ResultsFiltersModalProps {
-  userScoringId: string | undefined;
   // Lien « Refaire le test » : renvoie vers le dernier step visible du quiz.
   quizHref: string;
-  // Appelé après la mise à jour du scoring : la page recharge les résultats (retour page 1).
-  onResultsChange: () => void;
 }
 
 // Version mobile : bouton « Modifier mes critères » + modale reprenant les réponses hors filtres
 // (« Ce qu'on a compris de toi ») et les critères de mission en accordéons. Les sélections restent
 // dans un brouillon local tant que « Sauvegarder mes réponses » n'est pas cliqué.
-export default function ResultsFiltersModal({ userScoringId, quizHref, onResultsChange }: ResultsFiltersModalProps) {
+export default function ResultsFiltersModal({ quizHref }: ResultsFiltersModalProps) {
+  const navigate = useNavigate();
   const answers = useQuizStore((s) => s.answers);
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const [open, setOpen] = useState(false);
@@ -50,16 +48,17 @@ export default function ResultsFiltersModal({ userScoringId, quizHref, onResults
     setOpen(true);
   };
 
+  // Les critères choisis donnent un nouveau scoring : on bascule sur ses résultats (nouvelle URL).
   const handleSave = async () => {
-    if (!userScoringId || loading) return;
+    if (loading) return;
     for (const filter of FILTERS) {
       setAnswer(filter.stepId, { type: "options", taxonomy: filter.stepId, option_ids: draft[filter.stepId] ?? [] });
     }
     setLoading(true);
     try {
-      await saveQuizScoring(userScoringId);
+      const newUserScoringId = await createQuizScoring();
       setSaveError(false);
-      onResultsChange();
+      if (newUserScoringId) navigate(`/results/${newUserScoringId}`);
       setOpen(false);
     } catch {
       setSaveError(true);

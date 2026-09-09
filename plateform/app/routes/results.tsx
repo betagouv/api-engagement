@@ -39,8 +39,10 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, refresh } = useMissionResults(userScoringId);
-  const resultsViewedFired = useRef(false);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error } = useMissionResults(userScoringId);
+  // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
+  // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
+  const resultsViewedFired = useRef<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
@@ -93,16 +95,16 @@ export default function ResultsPage() {
     if (card) carousel.scrollLeft = card.offsetLeft - 24;
   }, [selectedMission, items]);
 
-  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
+  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois par scoring.
   useEffect(() => {
-    if (loading || error || resultsViewedFired.current) return;
-    resultsViewedFired.current = true;
+    if (loading || error || !userScoringId || resultsViewedFired.current === userScoringId) return;
+    resultsViewedFired.current = userScoringId;
     trackResultsViewed({
       pinnedCount: items.length,
       totalResultsCount: totalResults,
       avgDistanceKmTop5,
     });
-  }, [loading, error, items.length, totalResults, avgDistanceKmTop5]);
+  }, [loading, error, userScoringId, items.length, totalResults, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -293,7 +295,7 @@ export default function ResultsPage() {
           {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
           {expanded && !error && (
             <div className="border-t border-border-default-grey bg-background p-3">
-              <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+              <ResultsFiltersModal quizHref={changeAnswersHref} />
             </div>
           )}
         </div>
@@ -315,7 +317,7 @@ export default function ResultsPage() {
   return (
     <>
       <main id="contenu" tabIndex={-1}>
-        {!error && <ResultsFilters userScoringId={userScoringId} onResultsChange={refresh} />}
+        {!error && <ResultsFilters />}
         <GradientBg fixed className="px-12">
           <section className="max-w-7xl mx-auto py-12">
             <div className="flex mb-6 flex-row items-center justify-between gap-4 pl-6">
