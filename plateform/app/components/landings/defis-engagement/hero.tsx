@@ -8,16 +8,16 @@ export default function Hero({ onStartQuiz }: { onStartQuiz: () => void }) {
     <section className="bg-blue-france-975 relative overflow-hidden md:min-h-[max(560px,45vw)] lg:min-h-[max(700px,45vw)]">
       <div className="fr-container relative z-10 pb-8 md:pb-0">
         <div className="pt-8 md:max-w-[390px] md:pt-11 lg:max-w-[620px] lg:pt-[100px]">
-          <p className="fr-h4 text-blue-france-sun mb-2!">Tu veux te rendre utile ?</p>
-          <h1 className="text-blue-france-sun! fr-mb-2w text-5xl! leading-tight! md:text-6xl! lg:text-7xl! xl:text-8xl!">À chacun sa façon d'agir</h1>
+          <p className="fr-h4 text-blue-france-sun! mb-2!">Tu veux te rendre utile ?</p>
+          <h1 className="text-blue-france-sun! fr-mb-2w text-[40px]! leading-[48px]! md:text-[80px]! md:leading-[88px]!">À chacun sa façon d'agir</h1>
           <p className="fr-text--lead fr-mb-4w">
-            Des missions d'engagement en bénévolat, service civique, pompiers ou réservistes dans la gendarmerie dès 16 ans pour changer les choses (même un peu).
+            Des missions d'engagement en bénévolat, service civique ou réservistes dans la gendarmerie dès 16 ans pour changer les choses (même un peu).
           </p>
 
-          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! justify-center! md:w-[349px]!">
+          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! justify-center! md:max-w-[260px]!">
             Trouve ta mission
           </button>
-          <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! italic md:max-w-[349px]">Réponds en quelques clics, on te propose une mission qui te correspond</p>
+          <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! italic md:max-w-[260px]!">Réponds en quelques clics, on te propose une mission qui te correspond</p>
         </div>
       </div>
 

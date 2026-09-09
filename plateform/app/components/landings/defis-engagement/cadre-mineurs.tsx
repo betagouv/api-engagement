@@ -15,7 +15,7 @@ const GARANTIES = [
 
 export default function CadreMineurs() {
   return (
-    <section className="fr-container fr-mb-8w">
+    <section className="fr-container">
       <div className="bg-action-high-blue-france flex flex-col items-center gap-6 rounded p-4 shadow-lg md:gap-10 md:p-12 lg:px-20! lg:py-10!">
         <h2 className="fr-h1 text-inverted-blue-france! mb-0! text-center">
           Un cadre pensé pour les <span className="text-yellow-moutarde-850">mineurs</span>

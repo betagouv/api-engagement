@@ -12,7 +12,7 @@ const ETAPES = [
 
 export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
   return (
-    <section className="fr-container fr-mb-8w">
+    <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">3 étapes pour passer à l'action !</h2>
 
       <Carousel

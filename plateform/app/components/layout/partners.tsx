@@ -3,20 +3,14 @@ import JvaPng from "~/assets/images/jva-logo.png";
 import RocPng from "~/assets/images/roc-logo.png";
 import SpvPng from "~/assets/images/spv-logo.png";
 
-type Partner = {
+export type Partner = {
   name: string;
   description: string;
   url: string;
   logo: string;
 };
 
-const PARTNERS: Partner[] = [
-  {
-    name: "Les réserves des armées",
-    description: "Des missions rémunérées de réservistes.",
-    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/11c926dd-ead5-4bd7-8673-04457e7ad37a",
-    logo: RocPng,
-  },
+const DEFAULT_PARTNERS: Partner[] = [
   {
     name: "JeVeuxAider.gouv.fr",
     description: "La plateforme publique du bénévolat.",
@@ -35,9 +29,18 @@ const PARTNERS: Partner[] = [
     url: "https://api.api-engagement.beta.gouv.fr/r/campaign/e681deef-81d8-40b7-b78f-af40eb29f151",
     logo: SpvPng,
   },
+  {
+    // Lien direct vers le site de la Gendarmerie : pas de redirection /r/campaign, les clics ne sont donc pas tracés.
+    name: "La réserve de la Gendarmerie nationale",
+    description: "Des missions rémunérées de réservistes.",
+    url: "https://www.gendarmerie.interieur.gouv.fr/reserves/reserve-operationnelle-de-la-gendarmerie-nationale",
+    logo: RocPng,
+  },
 ];
 
-export default function Partners({ style = "default" }: { style?: "default" | "compact" }) {
+// `partners` : liste propre à la page appelante (partenaires affichés et liens de redirection dédiés,
+// pour attribuer les clics à cette page). Par défaut, les quatre partenaires génériques.
+export default function Partners({ style = "default", partners = DEFAULT_PARTNERS }: { style?: "default" | "compact"; partners?: Partner[] }) {
   return (
     <section className="bg-beige-gris-galet-975">
       <div className={`fr-container ${style === "compact" ? "py-6! md:py-12! px-6!" : "fr-py-8w"}`}>
@@ -48,7 +51,7 @@ export default function Partners({ style = "default" }: { style?: "default" | "c
           role="list"
           className={`list-none! p-0! m-0! ${style === "compact" ? "flex flex-col md:flex-row items-start justify-between gap-8 md:gap-0" : "grid grid-cols-1 gap-4 md:grid-cols-2"}`}
         >
-          {PARTNERS.map((partner) => (
+          {partners.map((partner) => (
             <li key={partner.name} className={`flex items-start gap-2 ${style === "compact" ? "flex-1" : "gap-4"}`}>
               <div className="flex items-center justify-center bg-white rounded-sm p-1">
                 <img src={partner.logo} alt="" className="size-10 shrink-0 rounded object-contain" aria-hidden="true" />

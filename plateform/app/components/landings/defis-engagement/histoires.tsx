@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage-1.jpg";
 import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
 import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
@@ -36,20 +38,22 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
   );
 }
 
-export default function Histoires({ onStartQuiz }: { onStartQuiz: () => void }) {
+export default function Histoires() {
   return (
-    <section className="fr-container fr-mb-8w">
+    <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">
         Des histoires vraies
         <br />
         qui donnent envie d'agir
       </h2>
 
-      {/* Mosaïque : 1 colonne sur mobile, 2 sur tablette (la 3e colonne passe en pleine largeur), 3 sur desktop. */}
+      {/* Mosaïque de 4 blocs, placés explicitement car leur répartition change à chaque palier :
+          mobile 1 colonne (ordre du DOM) ; tablette 2 colonnes (Nacim + photo puis Victoria à gauche,
+          photo puis Elodie + photo à droite) ; desktop 3 colonnes, les blocs latéraux occupant les 2 rangées. */}
       <div className="fr-mb-6w grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 md:col-start-1 md:row-start-1 lg:row-span-2">
           <Temoignage {...NACIM} />
-          {/* Sur tablette les deux colonnes sont étirées à la même hauteur : la photo absorbe l'espace restant. */}
+          {/* Sur tablette la photo absorbe la hauteur restante de la rangée, à taille fixe sur desktop. */}
           <img
             src={Temoignage1Jpg}
             alt=""
@@ -57,26 +61,27 @@ export default function Histoires({ onStartQuiz }: { onStartQuiz: () => void }) 
             className="h-[235px] w-full rounded-2xl object-cover md:h-auto md:min-h-[235px] md:flex-1 lg:h-[235px] lg:min-h-0 lg:flex-none"
           />
         </div>
+
         {/* Sur mobile la maquette place le témoignage avant la photo, l'inverse à partir de la tablette. */}
-        <div className="flex flex-col-reverse gap-6 md:flex-col">
-          <img
-            src={Temoignage2Jpg}
-            alt=""
-            loading="lazy"
-            className="h-[414px] w-full rounded-2xl object-cover md:h-auto md:min-h-[414px] md:flex-1 lg:h-[414px] lg:min-h-0 lg:flex-none"
-          />
-          <Temoignage {...VICTORIA} />
-        </div>
-        <div className="flex flex-col gap-6 md:col-span-2 md:flex-row lg:col-span-1 lg:flex-col">
+        <Temoignage {...VICTORIA} className="md:col-start-1 md:row-start-2 lg:col-start-2" />
+
+        <img
+          src={Temoignage2Jpg}
+          alt=""
+          loading="lazy"
+          className="h-[414px] w-full rounded-2xl object-cover md:col-start-2 md:row-start-1 md:h-full md:min-h-[414px] lg:h-[414px] lg:min-h-0"
+        />
+
+        <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2 lg:col-start-3 lg:row-start-1 lg:row-span-2">
           <Temoignage {...ELODIE} />
-          <img src={Temoignage3Jpg} alt="" loading="lazy" className="hidden h-[235px] w-full rounded-2xl object-cover md:block md:w-1/2 lg:w-full" />
+          <img src={Temoignage3Jpg} alt="" loading="lazy" className="hidden h-[235px] w-full rounded-2xl object-cover md:block" />
         </div>
       </div>
 
       <div className="flex justify-center">
-        <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-          Trouve ta mission
-        </button>
+        <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+          Voir toutes les missions
+        </Link>
       </div>
     </section>
   );

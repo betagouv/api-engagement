@@ -1,6 +1,7 @@
 import MentalDisabilitiesSvg from "@gouvfr/dsfr/dist/artwork/pictograms/accessibility/mental-disabilities.svg?url";
 import EnvironmentSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/environment.svg?url";
 import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
+import { Link } from "react-router";
 
 import Carousel from "~/components/ui/carousel";
 
@@ -22,9 +23,9 @@ const QUESTIONS = [
   },
 ];
 
-export default function Questions({ onStartQuiz }: { onStartQuiz: () => void }) {
+export default function Questions() {
   return (
-    <section className="fr-container fr-mb-8w">
+    <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">Tu te poses les mêmes questions ?</h2>
 
       <Carousel
@@ -34,9 +35,9 @@ export default function Questions({ onStartQuiz }: { onStartQuiz: () => void }) 
         listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 lg:gap-13"
         itemClassName="w-[82vw] max-w-[320px] md:w-auto md:max-w-none"
         action={
-          <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-            Trouve ta mission
-          </button>
+          <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+            Voir toutes les missions
+          </Link>
         }
       >
         {QUESTIONS.map((item) => (
@@ -44,7 +45,7 @@ export default function Questions({ onStartQuiz }: { onStartQuiz: () => void }) 
             <div className="bg-background fr-mb-1w flex size-20 items-center justify-center rounded-full md:size-24">
               <img src={item.icon} alt="" aria-hidden="true" className="size-[60px] md:size-[72px] dark:rounded-full dark:bg-white" />
             </div>
-            <h3 className="fr-h4 mb-0!">{item.question}</h3>
+            <h3 className="fr-h6 mb-0!">{item.question}</h3>
             <p className="fr-text--lg mb-0!">{item.answer}</p>
           </div>
         ))}
