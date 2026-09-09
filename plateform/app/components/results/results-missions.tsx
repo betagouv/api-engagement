@@ -57,6 +57,7 @@ export default function ResultsMissions({
               {items.map((item, index) => (
                 <li
                   key={item.mission.id}
+                  id={`mission-${item.mission.id}`}
                   className={`relative w-full transition-shadow p-0! m-0! ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun hover:ring-0" : ""}`}
                   onMouseEnter={() => onMissionHover?.(item.mission.id)}
                   onMouseLeave={() => onMissionHover?.(null)}

@@ -45,7 +45,10 @@ export default function ResultsPage() {
   const resultsViewedFired = useRef<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
+  // Survol d'une carte de la liste : met seulement son pin en avant sur la map.
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
+  // Survol d'un pin : met la carte de la liste en avant et prévisualise la mission sur la map.
+  const [hoveredPinMissionId, setHoveredPinMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
   // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la modale en mode mission unique.
   const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
@@ -80,7 +83,9 @@ export default function ResultsPage() {
   // être masqué à la touche Échap.
   useEffect(() => {
     const clearHoverOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setHoveredMissionId(null);
+      if (event.key !== "Escape") return;
+      setHoveredMissionId(null);
+      setHoveredPinMissionId(null);
     };
     document.addEventListener("keydown", clearHoverOnEscape);
     return () => document.removeEventListener("keydown", clearHoverOnEscape);
@@ -140,16 +145,16 @@ export default function ResultsPage() {
   const showDebug = searchParams.get("debug") === "true";
 
   // Mission mise en avant (survol prioritaire sur sélection) : pin coloré + carte surlignée dans la liste.
-  const activeMissionId = hoveredMissionId ?? selectedMission?.mission.id ?? null;
+  const activeMissionId = hoveredMissionId ?? hoveredPinMissionId ?? selectedMission?.mission.id ?? null;
 
   // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
   const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
   const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
 
   // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
-  // la fixe (boutons email + fermer). Survoler un autre pin prévisualise par-dessus la carte fixée.
-  const hoveredMission = items.find((i) => i.mission.id === hoveredMissionId) ?? null;
-  const displayedMission = hoveredMission ?? selectedMission;
+  // la fixe (boutons email + fermer). Le survol d'une carte de la liste n'affiche rien sur la map.
+  const hoveredPinMission = items.find((i) => i.mission.id === hoveredPinMissionId) ?? null;
+  const displayedMission = hoveredPinMission ?? selectedMission;
   const displayedMissionRank = displayedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === displayedMission.mission.id) + 1 : 0;
   const cardIsFixed = displayedMission !== null && displayedMission.mission.id === selectedMission?.mission.id;
 
@@ -172,6 +177,8 @@ export default function ResultsPage() {
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
       setExpanded(false);
     }
+    // Desktop : on amène aussi la carte de la liste correspondante à l'écran (elle est surlignée via activeMissionId).
+    if (!isMobile) document.getElementById(`mission-${item.mission.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   // Changement de page : la liste du panneau mobile repart en haut.
@@ -352,7 +359,7 @@ export default function ResultsPage() {
                       onMarkerClick={handleMarkerClick}
                       selectionPadding={[360, 0]}
                       activeMissionId={activeMissionId}
-                      onMissionHover={setHoveredMissionId}
+                      onMissionHover={setHoveredPinMissionId}
                     />
 
                     {displayedMission && (
