@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import FilterOptionRows, { type FilterOptionsProps } from "~/components/results/filter-option-rows";
+import type { StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { FILTERS, type ResultsFilterDef } from "~/config/results-filters";
 import { saveQuizScoring } from "~/services/user-scoring";
@@ -16,15 +17,22 @@ export default function ResultsFilters({ userScoringId, onResultsChange }: Resul
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const [loading, setLoading] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  // Brouillon local des filtres modifiés (même principe que la modale mobile) : le store n'est mis à
+  // jour qu'au clic sur « Voir les résultats », sinon les tags des cartes déjà affichées changeraient
+  // alors que les résultats, eux, ne sont pas encore rechargés.
+  const [draft, setDraft] = useState<Partial<Record<StepId, string[]>>>({});
 
-  // Les sélections ne modifient que le store (les tags se mettent à jour) : rien n'est
-  // envoyé tant que l'utilisateur ne clique pas sur « Voir les résultats ».
   const handleChange = (filter: ResultsFilterDef, optionIds: string[]) => {
-    setAnswer(filter.stepId, { type: "options", taxonomy: filter.stepId, option_ids: optionIds });
+    setDraft((prev) => ({ ...prev, [filter.stepId]: optionIds }));
   };
 
   const handleApply = async () => {
     if (!userScoringId || loading) return;
+    for (const filter of FILTERS) {
+      const optionIds = draft[filter.stepId];
+      if (!optionIds) continue;
+      setAnswer(filter.stepId, { type: "options", taxonomy: filter.stepId, option_ids: optionIds });
+    }
     setLoading(true);
     try {
       await saveQuizScoring(userScoringId);
@@ -44,7 +52,7 @@ export default function ResultsFilters({ userScoringId, onResultsChange }: Resul
         <div className="flex flex-wrap items-center gap-3">
           {FILTERS.map((filter) => {
             const answer = answers[filter.stepId];
-            const selected = answer?.type === "options" ? answer.option_ids : [];
+            const selected = draft[filter.stepId] ?? (answer?.type === "options" ? answer.option_ids : []);
             return <FilterTag key={filter.stepId} filter={filter} selected={selected} onChange={(next) => handleChange(filter, next)} />;
           })}
           {saveError && (
