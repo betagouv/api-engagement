@@ -197,7 +197,13 @@ export default function ResultsPage() {
       <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
         {showMap && (
           <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-            <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
+            <LazyMissionMap
+              items={items}
+              center={mapCenter}
+              onMarkerClick={handleMarkerClick}
+              activeMissionId={activeMissionId}
+              focusedMissionId={selectedMission?.mission.id ?? null}
+            />
           </div>
         )}
 
