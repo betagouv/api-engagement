@@ -21,7 +21,6 @@ import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults"
 import { setQuizSessionId } from "~/services/tracking";
 import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
-import { evalCondition } from "~/utils/conditions";
 import type { Route } from "./+types/results";
 
 export function meta(): Route.MetaDescriptors {
@@ -39,11 +38,16 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, refresh } = useMissionResults(userScoringId);
-  const resultsViewedFired = useRef(false);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error } = useMissionResults(userScoringId);
+  // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
+  // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
+  const resultsViewedFired = useRef<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
+  // Survol d'une carte de la liste : met seulement son pin en avant sur la map.
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
+  // Survol d'un pin : met la carte de la liste en avant et prévisualise la mission sur la map.
+  const [hoveredPinMissionId, setHoveredPinMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
   // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la modale en mode mission unique.
   const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
@@ -78,7 +82,9 @@ export default function ResultsPage() {
   // être masqué à la touche Échap.
   useEffect(() => {
     const clearHoverOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setHoveredMissionId(null);
+      if (event.key !== "Escape") return;
+      setHoveredMissionId(null);
+      setHoveredPinMissionId(null);
     };
     document.addEventListener("keydown", clearHoverOnEscape);
     return () => document.removeEventListener("keydown", clearHoverOnEscape);
@@ -93,16 +99,16 @@ export default function ResultsPage() {
     if (card) carousel.scrollLeft = card.offsetLeft - 24;
   }, [selectedMission, items]);
 
-  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
+  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois par scoring.
   useEffect(() => {
-    if (loading || error || resultsViewedFired.current) return;
-    resultsViewedFired.current = true;
+    if (loading || error || !userScoringId || resultsViewedFired.current === userScoringId) return;
+    resultsViewedFired.current = userScoringId;
     trackResultsViewed({
       pinnedCount: items.length,
       totalResultsCount: totalResults,
       avgDistanceKmTop5,
     });
-  }, [loading, error, items.length, totalResults, avgDistanceKmTop5]);
+  }, [loading, error, userScoringId, items.length, totalResults, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -138,16 +144,15 @@ export default function ResultsPage() {
   const showDebug = searchParams.get("debug") === "true";
 
   // Mission mise en avant (survol prioritaire sur sélection) : pin coloré + carte surlignée dans la liste.
-  const activeMissionId = hoveredMissionId ?? selectedMission?.mission.id ?? null;
+  const activeMissionId = hoveredMissionId ?? hoveredPinMissionId ?? selectedMission?.mission.id ?? null;
 
-  // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
-  const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
-  const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
+  // Refaire le quiz repart toujours de la première question.
+  const quizHref = QUIZ_FLOW[0].route;
 
   // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
-  // la fixe (boutons email + fermer). Survoler un autre pin prévisualise par-dessus la carte fixée.
-  const hoveredMission = items.find((i) => i.mission.id === hoveredMissionId) ?? null;
-  const displayedMission = hoveredMission ?? selectedMission;
+  // la fixe (boutons email + fermer). Le survol d'une carte de la liste n'affiche rien sur la map.
+  const hoveredPinMission = items.find((i) => i.mission.id === hoveredPinMissionId) ?? null;
+  const displayedMission = hoveredPinMission ?? selectedMission;
   const displayedMissionRank = displayedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === displayedMission.mission.id) + 1 : 0;
   const cardIsFixed = displayedMission !== null && displayedMission.mission.id === selectedMission?.mission.id;
 
@@ -170,6 +175,8 @@ export default function ResultsPage() {
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
       setExpanded(false);
     }
+    // Desktop : on amène aussi la carte de la liste correspondante à l'écran (elle est surlignée via activeMissionId).
+    if (!isMobile) document.getElementById(`mission-${item.mission.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   // Changement de page : la liste du panneau mobile repart en haut.
@@ -197,7 +204,13 @@ export default function ResultsPage() {
       <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
         {showMap && (
           <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-            <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
+            <LazyMissionMap
+              items={items}
+              center={mapCenter}
+              onMarkerClick={handleMarkerClick}
+              activeMissionId={activeMissionId}
+              focusedMissionId={selectedMission?.mission.id ?? null}
+            />
           </div>
         )}
 
@@ -252,7 +265,7 @@ export default function ResultsPage() {
             )}
 
             {expanded && (
-              <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
+              <Link to={quizHref} className="fr-link fr-link--sm shrink-0">
                 <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
                 Changer mes réponses
               </Link>
@@ -287,7 +300,7 @@ export default function ResultsPage() {
           {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
           {expanded && !error && (
             <div className="border-t border-border-default-grey bg-background p-3">
-              <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+              <ResultsFiltersModal quizHref={quizHref} />
             </div>
           )}
         </div>
@@ -309,14 +322,14 @@ export default function ResultsPage() {
   return (
     <>
       <main id="contenu" tabIndex={-1}>
-        {!error && <ResultsFilters userScoringId={userScoringId} onResultsChange={refresh} />}
+        {!error && <ResultsFilters />}
         <GradientBg fixed className="px-12">
           <section className="max-w-7xl mx-auto py-12">
             <div className="flex mb-6 flex-row items-center justify-between gap-4 pl-6">
               {/* RGAA 9.1 : en état d'erreur le h1 est rendu dans l'alerte de ResultsMissions. */}
               {!error && <h1 className="fr-h3 m-0!">Découvre les missions qui te correspondent le mieux</h1>}
 
-              <ProfileModal quizHref={changeAnswersHref} />
+              <ProfileModal quizHref={quizHref} />
             </div>
             <div className="flex flex-row">
               <div className="flex flex-col flex-1">
@@ -344,7 +357,7 @@ export default function ResultsPage() {
                       onMarkerClick={handleMarkerClick}
                       selectionPadding={[360, 0]}
                       activeMissionId={activeMissionId}
-                      onMissionHover={setHoveredMissionId}
+                      onMissionHover={setHoveredPinMissionId}
                     />
 
                     {displayedMission && (

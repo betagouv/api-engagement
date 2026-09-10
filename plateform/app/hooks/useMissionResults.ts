@@ -1,5 +1,5 @@
 import type { MissionMatchItem } from "@engagement/dto";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { fetchInitialMatches, fetchMatches, RESULTS_PAGE_SIZE } from "~/services/matching";
 
@@ -14,6 +14,11 @@ export function useMissionResults(userScoringId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Dernier scoring chargé : changer de critères crée un nouveau scoring, donc une nouvelle URL, alors
+  // que des résultats sont déjà affichés. On les garde à l'écran pendant le fetch (chargement doux)
+  // au lieu de vider la page comme au premier chargement.
+  const loadedUserScoringId = useRef<string | undefined>(undefined);
 
   // Page courante stockée dans l'URL (?page=N) : survit au refresh, au partage et au retour arrière.
   const page = Math.max(1, Number.parseInt(searchParams.get("page") ?? "1", 10) || 1);
@@ -38,12 +43,21 @@ export function useMissionResults(userScoringId: string | undefined) {
       return;
     }
 
+    const isNewCriteria = loadedUserScoringId.current !== undefined && loadedUserScoringId.current !== userScoringId;
+    loadedUserScoringId.current = userScoringId;
+
     let active = true;
 
-    setLoading(true);
     setError(null);
-    setFirstPageItems([]);
-    setItems([]);
+    if (isNewCriteria) {
+      // La liste passe en « Chargement… » et la map garde ses pins jusqu'à l'arrivée des nouveaux résultats.
+      setPageLoading(true);
+      setFirstPageItems([]);
+    } else {
+      setLoading(true);
+      setFirstPageItems([]);
+      setItems([]);
+    }
 
     // Résultats mis en cache par userScoringId (voir matching.ts) : pas de re-fetch au retour sur la page.
     fetchInitialMatches(userScoringId)
@@ -61,6 +75,7 @@ export function useMissionResults(userScoringId: string | undefined) {
       .finally(() => {
         if (!active) return;
         setLoading(false);
+        setPageLoading(false);
       });
 
     return () => {
@@ -76,6 +91,9 @@ export function useMissionResults(userScoringId: string | undefined) {
     }
 
     if (page === 1) {
+      // Première page pas encore chargée (arrivée sur un nouveau scoring) : c'est le fetch ci-dessus qui
+      // posera les items, sinon on écraserait la liste avec celle du scoring précédent.
+      if (firstPageItems.length === 0) return;
       setItems(firstPageItems);
       setPageLoading(false);
       return;
@@ -105,29 +123,6 @@ export function useMissionResults(userScoringId: string | undefined) {
 
   const totalPages = Math.max(1, Math.ceil(totalResults / RESULTS_PAGE_SIZE));
 
-  // Rechargement doux après mise à jour du scoring (filtres) : retour page 1 et re-fetch de la
-  // première page (le cache vient d'être invalidé), en conservant les items courants pendant
-  // le chargement — même comportement qu'un changement de page.
-  const refresh = () => {
-    if (!userScoringId) return;
-    setPage(1);
-    setError(null);
-    setPageLoading(true);
-    fetchInitialMatches(userScoringId)
-      .then((res) => {
-        setFirstPageItems(res.items);
-        setItems(res.items);
-        setTotalResults(res.total);
-        setAvgDistanceKmTop5(res.avgDistanceKmTop5);
-      })
-      .catch(() => {
-        setError("Impossible de charger les missions. Réessaie plus tard.");
-      })
-      .finally(() => {
-        setPageLoading(false);
-      });
-  };
-
   return {
     items,
     page,
@@ -138,6 +133,5 @@ export function useMissionResults(userScoringId: string | undefined) {
     loading,
     pageLoading,
     error,
-    refresh,
   };
 }
