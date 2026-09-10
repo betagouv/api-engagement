@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import Modal from "~/components/layout/modal";
 import MissionTag from "~/components/missions/mission-tag";
@@ -6,8 +6,10 @@ import FilterOptionRows, { type FilterOptionsProps } from "~/components/results/
 import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { FILTERS, FILTER_STEP_IDS } from "~/config/results-filters";
+import { trackResultsFilterApplied } from "~/services/tracking/events";
 import { createQuizScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
+import { diffFilterAnswers, filterSelectionFromAnswers, type FilterSelection } from "~/utils/results-filters";
 
 interface ResultsFiltersModalProps {
   // Lien « Refaire le test » : renvoie vers la première question du quiz.
@@ -30,6 +32,10 @@ export default function ResultsFiltersModal({ quizHref }: ResultsFiltersModalPro
   const [understoodOpen, setUnderstoodOpen] = useState(true);
   const [criteriaOpen, setCriteriaOpen] = useState(true);
   const reactId = useId();
+  // Filtres à l'affichage initial : base du `modified_filter_count` cumulatif (le composant reste monté
+  // à travers la navigation vers le nouveau scoring).
+  const initialFilterSelection = useRef<FilterSelection | null>(null);
+  if (initialFilterSelection.current === null) initialFilterSelection.current = filterSelectionFromAnswers(answers);
 
   const handleOpen = () => {
     // Brouillon initialisé depuis le store : les cases cochées reflètent les réponses courantes.
@@ -51,6 +57,16 @@ export default function ResultsFiltersModal({ quizHref }: ResultsFiltersModalPro
   // Les critères choisis donnent un nouveau scoring : on bascule sur ses résultats (nouvelle URL).
   const handleSave = async () => {
     if (loading) return;
+
+    // Tracking (avant le re-scoring, quiz_session_id = ancien scoring) : un event par filtre modifié.
+    const currentSelection = filterSelectionFromAnswers(answers);
+    const pendingSelection: FilterSelection = { ...currentSelection, ...draft };
+    const changes = diffFilterAnswers(currentSelection, pendingSelection);
+    const modifiedFilterCount = diffFilterAnswers(initialFilterSelection.current ?? {}, pendingSelection).length;
+    for (const change of changes) {
+      trackResultsFilterApplied({ filterStepName: change.stepId, previousValue: change.previous, newValue: change.new, modifiedFilterCount });
+    }
+
     for (const filter of FILTERS) {
       setAnswer(filter.stepId, { type: "options", taxonomy: filter.stepId, option_ids: draft[filter.stepId] ?? [] });
     }

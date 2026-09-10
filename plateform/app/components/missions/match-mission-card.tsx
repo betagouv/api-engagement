@@ -11,10 +11,10 @@ import MissionCard from "./mission-card";
 
 // Sections de résultats (matching) et leur entry_source de fiche détail correspondante.
 // `similar` n'a pas de provenance détail dédiée (→ pas de nav state, resolve en "direct").
-type MatchSection = "pinned" | "other" | "similar";
+type MatchSection = "list" | "map" | "similar";
 const DETAIL_ENTRY_SOURCE_BY_SECTION: Record<Exclude<MatchSection, "similar">, MissionDetailEntrySource> = {
-  pinned: "results_pinned",
-  other: "results_other",
+  list: "results_list",
+  map: "results_map",
 };
 
 // Carte mission issue d'un résultat de matching : tags résumant le matching et bouton "Recevoir par
@@ -24,14 +24,17 @@ export default function MatchMissionCard({
   item,
   section,
   rank,
+  pageNumber,
   userScoringId,
   onEmailClick,
 }: {
   item: MissionMatchItem;
   section: MatchSection;
   rank: number;
+  // Numéro de page de la liste paginée (absent pour la similarité).
+  pageNumber?: number;
   userScoringId?: string;
-  onEmailClick?: (missionId: string) => void;
+  onEmailClick?: (missionId: string, publisherId: string) => void;
 }) {
   const { mission } = item;
   const answers = useQuizStore((s) => s.answers);
@@ -58,11 +61,11 @@ export default function MatchMissionCard({
       title={mission.title}
       to={buildMissionDetailHref(item, userScoringId)}
       state={state}
-      onClick={() => trackMissionClickedFromMatch(item, { section, entryPage: "results", rank })}
+      onClick={() => trackMissionClickedFromMatch(item, { section, entryPage: "results", rank, pageNumber })}
       tags={buildMissionMatchTags(item, userValueKeys)}
       publisherName={mission.publisherName}
       publisherLogo={mission.media.publisherLogo}
-      onEmailClick={onEmailClick ? () => onEmailClick(mission.id) : undefined}
+      onEmailClick={onEmailClick ? () => onEmailClick(mission.id, mission.publisherId ?? "") : undefined}
     />
   );
 }

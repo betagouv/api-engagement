@@ -4,8 +4,10 @@ import FilterOptionRows, { type FilterOptionsProps } from "~/components/results/
 import type { StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { FILTERS, type ResultsFilterDef } from "~/config/results-filters";
+import { trackResultsFilterApplied } from "~/services/tracking/events";
 import { createQuizScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
+import { diffFilterAnswers, filterSelectionFromAnswers, type FilterSelection } from "~/utils/results-filters";
 
 export default function ResultsFilters() {
   const navigate = useNavigate();
@@ -17,6 +19,10 @@ export default function ResultsFilters() {
   // jour qu'au clic sur « Voir les résultats », sinon les tags des cartes déjà affichées changeraient
   // alors que les résultats, eux, ne sont pas encore rechargés.
   const [draft, setDraft] = useState<Partial<Record<StepId, string[]>>>({});
+  // Filtres à l'affichage initial : base du `modified_filter_count` cumulatif (le composant reste monté
+  // à travers la navigation vers le nouveau scoring, le ref survit donc aux applications successives).
+  const initialFilterSelection = useRef<FilterSelection | null>(null);
+  if (initialFilterSelection.current === null) initialFilterSelection.current = filterSelectionFromAnswers(answers);
 
   const handleChange = (filter: ResultsFilterDef, optionIds: string[]) => {
     setDraft((prev) => ({ ...prev, [filter.stepId]: optionIds }));
@@ -25,6 +31,16 @@ export default function ResultsFilters() {
   // Les critères choisis donnent un nouveau scoring : on bascule sur ses résultats (nouvelle URL).
   const handleApply = async () => {
     if (loading) return;
+
+    // Tracking (avant le re-scoring, quiz_session_id = ancien scoring) : un event par filtre modifié.
+    const currentSelection = filterSelectionFromAnswers(answers);
+    const pendingSelection: FilterSelection = { ...currentSelection, ...draft };
+    const changes = diffFilterAnswers(currentSelection, pendingSelection);
+    const modifiedFilterCount = diffFilterAnswers(initialFilterSelection.current ?? {}, pendingSelection).length;
+    for (const change of changes) {
+      trackResultsFilterApplied({ filterStepName: change.stepId, previousValue: change.previous, newValue: change.new, modifiedFilterCount });
+    }
+
     for (const filter of FILTERS) {
       const optionIds = draft[filter.stepId];
       if (!optionIds) continue;
