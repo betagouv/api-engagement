@@ -97,6 +97,7 @@ function MobileFiltersSheet({ filters, onChange, onClose }: MobileFiltersSheetPr
   const toggleSection = (key: string) => setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
   return createPortal(
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- Le clic ne concerne que l'arrière-plan du dialogue, qui reste fermable au clavier via Échap et le bouton dédié.
     <div
       ref={sheetRef}
       tabIndex={-1}

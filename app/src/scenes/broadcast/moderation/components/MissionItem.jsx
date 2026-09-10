@@ -240,6 +240,7 @@ const MissionActionsMenu = ({ data, onFilter, onChange }) => {
 
   return (
     <>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Le conteneur délègue Échap et la sortie du focus aux éléments interactifs du menu. */}
       <div className="relative h-full text-left" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
         <button ref={buttonRef} type="button" className="secondary-btn shadow-border-black text-black" aria-label="Plus d'actions" aria-expanded={show} onClick={handleToggle}>
           <RiMoreFill aria-hidden="true" />

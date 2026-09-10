@@ -343,6 +343,7 @@ const AccountMenu = () => {
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Le conteneur délègue Échap et la sortie du focus aux éléments interactifs du menu.
     <div className="relative" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
       <button ref={buttonRef} className="btn hover:bg-gray-975 focus" type="button" onClick={() => setShow(!show)} aria-label="Menu du compte">
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">

@@ -512,6 +512,7 @@ const AdminMenu = () => {
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- Le conteneur délègue Échap et la sortie du focus aux éléments interactifs du menu.
     <div className="relative h-full" ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
       <button ref={buttonRef} className="nav-item" aria-expanded={show} aria-haspopup="true" type="button" onClick={() => setShow(!show)}>
         <span className="font-semibold">Administration</span>

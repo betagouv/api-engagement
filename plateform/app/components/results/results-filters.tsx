@@ -122,6 +122,7 @@ function FilterTag({ filter, selected, onChange }: FilterOptionsProps) {
       {open && (
         <div id={panelId} className="absolute top-full left-0 z-50 mt-2 w-80 border border-border-default-grey bg-background! shadow-lg">
           <p className="m-0! px-4 pt-4 font-bold text-title-grey">{filter.placeholder}</p>
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Le fieldset délègue aux contrôles natifs la validation clavier du panneau. */}
           <fieldset
             className="max-h-80 w-full overflow-y-auto px-4 py-3"
             tabIndex={-1}

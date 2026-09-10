@@ -44,6 +44,7 @@ export default function PrecisionParcoursupFormationNomStep() {
       </Label>
 
       <div className={`fr-input-group max-w-md! ${error ? "fr-input-group--error" : ""}`}>
+        {/* eslint-disable jsx-a11y/no-autofocus -- Cette étape place volontairement le focus sur son unique champ de saisie. */}
         <input
           id="formation-input"
           className={`fr-input ${error ? "fr-input--error" : ""}`}
@@ -58,6 +59,7 @@ export default function PrecisionParcoursupFormationNomStep() {
           aria-describedby={error ? "formation-input-messages" : undefined}
           autoFocus
         />
+        {/* eslint-enable jsx-a11y/no-autofocus */}
         {error && (
           <div className="fr-messages-group" id="formation-input-messages" aria-live="polite">
             <p className="fr-message fr-message--error">{error}</p>

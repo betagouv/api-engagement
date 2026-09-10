@@ -185,6 +185,7 @@ const Edit = () => {
           htmlFor="logo"
           className="flex h-24 w-32 shrink-0 cursor-pointer flex-col items-center justify-center bg-white p-2 shadow-lg transition-all duration-500 hover:bg-gray-900/10"
         >
+          <span className="sr-only">Modifier le logo de {values.name}</span>
           <img src={`${[publisher.logo]}?${Date.now()}`} className="object-scale-down" alt="" aria-hidden="true" />
         </label>
         <input id="logo" accept=".gif,.jpg,.jpeg,.png" type="file" hidden onChange={handleFileChange} />
