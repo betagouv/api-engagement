@@ -239,6 +239,37 @@ describe("Mission API Integration Tests", () => {
       expect(secondResponseIds).not.toContain(firstMissionId);
     });
 
+    it("should not duplicate or skip missions across pages when several missions share the same startAt", async () => {
+      const tiedAnnonceur = await createTestPublisher({ name: "Tied StartAt Annonceur" });
+      const tiedDiffuseur = await createTestPublisher({
+        name: "Tied StartAt Diffuseur",
+        publishers: [{ publisherId: tiedAnnonceur.id }],
+      });
+
+      const tiedStartAt = new Date("2026-03-01");
+      const tiedMissions = await Promise.all(
+        Array.from({ length: 5 }, (_, index) =>
+          createTestMission({
+            publisherId: tiedAnnonceur.id,
+            title: `Tied mission ${index}`,
+            clientId: `tied-${randomUUID()}`,
+            startAt: tiedStartAt,
+          })
+        )
+      );
+      const expectedIds = tiedMissions.map((mission) => mission.id).sort();
+
+      const seenIds: string[] = [];
+      for (let skip = 0; skip < tiedMissions.length; skip += 2) {
+        const response = await authenticatedGet(`/v0/mission?limit=2&skip=${skip}`, tiedDiffuseur.apikey!);
+        expect(response.status).toBe(200);
+        seenIds.push(...response.body.data.map((mission: any) => mission._id));
+      }
+
+      expect(seenIds.sort()).toEqual(expectedIds);
+      expect(new Set(seenIds).size).toBe(tiedMissions.length);
+    });
+
     it("should return 400 for invalid query parameters", async () => {
       const response = await authenticatedGet("/v0/mission?limit=invalid", apiKey);
       expect(response.status).toBe(400);
