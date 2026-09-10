@@ -90,13 +90,18 @@ export function buildMissionApplicationHref(applicationUrl: string, userScoringI
 
 // Score géo minimal pour considérer la mission comme proche et afficher sa ville en tag.
 const GEO_SCORE_TAG_THRESHOLD = 0.8;
-const MAX_MATCH_TAGS = 6;
+// Une carte affiche entre 5 et 6 tags : en dessous du minimum, les tags de matching sont complétés
+// par les tags standards (lieu, rythme, indemnité).
+const MIN_CARD_TAGS = 5;
+const MAX_CARD_TAGS = 6;
 
 /**
  * Construit les tags résumant pourquoi une mission a matché : pour chaque taxonomie avec un score
  * positif, les tags des valeurs à la fois demandées par l'utilisateur (`userValueKeys`, clés plates
  * "taxonomie.valeur") et portées par la mission, ordonnés par score de taxonomie décroissant, avec
  * la ville quand le score géo est haut. Les valeurs sans `mission_card_tag` sont ignorées.
+ * Quand le matching en produit moins de `MIN_CARD_TAGS`, la carte est complétée par les tags
+ * standards (cf. buildMissionBrowseTags) pour rester lisible.
  */
 export function buildMissionMatchTags(item: MissionMatchItem, userValueKeys: ReadonlySet<string>): string[] {
   const entries: { score: number; tags: string[] }[] = [];
@@ -117,7 +122,11 @@ export function buildMissionMatchTags(item: MissionMatchItem, userValueKeys: Rea
   }
 
   entries.sort((a, b) => b.score - a.score);
-  return [...new Set(entries.flatMap((entry) => entry.tags))].slice(0, MAX_MATCH_TAGS);
+  const matchTags = [...new Set(entries.flatMap((entry) => entry.tags))].slice(0, MAX_CARD_TAGS);
+  if (matchTags.length >= MIN_CARD_TAGS) return matchTags;
+
+  const browseTags = buildMissionBrowseTags(matchResultToBrowseMission(item));
+  return [...new Set([...matchTags, ...browseTags])].slice(0, MAX_CARD_TAGS);
 }
 
 /**
