@@ -10,7 +10,7 @@ import { createQuizScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
 interface ResultsFiltersModalProps {
-  // Lien « Refaire le test » : renvoie vers le dernier step visible du quiz.
+  // Lien « Refaire le test » : renvoie vers la première question du quiz.
   quizHref: string;
 }
 

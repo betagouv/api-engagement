@@ -21,7 +21,6 @@ import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults"
 import { setQuizSessionId } from "~/services/tracking";
 import { trackResultsViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
-import { evalCondition } from "~/utils/conditions";
 import type { Route } from "./+types/results";
 
 export function meta(): Route.MetaDescriptors {
@@ -147,9 +146,8 @@ export default function ResultsPage() {
   // Mission mise en avant (survol prioritaire sur sélection) : pin coloré + carte surlignée dans la liste.
   const activeMissionId = hoveredMissionId ?? hoveredPinMissionId ?? selectedMission?.mission.id ?? null;
 
-  // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
-  const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
-  const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
+  // Refaire le quiz repart toujours de la première question.
+  const quizHref = QUIZ_FLOW[0].route;
 
   // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
   // la fixe (boutons email + fermer). Le survol d'une carte de la liste n'affiche rien sur la map.
@@ -267,7 +265,7 @@ export default function ResultsPage() {
             )}
 
             {expanded && (
-              <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
+              <Link to={quizHref} className="fr-link fr-link--sm shrink-0">
                 <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
                 Changer mes réponses
               </Link>
@@ -302,7 +300,7 @@ export default function ResultsPage() {
           {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
           {expanded && !error && (
             <div className="border-t border-border-default-grey bg-background p-3">
-              <ResultsFiltersModal quizHref={changeAnswersHref} />
+              <ResultsFiltersModal quizHref={quizHref} />
             </div>
           )}
         </div>
@@ -331,7 +329,7 @@ export default function ResultsPage() {
               {/* RGAA 9.1 : en état d'erreur le h1 est rendu dans l'alerte de ResultsMissions. */}
               {!error && <h1 className="fr-h3 m-0!">Découvre les missions qui te correspondent le mieux</h1>}
 
-              <ProfileModal quizHref={changeAnswersHref} />
+              <ProfileModal quizHref={quizHref} />
             </div>
             <div className="flex flex-row">
               <div className="flex flex-col flex-1">

@@ -7,7 +7,7 @@ import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
 
 // Bouton « Ton profil » + modale « Ce qu'on a compris de toi » : récapitule les réponses du quiz
-// sous forme de tags et propose de refaire le quiz (renvoie vers le dernier step visible).
+// sous forme de tags et propose de refaire le quiz (renvoie vers la première question).
 export default function ProfileModal({ quizHref }: { quizHref: string }) {
   const answers = useQuizStore((s) => s.answers);
   const [open, setOpen] = useState(false);
