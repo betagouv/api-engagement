@@ -14,6 +14,10 @@ export function useMissionResults(userScoringId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Scoring auquel correspondent totalResults / totalPages / avgDistanceKmTop5 actuellement en state.
+  // Pendant le chargement doux d'un re-scoring, ces stats restent celles de l'ancien scoring : ce champ
+  // permet aux consommateurs (ex. results.viewed) d'attendre l'arrivée des stats du nouveau scoring.
+  const [statsUserScoringId, setStatsUserScoringId] = useState<string | undefined>(undefined);
 
   // Dernier scoring chargé : changer de critères crée un nouveau scoring, donc une nouvelle URL, alors
   // que des résultats sont déjà affichés. On les garde à l'écran pendant le fetch (chargement doux)
@@ -67,6 +71,7 @@ export function useMissionResults(userScoringId: string | undefined) {
         setItems(res.items);
         setTotalResults(res.total);
         setAvgDistanceKmTop5(res.avgDistanceKmTop5);
+        setStatsUserScoringId(userScoringId);
       })
       .catch(() => {
         if (!active) return;
@@ -133,5 +138,6 @@ export function useMissionResults(userScoringId: string | undefined) {
     loading,
     pageLoading,
     error,
+    statsUserScoringId,
   };
 }

@@ -40,7 +40,7 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error } = useMissionResults(userScoringId);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
   // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
   // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
   const resultsViewedFired = useRef<string | null>(null);
@@ -104,8 +104,10 @@ export default function ResultsPage() {
 
   // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois par
   // scoring. Au re-scoring (nouvel userScoringId), on ré-émet avec l'ancien id en previous_quiz_session_id.
+  // On attend `statsUserScoringId === userScoringId` : pendant le chargement doux d'un re-scoring, les
+  // stats (totalResults/totalPages/avgDistance) restent celles de l'ancien scoring, à ne pas attribuer au nouveau.
   useEffect(() => {
-    if (loading || error || !userScoringId || resultsViewedFired.current === userScoringId) return;
+    if (loading || error || !userScoringId || statsUserScoringId !== userScoringId || resultsViewedFired.current === userScoringId) return;
     const previousQuizSessionId = resultsViewedFired.current;
     resultsViewedFired.current = userScoringId;
     trackResultsViewed({
@@ -115,7 +117,7 @@ export default function ResultsPage() {
       avgDistanceKmTop5,
       previousQuizSessionId,
     });
-  }, [loading, error, userScoringId, totalResults, totalPages, avgDistanceKmTop5]);
+  }, [loading, error, userScoringId, statsUserScoringId, totalResults, totalPages, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;

@@ -61,8 +61,10 @@ export default function EmailMissionsModal({ userScoringId, missionId, publisher
       if (!result.email_sent) {
         setError(userScoringId ? "Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats." : "Cette mission n'a pas pu être envoyée. Merci de réessayer.");
       } else {
-        // Envoi mono-mission depuis une carte (CTA email des résultats) : évènement dédié à la mission.
-        if (missionId && publisherId) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: missionAlertEnabled });
+        // Envoi mono-mission depuis une carte de résultats (publisherId fourni, même vide car un
+        // match peut ne pas avoir d'annonceur) : évènement dédié à la mission. Sinon (sélection
+        // complète, ou landing sans publisherId) : évènement de sélection.
+        if (missionId && publisherId !== undefined) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: missionAlertEnabled });
         else trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
         setSuccess(true);
       }
