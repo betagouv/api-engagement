@@ -1,0 +1,664 @@
+{
+  "profiles": [
+    {
+      "id": "L1",
+      "label": "Léa, 17 ans, Lyon",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 17
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 45.7606,
+              "lon": 4.8685,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
+          },
+          {
+            "taxonomy": "motivation",
+            "value": "booster_parcoursup"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_jours_annee"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "ponctuelle_journee"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "sante_bien_etre"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "aider_accompagner"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "petit_groupe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "accompagnement_initial"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "L2",
+      "label": "Sami, 16 ans, Marseille",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 16
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 43.2965,
+              "lon": 5.3698,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "securite_pays"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "decouverte_metier"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_heures_semaine"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "securite_secours"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "secourir_proteger"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", "sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale"]
+        }
+      ]
+    },
+    {
+      "id": "L3",
+      "label": "Noor, 16 ans, Aurillac",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 16
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 44.9267,
+              "lon": 2.4409,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "autre"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "je_ne_sais_pas"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "aider_accompagner"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "L4",
+      "label": "Tom, 17 ans, Lille",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 17
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 50.6292,
+              "lon": 3.0573,
+              "radius_km": 10,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "rencontres"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "agir_pour_une_cause"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "ponctuelle_journee"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_jours_annee"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "environnement_animaux"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "fabriquer_reparer_terrain"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", ["sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale"]]
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "label": "Emma, 20 ans, Paris",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 20
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 48.8566,
+              "lon": 2.3522,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "decouverte_metier"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_heures_semaine"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "numerique"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "art_culture"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "creer_communiquer"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "label": "Hugo, 22 ans, Nantes",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 22
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 47.2184,
+              "lon": -1.5536,
+              "radius_km": 30,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "voiture"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "indemnisation"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "temps_plein_plusieurs_mois"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "education"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "aider_accompagner"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "E7",
+      "label": "Inès, 24 ans, Figeac",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 24
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 44.6089,
+              "lon": 2.0317,
+              "radius_km": 30,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "voiture"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "rencontres"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_heures_semaine"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "education"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "transmettre_animer"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "E8",
+      "label": "Malo, 19 ans, Toulouse",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 19
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 43.6047,
+              "lon": 1.4442,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "remote"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "citoyennete"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "organiser_coordonner"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "service_civique", ["sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale"]]
+        }
+      ]
+    },
+    {
+      "id": "A9",
+      "label": "Karim, 28 ans, Saint-Étienne",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 28
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 45.4397,
+              "lon": 4.3872,
+              "radius_km": 30,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "voiture"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "decouverte_metier"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "plusieurs_jours_semaine"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "environnement_animaux"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "fabriquer_reparer_terrain"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "organiser_coordonner"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "A10",
+      "label": "Julie, 26 ans, Montpellier",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 26,
+              "handicap": true
+            }
+          },
+          {
+            "taxonomy": "handicap",
+            "value": "oui"
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 43.6108,
+              "lon": 3.8767,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "indemnisation"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "rencontres"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "temps_plein_plusieurs_mois"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "sante_bien_etre"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "aider_accompagner"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "A11",
+      "label": "Sarah, 29 ans, Rennes",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 29
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 48.1173,
+              "lon": -1.6778,
+              "radius_km": 30,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "voiture"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "rencontres"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_jours_annee"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "citoyennete"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "organiser_coordonner"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "secourir_proteger"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["benevolat", ["reserve_gendarmerie", "reserve_police_nationale"], "sapeurs_pompiers"]
+        }
+      ]
+    },
+    {
+      "id": "A12",
+      "label": "Yanis, 25 ans, Bordeaux",
+      "userProfile": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 25
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 44.8378,
+              "lon": -0.5792,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "indemnisation"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "rencontres"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "temps_plein_plusieurs_mois"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "plusieurs_jours_semaine"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "sport"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "aider_accompagner"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": ["service_civique", "sapeurs_pompiers"]
+        }
+      ]
+    }
+  ]
+}
