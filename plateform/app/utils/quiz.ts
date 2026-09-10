@@ -1,4 +1,5 @@
 import { type StepDef, type StepId } from "~/config/quiz-flow";
+import { getTaxonomyValue } from "~/config/quiz-options";
 import type { QuizAnswers } from "~/types/quiz";
 import { evalCondition } from "./conditions";
 
@@ -39,8 +40,8 @@ export const buildPayload = (answers: QuizAnswers) => {
       const params = answer.taxonomy === "location" && mobilityRadiusKm !== undefined ? { ...answer.params, radius_km: mobilityRadiusKm } : answer.params;
       apiAnswers.push({ taxonomy: answer.taxonomy, params });
     } else if (answer?.type === "options") {
-      for (const value of answer.option_ids) {
-        apiAnswers.push({ taxonomy: answer.taxonomy, value });
+      for (const optionId of answer.option_ids) {
+        apiAnswers.push({ taxonomy: answer.taxonomy, value: getTaxonomyValue(answer.taxonomy, optionId) });
       }
     }
   }

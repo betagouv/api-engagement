@@ -18,6 +18,7 @@ import type {
   PageViewedPageName,
   QuizCompletionType,
   QuizEntrySource,
+  ResultsPageNavigationType,
 } from "./types";
 import { buildQuizPath, countAnsweredSteps, optionAnswer, resolveAnswerValue, resolveGeoProps } from "./utils";
 
@@ -38,6 +39,10 @@ export const EVENT_CATALOG = {
   "quiz.shortcut_taken": "feature_usage",
   "quiz.back_navigated": "feature_usage",
   "results.viewed": "core_value",
+  "results_filter.applied": "core_value",
+  "results.page_changed": "feature_usage",
+  "results_map.pin_clicked": "feature_usage",
+  "results.recap_opened": "feature_usage",
   "mission.clicked": "core_value",
   "mission_detail.viewed": "feature_usage",
   "missions_filter.applied": "feature_usage",
@@ -64,14 +69,16 @@ function trackMissionClicked(payload: MissionClickedPayload): void {
   track("mission.clicked", { ...payload });
 }
 
-// Clic depuis un résultat de matching (sections pinned / other / similar) : navigation interne
+// Clic depuis un résultat de matching (sections list / map / similar) : navigation interne
 // vers le détail → `opens_external: false`.
 export function trackMissionClickedFromMatch(
   item: MissionMatchItem,
   context: {
-    section: Extract<MissionClickedSection, "pinned" | "other" | "similar">;
+    section: Extract<MissionClickedSection, "list" | "map" | "similar">;
     entryPage: MissionClickedEntryPage;
     rank: number | null;
+    // Numéro de page de la liste paginée (null hors résultats paginés, ex. missions similaires).
+    pageNumber?: number | null;
   },
 ): void {
   trackMissionClicked({
@@ -80,10 +87,11 @@ export function trackMissionClickedFromMatch(
     publisher_name: item.mission.publisherName ?? "",
     section: context.section,
     rank: context.rank,
+    page_number: context.pageNumber ?? null,
     mission_domain: item.mission.domain,
     mission_type: item.match.values.find((value) => value.taxonomyKey === "type_mission")?.taxonomyValueKey ?? null,
     opens_external: false,
-    // Spec : distance pertinente uniquement pour les sections pinned/other (résultats géolocalisés).
+    // Spec : distance pertinente uniquement pour les résultats géolocalisés (list/map), pas la similarité.
     distance_km: context.section === "similar" ? null : (item.mission.location.distanceKm ?? null),
     entry_page: context.entryPage,
   });
@@ -105,6 +113,7 @@ export function trackMissionClickedFromBrowse(
     section: context.section,
     // Listes non classées (spec) → rank null.
     rank: null,
+    page_number: null,
     mission_domain: mission.domain,
     // Pas de scoring sur le flux browse → type_mission indisponible ici.
     mission_type: null,
@@ -190,14 +199,60 @@ export function trackQuizBackNavigated(params: { fromStepName: StepId; fromStepI
 // results.viewed
 // ============================================================================
 
-// `results.viewed` (core_value) : chargement de la page /results avec ses missions.
-export function trackResultsViewed(params: { pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
+// `results.viewed` (core_value) : chargement de la page /results avec ses missions. Ré-émis après un
+// re-scoring (nouveau quiz_session_id) : `previousQuizSessionId` porte alors l'ancien scoring.
+export function trackResultsViewed(params: {
+  totalResultsCount: number;
+  pageSize: number;
+  totalPages: number;
+  avgDistanceKmTop5?: number | null;
+  previousQuizSessionId?: string | null;
+}): void {
   track("results.viewed", {
-    has_results: params.pinnedCount > 0,
-    pinned_count: params.pinnedCount,
+    has_results: params.totalResultsCount > 0,
     total_results_count: params.totalResultsCount,
+    page_size: params.pageSize,
+    total_pages: params.totalPages,
     avg_distance_km_top5: params.avgDistanceKmTop5 ?? null,
+    // Présent uniquement lors d'une ré-émission suite à un re-scoring → sinon clé omise.
+    previous_quiz_session_id: params.previousQuizSessionId ?? undefined,
   });
+}
+
+// `results_filter.applied` (core_value) : validation d'un changement de réponse via une chip de filtre
+// en page de résultats (re-scoring). Un évènement par filtre modifié dans le lot d'application.
+export function trackResultsFilterApplied(params: { filterStepName: StepId; previousValue?: string | string[]; newValue: string | string[]; modifiedFilterCount: number }): void {
+  track("results_filter.applied", {
+    filter_step_name: params.filterStepName,
+    previous_value: params.previousValue,
+    new_value: params.newValue,
+    modified_filter_count: params.modifiedFilterCount,
+  });
+}
+
+// `results.page_changed` (feature_usage) : navigation dans la pagination des résultats.
+export function trackResultsPageChanged(params: { fromPage: number; toPage: number; totalPages: number; navigationType: ResultsPageNavigationType }): void {
+  track("results.page_changed", {
+    from_page: params.fromPage,
+    to_page: params.toPage,
+    total_pages: params.totalPages,
+    navigation_type: params.navigationType,
+  });
+}
+
+// `results_map.pin_clicked` (feature_usage) : clic sur un pin de la carte → aperçu de la mission.
+export function trackResultsMapPinClicked(params: { missionId: string; rank?: number | null; pageNumber: number }): void {
+  track("results_map.pin_clicked", {
+    mission_id: params.missionId,
+    rank: params.rank ?? undefined,
+    page_number: params.pageNumber,
+  });
+}
+
+// `results.recap_opened` (feature_usage) : ouverture de la modale « Ce qu'on a compris de toi »
+// (bouton « Ton profil » en page de résultats).
+export function trackResultsRecapOpened(): void {
+  track("results.recap_opened", {});
 }
 
 // ============================================================================

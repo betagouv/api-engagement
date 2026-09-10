@@ -10,19 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "motivation_recherche";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["motivation_recherche.premiere_experience"],
-  OPTIONS["motivation_recherche.decouverte_metier"],
-  OPTIONS["motivation_recherche.agir_pour_une_cause"],
-  OPTIONS["motivation_recherche.securite_pays"],
-  OPTIONS["motivation_recherche.remote"],
-  OPTIONS["motivation_recherche.rencontres"],
-  OPTIONS["motivation_recherche.indemnisation"],
-  OPTIONS["motivation_recherche.horaires_flexibles"],
-  OPTIONS["motivation_recherche.autre"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function MotivationsStep() {
   const { answers, setAnswer } = useQuizStore();

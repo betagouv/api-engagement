@@ -21,8 +21,8 @@ Structure notable :
 - `app/services/` : clients applicatifs, appels à la façade locale et orchestration côté front.
 - `app/services/api/` : client serveur vers l’API upstream, utilisé uniquement depuis loaders/actions SSR.
 - `app/stores/quiz.ts` : store Zustand persisté en `localStorage` pour les réponses du quiz.
-- `app/config/quiz-flow.ts` : ordre et conditions d’affichage des steps du quiz.
-- `app/config/quiz-options.ts` : options affichées dans le quiz.
+- `app/config/quiz-flow/` : registre des versions du parcours (`q1`, `q2`, `q3`) — ordre, wording, réponses proposées et conditions d’affichage des steps.
+- `app/config/quiz-options.ts` : catalogue des options du quiz, généré depuis `@engagement/taxonomy`.
 - `app/utils/` : logique pure testable (conditions, navigation quiz, mapping mission, domaines).
 - `app/assets/` : images et SVG applicatifs.
 
@@ -53,20 +53,22 @@ Ne pas importer `process.env.PUBLISHER_API_KEY` dans du code exécuté côté na
 
 ## Quiz
 
-Le quiz est un flow conditionnel piloté par `app/config/quiz-flow.ts`.
+Le quiz est un flow conditionnel piloté par `app/config/quiz-flow/`. Chaque version du parcours y est conservée ;
+`QUIZ_FLOW_VERSION` désigne la version active, et un rollback se fait en changeant cette seule constante.
 
 Conventions :
 
 - Chaque étape a un `StepId`, une route dédiée et, si besoin, une `condition`.
-- Le wording et le rendu vivent dans le composant de route du step.
-- Les options réutilisables vivent dans `app/config/quiz-options.ts`.
+- Le wording (titre, sous-titre) et les réponses proposées (`options`) sont versionnés dans le flow, pas dans le step component :
+  les steps sont partagés entre les versions, seul le flow sait ce que sa version pose. Le composant ne porte que le rendu.
+- Le catalogue des options vit dans `app/config/quiz-options.ts` ; un step y pioche via les clés déclarées dans son `options`.
 - Le store `useQuizStore` conserve les réponses, `userScoringId` et `distinctId`.
 - Les composants de step appellent `goNext()` / `goBack()` via le contexte exposé par `quiz/_layout.tsx`.
 - `buildPayload()` transforme les réponses du store vers le format DTO attendu par l’API.
 
 Lors de l’ajout d’un step :
 
-1. Ajouter le `StepId` et l’entrée `QUIZ_FLOW`.
+1. Ajouter le `StepId` et l’entrée dans le flow de la version concernée, avec ses `options` si le step en rend une liste.
 2. Ajouter la route dans `app/routes.ts`.
 3. Créer le fichier dans `app/routes/quiz/`.
 4. Mapper la réponse vers la bonne taxonomie (`taxonomy`, `option_ids` ou `params`).

@@ -10,16 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "activite";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["activite.aider_accompagner"],
-  OPTIONS["activite.transmettre_animer"],
-  OPTIONS["activite.fabriquer_reparer_terrain"],
-  OPTIONS["activite.secourir_proteger"],
-  OPTIONS["activite.organiser_coordonner"],
-  OPTIONS["activite.creer_communiquer"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function ActivitesStep() {
   const { answers, setAnswer } = useQuizStore();

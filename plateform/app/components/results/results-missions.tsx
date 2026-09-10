@@ -1,7 +1,7 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
-import Pagination from "~/components/ui/pagination";
+import Pagination, { type PaginationTrigger } from "~/components/ui/pagination";
 import { RESULTS_PAGE_SIZE } from "~/services/matching";
 
 interface ResultsMissionsProps {
@@ -15,8 +15,8 @@ interface ResultsMissionsProps {
   showDebug: boolean;
   highlightedMissionId?: string | null;
   onMissionHover?: (missionId: string | null) => void;
-  onEmailClick?: (missionId: string) => void;
-  onPageChange: (page: number) => void;
+  onEmailClick?: (mission: MissionMatchItem["mission"]) => void;
+  onPageChange: (page: number, trigger: PaginationTrigger) => void;
 }
 
 // Liste paginée unique des résultats de matching (plus de distinction pinned / autres missions) :
@@ -57,11 +57,19 @@ export default function ResultsMissions({
               {items.map((item, index) => (
                 <li
                   key={item.mission.id}
+                  id={`mission-${item.mission.id}`}
                   className={`relative w-full transition-shadow p-0! m-0! ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun hover:ring-0" : ""}`}
                   onMouseEnter={() => onMissionHover?.(item.mission.id)}
                   onMouseLeave={() => onMissionHover?.(null)}
                 >
-                  <MatchMissionCard item={item} section="pinned" rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1} userScoringId={userScoringId} onEmailClick={onEmailClick} />
+                  <MatchMissionCard
+                    item={item}
+                    section="list"
+                    rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
+                    pageNumber={page}
+                    userScoringId={userScoringId}
+                    onEmailClick={onEmailClick}
+                  />
                   {showDebug && <DebugButton missionId={item.mission.id} />}
                 </li>
               ))}

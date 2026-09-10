@@ -15,14 +15,15 @@ import ResultsFiltersModal from "~/components/results/results-filters-modal";
 import ResultsMissions from "~/components/results/results-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
+import type { PaginationTrigger } from "~/components/ui/pagination";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
-import { OPTIONS } from "~/config/quiz-options";
+import { getTaxonomyValue, OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackResultsViewed } from "~/services/tracking/events";
+import { trackResultsMapPinClicked, trackResultsPageChanged, trackResultsViewed } from "~/services/tracking/events";
+import type { ResultsPageNavigationType } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
-import { evalCondition } from "~/utils/conditions";
 import type { Route } from "./+types/results";
 
 export function meta(): Route.MetaDescriptors {
@@ -40,14 +41,20 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, refresh } = useMissionResults(userScoringId);
-  const resultsViewedFired = useRef(false);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
+  // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
+  // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
+  const resultsViewedFired = useRef<string | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [selectedMission, setSelectedMission] = useState<MissionMatchItem | null>(null);
+  // Survol d'une carte de la liste : met seulement son pin en avant sur la map.
   const [hoveredMissionId, setHoveredMissionId] = useState<string | null>(null);
+  // Survol d'un pin : met la carte de la liste en avant et prévisualise la mission sur la map.
+  const [hoveredPinMissionId, setHoveredPinMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
-  // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la modale en mode mission unique.
-  const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
+  // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la
+  // modale en mode mission unique. On garde le publisherId pour tracer `email_mission_detail.sent`.
+  const [emailMission, setEmailMission] = useState<{ missionId: string; publisherId: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Carrousel mobile de cartes mission affiché au clic sur un pin.
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -79,7 +86,9 @@ export default function ResultsPage() {
   // être masqué à la touche Échap.
   useEffect(() => {
     const clearHoverOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setHoveredMissionId(null);
+      if (event.key !== "Escape") return;
+      setHoveredMissionId(null);
+      setHoveredPinMissionId(null);
     };
     document.addEventListener("keydown", clearHoverOnEscape);
     return () => document.removeEventListener("keydown", clearHoverOnEscape);
@@ -94,16 +103,22 @@ export default function ResultsPage() {
     if (card) carousel.scrollLeft = card.offsetLeft - 24;
   }, [selectedMission, items]);
 
-  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois.
+  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois par
+  // scoring. Au re-scoring (nouvel userScoringId), on ré-émet avec l'ancien id en previous_quiz_session_id.
+  // On attend `statsUserScoringId === userScoringId` : pendant le chargement doux d'un re-scoring, les
+  // stats (totalResults/totalPages/avgDistance) restent celles de l'ancien scoring, à ne pas attribuer au nouveau.
   useEffect(() => {
-    if (loading || error || resultsViewedFired.current) return;
-    resultsViewedFired.current = true;
+    if (loading || error || !userScoringId || statsUserScoringId !== userScoringId || resultsViewedFired.current === userScoringId) return;
+    const previousQuizSessionId = resultsViewedFired.current;
+    resultsViewedFired.current = userScoringId;
     trackResultsViewed({
-      pinnedCount: items.length,
       totalResultsCount: totalResults,
+      pageSize: RESULTS_PAGE_SIZE,
+      totalPages,
       avgDistanceKmTop5,
+      previousQuizSessionId,
     });
-  }, [loading, error, items.length, totalResults, avgDistanceKmTop5]);
+  }, [loading, error, userScoringId, statsUserScoringId, totalResults, totalPages, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -115,7 +130,7 @@ export default function ResultsPage() {
         if (answer?.type === "options") {
           return answer.option_ids.map((optionId) => ({
             taxonomyKey: answer.taxonomy,
-            taxonomyValueKey: optionId,
+            taxonomyValueKey: getTaxonomyValue(answer.taxonomy, optionId),
             taxonomyValueLabel: OPTIONS[`${answer.taxonomy}.${optionId}` as keyof typeof OPTIONS]?.label ?? optionId,
             userScore: 1,
           }));
@@ -139,16 +154,15 @@ export default function ResultsPage() {
   const showDebug = searchParams.get("debug") === "true";
 
   // Mission mise en avant (survol prioritaire sur sélection) : pin coloré + carte surlignée dans la liste.
-  const activeMissionId = hoveredMissionId ?? selectedMission?.mission.id ?? null;
+  const activeMissionId = hoveredMissionId ?? hoveredPinMissionId ?? selectedMission?.mission.id ?? null;
 
-  // Dernier step visible du quiz selon les réponses courantes → "Changer mes réponses" y renvoie.
-  const lastQuizStep = QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)).at(-1);
-  const changeAnswersHref = lastQuizStep?.route ?? "/quiz/age";
+  // Refaire le quiz repart toujours de la première question.
+  const quizHref = QUIZ_FLOW[0].route;
 
   // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
-  // la fixe (boutons email + fermer). Survoler un autre pin prévisualise par-dessus la carte fixée.
-  const hoveredMission = items.find((i) => i.mission.id === hoveredMissionId) ?? null;
-  const displayedMission = hoveredMission ?? selectedMission;
+  // la fixe (boutons email + fermer). Le survol d'une carte de la liste n'affiche rien sur la map.
+  const hoveredPinMission = items.find((i) => i.mission.id === hoveredPinMissionId) ?? null;
+  const displayedMission = hoveredPinMission ?? selectedMission;
   const displayedMissionRank = displayedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === displayedMission.mission.id) + 1 : 0;
   const cardIsFixed = displayedMission !== null && displayedMission.mission.id === selectedMission?.mission.id;
 
@@ -165,17 +179,33 @@ export default function ResultsPage() {
   };
 
   const handleMarkerClick = (item: MissionMatchItem) => {
+    trackResultsMapPinClicked({
+      missionId: item.mission.id,
+      rank: (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === item.mission.id) + 1,
+      pageNumber: page,
+    });
     setIsClosingCard(false);
     setSelectedMission(item);
     if (expanded) {
       if (scrollRef.current) scrollRef.current.scrollTop = 0;
       setExpanded(false);
     }
+    // Desktop : on amène aussi la carte de la liste correspondante à l'écran (elle est surlignée via activeMissionId).
+    if (!isMobile) document.getElementById(`mission-${item.mission.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // Changement de page : la liste du panneau mobile repart en haut.
-  const handlePageChange = (nextPage: number) => {
+  // Changement de page (desktop + mobile) : trace results.page_changed puis met à jour la page. Le clic
+  // sur un numéro (`direct`) devient `first`/`last` quand il vise la 1re/dernière page.
+  const handlePageChange = (nextPage: number, trigger: PaginationTrigger) => {
+    const navigationType: ResultsPageNavigationType = trigger === "direct" ? (nextPage === 1 ? "first" : nextPage === totalPages ? "last" : "direct") : trigger;
+    trackResultsPageChanged({ fromPage: page, toPage: nextPage, totalPages, navigationType });
     setPage(nextPage);
+    // La mission fixée/survolée appartient à l'ancienne page : on ferme l'aperçu pour ne pas tracer un
+    // mission.clicked avec le nouveau page_number et un rang recalculé sur la mauvaise page (findIndex -1).
+    setSelectedMission(null);
+    setHoveredMissionId(null);
+    setHoveredPinMissionId(null);
+    // La liste du panneau mobile repart en haut (no-op desktop, scrollRef non monté).
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   };
 
@@ -200,7 +230,13 @@ export default function ResultsPage() {
         <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
           {showMap && (
             <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-              <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
+              <LazyMissionMap
+                items={items}
+                center={mapCenter}
+                onMarkerClick={handleMarkerClick}
+                activeMissionId={activeMissionId}
+                focusedMissionId={selectedMission?.mission.id ?? null}
+              />
             </div>
           )}
 
@@ -223,10 +259,11 @@ export default function ResultsPage() {
                   <div key={item.mission.id} className="w-full shrink-0 snap-center">
                     <MatchMissionCard
                       item={item}
-                      section="pinned"
+                      section="map"
                       rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
+                      pageNumber={page}
                       userScoringId={userScoringId}
-                      onEmailClick={setEmailMissionId}
+                      onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
                     />
                   </div>
                 ))}
@@ -261,7 +298,7 @@ export default function ResultsPage() {
               )}
 
               {expanded && (
-                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
+                <Link to={quizHref} className="fr-link fr-link--sm shrink-0">
                   <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
                   Changer mes réponses
                 </Link>
@@ -279,7 +316,7 @@ export default function ResultsPage() {
                 userScoringId={userScoringId}
                 showDebug={showDebug}
                 highlightedMissionId={activeMissionId}
-                onEmailClick={setEmailMissionId}
+                onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
                 onPageChange={handlePageChange}
               />
 
@@ -296,21 +333,22 @@ export default function ResultsPage() {
             {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
             {expanded && !error && (
               <div className="border-t border-border-default-grey bg-background p-3">
-                <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+                <ResultsFiltersModal quizHref={quizHref} />
               </div>
             )}
-          </div>
 
-          <MatchingDebugModal items={items} userValues={userValues} />
-          <EmailMissionsModal
-            userScoringId={userScoringId}
-            missionId={emailMissionId ?? undefined}
-            open={emailMissionId !== null}
-            onOpenChange={(open) => {
-              if (!open) setEmailMissionId(null);
-            }}
-            hideTrigger
-          />
+            <MatchingDebugModal items={items} userValues={userValues} />
+            <EmailMissionsModal
+              userScoringId={userScoringId}
+              missionId={emailMission?.missionId}
+              publisherId={emailMission?.publisherId}
+              open={emailMission !== null}
+              onOpenChange={(open) => {
+                if (!open) setEmailMission(null);
+              }}
+              hideTrigger
+            />
+          </div>
         </main>
       </>
     );
@@ -320,14 +358,14 @@ export default function ResultsPage() {
     <>
       {userScoringId && <BetaBanner source="results" session={userScoringId} />}
       <main id="contenu" tabIndex={-1}>
-        {!error && <ResultsFilters userScoringId={userScoringId} onResultsChange={refresh} />}
+        {!error && <ResultsFilters />}
         <GradientBg fixed className="px-12">
           <section className="max-w-7xl mx-auto py-12">
             <div className="flex mb-6 flex-row items-center justify-between gap-4 pl-6">
               {/* RGAA 9.1 : en état d'erreur le h1 est rendu dans l'alerte de ResultsMissions. */}
               {!error && <h1 className="fr-h3 m-0!">Découvre les missions qui te correspondent le mieux</h1>}
 
-              <ProfileModal quizHref={changeAnswersHref} />
+              <ProfileModal quizHref={quizHref} />
             </div>
             <div className="flex flex-row">
               <div className="flex flex-col flex-1">
@@ -342,8 +380,8 @@ export default function ResultsPage() {
                   showDebug={showDebug}
                   highlightedMissionId={activeMissionId}
                   onMissionHover={setHoveredMissionId}
-                  onEmailClick={setEmailMissionId}
-                  onPageChange={setPage}
+                  onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
+                  onPageChange={handlePageChange}
                 />
               </div>
               <div className="sticky top-6 max-h-[624px] flex-1">
@@ -355,13 +393,13 @@ export default function ResultsPage() {
                       onMarkerClick={handleMarkerClick}
                       selectionPadding={[360, 0]}
                       activeMissionId={activeMissionId}
-                      onMissionHover={setHoveredMissionId}
+                      onMissionHover={setHoveredPinMissionId}
                     />
 
                     {displayedMission && (
                       <div className={`absolute top-4 left-4 z-[500] w-[290px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
                         <div className="relative">
-                          <MatchMissionCard item={displayedMission} section="pinned" rank={displayedMissionRank} userScoringId={userScoringId} />
+                          <MatchMissionCard item={displayedMission} section="map" rank={displayedMissionRank} pageNumber={page} userScoringId={userScoringId} />
                           {cardIsFixed && (
                             <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                               <button
@@ -370,7 +408,7 @@ export default function ResultsPage() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  setEmailMissionId(displayedMission.mission.id);
+                                  setEmailMission({ missionId: displayedMission.mission.id, publisherId: displayedMission.mission.publisherId ?? "" });
                                 }}
                                 aria-label="Recevoir par email"
                               >
@@ -411,10 +449,11 @@ export default function ResultsPage() {
       </main>
       <EmailMissionsModal
         userScoringId={userScoringId}
-        missionId={emailMissionId ?? undefined}
-        open={emailMissionId !== null}
+        missionId={emailMission?.missionId}
+        publisherId={emailMission?.publisherId}
+        open={emailMission !== null}
         onOpenChange={(open) => {
-          if (!open) setEmailMissionId(null);
+          if (!open) setEmailMission(null);
         }}
         hideTrigger
       />

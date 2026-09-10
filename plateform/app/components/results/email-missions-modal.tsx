@@ -3,7 +3,7 @@ import Modal from "~/components/layout/modal";
 import MailIllustration from "~/components/ui/mail-illustration";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
-import { trackEmailMissionsSent } from "~/services/tracking/events";
+import { trackEmailMissionDetailSent, trackEmailMissionsSent } from "~/services/tracking/events";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
@@ -12,12 +12,14 @@ interface EmailMissionsModalProps {
   // Renseigné depuis le bouton email d'une carte : la modale n'envoie que cette mission
   // (wording au singulier), sinon toute la sélection de résultats.
   missionId?: string;
+  // Annonceur de la mission (pour `email_mission_detail.sent` en envoi mono-mission depuis une carte).
+  publisherId?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   hideTrigger?: boolean;
 }
 
-export default function EmailMissionsModal({ userScoringId, missionId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
+export default function EmailMissionsModal({ userScoringId, missionId, publisherId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -59,7 +61,11 @@ export default function EmailMissionsModal({ userScoringId, missionId, open: con
       if (!result.email_sent) {
         setError(userScoringId ? "Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats." : "Cette mission n'a pas pu être envoyée. Merci de réessayer.");
       } else {
-        trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
+        // Envoi mono-mission depuis une carte de résultats (publisherId fourni, même vide car un
+        // match peut ne pas avoir d'annonceur) : évènement dédié à la mission. Sinon (sélection
+        // complète, ou landing sans publisherId) : évènement de sélection.
+        if (missionId && publisherId !== undefined) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: missionAlertEnabled });
+        else trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
         setSuccess(true);
       }
     } catch (err) {

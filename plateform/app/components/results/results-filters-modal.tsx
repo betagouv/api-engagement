@@ -1,26 +1,26 @@
-import { useId, useState } from "react";
-import { Link } from "react-router";
+import { useId, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router";
 import Modal from "~/components/layout/modal";
 import MissionTag from "~/components/missions/mission-tag";
 import FilterOptionRows, { type FilterOptionsProps } from "~/components/results/filter-option-rows";
 import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { FILTERS, FILTER_STEP_IDS } from "~/config/results-filters";
-import { saveQuizScoring } from "~/services/user-scoring";
+import { trackResultsFilterApplied } from "~/services/tracking/events";
+import { createQuizScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
+import { diffFilterAnswers, filterSelectionFromAnswers, type FilterSelection } from "~/utils/results-filters";
 
 interface ResultsFiltersModalProps {
-  userScoringId: string | undefined;
-  // Lien « Refaire le test » : renvoie vers le dernier step visible du quiz.
+  // Lien « Refaire le test » : renvoie vers la première question du quiz.
   quizHref: string;
-  // Appelé après la mise à jour du scoring : la page recharge les résultats (retour page 1).
-  onResultsChange: () => void;
 }
 
 // Version mobile : bouton « Modifier mes critères » + modale reprenant les réponses hors filtres
 // (« Ce qu'on a compris de toi ») et les critères de mission en accordéons. Les sélections restent
 // dans un brouillon local tant que « Sauvegarder mes réponses » n'est pas cliqué.
-export default function ResultsFiltersModal({ userScoringId, quizHref, onResultsChange }: ResultsFiltersModalProps) {
+export default function ResultsFiltersModal({ quizHref }: ResultsFiltersModalProps) {
+  const navigate = useNavigate();
   const answers = useQuizStore((s) => s.answers);
   const setAnswer = useQuizStore((s) => s.setAnswer);
   const [open, setOpen] = useState(false);
@@ -32,6 +32,10 @@ export default function ResultsFiltersModal({ userScoringId, quizHref, onResults
   const [understoodOpen, setUnderstoodOpen] = useState(true);
   const [criteriaOpen, setCriteriaOpen] = useState(true);
   const reactId = useId();
+  // Filtres à l'affichage initial : base du `modified_filter_count` cumulatif (le composant reste monté
+  // à travers la navigation vers le nouveau scoring).
+  const initialFilterSelection = useRef<FilterSelection | null>(null);
+  if (initialFilterSelection.current === null) initialFilterSelection.current = filterSelectionFromAnswers(answers);
 
   const handleOpen = () => {
     // Brouillon initialisé depuis le store : les cases cochées reflètent les réponses courantes.
@@ -50,16 +54,27 @@ export default function ResultsFiltersModal({ userScoringId, quizHref, onResults
     setOpen(true);
   };
 
+  // Les critères choisis donnent un nouveau scoring : on bascule sur ses résultats (nouvelle URL).
   const handleSave = async () => {
-    if (!userScoringId || loading) return;
+    if (loading) return;
+
+    // Tracking (avant le re-scoring, quiz_session_id = ancien scoring) : un event par filtre modifié.
+    const currentSelection = filterSelectionFromAnswers(answers);
+    const pendingSelection: FilterSelection = { ...currentSelection, ...draft };
+    const changes = diffFilterAnswers(currentSelection, pendingSelection);
+    const modifiedFilterCount = diffFilterAnswers(initialFilterSelection.current ?? {}, pendingSelection).length;
+    for (const change of changes) {
+      trackResultsFilterApplied({ filterStepName: change.stepId, previousValue: change.previous, newValue: change.new, modifiedFilterCount });
+    }
+
     for (const filter of FILTERS) {
       setAnswer(filter.stepId, { type: "options", taxonomy: filter.stepId, option_ids: draft[filter.stepId] ?? [] });
     }
     setLoading(true);
     try {
-      await saveQuizScoring(userScoringId);
+      const newUserScoringId = await createQuizScoring();
       setSaveError(false);
-      onResultsChange();
+      if (newUserScoringId) navigate(`/results/${newUserScoringId}`);
       setOpen(false);
     } catch {
       setSaveError(true);
