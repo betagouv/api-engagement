@@ -1,6 +1,7 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
+import BetaBanner from "~/components/layout/beta-banner";
 import { FooterContent } from "~/components/layout/footer";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -194,120 +195,130 @@ export default function ResultsPage() {
 
   if (isMobile) {
     return (
-      <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
-        {showMap && (
-          <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
-            <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
-          </div>
-        )}
-
-        {selectedMission && !expanded && (
-          <div
-            className={`absolute inset-x-0 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
-            onAnimationEnd={() => {
-              if (!isClosingCard) return;
-              setSelectedMission(null);
-              setIsClosingCard(false);
-            }}
-          >
-            {/* Carrousel : carte de la mission cliquée, swipe horizontal pour parcourir les autres. Fermeture en tapant la map. */}
-            <div
-              ref={carouselRef}
-              onScroll={handleCarouselScroll}
-              className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {items.map((item, index) => (
-                <div key={item.mission.id} className="w-full shrink-0 snap-center">
-                  <MatchMissionCard item={item} section="pinned" rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1} userScoringId={userScoringId} onEmailClick={setEmailMissionId} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div
-          className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
-        >
-          <div className={`flex flex-col gap-2 p-6 items-center! justify-center! ${!expanded ? "h-full" : ""}`} onClick={handleToggleSheet}>
-            {!loading && error && (
-              <p role="alert" className="fr-error-text m-0! text-center!">
-                {error}
-              </p>
-            )}
-            {!loading && !error && (
-              <h1 className="fr-h5 m-0! text-center!">
-                <button
-                  type="button"
-                  aria-expanded={expanded}
-                  aria-controls="results-sheet-content"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleSheet();
-                  }}
-                >
-                  Découvre <Highlight>les missions</Highlight>
-                  <br /> qui te correspondent le mieux
-                </button>
-              </h1>
-            )}
-
-            {expanded && (
-              <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
-                <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
-                Changer mes réponses
-              </Link>
-            )}
-          </div>
-
-          <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-            <ResultsMissions
-              items={items}
-              page={page}
-              totalPages={totalPages}
-              loading={loading}
-              pageLoading={pageLoading}
-              error={error}
-              userScoringId={userScoringId}
-              showDebug={showDebug}
-              highlightedMissionId={activeMissionId}
-              onEmailClick={setEmailMissionId}
-              onPageChange={handlePageChange}
-            />
-
-            <Newsletter
-              title="Reçois tes missions par email"
-              subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-              ctaText="Recevoir mes missions"
-              hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-            />
-            <Partners style="compact" />
-            <FooterContent landmark={false} />
-          </div>
-
-          {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
-          {expanded && !error && (
-            <div className="border-t border-border-default-grey bg-background p-3">
-              <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+      <>
+        {userScoringId && <BetaBanner source="results" session={userScoringId} />}
+        <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
+          {showMap && (
+            <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
+              <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} />
             </div>
           )}
-        </div>
 
-        <MatchingDebugModal items={items} userValues={userValues} />
-        <EmailMissionsModal
-          userScoringId={userScoringId}
-          missionId={emailMissionId ?? undefined}
-          open={emailMissionId !== null}
-          onOpenChange={(open) => {
-            if (!open) setEmailMissionId(null);
-          }}
-          hideTrigger
-        />
-      </main>
+          {selectedMission && !expanded && (
+            <div
+              className={`absolute inset-x-0 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+              onAnimationEnd={() => {
+                if (!isClosingCard) return;
+                setSelectedMission(null);
+                setIsClosingCard(false);
+              }}
+            >
+              {/* Carrousel : carte de la mission cliquée, swipe horizontal pour parcourir les autres. Fermeture en tapant la map. */}
+              <div
+                ref={carouselRef}
+                onScroll={handleCarouselScroll}
+                className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {items.map((item, index) => (
+                  <div key={item.mission.id} className="w-full shrink-0 snap-center">
+                    <MatchMissionCard
+                      item={item}
+                      section="pinned"
+                      rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
+                      userScoringId={userScoringId}
+                      onEmailClick={setEmailMissionId}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div
+            className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
+          >
+            <div className={`flex flex-col gap-2 p-6 items-center! justify-center! ${!expanded ? "h-full" : ""}`} onClick={handleToggleSheet}>
+              {!loading && error && (
+                <p role="alert" className="fr-error-text m-0! text-center!">
+                  {error}
+                </p>
+              )}
+              {!loading && !error && (
+                <h1 className="fr-h5 m-0! text-center!">
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    aria-controls="results-sheet-content"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleSheet();
+                    }}
+                  >
+                    Découvre <Highlight>les missions</Highlight>
+                    <br /> qui te correspondent le mieux
+                  </button>
+                </h1>
+              )}
+
+              {expanded && (
+                <Link to={changeAnswersHref} className="fr-link fr-link--sm shrink-0">
+                  <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
+                  Changer mes réponses
+                </Link>
+              )}
+            </div>
+
+            <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
+              <ResultsMissions
+                items={items}
+                page={page}
+                totalPages={totalPages}
+                loading={loading}
+                pageLoading={pageLoading}
+                error={error}
+                userScoringId={userScoringId}
+                showDebug={showDebug}
+                highlightedMissionId={activeMissionId}
+                onEmailClick={setEmailMissionId}
+                onPageChange={handlePageChange}
+              />
+
+              <Newsletter
+                title="Reçois tes missions par email"
+                subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+                ctaText="Recevoir mes missions"
+                hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+              />
+              <Partners style="compact" />
+              <FooterContent landmark={false} />
+            </div>
+
+            {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
+            {expanded && !error && (
+              <div className="border-t border-border-default-grey bg-background p-3">
+                <ResultsFiltersModal userScoringId={userScoringId} quizHref={changeAnswersHref} onResultsChange={refresh} />
+              </div>
+            )}
+          </div>
+
+          <MatchingDebugModal items={items} userValues={userValues} />
+          <EmailMissionsModal
+            userScoringId={userScoringId}
+            missionId={emailMissionId ?? undefined}
+            open={emailMissionId !== null}
+            onOpenChange={(open) => {
+              if (!open) setEmailMissionId(null);
+            }}
+            hideTrigger
+          />
+        </main>
+      </>
     );
   }
 
   return (
     <>
+      {userScoringId && <BetaBanner source="results" session={userScoringId} />}
       <main id="contenu" tabIndex={-1}>
         {!error && <ResultsFilters userScoringId={userScoringId} onResultsChange={refresh} />}
         <GradientBg fixed className="px-12">

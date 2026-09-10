@@ -3,6 +3,7 @@ import { resolveTrancheAgeValues } from "@engagement/taxonomy";
 
 import { QUIZ_FLOW_VERSION, type StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
+import type { BetaBannerSource } from "~/utils/beta-banner";
 
 import { track } from "./index";
 import type {
@@ -42,6 +43,7 @@ export const EVENT_CATALOG = {
   "missions_filter.applied": "feature_usage",
   "email_missions.sent": "feature_usage",
   "email_mission_detail.sent": "feature_usage",
+  "beta_banner.clicked": "feature_usage",
 } satisfies Record<string, EventCategory>;
 
 // ============================================================================
@@ -252,4 +254,14 @@ export function trackEmailMissionDetailSent(params: { missionId: string; publish
     entry_source: params.entrySource,
     has_alert_opt_in: params.hasAlertOptIn,
   });
+}
+
+// ============================================================================
+// beta_banner.clicked
+// ============================================================================
+
+// `beta_banner.clicked` (feature_usage) : clic sur le lien de feedback du bandeau « version bêta ».
+// `source` distingue le bandeau du quiz de celui des résultats (mêmes valeurs que le champ caché Tally).
+export function trackBetaBannerClicked(params: { source: BetaBannerSource }): void {
+  track("beta_banner.clicked", { source: params.source });
 }
