@@ -55,7 +55,9 @@ export default function ProfileModal({ quizHref }: { quizHref: string }) {
         )}
 
         <div className="mt-8 flex justify-end">
-          <Link to={quizHref} state={{ entrySource: "my_profile_modal" }} className="fr-btn fr-icon-pencil-line fr-btn--icon-left">
+          {/* « Refaire le quiz » = nouvelle tentative : reset() régénère quizAttemptId pour que
+              /quiz/age émette quiz.started (entry_source my_profile_modal) malgré la tentative déjà démarrée. */}
+          <Link to={quizHref} state={{ entrySource: "my_profile_modal" }} onClick={() => useQuizStore.getState().reset()} className="fr-btn fr-icon-pencil-line fr-btn--icon-left">
             Refaire le quiz
           </Link>
         </div>

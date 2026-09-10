@@ -199,6 +199,11 @@ export default function ResultsPage() {
     const navigationType: ResultsPageNavigationType = trigger === "direct" ? (nextPage === 1 ? "first" : nextPage === totalPages ? "last" : "direct") : trigger;
     trackResultsPageChanged({ fromPage: page, toPage: nextPage, totalPages, navigationType });
     setPage(nextPage);
+    // La mission fixée/survolée appartient à l'ancienne page : on ferme l'aperçu pour ne pas tracer un
+    // mission.clicked avec le nouveau page_number et un rang recalculé sur la mauvaise page (findIndex -1).
+    setSelectedMission(null);
+    setHoveredMissionId(null);
+    setHoveredPinMissionId(null);
     // La liste du panneau mobile repart en haut (no-op desktop, scrollRef non monté).
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   };
