@@ -95,6 +95,10 @@ describe("NEUTRAL_TAXONOMY_VALUE_KEYS / isNeutralTaxonomyValueKey", () => {
     expect(isNeutralTaxonomyValueKey("motivation_recherche", "autre")).toBe(true);
   });
 
+  it("tague agir_pour_une_cause, non discriminante (99 % des missions) donc exclue du scoring", () => {
+    expect(isNeutralTaxonomyValueKey("motivation_recherche", "agir_pour_une_cause")).toBe(true);
+  });
+
   it("ne tague PAS les valeurs enrichable:false porteuses de signal (indemnisation, remote)", () => {
     expect(isNeutralTaxonomyValueKey("motivation_recherche", "indemnisation")).toBe(false);
     expect(isNeutralTaxonomyValueKey("motivation_recherche", "remote")).toBe(false);

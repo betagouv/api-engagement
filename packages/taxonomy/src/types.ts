@@ -32,8 +32,9 @@ export type TaxonomyValueItem = {
   enrichable: boolean;
   hidden?: boolean;
   disabled?: boolean;
-  // Valeur « je ne sais pas » / « peu importe » : réponse sans signal, exclue du scoring
-  // pour ne pas diluer le taxonomy_score (cf. NEUTRAL_TAXONOMY_VALUE_KEYS).
+  // Valeur exclue du scoring : soit une réponse sans signal (« je ne sais pas », « peu importe »),
+  // soit une valeur non discriminante portée par la quasi-totalité du catalogue
+  // (cf. NEUTRAL_TAXONOMY_VALUE_KEYS).
   neutral?: boolean;
 };
 

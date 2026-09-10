@@ -59,6 +59,18 @@ describe("buildPayload", () => {
     });
   });
 
+  it("mappe une réponse propre au quiz sur la valeur de taxonomie qu'elle vise", () => {
+    const answers: QuizAnswers = {
+      motivation_recherche: { type: "options", taxonomy: "motivation_recherche", option_ids: ["parcoursup", "decouverte_metier"] },
+    };
+    expect(buildPayload(answers)).toEqual({
+      answers: [
+        { taxonomy: "motivation_recherche", value: "premiere_experience" },
+        { taxonomy: "motivation_recherche", value: "decouverte_metier" },
+      ],
+    });
+  });
+
   it("convertit les réponses params en entrée taxonomy/params", () => {
     const answers: QuizAnswers = {
       localisation: { type: "params", taxonomy: "location", params: { lat: 48.8566, lon: 2.3522 } },

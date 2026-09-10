@@ -15,7 +15,7 @@ import ResultsMissions from "~/components/results/results-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
-import { OPTIONS } from "~/config/quiz-options";
+import { getTaxonomyValue, OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
@@ -114,7 +114,7 @@ export default function ResultsPage() {
         if (answer?.type === "options") {
           return answer.option_ids.map((optionId) => ({
             taxonomyKey: answer.taxonomy,
-            taxonomyValueKey: optionId,
+            taxonomyValueKey: getTaxonomyValue(answer.taxonomy, optionId),
             taxonomyValueLabel: OPTIONS[`${answer.taxonomy}.${optionId}` as keyof typeof OPTIONS]?.label ?? optionId,
             userScore: 1,
           }));

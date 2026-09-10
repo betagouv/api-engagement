@@ -10,9 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "equipe";
 
-const STEP_OPTIONS: StepOption[] = [OPTIONS["equipe.autonomie"], OPTIONS["equipe.petit_groupe"], OPTIONS["equipe.grand_collectif"], OPTIONS["equipe.peu_importe"]];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function EquipeStep() {
   const { answers, setAnswer } = useQuizStore();
