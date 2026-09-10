@@ -46,7 +46,7 @@ export const DEFAULT_PROMPT_VERSION = v3.VERSION;
 // Résout la version active depuis l'env. Une valeur inconnue (typo, version supprimée) retombe sur le
 // défaut plutôt que de faire planter l'enrichissement (`PROMPT_REGISTRY[inconnu]` → undefined) ; on
 // signale le fallback via Sentry pour ne pas masquer une mauvaise configuration.
-const resolvePromptVersion = (raw: string): PromptVersion => {
+export const resolvePromptVersion = (raw: string): PromptVersion => {
   if (isPromptVersion(raw)) {
     return raw;
   }

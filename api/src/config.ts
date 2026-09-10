@@ -1,3 +1,5 @@
+import { isParcoursVersion, resolveParcours } from "@engagement/taxonomy";
+
 process.env.TZ = "Europe/Paris";
 
 export const PORT = process.env.PORT || 4000;
@@ -69,12 +71,17 @@ export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 export const ALBERT_API_KEY = process.env.ALBERT_API_KEY;
 export const ALBERT_BASE_URL = process.env.ALBERT_BASE_URL || "https://albert.api.etalab.gouv.fr";
 export const MISSION_ENRICHMENT_PROVIDER = process.env.MISSION_ENRICHMENT_PROVIDER || "llm";
-// Version de prompt active pour l'enrichissement/scoring (clé du PROMPT_REGISTRY). Permet de tester
-// un couple prompt/modèle différent par environnement (ex. v4/Albert en staging). Défaut : "v3".
-export const MISSION_ENRICHMENT_PROMPT_VERSION = process.env.MISSION_ENRICHMENT_PROMPT_VERSION || "v3";
-// Version active du moteur de matching (clé de MATCHING_ENGINE_VERSIONS). Permet d'activer un jeu de
-// pondérations de taxonomies différent par environnement (ex. m4/nouvelles taxos en staging). Défaut : "m3".
-export const MATCHING_ENGINE_VERSION = process.env.MATCHING_ENGINE_VERSION || "m3";
+
+// Version parapluie du parcours (quiz + enrichment + matching), source unique pilotée par une seule
+// env var par environnement. Les versions enrichment/matching en sont dérivées (cf. @engagement/taxonomy).
+if (process.env.PARCOURS_VERSION && !isParcoursVersion(process.env.PARCOURS_VERSION)) {
+  console.warn(`[config] unknown PARCOURS_VERSION "${process.env.PARCOURS_VERSION}", falling back to default`);
+}
+const PARCOURS = resolveParcours(process.env.PARCOURS_VERSION);
+// Version de prompt active pour l'enrichissement/scoring (clé du PROMPT_REGISTRY).
+export const MISSION_ENRICHMENT_PROMPT_VERSION = PARCOURS.enrichment;
+// Version active du moteur de matching (clé de MATCHING_ENGINE_VERSIONS).
+export const MATCHING_ENGINE_VERSION = PARCOURS.matching;
 
 // Rate limit
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;

@@ -1,3 +1,5 @@
+export { DEFAULT_PARCOURS_VERSION, PARCOURS_REGISTRY, isParcoursVersion, resolveParcours } from "./parcours";
+export type { ParcoursConfig, ParcoursVersion } from "./parcours";
 export { TAXONOMY } from "./taxonomy";
 export { resolveTrancheAgeValues } from "./transformers/tranche-age";
 export type { EnrichableTaxonomyKey, GateTaxonomyKey, TaxonomyKey, TaxonomyListItem, TaxonomyValueItem, TaxonomyValueKey, ValueKey } from "./types";
