@@ -65,7 +65,14 @@
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "benevolat", "min": 3 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 0, "max": 0 },
+            { "value": "reserve_police_nationale", "min": 0, "max": 0 },
+            { "value": "reserve_armees", "min": 0, "max": 0 }
+          ]
         }
       ]
     },
@@ -83,11 +90,15 @@
           {
             "taxonomy": "location",
             "params": {
-              "lat": 43.2965,
-              "lon": 5.3698,
+              "lat": 43.3116,
+              "lon": 5.3802,
               "radius_km": 5,
               "country_code": "FR"
             }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
           },
           {
             "taxonomy": "motivation_recherche",
@@ -108,13 +119,28 @@
           {
             "taxonomy": "activite",
             "value": "secourir_proteger"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "grand_collectif"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "cadre_suivi_regulier"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", "sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale"]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 0, "max": 0 },
+            { "value": "reserve_armees", "min": 0, "max": 0 }
+          ]
         }
       ]
     },
@@ -139,6 +165,10 @@
             }
           },
           {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
+          },
+          {
             "taxonomy": "motivation_recherche",
             "value": "autre"
           },
@@ -151,15 +181,50 @@
             "value": "solidarite_inclusion"
           },
           {
+            "taxonomy": "domaine_engagement",
+            "value": "environnement_animaux"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "art_culture"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "sport"
+          },
+          {
             "taxonomy": "activite",
             "value": "aider_accompagner"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "transmettre_animer"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "creer_communiquer"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "peu_importe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "je_ne_sais_pas"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 0, "max": 0 }
+          ]
         }
       ]
     },
@@ -184,6 +249,10 @@
             }
           },
           {
+            "taxonomy": "mobilite",
+            "value": "velo"
+          },
+          {
             "taxonomy": "motivation_recherche",
             "value": "rencontres"
           },
@@ -206,13 +275,32 @@
           {
             "taxonomy": "activite",
             "value": "fabriquer_reparer_terrain"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "grand_collectif"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "organisation_libre"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", ["sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale"]]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 1 }
+          ]
+        },
+        {
+          "taxonomy": "motivation_recherche",
+          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     },
@@ -230,8 +318,8 @@
           {
             "taxonomy": "location",
             "params": {
-              "lat": 48.8566,
-              "lon": 2.3522,
+              "lat": 48.859,
+              "lon": 2.3786,
               "radius_km": 5,
               "country_code": "FR"
             }
@@ -263,13 +351,32 @@
           {
             "taxonomy": "activite",
             "value": "creer_communiquer"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "petit_groupe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "accompagnement_initial"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 1 }
+          ]
+        },
+        {
+          "taxonomy": "motivation_recherche",
+          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     },
@@ -299,6 +406,10 @@
           },
           {
             "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
+          },
+          {
+            "taxonomy": "motivation_recherche",
             "value": "indemnisation"
           },
           {
@@ -316,13 +427,31 @@
           {
             "taxonomy": "activite",
             "value": "aider_accompagner"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "transmettre_animer"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "grand_collectif"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "accompagnement_initial"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 1 }
+          ]
         }
       ]
     },
@@ -352,6 +481,10 @@
           },
           {
             "taxonomy": "motivation_recherche",
+            "value": "agir_pour_une_cause"
+          },
+          {
+            "taxonomy": "motivation_recherche",
             "value": "rencontres"
           },
           {
@@ -369,13 +502,27 @@
           {
             "taxonomy": "activite",
             "value": "transmettre_animer"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "petit_groupe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "organisation_libre"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 }
+          ]
         }
       ]
     },
@@ -395,8 +542,13 @@
             "params": {
               "lat": 43.6047,
               "lon": 1.4442,
+              "radius_km": 10,
               "country_code": "FR"
             }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "velo"
           },
           {
             "taxonomy": "motivation_recherche",
@@ -407,19 +559,53 @@
             "value": "premiere_experience"
           },
           {
+            "taxonomy": "rythme",
+            "value": "ponctuelle_journee"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "quelques_heures_semaine"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "numerique"
+          },
+          {
             "taxonomy": "domaine_engagement",
             "value": "citoyennete"
           },
           {
             "taxonomy": "activite",
+            "value": "creer_communiquer"
+          },
+          {
+            "taxonomy": "activite",
             "value": "organiser_coordonner"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "peu_importe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "organisation_libre"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "service_civique", ["sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale"]]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 }
+          ]
+        },
+        {
+          "taxonomy": "motivation_recherche",
+          "values": [{ "value": "remote", "min": 7 }]
         }
       ]
     },
@@ -433,6 +619,10 @@
             "params": {
               "age": 28
             }
+          },
+          {
+            "taxonomy": "handicap",
+            "value": "non"
           },
           {
             "taxonomy": "location",
@@ -450,6 +640,10 @@
           {
             "taxonomy": "motivation_recherche",
             "value": "decouverte_metier"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
           },
           {
             "taxonomy": "rythme",
@@ -470,13 +664,28 @@
           {
             "taxonomy": "activite",
             "value": "organiser_coordonner"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "petit_groupe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "accompagnement_initial"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", "sapeurs_pompiers"]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 0, "max": 0 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 1 }
+          ]
         }
       ]
     },
@@ -511,6 +720,10 @@
           },
           {
             "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
+          },
+          {
+            "taxonomy": "motivation_recherche",
             "value": "indemnisation"
           },
           {
@@ -532,13 +745,31 @@
           {
             "taxonomy": "activite",
             "value": "aider_accompagner"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "petit_groupe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "cadre_suivi_regulier"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 0, "max": 0 }
+          ]
+        },
+        {
+          "taxonomy": "motivation_recherche",
+          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     },
@@ -552,6 +783,10 @@
             "params": {
               "age": 29
             }
+          },
+          {
+            "taxonomy": "handicap",
+            "value": "ne_se_prononce_pas"
           },
           {
             "taxonomy": "location",
@@ -575,6 +810,10 @@
             "value": "quelques_jours_annee"
           },
           {
+            "taxonomy": "rythme",
+            "value": "ponctuelle_journee"
+          },
+          {
             "taxonomy": "domaine_engagement",
             "value": "citoyennete"
           },
@@ -588,14 +827,33 @@
           },
           {
             "taxonomy": "activite",
-            "value": "secourir_proteger"
+            "value": "creer_communiquer"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "petit_groupe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "organisation_libre"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["benevolat", ["reserve_gendarmerie", "reserve_police_nationale"], "sapeurs_pompiers"]
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 0, "max": 0 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 1 }
+          ]
+        },
+        {
+          "taxonomy": "motivation_recherche",
+          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     },
@@ -629,6 +887,10 @@
           },
           {
             "taxonomy": "motivation_recherche",
+            "value": "premiere_experience"
+          },
+          {
+            "taxonomy": "motivation_recherche",
             "value": "rencontres"
           },
           {
@@ -649,14 +911,36 @@
           },
           {
             "taxonomy": "activite",
+            "value": "transmettre_animer"
+          },
+          {
+            "taxonomy": "activite",
             "value": "aider_accompagner"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "grand_collectif"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "cadre_suivi_regulier"
           }
         ]
       },
       "expected": [
         {
           "taxonomy": "dispositif",
-          "values": ["service_civique", "sapeurs_pompiers"]
+          "values": [
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 },
+            { "value": "reserve_armees", "min": 1 }
+          ]
+        },
+        {
+          "taxonomy": "motivation_recherche",
+          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     }

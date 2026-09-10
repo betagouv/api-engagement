@@ -39,15 +39,17 @@ const answerSchema = z
     message: "La paire taxonomy/value n'existe pas dans le référentiel",
   });
 
-const expectedValueSchema = z.union([
-  z.string().trim().min(1),
-  z
-    .array(z.string().trim().min(1))
-    .min(2)
-    .refine((values) => new Set(values).size === values.length, {
-      message: "Un groupe alternatif ne doit pas contenir deux fois la même valeur",
-    }),
-]);
+const expectedValueSchema = z
+  .object({
+    value: z.string().trim().min(1),
+    min: z.number().int().nonnegative(),
+    max: z.number().int().nonnegative().optional(),
+  })
+  .strict()
+  .refine((expected) => expected.max === undefined || expected.min <= expected.max, {
+    message: "max doit être supérieur ou égal à min",
+    path: ["max"],
+  });
 
 const expectedTaxonomySchema = z
   .object({
@@ -58,22 +60,18 @@ const expectedTaxonomySchema = z
   .superRefine((expected, context) => {
     const seen = new Set<string>();
     expected.values.forEach((expectation, index) => {
-      const values = Array.isArray(expectation) ? expectation : [expectation];
-      const expectationKey = [...values].sort().join("|");
-      if (seen.has(expectationKey)) {
+      if (seen.has(expectation.value)) {
         context.addIssue({ code: "custom", path: ["values", index], message: "Valeur attendue dupliquée" });
       }
-      seen.add(expectationKey);
+      seen.add(expectation.value);
 
-      values.forEach((value, valueIndex) => {
-        if (!isValidTaxonomyValueKey(`${expected.taxonomy}.${value}`)) {
-          context.addIssue({
-            code: "custom",
-            path: ["values", index, ...(Array.isArray(expectation) ? [valueIndex] : [])],
-            message: `Valeur de taxonomie inconnue : ${expected.taxonomy}.${value}`,
-          });
-        }
-      });
+      if (!isValidTaxonomyValueKey(`${expected.taxonomy}.${expectation.value}`)) {
+        context.addIssue({
+          code: "custom",
+          path: ["values", index, "value"],
+          message: `Valeur de taxonomie inconnue : ${expected.taxonomy}.${expectation.value}`,
+        });
+      }
     });
   });
 
@@ -270,7 +268,10 @@ const printHumanReport = (profiles: ProfileEvaluation[]): void => {
           profil: profile.profileId,
           version: version.version,
           taxonomie: expectation.taxonomy,
-          valeur: expectation.expectedValues.join(" ou "),
+          valeur: expectation.expectedValues[0],
+          attendu:
+            expectation.max === undefined ? `au moins ${expectation.min}` : expectation.min === expectation.max ? `${expectation.min}` : `${expectation.min} à ${expectation.max}`,
+          occurrences: expectation.count,
           positions: expectation.positions.join(", ") || "absent",
           résultat: expectation.found ? "OK" : "ÉCHEC",
         };

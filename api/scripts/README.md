@@ -88,7 +88,7 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 - **matching-engine-evaluation/evaluate.ts**
 
   - Exécution: `npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5`
-  - Usage: crée temporairement les profils JSON, exécute chaque version du `matching-engine`, puis vérifie que chaque valeur de taxonomie attendue apparaît au moins une fois dans le top 10 et retourne ses positions, sans persister de `mission_matching_result`.
+  - Usage: crée temporairement les profils JSON, exécute chaque version du `matching-engine`, puis vérifie que le nombre de missions pour chaque valeur de taxonomie respecte les bornes `min`/`max` attendues dans le top 10, sans persister de `mission_matching_result`.
   - Options:
     - `--profiles <chemin>` : fichier JSON de profils (défaut: `scripts/matching-engine-evaluation/profiles.template.json`)
     - `--versions m4,m5` : versions à comparer (défaut: version courante)

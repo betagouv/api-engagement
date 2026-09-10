@@ -1,6 +1,10 @@
 export type ExpectedTaxonomy = {
   taxonomy: string;
-  values: Array<string | string[]>;
+  values: Array<{
+    value: string;
+    min: number;
+    max?: number;
+  }>;
 };
 
 export type RankedMissionForEvaluation = {
@@ -25,6 +29,9 @@ export type MatchedMission = {
 export type ExpectedTaxonomyResult = {
   taxonomy: string;
   expectedValues: string[];
+  min: number;
+  max?: number;
+  count: number;
   found: boolean;
   firstPosition: number | null;
   positions: number[];
@@ -32,15 +39,14 @@ export type ExpectedTaxonomyResult = {
 };
 
 /**
- * Vérifie chaque valeur attendue d'une taxonomie. Une liste imbriquée représente une
- * alternative : au moins une des valeurs de cette liste doit apparaître dans le classement.
+ * Vérifie que le nombre de missions portant chaque valeur attendue est compris dans
+ * l'intervalle inclusif [min, max]. L'absence de max signifie qu'il n'y a pas de plafond.
  */
 export const evaluateExpectedTaxonomies = (rankedMissions: RankedMissionForEvaluation[], expectedTaxonomies: ExpectedTaxonomy[]): ExpectedTaxonomyResult[] =>
   expectedTaxonomies.flatMap((expectedTaxonomy) =>
     expectedTaxonomy.values.map((expectation) => {
-      const expectedValues = Array.isArray(expectation) ? expectation : [expectation];
       const matchedMissions = rankedMissions.flatMap((mission, index): MatchedMission[] => {
-        const matches = mission.taxonomyValues.some(({ taxonomy, value }) => taxonomy === expectedTaxonomy.taxonomy && expectedValues.includes(value));
+        const matches = mission.taxonomyValues.some(({ taxonomy, value }) => taxonomy === expectedTaxonomy.taxonomy && value === expectation.value);
         return matches
           ? [
               {
@@ -54,11 +60,15 @@ export const evaluateExpectedTaxonomies = (rankedMissions: RankedMissionForEvalu
           : [];
       });
       const positions = matchedMissions.map((mission) => mission.position);
+      const count = matchedMissions.length;
 
       return {
         taxonomy: expectedTaxonomy.taxonomy,
-        expectedValues,
-        found: positions.length > 0,
+        expectedValues: [expectation.value],
+        min: expectation.min,
+        max: expectation.max,
+        count,
+        found: count >= expectation.min && (expectation.max === undefined || count <= expectation.max),
         firstPosition: positions[0] ?? null,
         positions,
         matchedMissions,
