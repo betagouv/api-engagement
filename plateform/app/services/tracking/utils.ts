@@ -75,7 +75,7 @@ export function resolveGeoProps(answer: ScreenAnswer | undefined): {
 // Résolveurs d'entry_source
 // ============================================================================
 
-const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]);
+const QUIZ_ENTRY_SOURCES = new Set<QuizEntrySource>(["homepage_cta", "direct", "missions_list", "change_results_cta", "my_profile_modal", "external"]);
 
 // Priorité à l'état de navigation (CTA in-app qui le transmet), sinon on déduit direct/external
 // depuis le referrer du document. (Le referrer ne reflète pas la navigation SPA interne, d'où le
@@ -93,7 +93,7 @@ export function resolveQuizEntrySource(stateHint?: string | null): QuizEntrySour
   }
 }
 
-const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_pinned", "results_other", "missions_list", "homepage", "direct"]);
+const MISSION_DETAIL_ENTRY_SOURCES = new Set<MissionDetailEntrySource>(["results_list", "results_map", "missions_list", "homepage", "direct"]);
 
 // Idem : `landing_<slug>` est accepté tel quel comme provenance de fiche détail.
 export function resolveMissionDetailEntrySource(stateHint?: string | null): MissionDetailEntrySource {
@@ -102,7 +102,7 @@ export function resolveMissionDetailEntrySource(stateHint?: string | null): Miss
 }
 
 export function resolveEmailMissionDetailEntrySource(navStateHint: string | null | undefined, hasUserScoringId: boolean): EmailMissionDetailEntrySource {
-  if (navStateHint === "results_pinned" || navStateHint === "results_other") return "results";
+  if (navStateHint === "results_list" || navStateHint === "results_map") return "results";
   if (navStateHint === "missions_list") return "missions_list";
   if (hasUserScoringId) return "results";
   return "direct";

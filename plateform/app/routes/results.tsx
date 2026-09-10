@@ -14,12 +14,14 @@ import ResultsFiltersModal from "~/components/results/results-filters-modal";
 import ResultsMissions from "~/components/results/results-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
+import type { PaginationTrigger } from "~/components/ui/pagination";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { getTaxonomyValue, OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackResultsViewed } from "~/services/tracking/events";
+import { trackResultsMapPinClicked, trackResultsPageChanged, trackResultsViewed } from "~/services/tracking/events";
+import type { ResultsPageNavigationType } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import type { Route } from "./+types/results";
 
@@ -38,7 +40,7 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error } = useMissionResults(userScoringId);
+  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
   // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
   // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
   const resultsViewedFired = useRef<string | null>(null);
@@ -49,8 +51,9 @@ export default function ResultsPage() {
   // Survol d'un pin : met la carte de la liste en avant et prévisualise la mission sur la map.
   const [hoveredPinMissionId, setHoveredPinMissionId] = useState<string | null>(null);
   const [isClosingCard, setIsClosingCard] = useState(false);
-  // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la modale en mode mission unique.
-  const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
+  // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la
+  // modale en mode mission unique. On garde le publisherId pour tracer `email_mission_detail.sent`.
+  const [emailMission, setEmailMission] = useState<{ missionId: string; publisherId: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Carrousel mobile de cartes mission affiché au clic sur un pin.
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -99,16 +102,22 @@ export default function ResultsPage() {
     if (card) carousel.scrollLeft = card.offsetLeft - 24;
   }, [selectedMission, items]);
 
-  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois par scoring.
+  // results.viewed : une fois le chargement terminé (succès), on émet l'évènement une seule fois par
+  // scoring. Au re-scoring (nouvel userScoringId), on ré-émet avec l'ancien id en previous_quiz_session_id.
+  // On attend `statsUserScoringId === userScoringId` : pendant le chargement doux d'un re-scoring, les
+  // stats (totalResults/totalPages/avgDistance) restent celles de l'ancien scoring, à ne pas attribuer au nouveau.
   useEffect(() => {
-    if (loading || error || !userScoringId || resultsViewedFired.current === userScoringId) return;
+    if (loading || error || !userScoringId || statsUserScoringId !== userScoringId || resultsViewedFired.current === userScoringId) return;
+    const previousQuizSessionId = resultsViewedFired.current;
     resultsViewedFired.current = userScoringId;
     trackResultsViewed({
-      pinnedCount: items.length,
       totalResultsCount: totalResults,
+      pageSize: RESULTS_PAGE_SIZE,
+      totalPages,
       avgDistanceKmTop5,
+      previousQuizSessionId,
     });
-  }, [loading, error, userScoringId, items.length, totalResults, avgDistanceKmTop5]);
+  }, [loading, error, userScoringId, statsUserScoringId, totalResults, totalPages, avgDistanceKmTop5]);
 
   const locAnswer = answers["localisation"];
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
@@ -169,6 +178,11 @@ export default function ResultsPage() {
   };
 
   const handleMarkerClick = (item: MissionMatchItem) => {
+    trackResultsMapPinClicked({
+      missionId: item.mission.id,
+      rank: (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === item.mission.id) + 1,
+      pageNumber: page,
+    });
     setIsClosingCard(false);
     setSelectedMission(item);
     if (expanded) {
@@ -179,9 +193,18 @@ export default function ResultsPage() {
     if (!isMobile) document.getElementById(`mission-${item.mission.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
-  // Changement de page : la liste du panneau mobile repart en haut.
-  const handlePageChange = (nextPage: number) => {
+  // Changement de page (desktop + mobile) : trace results.page_changed puis met à jour la page. Le clic
+  // sur un numéro (`direct`) devient `first`/`last` quand il vise la 1re/dernière page.
+  const handlePageChange = (nextPage: number, trigger: PaginationTrigger) => {
+    const navigationType: ResultsPageNavigationType = trigger === "direct" ? (nextPage === 1 ? "first" : nextPage === totalPages ? "last" : "direct") : trigger;
+    trackResultsPageChanged({ fromPage: page, toPage: nextPage, totalPages, navigationType });
     setPage(nextPage);
+    // La mission fixée/survolée appartient à l'ancienne page : on ferme l'aperçu pour ne pas tracer un
+    // mission.clicked avec le nouveau page_number et un rang recalculé sur la mauvaise page (findIndex -1).
+    setSelectedMission(null);
+    setHoveredMissionId(null);
+    setHoveredPinMissionId(null);
+    // La liste du panneau mobile repart en haut (no-op desktop, scrollRef non monté).
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   };
 
@@ -231,7 +254,14 @@ export default function ResultsPage() {
             >
               {items.map((item, index) => (
                 <div key={item.mission.id} className="w-full shrink-0 snap-center">
-                  <MatchMissionCard item={item} section="pinned" rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1} userScoringId={userScoringId} onEmailClick={setEmailMissionId} />
+                  <MatchMissionCard
+                    item={item}
+                    section="map"
+                    rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
+                    pageNumber={page}
+                    userScoringId={userScoringId}
+                    onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
+                  />
                 </div>
               ))}
             </div>
@@ -283,7 +313,7 @@ export default function ResultsPage() {
               userScoringId={userScoringId}
               showDebug={showDebug}
               highlightedMissionId={activeMissionId}
-              onEmailClick={setEmailMissionId}
+              onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
               onPageChange={handlePageChange}
             />
 
@@ -308,10 +338,11 @@ export default function ResultsPage() {
         <MatchingDebugModal items={items} userValues={userValues} />
         <EmailMissionsModal
           userScoringId={userScoringId}
-          missionId={emailMissionId ?? undefined}
-          open={emailMissionId !== null}
+          missionId={emailMission?.missionId}
+          publisherId={emailMission?.publisherId}
+          open={emailMission !== null}
           onOpenChange={(open) => {
-            if (!open) setEmailMissionId(null);
+            if (!open) setEmailMission(null);
           }}
           hideTrigger
         />
@@ -344,8 +375,8 @@ export default function ResultsPage() {
                   showDebug={showDebug}
                   highlightedMissionId={activeMissionId}
                   onMissionHover={setHoveredMissionId}
-                  onEmailClick={setEmailMissionId}
-                  onPageChange={setPage}
+                  onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
+                  onPageChange={handlePageChange}
                 />
               </div>
               <div className="sticky top-6 max-h-[624px] flex-1">
@@ -363,7 +394,7 @@ export default function ResultsPage() {
                     {displayedMission && (
                       <div className={`absolute top-4 left-4 z-[500] w-[290px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
                         <div className="relative">
-                          <MatchMissionCard item={displayedMission} section="pinned" rank={displayedMissionRank} userScoringId={userScoringId} />
+                          <MatchMissionCard item={displayedMission} section="map" rank={displayedMissionRank} pageNumber={page} userScoringId={userScoringId} />
                           {cardIsFixed && (
                             <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                               <button
@@ -372,7 +403,7 @@ export default function ResultsPage() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  setEmailMissionId(displayedMission.mission.id);
+                                  setEmailMission({ missionId: displayedMission.mission.id, publisherId: displayedMission.mission.publisherId ?? "" });
                                 }}
                                 aria-label="Recevoir par email"
                               >
@@ -413,10 +444,11 @@ export default function ResultsPage() {
       </main>
       <EmailMissionsModal
         userScoringId={userScoringId}
-        missionId={emailMissionId ?? undefined}
-        open={emailMissionId !== null}
+        missionId={emailMission?.missionId}
+        publisherId={emailMission?.publisherId}
+        open={emailMission !== null}
         onOpenChange={(open) => {
-          if (!open) setEmailMissionId(null);
+          if (!open) setEmailMission(null);
         }}
         hideTrigger
       />

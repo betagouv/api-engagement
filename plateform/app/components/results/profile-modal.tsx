@@ -4,6 +4,7 @@ import Modal from "~/components/layout/modal";
 import MissionTag from "~/components/missions/mission-tag";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
+import { trackResultsRecapOpened } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 
 // Bouton « Ton profil » + modale « Ce qu'on a compris de toi » : récapitule les réponses du quiz
@@ -26,7 +27,14 @@ export default function ProfileModal({ quizHref }: { quizHref: string }) {
 
   return (
     <>
-      <button type="button" className="fr-btn fr-btn--sm fr-btn--secondary shrink-0" onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="fr-btn fr-btn--sm fr-btn--secondary shrink-0"
+        onClick={() => {
+          trackResultsRecapOpened();
+          setOpen(true);
+        }}
+      >
         Ton profil
       </button>
 
@@ -47,7 +55,9 @@ export default function ProfileModal({ quizHref }: { quizHref: string }) {
         )}
 
         <div className="mt-8 flex justify-end">
-          <Link to={quizHref} className="fr-btn fr-icon-pencil-line fr-btn--icon-left">
+          {/* « Refaire le quiz » = nouvelle tentative : reset() régénère quizAttemptId pour que
+              /quiz/age émette quiz.started (entry_source my_profile_modal) malgré la tentative déjà démarrée. */}
+          <Link to={quizHref} state={{ entrySource: "my_profile_modal" }} onClick={() => useQuizStore.getState().reset()} className="fr-btn fr-icon-pencil-line fr-btn--icon-left">
             Refaire le quiz
           </Link>
         </div>
