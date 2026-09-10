@@ -260,7 +260,7 @@ export default function ResultsPage() {
                     rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
                     pageNumber={page}
                     userScoringId={userScoringId}
-                    onEmailClick={(missionId, publisherId) => setEmailMission({ missionId, publisherId })}
+                    onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
                   />
                 </div>
               ))}
@@ -313,7 +313,7 @@ export default function ResultsPage() {
               userScoringId={userScoringId}
               showDebug={showDebug}
               highlightedMissionId={activeMissionId}
-              onEmailClick={(missionId, publisherId) => setEmailMission({ missionId, publisherId })}
+              onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
               onPageChange={handlePageChange}
             />
 
@@ -375,7 +375,7 @@ export default function ResultsPage() {
                   showDebug={showDebug}
                   highlightedMissionId={activeMissionId}
                   onMissionHover={setHoveredMissionId}
-                  onEmailClick={(missionId, publisherId) => setEmailMission({ missionId, publisherId })}
+                  onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
                   onPageChange={handlePageChange}
                 />
               </div>

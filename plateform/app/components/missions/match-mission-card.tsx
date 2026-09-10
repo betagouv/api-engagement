@@ -34,7 +34,7 @@ export default function MatchMissionCard({
   // Numéro de page de la liste paginée (absent pour la similarité).
   pageNumber?: number;
   userScoringId?: string;
-  onEmailClick?: (missionId: string, publisherId: string) => void;
+  onEmailClick?: (mission: MissionMatchItem["mission"]) => void;
 }) {
   const { mission } = item;
   const answers = useQuizStore((s) => s.answers);
@@ -65,7 +65,7 @@ export default function MatchMissionCard({
       tags={buildMissionMatchTags(item, userValueKeys)}
       publisherName={mission.publisherName}
       publisherLogo={mission.media.publisherLogo}
-      onEmailClick={onEmailClick ? () => onEmailClick(mission.id, mission.publisherId ?? "") : undefined}
+      onEmailClick={onEmailClick ? () => onEmailClick(mission) : undefined}
     />
   );
 }

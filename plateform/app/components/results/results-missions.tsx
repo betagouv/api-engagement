@@ -15,7 +15,7 @@ interface ResultsMissionsProps {
   showDebug: boolean;
   highlightedMissionId?: string | null;
   onMissionHover?: (missionId: string | null) => void;
-  onEmailClick?: (missionId: string, publisherId: string) => void;
+  onEmailClick?: (mission: MissionMatchItem["mission"]) => void;
   onPageChange: (page: number, trigger: PaginationTrigger) => void;
 }
 
