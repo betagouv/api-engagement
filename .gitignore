@@ -2,6 +2,7 @@
 /dist
 .env
 .env.*
+!tools/scripts/.env.example
 .envrc
 .DS_Store
 
