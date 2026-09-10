@@ -63,19 +63,12 @@ variable "slack_jobteaser_channel_id" {
   default = ""
 }
 
-# Version de prompt active pour l'enrichissement/scoring des missions (clé du PROMPT_REGISTRY).
-# Permet de tester un couple prompt/modèle différent par environnement (ex. "v4"/Albert en staging).
-variable "mission_enrichment_prompt_version" {
+# Version parapluie du parcours (clé du PARCOURS_REGISTRY dans @engagement/taxonomy). Source unique par
+# environnement : les versions quiz/enrichment/matching en sont dérivées. Bumper un élément = ajouter
+# une entrée pN dans le registry puis pointer ici.
+variable "parcours_version" {
   type    = string
-  default = "v3"
-}
-
-# Version active du moteur de matching (clé de MATCHING_ENGINE_VERSIONS).
-# Permet d'activer un jeu de pondérations de taxonomies différent par environnement
-# (ex. "m4"/nouvelles taxonomies en staging, "m3" en production).
-variable "matching_engine_version" {
-  type    = string
-  default = "m3"
+  default = "p1"
 }
 
 # Container sizing
