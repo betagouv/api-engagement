@@ -38,6 +38,9 @@ export type ExpectedTaxonomyResult = {
   matchedMissions: MatchedMission[];
 };
 
+export const missionMatchesExpectedValue = (mission: RankedMissionForEvaluation, taxonomy: string, value: string): boolean =>
+  mission.taxonomyValues.some((taxonomyValue) => taxonomyValue.taxonomy === taxonomy && taxonomyValue.value === value);
+
 /**
  * Vérifie que le nombre de missions portant chaque valeur attendue est compris dans
  * l'intervalle inclusif [min, max]. L'absence de max signifie qu'il n'y a pas de plafond.
@@ -46,7 +49,7 @@ export const evaluateExpectedTaxonomies = (rankedMissions: RankedMissionForEvalu
   expectedTaxonomies.flatMap((expectedTaxonomy) =>
     expectedTaxonomy.values.map((expectation) => {
       const matchedMissions = rankedMissions.flatMap((mission, index): MatchedMission[] => {
-        const matches = mission.taxonomyValues.some(({ taxonomy, value }) => taxonomy === expectedTaxonomy.taxonomy && value === expectation.value);
+        const matches = missionMatchesExpectedValue(mission, expectedTaxonomy.taxonomy, expectation.value);
         return matches
           ? [
               {

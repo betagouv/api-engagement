@@ -18,12 +18,19 @@ import { z } from "zod";
 import { pgDisconnect, prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSION_KEYS } from "@/services/matching-engine/config";
-import type { MatchMissionItem, MatchingEngineVersion } from "@/services/matching-engine/types";
+import type { MatchMissionItem, MatchingEngineTaxonomy, MatchingEngineVersion } from "@/services/matching-engine/types";
 import { getMissionScoringRuleKeys } from "@/services/mission-scoring/scoring-rules";
 import { userScoringService } from "@/services/user-scoring";
-import { evaluateExpectedTaxonomies, type ExpectedTaxonomy, type RankedMissionForEvaluation } from "./utils/evaluate-expected-taxonomies";
+import {
+  evaluateExpectedTaxonomies,
+  missionMatchesExpectedValue,
+  type ExpectedTaxonomy,
+  type ExpectedTaxonomyResult,
+  type RankedMissionForEvaluation,
+} from "./utils/evaluate-expected-taxonomies";
 
 const TOP_LIMIT = 10;
+const DIAGNOSTIC_PAGE_LIMIT = 90;
 const DEFAULT_PROFILES_PATH = "scripts/matching-engine-evaluation/profiles.template.json";
 const answerSchema = z
   .object({
@@ -107,6 +114,27 @@ const profilesFileSchema = z
 
 type EvaluationProfile = z.infer<typeof profileSchema>;
 
+type RankedMissionWithDiagnostics = RankedMissionForEvaluation & {
+  position: number;
+  taxonomyScore: number;
+  geoScore: number | null;
+  distanceKm: number | null;
+  taxonomyScores: Partial<Record<MatchingEngineTaxonomy, number>>;
+};
+
+type FailureReason = "below_min" | "above_max";
+
+type FailureCandidate = Omit<RankedMissionWithDiagnostics, "taxonomyValues"> & {
+  scoreGapToTop10: number;
+};
+
+type EvaluatedExpectation = ExpectedTaxonomyResult & {
+  failureReason?: FailureReason;
+  failureCandidate?: FailureCandidate | null;
+  failureCandidateSearchMaxPosition?: number;
+  failureCandidateSearchComplete?: boolean;
+};
+
 type VersionEvaluation = {
   version: MatchingEngineVersion;
   tookMs: number;
@@ -114,7 +142,9 @@ type VersionEvaluation = {
   expectationCount: number;
   passedCount: number;
   successRate: number;
-  expectations: ReturnType<typeof evaluateExpectedTaxonomies>;
+  diagnosticTookMs: number;
+  diagnosticCandidatesScanned: number;
+  expectations: EvaluatedExpectation[];
 };
 
 type ProfileEvaluation = {
@@ -164,7 +194,19 @@ const readProfiles = async (filePath: string): Promise<EvaluationProfile[]> => {
   return result.data.profiles;
 };
 
-const loadRankedMissions = async (items: MatchMissionItem[]): Promise<RankedMissionForEvaluation[]> => {
+const selectProfiles = (profiles: EvaluationProfile[], profileId: string | undefined): EvaluationProfile[] => {
+  if (!profileId) {
+    return profiles;
+  }
+
+  const profile = profiles.find(({ id }) => id === profileId);
+  if (!profile) {
+    throw new Error(`Profil '${profileId}' introuvable. Identifiants disponibles : ${profiles.map(({ id }) => id).join(", ")}`);
+  }
+  return [profile];
+};
+
+const loadRankedMissions = async (items: MatchMissionItem[], offset = 0): Promise<RankedMissionWithDiagnostics[]> => {
   const missionScoringIds = items.map((item) => item.missionScoringId);
   const missionScorings = await prisma.missionScoring.findMany({
     where: { id: { in: missionScoringIds } },
@@ -186,7 +228,7 @@ const loadRankedMissions = async (items: MatchMissionItem[]): Promise<RankedMiss
   });
   const byId = new Map(missionScorings.map((missionScoring) => [missionScoring.id, missionScoring]));
 
-  return items.map((item) => {
+  return items.map((item, index) => {
     const missionScoring = byId.get(item.missionScoringId);
     const deterministicValues = missionScoring
       ? getMissionScoringRuleKeys(missionScoring.mission).flatMap((key) => {
@@ -203,9 +245,96 @@ const loadRankedMissions = async (items: MatchMissionItem[]): Promise<RankedMiss
       missionScoringId: item.missionScoringId,
       missionTitle: missionScoring?.mission.title ?? null,
       totalScore: item.totalScore,
+      position: offset + index + 1,
+      taxonomyScore: item.taxonomyScore,
+      geoScore: item.geoScore,
+      distanceKm: item.distanceKm,
+      taxonomyScores: item.taxonomyScores,
       taxonomyValues,
     };
   });
+};
+
+const expectationKey = (expectation: Pick<ExpectedTaxonomyResult, "taxonomy" | "expectedValues">): string => `${expectation.taxonomy}.${expectation.expectedValues[0]}`;
+
+const toFailureCandidate = (mission: RankedMissionWithDiagnostics, top10CutoffScore: number | null): FailureCandidate => ({
+  position: mission.position,
+  missionId: mission.missionId,
+  missionScoringId: mission.missionScoringId,
+  missionTitle: mission.missionTitle,
+  totalScore: mission.totalScore,
+  taxonomyScore: mission.taxonomyScore,
+  geoScore: mission.geoScore,
+  distanceKm: mission.distanceKm,
+  taxonomyScores: mission.taxonomyScores,
+  scoreGapToTop10: top10CutoffScore === null ? 0 : Number(Math.max(0, top10CutoffScore - mission.totalScore).toFixed(6)),
+});
+
+const diagnoseFailedExpectations = async (params: {
+  userScoringId: string;
+  version: MatchingEngineVersion;
+  totalCandidates: number;
+  topMissions: RankedMissionWithDiagnostics[];
+  expectations: ExpectedTaxonomyResult[];
+}): Promise<{ expectations: EvaluatedExpectation[]; tookMs: number; candidatesScanned: number }> => {
+  const top10CutoffScore = params.topMissions[params.topMissions.length - 1]?.totalScore ?? null;
+  const candidatesByExpectation = new Map<string, RankedMissionWithDiagnostics>();
+  const belowMinimum = params.expectations.filter((expectation) => !expectation.found && expectation.count < expectation.min);
+  const pending = new Map(belowMinimum.map((expectation) => [expectationKey(expectation), expectation]));
+  let total = params.totalCandidates;
+  let tookMs = 0;
+  let candidatesScanned = 0;
+  let searchMaxPosition = TOP_LIMIT;
+
+  // Un seul recalcul borné : parcourir tout le corpus rend l'évaluation très lente
+  // lorsqu'aucune mission ne porte la valeur attendue.
+  if (pending.size > 0 && TOP_LIMIT < total) {
+    const ranking = await matchingEngineService.rankMissionsByUserScoring({
+      userScoringId: params.userScoringId,
+      version: params.version,
+      limit: Math.min(DIAGNOSTIC_PAGE_LIMIT, total - TOP_LIMIT),
+      offset: TOP_LIMIT,
+      persistMatchingResult: false,
+    });
+    tookMs += ranking.tookMs;
+    total = ranking.total;
+
+    const rankedMissions = await loadRankedMissions(ranking.items, TOP_LIMIT);
+    candidatesScanned += rankedMissions.length;
+    searchMaxPosition = TOP_LIMIT + rankedMissions.length;
+
+    for (const [key, expectation] of pending) {
+      const candidate = rankedMissions.find((mission) => missionMatchesExpectedValue(mission, expectation.taxonomy, expectation.expectedValues[0]));
+      if (candidate) {
+        candidatesByExpectation.set(key, candidate);
+        pending.delete(key);
+      }
+    }
+  }
+
+  const searchComplete = searchMaxPosition >= total;
+
+  const expectations = params.expectations.map((expectation): EvaluatedExpectation => {
+    if (expectation.found) {
+      return expectation;
+    }
+
+    const failureReason: FailureReason = expectation.count < expectation.min ? "below_min" : "above_max";
+    const candidate =
+      failureReason === "below_min"
+        ? candidatesByExpectation.get(expectationKey(expectation))
+        : params.topMissions.find((mission) => missionMatchesExpectedValue(mission, expectation.taxonomy, expectation.expectedValues[0]));
+
+    return {
+      ...expectation,
+      failureReason,
+      failureCandidate: candidate ? toFailureCandidate(candidate, top10CutoffScore) : null,
+      failureCandidateSearchMaxPosition: failureReason === "below_min" ? searchMaxPosition : TOP_LIMIT,
+      failureCandidateSearchComplete: failureReason === "above_max" || candidate !== undefined || searchComplete,
+    };
+  });
+
+  return { expectations, tookMs, candidatesScanned };
 };
 
 const evaluateVersion = async (params: { userScoringId: string; version: MatchingEngineVersion; expected: ExpectedTaxonomy[] }): Promise<VersionEvaluation> => {
@@ -216,7 +345,15 @@ const evaluateVersion = async (params: { userScoringId: string; version: Matchin
     persistMatchingResult: false,
   });
   const rankedMissions = await loadRankedMissions(ranking.items);
-  const expectations = evaluateExpectedTaxonomies(rankedMissions, params.expected);
+  const top10Expectations = evaluateExpectedTaxonomies(rankedMissions, params.expected);
+  const diagnostic = await diagnoseFailedExpectations({
+    userScoringId: params.userScoringId,
+    version: params.version,
+    totalCandidates: ranking.total,
+    topMissions: rankedMissions,
+    expectations: top10Expectations,
+  });
+  const expectations = diagnostic.expectations;
   const passedCount = expectations.filter((expectation) => expectation.found).length;
 
   return {
@@ -226,6 +363,8 @@ const evaluateVersion = async (params: { userScoringId: string; version: Matchin
     expectationCount: expectations.length,
     passedCount,
     successRate: Number((passedCount / expectations.length).toFixed(4)),
+    diagnosticTookMs: diagnostic.tookMs,
+    diagnosticCandidatesScanned: diagnostic.candidatesScanned,
     expectations,
   };
 };
@@ -274,6 +413,13 @@ const printHumanReport = (profiles: ProfileEvaluation[]): void => {
           occurrences: expectation.count,
           positions: expectation.positions.join(", ") || "absent",
           résultat: expectation.found ? "OK" : "ÉCHEC",
+          candidat_échec: expectation.found
+            ? "—"
+            : expectation.failureCandidate
+              ? `#${expectation.failureCandidate.position} · score=${expectation.failureCandidate.totalScore.toFixed(6)} · écart_top10=${expectation.failureCandidate.scoreGapToTop10.toFixed(6)}`
+              : expectation.failureCandidateSearchComplete
+                ? "aucune mission correspondante"
+                : `non trouvée jusqu'au rang ${expectation.failureCandidateSearchMaxPosition}`,
         };
       })
     )
@@ -283,7 +429,7 @@ const printHumanReport = (profiles: ProfileEvaluation[]): void => {
   for (const profile of profiles) {
     for (const version of profile.versions) {
       console.log(
-        `[matching-evaluation] profil=${profile.profileId} version=${version.version} attentes=${version.passedCount}/${version.expectationCount} top=${TOP_LIMIT} durée=${version.tookMs}ms`
+        `[matching-evaluation] profil=${profile.profileId} version=${version.version} attentes=${version.passedCount}/${version.expectationCount} top=${TOP_LIMIT} durée=${version.tookMs}ms diagnostic=${version.diagnosticTookMs}ms candidats_analysés=${version.diagnosticCandidatesScanned}`
       );
     }
   }
@@ -292,10 +438,11 @@ const printHumanReport = (profiles: ProfileEvaluation[]): void => {
 const run = async (): Promise<void> => {
   const profilesPath = path.resolve(getFlagValue("--profiles") ?? DEFAULT_PROFILES_PATH);
   const versions = parseVersions(getFlagValue("--versions"));
-  const profiles = await readProfiles(profilesPath);
+  const profileId = getFlagValue("--profile-id");
+  const profiles = selectProfiles(await readProfiles(profilesPath), profileId);
 
   if (args.includes("--validate-only")) {
-    const validation = { valid: true, profilesPath, profileCount: profiles.length, versions };
+    const validation = { valid: true, profilesPath, profileId: profileId ?? null, profileCount: profiles.length, versions };
     if (args.includes("--json")) {
       process.stdout.write(`${JSON.stringify(validation, null, 2)}\n`);
     } else {
