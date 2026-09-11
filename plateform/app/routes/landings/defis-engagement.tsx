@@ -37,19 +37,16 @@ const PARTNERS: Partner[] = [
   {
     name: "JeVeuxAider.gouv.fr",
     description: "La plateforme publique du bénévolat.",
-    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/5ebb9958-8364-4944-8e66-fdc3ef654417",
     logo: JvaPng,
   },
   {
     name: "Le Service Civique",
     description: "De 6 à 12 mois, des missions d'intérêt général rémunérées.",
-    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/4b196cba-74f0-48ab-9baf-e518129a45e3",
     logo: AscPng,
   },
   {
     name: "La réserve de la Gendarmerie nationale",
     description: "Des missions rémunérées de réservistes.",
-    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/66bb4451-03a8-4dbd-9de6-a662da9ed531",
     logo: RocPng,
   },
 ];
