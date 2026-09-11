@@ -16,7 +16,7 @@ export default function Accessibilite() {
         <p>À cette fin, la DJEPVA s'engage à publier prochainement son schéma pluriannuel de mise en accessibilité et les plans d'actions.</p>
         <p>Cette déclaration d'accessibilité s'applique à plateforme.api-engagement.beta.gouv.fr.</p>
 
-        <h2>État de conformité</h2>
+        <h2 className="fr-mt-4w">État de conformité</h2>
         <p>
           La Plateforme de l'engagement est <strong>partiellement conforme</strong> avec le Référentiel Général d'Amélioration de l'Accessibilité (RGAA), version 4.1.2 en raison
           des non-conformités énumérées ci-dessous.
@@ -25,10 +25,10 @@ export default function Accessibilite() {
         <h3>Résultats des tests</h3>
         <p>L'audit de conformité réalisé par Ethic First révèle que 77,08 % des critères du RGAA version 4.1.2 sont respectés.</p>
 
-        <h2>Contenus non accessibles</h2>
+        <h2 className="fr-mt-4w">Contenus non accessibles</h2>
 
         <h3>Non-conformités</h3>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>Certains liens ne sont pas explicites et contiennent des éléments décoratifs qui ne transmettent pas d'information utile ;</li>
           <li>Les composants interactifs (fenêtre de cookies, bouton, carousels) ne sont pas compatibles avec les technologies d'assistance ;</li>
           <li>Des éléments de contenu textuel (paragraphes) sont absents ou présents sous forme de balises vides ;</li>
@@ -45,11 +45,11 @@ export default function Accessibilite() {
           <li>L'ordre de tabulation de certains éléments interactifs (boutons, vignettes, listes des résultats) n'est pas toujours cohérent.</li>
         </ul>
 
-        <h2>Établissement de cette déclaration d'accessibilité</h2>
+        <h2 className="fr-mt-4w">Établissement de cette déclaration d'accessibilité</h2>
         <p>Cette déclaration a été établie le 28/07/2026.</p>
 
         <h3>Technologies utilisées pour la réalisation du site</h3>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>HTML5 ;</li>
           <li>CSS ;</li>
           <li>JavaScript.</li>
@@ -57,12 +57,12 @@ export default function Accessibilite() {
 
         <h3>Environnement de test</h3>
         <p>Les vérifications de restitution de contenus ont été réalisées sur la base de la combinaison fournie par la base de référence du RGAA, avec les versions suivantes :</p>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>Firefox 153.3 et NVDA 2026.1.1.</li>
         </ul>
 
         <h3>Outils pour évaluer l'accessibilité</h3>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>Module ANDI (Accessible Name and Description Inspector) ;</li>
           <li>Colour Contrast Analyser ;</li>
           <li>Extension Web Developer ;</li>
@@ -70,7 +70,7 @@ export default function Accessibilite() {
         </ul>
 
         <h3>Pages du site ayant fait l'objet de la vérification de conformité</h3>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>Accueil ;</li>
           <li>Mentions légales ;</li>
           <li>Missions ;</li>
@@ -80,12 +80,12 @@ export default function Accessibilite() {
           <li>Plan du site.</li>
         </ul>
 
-        <h2>Retour d'information et contact</h2>
+        <h2 className="fr-mt-4w">Retour d'information et contact</h2>
         <p>
           Si vous n'arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable de la Plateforme de l'engagement pour être orienté vers une alternative
           accessible ou obtenir le contenu sous une autre forme.
         </p>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>
             Envoyer un message à <a href="mailto:apiengagement@beta.gouv.fr">apiengagement@beta.gouv.fr</a> ;
           </li>
@@ -95,13 +95,13 @@ export default function Accessibilite() {
           </li>
         </ul>
 
-        <h2>Voies de recours</h2>
+        <h2 className="fr-mt-4w">Voies de recours</h2>
         <p>
           Si vous constatez un défaut d'accessibilité vous empêchant d'accéder à un contenu ou une fonctionnalité du site, que vous nous le signalez et que vous ne parvenez pas à
           obtenir une réponse de notre part, vous êtes en droit de faire parvenir vos doléances ou une demande de saisine au Défenseur des droits.
         </p>
         <p>Plusieurs moyens sont à votre disposition :</p>
-        <ul>
+        <ul className="fr-mb-3w">
           <li>
             <a href="https://formulaire.defenseurdesdroits.fr/" target="_blank" rel="noopener" title="Écrire un message au Défenseur des droits - nouvelle fenêtre">
               Écrire un message au Défenseur des droits
