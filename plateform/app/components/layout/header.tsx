@@ -1,4 +1,6 @@
 import { Link, useLocation, useMatches } from "react-router";
+
+import TtmLogoSvg from "~/assets/svg/ttm-logo.svg";
 import { useIsMobile } from "~/hooks/useIsMobile";
 
 export default function Header() {
@@ -27,8 +29,8 @@ export default function Header() {
               <br />
               Française
             </p>
-            <Link to="/" title="Accueil — Trouve ta mission" className="fr-text--md fr-text--bold absolute left-1/2 -translate-x-1/2">
-              <p className="fr-header__service-title">Trouve ta mission</p>
+            <Link to="/" title="Accueil — Trouve ta mission" className="absolute left-1/2 -translate-x-1/2">
+              <img src={TtmLogoSvg} alt="Trouve ta mission" className="h-10 w-[72px]" />
             </Link>
           </div>
         ) : (
@@ -36,8 +38,8 @@ export default function Header() {
             <Link to={backHref ?? "/"} aria-label="Retour" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
               Retour
             </Link>
-            <Link to="/" title="Accueil — Trouve ta mission" className="fr-text--md fr-text--bold absolute left-1/2 -translate-x-1/2">
-              <p className="fr-header__service-title">Trouve ta mission</p>
+            <Link to="/" title="Accueil — Trouve ta mission" className="absolute left-1/2 -translate-x-1/2">
+              <img src={TtmLogoSvg} alt="Trouve ta mission" className="h-10 w-[72px]" />
             </Link>
           </div>
         )}
@@ -50,7 +52,7 @@ export default function Header() {
       <div className="fr-header__body">
         <div className="fr-container">
           <div className="fr-header__body-row">
-            <div className="fr-header__brand fr-enlarge-link">
+            <div className="fr-header__brand">
               <div className="fr-header__brand-top">
                 <div className="fr-header__logo">
                   <p className="fr-logo">
@@ -59,12 +61,11 @@ export default function Header() {
                     Française
                   </p>
                 </div>
-              </div>
-              <div className="fr-header__service">
-                <Link to="/" title="Accueil — Trouve ta mission">
-                  <p className="fr-header__service-title">Trouve ta mission</p>
-                </Link>
-                <p className="fr-header__service-tagline">Service public pour trouver une mission d'engagement</p>
+                <div className="fr-header__operator">
+                  <Link to="/" title="Accueil — Trouve ta mission">
+                    <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-[149px]" />
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

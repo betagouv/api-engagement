@@ -4,6 +4,7 @@ import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?u
 import { Link } from "react-router";
 
 import Carousel from "~/components/ui/carousel";
+import Highlight from "~/components/ui/highlight";
 
 const QUESTIONS = [
   {
@@ -26,7 +27,9 @@ const QUESTIONS = [
 export default function Questions() {
   return (
     <section className="fr-container">
-      <h2 className="fr-h1 fr-mb-6w text-center">Tu te poses les mêmes questions ?</h2>
+      <h2 className="fr-h1 fr-mb-6w text-center">
+        Tu te poses les <Highlight className="bg-[#9ef9be] dark:bg-transparent">mêmes questions</Highlight> ?
+      </h2>
 
       <Carousel
         label="Les questions que tu te poses"
@@ -41,7 +44,7 @@ export default function Questions() {
         }
       >
         {QUESTIONS.map((item) => (
-          <div key={item.question} className="bg-blue-france-950 border-border-default-grey flex h-full flex-col gap-2! rounded-2xl! border p-6!">
+          <div key={item.question} className="bg-blue-france-975 border-border-default-grey flex h-full flex-col gap-2! rounded-2xl! border p-6!">
             <div className="bg-background fr-mb-1w flex size-20 items-center justify-center rounded-full md:size-24">
               <img src={item.icon} alt="" aria-hidden="true" className="size-[60px] md:size-[72px] dark:rounded-full dark:bg-white" />
             </div>

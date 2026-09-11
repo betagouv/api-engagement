@@ -114,7 +114,7 @@ export default function DefisEngagement() {
       <Questions />
       <CadreMineurs />
       <Histoires />
-      <Partners style="compact" partners={PARTNERS} />
+      <Partners style="compact" partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
     </main>
   );
 }
