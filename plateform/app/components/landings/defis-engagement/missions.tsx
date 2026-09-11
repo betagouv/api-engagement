@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import Carousel from "~/components/ui/carousel";
+import Highlight from "~/components/ui/highlight";
 import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
 import type { LandingCta, MissionDetailNavState } from "~/services/tracking/types";
 import { buildMissionBrowseTags } from "~/utils/mission";
@@ -20,8 +21,10 @@ export default function Missions({ missions, cta }: { missions: MissionBrowse[];
     <section className="overflow-x-clip">
       <div className="fr-container">
         {/* Le bandeau beige est pleine largeur sur mobile, puis contenu à partir de la tablette (cf. maquette). */}
-        <div className="bg-yellow-moutarde-975 mx-[calc(50%-50vw)] px-4 py-6 md:mx-0 md:px-6 lg:px-24 md:py-14!">
-          <h2 className="fr-h1 mb-4!">Des missions à ne pas louper !</h2>
+        <div className="bg-beige-gris-galet-975 mx-[calc(50%-50vw)] px-4 py-6 md:mx-0 md:px-6 lg:px-24 md:py-14!">
+          <h2 className="fr-h1 mb-4!">
+            Des missions à <Highlight className="bg-[#9ef9be] dark:bg-transparent">ne pas louper</Highlight> !
+          </h2>
           <p className="fr-text--lead mb-4! md:mb-6! lg:mb-8!">
             Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te
             correspondent !
