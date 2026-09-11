@@ -53,6 +53,16 @@ export type LandingName = `landing_${string}`;
 // Page visitée (discriminant du pageview manuel : capture_pageview est désactivé côté PostHog).
 export type PageViewedPageName = "homepage" | "missions_list" | LandingName;
 
+// --- cta.clicked ---
+// Clic sur un CTA d'une landing. `cta_destination` = cible métier (union stable, partagée entre landings),
+// `cta_section` = bloc de la page : slug spécifique à chaque landing, laissé en `string` (comme LandingName)
+// pour ne pas maintenir ici la liste des sections de toutes les landings.
+export type CtaSection = string;
+export type CtaDestination = "quiz" | "missions_list";
+// Prop d'un CTA de landing partagé entre plusieurs blocs : destination + wording définis une seule fois,
+// `onClick` porte le trackCtaClicked (le bloc renseigne son propre `cta_section`).
+export type LandingCta = { to: string; label: string; onClick: () => void };
+
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission. Sur les résultats : `list` (liste paginée) et
 // `map` (clic sur la carte de prévisualisation de la mission sur la map).
@@ -83,6 +93,8 @@ export interface MissionClickedPayload {
 // Provenance de l'entrée dans le quiz. `my_profile_modal` : CTA « Refaire le quiz » de la modale
 // « Ce qu'on a compris de toi » (bouton « Ton profil » en page de résultats).
 export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "my_profile_modal" | "external" | `${LandingName}_cta`;
+// Bloc de la landing d'où part le CTA quiz (à côté de `entrySource`), pour savoir quel CTA a été cliqué.
+export type QuizEntrySection = "hero" | "etapes";
 // Mode de complétion : "full" (parcours jusqu'au bout) ou "shortcut" (bouton "Voir mes résultats").
 export type QuizCompletionType = "full" | "shortcut";
 
@@ -101,6 +113,8 @@ export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | 
 // Provenance de la fiche depuis laquelle l'email d'une mission est envoyé. `results_card` : CTA email
 // d'une carte mission en page de résultats (envoi sans passer par la fiche détail).
 export type EmailMissionDetailEntrySource = "results" | "results_card" | "missions_list" | "direct";
+// Page d'où part l'envoi de la sélection complète : résultats du quiz, ou une landing (carte mission).
+export type EmailMissionsEntryPage = "results" | LandingName;
 
 // --- results.page_changed ---
 // Contrôle de pagination utilisé : boutons Précédent/Suivant, ou clic sur un numéro (`direct`), le

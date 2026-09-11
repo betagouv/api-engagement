@@ -4,6 +4,7 @@ import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?u
 import { Link } from "react-router";
 
 import Carousel from "~/components/ui/carousel";
+import type { LandingCta } from "~/services/tracking/types";
 
 const QUESTIONS = [
   {
@@ -23,7 +24,7 @@ const QUESTIONS = [
   },
 ];
 
-export default function Questions() {
+export default function Questions({ cta }: { cta: LandingCta }) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">Tu te poses les mêmes questions ?</h2>
@@ -35,8 +36,8 @@ export default function Questions() {
         listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 lg:gap-13"
         itemClassName="w-[82vw] max-w-[320px] md:w-auto md:max-w-none"
         action={
-          <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-            Voir toutes les missions
+          <Link to={cta.to} onClick={cta.onClick} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+            {cta.label}
           </Link>
         }
       >

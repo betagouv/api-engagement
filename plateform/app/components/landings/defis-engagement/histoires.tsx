@@ -4,6 +4,7 @@ import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage
 import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
 import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
 import DoubleQuotesSvg from "~/assets/svg/double-quotes.svg";
+import type { LandingCta } from "~/services/tracking/types";
 
 const NACIM = {
   quote:
@@ -38,7 +39,7 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
   );
 }
 
-export default function Histoires() {
+export default function Histoires({ cta }: { cta: LandingCta }) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">
@@ -79,8 +80,8 @@ export default function Histoires() {
       </div>
 
       <div className="flex justify-center">
-        <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-          Voir toutes les missions
+        <Link to={cta.to} onClick={cta.onClick} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+          {cta.label}
         </Link>
       </div>
     </section>
