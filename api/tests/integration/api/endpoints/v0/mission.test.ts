@@ -253,6 +253,9 @@ describe("Mission API Integration Tests", () => {
             publisherId: tiedAnnonceur.id,
             title: `Tied mission ${index}`,
             clientId: `tied-${randomUUID()}`,
+            // clientId d'org distinct : le défaut partagé "6789" ferait entrer les upsert
+            // PublisherOrganization concurrents (Promise.all) en collision sur la contrainte unique.
+            organizationClientId: `tied-org-${randomUUID()}`,
             startAt: tiedStartAt,
           })
         )
