@@ -14,7 +14,9 @@ import Questions from "~/components/landings/defis-engagement/questions";
 import TerrainDeJeu from "~/components/landings/defis-engagement/terrain-de-jeu";
 import Partners, { type Partner } from "~/components/layout/partners";
 import { browseMissions } from "~/services/api/missions";
-import { trackPageViewed } from "~/services/tracking/events";
+import { registerLandingOrigin } from "~/services/tracking";
+import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
+import type { QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/defis-engagement";
@@ -97,19 +99,22 @@ export default function DefisEngagement() {
   useEffect(() => {
     if (pageViewedFired.current) return;
     pageViewedFired.current = true;
+    // Super property de session : relie les évènements suivants (page.viewed /missions, quiz.*, etc.) à cette landing.
+    registerLandingOrigin("defis_engagement");
     trackPageViewed({ pageName: "landing_defis_engagement" });
   }, []);
 
-  const handleStartQuiz = () => {
+  const handleStartQuiz = (section: QuizEntrySection) => {
+    trackCtaClicked({ pageName: "landing_defis_engagement", ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     reset();
-    navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta" } });
+    navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta", entrySection: section } });
   };
 
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
-      <Hero onStartQuiz={handleStartQuiz} />
+      <Hero onStartQuiz={() => handleStartQuiz("hero")} />
       <Missions missions={missions} />
-      <Etapes onStartQuiz={handleStartQuiz} />
+      <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />
       <TerrainDeJeu />
       <Questions />
       <CadreMineurs />

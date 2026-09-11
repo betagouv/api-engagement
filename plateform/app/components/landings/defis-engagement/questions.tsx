@@ -4,6 +4,10 @@ import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?u
 import { Link } from "react-router";
 
 import Carousel from "~/components/ui/carousel";
+import { trackCtaClicked } from "~/services/tracking/events";
+
+const MISSIONS_CTA_PATH = "/missions?tranche_age=moins_18_ans";
+const MISSIONS_CTA_LABEL = "Voir toutes les missions";
 
 const QUESTIONS = [
   {
@@ -35,8 +39,20 @@ export default function Questions() {
         listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 lg:gap-13"
         itemClassName="w-[82vw] max-w-[320px] md:w-auto md:max-w-none"
         action={
-          <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-            Voir toutes les missions
+          <Link
+            to={MISSIONS_CTA_PATH}
+            onClick={() =>
+              trackCtaClicked({
+                pageName: "landing_defis_engagement",
+                ctaSection: "questions",
+                ctaLabel: MISSIONS_CTA_LABEL,
+                ctaDestination: "missions_list",
+                destinationPath: MISSIONS_CTA_PATH,
+              })
+            }
+            className="fr-btn fr-btn--secondary fr-btn--lg justify-center"
+          >
+            {MISSIONS_CTA_LABEL}
           </Link>
         }
       >

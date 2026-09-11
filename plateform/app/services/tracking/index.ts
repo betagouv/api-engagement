@@ -169,6 +169,14 @@ export function setQuizSessionId(userScoringId: string): void {
   currentProvider.register?.({ quiz_session_id: userScoringId });
 }
 
+// Enregistre l'origine "landing" comme super property attachée à tous les évènements suivants
+// (page.viewed /missions, quiz.*, mission.clicked, results.viewed, email_missions.sent), sur le même
+// mécanisme que les UTM et internal_user. No-op pendant le SSR.
+// ponytail: pas de TTL, la valeur persiste comme les UTM ; ajouter une purge si le bleed inter-session gêne.
+export function registerLandingOrigin(origin: string): void {
+  getProvider()?.register?.({ landing_origin: origin });
+}
+
 // Désactive le flag interne depuis l'UI de debug. No-op pendant le SSR.
 export function disableInternalUserFlag(): void {
   const provider = getProvider();
