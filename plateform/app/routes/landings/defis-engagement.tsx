@@ -16,7 +16,7 @@ import Partners, { type Partner } from "~/components/layout/partners";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
-import type { QuizEntrySection } from "~/services/tracking/types";
+import type { CtaSection, LandingCta, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/defis-engagement";
@@ -53,6 +53,10 @@ const PARTNERS: Partner[] = [
     logo: RocPng,
   },
 ];
+
+// CTA "voir les missions" partagé par les blocs Missions, Questions et Témoignages : même destination
+// (liste pré-filtrée sur les mineurs) et même wording, définis ici une seule fois.
+const MISSIONS_CTA = { to: "/missions?tranche_age=moins_18_ans", label: "Voir toutes les missions" };
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -112,15 +116,27 @@ export default function DefisEngagement() {
     navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta", entrySection: section } });
   };
 
+  const missionsCta = (section: CtaSection): LandingCta => ({
+    ...MISSIONS_CTA,
+    onClick: () =>
+      trackCtaClicked({
+        pageName: "landing_defis_engagement",
+        ctaSection: section,
+        ctaLabel: MISSIONS_CTA.label,
+        ctaDestination: "missions_list",
+        destinationPath: MISSIONS_CTA.to,
+      }),
+  });
+
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
-      <Missions missions={missions} />
+      <Missions missions={missions} cta={missionsCta("missions")} />
       <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />
       <TerrainDeJeu />
-      <Questions />
+      <Questions cta={missionsCta("questions")} />
       <CadreMineurs />
-      <Histoires />
+      <Histoires cta={missionsCta("histoires")} />
       <Partners style="compact" partners={PARTNERS} />
     </main>
   );

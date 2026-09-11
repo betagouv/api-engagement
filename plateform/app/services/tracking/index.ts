@@ -80,9 +80,12 @@ function syncContextSuperProperties(targetProvider: TrackingProvider): void {
 }
 
 // Ré-attache landing_origin après une resynchro (transition de consentement) : PostHog réinitialise ses
-// super properties, et l'effet de la route est protégé contre une nouvelle exécution.
+// super properties, et l'effet de la route est protégé contre une nouvelle exécution. En l'absence
+// d'origine active, on unregister pour purger une valeur persistée par PostHog lors d'une session
+// précédente (sinon elle continuerait de polluer tous les évènements) — même pattern que internal_user/UTM.
 function syncLandingOrigin(provider: TrackingProvider): void {
   if (landingOrigin) provider.register?.({ landing_origin: landingOrigin });
+  else provider.unregister?.("landing_origin");
 }
 
 // L'abonnement est installé une seule fois. Les changements du quiz ne sont synchronisés vers

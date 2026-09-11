@@ -59,6 +59,9 @@ export type PageViewedPageName = "homepage" | "missions_list" | LandingName;
 // pour ne pas maintenir ici la liste des sections de toutes les landings.
 export type CtaSection = string;
 export type CtaDestination = "quiz" | "missions_list";
+// Prop d'un CTA de landing partagé entre plusieurs blocs : destination + wording définis une seule fois,
+// `onClick` porte le trackCtaClicked (le bloc renseigne son propre `cta_section`).
+export type LandingCta = { to: string; label: string; onClick: () => void };
 
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission. Sur les résultats : `list` (liste paginée) et

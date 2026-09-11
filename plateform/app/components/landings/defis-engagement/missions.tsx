@@ -6,14 +6,11 @@ import { Link } from "react-router";
 import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import Carousel from "~/components/ui/carousel";
-import { trackCtaClicked, trackMissionClickedFromBrowse } from "~/services/tracking/events";
-import type { MissionDetailNavState } from "~/services/tracking/types";
+import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
+import type { LandingCta, MissionDetailNavState } from "~/services/tracking/types";
 import { buildMissionBrowseTags } from "~/utils/mission";
 
-const MISSIONS_CTA_PATH = "/missions?tranche_age=moins_18_ans";
-const MISSIONS_CTA_LABEL = "Voir toutes les missions";
-
-export default function Missions({ missions }: { missions: MissionBrowse[] }) {
+export default function Missions({ missions, cta }: { missions: MissionBrowse[]; cta: LandingCta }) {
   const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
 
   if (!missions.length) return null;
@@ -40,20 +37,8 @@ export default function Missions({ missions }: { missions: MissionBrowse[] }) {
             listClassName="-ml-32! scroll-pl-32! pl-32! md:mr-[calc(50%-50vw)]!"
             itemClassName="w-[80vw] max-w-[305px] md:w-[305px]"
             action={
-              <Link
-                to={MISSIONS_CTA_PATH}
-                onClick={() =>
-                  trackCtaClicked({
-                    pageName: "landing_defis_engagement",
-                    ctaSection: "missions",
-                    ctaLabel: MISSIONS_CTA_LABEL,
-                    ctaDestination: "missions_list",
-                    destinationPath: MISSIONS_CTA_PATH,
-                  })
-                }
-                className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center md:w-auto!"
-              >
-                {MISSIONS_CTA_LABEL}
+              <Link to={cta.to} onClick={cta.onClick} className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center md:w-auto!">
+                {cta.label}
               </Link>
             }
           >

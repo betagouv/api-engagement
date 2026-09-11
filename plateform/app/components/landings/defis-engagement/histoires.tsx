@@ -1,13 +1,10 @@
 import { Link } from "react-router";
 
-import { trackCtaClicked } from "~/services/tracking/events";
 import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage-1.jpg";
 import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
 import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
 import DoubleQuotesSvg from "~/assets/svg/double-quotes.svg";
-
-const MISSIONS_CTA_PATH = "/missions?tranche_age=moins_18_ans";
-const MISSIONS_CTA_LABEL = "Voir toutes les missions";
+import type { LandingCta } from "~/services/tracking/types";
 
 const NACIM = {
   quote:
@@ -42,7 +39,7 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
   );
 }
 
-export default function Histoires() {
+export default function Histoires({ cta }: { cta: LandingCta }) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">
@@ -83,20 +80,8 @@ export default function Histoires() {
       </div>
 
       <div className="flex justify-center">
-        <Link
-          to={MISSIONS_CTA_PATH}
-          onClick={() =>
-            trackCtaClicked({
-              pageName: "landing_defis_engagement",
-              ctaSection: "histoires",
-              ctaLabel: MISSIONS_CTA_LABEL,
-              ctaDestination: "missions_list",
-              destinationPath: MISSIONS_CTA_PATH,
-            })
-          }
-          className="fr-btn fr-btn--secondary fr-btn--lg justify-center"
-        >
-          {MISSIONS_CTA_LABEL}
+        <Link to={cta.to} onClick={cta.onClick} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+          {cta.label}
         </Link>
       </div>
     </section>
