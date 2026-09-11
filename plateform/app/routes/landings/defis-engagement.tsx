@@ -14,7 +14,9 @@ import Questions from "~/components/landings/defis-engagement/questions";
 import TerrainDeJeu from "~/components/landings/defis-engagement/terrain-de-jeu";
 import Partners, { type Partner } from "~/components/layout/partners";
 import { browseMissions } from "~/services/api/missions";
-import { trackPageViewed } from "~/services/tracking/events";
+import { registerLandingOrigin } from "~/services/tracking";
+import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
+import type { CtaSection, LandingCta, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/defis-engagement";
@@ -51,6 +53,10 @@ const PARTNERS: Partner[] = [
     logo: RocPng,
   },
 ];
+
+// CTA "voir les missions" partagé par les blocs Missions, Questions et Témoignages : même destination
+// (liste pré-filtrée sur les mineurs) et même wording, définis ici une seule fois.
+const MISSIONS_CTA = { to: "/missions?tranche_age=moins_18_ans", label: "Voir toutes les missions" };
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -97,23 +103,40 @@ export default function DefisEngagement() {
   useEffect(() => {
     if (pageViewedFired.current) return;
     pageViewedFired.current = true;
+    // Super property de session : relie les évènements suivants (page.viewed /missions, quiz.*, etc.) à cette landing.
+    registerLandingOrigin("defis_engagement");
     trackPageViewed({ pageName: "landing_defis_engagement" });
   }, []);
 
-  const handleStartQuiz = () => {
+  const handleStartQuiz = (section: QuizEntrySection) => {
+    // reset() regénère quiz_attempt_id : le tracer avant émettrait cta.clicked avec l'ancien id et le
+    // détacherait du funnel (quiz.started et la suite portent le nouvel id). On réinitialise donc d'abord.
     reset();
-    navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta" } });
+    trackCtaClicked({ pageName: "landing_defis_engagement", ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
+    navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta", entrySection: section } });
   };
+
+  const missionsCta = (section: CtaSection): LandingCta => ({
+    ...MISSIONS_CTA,
+    onClick: () =>
+      trackCtaClicked({
+        pageName: "landing_defis_engagement",
+        ctaSection: section,
+        ctaLabel: MISSIONS_CTA.label,
+        ctaDestination: "missions_list",
+        destinationPath: MISSIONS_CTA.to,
+      }),
+  });
 
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
-      <Hero onStartQuiz={handleStartQuiz} />
-      <Missions missions={missions} />
-      <Etapes onStartQuiz={handleStartQuiz} />
+      <Hero onStartQuiz={() => handleStartQuiz("hero")} />
+      <Missions missions={missions} cta={missionsCta("missions")} />
+      <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />
       <TerrainDeJeu />
-      <Questions />
+      <Questions cta={missionsCta("questions")} />
       <CadreMineurs />
-      <Histoires />
+      <Histoires cta={missionsCta("histoires")} />
       <Partners style="compact" partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
     </main>
   );

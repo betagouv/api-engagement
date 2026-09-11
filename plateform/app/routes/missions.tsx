@@ -89,7 +89,9 @@ export default function MissionsPage() {
   useEffect(() => {
     if (pageViewedFired.current) return;
     pageViewedFired.current = true;
-    trackPageViewed({ pageName: "missions_list" });
+    // Filtres actifs au chargement (issus de l'URL, ex. arrivée depuis une landing pré-filtrée sur les mineurs).
+    const activeFilters = FILTER_KEYS.flatMap((key) => filterValues[key].map((value) => `${FILTER_TYPE_BY_KEY[key]}:${value}`));
+    trackPageViewed({ pageName: "missions_list", activeFilters, filtersPreselected: activeFilters.length > 0 });
   }, []);
 
   useEffect(() => {
