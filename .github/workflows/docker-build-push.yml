@@ -140,6 +140,7 @@ jobs:
           echo "VITE_TRACKING_PROVIDER=${{ vars.TRACKING_PROVIDER }}" >> $GITHUB_OUTPUT
           echo "VITE_POSTHOG_KEY=${{ vars.POSTHOG_KEY }}" >> $GITHUB_OUTPUT
           echo "VITE_POSTHOG_HOST=${{ vars.POSTHOG_HOST }}" >> $GITHUB_OUTPUT
+          echo "VITE_PARCOURS_VERSION=${{ vars.PARCOURS_VERSION }}" >> $GITHUB_OUTPUT
 
       - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
@@ -169,3 +170,4 @@ jobs:
             VITE_TRACKING_PROVIDER=${{ steps.app_args.outputs.VITE_TRACKING_PROVIDER }}
             VITE_POSTHOG_KEY=${{ steps.app_args.outputs.VITE_POSTHOG_KEY }}
             VITE_POSTHOG_HOST=${{ steps.app_args.outputs.VITE_POSTHOG_HOST }}
+            VITE_PARCOURS_VERSION=${{ steps.app_args.outputs.VITE_PARCOURS_VERSION }}

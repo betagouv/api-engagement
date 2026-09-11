@@ -1,3 +1,5 @@
+import { resolveParcours } from "@engagement/taxonomy";
+
 import { QUIZ_FLOW_Q1 } from "./q1";
 import { QUIZ_FLOW_Q2 } from "./q2";
 import { QUIZ_FLOW_Q3 } from "./q3";
@@ -17,9 +19,11 @@ export const QUIZ_FLOW_REGISTRY = {
 
 export type QuizFlowVersion = keyof typeof QUIZ_FLOW_REGISTRY;
 
-// Identifiant de la version active du parcours — remonté dans les évènements de tracking
-// (`quiz_version`). Rollback = revenir à "q2" ici.
-export const QUIZ_FLOW_VERSION: QuizFlowVersion = "q3";
+// Version active du quiz, dérivée de la version parapluie du parcours (source unique
+// @engagement/taxonomy, pilotée par `VITE_PARCOURS_VERSION` par environnement). Remontée telle quelle
+// dans le tracking (`quiz_version`). Rollback = changer le triplet dans PARCOURS_REGISTRY.
+const activeQuiz = resolveParcours(import.meta.env.VITE_PARCOURS_VERSION).quiz;
+export const QUIZ_FLOW_VERSION: QuizFlowVersion = activeQuiz in QUIZ_FLOW_REGISTRY ? (activeQuiz as QuizFlowVersion) : "q3";
 
 export const QUIZ_FLOW: StepDef[] = QUIZ_FLOW_REGISTRY[QUIZ_FLOW_VERSION];
 

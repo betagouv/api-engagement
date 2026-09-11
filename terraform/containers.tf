@@ -43,11 +43,8 @@ resource "scaleway_container" "api" {
     "PRISMA_CONNECT_TIMEOUT"            = "10"
     "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"                    = "8108"
-    "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
-
-    # Version active du moteur de matching (/match est servi par l'api).
-    # Pilotée par workspace via var.matching_engine_version (m4 staging / m3 prod).
-    "MATCHING_ENGINE_VERSION" = var.matching_engine_version
+    # Version parapluie du parcours : quiz/enrichment/matching en sont dérivés (cf. @engagement/taxonomy).
+    "PARCOURS_VERSION" = var.parcours_version
 
     # Feature flags ES migration
     "WRITE_STATS_DUAL" = "true"
@@ -121,7 +118,7 @@ resource "scaleway_container" "api_worker" {
     "SCW_QUEUE_URL_MISSION_SCORING"     = module.async_task_queues["mission_scoring"].url
     "SCW_QUEUE_URL_MISSION_INDEX"       = module.async_task_queues["mission_index"].url
     "ALBERT_BASE_URL"                   = lookup(local.secrets, "ALBERT_BASE_URL", "https://albert.api.etalab.gouv.fr")
-    "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
+    "PARCOURS_VERSION"                  = var.parcours_version
     "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"                    = "8108"
   }

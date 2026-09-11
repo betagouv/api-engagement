@@ -8,6 +8,7 @@ volontariat_hostname       = ""
 piloty_hostname            = ""
 bucket_name                = "api-engagement-bucket-sandbox"
 slack_jobteaser_channel_id = ""
+parcours_version           = "p1"
 
 api_cpu_limit              = 250
 api_memory_limit           = 512

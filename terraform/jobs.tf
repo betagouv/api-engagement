@@ -11,9 +11,8 @@ locals {
     "PRISMA_POOL_SIZE_CORE"      = "8"
     "PRISMA_POOL_TIMEOUT"        = "20"
     "PRISMA_CONNECT_TIMEOUT"     = "10"
-    # Version de prompt active pour update-mission-enrichment / update-mission-scoring.
-    # Pilotée par workspace via var.mission_enrichment_prompt_version (v4 staging / v3 prod).
-    "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
+    # Version parapluie du parcours : enrichment/scoring en dérivent (cf. @engagement/taxonomy).
+    "PARCOURS_VERSION" = var.parcours_version
   }
 
   async_task_env_vars = {
