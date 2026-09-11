@@ -111,6 +111,16 @@ export const missionMatchingResultRepository = {
     });
   },
 
+  // Version figée d'un scoring : le moteur qui l'a scoré en premier (snapshot le plus ancien).
+  async findEarliestVersion(userScoringId: string): Promise<MatchingEngineVersion | null> {
+    const row = await prisma.missionMatchingResult.findFirst({
+      where: { userScoringId },
+      orderBy: { createdAt: "asc" },
+      select: { matchingEngineVersion: true },
+    });
+    return (row?.matchingEngineVersion as MatchingEngineVersion | undefined) ?? null;
+  },
+
   findLatestForUserScoring(userScoringId: string): Promise<Pick<MissionMatchingResult, "id" | "results"> | null> {
     return prisma.missionMatchingResult.findFirst({
       where: { userScoringId },

@@ -321,6 +321,30 @@ describe("GET /missions/match", () => {
     expect(item).toBeUndefined();
   });
 
+  it("freezes to the earliest recorded engine version when none is requested", async () => {
+    await createRankableMission();
+    const userScoringId = await createUserScoring();
+    // Ancien scoring déjà scoré sous m1 : revisiter la page résultats doit rejouer m1, pas la version courante (m3).
+    await missionMatchingResultRepository.createForUserScoringVersion({ userScoringId, matchingEngineVersion: "m1", results: [] });
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.engineVersion).toBe("m1");
+    expect(response.body.data.items).toHaveLength(1);
+  });
+
+  it("lets an explicit engine version override the frozen one", async () => {
+    await createRankableMission();
+    const userScoringId = await createUserScoring();
+    await missionMatchingResultRepository.createForUserScoringVersion({ userScoringId, matchingEngineVersion: "m1", results: [] });
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId, engineVersion: "m2" });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.engineVersion).toBe("m2");
+  });
+
   it("ignores the geocoded address of a full-remote mission under m3 (no distance leaked)", async () => {
     const mission = await createRemoteFullMissionWithAddress();
     const userScoringId = await createGeoUserScoring();
