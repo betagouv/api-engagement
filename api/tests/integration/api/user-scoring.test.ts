@@ -600,10 +600,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect("email" in userScoring).toBe(false);
   });
 
-  it("should use the current matching engine snapshot for matching emails", async () => {
+  it("should use the scoring's frozen matching engine snapshot for matching emails", async () => {
     const userScoringId = await createUserScoring();
+    // Snapshot d'origine (ancienne version) créé en premier ; un snapshot version courante écrit plus tard
+    // (ex. visite de la page avant le figement) ne doit pas être choisi à sa place : l'email suit la version figée.
+    const frozenMatching = await createStoredMatchingResult(userScoringId, 1, "m1");
     const currentMatching = await createStoredMatchingResult(userScoringId, 1, CURRENT_MATCHING_ENGINE_VERSION);
-    const legacyMatching = await createStoredMatchingResult(userScoringId, 1, "m1");
     const emailPublisher = await createEmailPublisher();
 
     const res = await postMissionEmailRequest().send({
@@ -617,8 +619,8 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
 
     const contentHtml = brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml;
-    expect(contentHtml).toContain(currentMatching.missions[0].title);
-    expect(contentHtml).not.toContain(legacyMatching.missions[0].title);
+    expect(contentHtml).toContain(frozenMatching.missions[0].title);
+    expect(contentHtml).not.toContain(currentMatching.missions[0].title);
   });
 
   it("should send matching email with the city from the matched mission address", async () => {
