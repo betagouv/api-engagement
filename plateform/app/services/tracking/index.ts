@@ -13,6 +13,9 @@ export type { TrackingConsentStatus, TrackingProperties, TrackingProvider, Track
 let provider: TrackingProvider | null = null;
 let consentStatus: TrackingConsentStatus = "pending";
 let identitySubscriptionInitialized = false;
+// Origine "landing" de la session courante, conservée pour être ré-enregistrée après une transition de
+// consentement (qui réinitialise les super properties PostHog). Session-scoped : perdue au reload de la page.
+let landingOrigin: string | null = null;
 
 // Le tracking est exclusivement côté client : on ne veut rien émettre pendant le rendu SSR.
 function isBrowser(): boolean {
@@ -73,6 +76,13 @@ function applyConsentAndIdentity(targetProvider: TrackingProvider): void {
 function syncContextSuperProperties(targetProvider: TrackingProvider): void {
   syncInternalUserFlag(targetProvider);
   syncCampaignSuperProperties(targetProvider);
+  syncLandingOrigin(targetProvider);
+}
+
+// Ré-attache landing_origin après une resynchro (transition de consentement) : PostHog réinitialise ses
+// super properties, et l'effet de la route est protégé contre une nouvelle exécution.
+function syncLandingOrigin(provider: TrackingProvider): void {
+  if (landingOrigin) provider.register?.({ landing_origin: landingOrigin });
 }
 
 // L'abonnement est installé une seule fois. Les changements du quiz ne sont synchronisés vers
@@ -171,9 +181,10 @@ export function setQuizSessionId(userScoringId: string): void {
 
 // Enregistre l'origine "landing" comme super property attachée à tous les évènements suivants
 // (page.viewed /missions, quiz.*, mission.clicked, results.viewed, email_missions.sent), sur le même
-// mécanisme que les UTM et internal_user. No-op pendant le SSR.
-// ponytail: pas de TTL, la valeur persiste comme les UTM ; ajouter une purge si le bleed inter-session gêne.
+// mécanisme que les UTM et internal_user. Conservée en mémoire pour survivre à une transition de
+// consentement (cf. syncLandingOrigin). No-op pendant le SSR.
 export function registerLandingOrigin(origin: string): void {
+  landingOrigin = origin;
   getProvider()?.register?.({ landing_origin: origin });
 }
 
