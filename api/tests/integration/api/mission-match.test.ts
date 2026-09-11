@@ -1,6 +1,8 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
 
