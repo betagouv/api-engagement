@@ -711,8 +711,9 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
   const versionConfig = MATCHING_ENGINE_VERSIONS[version];
   const limit = Math.max(1, Math.min(500, input.limit ?? 20));
   const offset = Math.max(0, input.offset ?? 0);
-  // The persisted snapshot is defined as the first page of the ranking.
-  const shouldPersistTopResults = offset === 0;
+  // The persisted snapshot is defined as the first page of the ranking. Les évaluations peuvent
+  // désactiver cette écriture tout en conservant une première page et des rangs strictement identiques.
+  const shouldPersistTopResults = offset === 0 && input.persistMatchingResult !== false;
   const rankingLimit = shouldPersistTopResults ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
 
   return {

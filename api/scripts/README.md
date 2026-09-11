@@ -84,3 +84,14 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
     - `--limits 20,100,500` / `--offsets 1,100` : volumes de résultats et offsets à tester. Par défaut, l'offset `1` évite l'écriture `mission_matching_result` déclenchée par le service sur `offset=0`.
     - `--taxonomy-weight N`, `--geo-weight N`, `--geo-half-decay-km N` : variantes de scoring à comparer.
     - `--json` : sortie exploitable en comparaison automatisée.
+
+- **matching-engine-evaluation/evaluate.ts**
+
+  - Exécution: `npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5`
+  - Usage: crée temporairement les profils JSON, exécute chaque version du `matching-engine`, puis vérifie que le nombre de missions pour chaque valeur de taxonomie respecte les bornes `min`/`max` attendues dans le top 10. En cas d'échec, recherche le premier candidat correspondant jusqu'au rang 60 et indique son rang, son score et son écart avec le rang 10, sans persister de `mission_matching_result`.
+  - Options:
+    - `--profiles <chemin>` : fichier JSON de profils (défaut: `scripts/matching-engine-evaluation/profiles.template.json`)
+    - `--profile-id L4` : n'évalue que le profil portant exactement cet identifiant.
+    - `--versions m4,m5` : versions à comparer (défaut: version courante)
+    - `--json` : sortie structurée pour automatiser la comparaison.
+    - `--validate-only` : valide le JSON sans créer de profil ni exécuter le moteur.
