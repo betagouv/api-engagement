@@ -2,7 +2,7 @@
  * Évalue une ou plusieurs versions du matching engine à partir de profils JSON.
  *
  * Exécution :
- *   npm run evaluate:matching -- --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5
+ *   npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5
  */
 
 import fs from "node:fs/promises";

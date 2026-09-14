@@ -45,7 +45,7 @@ Le champ `failureCandidate` du rapport JSON contient son rang, son score global,
 Depuis `api/` :
 
 ```bash
-npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5
+npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m5,m6
 ```
 
 Pour n'évaluer qu'un profil du fichier :
@@ -59,13 +59,13 @@ La valeur de `--profile-id` doit correspondre exactement au champ `id` d'un prof
 Pour obtenir un rapport JSON exploitable par un autre outil :
 
 ```bash
-npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5 --json
+npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m5,m6 --json
 ```
 
 Pour valider uniquement le fichier sans écrire en base ni exécuter le moteur :
 
 ```bash
-npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m4,m5 --validate-only
+npx ts-node scripts/matching-engine-evaluation/evaluate.ts --profiles scripts/matching-engine-evaluation/profiles.template.json --versions m5,m6 --validate-only
 ```
 
 La position est numérotée à partir de 1. `firstPosition` vaut `null`, `positions` est vide et `count` vaut `0` lorsque la valeur est absente du top 10. Une absence est considérée comme réussie lorsque la condition attendue est `min: 0, max: 0`. `tookMs` reste la durée du calcul du top 10 ; `diagnosticTookMs` et `diagnosticCandidatesScanned` mesurent séparément le coût de la recherche déclenchée par les échecs.
