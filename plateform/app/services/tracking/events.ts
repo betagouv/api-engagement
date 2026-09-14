@@ -7,7 +7,10 @@ import type { BetaBannerSource } from "~/utils/beta-banner";
 
 import { track } from "./index";
 import type {
+  CtaDestination,
+  CtaSection,
   EmailMissionDetailEntrySource,
+  EmailMissionsEntryPage,
   EventCategory,
   LandingName,
   MissionClickedEntryPage,
@@ -17,6 +20,7 @@ import type {
   MissionsFilterType,
   PageViewedPageName,
   QuizCompletionType,
+  QuizEntrySection,
   QuizEntrySource,
   ResultsPageNavigationType,
 } from "./types";
@@ -33,6 +37,7 @@ import { buildQuizPath, countAnsweredSteps, optionAnswer, resolveAnswerValue, re
 // Catégorie de chaque évènement (documentation/priorisation, non transmise à PostHog).
 export const EVENT_CATALOG = {
   "page.viewed": "lifecycle",
+  "cta.clicked": "feature_usage",
   "quiz.started": "lifecycle",
   "quiz.step_completed": "core_value",
   "quiz.completed": "core_value",
@@ -56,8 +61,30 @@ export const EVENT_CATALOG = {
 // ============================================================================
 
 // `page.viewed` (lifecycle) : visite d'une page (pageview manuel, capture_pageview désactivé).
-export function trackPageViewed(params: { pageName: PageViewedPageName }): void {
-  track("page.viewed", { page_name: params.pageName });
+// Sur /missions, `activeFilters` liste les filtres actifs au chargement (ex. ["tranche_age:moins_18_ans"])
+// et `filtersPreselected` distingue une liste déjà filtrée par l'URL d'un filtrage utilisateur.
+export function trackPageViewed(params: { pageName: PageViewedPageName; activeFilters?: string[]; filtersPreselected?: boolean }): void {
+  track("page.viewed", {
+    page_name: params.pageName,
+    active_filters: params.activeFilters,
+    filters_preselected: params.filtersPreselected,
+  });
+}
+
+// ============================================================================
+// cta.clicked
+// ============================================================================
+
+// `cta.clicked` (feature_usage) : clic sur un CTA d'une landing. `cta_destination` est la propriété clé
+// de comparaison ; `cta_label` isole l'effet du wording, `destination_path` vérifie l'URL réellement visée.
+export function trackCtaClicked(params: { pageName: LandingName; ctaSection: CtaSection; ctaLabel: string; ctaDestination: CtaDestination; destinationPath: string }): void {
+  track("cta.clicked", {
+    page_name: params.pageName,
+    cta_section: params.ctaSection,
+    cta_label: params.ctaLabel,
+    cta_destination: params.ctaDestination,
+    destination_path: params.destinationPath,
+  });
 }
 
 // ============================================================================
@@ -104,6 +131,8 @@ export function trackMissionClickedFromBrowse(
     section: Extract<MissionClickedSection, "missions_list" | "homepage_examples" | LandingName>;
     entryPage: MissionClickedEntryPage;
     opensExternal: boolean;
+    // Position ordinale (1-based) quand la liste est ordonnée (ex. carrousel d'une landing) ; null sinon.
+    rank?: number | null;
   },
 ): void {
   trackMissionClicked({
@@ -111,8 +140,7 @@ export function trackMissionClickedFromBrowse(
     publisher_id: mission.publisherId ?? "",
     publisher_name: mission.publisherName ?? "",
     section: context.section,
-    // Listes non classées (spec) → rank null.
-    rank: null,
+    rank: context.rank ?? null,
     page_number: null,
     mission_domain: mission.domain,
     // Pas de scoring sur le flux browse → type_mission indisponible ici.
@@ -130,9 +158,10 @@ export function trackMissionClickedFromBrowse(
 // Tous les évènements quiz remontent `quiz_version` (version active du parcours, cf. config/quiz-flow)
 // pour pouvoir segmenter les analytics par version.
 
-// `quiz.started` (lifecycle) : chargement du premier step, début d'une tentative.
-export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void {
-  track("quiz.started", { entry_source: params.entrySource, quiz_version: QUIZ_FLOW_VERSION });
+// `quiz.started` (lifecycle) : chargement du premier step, début d'une tentative. `entrySection` (landings)
+// précise le bloc d'où part le CTA quiz quand l'info est transmise dans le state de navigation.
+export function trackQuizStarted(params: { entrySource: QuizEntrySource; entrySection?: QuizEntrySection }): void {
+  track("quiz.started", { entry_source: params.entrySource, entry_section: params.entrySection, quiz_version: QUIZ_FLOW_VERSION });
 }
 
 // `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
@@ -296,9 +325,10 @@ export function trackMissionsFilterApplied(params: { filterType: MissionsFilterT
 // Emails
 // ============================================================================
 
-// `email_missions.sent` (feature_usage) : envoi par email des 5 missions recommandées (modale résultats).
-export function trackEmailMissionsSent(params: { hasAlertOptIn: boolean }): void {
-  track("email_missions.sent", { has_alert_opt_in: params.hasAlertOptIn });
+// `email_missions.sent` (feature_usage) : envoi par email d'une sélection de missions. `entryPage` distingue
+// l'envoi depuis les résultats du quiz de celui depuis une landing.
+export function trackEmailMissionsSent(params: { hasAlertOptIn: boolean; entryPage: EmailMissionsEntryPage }): void {
+  track("email_missions.sent", { has_alert_opt_in: params.hasAlertOptIn, entry_page: params.entryPage });
 }
 
 // `email_mission_detail.sent` (feature_usage) : envoi par email d'une seule mission (modale détail).

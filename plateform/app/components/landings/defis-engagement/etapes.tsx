@@ -3,6 +3,7 @@ import SearchSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/search.svg?u
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
 
 import Carousel from "~/components/ui/carousel";
+import Highlight from "~/components/ui/highlight";
 
 const ETAPES = [
   { icon: SelfTrainingSvg, title: "Réponds en trois minutes", description: "Le formulaire du gouv le plus court de ta vie" },
@@ -13,7 +14,9 @@ const ETAPES = [
 export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
   return (
     <section className="fr-container">
-      <h2 className="fr-h1 fr-mb-6w text-center">3 étapes pour passer à l'action !</h2>
+      <h2 className="fr-h1 fr-mb-6w text-center">
+        3 étapes pour <Highlight className="bg-[#fbe769] dark:bg-transparent">passer à l'action</Highlight> !
+      </h2>
 
       <Carousel
         label="Les 3 étapes pour passer à l'action"

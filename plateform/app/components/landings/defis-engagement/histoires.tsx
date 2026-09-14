@@ -4,6 +4,8 @@ import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage
 import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
 import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
 import DoubleQuotesSvg from "~/assets/svg/double-quotes.svg";
+import Highlight from "~/components/ui/highlight";
+import type { LandingCta } from "~/services/tracking/types";
 
 const NACIM = {
   quote:
@@ -16,7 +18,7 @@ const VICTORIA = {
   quote:
     "C'était ma première expérience de bénévolat, et sans doute l'une des plus marquantes ! J'ai eu la chance de contribuer à un projet enrichissant et de rencontrer des personnes inspirantes. C'était un réel plaisir de participer à ces événements qui ont su créer du lien social et promouvoir la culture. Je recommande fortement :)",
   name: "Victoria",
-  role: "18 ans, bénévole pour Cosmos Arts à Vitry sur Seine",
+  role: "Bénévole pour Cosmos Arts à Vitry sur Seine",
 };
 
 const ELODIE = {
@@ -38,13 +40,13 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
   );
 }
 
-export default function Histoires() {
+export default function Histoires({ cta }: { cta: LandingCta }) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 fr-mb-6w text-center">
         Des histoires vraies
         <br />
-        qui donnent envie d'agir
+        qui donnent <Highlight className="bg-[#fbe769] dark:bg-transparent">envie d'agir</Highlight>
       </h2>
 
       {/* Mosaïque de 4 blocs, placés explicitement car leur répartition change à chaque palier :
@@ -79,8 +81,8 @@ export default function Histoires() {
       </div>
 
       <div className="flex justify-center">
-        <Link to="/missions?tranche_age=moins_18_ans" className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
-          Voir toutes les missions
+        <Link to={cta.to} onClick={cta.onClick} className="fr-btn fr-btn--secondary fr-btn--lg justify-center">
+          {cta.label}
         </Link>
       </div>
     </section>

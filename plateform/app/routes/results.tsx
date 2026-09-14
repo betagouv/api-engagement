@@ -340,6 +340,7 @@ export default function ResultsPage() {
             <MatchingDebugModal items={items} userValues={userValues} />
             <EmailMissionsModal
               userScoringId={userScoringId}
+              entryPage="results"
               missionId={emailMission?.missionId}
               publisherId={emailMission?.publisherId}
               open={emailMission !== null}
@@ -449,6 +450,7 @@ export default function ResultsPage() {
       </main>
       <EmailMissionsModal
         userScoringId={userScoringId}
+        entryPage="results"
         missionId={emailMission?.missionId}
         publisherId={emailMission?.publisherId}
         open={emailMission !== null}

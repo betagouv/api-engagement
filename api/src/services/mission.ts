@@ -680,7 +680,10 @@ export const missionService = {
         where,
         select,
         include: select ? undefined : baseInclude,
-        orderBy: { startAt: Prisma.SortOrder.desc },
+        // `startAt` n'est pas unique : deux missions peuvent partager la même date.
+        // Sans clé de tri secondaire unique, l'ordre entre elles n'est pas garanti d'une
+        // requête à l'autre, ce qui fait apparaître des doublons ou des trous entre les pages.
+        orderBy: [{ startAt: Prisma.SortOrder.desc }, { id: Prisma.SortOrder.asc }],
         skip: filters.skip,
         take: filters.limit,
       }),
@@ -697,7 +700,7 @@ export const missionService = {
       missionRepository.findMany({
         where,
         include: baseInclude,
-        orderBy: { startAt: Prisma.SortOrder.desc },
+        orderBy: [{ startAt: Prisma.SortOrder.desc }, { id: Prisma.SortOrder.asc }],
         skip: filters.skip,
         take: filters.limit,
       }),

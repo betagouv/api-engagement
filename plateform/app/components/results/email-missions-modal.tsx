@@ -4,11 +4,14 @@ import MailIllustration from "~/components/ui/mail-illustration";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
 import { trackEmailMissionDetailSent, trackEmailMissionsSent } from "~/services/tracking/events";
+import type { EmailMissionsEntryPage } from "~/services/tracking/types";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
 interface EmailMissionsModalProps {
   userScoringId: string | undefined;
+  // Page d'où part l'envoi, pour `email_missions.sent` (résultats du quiz vs landing).
+  entryPage: EmailMissionsEntryPage;
   // Renseigné depuis le bouton email d'une carte : la modale n'envoie que cette mission
   // (wording au singulier), sinon toute la sélection de résultats.
   missionId?: string;
@@ -19,7 +22,7 @@ interface EmailMissionsModalProps {
   hideTrigger?: boolean;
 }
 
-export default function EmailMissionsModal({ userScoringId, missionId, publisherId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
+export default function EmailMissionsModal({ userScoringId, entryPage, missionId, publisherId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -65,7 +68,7 @@ export default function EmailMissionsModal({ userScoringId, missionId, publisher
         // match peut ne pas avoir d'annonceur) : évènement dédié à la mission. Sinon (sélection
         // complète, ou landing sans publisherId) : évènement de sélection.
         if (missionId && publisherId !== undefined) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: missionAlertEnabled });
-        else trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
+        else trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled, entryPage });
         setSuccess(true);
       }
     } catch (err) {
