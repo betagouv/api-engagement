@@ -9,11 +9,9 @@ const TAGS = [
 export default function TerrainDeJeu() {
   return (
     <section className="fr-container">
-      <div className="bg-[#6b93f6] rounded p-4 shadow-lg md:p-12 lg:px-[100px]! lg:py-[60px]!">
-        <h2 className="fr-h1 text-white! mb-4!">
-          Choisis ton terrain de <span className="text-[#fbe769]">jeu</span>
-        </h2>
-        <p className="fr-text--lead text-white! fr-mb-4w">
+      <div className="bg-[#BFCCFB] dark:bg-white/8 rounded p-4 shadow-lg md:p-12 lg:px-[100px]! lg:py-[60px]!">
+        <h2 className="fr-h1 text-title-grey mb-4!">Choisis ton terrain de jeu</h2>
+        <p className="fr-text--lead text-title-grey! fr-mb-4w">
           Des missions basées sur tes envies, ton lieu et ta disponibilité. Pour que le bonheur des uns, fasse le bonheur des autres.
         </p>
 
