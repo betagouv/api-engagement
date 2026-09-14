@@ -1,16 +1,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { COCKPIT_METRICS_OTLP_URL, COCKPIT_METRICS_TOKEN, ENV, IMAGE_VERSION, PORT, SENTRY_DSN_API } from "@/config";
-import * as Sentry from "@sentry/node";
+import "./instrument";
 
-if (ENV !== "development") {
-  Sentry.init({
-    dsn: SENTRY_DSN_API,
-    environment: ENV,
-    tracesSampleRate: 0.1,
-  });
-}
+import { COCKPIT_METRICS_OTLP_URL, COCKPIT_METRICS_TOKEN, ENV, IMAGE_VERSION, PORT } from "@/config";
+import * as Sentry from "@sentry/node";
 
 const logProcessCrash = (event: "uncaught_exception" | "unhandled_rejection", error: unknown, extra?: Record<string, unknown>) => {
   const normalized = error instanceof Error ? error : new Error(typeof error === "string" ? error : JSON.stringify(error));

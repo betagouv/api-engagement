@@ -21,7 +21,7 @@ if (ENV !== "development") {
   Sentry.init({
     dsn: SENTRY_DSN,
     integrations: [
-      Sentry.reactRouterV6BrowserTracingIntegration({
+      Sentry.reactRouterBrowserTracingIntegration({
         useEffect,
         useLocation,
         useNavigationType,

@@ -65,12 +65,12 @@ type MissionWithRelations = Mission & {
 
 const resolveDomainId = async (domainName: string): Promise<string> => {
   const name = domainName.trim();
-  const existing = await prisma.domain.findUnique({ where: { name }, select: { id: true } });
-  if (existing) {
-    return existing.id;
-  }
-  const created = await prisma.domain.create({ data: { name } });
-  return created.id;
+  // upsert plutôt que find puis create : deux créations de mission concurrentes sur le même
+  // domaine passaient toutes les deux le find, puis se heurtaient à la contrainte unique.
+  // `update: { name }` est un no-op, mais il est nécessaire pour que Prisma émette un
+  // INSERT ... ON CONFLICT atomique au lieu de retomber sur un find puis create
+  const domain = await prisma.domain.upsert({ where: { name }, create: { name }, update: { name }, select: { id: true } });
+  return domain.id;
 };
 
 const toMissionRecord = (mission: MissionWithRelations, moderatedBy: string | null = null): MissionRecord => {

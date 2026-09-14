@@ -1,0 +1,14 @@
+{
+  "name": "functions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scaleway Serverless Functions (relais Sentry → Slack)",
+  "scripts": {
+    "build": "npx -y esbuild@0.25.5 src/functions/*/handler.ts --bundle --platform=node --format=esm --outbase=src/functions --outdir=../terraform/build --out-extension:.js=.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "typescript": "6.0.3"
+  }
+}
