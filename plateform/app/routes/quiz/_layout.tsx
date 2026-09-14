@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
+import BetaBanner from "~/components/layout/beta-banner";
 import BackButton from "~/components/quiz/back-button";
 import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
@@ -11,6 +12,10 @@ import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
 import type { Route } from "./+types/_layout";
+
+// Le bandeau bêta n'apparaît qu'à partir de cette étape : assez avancé dans le parcours pour
+// que l'utilisateur ait un avis, sans polluer les premiers écrans.
+const BETA_BANNER_FROM_STEP = 5;
 
 // Contexte partagé avec les steps enfants via `useOutletContext<QuizOutletContext>()`.
 export type QuizOutletContext = {
@@ -46,7 +51,7 @@ export function HydrateFallback() {
 export default function QuizLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { answers, setUserScoringId } = useQuizStore();
+  const { answers, quizAttemptId, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
   const [loadingResultsPath, setLoadingResultsPath] = useState<string | null>(null);
   const [scoringError, setScoringError] = useState<string | null>(null);
@@ -164,6 +169,7 @@ export default function QuizLayout() {
         backHref={!loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
         onBack={handleBackNavigated}
       />
+      {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
       <main id="contenu" tabIndex={-1} className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
         <div className="fr-container flex flex-col gap-10">
           {!loadingResults && (

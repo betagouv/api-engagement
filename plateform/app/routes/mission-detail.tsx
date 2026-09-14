@@ -11,6 +11,7 @@ export async function clientLoader({ params }: { params: { userScoringId?: strin
   return { backHref: params.userScoringId ? `/results/${params.userScoringId}` : "/missions" };
 }
 
+import BetaBanner from "~/components/layout/beta-banner";
 import MissionCtaPanel from "~/components/mission-detail/cta-panel";
 import MissionDescriptionCard from "~/components/mission-detail/description-card";
 import MissionHeroCard from "~/components/mission-detail/hero-card";
@@ -107,50 +108,54 @@ export default function MissionDetailPage() {
   }
 
   return (
-    <main id="contenu" tabIndex={-1}>
-      <GradientBg className="bg-size-[100%_680px] min-h-screen">
-        {mission.photo && (
-          <div className="h-[216px] w-full overflow-hidden md:hidden">
-            <img src={mission.photo} alt="" className="h-full w-full object-cover" />
-          </div>
-        )}
-
-        <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
-          <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
-            {backLabel}
-          </Link>
-          <div className="flex flex-col md:flex-row md:items-start gap-6">
-            <div className="flex min-w-0 flex-1 flex-col gap-0! md:gap-6!">
-              <MissionHeroCard mission={mission} />
-              {mission.location && <MissionLocationCard location={mission.location} />}
-              <div className="md:hidden">
-                <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
-              </div>
-              <MissionDescriptionCard mission={mission} />
+    <>
+      {/* Fiche ouverte depuis les résultats : même bandeau que la page de résultats (source=results). */}
+      {userScoringId && <BetaBanner source="results" session={userScoringId} />}
+      <main id="contenu" tabIndex={-1}>
+        <GradientBg className="bg-size-[100%_680px] min-h-screen">
+          {mission.photo && (
+            <div className="h-[216px] w-full overflow-hidden md:hidden">
+              <img src={mission.photo} alt="" className="h-full w-full object-cover" />
             </div>
+          )}
 
-            <aside className="hidden w-[384px] flex-none md:block">
-              <div className="sticky top-4 flex flex-col">
-                {mission.photo && (
-                  <div className="h-[216px] w-full overflow-hidden">
-                    <img src={mission.photo} alt="" className="h-full w-full object-cover" />
-                  </div>
-                )}
-                <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
+          <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
+            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
+              {backLabel}
+            </Link>
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              <div className="flex min-w-0 flex-1 flex-col gap-0! md:gap-6!">
+                <MissionHeroCard mission={mission} />
+                {mission.location && <MissionLocationCard location={mission.location} />}
+                <div className="md:hidden">
+                  <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
+                </div>
+                <MissionDescriptionCard mission={mission} />
               </div>
-            </aside>
+
+              <aside className="hidden w-[384px] flex-none md:block">
+                <div className="sticky top-4 flex flex-col">
+                  {mission.photo && (
+                    <div className="h-[216px] w-full overflow-hidden">
+                      <img src={mission.photo} alt="" className="h-full w-full object-cover" />
+                    </div>
+                  )}
+                  <MissionCtaPanel mission={mission} userScoringId={userScoringId} />
+                </div>
+              </aside>
+            </div>
           </div>
+        </GradientBg>
+
+        {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
+
+        <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
+          <a href={applicationHref} target="_blank" rel="noopener noreferrer" title="Postuler - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
+            Postuler
+          </a>
+          {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
         </div>
-      </GradientBg>
-
-      {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
-
-      <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
-        <a href={applicationHref} target="_blank" rel="noopener noreferrer" title="Postuler - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
-          Postuler
-        </a>
-        {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
