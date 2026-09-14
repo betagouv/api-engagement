@@ -2,11 +2,10 @@ import { expect, test } from "@playwright/test";
 
 test.describe("jstag.js - Human detection", () => {
   test("confirms human on interaction after 2s", async ({ page }) => {
-    let confirmCalled = false;
+    let confirmationToken: string | null = null;
 
     await page.route("**/r/*/confirm-human*", async (route) => {
-      confirmCalled = true;
-      expect(new URL(route.request().url()).searchParams.get("token")).toBe("test-token");
+      confirmationToken = new URL(route.request().url()).searchParams.get("token");
       await route.fulfill({ status: 200 });
     });
 
@@ -18,11 +17,11 @@ test.describe("jstag.js - Human detection", () => {
     await page.waitForTimeout(2500);
 
     // Trigger interaction
-    const confirmationRequest = page.waitForRequest("**/r/*/confirm-human*");
     await page.mouse.move(100, 100);
-    await confirmationRequest;
 
-    expect(confirmCalled).toBe(true);
+    // Playwright émet l'évènement `request` avant d'exécuter le handler de route :
+    // attendre le handler plutôt que la requête, sinon l'assertion court après la course
+    await expect.poll(() => confirmationToken).toBe("test-token");
   });
 
   test("keeps confirmation data isolated between tabs", async ({ context, page }) => {
