@@ -86,7 +86,7 @@ const profileSchema = z
   .object({
     id: z.string().trim().min(1),
     label: z.string().trim().min(1),
-    userProfile: z
+    userScoring: z
       .object({
         answers: z.array(answerSchema).min(1),
       })
@@ -371,7 +371,7 @@ const evaluateVersion = async (params: { userScoringId: string; version: Matchin
 
 const evaluateProfile = async (profile: EvaluationProfile, versions: MatchingEngineVersion[], runId: string): Promise<ProfileEvaluation> => {
   const { id: userScoringId } = await userScoringService.create({
-    answers: profile.userProfile.answers,
+    answers: profile.userScoring.answers,
     distinctId: `matching-evaluation:${runId}:${profile.id}`,
     missionAlertEnabled: false,
   });

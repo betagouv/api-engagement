@@ -3,7 +3,7 @@
     {
       "id": "L1",
       "label": "Léa, 17 ans, Lyon",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -68,8 +68,8 @@
           "values": [
             { "value": "benevolat", "min": 3 },
             { "value": "service_civique", "min": 1 },
-            { "value": "sapeurs_pompiers", "min": 1 },
-            { "value": "reserve_gendarmerie", "min": 0, "max": 0 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "reserve_gendarmerie", "min": 1 },
             { "value": "reserve_police_nationale", "min": 0, "max": 0 },
             { "value": "reserve_armees", "min": 0, "max": 0 }
           ]
@@ -79,7 +79,7 @@
     {
       "id": "L2",
       "label": "Sami, 16 ans, Marseille",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -136,7 +136,7 @@
           "values": [
             { "value": "benevolat", "min": 1 },
             { "value": "service_civique", "min": 1 },
-            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
             { "value": "reserve_gendarmerie", "min": 1 },
             { "value": "reserve_police_nationale", "min": 0, "max": 0 },
             { "value": "reserve_armees", "min": 0, "max": 0 }
@@ -147,7 +147,7 @@
     {
       "id": "L3",
       "label": "Noor, 16 ans, Aurillac",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -231,7 +231,7 @@
     {
       "id": "L4",
       "label": "Tom, 17 ans, Lille",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -307,7 +307,7 @@
     {
       "id": "E5",
       "label": "Emma, 20 ans, Paris",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -383,7 +383,7 @@
     {
       "id": "E6",
       "label": "Hugo, 22 ans, Nantes",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -458,7 +458,7 @@
     {
       "id": "E7",
       "label": "Inès, 24 ans, Figeac",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -529,7 +529,7 @@
     {
       "id": "E8",
       "label": "Malo, 19 ans, Toulouse",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -605,14 +605,14 @@
         },
         {
           "taxonomy": "motivation_recherche",
-          "values": [{ "value": "remote", "min": 7 }]
+          "values": [{ "value": "remote", "min": 2 }]
         }
       ]
     },
     {
       "id": "A9",
       "label": "Karim, 28 ans, Saint-Étienne",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -692,7 +692,7 @@
     {
       "id": "A10",
       "label": "Julie, 26 ans, Montpellier",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -776,7 +776,7 @@
     {
       "id": "A11",
       "label": "Sarah, 29 ans, Rennes",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",
@@ -860,7 +860,7 @@
     {
       "id": "A12",
       "label": "Yanis, 25 ans, Bordeaux",
-      "userProfile": {
+      "userScoring": {
         "answers": [
           {
             "taxonomy": "tranche_age",

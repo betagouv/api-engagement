@@ -6,7 +6,7 @@ Ce script vérifie automatiquement que chaque profil retrouve les valeurs de tax
 
 Copier `profiles.template.json`, puis compléter :
 
-- `userProfile.answers` avec le même format que l'API `user-scoring` ;
+- `userScoring.answers` avec le même format que l'API `user-scoring`, y compris les valeurs déduites par ses règles ;
 - `expected` avec les taxonomies et leurs valeurs attendues.
 
 Exemple :
