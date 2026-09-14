@@ -117,7 +117,10 @@ const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userS
 });
 
 const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionContent[] | null> => {
-  const matchingResult = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, CURRENT_MATCHING_ENGINE_VERSION);
+  // Même version figée que la page résultats : un ancien scoring n'a que son ancien snapshot (ex. m1),
+  // pas celui de la version courante. Lire CURRENT renverrait null → email jamais envoyé.
+  const version = (await missionMatchingResultRepository.findEarliestVersion(userScoringId)) ?? CURRENT_MATCHING_ENGINE_VERSION;
+  const matchingResult = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, version);
   if (!matchingResult) {
     return null;
   }
@@ -127,10 +130,8 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  // La version courante ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur / l'API)
-  const ignoreRemoteAddress =
-    MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteFullGeoScore != null ||
-    MATCHING_ENGINE_VERSIONS[CURRENT_MATCHING_ENGINE_VERSION].remoteLocalGeoScore != null;
+  // Cette version ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur / l'API)
+  const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[version].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[version].remoteLocalGeoScore != null;
   const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems, ignoreRemoteAddress);
   const missionsByScoringId = new Map(missions.map((item) => [item.missionScoringId, item]));
   const orderedMissions = matchingItems.map((item) => missionsByScoringId.get(item.missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));
