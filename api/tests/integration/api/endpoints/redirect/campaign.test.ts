@@ -7,6 +7,7 @@ import { campaignService } from "@/services/campaign";
 import { statBotService } from "@/services/stat-bot";
 import { PublisherRecord } from "@/types/publisher";
 import * as utils from "@/utils";
+import { isValidTrackingToken } from "@/utils/redirect";
 import { createTestPublisher } from "../../../../fixtures";
 import { createTestApp } from "../../../../testApp";
 
@@ -88,6 +89,9 @@ describe("RedirectController /campaign/:id", () => {
 
     const clickId = redirectUrl.searchParams.get("apiengagement_id");
     expect(clickId).toBeTruthy();
+    const trackingToken = redirectUrl.searchParams.get("apiengagement_tracking_token");
+    expect(trackingToken).toEqual(expect.any(String));
+    expect(isValidTrackingToken(trackingToken!, clickId!)).toBe(true);
 
     // The handler updates isBot asynchronously after sending the redirect response,
     // so we need to wait for that background work to complete before asserting.

@@ -3,6 +3,9 @@ process.env.TZ = "Europe/Paris";
 export const PORT = process.env.PORT || 4000;
 export const PORT_WORKER = process.env.PORT_WORKER || 4001;
 export const ENV = process.env.ENV || "development";
+// Workspace de déploiement (production/staging/sandbox). Distinct de ENV : le workspace sandbox tourne
+// avec ENV=production, donc c'est le workspace qui identifie l'environnement dans les notifications cron.
+export const WORKSPACE = process.env.WORKSPACE || ENV;
 const DEFAULT_SECRET = "not-so-secret";
 
 export const ensureJwtSecretIsConfigured = () => {

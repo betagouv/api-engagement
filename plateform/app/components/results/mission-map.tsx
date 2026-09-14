@@ -62,12 +62,14 @@ interface Props {
   selectionPadding?: [number, number];
   // Mission actuellement survolée/sélectionnée : son pin est mis en couleur et passe au premier plan.
   activeMissionId?: string | null;
+  // Mobile : mission mise en avant par le carrousel (clic sur un pin ou swipe) → la map se recentre sur son pin.
+  focusedMissionId?: string | null;
   // Survol d'un pin → remonte l'id (ou null) : surligne la carte correspondante dans la liste
   // et affiche la carte mission en overlay sur la map (rendu par la page résultats).
   onMissionHover?: (missionId: string | null) => void;
 }
 
-export default function MissionMap({ items, center, onMarkerClick, selectionPadding, activeMissionId, onMissionHover }: Props) {
+export default function MissionMap({ items, center, onMarkerClick, selectionPadding, activeMissionId, focusedMissionId, onMissionHover }: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const isMobile = useIsMobile();
 
@@ -100,6 +102,16 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
 
     return spreadOverlappingPositions(positionedMissions);
   }, [center, items]);
+
+  // Recentre la map sur le pin de la mission mise en avant, dans le tiers haut de l'écran :
+  // le carrousel de cartes mission occupe le bas de la map sur mobile.
+  useEffect(() => {
+    const map = mapRef.current;
+    const focusedMission = missions.find((mission) => mission.item.mission.id === focusedMissionId);
+    if (!map || !focusedMission) return;
+    const pinPoint = map.latLngToContainerPoint(focusedMission.position);
+    map.panBy([pinPoint.x - map.getSize().x / 2, pinPoint.y - map.getSize().y / 3]);
+  }, [focusedMissionId, missions]);
 
   const boundsPositions = useMemo<[number, number][]>(() => (missions.length > 0 ? missions.map((mission) => mission.position) : [center]), [missions, center]);
 

@@ -10,14 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "interaction";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["interaction.interaction_collective"],
-  OPTIONS["interaction.equilibre_collectif_autonomie"],
-  OPTIONS["interaction.autonomie_principale"],
-  OPTIONS["interaction.peu_importe"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function InteractionStep() {
   const { answers, setAnswer } = useQuizStore();

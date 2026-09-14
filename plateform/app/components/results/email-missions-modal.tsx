@@ -3,21 +3,26 @@ import Modal from "~/components/layout/modal";
 import MailIllustration from "~/components/ui/mail-illustration";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
-import { trackEmailMissionsSent } from "~/services/tracking/events";
+import { trackEmailMissionDetailSent, trackEmailMissionsSent } from "~/services/tracking/events";
+import type { EmailMissionsEntryPage } from "~/services/tracking/types";
 import { updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 
 interface EmailMissionsModalProps {
   userScoringId: string | undefined;
+  // Page d'où part l'envoi, pour `email_missions.sent` (résultats du quiz vs landing).
+  entryPage: EmailMissionsEntryPage;
   // Renseigné depuis le bouton email d'une carte : la modale n'envoie que cette mission
   // (wording au singulier), sinon toute la sélection de résultats.
   missionId?: string;
+  // Annonceur de la mission (pour `email_mission_detail.sent` en envoi mono-mission depuis une carte).
+  publisherId?: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   hideTrigger?: boolean;
 }
 
-export default function EmailMissionsModal({ userScoringId, missionId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
+export default function EmailMissionsModal({ userScoringId, entryPage, missionId, publisherId, open: controlledOpen, onOpenChange, hideTrigger }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -41,22 +46,29 @@ export default function EmailMissionsModal({ userScoringId, missionId, open: con
 
   const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userScoringId) return;
+    // Hors parcours de quiz (page défis), il n'y a pas de scoring : l'API accepte alors `missionIds`
+    // seul, mais on ne peut pas enregistrer l'alerte, faute d'utilisateur à qui la rattacher.
+    if (!userScoringId && !missionId) return;
 
     const form = e.currentTarget;
     const email = (form.elements.namedItem("email") as HTMLInputElement).value;
-    const missionAlertEnabled = (form.elements.namedItem("nearby") as HTMLInputElement).checked;
+    const nearby = form.elements.namedItem("nearby") as HTMLInputElement | null;
+    const missionAlertEnabled = nearby?.checked ?? false;
 
     setSubmitting(true);
     setError(null);
 
     try {
-      await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
+      if (userScoringId) await updateUserScoring(userScoringId, { missionAlertEnabled, distinctId });
       const result = await sendMissionEmail({ email, publisherId: PUBLISHER_ID, userScoringId, distinctId, missionIds: missionId ? [missionId] : undefined });
       if (!result.email_sent) {
-        setError("Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats.");
+        setError(userScoringId ? "Aucune mission n'a pu être envoyée. Réessaie depuis la page de résultats." : "Cette mission n'a pas pu être envoyée. Merci de réessayer.");
       } else {
-        trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled });
+        // Envoi mono-mission depuis une carte de résultats (publisherId fourni, même vide car un
+        // match peut ne pas avoir d'annonceur) : évènement dédié à la mission. Sinon (sélection
+        // complète, ou landing sans publisherId) : évènement de sélection.
+        if (missionId && publisherId !== undefined) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: missionAlertEnabled });
+        else trackEmailMissionsSent({ hasAlertOptIn: missionAlertEnabled, entryPage });
         setSuccess(true);
       }
     } catch (err) {
@@ -130,15 +142,18 @@ export default function EmailMissionsModal({ userScoringId, missionId, open: con
                 )}
               </div>
 
-              <div className="fr-checkbox-group fr-mb-2w">
-                <input id={nearbyId} name="nearby" type="checkbox" />
-                <label className="fr-label" htmlFor={nearbyId}>
-                  Recevoir aussi les nouvelles missions près de chez moi
-                </label>
-                <div className="fr-messages-group pl-8">
-                  <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+              {/* L'alerte se rattache au scoring de l'utilisateur : sans quiz fait, on ne la propose pas. */}
+              {userScoringId && (
+                <div className="fr-checkbox-group fr-mb-2w">
+                  <input id={nearbyId} name="nearby" type="checkbox" />
+                  <label className="fr-label" htmlFor={nearbyId}>
+                    Recevoir aussi les nouvelles missions près de chez moi
+                  </label>
+                  <div className="fr-messages-group pl-8">
+                    <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex flex-col gap-2">
                 <button type="submit" disabled={submitting} className="fr-btn w-full! justify-center!">

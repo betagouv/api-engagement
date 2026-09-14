@@ -48,7 +48,7 @@ function buildMissionPayload() {
     requirements: ["Nationalité française", "17 à 45 ans", "JDC effectuée", "Apte physiquement"],
     schedule: "Quelques jours par mois selon vos disponibilités",
     places: 1,
-    remote: "no",
+    remote: "local",
     openToMinors: true,
     reducedMobilityAccessible: false,
     closeToTransport: true,

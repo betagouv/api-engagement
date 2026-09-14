@@ -21,6 +21,9 @@ export interface StepOption {
   icon?: string;
   taxonomy: string;
   value: string;
+  // Valeur de taxonomie envoyée à l'API quand elle diffère de `value` : deux réponses du quiz
+  // peuvent viser la même valeur de scoring (cf. QUIZ_ONLY_OPTIONS dans config/quiz-options).
+  taxonomyValue?: string;
   hiddenIf?: Condition;
   // true → option grisée et non sélectionnable (fonctionnalité pas encore disponible).
   disabled?: boolean;

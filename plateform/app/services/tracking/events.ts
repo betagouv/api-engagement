@@ -3,11 +3,16 @@ import { resolveTrancheAgeValues } from "@engagement/taxonomy";
 
 import { QUIZ_FLOW_VERSION, type StepId } from "~/config/quiz-flow";
 import type { QuizAnswers } from "~/types/quiz";
+import type { BetaBannerSource } from "~/utils/beta-banner";
 
 import { track } from "./index";
 import type {
+  CtaDestination,
+  CtaSection,
   EmailMissionDetailEntrySource,
+  EmailMissionsEntryPage,
   EventCategory,
+  LandingName,
   MissionClickedEntryPage,
   MissionClickedPayload,
   MissionClickedSection,
@@ -15,7 +20,9 @@ import type {
   MissionsFilterType,
   PageViewedPageName,
   QuizCompletionType,
+  QuizEntrySection,
   QuizEntrySource,
+  ResultsPageNavigationType,
 } from "./types";
 import { buildQuizPath, countAnsweredSteps, optionAnswer, resolveAnswerValue, resolveGeoProps } from "./utils";
 
@@ -30,17 +37,23 @@ import { buildQuizPath, countAnsweredSteps, optionAnswer, resolveAnswerValue, re
 // Catégorie de chaque évènement (documentation/priorisation, non transmise à PostHog).
 export const EVENT_CATALOG = {
   "page.viewed": "lifecycle",
+  "cta.clicked": "feature_usage",
   "quiz.started": "lifecycle",
   "quiz.step_completed": "core_value",
   "quiz.completed": "core_value",
   "quiz.shortcut_taken": "feature_usage",
   "quiz.back_navigated": "feature_usage",
   "results.viewed": "core_value",
+  "results_filter.applied": "core_value",
+  "results.page_changed": "feature_usage",
+  "results_map.pin_clicked": "feature_usage",
+  "results.recap_opened": "feature_usage",
   "mission.clicked": "core_value",
   "mission_detail.viewed": "feature_usage",
   "missions_filter.applied": "feature_usage",
   "email_missions.sent": "feature_usage",
   "email_mission_detail.sent": "feature_usage",
+  "beta_banner.clicked": "feature_usage",
 } satisfies Record<string, EventCategory>;
 
 // ============================================================================
@@ -48,8 +61,30 @@ export const EVENT_CATALOG = {
 // ============================================================================
 
 // `page.viewed` (lifecycle) : visite d'une page (pageview manuel, capture_pageview désactivé).
-export function trackPageViewed(params: { pageName: PageViewedPageName }): void {
-  track("page.viewed", { page_name: params.pageName });
+// Sur /missions, `activeFilters` liste les filtres actifs au chargement (ex. ["tranche_age:moins_18_ans"])
+// et `filtersPreselected` distingue une liste déjà filtrée par l'URL d'un filtrage utilisateur.
+export function trackPageViewed(params: { pageName: PageViewedPageName; activeFilters?: string[]; filtersPreselected?: boolean }): void {
+  track("page.viewed", {
+    page_name: params.pageName,
+    active_filters: params.activeFilters,
+    filters_preselected: params.filtersPreselected,
+  });
+}
+
+// ============================================================================
+// cta.clicked
+// ============================================================================
+
+// `cta.clicked` (feature_usage) : clic sur un CTA d'une landing. `cta_destination` est la propriété clé
+// de comparaison ; `cta_label` isole l'effet du wording, `destination_path` vérifie l'URL réellement visée.
+export function trackCtaClicked(params: { pageName: LandingName; ctaSection: CtaSection; ctaLabel: string; ctaDestination: CtaDestination; destinationPath: string }): void {
+  track("cta.clicked", {
+    page_name: params.pageName,
+    cta_section: params.ctaSection,
+    cta_label: params.ctaLabel,
+    cta_destination: params.ctaDestination,
+    destination_path: params.destinationPath,
+  });
 }
 
 // ============================================================================
@@ -61,14 +96,16 @@ function trackMissionClicked(payload: MissionClickedPayload): void {
   track("mission.clicked", { ...payload });
 }
 
-// Clic depuis un résultat de matching (sections pinned / other / similar) : navigation interne
+// Clic depuis un résultat de matching (sections list / map / similar) : navigation interne
 // vers le détail → `opens_external: false`.
 export function trackMissionClickedFromMatch(
   item: MissionMatchItem,
   context: {
-    section: Extract<MissionClickedSection, "pinned" | "other" | "similar">;
+    section: Extract<MissionClickedSection, "list" | "map" | "similar">;
     entryPage: MissionClickedEntryPage;
     rank: number | null;
+    // Numéro de page de la liste paginée (null hors résultats paginés, ex. missions similaires).
+    pageNumber?: number | null;
   },
 ): void {
   trackMissionClicked({
@@ -77,10 +114,11 @@ export function trackMissionClickedFromMatch(
     publisher_name: item.mission.publisherName ?? "",
     section: context.section,
     rank: context.rank,
+    page_number: context.pageNumber ?? null,
     mission_domain: item.mission.domain,
     mission_type: item.match.values.find((value) => value.taxonomyKey === "type_mission")?.taxonomyValueKey ?? null,
     opens_external: false,
-    // Spec : distance pertinente uniquement pour les sections pinned/other (résultats géolocalisés).
+    // Spec : distance pertinente uniquement pour les résultats géolocalisés (list/map), pas la similarité.
     distance_km: context.section === "similar" ? null : (item.mission.location.distanceKm ?? null),
     entry_page: context.entryPage,
   });
@@ -90,9 +128,11 @@ export function trackMissionClickedFromMatch(
 export function trackMissionClickedFromBrowse(
   mission: MissionBrowse,
   context: {
-    section: Extract<MissionClickedSection, "missions_list" | "homepage_examples">;
+    section: Extract<MissionClickedSection, "missions_list" | "homepage_examples" | LandingName>;
     entryPage: MissionClickedEntryPage;
     opensExternal: boolean;
+    // Position ordinale (1-based) quand la liste est ordonnée (ex. carrousel d'une landing) ; null sinon.
+    rank?: number | null;
   },
 ): void {
   trackMissionClicked({
@@ -100,8 +140,8 @@ export function trackMissionClickedFromBrowse(
     publisher_id: mission.publisherId ?? "",
     publisher_name: mission.publisherName ?? "",
     section: context.section,
-    // Listes non classées (spec) → rank null.
-    rank: null,
+    rank: context.rank ?? null,
+    page_number: null,
     mission_domain: mission.domain,
     // Pas de scoring sur le flux browse → type_mission indisponible ici.
     mission_type: null,
@@ -118,9 +158,10 @@ export function trackMissionClickedFromBrowse(
 // Tous les évènements quiz remontent `quiz_version` (version active du parcours, cf. config/quiz-flow)
 // pour pouvoir segmenter les analytics par version.
 
-// `quiz.started` (lifecycle) : chargement du premier step, début d'une tentative.
-export function trackQuizStarted(params: { entrySource: QuizEntrySource }): void {
-  track("quiz.started", { entry_source: params.entrySource, quiz_version: QUIZ_FLOW_VERSION });
+// `quiz.started` (lifecycle) : chargement du premier step, début d'une tentative. `entrySection` (landings)
+// précise le bloc d'où part le CTA quiz quand l'info est transmise dans le state de navigation.
+export function trackQuizStarted(params: { entrySource: QuizEntrySource; entrySection?: QuizEntrySection }): void {
+  track("quiz.started", { entry_source: params.entrySource, entry_section: params.entrySection, quiz_version: QUIZ_FLOW_VERSION });
 }
 
 // `quiz.step_completed` (core_value) : à chaque validation d'étape (goNext).
@@ -187,14 +228,60 @@ export function trackQuizBackNavigated(params: { fromStepName: StepId; fromStepI
 // results.viewed
 // ============================================================================
 
-// `results.viewed` (core_value) : chargement de la page /results avec ses missions.
-export function trackResultsViewed(params: { pinnedCount: number; totalResultsCount: number; avgDistanceKmTop5?: number | null }): void {
+// `results.viewed` (core_value) : chargement de la page /results avec ses missions. Ré-émis après un
+// re-scoring (nouveau quiz_session_id) : `previousQuizSessionId` porte alors l'ancien scoring.
+export function trackResultsViewed(params: {
+  totalResultsCount: number;
+  pageSize: number;
+  totalPages: number;
+  avgDistanceKmTop5?: number | null;
+  previousQuizSessionId?: string | null;
+}): void {
   track("results.viewed", {
-    has_results: params.pinnedCount > 0,
-    pinned_count: params.pinnedCount,
+    has_results: params.totalResultsCount > 0,
     total_results_count: params.totalResultsCount,
+    page_size: params.pageSize,
+    total_pages: params.totalPages,
     avg_distance_km_top5: params.avgDistanceKmTop5 ?? null,
+    // Présent uniquement lors d'une ré-émission suite à un re-scoring → sinon clé omise.
+    previous_quiz_session_id: params.previousQuizSessionId ?? undefined,
   });
+}
+
+// `results_filter.applied` (core_value) : validation d'un changement de réponse via une chip de filtre
+// en page de résultats (re-scoring). Un évènement par filtre modifié dans le lot d'application.
+export function trackResultsFilterApplied(params: { filterStepName: StepId; previousValue?: string | string[]; newValue: string | string[]; modifiedFilterCount: number }): void {
+  track("results_filter.applied", {
+    filter_step_name: params.filterStepName,
+    previous_value: params.previousValue,
+    new_value: params.newValue,
+    modified_filter_count: params.modifiedFilterCount,
+  });
+}
+
+// `results.page_changed` (feature_usage) : navigation dans la pagination des résultats.
+export function trackResultsPageChanged(params: { fromPage: number; toPage: number; totalPages: number; navigationType: ResultsPageNavigationType }): void {
+  track("results.page_changed", {
+    from_page: params.fromPage,
+    to_page: params.toPage,
+    total_pages: params.totalPages,
+    navigation_type: params.navigationType,
+  });
+}
+
+// `results_map.pin_clicked` (feature_usage) : clic sur un pin de la carte → aperçu de la mission.
+export function trackResultsMapPinClicked(params: { missionId: string; rank?: number | null; pageNumber: number }): void {
+  track("results_map.pin_clicked", {
+    mission_id: params.missionId,
+    rank: params.rank ?? undefined,
+    page_number: params.pageNumber,
+  });
+}
+
+// `results.recap_opened` (feature_usage) : ouverture de la modale « Ce qu'on a compris de toi »
+// (bouton « Ton profil » en page de résultats).
+export function trackResultsRecapOpened(): void {
+  track("results.recap_opened", {});
 }
 
 // ============================================================================
@@ -238,9 +325,10 @@ export function trackMissionsFilterApplied(params: { filterType: MissionsFilterT
 // Emails
 // ============================================================================
 
-// `email_missions.sent` (feature_usage) : envoi par email des 5 missions recommandées (modale résultats).
-export function trackEmailMissionsSent(params: { hasAlertOptIn: boolean }): void {
-  track("email_missions.sent", { has_alert_opt_in: params.hasAlertOptIn });
+// `email_missions.sent` (feature_usage) : envoi par email d'une sélection de missions. `entryPage` distingue
+// l'envoi depuis les résultats du quiz de celui depuis une landing.
+export function trackEmailMissionsSent(params: { hasAlertOptIn: boolean; entryPage: EmailMissionsEntryPage }): void {
+  track("email_missions.sent", { has_alert_opt_in: params.hasAlertOptIn, entry_page: params.entryPage });
 }
 
 // `email_mission_detail.sent` (feature_usage) : envoi par email d'une seule mission (modale détail).
@@ -251,4 +339,14 @@ export function trackEmailMissionDetailSent(params: { missionId: string; publish
     entry_source: params.entrySource,
     has_alert_opt_in: params.hasAlertOptIn,
   });
+}
+
+// ============================================================================
+// beta_banner.clicked
+// ============================================================================
+
+// `beta_banner.clicked` (feature_usage) : clic sur le lien de feedback du bandeau « version bêta ».
+// `source` distingue le bandeau du quiz de celui des résultats (mêmes valeurs que le champ caché Tally).
+export function trackBetaBannerClicked(params: { source: BetaBannerSource }): void {
+  track("beta_banner.clicked", { source: params.source });
 }

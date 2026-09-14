@@ -39,6 +39,18 @@ export const useQuizStore = create<QuizStore>()(
       // et regénère quizAttemptId + quizStartedAt.
       reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
     }),
-    { name: "quiz-answers", version: 5 },
+    {
+      name: "quiz-answers",
+      version: 6,
+      // v6 : q3 ne pose plus les questions interaction et imprevu. Sans purge, un utilisateur
+      // revenu d'une session q2 renverrait ces réponses dans buildPayload et les ferait scorer.
+      migrate: (persisted) => {
+        const state = persisted as QuizStore;
+        const answers = { ...state.answers };
+        delete answers.interaction;
+        delete answers.imprevu;
+        return { ...state, answers };
+      },
+    },
   ),
 );

@@ -5,9 +5,12 @@ export const ENRICHABLE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, 
 
 export const GATE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.gate).map(([k]) => k);
 
-// Clés plates "taxonomie.valeur" des réponses « je ne sais pas » / « peu importe ». Elles n'apportent
-// aucun signal (aucune mission ne les porte) et diluent le taxonomy_score si elles restent au
-// dénominateur : elles sont filtrées à l'écriture des réponses utilisateur (cf. user-scoring service).
+// Clés plates "taxonomie.valeur" exclues du scoring, pour deux raisons distinctes :
+//  - « je ne sais pas » / « peu importe » : aucune mission ne les porte, elles ne feraient que
+//    gonfler le dénominateur du taxonomy_score (dilution) ;
+//  - valeur non discriminante : portée par la quasi-totalité du catalogue, la cocher avantage
+//    toutes les missions à la fois, donc aucune (ex. motivation_recherche.agir_pour_une_cause).
+// Dans les deux cas elles sont filtrées à l'écriture des réponses utilisateur (cf. user-scoring service).
 export const NEUTRAL_TAXONOMY_VALUE_KEYS: ReadonlySet<string> = new Set(
   (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).flatMap(([taxonomyKey, d]) =>
     (Object.entries(d.values) as [string, { neutral?: boolean }][]).filter(([, v]) => v.neutral === true).map(([valueKey]) => `${taxonomyKey}.${valueKey}`)

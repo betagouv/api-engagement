@@ -45,18 +45,17 @@ export class GrimpioHandler implements BaseHandler<GrimpioJobPayload, GrimpioJob
         expired: 0,
       };
 
-      // Where des missions candidates de grimpio (allowlist des annonceurs +
-      // leurs critères/exclusions), construit depuis ses diffusion rules.
-      const { where: candidateWhere, publisherIds: candidatePublisherIds } = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter(GRIMPIO_PUBLISHER_ID);
-      if (Object.keys(candidateWhere).length === 0) {
+      // Liste des annonceurs configurés pour grimpio (allowlist), pour générer un feed par annonceur.
+      const { publisherIds: candidatePublisherIds } = await publisherDiffusionRuleService.buildMissionDiffuseurCandidateFilter(GRIMPIO_PUBLISHER_ID);
+      if (candidatePublisherIds.length === 0) {
         console.log(`[Grimpio Job] No annonceur configured for grimpio, nothing to diffuse`);
         return { success: true, timestamp: new Date(), feeds: [], counter };
       }
 
-      console.log(`[Grimpio Job] Querying candidate missions`);
-      // publisherIds: [] satisfait le type (requis) sans ajouter de filtre — l'allowlist
-      // est portée par directFilters (candidateWhere).
-      const { jobsByPublisher, processed, expired } = await generateJobsByPublisher(getMissionsCursor({ directFilters: candidateWhere, publisherIds: [] }));
+      console.log(`[Grimpio Job] Querying candidate missions from mission_diffusion snapshot`);
+      // Les missions candidates sont lues depuis le snapshot `mission_diffusion` de grimpio
+      // (matérialisation de l'allowlist + exclusions) plutôt que d'un recalcul live des règles.
+      const { jobsByPublisher, processed, expired } = await generateJobsByPublisher(getMissionsCursor({ diffuseurPublisherId: GRIMPIO_PUBLISHER_ID }));
       counter.processed = processed;
       counter.expired = expired;
 

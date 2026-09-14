@@ -37,6 +37,15 @@ const ensureUrlProtocol = (href: string) => {
   return `https://${href}`;
 };
 
+export const buildTrackingUrl = (href: string, clickId: string) => {
+  const url = new URL(ensureUrlProtocol(href || JVA_URL));
+
+  url.searchParams.set("apiengagement_id", clickId);
+  url.searchParams.set("apiengagement_tracking_token", createTrackingToken(clickId));
+
+  return url;
+};
+
 export const buildTrackedApplicationUrl = (
   href: string,
   missionPublisherId: string | null | undefined,
@@ -47,11 +56,9 @@ export const buildTrackedApplicationUrl = (
     campaign: string;
   }
 ) => {
-  const url = new URL(ensureUrlProtocol(href || JVA_URL));
+  const url = buildTrackingUrl(href, clickId);
   const trackingPrefix = missionPublisherId === PUBLISHER_IDS.SERVICE_CIVIQUE ? "mtm" : "utm";
 
-  url.searchParams.set("apiengagement_id", clickId);
-  url.searchParams.set("apiengagement_tracking_token", createTrackingToken(clickId));
   url.searchParams.set(`${trackingPrefix}_source`, tracking.source);
   url.searchParams.set(`${trackingPrefix}_medium`, tracking.medium);
   url.searchParams.set(`${trackingPrefix}_campaign`, tracking.campaign);

@@ -1,7 +1,10 @@
+// Contrôle utilisé pour changer de page : boutons Précédent/Suivant, ou clic direct sur un numéro.
+export type PaginationTrigger = "previous" | "next" | "direct";
+
 interface PaginationProps {
   page: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (page: number, trigger: PaginationTrigger) => void;
   ariaLabel?: string;
   disabled?: boolean;
   hasNextPage?: boolean;
@@ -26,11 +29,11 @@ function buildPageItems(page: number, totalPages: number): Array<number | typeof
 export default function Pagination({ page, totalPages, onPageChange, ariaLabel = "Pagination", disabled = false, hasNextPage, pageItems }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const goTo = (target: number) => {
+  const goTo = (target: number, trigger: PaginationTrigger) => {
     if (disabled || target < 1 || target === page) return;
     if (hasNextPage === undefined && target > totalPages) return;
     if (hasNextPage !== undefined && target > page && !hasNextPage) return;
-    onPageChange(target);
+    onPageChange(target, trigger);
   };
 
   const items = pageItems ?? buildPageItems(page, totalPages);
@@ -40,7 +43,12 @@ export default function Pagination({ page, totalPages, onPageChange, ariaLabel =
     <nav role="navigation" className="fr-pagination" aria-label={ariaLabel}>
       <ul className="fr-pagination__list justify-center!">
         <li>
-          <button type="button" className="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label" disabled={disabled || page === 1} onClick={() => goTo(page - 1)}>
+          <button
+            type="button"
+            className="fr-pagination__link fr-pagination__link--prev fr-pagination__link--lg-label"
+            disabled={disabled || page === 1}
+            onClick={() => goTo(page - 1, "previous")}
+          >
             Précédent
           </button>
         </li>
@@ -60,7 +68,7 @@ export default function Pagination({ page, totalPages, onPageChange, ariaLabel =
                 aria-current={item === page ? "page" : undefined}
                 aria-label={`Page ${item}${item === page ? ", page actuelle" : ""}${item === totalPages ? ", dernière page" : ""}`}
                 disabled={disabled || (hasNextPage !== undefined && item > page && !hasNextPage)}
-                onClick={() => goTo(item)}
+                onClick={() => goTo(item, "direct")}
               >
                 {item}
               </button>
@@ -73,7 +81,7 @@ export default function Pagination({ page, totalPages, onPageChange, ariaLabel =
             type="button"
             className="fr-pagination__link fr-pagination__link--next fr-pagination__link--lg-label"
             disabled={nextDisabled}
-            onClick={() => goTo(page + 1)}
+            onClick={() => goTo(page + 1, "next")}
           >
             Suivant
           </button>

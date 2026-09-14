@@ -4,6 +4,7 @@ import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
 import { getStepDef } from "~/config/quiz-flow";
 import { trackQuizStarted } from "~/services/tracking/events";
+import type { QuizEntrySection } from "~/services/tracking/types";
 import { resolveQuizEntrySource } from "~/services/tracking/utils";
 import { useQuizStore } from "~/stores/quiz";
 import { isValidAge } from "~/utils/quiz";
@@ -49,8 +50,8 @@ export default function AgeStep() {
     const { startedAttemptId, quizAttemptId, markQuizStarted } = useQuizStore.getState();
     if (startedAttemptId === quizAttemptId) return;
     markQuizStarted();
-    const hint = (location.state as { entrySource?: string } | null)?.entrySource;
-    trackQuizStarted({ entrySource: resolveQuizEntrySource(hint) });
+    const navState = location.state as { entrySource?: string; entrySection?: QuizEntrySection } | null;
+    trackQuizStarted({ entrySource: resolveQuizEntrySource(navState?.entrySource), entrySection: navState?.entrySection });
   }, []);
 
   const numeric = Number(value);

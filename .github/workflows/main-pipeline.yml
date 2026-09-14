@@ -36,7 +36,6 @@ jobs:
     permissions:
       contents: read
       actions: write
-    secrets: inherit
     with:
       branch: ${{ github.ref_name }}
 
@@ -45,21 +44,27 @@ jobs:
     uses: ./.github/workflows/release.yml
     permissions:
       contents: write
-    secrets: inherit
     with:
       branch: ${{ github.ref_name }}
 
   build:
     needs: release
     uses: ./.github/workflows/docker-build-push.yml
-    secrets: inherit
+    secrets:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_DNS_APP: ${{ secrets.SENTRY_DNS_APP }}
+      SENTRY_DSN_PLATEFORM: ${{ secrets.SENTRY_DSN_PLATEFORM }}
     with:
       branch: ${{ github.ref_name }}
 
   deploy:
     needs: build
     uses: ./.github/workflows/terraform-deploy.yml
-    secrets: inherit
+    secrets:
+      DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+      SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+      SCW_PROJECT_ID: ${{ secrets.SCW_PROJECT_ID }}
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
     with:
       branch: ${{ github.ref_name }}
 
@@ -70,10 +75,17 @@ jobs:
     with:
       branch: main
       environment: sandbox
-    secrets: inherit
+    secrets:
+      DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+      SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+      SCW_PROJECT_ID: ${{ secrets.SCW_PROJECT_ID }}
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
 
   sync-docs:
     needs: deploy
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/docs-sync.yml
-    secrets: inherit
+    secrets:
+      GITBOOK_ORGANIZATION_ID: ${{ secrets.GITBOOK_ORGANIZATION_ID }}
+      GITBOOK_SPEC_NAME: ${{ secrets.GITBOOK_SPEC_NAME }}
+      GITBOOK_TOKEN: ${{ secrets.GITBOOK_TOKEN }}

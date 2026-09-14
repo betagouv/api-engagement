@@ -1,6 +1,7 @@
 locals {
   common_env_vars = {
     "ENV"                        = var.env
+    "WORKSPACE"                  = var.workspace
     "API_URL"                    = "https://${var.api_hostname}"
     "APP_URL"                    = "https://${var.app_hostname}"
     "BENEVOLAT_URL"              = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
@@ -92,7 +93,10 @@ resource "scaleway_job_definition" "grimpio" {
   timeout         = "45m"
 
   cron {
-    schedule = "0 1 * * *" # Every day at 1:00 AM
+    # Grimpio lit le snapshot mission_diffusion : il doit tourner APRÈS le rebuild
+    # (01:30, timeout 60 min), sinon il diffuse un snapshot de la veille (19:30) et
+    # rate jusqu'au lendemain les missions importées à 00:15.
+    schedule = "30 2 * * *" # Every day at 2:30 AM (after mission-diffusion-rebuild)
     timezone = "Europe/Paris"
   }
 

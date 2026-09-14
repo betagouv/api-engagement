@@ -10,16 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "rythme";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["rythme.ponctuelle_journee"],
-  OPTIONS["rythme.quelques_heures_semaine"],
-  OPTIONS["rythme.plusieurs_jours_semaine"],
-  OPTIONS["rythme.quelques_jours_annee"],
-  OPTIONS["rythme.temps_plein_plusieurs_mois"],
-  OPTIONS["rythme.je_ne_sais_pas"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function RythmeStep() {
   const { answers, setAnswer } = useQuizStore();

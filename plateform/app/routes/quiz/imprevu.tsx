@@ -10,14 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "imprevu";
 
-const STEP_OPTIONS: StepOption[] = [
-  OPTIONS["imprevu.adaptation_rapide"],
-  OPTIONS["imprevu.imprevu_modere"],
-  OPTIONS["imprevu.cadre_previsible"],
-  OPTIONS["imprevu.je_ne_sais_pas"],
-];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function ImprevuStep() {
   const { answers, setAnswer } = useQuizStore();

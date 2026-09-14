@@ -1,8 +1,10 @@
+import type { QuizOptionKey } from "~/config/quiz-options";
 import { type Condition } from "~/utils/conditions";
 
 // Union exhaustive des steps du quiz, toutes versions de parcours confondues (cf. index.ts).
 export type StepId =
-  // Steps du parcours v2 (q2) — nommés comme leur taxonomy.
+  // Steps des parcours v2 (q2) et v3 (q3) — nommés comme leur taxonomy.
+  // q3 = q2 sans les steps "interaction" et "imprevu", conservés ici pour rollback.
   | "age"
   | "tranche_age"
   | "handicap"
@@ -37,5 +39,9 @@ export interface StepDef {
   title: string;
   // Sous-titre optionnel affiché sous le titre du step.
   subtitle?: string;
+  // Réponses proposées, dans l'ordre d'affichage. Versionnées ici et non dans le step component :
+  // les steps sont partagés entre les parcours, seul le flow sait ce que sa version propose.
+  // Absent pour les steps sans liste d'options (age, localisation).
+  options?: QuizOptionKey[];
   condition?: Condition;
 }

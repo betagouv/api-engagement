@@ -1,4 +1,5 @@
 import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } from "@engagement/dto";
+import { getDomainLabel } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +14,7 @@ import Pagination from "~/components/ui/pagination";
 import { browseMissions } from "~/services/mission-browse";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
+import { buildMissionBrowseTags } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 import type { Route } from "./+types/missions";
 
@@ -87,7 +89,9 @@ export default function MissionsPage() {
   useEffect(() => {
     if (pageViewedFired.current) return;
     pageViewedFired.current = true;
-    trackPageViewed({ pageName: "missions_list" });
+    // Filtres actifs au chargement (issus de l'URL, ex. arrivée depuis une landing pré-filtrée sur les mineurs).
+    const activeFilters = FILTER_KEYS.flatMap((key) => filterValues[key].map((value) => `${FILTER_TYPE_BY_KEY[key]}:${value}`));
+    trackPageViewed({ pageName: "missions_list", activeFilters, filtersPreselected: activeFilters.length > 0 });
   }, []);
 
   useEffect(() => {
@@ -249,9 +253,15 @@ export default function MissionsPage() {
                 {items.map((mission) => (
                   <li key={mission.id} className="min-w-0">
                     <MissionCard
-                      mission={mission}
-                      link={{ type: "internal", to: `/missions/${mission.id}`, state: { entrySource: "missions_list" } satisfies MissionDetailNavState }}
+                      image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
+                      domainLabel={getDomainLabel(mission.domain)}
+                      title={mission.title}
+                      to={`/missions/${mission.id}`}
+                      state={{ entrySource: "missions_list" } satisfies MissionDetailNavState}
                       onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
+                      tags={buildMissionBrowseTags(mission)}
+                      publisherName={mission.publisherName}
+                      publisherLogo={mission.publisherLogo}
                     />
                   </li>
                 ))}

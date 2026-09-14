@@ -17,7 +17,7 @@ export default [
   // seule la version active (QUIZ_FLOW_VERSION) pilote la navigation.
   route("quiz", "routes/quiz/_layout.tsx", [
     index("routes/quiz/_index.tsx"),
-    // Steps du parcours v2 (q2).
+    // Steps des parcours v2 (q2) et v3 (q3).
     route("age", "routes/quiz/age.tsx"),
     route("handicap", "routes/quiz/handicap.tsx"),
     route("localisation", "routes/quiz/localisation.tsx"),
@@ -27,8 +27,9 @@ export default [
     route("domaine-engagement", "routes/quiz/domaine-engagement.tsx"),
     route("activite", "routes/quiz/activite.tsx"),
     route("equipe", "routes/quiz/equipe.tsx"),
-    route("interaction", "routes/quiz/interaction.tsx"),
     route("autonomie", "routes/quiz/autonomie.tsx"),
+    // Steps abandonnés par q3, conservés pour rollback vers q2.
+    route("interaction", "routes/quiz/interaction.tsx"),
     route("imprevu", "routes/quiz/imprevu.tsx"),
     // Steps du parcours v1 (q1), conservés pour rollback.
     route("statut", "routes/quiz/statut.tsx"),
@@ -44,6 +45,11 @@ export default [
     route("precision-servir-pays", "routes/quiz/precision-servir-pays.tsx"),
     route("precision-international", "routes/quiz/precision-international.tsx"),
   ]),
+
+  // Landings marketing, isolées dans `routes/landings` (composants dans `components/landings`) :
+  // souvent éphémères, elles restent identifiables et supprimables d'un bloc.
+  // « Les défis de l'engagement » : programme dédié aux 16-18 ans.
+  route("defis-engagement", "routes/landings/defis-engagement.tsx"),
 
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),

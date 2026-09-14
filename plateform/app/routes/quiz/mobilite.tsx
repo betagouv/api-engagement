@@ -10,9 +10,9 @@ import type { QuizOutletContext } from "./_layout";
 
 const STEP_ID = "mobilite";
 
-const STEP_OPTIONS: StepOption[] = [OPTIONS["mobilite.pied_transports"], OPTIONS["mobilite.velo"], OPTIONS["mobilite.voiture"]];
-
 const STEP = getStepDef(STEP_ID);
+
+const STEP_OPTIONS: StepOption[] = (STEP.options ?? []).map((key) => OPTIONS[key]);
 
 export default function MobiliteStep() {
   const { answers, setAnswer } = useQuizStore();

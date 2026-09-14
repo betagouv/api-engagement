@@ -15,6 +15,20 @@ export type MissionContent = {
 const FONT_FAMILY = "'Marianne', Arial, Helvetica, sans-serif";
 const BLUE_FRANCE = "#000091";
 
+const HTML_ENTITIES: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+  "{": "&#123;",
+  "}": "&#125;",
+};
+
+// Les accolades sont aussi encodées pour que Brevo ne puisse pas interpréter
+// une valeur métier comme une expression de son langage de template.
+const escapeBrevoHtml = (value: string) => value.replace(/[&<>"'{}]/g, (character) => HTML_ENTITIES[character]);
+
 // Bannière mission : recadrage cover 1200x260 (= 2x de 600x130 pour la netteté retina).
 const buildBannerImageUrl = (imageUrl: string) => `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl)}&w=1200&h=260&fit=cover`;
 
@@ -32,7 +46,7 @@ const buildCriteriaRow = (icon: string, label: string) => `
       <table cellpadding="0" cellspacing="0" border="0" role="presentation">
         <tr>
           <td style="padding-right: 8px; vertical-align: middle;">${icon}</td>
-          <td style="vertical-align: middle; font-family: ${FONT_FAMILY}; font-size: 14px; color: #1a1a1a; font-weight: bold;">${label}</td>
+          <td style="vertical-align: middle; font-family: ${FONT_FAMILY}; font-size: 14px; color: #1a1a1a; font-weight: bold;">${escapeBrevoHtml(label)}</td>
         </tr>
       </table>
     </td>
@@ -61,7 +75,7 @@ const buildBannerRow = (mission: MissionContent) => {
 
 const buildTitleRow = (mission: MissionContent, fontSize: number) => `
   <tr>
-    <td style="padding-bottom: 12px; font-family: ${FONT_FAMILY}; font-size: ${fontSize}px; font-weight: 700; line-height: 1.3; color: #161616;">${mission.title}</td>
+    <td style="padding-bottom: 12px; font-family: ${FONT_FAMILY}; font-size: ${fontSize}px; font-weight: 700; line-height: 1.3; color: #161616;">${escapeBrevoHtml(mission.title)}</td>
   </tr>`;
 
 const buildPublisherRow = (mission: MissionContent) => `
@@ -70,9 +84,9 @@ const buildPublisherRow = (mission: MissionContent) => `
       <table cellpadding="0" cellspacing="0" border="0" role="presentation">
         <tr>
           <td style="padding-right: 8px; vertical-align: middle;">
-            <img src="${buildLogoImageUrl(mission.publisherLogo)}" alt="${mission.publisherName}" height="28" style="display: block; height: 28px; width: auto; max-width: 120px; object-fit: contain;" />
+            <img src="${buildLogoImageUrl(mission.publisherLogo)}" alt="${escapeBrevoHtml(mission.publisherName)}" height="28" style="display: block; height: 28px; width: auto; max-width: 120px; object-fit: contain;" />
           </td>
-          <td style="vertical-align: middle; font-family: ${FONT_FAMILY}; font-size: 14px; color: #6b7280;">${mission.publisherName} proposé par ${mission.publisherOrganizationName}</td>
+          <td style="vertical-align: middle; font-family: ${FONT_FAMILY}; font-size: 14px; color: #6b7280;">${escapeBrevoHtml(mission.publisherName)} proposé par ${escapeBrevoHtml(mission.publisherOrganizationName)}</td>
         </tr>
       </table>
     </td>

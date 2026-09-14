@@ -1,0 +1,140 @@
+import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
+import { useEffect, useRef } from "react";
+import { useLoaderData, useNavigate } from "react-router";
+
+import AscPng from "~/assets/images/asc-logo.png";
+import JvaPng from "~/assets/images/jva-logo.png";
+import RocPng from "~/assets/images/roc-logo.png";
+import CadreMineurs from "~/components/landings/defis-engagement/cadre-mineurs";
+import Etapes from "~/components/landings/defis-engagement/etapes";
+import Hero from "~/components/landings/defis-engagement/hero";
+import Histoires from "~/components/landings/defis-engagement/histoires";
+import Missions from "~/components/landings/defis-engagement/missions";
+import Questions from "~/components/landings/defis-engagement/questions";
+import TerrainDeJeu from "~/components/landings/defis-engagement/terrain-de-jeu";
+import Partners, { type Partner } from "~/components/layout/partners";
+import { browseMissions } from "~/services/api/missions";
+import { registerLandingOrigin } from "~/services/tracking";
+import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
+import type { CtaSection, LandingCta, QuizEntrySection } from "~/services/tracking/types";
+import { useQuizStore } from "~/stores/quiz";
+
+import type { Route } from "./+types/defis-engagement";
+
+// Les 4 missions mises en avant (demande des testeurs) : deux bénévolats ouverts aux mineurs (solidarité
+// et environnement), un service civique sportif et la réserve de la Gendarmerie. Un créneau sans résultat
+// est simplement absent du carrousel.
+const MISSION_SLOTS: MissionBrowseFilters[] = [
+  { dispositif: "benevolat", domaine: "social_solidarite", tranche_age: "moins_18_ans" },
+  { dispositif: "service_civique", domaine: "sport_animation", tranche_age: "moins_18_ans" },
+  { dispositif: "benevolat", domaine: "environnement_nature", tranche_age: "moins_18_ans" },
+  { dispositif: "reserve_gendarmerie" },
+];
+
+// Partenaires affichés en bas de la landing, sans les sapeurs-pompiers (demande des testeurs). Les liens
+// pointent vers des campagnes dédiées à la landing, pour attribuer les clics à cette page.
+const PARTNERS: Partner[] = [
+  {
+    name: "JeVeuxAider.gouv.fr",
+    description: "La plateforme publique du bénévolat.",
+    logo: JvaPng,
+  },
+  {
+    name: "Le Service Civique",
+    description: "De 6 à 12 mois, des missions d'intérêt général rémunérées.",
+    logo: AscPng,
+  },
+  {
+    name: "La réserve de la Gendarmerie nationale",
+    description: "Des missions rémunérées de réservistes.",
+    logo: RocPng,
+  },
+];
+
+// CTA "voir les missions" partagé par les blocs Missions, Questions et Témoignages : même destination
+// (liste pré-filtrée sur les mineurs) et même wording, définis ici une seule fois.
+const MISSIONS_CTA = { to: "/missions?tranche_age=moins_18_ans", label: "Voir toutes les missions" };
+
+export function meta(): Route.MetaDescriptors {
+  return [
+    { title: "Les défis de l'engagement — Trouve ta mission" },
+    {
+      name: "description",
+      content: "Des missions d'engagement en bénévolat, service civique, pompiers ou réservistes dès 16 ans, dans un cadre pensé pour les mineurs.",
+    },
+    { property: "og:title", content: "Les défis de l'engagement" },
+    { property: "og:description", content: "Dès 16 ans, trouve la mission d'engagement qui te ressemble." },
+    { property: "og:type", content: "website" },
+  ];
+}
+
+export async function loader({ request }: Route.LoaderArgs): Promise<{ missions: MissionBrowse[] }> {
+  const browse = async (filters: MissionBrowseFilters) => {
+    try {
+      const res = await browseMissions(filters, request);
+      return res.data;
+    } catch {
+      return [];
+    }
+  };
+
+  // Les missions mises en avant, puis 10 missions ouvertes aux mineurs prises sur une page tirée au
+  // hasard parmi les 10 premières, pour varier le carrousel d'une visite à l'autre.
+  const results = await Promise.all([
+    ...MISSION_SLOTS.map((slot) => browse({ ...slot, pageSize: 1 })),
+    browse({ tranche_age: "moins_18_ans", pageSize: 10, page: Math.ceil(Math.random() * 10) }),
+  ]);
+
+  // Dédoublonnage : une mission mise en avant peut aussi ressortir dans le complément.
+  const missions = new Map(results.flat().map((mission) => [mission.id, mission]));
+
+  return { missions: [...missions.values()] };
+}
+
+export default function DefisEngagement() {
+  const { missions } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const reset = useQuizStore((s) => s.reset);
+  const pageViewedFired = useRef(false);
+
+  useEffect(() => {
+    if (pageViewedFired.current) return;
+    pageViewedFired.current = true;
+    // Super property de session : relie les évènements suivants (page.viewed /missions, quiz.*, etc.) à cette landing.
+    registerLandingOrigin("defis_engagement");
+    trackPageViewed({ pageName: "landing_defis_engagement" });
+  }, []);
+
+  const handleStartQuiz = (section: QuizEntrySection) => {
+    // reset() regénère quiz_attempt_id : le tracer avant émettrait cta.clicked avec l'ancien id et le
+    // détacherait du funnel (quiz.started et la suite portent le nouvel id). On réinitialise donc d'abord.
+    reset();
+    trackCtaClicked({ pageName: "landing_defis_engagement", ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
+    navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta", entrySection: section } });
+  };
+
+  const missionsCta = (section: CtaSection): LandingCta => ({
+    ...MISSIONS_CTA,
+    onClick: () =>
+      trackCtaClicked({
+        pageName: "landing_defis_engagement",
+        ctaSection: section,
+        ctaLabel: MISSIONS_CTA.label,
+        ctaDestination: "missions_list",
+        destinationPath: MISSIONS_CTA.to,
+      }),
+  });
+
+  return (
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
+      <Hero onStartQuiz={() => handleStartQuiz("hero")} />
+      <Missions missions={missions} cta={missionsCta("missions")} />
+      <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />
+      <TerrainDeJeu />
+      <Questions cta={missionsCta("questions")} />
+      <CadreMineurs />
+      <Histoires cta={missionsCta("histoires")} />
+      <Partners style="compact" partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
+    </main>
+  );
+}

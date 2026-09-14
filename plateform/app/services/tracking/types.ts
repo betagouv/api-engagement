@@ -44,48 +44,79 @@ export type TrackingProviderName = "local" | "posthog";
 // Catégorie du plan de télémétrie (documentation/priorisation, non envoyée à PostHog).
 export type EventCategory = "lifecycle" | "core_value" | "feature_usage";
 
+// Landings marketing (cf. routes/landings) : identifiées par un slug préfixé `landing_` plutôt
+// qu'énumérées, pour ne pas avoir à étendre les unions ci-dessous à chaque nouvelle landing.
+// Ex. "landing_defis_engagement".
+export type LandingName = `landing_${string}`;
+
 // --- page.viewed ---
 // Page visitée (discriminant du pageview manuel : capture_pageview est désactivé côté PostHog).
-export type PageViewedPageName = "homepage" | "missions_list";
+export type PageViewedPageName = "homepage" | "missions_list" | LandingName;
+
+// --- cta.clicked ---
+// Clic sur un CTA d'une landing. `cta_destination` = cible métier (union stable, partagée entre landings),
+// `cta_section` = bloc de la page : slug spécifique à chaque landing, laissé en `string` (comme LandingName)
+// pour ne pas maintenir ici la liste des sections de toutes les landings.
+export type CtaSection = string;
+export type CtaDestination = "quiz" | "missions_list";
+// Prop d'un CTA de landing partagé entre plusieurs blocs : destination + wording définis une seule fois,
+// `onClick` porte le trackCtaClicked (le bloc renseigne son propre `cta_section`).
+export type LandingCta = { to: string; label: string; onClick: () => void };
 
 // --- mission.clicked ---
-// Surface d'où provient le clic sur une carte mission.
-export type MissionClickedSection = "pinned" | "other" | "homepage_examples" | "missions_list" | "similar";
+// Surface d'où provient le clic sur une carte mission. Sur les résultats : `list` (liste paginée) et
+// `map` (clic sur la carte de prévisualisation de la mission sur la map).
+export type MissionClickedSection = "list" | "map" | "homepage_examples" | "missions_list" | "similar" | LandingName;
 // Page sur laquelle se trouve l'utilisateur au moment du clic.
-export type MissionClickedEntryPage = "results" | "homepage" | "missions_list";
+export type MissionClickedEntryPage = "results" | "homepage" | "missions_list" | LandingName;
 
 export interface MissionClickedPayload {
   mission_id: string;
   publisher_id: string;
   publisher_name: string;
   section: MissionClickedSection;
-  // Position ordinale dans la liste affichée (1 = première). Null pour les listes non classées.
+  // Position ordinale dans le scoring (1 = première, continue au-delà de 10). Null pour les listes non classées.
   rank: number | null;
+  // Numéro de page de la liste paginée au moment du clic. Null hors résultats paginés.
+  page_number: number | null;
   mission_domain: string | null;
   // Valeur de la taxonomie `type_mission` (ponctuelle, reguliere, temps_plein, ...).
   mission_type: string | null;
   // true si le clic mène vers le site annonceur externe (et non vers le détail interne).
   opens_external: boolean;
-  // Distance user ↔ mission fournie par le backend. Null hors sections pinned/other.
+  // Distance user ↔ mission fournie par le backend. Null hors résultats géolocalisés (list/map).
   distance_km: number | null;
   entry_page: MissionClickedEntryPage;
 }
 
 // --- quiz ---
-// Provenance de l'entrée dans le quiz.
-export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "external";
+// Provenance de l'entrée dans le quiz. `my_profile_modal` : CTA « Refaire le quiz » de la modale
+// « Ce qu'on a compris de toi » (bouton « Ton profil » en page de résultats).
+export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "my_profile_modal" | "external" | `${LandingName}_cta`;
+// Bloc de la landing d'où part le CTA quiz (à côté de `entrySource`), pour savoir quel CTA a été cliqué.
+export type QuizEntrySection = "hero" | "etapes";
 // Mode de complétion : "full" (parcours jusqu'au bout) ou "shortcut" (bouton "Voir mes résultats").
 export type QuizCompletionType = "full" | "shortcut";
 
 // --- mission_detail.viewed ---
-// Provenance de l'ouverture d'une fiche mission.
-export type MissionDetailEntrySource = "results_pinned" | "results_other" | "missions_list" | "homepage" | "direct";
+// Provenance de l'ouverture d'une fiche mission. `results_list` (liste paginée) et `results_map`
+// (aperçu de la mission sur la map) remplacent les anciennes sections pinned/other.
+export type MissionDetailEntrySource = "results_list" | "results_map" | "missions_list" | "homepage" | "direct" | LandingName;
 // State de navigation transmis par les cartes mission vers la fiche détail (entry_source + rang).
-export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number };
+// `backTo` : page vers laquelle renvoie le bouton "Retour" hors parcours résultats (ex. landings).
+export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number; backTo?: string };
 
 // --- missions_filter.applied ---
 export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
 
 // --- emails ---
-// Provenance de la fiche depuis laquelle l'email d'une mission est envoyé.
-export type EmailMissionDetailEntrySource = "results" | "missions_list" | "direct";
+// Provenance de la fiche depuis laquelle l'email d'une mission est envoyé. `results_card` : CTA email
+// d'une carte mission en page de résultats (envoi sans passer par la fiche détail).
+export type EmailMissionDetailEntrySource = "results" | "results_card" | "missions_list" | "direct";
+// Page d'où part l'envoi de la sélection complète : résultats du quiz, ou une landing (carte mission).
+export type EmailMissionsEntryPage = "results" | LandingName;
+
+// --- results.page_changed ---
+// Contrôle de pagination utilisé : boutons Précédent/Suivant, ou clic sur un numéro (`direct`), le
+// numéro pouvant être la 1re (`first`) ou la dernière (`last`) page.
+export type ResultsPageNavigationType = "next" | "previous" | "direct" | "first" | "last";

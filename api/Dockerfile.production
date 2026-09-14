@@ -44,7 +44,9 @@ COPY --from=builder /workspace/api/src/db ./dist/db
 COPY --from=builder /workspace/api/src/static ./dist/static
 COPY --from=builder /workspace/api/prisma ./prisma
 COPY api/docker-entrypoint.sh /workspace/api/docker-entrypoint.sh
-RUN chmod +x /workspace/api/docker-entrypoint.sh
+RUN chmod +x /workspace/api/docker-entrypoint.sh && chown node:node /workspace/api
+
+USER node
 
 EXPOSE 8080
 

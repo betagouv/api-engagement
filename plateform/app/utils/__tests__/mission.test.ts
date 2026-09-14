@@ -169,9 +169,53 @@ describe("buildMissionMatchTags", () => {
     expect(buildMissionMatchTags(item, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable et rassurant"]);
   });
 
-  it("n'ajoute pas la ville quand le score géo est bas ou que la mission n'en a pas", () => {
-    expect(buildMissionMatchTags(buildItem([], { geoScore: 0.4 }, "Grenoble"), new Set())).toEqual([]);
+  it("n'ajoute pas la ville comme tag de matching quand le score géo est bas ou que la mission n'en a pas", () => {
+    // Score géo bas : la ville n'est plus un tag de matching, mais elle revient via les tags standards.
+    expect(buildMissionMatchTags(buildItem([], { geoScore: 0.4 }, "Grenoble"), new Set())).toEqual(["Grenoble"]);
     expect(buildMissionMatchTags(buildItem([], { geoScore: 0.98 }), new Set())).toEqual([]);
+  });
+
+  it("complète avec les tags standards quand le matching produit moins de 5 tags", () => {
+    const item = buildItem([["equipe", "petit_groupe"]], { taxonomyScores: { equipe: 1 } });
+    item.mission.remote = "full";
+    item.mission.schedule = "Quelques heures par semaine";
+    item.mission.compensation = { amount: 600, amountMax: null, unit: "month", type: "net" };
+
+    expect(buildMissionMatchTags(item, new Set(["equipe.petit_groupe"]))).toEqual([
+      "Une équipe de moins de 10 bénévoles",
+      "À distance",
+      "Quelques heures par semaine",
+      "600€ par mois",
+    ]);
+  });
+
+  it("ne complète pas quand le matching produit déjà 5 tags", () => {
+    const item = buildItem(
+      [
+        ["motivation_recherche", "remote"],
+        ["motivation_recherche", "premiere_experience"],
+        ["motivation_recherche", "agir_pour_une_cause"],
+        ["equipe", "petit_groupe"],
+        ["imprevu", "adaptation_rapide"],
+      ],
+      { taxonomyScores: { motivation_recherche: 1, equipe: 0.9, imprevu: 0.8 } },
+    );
+    item.mission.schedule = "Quelques heures par semaine";
+    const userValueKeys = new Set([
+      "motivation_recherche.remote",
+      "motivation_recherche.premiere_experience",
+      "motivation_recherche.agir_pour_une_cause",
+      "equipe.petit_groupe",
+      "imprevu.adaptation_rapide",
+    ]);
+
+    expect(buildMissionMatchTags(item, userValueKeys)).toEqual([
+      "À distance",
+      "Idéal pour débuter",
+      "Une mission qui a du sens",
+      "Une équipe de moins de 10 bénévoles",
+      "Un environnement dynamique",
+    ]);
   });
 
   it("ignore les valeurs de taxonomie sans tag de carte", () => {

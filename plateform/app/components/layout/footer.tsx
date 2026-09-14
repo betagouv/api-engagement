@@ -113,7 +113,7 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
             </li>
             <li className="fr-footer__bottom-item">
               <a className="fr-footer__bottom-link" href="/accessibilite">
-                Accessibilité : totalement conforme
+                Accessibilité : partiellement conforme
               </a>
             </li>
             <li className="fr-footer__bottom-item">

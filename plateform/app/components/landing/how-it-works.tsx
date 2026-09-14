@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
 
 import CalendarSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/calendar.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
@@ -7,7 +7,7 @@ import FirefighterSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/fi
 import MoneySvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/money.svg?url";
 import LocationFranceSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/location-france.svg?url";
 import LongTraceSvg from "~/assets/svg/long-trace.svg";
-import { getScrollBehavior } from "~/utils/motion";
+import Carousel from "~/components/ui/carousel";
 
 import Highlight from "../ui/highlight";
 
@@ -52,27 +52,6 @@ const FEATURES: Feature[] = [
 ];
 
 export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void }) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const updateScrollState = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  };
-
-  useEffect(() => {
-    updateScrollState();
-  }, []);
-
-  const handleScroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const offset = direction === "left" ? -300 : 300;
-    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
-  };
-
   return (
     <section className=" fr-mb-12w relative overflow-x-clip">
       <img src={FirefighterSvg} alt="" className="hidden md:block absolute left-12 top-5 size-30 opacity-20 rotate-24" aria-hidden="true" />
@@ -87,45 +66,21 @@ export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void })
           <p className="fr-text--lead fr-mb-0 hidden md:block">Il existe plein de façons de s'engager, selon tes besoins et tes disponibilités.</p>
         </div>
 
-        <div
-          ref={scrollRef}
-          id="how-it-works-carousel"
-          onScroll={updateScrollState}
-          className="snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible fr-mb-6w [margin-left:calc(50%-50vw)] [margin-right:calc(50%-50vw)] md:mx-0"
-          aria-live="polite"
-          aria-atomic="false"
+        <Carousel
+          label="Des missions qui s'adaptent à toi"
+          previousLabel="Voir précédent"
+          nextLabel="Voir suivant"
+          className="fr-mb-3w"
+          listClassName="-ml-32! scroll-pl-32! pl-32! mr-[calc(50%-50vw)]! md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-2 md:overflow-visible lg:grid-cols-4"
+          itemClassName="w-[80vw] md:w-auto"
         >
-          <ul role="list" className="flex w-max gap-6 px-[10vw] pb-4 md:grid md:w-auto md:grid-cols-2 md:gap-6 md:px-0 md:pb-0 lg:grid-cols-4 list-none! p-0! m-0!">
-            {FEATURES.map((feature) => (
-              <li
-                key={feature.icon}
-                className="bg-background flex w-[80vw] shrink-0 snap-center flex-col items-center gap-4 p-8 text-center shadow-lg md:w-auto md:p-10 lg:mx-auto lg:max-w-60 lg:p-6"
-              >
-                <img src={feature.icon} alt="" className="size-16 dark:box-content dark:rounded-full dark:bg-white dark:p-3" aria-hidden="true" />
-                <h3 className="fr-text--lead text-title-grey font-bold">{feature.title}</h3>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="fr-mb-3w flex justify-center gap-3 md:hidden">
-          <button
-            type="button"
-            onClick={() => handleScroll("left")}
-            disabled={!canScrollLeft}
-            aria-label="Voir précédent"
-            aria-controls="how-it-works-carousel"
-            className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
-          ></button>
-          <button
-            type="button"
-            onClick={() => handleScroll("right")}
-            disabled={!canScrollRight}
-            aria-label="Voir suivant"
-            aria-controls="how-it-works-carousel"
-            className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
-          ></button>
-        </div>
+          {FEATURES.map((feature) => (
+            <div key={feature.icon} className="bg-background flex h-full flex-col items-center gap-4 p-8 text-center shadow-lg md:p-10 lg:mx-auto lg:max-w-60 lg:p-6">
+              <img src={feature.icon} alt="" className="size-16 dark:box-content dark:rounded-full dark:bg-white dark:p-3" aria-hidden="true" />
+              <h3 className="fr-text--lead text-title-grey font-bold">{feature.title}</h3>
+            </div>
+          ))}
+        </Carousel>
 
         <div className="flex flex-col items-center gap-3">
           <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full justify-center md:w-auto">

@@ -35,7 +35,9 @@ export default function MissionExamples({ missions, className }: Props) {
   if (!missions?.length) return null;
 
   return (
-    <section className={`fr-pb-8w relative z-10 ${className}`} aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">
+    // `overflow-x-clip` : le débord jusqu'aux bords de l'écran ne doit pas créer de scroll horizontal
+    // (`50vw` inclut la barre de défilement, contrairement à la largeur du document).
+    <section className={`fr-pb-8w relative z-10 overflow-x-clip ${className}`} aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">
       {/* RGAA 9.1 : titre de section masqué — les titres de cartes sont des <h3>, sans saut depuis le h1 du hero. */}
       <h2 className="fr-sr-only">Exemples de missions d'engagement</h2>
       <div className="fr-container max-w-7xl! relative">

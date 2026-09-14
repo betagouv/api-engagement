@@ -7,7 +7,10 @@ type QueryOptions = {
   body?: Record<string, unknown>;
 };
 
-const DATE_KEYS = new Set(["from", "to"]);
+type MetabaseCardParameter = {
+  id: string;
+  slug: string;
+};
 
 const resolveDateInTimezone = (value: string, timeZone: string) => {
   const date = new Date(value);
@@ -22,7 +25,20 @@ const resolveDateInTimezone = (value: string, timeZone: string) => {
   }).format(date);
 };
 
-const buildParametersFromVariables = (variables?: QueryOptions["variables"]) => {
+const getCardParameters = async (cardId: string | number) => {
+  const response = await fetch(`${METABASE_URL}/api/card/${cardId}`, {
+    headers: buildHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Metabase card ${cardId} metadata returned ${response.status}`);
+  }
+
+  const card = (await response.json()) as { parameters?: Array<MetabaseCardParameter> };
+  return Array.isArray(card.parameters) ? card.parameters : [];
+};
+
+const buildParametersFromVariables = (variables: QueryOptions["variables"], cardId: string | number, cardParameters: Array<MetabaseCardParameter>) => {
   if (!variables) {
     return undefined;
   }
@@ -40,13 +56,17 @@ const buildParametersFromVariables = (variables?: QueryOptions["variables"]) => 
 
   delete resolvedVariables.user_tz;
 
+  const cardParametersBySlug = new Map(cardParameters.map((parameter) => [parameter.slug, parameter]));
+
   return Object.entries(resolvedVariables).map(([key, value]) => {
-    const resolvedType = Array.isArray(value) ? "date/range" : DATE_KEYS.has(key) ? "date/single" : "string/=";
+    const cardParameter = cardParametersBySlug.get(key);
+    if (!cardParameter) {
+      throw new Error(`Metabase parameter '${key}' is not configured on card ${cardId}`);
+    }
 
     return {
-      type: resolvedType,
-      target: ["variable", ["template-tag", key]],
-      value: resolvedType === "string/=" ? [value] : value,
+      id: cardParameter.id,
+      value,
     };
   });
 };
@@ -69,7 +89,7 @@ export const metabaseService = {
     }
 
     const payload: Record<string, unknown> = { ...(body || {}) };
-    const computedParameters = parameters ?? buildParametersFromVariables(variables);
+    const computedParameters = parameters ?? (variables ? buildParametersFromVariables(variables, cardId, await getCardParameters(cardId)) : undefined);
     if (computedParameters?.length) {
       payload.parameters = computedParameters;
     }
