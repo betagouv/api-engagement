@@ -16,7 +16,7 @@ vi.mock("@/services/brevo", async (importOriginal) => {
   return { ...actual, sendTemplate: sendTemplateMock };
 });
 
-import { SECRET } from "@/config";
+import { MFA_DEVICE_SECRET } from "@/config";
 
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
@@ -66,9 +66,36 @@ describe("MFA login flow", () => {
     expect(res.body.data?.token).toBeUndefined();
   });
 
+  it("rejects the MFA challenge token on user-protected routes", async () => {
+    const { user } = await createTestUser({ password: PASSWORD });
+    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+
+    const res = await request(app).get("/user/refresh").set("Authorization", `jwt ${login.body.data.mfaToken}`);
+
+    expect(res.status).toBe(401);
+  });
+
+  it("rejects the MFA challenge token on admin-protected routes", async () => {
+    const { user } = await createTestUser({ password: PASSWORD, role: "admin" });
+    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+
+    const res = await request(app).post("/user/search").set("Authorization", `jwt ${login.body.data.mfaToken}`).send({});
+
+    expect(res.status).toBe(401);
+  });
+
+  it("rejects the trusted-device token on user-protected routes", async () => {
+    const { user } = await createTestUser({ password: PASSWORD });
+    const deviceToken = jwt.sign({ _id: user.id, purpose: "mfa-device" }, MFA_DEVICE_SECRET);
+
+    const res = await request(app).get("/user/refresh").set("Authorization", `jwt ${deviceToken}`);
+
+    expect(res.status).toBe(401);
+  });
+
   it("skips the OTP when a valid trusted-device cookie is presented", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
-    const deviceToken = jwt.sign({ _id: user.id, purpose: "mfa-device" }, SECRET);
+    const deviceToken = jwt.sign({ _id: user.id, purpose: "mfa-device" }, MFA_DEVICE_SECRET);
 
     const res = await request(app)
       .post("/user/login")

@@ -1,12 +1,10 @@
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 
 import { Prisma } from "@/db/core";
 import { userRepository } from "@/repositories/user";
 import type { PublicUserRecord, UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "@/types/user";
 
 const SALT_ROUNDS = 10;
-const MFA_CODE_EXPIRATION = 1000 * 60 * 10; // 10 minutes
 
 const defaultInclude = {
   userPublishers: {
@@ -230,32 +228,6 @@ export const userService = {
       return false;
     }
     return bcrypt.compare(candidate, user.password);
-  },
-
-  /** Génère un code OTP à 6 chiffres via CSPRNG (crypto), jamais `Math.random`. */
-  generateMfaCode(): string {
-    return crypto.randomInt(0, 1_000_000).toString().padStart(6, "0");
-  },
-
-  /** Stocke le code MFA hashé (bcrypt) + son expiration (10 min) sur l'user. */
-  async setMfaCode(id: string, code: string): Promise<void> {
-    await this.updateUser(id, {
-      mfaCode: await bcrypt.hash(code, SALT_ROUNDS),
-      mfaCodeExpiresAt: new Date(Date.now() + MFA_CODE_EXPIRATION),
-    });
-  },
-
-  /** Vérifie le code MFA (hash + non expiré). Ne consomme pas le code. */
-  async verifyMfaCode(user: UserRecord, candidate: string): Promise<boolean> {
-    if (!user.mfaCode || !user.mfaCodeExpiresAt || user.mfaCodeExpiresAt < new Date()) {
-      return false;
-    }
-    return bcrypt.compare(candidate, user.mfaCode);
-  },
-
-  /** Efface le code MFA après usage. */
-  async clearMfaCode(id: string): Promise<void> {
-    await this.updateUser(id, { mfaCode: null, mfaCodeExpiresAt: null });
   },
 
   async removePublisherFromUsers(publisherId: string): Promise<number> {

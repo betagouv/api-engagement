@@ -9,6 +9,7 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQU
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
+import { MFA_DEVICE_COOKIE_MAX_AGE_MS, MFA_DEVICE_COOKIE_NAME, mfaService } from "@/services/mfa";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
@@ -18,9 +19,6 @@ import { appendAuditEvent } from "@/utils/audit-log";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
-const MFA_TOKEN_EXPIRATION = 60 * 10; // 10 min (secondes, jeton intermédiaire de challenge MFA)
-const MFA_DEVICE_EXPIRATION = 60 * 60 * 24 * 30; // 30 jours (secondes, cookie appareil de confiance)
-const MFA_DEVICE_COOKIE = "mfa_device";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -33,20 +31,6 @@ const issueSession = async (res: Response, userId: string) => {
   const publisher = updatedUser.publishers.length ? await publisherService.findOnePublisherById(updatedUser.publishers[0]) : null;
   const token = jwt.sign({ _id: updatedUser.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
   return res.status(200).send({ ok: true, data: { user: userService.toPublicUser(updatedUser), publisher, token } });
-};
-
-// Vrai si la requête présente un cookie appareil de confiance valide pour cet user.
-const hasTrustedDevice = (req: UserRequest, userId: string): boolean => {
-  const cookie = req.cookies?.[MFA_DEVICE_COOKIE];
-  if (!cookie) {
-    return false;
-  }
-  try {
-    const payload = jwt.verify(cookie, SECRET, { algorithms: ["HS256"] }) as { _id?: string; purpose?: string };
-    return payload.purpose === "mfa-device" && payload._id === userId;
-  } catch {
-    return false;
-  }
 };
 
 router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
@@ -350,16 +334,12 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           }
 
           // Pas de MFA (dev/sandbox) ou appareil de confiance : on ouvre directement la session.
-          if (!MFA_ENABLED || hasTrustedDevice(req, user.id)) {
+          if (!MFA_ENABLED || mfaService.isTrustedDevice(req.cookies?.[MFA_DEVICE_COOKIE_NAME], user.id)) {
             return issueSession(res, user.id);
           }
 
           // Challenge MFA : envoi d'un code OTP par email, aucun token d'accès à ce stade.
-          const code = userService.generateMfaCode();
-          await userService.setMfaCode(user.id, code);
-          await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [email], params: { code } });
-
-          const mfaToken = jwt.sign({ _id: user.id, purpose: "mfa" }, SECRET, { expiresIn: MFA_TOKEN_EXPIRATION });
+          const mfaToken = await mfaService.createChallenge(user);
           return res.status(200).send({ ok: true, data: { mfaRequired: true, mfaToken } });
         } catch (error) {
           next(error);
@@ -372,18 +352,9 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
   }
 });
 
-// Décode le jeton MFA intermédiaire présenté en header `Authorization: jwt <mfaToken>`.
-const decodeMfaToken = (req: UserRequest): string | null => {
+const getMfaToken = (req: UserRequest): string | null => {
   const header = req.headers.authorization;
-  if (!header?.startsWith("jwt ")) {
-    return null;
-  }
-  try {
-    const payload = jwt.verify(header.slice(4), SECRET, { algorithms: ["HS256"] }) as { _id?: string; purpose?: string };
-    return payload.purpose === "mfa" && payload._id ? payload._id : null;
-  } catch {
-    return null;
-  }
+  return header?.startsWith("jwt ") ? header.slice(4) : null;
 };
 
 router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunction) => {
@@ -399,29 +370,29 @@ router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunc
       return res.status(404).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
 
-    const userId = decodeMfaToken(req);
-    if (!userId) {
+    const mfaToken = getMfaToken(req);
+    if (!mfaToken) {
       return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
     }
 
-    const user = await userService.findUserById(userId);
-    if (!user || !(await userService.verifyMfaCode(user, body.data.code.trim()))) {
-      return res.status(401).send({ ok: false, code: NOT_FOUND, message: "Invalid or expired code" });
+    const verification = await mfaService.verifyAndConsumeChallenge(mfaToken, body.data.code.trim());
+    if (!verification.ok) {
+      const code = verification.reason === "invalid-token" ? REQUEST_EXPIRED : NOT_FOUND;
+      const message = verification.reason === "invalid-token" ? "MFA session expired" : "Invalid or expired code";
+      return res.status(401).send({ ok: false, code, message });
     }
 
-    await userService.clearMfaCode(user.id);
-
     if (body.data.rememberDevice) {
-      const deviceToken = jwt.sign({ _id: user.id, purpose: "mfa-device" }, SECRET, { expiresIn: MFA_DEVICE_EXPIRATION });
-      res.cookie(MFA_DEVICE_COOKIE, deviceToken, {
+      const deviceToken = mfaService.createTrustedDeviceToken(verification.user.id);
+      res.cookie(MFA_DEVICE_COOKIE_NAME, deviceToken, {
         httpOnly: true,
         secure: ENV !== "development",
         sameSite: "none",
-        maxAge: MFA_DEVICE_EXPIRATION * 1000,
+        maxAge: MFA_DEVICE_COOKIE_MAX_AGE_MS,
       });
     }
 
-    return issueSession(res, user.id);
+    return issueSession(res, verification.user.id);
   } catch (error) {
     next(error);
   }
@@ -429,15 +400,9 @@ router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunc
 
 router.post("/login/mfa/resend", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = decodeMfaToken(req);
-    if (!userId) {
+    const mfaToken = getMfaToken(req);
+    if (!mfaToken || !(await mfaService.resendChallenge(mfaToken))) {
       return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
-    }
-    const user = await userService.findUserById(userId);
-    if (user) {
-      const code = userService.generateMfaCode();
-      await userService.setMfaCode(user.id, code);
-      await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [user.email], params: { code } });
     }
     return res.status(200).send({ ok: true });
   } catch (error) {

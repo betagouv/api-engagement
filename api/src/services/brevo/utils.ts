@@ -10,8 +10,16 @@ export const redactEmailRecipients = (recipients: EmailRecipient[]): EmailRecipi
   return recipients.map(() => ({ email: redactEmail() }));
 };
 
+export const redactEmailParams = (params?: Record<string, unknown>): Record<string, string> | undefined => {
+  if (!params) {
+    return undefined;
+  }
+  return Object.fromEntries(Object.keys(params).map((key) => [key, "[redacted]"]));
+};
+
 export const sanitizeEmailOptions = (options: EmailOptions) => ({
   ...options,
   emailTo: options.emailTo.map(redactEmail),
   emailBcc: options.emailBcc?.map(redactEmail),
+  params: redactEmailParams(options.params),
 });

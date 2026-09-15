@@ -2,7 +2,7 @@ import { captureException } from "@/error";
 
 import { hasBrevoApiKey, requestBrevoApi } from "./client";
 import type { EmailBody, EmailOptions } from "./types";
-import { buildEmailRecipients, redactEmailRecipients, sanitizeEmailOptions } from "./utils";
+import { buildEmailRecipients, redactEmailParams, redactEmailRecipients, sanitizeEmailOptions } from "./utils";
 
 export const TEMPLATE_IDS = {
   INVITATION: 1,
@@ -38,11 +38,12 @@ const buildEmailBody = (templateId: number, options: EmailOptions): EmailBody =>
 };
 
 const logEmailInDev = (body: EmailBody) => {
+  const params = body.templateId === TEMPLATE_IDS.MFA_CODE ? redactEmailParams(body.params) : body.params;
   console.log(`---- EMAIL ----`);
   console.log(`[to]: ${JSON.stringify(redactEmailRecipients(body.to), null, 2)}`);
   console.log(`[template]: ${body.templateId}`);
   console.log(`[subject]: ${body.subject}`);
-  console.log(`[params]: ${JSON.stringify(body.params, null, 2)}`);
+  console.log(`[params]: ${JSON.stringify(params, null, 2)}`);
   console.log(`---- EMAIL ----`);
 };
 

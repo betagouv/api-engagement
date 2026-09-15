@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 process.env.TZ = "Europe/Paris";
 
 export const PORT = process.env.PORT || 4000;
@@ -15,6 +17,10 @@ export const ensureJwtSecretIsConfigured = () => {
 };
 
 export const SECRET = process.env.SECRET || DEFAULT_SECRET;
+// Sépare cryptographiquement les JWT à portée limitée des tokens d'accès lus par Passport.
+const deriveJwtSecret = (domain: string) => crypto.createHmac("sha256", SECRET).update(`api-engagement:${domain}`).digest("hex");
+export const MFA_TOKEN_SECRET = deriveJwtSecret("mfa-challenge");
+export const MFA_DEVICE_SECRET = deriveJwtSecret("mfa-device");
 export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
 // MFA par OTP email : désactivée d'office en dev local ; ailleurs pilotée par MFA_ENABLED (Terraform).
