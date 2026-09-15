@@ -12,6 +12,7 @@ export type RankedMissionForEvaluation = {
   missionScoringId: string;
   missionTitle: string | null;
   totalScore: number;
+  coverageReason?: `dispositif.${string}`;
   taxonomyValues: Array<{
     taxonomy: string;
     value: string;
@@ -24,6 +25,7 @@ export type MatchedMission = {
   missionScoringId: string;
   missionTitle: string | null;
   totalScore: number;
+  coverageReason?: `dispositif.${string}`;
 };
 
 export type ExpectedTaxonomyResult = {
@@ -58,6 +60,7 @@ export const evaluateExpectedTaxonomies = (rankedMissions: RankedMissionForEvalu
                 missionScoringId: mission.missionScoringId,
                 missionTitle: mission.missionTitle,
                 totalScore: mission.totalScore,
+                ...(mission.coverageReason ? { coverageReason: mission.coverageReason } : {}),
               },
             ]
           : [];

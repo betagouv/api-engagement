@@ -21,6 +21,11 @@ export type GateTaxonomyKey = {
   [D in TaxonomyKey]: (typeof TAXONOMY)[D]["gate"] extends true ? D : never;
 }[TaxonomyKey];
 
+/** Taxonomie calculée depuis des données structurées de mission, sans enrichissement LLM. */
+export type MissionDerivedTaxonomyKey = {
+  [D in TaxonomyKey]: (typeof TAXONOMY)[D] extends { missionDerived: true } ? D : never;
+}[TaxonomyKey];
+
 // ─── Format liste (pour les UIs) ─────────────────────────────────────────────
 
 export type TaxonomyValueItem = {

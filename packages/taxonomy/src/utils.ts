@@ -1,9 +1,15 @@
 import { TAXONOMY } from "./taxonomy";
-import type { TaxonomyKey, TaxonomyListItem, TaxonomyValueKey } from "./types";
+import type { EnrichableTaxonomyKey, GateTaxonomyKey, MissionDerivedTaxonomyKey, TaxonomyKey, TaxonomyListItem, TaxonomyValueKey } from "./types";
 
-export const ENRICHABLE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.enrichable).map(([k]) => k);
+export const ENRICHABLE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][])
+  .filter(([, d]) => d.enrichable)
+  .map(([k]) => k) as EnrichableTaxonomyKey[];
 
-export const GATE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.gate).map(([k]) => k);
+export const GATE_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][]).filter(([, d]) => d.gate).map(([k]) => k) as GateTaxonomyKey[];
+
+export const MISSION_DERIVED_TAXONOMIES = (Object.entries(TAXONOMY) as [TaxonomyKey, (typeof TAXONOMY)[TaxonomyKey]][])
+  .filter(([, d]) => "missionDerived" in d && d.missionDerived === true)
+  .map(([k]) => k) as MissionDerivedTaxonomyKey[];
 
 // Clés plates "taxonomie.valeur" exclues du scoring, pour deux raisons distinctes :
 //  - « je ne sais pas » / « peu importe » : aucune mission ne les porte, elles ne feraient que

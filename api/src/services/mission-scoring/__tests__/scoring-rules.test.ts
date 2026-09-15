@@ -122,38 +122,67 @@ describe("getMissionScoringRuleKeys — remote", () => {
 });
 
 describe("getMissionScoringRuleKeys — élargissement thématique des dispositifs de sécurité", () => {
-  it("référence les sapeurs-pompiers volontaires sur Santé, Solidarité, l'activité d'accompagnement et la découverte métier", () => {
+  it("référence les sapeurs-pompiers volontaires sur leurs domaines et activités stables", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ type: "volontariat_sapeurs_pompiers" }));
 
-    expect(keys).toContain("domaine_engagement.sante_bien_etre");
-    expect(keys).toContain("domaine_engagement.solidarite_inclusion");
-    expect(keys).toContain("activite.aider_accompagner");
-    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        "domaine_engagement.sante_bien_etre",
+        "domaine_engagement.solidarite_inclusion",
+        "domaine_engagement.sport",
+        "domaine_engagement.securite_secours",
+        "domaine_engagement.citoyennete",
+        "activite.aider_accompagner",
+        "activite.fabriquer_reparer_terrain",
+        "activite.secourir_proteger",
+        "activite.organiser_coordonner",
+        "motivation_recherche.decouverte_metier",
+      ])
+    );
     // Les valeurs de l'ancienne règle SPV (mode replace) restent produites.
     expect(keys).toContain("dispositif.sapeurs_pompiers");
   });
 
-  it("rattache la découverte métier à toutes les réserves opérationnelles, sans leur ajouter Citoyenneté par défaut", () => {
+  it("rattache les signaux communs à toutes les réserves sans leur ajouter les domaines spécifiques", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ type: "volontariat_reserve_operationnelle" }));
 
     expect(keys).toContain("motivation_recherche.decouverte_metier");
-    // Citoyenneté est réservée à la gendarmerie / police (ciblage publisher), pas au type seul.
+    expect(keys).toContain("activite.fabriquer_reparer_terrain");
+    expect(keys).toContain("activite.organiser_coordonner");
+    // Ces valeurs sont réservées à la gendarmerie / police (ciblage publisher), pas au type seul.
+    expect(keys).not.toContain("domaine_engagement.sport");
+    expect(keys).not.toContain("domaine_engagement.securite_secours");
     expect(keys).not.toContain("domaine_engagement.citoyennete");
+    expect(keys).not.toContain("activite.secourir_proteger");
   });
 
-  it("ajoute Citoyenneté et la découverte métier à la réserve gendarmerie", () => {
+  it("ajoute les signaux spécifiques à la réserve gendarmerie", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.GENDARMERIE, type: "volontariat_reserve_operationnelle" }));
 
-    expect(keys).toContain("domaine_engagement.citoyennete");
-    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        "domaine_engagement.sport",
+        "domaine_engagement.securite_secours",
+        "domaine_engagement.citoyennete",
+        "activite.secourir_proteger",
+        "motivation_recherche.decouverte_metier",
+      ])
+    );
     expect(keys).toContain("dispositif.reserve_gendarmerie");
   });
 
-  it("ajoute Citoyenneté et la découverte métier à la réserve police", () => {
+  it("ajoute les signaux spécifiques à la réserve police", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.POLICE, type: "volontariat_reserve_operationnelle" }));
 
-    expect(keys).toContain("domaine_engagement.citoyennete");
-    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        "domaine_engagement.sport",
+        "domaine_engagement.securite_secours",
+        "domaine_engagement.citoyennete",
+        "activite.secourir_proteger",
+        "motivation_recherche.decouverte_metier",
+      ])
+    );
     expect(keys).toContain("dispositif.reserve_police_nationale");
   });
 

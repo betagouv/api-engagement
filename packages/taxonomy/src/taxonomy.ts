@@ -293,13 +293,14 @@ export const TAXONOMY = {
     },
   },
 
-  // Dispositif d'engagement de la mission. Valeur déterministe injectée depuis `mission.type`
-  // (cf. SCORING_RULES.type côté API), pas enrichie par le LLM.
+  // Dispositif d'engagement de la mission. Valeur déterministe injectée depuis les données
+  // structurées de la mission (cf. SCORING_RULES côté API), pas enrichie par le LLM.
   dispositif: {
     label: "Dispositif d'engagement",
     type: "categorical",
     enrichable: false,
     gate: false,
+    missionDerived: true,
     values: {
       benevolat: { label: "Bénévolat", icon: null, enrichable: false },
       service_civique: { label: "Service civique", icon: null, enrichable: false },
