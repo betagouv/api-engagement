@@ -14,13 +14,15 @@ export interface UserRecord {
   lastActivityAt: Date | null;
   forgotPasswordToken: string | null;
   forgotPasswordExpiresAt: Date | null;
+  mfaCode: string | null;
+  mfaCodeExpiresAt: Date | null;
   deletedAt: Date | null;
   brevoContactId: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export type PublicUserRecord = Omit<UserRecord, "password" | "invitationToken" | "forgotPasswordToken" | "forgotPasswordExpiresAt">;
+export type PublicUserRecord = Omit<UserRecord, "password" | "invitationToken" | "forgotPasswordToken" | "forgotPasswordExpiresAt" | "mfaCode" | "mfaCodeExpiresAt">;
 
 export interface UserFindParams {
   email?: string;
@@ -43,6 +45,8 @@ export interface UserCreateInput {
   lastActivityAt?: Date | null;
   forgotPasswordToken?: string | null;
   forgotPasswordExpiresAt?: Date | null;
+  mfaCode?: string | null;
+  mfaCodeExpiresAt?: Date | null;
   deletedAt?: Date | null;
   brevoContactId?: number | null;
   createdAt?: Date;
