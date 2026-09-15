@@ -228,6 +228,20 @@ export const publisherDiffusionRuleService = {
     return publishers.map((publisher) => publisher.id);
   },
 
+  /**
+   * Diffuseurs susceptibles de diffuser les missions d'un annonceur donné : ceux portant une scope
+   * root `value = annonceurId`. Sert à restreindre le recompute par mission aux seuls diffuseurs
+   * candidats (l'annonceur lui-même est ajouté par l'appelant via son scope propre implicite), sans
+   * balayer toute la population du snapshot.
+   */
+  async findDistributionPublisherIdsDiffusingAnnonceur(annonceurPublisherId: string): Promise<string[]> {
+    const rules = await publisherDiffusionRuleRepository.findMany({
+      where: { ...DIFFUSION_SCOPE_ROOT_CRITERIA, value: annonceurPublisherId },
+      select: { publisherId: true },
+    });
+    return [...new Set(rules.map((rule) => rule.publisherId))];
+  },
+
   async findRules(params: PublisherDiffusionRuleFindParams = {}, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord[]> {
     const rules = (await publisherDiffusionRuleRepository.findMany(
       {

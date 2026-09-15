@@ -220,6 +220,9 @@ router.post("/", passport.authenticate(["apikey", "api"], { session: false }), p
     }
 
     const mission = await missionService.create(input);
+    // Matérialise `mission_diffusion` pour cette mission sans attendre le rebuild 6h (chemin XML exclu :
+    // l'import passe aussi par `missionService.create`, on ne l'enfile donc que depuis l'endpoint v2).
+    await missionService.enqueueMissionDiffusion(mission.id);
     return res.status(201).send({ ok: true, data: buildData(mission) });
   } catch (error) {
     next(error);
@@ -293,6 +296,10 @@ router.put("/:clientId", passport.authenticate(["apikey", "api"], { session: fal
     }
 
     const mission = await missionService.update(existing.id, patch);
+    // Recompute mission_diffusion sans attendre le rebuild 6h : une modif peut changer l'éligibilité
+    // aux diffuseurs (organisation, domaine…). Chemin v2 uniquement (l'import XML passe aussi par
+    // missionService.update). rebuildForMission est idempotent → no-op si l'éligibilité n'a pas bougé.
+    await missionService.enqueueMissionDiffusion(mission.id);
     return res.status(200).send({ ok: true, data: buildData(mission) });
   } catch (error) {
     next(error);
@@ -321,14 +328,19 @@ router.delete(
         return res.status(404).send({ ok: false, code: NOT_FOUND });
       }
 
-      // Idempotent: already deleted
+      // Idempotent: already deleted. On republie quand même une diffusion : rattrape d'éventuelles
+      // lignes mission_diffusion laissées par un delete hors v2 (import XML) non encore purgées.
       if (existing.deletedAt) {
         await missionService.enqueueMissionProcessing(existing.id);
+        await missionService.enqueueMissionDiffusion(existing.id);
         return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt: existing.deletedAt } });
       }
 
       const deletedAt = new Date();
       await missionService.update(existing.id, { deletedAt });
+      // Retire la mission de mission_diffusion sans attendre le rebuild 6h : rebuildForMission ne
+      // matche plus (deletedAt != null) → toutes ses lignes sont supprimées, puis mission.index dé-indexe.
+      await missionService.enqueueMissionDiffusion(existing.id);
       return res.status(200).send({ ok: true, data: { clientId: existing.clientId, deletedAt } });
     } catch (error) {
       next(error);
