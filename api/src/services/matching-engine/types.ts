@@ -35,6 +35,8 @@ export type RankMissionsByUserScoringInput = {
   remoteFullGeoScore?: number | null;
   remoteLocalGeoScore?: number | null;
   taxonomyOrBaseScore?: number;
+  // Désactive uniquement la persistance du snapshot, sans modifier le classement retourné.
+  persistMatchingResult?: boolean;
 };
 
 export type MatchMissionItem = {

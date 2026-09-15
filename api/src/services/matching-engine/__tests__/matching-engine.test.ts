@@ -218,6 +218,19 @@ describe("matchingEngineService", () => {
       });
     });
 
+    it("does not persist the first page when persistence is disabled", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-evaluation" }]).mockResolvedValueOnce([]);
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-evaluation",
+        limit: 10,
+        persistMatchingResult: false,
+      });
+
+      expect(result.items).toEqual([]);
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).not.toHaveBeenCalled();
+    });
+
     it("uses the requested m1 version config and persists the m1 snapshot", async () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
