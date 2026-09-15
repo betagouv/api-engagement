@@ -42,9 +42,10 @@ typesense_load_balancer_private_ip = "10.41.2.10"
 
 typesense_nodes = {
   node-1 = {
-    zone              = "fr-par-1"
-    private_ip        = "10.41.2.11"
-    instance_type     = "PLAY2-PICO"
-    typesense_version = "30.2"
+    zone                   = "fr-par-1"
+    private_ip             = "10.41.2.11"
+    instance_type          = "PLAY2-PICO"
+    typesense_version      = "30.2"
+    root_volume_size_in_gb = 20
   }
 }
