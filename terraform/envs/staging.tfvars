@@ -9,6 +9,12 @@ piloty_hostname            = "sandbox-api.piloty.fr"
 bucket_name                = "api-engagement-bucket-staging"
 slack_jobteaser_channel_id = ""
 
+enable_sentry_webhook              = true
+sentry_slack_channel_id_production = "C052V2UF918"
+sentry_slack_channel_id_staging    = "C08QQT4702D"
+sentry_webhook_hostname            = "sentry-webhook.api-engagement-dev.fr"
+sentry_webhook_debug_payload       = true
+
 mission_enrichment_prompt_version = "v5"
 matching_engine_version           = "m5"
 

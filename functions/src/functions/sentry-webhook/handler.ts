@@ -47,6 +47,9 @@ type SentryWebhookPayload = {
   data?: { event?: SentryEvent; triggered_rule?: string };
 };
 
+// Préfixe commun des logs, pour les isoler facilement dans Cockpit.
+const LOG_PREFIX = "[sentry-webhook]";
+
 const LEVEL_EMOJIS: Record<string, string> = { fatal: "⚫️", error: "🔴", warning: "🟡", info: "🔵", debug: "🟢" };
 // Couleur de la barre latérale de l'attachment Slack, indexée sur le niveau Sentry.
 const LEVEL_COLORS: Record<string, string> = { fatal: "#b3131a", error: "#e03e2f", warning: "#f2a100", info: "#439fe0", debug: "#9b9b9b" };
@@ -57,22 +60,38 @@ const json = (body: object, statusCode: number) => ({ statusCode, headers: { "Co
 const escapeMrkdwn = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 export const handle = async (event: FunctionEvent) => {
-  if (event.httpMethod !== "POST") return json({ error: "Method not allowed" }, 405);
+  const startedAt = Date.now();
+  console.log(`${LOG_PREFIX} requête ${event.httpMethod} (body: ${event.body?.length ?? 0} octets, base64: ${event.isBase64Encoded === true})`);
+
+  if (event.httpMethod !== "POST") {
+    console.warn(`${LOG_PREFIX} méthode refusée: ${event.httpMethod}`);
+    return json({ error: "Method not allowed" }, 405);
+  }
 
   const raw = event.isBase64Encoded ? Buffer.from(event.body ?? "", "base64").toString() : (event.body ?? "");
   let payload: SentryWebhookPayload;
   try {
     payload = JSON.parse(raw);
   } catch {
+    console.error(`${LOG_PREFIX} body illisible, JSON invalide (début: ${raw.slice(0, 200)})`);
     return json({ error: "Invalid JSON body" }, 400);
   }
 
+  // Dump complet du payload, utile quand Sentry change de format ou qu'un champ tombe en fallback.
+  // Désactivé par défaut : un payload de production peut contenir des données personnelles.
+  if (process.env.DEBUG_PAYLOAD === "true") console.log(`${LOG_PREFIX} payload brut: ${raw.slice(0, 4000)}`);
+
   const sentryEvent = payload.event ?? payload.data?.event ?? {};
-  if (!sentryEvent.event_id) console.warn(`Sentry webhook: payload inattendu (clés: ${Object.keys(payload).join(", ")})`);
+  const format = payload.event ? "plugin legacy" : payload.data?.event ? "intégration Sentry" : "inconnu";
+  console.log(`${LOG_PREFIX} format: ${format} (clés: ${Object.keys(payload).join(", ")})`);
+  if (!sentryEvent.event_id) console.warn(`${LOG_PREFIX} payload inattendu: aucun event_id, le message sera construit avec les valeurs de repli`);
 
   const channelId = (sentryEvent.environment === "staging" ? process.env.SLACK_CHANNEL_ID_STAGING : process.env.SLACK_CHANNEL_ID_PRODUCTION) || "";
   const slackToken = process.env.SLACK_TOKEN || "";
-  if (slackToken === "" || channelId === "") return json({ error: "Slack token or channel id is not set" }, 500);
+  if (slackToken === "" || channelId === "") {
+    console.error(`${LOG_PREFIX} configuration incomplète (SLACK_TOKEN renseigné: ${slackToken !== ""}, channel pour l'env "${sentryEvent.environment ?? "?"}" renseigné: ${channelId !== ""})`);
+    return json({ error: "Slack token or channel id is not set" }, 500);
+  }
 
   const level = sentryEvent.level ?? payload.level ?? "error";
   const title = sentryEvent.metadata?.type ?? sentryEvent.title ?? payload.message ?? "Nouvel événement Sentry";
@@ -91,6 +110,10 @@ export const handle = async (event: FunctionEvent) => {
   const triggeringRules = payload.triggering_rules ?? (payload.data?.triggered_rule ? [payload.data.triggered_rule] : []);
 
   const projectName = payload.project_name ?? payload.project ?? projectFromEventUrl ?? "?";
+
+  console.log(
+    `${LOG_PREFIX} event ${sentryEvent.event_id ?? "?"} · projet ${projectName} · env ${sentryEvent.environment ?? "?"} · niveau ${level} · titre "${title.slice(0, 120)}" · lien ${issueUrl ? "oui" : "non"} → channel ${channelId}`,
+  );
 
   const context = [`Projet : \`${projectName.replace("api-engagement-", "")}\``];
   if (sentryEvent.environment) context.push(`Env : \`${sentryEvent.environment}\``);
@@ -120,13 +143,14 @@ export const handle = async (event: FunctionEvent) => {
       body: JSON.stringify(slackMessage),
     });
     // L'API Slack répond 200 même en cas d'échec : le statut est dans le champ ok.
-    const data = (await response.json()) as { ok?: boolean; error?: string };
+    const data = (await response.json()) as { ok?: boolean; error?: string; ts?: string; response_metadata?: { messages?: string[] } };
     if (data.ok !== true) {
-      console.error(`Slack error: ${data.error ?? response.status}`);
+      console.error(`${LOG_PREFIX} échec Slack: ${data.error ?? response.status} ${data.response_metadata?.messages?.join(" | ") ?? ""}`);
       return json({ error: "Slack request failed" }, 502);
     }
+    console.log(`${LOG_PREFIX} message posté dans ${channelId} (ts ${data.ts ?? "?"}) en ${Date.now() - startedAt} ms`);
   } catch (error) {
-    console.error(error);
+    console.error(`${LOG_PREFIX} erreur inattendue lors de l'appel Slack`, error);
     return json({ error: "Internal error" }, 500);
   }
 
