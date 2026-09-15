@@ -17,6 +17,10 @@ export const ensureJwtSecretIsConfigured = () => {
 export const SECRET = process.env.SECRET || DEFAULT_SECRET;
 export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
+// MFA par OTP email : désactivée d'office en dev local ; ailleurs pilotée par MFA_ENABLED (Terraform).
+// La sandbox tourne avec ENV=production, d'où le flag dédié plutôt que ENV.
+export const MFA_ENABLED = ENV !== "development" && process.env.MFA_ENABLED !== "false";
+
 export const APP_URL = process.env.APP_URL || "http://localhost:3000";
 export const API_URL = process.env.API_URL || "http://localhost:4000";
 export const PLATEFORM_URL = process.env.PLATEFORM_URL || "http://localhost:3005";

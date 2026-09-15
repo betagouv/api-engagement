@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 import passport from "passport";
 import zod from "zod";
 
-import { APP_URL, ENV, SECRET } from "@/config";
+import { APP_URL, ENV, MFA_ENABLED, SECRET } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
@@ -18,9 +18,36 @@ import { appendAuditEvent } from "@/utils/audit-log";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
+const MFA_TOKEN_EXPIRATION = 60 * 10; // 10 min (secondes, jeton intermédiaire de challenge MFA)
+const MFA_DEVICE_EXPIRATION = 60 * 60 * 24 * 30; // 30 jours (secondes, cookie appareil de confiance)
+const MFA_DEVICE_COOKIE = "mfa_device";
 
 const router = Router();
 router.use(ipRateLimiter);
+
+// Mint le token d'accès + enregistre la connexion et renvoie la réponse standard de login.
+const issueSession = async (res: Response, userId: string) => {
+  const now = new Date();
+  const updatedUser = await userService.updateUser(userId, { lastActivityAt: now });
+  await loginHistoryService.recordLogin(userId, now);
+  const publisher = updatedUser.publishers.length ? await publisherService.findOnePublisherById(updatedUser.publishers[0]) : null;
+  const token = jwt.sign({ _id: updatedUser.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
+  return res.status(200).send({ ok: true, data: { user: userService.toPublicUser(updatedUser), publisher, token } });
+};
+
+// Vrai si la requête présente un cookie appareil de confiance valide pour cet user.
+const hasTrustedDevice = (req: UserRequest, userId: string): boolean => {
+  const cookie = req.cookies?.[MFA_DEVICE_COOKIE];
+  if (!cookie) {
+    return false;
+  }
+  try {
+    const payload = jwt.verify(cookie, SECRET, { algorithms: ["HS256"] }) as { _id?: string; purpose?: string };
+    return payload.purpose === "mfa-device" && payload._id === userId;
+  } catch {
+    return false;
+  }
+};
 
 router.post("/search", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
@@ -317,20 +344,102 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
 
     setTimeout(
       async () => {
-        if (!user || !match) {
-          return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Incorrect email or password` });
+        try {
+          if (!user || !match) {
+            return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Incorrect email or password` });
+          }
+
+          // Pas de MFA (dev/sandbox) ou appareil de confiance : on ouvre directement la session.
+          if (!MFA_ENABLED || hasTrustedDevice(req, user.id)) {
+            return issueSession(res, user.id);
+          }
+
+          // Challenge MFA : envoi d'un code OTP par email, aucun token d'accès à ce stade.
+          const code = userService.generateMfaCode();
+          await userService.setMfaCode(user.id, code);
+          await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [email], params: { code } });
+
+          const mfaToken = jwt.sign({ _id: user.id, purpose: "mfa" }, SECRET, { expiresIn: MFA_TOKEN_EXPIRATION });
+          return res.status(200).send({ ok: true, data: { mfaRequired: true, mfaToken } });
+        } catch (error) {
+          next(error);
         }
-
-        const publisher = user.publishers.length ? await publisherService.findOnePublisherById(user.publishers[0]) : null;
-        const now = new Date();
-        const updatedUser = await userService.updateUser(user.id, { lastActivityAt: now });
-        await loginHistoryService.recordLogin(user.id, now);
-
-        const token = jwt.sign({ _id: updatedUser.id }, SECRET, { expiresIn: AUTH_TOKEN_EXPIRATION });
-        return res.status(200).send({ ok: true, data: { user: userService.toPublicUser(updatedUser), publisher, token } });
       },
       delay > 0 ? delay : 0
     );
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Décode le jeton MFA intermédiaire présenté en header `Authorization: jwt <mfaToken>`.
+const decodeMfaToken = (req: UserRequest): string | null => {
+  const header = req.headers.authorization;
+  if (!header?.startsWith("jwt ")) {
+    return null;
+  }
+  try {
+    const payload = jwt.verify(header.slice(4), SECRET, { algorithms: ["HS256"] }) as { _id?: string; purpose?: string };
+    return payload.purpose === "mfa" && payload._id ? payload._id : null;
+  } catch {
+    return null;
+  }
+};
+
+router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const body = zod
+      .object({
+        code: zod.string(),
+        rememberDevice: zod.boolean().optional(),
+      })
+      .safeParse(req.body);
+
+    if (!body.success) {
+      return res.status(404).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+
+    const userId = decodeMfaToken(req);
+    if (!userId) {
+      return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
+    }
+
+    const user = await userService.findUserById(userId);
+    if (!user || !(await userService.verifyMfaCode(user, body.data.code.trim()))) {
+      return res.status(401).send({ ok: false, code: NOT_FOUND, message: "Invalid or expired code" });
+    }
+
+    await userService.clearMfaCode(user.id);
+
+    if (body.data.rememberDevice) {
+      const deviceToken = jwt.sign({ _id: user.id, purpose: "mfa-device" }, SECRET, { expiresIn: MFA_DEVICE_EXPIRATION });
+      res.cookie(MFA_DEVICE_COOKIE, deviceToken, {
+        httpOnly: true,
+        secure: ENV !== "development",
+        sameSite: "none",
+        maxAge: MFA_DEVICE_EXPIRATION * 1000,
+      });
+    }
+
+    return issueSession(res, user.id);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/login/mfa/resend", async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const userId = decodeMfaToken(req);
+    if (!userId) {
+      return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
+    }
+    const user = await userService.findUserById(userId);
+    if (user) {
+      const code = userService.generateMfaCode();
+      await userService.setMfaCode(user.id, code);
+      await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [user.email], params: { code } });
+    }
+    return res.status(200).send({ ok: true });
   } catch (error) {
     next(error);
   }

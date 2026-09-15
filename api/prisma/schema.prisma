@@ -188,6 +188,8 @@ model User {
   lastActivityAt          DateTime? @map("last_activity_at")
   forgotPasswordToken     String?   @map("forgot_password_token")
   forgotPasswordExpiresAt DateTime? @map("forgot_password_expires_at")
+  mfaCode                 String?   @map("mfa_code")
+  mfaCodeExpiresAt        DateTime? @map("mfa_code_expires_at")
   deletedAt               DateTime? @map("deleted_at")
   brevoContactId          Int?      @map("brevo_contact_id")
   createdAt               DateTime  @default(now()) @map("created_at")

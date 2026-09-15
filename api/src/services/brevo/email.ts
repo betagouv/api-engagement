@@ -8,6 +8,8 @@ export const TEMPLATE_IDS = {
   INVITATION: 1,
   FORGOT_PASSWORD: 5,
   MISSION_MATCHING_RESULTS: 27,
+  // TODO: remplacer par l'id du template transactionnel créé dans Brevo (variable `{{ params.code }}`).
+  MFA_CODE: 0,
 };
 
 const buildEmailBody = (templateId: number, options: EmailOptions): EmailBody => {
