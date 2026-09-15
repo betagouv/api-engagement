@@ -94,7 +94,7 @@ async function run() {
       const body = (await response.json()) as { ok: boolean; data?: { statusCode?: string; statusComment?: string } };
 
       if (!response.ok || !body.ok) {
-        console.error(`   ❌ HTTP ${response.status} :`, JSON.stringify(body));
+        console.error("   ❌ HTTP", response.status, ":", JSON.stringify(body));
         stats.errors++;
       } else {
         const statusCode = body.data?.statusCode ?? "?";
