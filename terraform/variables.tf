@@ -236,6 +236,12 @@ variable "plateform_max_scale" {
 
 # Functions
 
+variable "enable_sentry_webhook" {
+  type        = bool
+  default     = false
+  description = "Deploy the sentry-webhook function in this workspace (a single deployment relays every Sentry project)"
+}
+
 variable "sentry_slack_channel_id_production" {
   type        = string
   default     = ""
@@ -252,6 +258,12 @@ variable "sentry_webhook_hostname" {
   type        = string
   default     = ""
   description = "Custom domain of the sentry-webhook function (empty to use the default Scaleway domain)"
+}
+
+variable "sentry_webhook_debug_payload" {
+  type        = bool
+  default     = false
+  description = "Log the raw Sentry payload in the sentry-webhook function (debug only: a payload may carry personal data)"
 }
 
 # Network
