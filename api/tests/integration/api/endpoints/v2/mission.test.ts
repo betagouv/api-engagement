@@ -73,6 +73,11 @@ describe("Mission V2 Write API Integration Tests", () => {
         type: "mission.enrichment",
         payload: { missionId: expect.any(String) },
       });
+      // Matérialisation temps réel de mission_diffusion (chemin v2, sans attendre le rebuild 6h).
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.diffusion",
+        payload: { missionId: expect.any(String) },
+      });
     });
 
     it("should store HTML descriptions as rich HTML and plain text", async () => {
@@ -333,6 +338,11 @@ describe("Mission V2 Write API Integration Tests", () => {
         type: "mission.enrichment",
         payload: { missionId: expect.any(String) },
       });
+      // Recompute mission_diffusion temps réel sur mise à jour (chemin v2).
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.diffusion",
+        payload: { missionId: expect.any(String) },
+      });
     });
 
     it("should update HTML descriptions as rich HTML and plain text", async () => {
@@ -572,6 +582,11 @@ describe("Mission V2 Write API Integration Tests", () => {
         type: "mission.enrichment",
         payload: { missionId: expect.any(String) },
       });
+      // Retrait de mission_diffusion en temps réel sur suppression (chemin v2).
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.diffusion",
+        payload: { missionId: expect.any(String) },
+      });
     });
 
     it("should be idempotent: second DELETE returns same deletedAt and republishes enrichment", async () => {
@@ -587,6 +602,10 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(second.body.data.deletedAt).toBe(firstDeletedAt);
       expect(asyncTaskBus.publish).toHaveBeenCalledWith({
         type: "mission.enrichment",
+        payload: { missionId: mission.id },
+      });
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({
+        type: "mission.diffusion",
         payload: { missionId: mission.id },
       });
     });

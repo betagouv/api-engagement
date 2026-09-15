@@ -34,3 +34,7 @@ export const missionIndexPayloadSchema = z.object({
   missionId: z.string().min(1),
   action: z.enum(["upsert", "delete"]),
 });
+
+export const missionDiffusionPayloadSchema = z.object({
+  missionId: z.string().min(1),
+});
