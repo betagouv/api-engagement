@@ -5,7 +5,7 @@ vi.mock("../client", () => ({
   requestBrevoApi: vi.fn(),
 }));
 
-import { sendTemplate, TEMPLATE_IDS } from "../email";
+import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 
 describe("Brevo development logging", () => {
   afterEach(() => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { redactEmailParams, sanitizeEmailOptions } from "../utils";
+import { redactEmailParams, sanitizeEmailOptions } from "@/services/brevo/utils";
 
 describe("Brevo logging sanitization", () => {
   it("redacts every template parameter value", () => {
