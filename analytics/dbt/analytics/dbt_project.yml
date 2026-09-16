@@ -49,3 +49,10 @@ vars:
   # Publisher « Plateforme de l'engagement » (Trouve Ta Mission), diffuseur PDE.
   # Référencé par ID car le nom est amené à évoluer.
   PUBLISHER_PLATEFORME_ENGAGEMENT_ID: "6c6a6ed4cf9795a1d770c1e2"
+  # Motifs SQL `like` des hosts de Trouve Ta Mission, ancien domaine
+  # (`plateforme.api-engagement.beta.gouv.fr`, staging `plateforme.api-engagement-dev.fr`)
+  # et nouveau (`www.trouvetamission.gouv.fr`). Sert à repérer les campagnes dont
+  # l'URL atterrit sur TTM, quel que soit l'annonceur déclaré.
+  PLATEFORME_ENGAGEMENT_HOST_PATTERNS:
+    - "plateforme.api-engagement%"
+    - "%trouvetamission.gouv.fr"
