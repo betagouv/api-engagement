@@ -52,6 +52,9 @@ const Login = () => {
         if (res.code === "NOT_FOUND") {
           setErrors({ login: "E-mail ou mot de passe erroné" });
           return setLoading(false);
+        } else if (res.code === "TOO_MANY_ATTEMPTS") {
+          setErrors({ login: "Trop de tentatives, veuillez réessayer plus tard." });
+          return setLoading(false);
         } else if (res.code === "SERVICE_UNAVAILABLE") {
           setErrors({ login: "Envoi du code impossible pour le moment, veuillez réessayer." });
           return setLoading(false);

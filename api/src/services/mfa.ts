@@ -12,8 +12,15 @@ const SALT_ROUNDS = 10;
 const CHALLENGE_DURATION_SECONDS = 10 * 60;
 const CHALLENGE_DURATION_MS = CHALLENGE_DURATION_SECONDS * 1000;
 const RESEND_COOLDOWN_MS = 30 * 1000;
-const MAX_ATTEMPTS = 5;
 const DEVICE_DURATION_SECONDS = 30 * 24 * 60 * 60;
+
+// Limite par challenge + limites persistantes par compte sur une fenêtre glissante :
+// ces dernières survivent à un nouveau login ou à un renvoi (un attaquant ne peut donc pas
+// remettre le compteur à zéro en rappelant /user/login). Cf. OWASP MFA Cheat Sheet.
+const MAX_ATTEMPTS_PER_CHALLENGE = 5;
+const ACCOUNT_WINDOW_MS = 15 * 60 * 1000;
+const MAX_CHALLENGES_PER_WINDOW = 5;
+const MAX_ATTEMPTS_PER_WINDOW = 10;
 
 export const MFA_DEVICE_COOKIE_NAME = "mfa_device";
 export const MFA_DEVICE_COOKIE_MAX_AGE_MS = DEVICE_DURATION_SECONDS * 1000;
@@ -21,11 +28,13 @@ export const MFA_DEVICE_COOKIE_MAX_AGE_MS = DEVICE_DURATION_SECONDS * 1000;
 type ChallengeTokenPayload = { challengeId?: string; purpose?: string };
 type DeviceTokenPayload = { _id?: string; purpose?: string };
 
-export type MfaChallengeCreation = { ok: true; token: string } | { ok: false };
+export type MfaChallengeCreation = { ok: true; token: string } | { ok: false; reason: "throttled" | "send-failed" };
 export type MfaVerificationResult = { ok: true; user: UserRecord } | { ok: false; reason: "invalid-token" | "invalid-code" | "too-many-attempts" };
-export type MfaResendResult = { ok: true } | { ok: false; reason: "invalid-token" | "cooldown" | "send-failed" };
+export type MfaResendResult = { ok: true } | { ok: false; reason: "invalid-token" | "cooldown" | "send-failed" | "too-many-attempts" };
 
 const generateCode = (): string => crypto.randomInt(0, 1_000_000).toString().padStart(6, "0");
+
+const windowStart = (): Date => new Date(Date.now() - ACCOUNT_WINDOW_MS);
 
 const signChallengeToken = (challengeId: string): string => jwt.sign({ challengeId, purpose: "mfa" }, MFA_TOKEN_SECRET, { expiresIn: CHALLENGE_DURATION_SECONDS });
 
@@ -42,6 +51,12 @@ const decodeChallengeToken = (token: string): string | null => {
 const deliverCode = async (email: string, code: string): Promise<boolean> => {
   const result = await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [email], params: { code } });
   return result.ok;
+};
+
+// Somme des tentatives échouées du compte sur la fenêtre : cap anti-brute-force persistant.
+const accountAttemptsExceeded = async (userId: string): Promise<boolean> => {
+  const total = await mfaChallengeRepository.sumAttempts({ userId, createdAt: { gte: windowStart() } });
+  return total >= MAX_ATTEMPTS_PER_WINDOW;
 };
 
 export const mfaService = {
@@ -61,10 +76,16 @@ export const mfaService = {
     return jwt.sign({ _id: userId, purpose: "mfa-device" }, MFA_DEVICE_SECRET, { expiresIn: DEVICE_DURATION_SECONDS });
   },
 
-  // Crée un challenge (un seul actif par user) et envoie le code. Si l'email échoue,
-  // le challenge est supprimé et on renvoie ok:false pour que l'API réponde une erreur temporaire.
+  // Crée un challenge et envoie le code. Les anciens challenges ne sont PAS supprimés : ils alimentent
+  // les compteurs par compte (tentatives + quota de création) sur la fenêtre glissante.
   async createChallenge(user: UserRecord): Promise<MfaChallengeCreation> {
-    await mfaChallengeRepository.deleteMany({ where: { userId: user.id, consumedAt: null } });
+    // Purge uniquement les lignes hors fenêtre (non comptées) pour borner la croissance de la table.
+    await mfaChallengeRepository.deleteMany({ where: { userId: user.id, createdAt: { lt: windowStart() } } });
+
+    const recentChallenges = await mfaChallengeRepository.count({ where: { userId: user.id, createdAt: { gte: windowStart() } } });
+    if (recentChallenges >= MAX_CHALLENGES_PER_WINDOW || (await accountAttemptsExceeded(user.id))) {
+      return { ok: false, reason: "throttled" };
+    }
 
     const code = generateCode();
     const challenge = await mfaChallengeRepository.create({
@@ -78,7 +99,7 @@ export const mfaService = {
 
     if (!(await deliverCode(user.email, code))) {
       await mfaChallengeRepository.deleteMany({ where: { id: challenge.id } });
-      return { ok: false };
+      return { ok: false, reason: "send-failed" };
     }
 
     return { ok: true, token: signChallengeToken(challenge.id) };
@@ -94,7 +115,7 @@ export const mfaService = {
     if (!challenge || challenge.consumedAt || challenge.expiresAt < new Date()) {
       return { ok: false, reason: "invalid-token" };
     }
-    if (challenge.attemptCount >= MAX_ATTEMPTS) {
+    if (challenge.attemptCount >= MAX_ATTEMPTS_PER_CHALLENGE || (await accountAttemptsExceeded(challenge.userId))) {
       await mfaChallengeRepository.updateMany({ where: { id: challenge.id, consumedAt: null }, data: { consumedAt: new Date() } });
       return { ok: false, reason: "too-many-attempts" };
     }
@@ -102,15 +123,19 @@ export const mfaService = {
     const match = await bcrypt.compare(candidate, challenge.codeHash);
     if (!match) {
       const updated = await mfaChallengeRepository.update({ where: { id: challenge.id }, data: { attemptCount: { increment: 1 } } });
-      if (updated.attemptCount >= MAX_ATTEMPTS) {
+      if (updated.attemptCount >= MAX_ATTEMPTS_PER_CHALLENGE || (await accountAttemptsExceeded(challenge.userId))) {
         await mfaChallengeRepository.updateMany({ where: { id: challenge.id, consumedAt: null }, data: { consumedAt: new Date() } });
         return { ok: false, reason: "too-many-attempts" };
       }
       return { ok: false, reason: "invalid-code" };
     }
 
-    // Consommation atomique : seule la première requête concurrente obtient count === 1.
-    const consumed = await mfaChallengeRepository.updateMany({ where: { id: challenge.id, consumedAt: null }, data: { consumedAt: new Date() } });
+    // Consommation atomique liée au codeHash vérifié : un resend concurrent (nouveau hash) ou une
+    // seconde requête (consumedAt posé) fait échouer la condition → un seul gagnant, pas d'ancien code.
+    const consumed = await mfaChallengeRepository.updateMany({
+      where: { id: challenge.id, consumedAt: null, codeHash: challenge.codeHash },
+      data: { consumedAt: new Date() },
+    });
     if (consumed.count !== 1) {
       return { ok: false, reason: "invalid-token" };
     }
@@ -132,7 +157,16 @@ export const mfaService = {
     if (!challenge || challenge.consumedAt || challenge.expiresAt < new Date()) {
       return { ok: false, reason: "invalid-token" };
     }
-    if (challenge.resendAfter && challenge.resendAfter > new Date()) {
+    if (await accountAttemptsExceeded(challenge.userId)) {
+      return { ok: false, reason: "too-many-attempts" };
+    }
+
+    // Réservation atomique du créneau de renvoi : deux renvois concurrents ne produisent pas deux emails.
+    const claimed = await mfaChallengeRepository.updateMany({
+      where: { id: challenge.id, consumedAt: null, OR: [{ resendAfter: null }, { resendAfter: { lte: new Date() } }] },
+      data: { resendAfter: new Date(Date.now() + RESEND_COOLDOWN_MS) },
+    });
+    if (claimed.count !== 1) {
       return { ok: false, reason: "cooldown" };
     }
 
@@ -141,20 +175,14 @@ export const mfaService = {
       return { ok: false, reason: "invalid-token" };
     }
 
+    // Envoi AVANT d'écrire le nouveau hash : si Brevo échoue, l'ancien code reste valable.
+    // expiresAt inchangé : le code reste aligné sur l'expiration du JWT intermédiaire.
     const code = generateCode();
-    await mfaChallengeRepository.update({
-      where: { id: challenge.id },
-      data: {
-        codeHash: await bcrypt.hash(code, SALT_ROUNDS),
-        expiresAt: new Date(Date.now() + CHALLENGE_DURATION_MS),
-        resendAfter: new Date(Date.now() + RESEND_COOLDOWN_MS),
-        attemptCount: 0,
-      },
-    });
-
     if (!(await deliverCode(user.email, code))) {
       return { ok: false, reason: "send-failed" };
     }
+    await mfaChallengeRepository.update({ where: { id: challenge.id }, data: { codeHash: await bcrypt.hash(code, SALT_ROUNDS) } });
+
     return { ok: true };
   },
 };

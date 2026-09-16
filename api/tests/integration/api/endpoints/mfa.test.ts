@@ -165,4 +165,23 @@ describe("MFA login flow", () => {
     expect(res.status).toBe(429);
     expect(res.body.code).toBe("TOO_MANY_ATTEMPTS");
   });
+
+  it("keeps the per-account attempt cap across re-logins (a fresh challenge does not reset it)", async () => {
+    const { user } = await createTestUser({ password: PASSWORD });
+
+    // 2 challenges × 5 échecs = 10 tentatives = plafond compte ; un nouveau login est alors throttlé.
+    for (let round = 0; round < 2; round++) {
+      const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+      expect(login.body.data.mfaRequired).toBe(true);
+      const auth = `jwt ${login.body.data.mfaToken}`;
+      for (let i = 0; i < 5; i++) {
+        await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
+      }
+    }
+
+    const throttled = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    expect(throttled.status).toBe(429);
+    expect(throttled.body.code).toBe("TOO_MANY_ATTEMPTS");
+    expect(throttled.body.data?.mfaRequired).toBeUndefined();
+  });
 });

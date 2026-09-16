@@ -10,6 +10,15 @@ export const mfaChallengeRepository = {
     return prisma.mfaChallenge.findUnique(params);
   },
 
+  async count(params: Prisma.MfaChallengeCountArgs = {}): Promise<number> {
+    return prisma.mfaChallenge.count(params);
+  },
+
+  async sumAttempts(where: Prisma.MfaChallengeWhereInput): Promise<number> {
+    const result = await prisma.mfaChallenge.aggregate({ _sum: { attemptCount: true }, where });
+    return result._sum.attemptCount ?? 0;
+  },
+
   async update(params: Prisma.MfaChallengeUpdateArgs): Promise<MfaChallenge> {
     return prisma.mfaChallenge.update(params);
   },

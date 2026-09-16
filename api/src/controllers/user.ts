@@ -341,6 +341,9 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           // Challenge MFA : envoi d'un code OTP par email, aucun token d'accès à ce stade.
           const challenge = await mfaService.createChallenge(user);
           if (!challenge.ok) {
+            if (challenge.reason === "throttled") {
+              return res.status(429).send({ ok: false, code: TOO_MANY_ATTEMPTS, message: "Too many attempts, please try again later" });
+            }
             return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Unable to send the verification code, please try again later" });
           }
           return res.status(200).send({ ok: true, data: { mfaRequired: true, mfaToken: challenge.token } });
@@ -414,7 +417,7 @@ router.post("/login/mfa/resend", async (req: UserRequest, res: Response, next: N
 
     const result = await mfaService.resendChallenge(mfaToken);
     if (!result.ok) {
-      if (result.reason === "cooldown") {
+      if (result.reason === "cooldown" || result.reason === "too-many-attempts") {
         return res.status(429).send({ ok: false, code: TOO_MANY_ATTEMPTS, message: "Please wait before requesting a new code" });
       }
       if (result.reason === "send-failed") {
