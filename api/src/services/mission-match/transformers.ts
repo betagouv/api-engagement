@@ -1,4 +1,4 @@
-import type { MissionMatchItem, MissionMatchValue } from "@engagement/dto";
+import type { MissionMatchItem, MissionMatchUserValue, MissionMatchValue } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 
 import type { Prisma } from "@/db/core";
@@ -44,6 +44,14 @@ export const missionMatchScoringValueSelect = {
 } satisfies Prisma.MissionScoringValueSelect;
 
 export type MissionScoringValueDbRow = Prisma.MissionScoringValueGetPayload<{ select: typeof missionMatchScoringValueSelect }>;
+
+export const missionMatchUserValueSelect = {
+  taxonomyKey: true,
+  valueKey: true,
+  score: true,
+} satisfies Prisma.UserScoringValueSelect;
+
+export type UserScoringValueDbRow = Prisma.UserScoringValueGetPayload<{ select: typeof missionMatchUserValueSelect }>;
 
 type MissionIndexEntry = {
   title: string;
@@ -120,6 +128,18 @@ export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): 
   }
   return index;
 };
+
+export const buildUserValues = (rows: UserScoringValueDbRow[]): MissionMatchUserValue[] =>
+  rows.map((row) => {
+    const taxonomyKey = row.taxonomyKey ?? "unknown";
+    const taxonomyValueKey = row.valueKey ?? "unknown";
+    return {
+      taxonomyKey,
+      taxonomyValueKey,
+      taxonomyValueLabel: getTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ?? taxonomyValueKey,
+      userScore: row.score,
+    };
+  });
 
 const toTaxonomyScoresDto = (taxonomyScores: MatchMissionItem["taxonomyScores"]): Record<string, number> => {
   const result: Record<string, number> = {};

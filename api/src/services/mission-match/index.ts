@@ -5,7 +5,15 @@ import { missionMatchingResultRepository } from "@/repositories/mission-matching
 import { matchingEngineService } from "@/services/matching-engine";
 import { MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MatchingEngineVersion } from "@/services/matching-engine/types";
-import { buildMissionIndex, buildValuesIndex, missionMatchMissionSelect, missionMatchScoringValueSelect, toMissionMatchItem } from "./transformers";
+import {
+  buildMissionIndex,
+  buildUserValues,
+  buildValuesIndex,
+  missionMatchMissionSelect,
+  missionMatchScoringValueSelect,
+  missionMatchUserValueSelect,
+  toMissionMatchItem,
+} from "./transformers";
 
 export type MissionMatchInput = {
   userScoringId: string;
@@ -24,13 +32,13 @@ export const missionMatchService = {
     const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, version });
 
     if (result.items.length === 0) {
-      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: result.total, avgDistanceKmTop5: result.avgDistanceKmTop5 };
+      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: result.total, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [] };
     }
 
     const missionIds = result.items.map((item) => item.missionId);
     const missionScoringIds = result.items.map((item) => item.missionScoringId);
 
-    const [missionRows, scoringValueRows] = await Promise.all([
+    const [missionRows, scoringValueRows, userValueRows] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
         select: missionMatchMissionSelect,
@@ -38,6 +46,10 @@ export const missionMatchService = {
       prisma.missionScoringValue.findMany({
         where: { missionScoringId: { in: missionScoringIds } },
         select: missionMatchScoringValueSelect,
+      }),
+      prisma.userScoringValue.findMany({
+        where: { userScoringId: input.userScoringId },
+        select: missionMatchUserValueSelect,
       }),
     ]);
 
@@ -52,6 +64,7 @@ export const missionMatchService = {
       items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex, input.publisherId, ignoreRemoteAddress)),
       total: result.total,
       avgDistanceKmTop5: result.avgDistanceKmTop5,
+      userValues: buildUserValues(userValueRows),
     };
   },
 };

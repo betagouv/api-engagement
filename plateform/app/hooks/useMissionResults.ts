@@ -1,4 +1,4 @@
-import type { MissionMatchItem } from "@engagement/dto";
+import type { MissionMatchItem, MissionMatchUserValue } from "@engagement/dto";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { fetchInitialMatches, fetchMatches, RESULTS_PAGE_SIZE } from "~/services/matching";
@@ -9,6 +9,7 @@ export function useMissionResults(userScoringId: string | undefined) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [firstPageItems, setFirstPageItems] = useState<MissionMatchItem[]>([]);
   const [items, setItems] = useState<MissionMatchItem[]>([]);
+  const [userValues, setUserValues] = useState<MissionMatchUserValue[]>([]);
   const [totalResults, setTotalResults] = useState(0);
   const [avgDistanceKmTop5, setAvgDistanceKmTop5] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +70,7 @@ export function useMissionResults(userScoringId: string | undefined) {
         if (!active) return;
         setFirstPageItems(res.items);
         setItems(res.items);
+        setUserValues(res.userValues ?? []);
         setTotalResults(res.total);
         setAvgDistanceKmTop5(res.avgDistanceKmTop5);
         setStatsUserScoringId(userScoringId);
@@ -130,6 +132,7 @@ export function useMissionResults(userScoringId: string | undefined) {
 
   return {
     items,
+    userValues,
     page,
     setPage,
     totalPages,

@@ -220,6 +220,16 @@ describe("GET /missions/match", () => {
     expect(response.body.data.items).toHaveLength(1);
   });
 
+  it("returns the scoring's own user values (independent of the client store)", async () => {
+    await createRankableMission();
+    const userScoringId = await createUserScoring();
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.userValues).toEqual([expect.objectContaining({ taxonomyKey: "domaine", taxonomyValueKey: "social_solidarite", userScore: 1 })]);
+  });
+
   it("returns the current engine version by default", async () => {
     await createRankableMission();
     const userScoringId = await createUserScoring();

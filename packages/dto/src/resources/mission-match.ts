@@ -59,11 +59,20 @@ export type MissionMatchItem = {
   match: MissionMatchScore;
 };
 
+export type MissionMatchUserValue = {
+  taxonomyKey: string;
+  taxonomyValueKey: string;
+  taxonomyValueLabel: string;
+  userScore: number;
+};
+
 export type MissionMatchResponse = {
   tookMs: number;
   // Version du moteur de matching effectivement utilisée ("m1" | "m2"). Optionnel pour rétro-compatibilité des clients.
   engineVersion?: string;
   items: MissionMatchItem[];
+  // Optionnel : une plateform récente peut interroger une API plus ancienne qui ne renvoie pas ce champ.
+  userValues?: MissionMatchUserValue[];
   // Nombre total de missions classées pour l'utilisateur (avant pagination).
   total: number;
   // Distance moyenne (km) entre l'utilisateur et les 5 premières missions recommandées.

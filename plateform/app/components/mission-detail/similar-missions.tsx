@@ -4,6 +4,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import Highlight from "~/components/ui/highlight";
 import { fetchMatches } from "~/services/matching";
+import { userValueKeysFromScoring } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 
 interface Props {
@@ -13,11 +14,15 @@ interface Props {
 
 export default function SimilarMissions({ userScoringId, currentMissionId }: Props) {
   const [items, setItems] = useState<MissionMatchItem[]>([]);
+  const [userValueKeys, setUserValueKeys] = useState<ReadonlySet<string>>(() => new Set());
   const scrollRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     fetchMatches(userScoringId, 11, 0)
-      .then((res) => setItems(res.items.filter((item) => item.mission.id !== currentMissionId).slice(0, 10)))
+      .then((res) => {
+        setItems(res.items.filter((item) => item.mission.id !== currentMissionId).slice(0, 10));
+        setUserValueKeys(userValueKeysFromScoring(res.userValues ?? []));
+      })
       .catch(() => {});
   }, [userScoringId, currentMissionId]);
 
@@ -42,7 +47,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
         <ul ref={scrollRef} role="list" className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none list-none! p-0! m-0!">
           {items.map((item, index) => (
             <li key={item.mission.id} className="w-[310px] flex-none snap-start md:w-[283px]">
-              <MatchMissionCard item={item} section="similar" rank={index + 1} userScoringId={userScoringId} />
+              <MatchMissionCard item={item} section="similar" rank={index + 1} userScoringId={userScoringId} userValueKeys={userValueKeys} />
             </li>
           ))}
         </ul>

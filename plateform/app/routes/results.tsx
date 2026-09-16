@@ -8,7 +8,7 @@ import Partners from "~/components/layout/partners";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
-import MatchingDebugModal, { type MatchingDebugUserValue } from "~/components/results/matching-debug-modal";
+import MatchingDebugModal from "~/components/results/matching-debug-modal";
 import ProfileModal from "~/components/results/profile-modal";
 import ResultsFilters from "~/components/results/results-filters";
 import ResultsFiltersModal from "~/components/results/results-filters-modal";
@@ -17,13 +17,13 @@ import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
 import type { PaginationTrigger } from "~/components/ui/pagination";
 import { QUIZ_FLOW } from "~/config/quiz-flow";
-import { getTaxonomyValue, OPTIONS } from "~/config/quiz-options";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { RESULTS_PAGE_SIZE, useMissionResults } from "~/hooks/useMissionResults";
 import { setQuizSessionId } from "~/services/tracking";
 import { trackResultsMapPinClicked, trackResultsPageChanged, trackResultsViewed } from "~/services/tracking/events";
 import type { ResultsPageNavigationType } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
+import { userValueKeysFromScoring } from "~/utils/mission";
 import type { Route } from "./+types/results";
 
 export function meta(): Route.MetaDescriptors {
@@ -41,7 +41,7 @@ export default function ResultsPage() {
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const answers = useQuizStore((s) => s.answers);
-  const { items, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
+  const { items, userValues, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
   // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
   // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
   const resultsViewedFired = useRef<string | null>(null);
@@ -124,31 +124,7 @@ export default function ResultsPage() {
   const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
   // Mémoïsé pour garder une identité stable : sinon chaque rendu (ex. sélection d'un pin) recale la carte sur l'ensemble des pins.
   const mapCenter = useMemo<[number, number]>(() => (geo ? [geo.lat, geo.lon] : FRANCE_CENTER), [geo]);
-  const userValues = useMemo<MatchingDebugUserValue[]>(
-    () =>
-      Object.values(answers).flatMap((answer) => {
-        if (answer?.type === "options") {
-          return answer.option_ids.map((optionId) => ({
-            taxonomyKey: answer.taxonomy,
-            taxonomyValueKey: getTaxonomyValue(answer.taxonomy, optionId),
-            taxonomyValueLabel: OPTIONS[`${answer.taxonomy}.${optionId}` as keyof typeof OPTIONS]?.label ?? optionId,
-            userScore: 1,
-          }));
-        }
-        if (answer?.type === "params") {
-          return [
-            {
-              taxonomyKey: answer.taxonomy,
-              taxonomyValueKey: JSON.stringify(answer.params),
-              taxonomyValueLabel: JSON.stringify(answer.params),
-              userScore: 1,
-            },
-          ];
-        }
-        return [];
-      }),
-    [answers],
-  );
+  const userValueKeys = useMemo(() => userValueKeysFromScoring(userValues), [userValues]);
 
   const showMap = !loading && items.length > 0;
   const showDebug = searchParams.get("debug") === "true";
@@ -263,6 +239,7 @@ export default function ResultsPage() {
                       rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
                       pageNumber={page}
                       userScoringId={userScoringId}
+                      userValueKeys={userValueKeys}
                       onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
                     />
                   </div>
@@ -314,6 +291,7 @@ export default function ResultsPage() {
                 pageLoading={pageLoading}
                 error={error}
                 userScoringId={userScoringId}
+                userValueKeys={userValueKeys}
                 showDebug={showDebug}
                 highlightedMissionId={activeMissionId}
                 onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
@@ -378,6 +356,7 @@ export default function ResultsPage() {
                   pageLoading={pageLoading}
                   error={error}
                   userScoringId={userScoringId}
+                  userValueKeys={userValueKeys}
                   showDebug={showDebug}
                   highlightedMissionId={activeMissionId}
                   onMissionHover={setHoveredMissionId}
@@ -400,7 +379,14 @@ export default function ResultsPage() {
                     {displayedMission && (
                       <div className={`absolute top-4 left-4 z-[500] w-[290px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
                         <div className="relative">
-                          <MatchMissionCard item={displayedMission} section="map" rank={displayedMissionRank} pageNumber={page} userScoringId={userScoringId} />
+                          <MatchMissionCard
+                            item={displayedMission}
+                            section="map"
+                            rank={displayedMissionRank}
+                            pageNumber={page}
+                            userScoringId={userScoringId}
+                            userValueKeys={userValueKeys}
+                          />
                           {cardIsFixed && (
                             <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                               <button
