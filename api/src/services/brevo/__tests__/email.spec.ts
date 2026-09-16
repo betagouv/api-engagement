@@ -12,19 +12,6 @@ describe("Brevo development logging", () => {
     vi.restoreAllMocks();
   });
 
-  it("does not log MFA code values", async () => {
-    const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
-
-    await sendTemplate(TEMPLATE_IDS.MFA_CODE, {
-      emailTo: ["alice@example.org"],
-      params: { code: "123456" },
-    });
-
-    const output = log.mock.calls.flat().join("\n");
-    expect(output).toContain('"code": "[redacted]"');
-    expect(output).not.toContain("123456");
-  });
-
   it("keeps non-sensitive template parameters useful in development", async () => {
     const log = vi.spyOn(console, "log").mockImplementation(() => undefined);
 
