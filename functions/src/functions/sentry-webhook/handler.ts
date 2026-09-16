@@ -150,7 +150,7 @@ export const handle = async (event: FunctionEvent) => {
     }
     console.log(`${LOG_PREFIX} message posté dans ${channelId} (ts ${data.ts ?? "?"}) en ${Date.now() - startedAt} ms`);
   } catch (error) {
-    console.error(`${LOG_PREFIX} erreur inattendue lors de l'appel Slack`, error);
+    console.error(`${LOG_PREFIX} erreur inattendue lors de l'appel Slack: ${error instanceof Error ? error.stack : error}`);
     return json({ error: "Internal error" }, 500);
   }
 
