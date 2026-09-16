@@ -30,8 +30,6 @@ const toUserRecord = (user: UserWithPublishers): UserRecord => ({
   lastActivityAt: user.lastActivityAt ?? null,
   forgotPasswordToken: user.forgotPasswordToken ?? null,
   forgotPasswordExpiresAt: user.forgotPasswordExpiresAt ?? null,
-  mfaCode: user.mfaCode ?? null,
-  mfaCodeExpiresAt: user.mfaCodeExpiresAt ?? null,
   deletedAt: user.deletedAt ?? null,
   brevoContactId: user.brevoContactId ?? null,
   createdAt: user.createdAt,
@@ -147,12 +145,6 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   if ("forgotPasswordExpiresAt" in patch) {
     data.forgotPasswordExpiresAt = patch.forgotPasswordExpiresAt ?? null;
   }
-  if ("mfaCode" in patch) {
-    data.mfaCode = patch.mfaCode ?? null;
-  }
-  if ("mfaCodeExpiresAt" in patch) {
-    data.mfaCodeExpiresAt = patch.mfaCodeExpiresAt ?? null;
-  }
   if ("deletedAt" in patch) {
     data.deletedAt = patch.deletedAt ?? null;
   }
@@ -168,11 +160,11 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
 
 export const userService = {
   /**
-   * Retire les champs sensibles (`password`, tokens d'invitation, mot de passe oublié, code MFA)
+   * Retire les champs sensibles (`password`, tokens d'invitation, mot de passe oublié)
    * d'un record : à utiliser pour toute réponse HTTP contenant un user.
    */
   toPublicUser(user: UserRecord): PublicUserRecord {
-    const { password, invitationToken, forgotPasswordToken, forgotPasswordExpiresAt, mfaCode, mfaCodeExpiresAt, ...publicUser } = user;
+    const { password, invitationToken, forgotPasswordToken, forgotPasswordExpiresAt, ...publicUser } = user;
     return publicUser;
   },
 

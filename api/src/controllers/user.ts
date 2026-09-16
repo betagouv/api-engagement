@@ -5,7 +5,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { APP_URL, ENV, MFA_ENABLED, SECRET } from "@/config";
-import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST, SERVICE_UNAVAILABLE, TOO_MANY_ATTEMPTS } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
@@ -339,8 +339,11 @@ router.post("/login", async (req: UserRequest, res: Response, next: NextFunction
           }
 
           // Challenge MFA : envoi d'un code OTP par email, aucun token d'accès à ce stade.
-          const mfaToken = await mfaService.createChallenge(user);
-          return res.status(200).send({ ok: true, data: { mfaRequired: true, mfaToken } });
+          const challenge = await mfaService.createChallenge(user);
+          if (!challenge.ok) {
+            return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Unable to send the verification code, please try again later" });
+          }
+          return res.status(200).send({ ok: true, data: { mfaRequired: true, mfaToken: challenge.token } });
         } catch (error) {
           next(error);
         }
@@ -377,9 +380,13 @@ router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunc
 
     const verification = await mfaService.verifyAndConsumeChallenge(mfaToken, body.data.code.trim());
     if (!verification.ok) {
-      const code = verification.reason === "invalid-token" ? REQUEST_EXPIRED : NOT_FOUND;
-      const message = verification.reason === "invalid-token" ? "MFA session expired" : "Invalid or expired code";
-      return res.status(401).send({ ok: false, code, message });
+      if (verification.reason === "too-many-attempts") {
+        return res.status(429).send({ ok: false, code: TOO_MANY_ATTEMPTS, message: "Too many attempts, please sign in again" });
+      }
+      if (verification.reason === "invalid-token") {
+        return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
+      }
+      return res.status(401).send({ ok: false, code: NOT_FOUND, message: "Invalid or expired code" });
     }
 
     if (body.data.rememberDevice) {
@@ -401,7 +408,18 @@ router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunc
 router.post("/login/mfa/resend", async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const mfaToken = getMfaToken(req);
-    if (!mfaToken || !(await mfaService.resendChallenge(mfaToken))) {
+    if (!mfaToken) {
+      return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
+    }
+
+    const result = await mfaService.resendChallenge(mfaToken);
+    if (!result.ok) {
+      if (result.reason === "cooldown") {
+        return res.status(429).send({ ok: false, code: TOO_MANY_ATTEMPTS, message: "Please wait before requesting a new code" });
+      }
+      if (result.reason === "send-failed") {
+        return res.status(503).send({ ok: false, code: SERVICE_UNAVAILABLE, message: "Unable to send the verification code, please try again later" });
+      }
       return res.status(401).send({ ok: false, code: REQUEST_EXPIRED, message: "MFA session expired" });
     }
     return res.status(200).send({ ok: true });

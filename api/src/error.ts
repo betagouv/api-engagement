@@ -15,6 +15,7 @@ export const NOT_FOUND = "NOT_FOUND";
 export const EMAIL_SEND_FAILED = "EMAIL_SEND_FAILED";
 export const SERVER_ERROR = "SERVER_ERROR";
 export const SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE";
+export const TOO_MANY_ATTEMPTS = "TOO_MANY_ATTEMPTS";
 export const DEPRECATED = "DEPRECATED";
 
 export const captureException = (error: any, context?: string | { extra: any }) => {

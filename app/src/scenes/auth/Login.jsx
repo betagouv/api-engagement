@@ -52,6 +52,9 @@ const Login = () => {
         if (res.code === "NOT_FOUND") {
           setErrors({ login: "E-mail ou mot de passe erroné" });
           return setLoading(false);
+        } else if (res.code === "SERVICE_UNAVAILABLE") {
+          setErrors({ login: "Envoi du code impossible pour le moment, veuillez réessayer." });
+          return setLoading(false);
         } else throw res;
       }
       if (res.data.mfaRequired) {
@@ -65,6 +68,13 @@ const Login = () => {
       captureError(error);
     }
     setLoading(false);
+  };
+
+  // Retour à l'étape identifiants quand le challenge n'est plus exploitable (expiré / essais épuisés).
+  const resetToCredentials = (message) => {
+    setMfaToken(null);
+    setStep("credentials");
+    setErrors({ login: message });
   };
 
   const handleVerifyMfa = async (event) => {
@@ -81,14 +91,19 @@ const Login = () => {
     setErrors({});
 
     try {
-      const res = await api.post("/user/login/mfa", { code, rememberDevice }, { headers: { Authorization: `jwt ${mfaToken}` } });
+      const res = await api.post("/user/login/mfa", { code, rememberDevice }, { headers: { Authorization: `jwt ${mfaToken}` }, skipAuthRedirect: true });
       if (!res.ok) {
-        if (res.code === "REQUEST_EXPIRED") {
-          setErrors({ code: "Votre session a expiré, veuillez vous reconnecter." });
-        } else {
-          setErrors({ code: "Code incorrect ou expiré." });
+        setLoading(false);
+        if (res.code === "TOO_MANY_ATTEMPTS") {
+          return resetToCredentials("Trop de tentatives. Veuillez recommencer la connexion.");
         }
-        return setLoading(false);
+        if (res.code === "REQUEST_EXPIRED") {
+          return resetToCredentials("Votre session a expiré, veuillez vous reconnecter.");
+        }
+        if (res.code === "SERVICE_UNAVAILABLE") {
+          return setErrors({ code: "Service momentanément indisponible, veuillez réessayer." });
+        }
+        return setErrors({ code: "Code incorrect ou expiré." });
       }
       completeLogin(res.data);
     } catch (error) {
@@ -99,7 +114,12 @@ const Login = () => {
 
   const handleResend = async () => {
     try {
-      await api.post("/user/login/mfa/resend", {}, { headers: { Authorization: `jwt ${mfaToken}` } });
+      const res = await api.post("/user/login/mfa/resend", {}, { headers: { Authorization: `jwt ${mfaToken}` }, skipAuthRedirect: true });
+      if (!res.ok) {
+        if (res.code === "TOO_MANY_ATTEMPTS") return toast.info("Veuillez patienter avant de demander un nouveau code");
+        if (res.code === "REQUEST_EXPIRED") return resetToCredentials("Votre session a expiré, veuillez vous reconnecter.");
+        return toast.error("Impossible d'envoyer un nouveau code, veuillez réessayer.");
+      }
       toast.info("Un nouveau code vous a été envoyé");
     } catch (error) {
       captureError(error);

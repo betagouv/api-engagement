@@ -107,4 +107,62 @@ describe("MFA login flow", () => {
     expect(res.body.data.mfaRequired).toBeUndefined();
     expect(sendTemplateMock).not.toHaveBeenCalled();
   });
+
+  it("locks the challenge after 5 failed attempts (429) and refuses the correct code afterwards", async () => {
+    const { user } = await createTestUser({ password: PASSWORD });
+    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const auth = `jwt ${login.body.data.mfaToken}`;
+    const code = lastSentCode();
+
+    for (let i = 0; i < 4; i++) {
+      const wrong = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
+      expect(wrong.status).toBe(401);
+    }
+
+    const locked = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
+    expect(locked.status).toBe(429);
+    expect(locked.body.code).toBe("TOO_MANY_ATTEMPTS");
+
+    // Même le bon code ne fonctionne plus une fois le challenge verrouillé.
+    const afterLock = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code });
+    expect(afterLock.status).toBe(401);
+    expect(afterLock.body.data?.token).toBeUndefined();
+  });
+
+  it("consumes the code only once (single-use)", async () => {
+    const { user } = await createTestUser({ password: PASSWORD });
+    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const auth = `jwt ${login.body.data.mfaToken}`;
+    const code = lastSentCode();
+
+    const first = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code });
+    expect(first.status).toBe(200);
+    expect(first.body.data.token).toBeTruthy();
+
+    const second = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code });
+    expect(second.status).toBe(401);
+    expect(second.body.data?.token).toBeUndefined();
+  });
+
+  it("returns 503 when the verification email cannot be sent", async () => {
+    sendTemplateMock.mockResolvedValue({ ok: false });
+    const { user } = await createTestUser({ password: PASSWORD });
+
+    const res = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+
+    expect(res.status).toBe(503);
+    expect(res.body.code).toBe("SERVICE_UNAVAILABLE");
+    expect(res.body.data?.mfaRequired).toBeUndefined();
+  });
+
+  it("throttles resend during the cooldown window (429)", async () => {
+    const { user } = await createTestUser({ password: PASSWORD });
+    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const auth = `jwt ${login.body.data.mfaToken}`;
+
+    const res = await request(app).post("/user/login/mfa/resend").set("Authorization", auth).send({});
+
+    expect(res.status).toBe(429);
+    expect(res.body.code).toBe("TOO_MANY_ATTEMPTS");
+  });
 });

@@ -3,58 +3,45 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
 import { MFA_DEVICE_SECRET, MFA_TOKEN_SECRET } from "@/config";
+import { mfaChallengeRepository } from "@/repositories/mfa-challenge";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { userService } from "@/services/user";
 import type { UserRecord } from "@/types/user";
 
 const SALT_ROUNDS = 10;
-const MFA_CHALLENGE_DURATION_SECONDS = 10 * 60;
-const MFA_CHALLENGE_DURATION_MS = MFA_CHALLENGE_DURATION_SECONDS * 1000;
-const MFA_DEVICE_DURATION_SECONDS = 30 * 24 * 60 * 60;
+const CHALLENGE_DURATION_SECONDS = 10 * 60;
+const CHALLENGE_DURATION_MS = CHALLENGE_DURATION_SECONDS * 1000;
+const RESEND_COOLDOWN_MS = 30 * 1000;
+const MAX_ATTEMPTS = 5;
+const DEVICE_DURATION_SECONDS = 30 * 24 * 60 * 60;
 
 export const MFA_DEVICE_COOKIE_NAME = "mfa_device";
-export const MFA_DEVICE_COOKIE_MAX_AGE_MS = MFA_DEVICE_DURATION_SECONDS * 1000;
+export const MFA_DEVICE_COOKIE_MAX_AGE_MS = DEVICE_DURATION_SECONDS * 1000;
 
-type MfaTokenPayload = {
-  _id?: string;
-  purpose?: string;
-};
+type ChallengeTokenPayload = { challengeId?: string; purpose?: string };
+type DeviceTokenPayload = { _id?: string; purpose?: string };
 
-export type MfaVerificationResult = { ok: true; user: UserRecord } | { ok: false; reason: "invalid-token" | "invalid-code" };
+export type MfaChallengeCreation = { ok: true; token: string } | { ok: false };
+export type MfaVerificationResult = { ok: true; user: UserRecord } | { ok: false; reason: "invalid-token" | "invalid-code" | "too-many-attempts" };
+export type MfaResendResult = { ok: true } | { ok: false; reason: "invalid-token" | "cooldown" | "send-failed" };
 
 const generateCode = (): string => crypto.randomInt(0, 1_000_000).toString().padStart(6, "0");
 
-const storeCode = async (userId: string, code: string): Promise<void> => {
-  await userService.updateUser(userId, {
-    mfaCode: await bcrypt.hash(code, SALT_ROUNDS),
-    mfaCodeExpiresAt: new Date(Date.now() + MFA_CHALLENGE_DURATION_MS),
-  });
-};
-
-const sendCode = async (user: UserRecord): Promise<void> => {
-  const code = generateCode();
-  await storeCode(user.id, code);
-  await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [user.email], params: { code } });
-};
+const signChallengeToken = (challengeId: string): string => jwt.sign({ challengeId, purpose: "mfa" }, MFA_TOKEN_SECRET, { expiresIn: CHALLENGE_DURATION_SECONDS });
 
 const decodeChallengeToken = (token: string): string | null => {
   try {
-    const payload = jwt.verify(token, MFA_TOKEN_SECRET, { algorithms: ["HS256"] }) as MfaTokenPayload;
-    return payload.purpose === "mfa" && payload._id ? payload._id : null;
+    const payload = jwt.verify(token, MFA_TOKEN_SECRET, { algorithms: ["HS256"] }) as ChallengeTokenPayload;
+    return payload.purpose === "mfa" && payload.challengeId ? payload.challengeId : null;
   } catch {
     return null;
   }
 };
 
-const isCodeValid = async (user: UserRecord, candidate: string): Promise<boolean> => {
-  if (!user.mfaCode || !user.mfaCodeExpiresAt || user.mfaCodeExpiresAt < new Date()) {
-    return false;
-  }
-  return bcrypt.compare(candidate, user.mfaCode);
-};
-
-const clearCode = async (userId: string): Promise<void> => {
-  await userService.updateUser(userId, { mfaCode: null, mfaCodeExpiresAt: null });
+// Envoie le code par email. sendTemplate ne lève pas : renvoie false si Brevo ou le template échoue.
+const deliverCode = async (email: string, code: string): Promise<boolean> => {
+  const result = await sendTemplate(TEMPLATE_IDS.MFA_CODE, { emailTo: [email], params: { code } });
+  return result.ok;
 };
 
 export const mfaService = {
@@ -63,49 +50,111 @@ export const mfaService = {
       return false;
     }
     try {
-      const payload = jwt.verify(token, MFA_DEVICE_SECRET, { algorithms: ["HS256"] }) as MfaTokenPayload;
+      const payload = jwt.verify(token, MFA_DEVICE_SECRET, { algorithms: ["HS256"] }) as DeviceTokenPayload;
       return payload.purpose === "mfa-device" && payload._id === userId;
     } catch {
       return false;
     }
   },
 
-  async createChallenge(user: UserRecord): Promise<string> {
-    await sendCode(user);
-    return jwt.sign({ _id: user.id, purpose: "mfa" }, MFA_TOKEN_SECRET, { expiresIn: MFA_CHALLENGE_DURATION_SECONDS });
+  createTrustedDeviceToken(userId: string): string {
+    return jwt.sign({ _id: userId, purpose: "mfa-device" }, MFA_DEVICE_SECRET, { expiresIn: DEVICE_DURATION_SECONDS });
+  },
+
+  // Crée un challenge (un seul actif par user) et envoie le code. Si l'email échoue,
+  // le challenge est supprimé et on renvoie ok:false pour que l'API réponde une erreur temporaire.
+  async createChallenge(user: UserRecord): Promise<MfaChallengeCreation> {
+    await mfaChallengeRepository.deleteMany({ where: { userId: user.id, consumedAt: null } });
+
+    const code = generateCode();
+    const challenge = await mfaChallengeRepository.create({
+      data: {
+        userId: user.id,
+        codeHash: await bcrypt.hash(code, SALT_ROUNDS),
+        expiresAt: new Date(Date.now() + CHALLENGE_DURATION_MS),
+        resendAfter: new Date(Date.now() + RESEND_COOLDOWN_MS),
+      },
+    });
+
+    if (!(await deliverCode(user.email, code))) {
+      await mfaChallengeRepository.deleteMany({ where: { id: challenge.id } });
+      return { ok: false };
+    }
+
+    return { ok: true, token: signChallengeToken(challenge.id) };
   },
 
   async verifyAndConsumeChallenge(token: string, candidate: string): Promise<MfaVerificationResult> {
-    const userId = decodeChallengeToken(token);
-    if (!userId) {
+    const challengeId = decodeChallengeToken(token);
+    if (!challengeId) {
       return { ok: false, reason: "invalid-token" };
     }
 
-    const user = await userService.findUserById(userId);
-    if (!user || !(await isCodeValid(user, candidate))) {
+    const challenge = await mfaChallengeRepository.findUnique({ where: { id: challengeId } });
+    if (!challenge || challenge.consumedAt || challenge.expiresAt < new Date()) {
+      return { ok: false, reason: "invalid-token" };
+    }
+    if (challenge.attemptCount >= MAX_ATTEMPTS) {
+      await mfaChallengeRepository.updateMany({ where: { id: challenge.id, consumedAt: null }, data: { consumedAt: new Date() } });
+      return { ok: false, reason: "too-many-attempts" };
+    }
+
+    const match = await bcrypt.compare(candidate, challenge.codeHash);
+    if (!match) {
+      const updated = await mfaChallengeRepository.update({ where: { id: challenge.id }, data: { attemptCount: { increment: 1 } } });
+      if (updated.attemptCount >= MAX_ATTEMPTS) {
+        await mfaChallengeRepository.updateMany({ where: { id: challenge.id, consumedAt: null }, data: { consumedAt: new Date() } });
+        return { ok: false, reason: "too-many-attempts" };
+      }
       return { ok: false, reason: "invalid-code" };
     }
 
-    await clearCode(user.id);
+    // Consommation atomique : seule la première requête concurrente obtient count === 1.
+    const consumed = await mfaChallengeRepository.updateMany({ where: { id: challenge.id, consumedAt: null }, data: { consumedAt: new Date() } });
+    if (consumed.count !== 1) {
+      return { ok: false, reason: "invalid-token" };
+    }
+
+    const user = await userService.findUserById(challenge.userId);
+    if (!user) {
+      return { ok: false, reason: "invalid-token" };
+    }
     return { ok: true, user };
   },
 
-  async resendChallenge(token: string): Promise<boolean> {
-    const userId = decodeChallengeToken(token);
-    if (!userId) {
-      return false;
+  async resendChallenge(token: string): Promise<MfaResendResult> {
+    const challengeId = decodeChallengeToken(token);
+    if (!challengeId) {
+      return { ok: false, reason: "invalid-token" };
     }
 
-    const user = await userService.findUserById(userId);
+    const challenge = await mfaChallengeRepository.findUnique({ where: { id: challengeId } });
+    if (!challenge || challenge.consumedAt || challenge.expiresAt < new Date()) {
+      return { ok: false, reason: "invalid-token" };
+    }
+    if (challenge.resendAfter && challenge.resendAfter > new Date()) {
+      return { ok: false, reason: "cooldown" };
+    }
+
+    const user = await userService.findUserById(challenge.userId);
     if (!user) {
-      return false;
+      return { ok: false, reason: "invalid-token" };
     }
 
-    await sendCode(user);
-    return true;
-  },
+    const code = generateCode();
+    await mfaChallengeRepository.update({
+      where: { id: challenge.id },
+      data: {
+        codeHash: await bcrypt.hash(code, SALT_ROUNDS),
+        expiresAt: new Date(Date.now() + CHALLENGE_DURATION_MS),
+        resendAfter: new Date(Date.now() + RESEND_COOLDOWN_MS),
+        attemptCount: 0,
+      },
+    });
 
-  createTrustedDeviceToken(userId: string): string {
-    return jwt.sign({ _id: userId, purpose: "mfa-device" }, MFA_DEVICE_SECRET, { expiresIn: MFA_DEVICE_DURATION_SECONDS });
+    if (!(await deliverCode(user.email, code))) {
+      return { ok: false, reason: "send-failed" };
+    }
+    return { ok: true };
   },
 };
