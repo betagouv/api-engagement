@@ -56,7 +56,9 @@ const consentServices: ConsentService[] = [
       "Crisp affiche une messagerie d'assistance et conserve votre conversation entre deux pages via un identifiant stocké dans votre navigateur. Sans accord, le chat n'est pas chargé.",
     isEnabled: () => Boolean(CRISP_WEBSITE_ID),
     applyConsent(status) {
-      if (status === "granted") loadCrisp();
+      if (status === "granted") return loadCrisp();
+      // Retrait du consentement : rechargement contrôlé si le widget est déjà chargé (prepareCookieConsent ne le relancera pas tant que le refus est stocké).
+      if (typeof document !== "undefined" && document.getElementById("crisp-client")) window.location.reload();
     },
   },
 ];

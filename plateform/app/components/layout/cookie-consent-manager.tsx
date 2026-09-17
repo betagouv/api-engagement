@@ -71,7 +71,7 @@ export default function CookieConsentManager() {
           <div className="fr-consent-banner__content">
             <p className="fr-text--sm">
               Bienvenue ! Ce site utilise des cookies pour mesurer la fréquentation du site afin d’en améliorer le fonctionnement et l’administration et, avec votre accord, pour
-              évaluer la performance des campagnes d’informations gouvernementales et améliorer votre expérience utilisateur. Consultez notre{" "}
+              évaluer la performance des campagnes d’informations gouvernementales, améliorer votre expérience utilisateur et vous proposer un chat d’assistance. Consultez notre{" "}
               <Link to="/politique-de-confidentialite">politique de confidentialité</Link>.
             </p>
           </div>

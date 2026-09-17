@@ -159,6 +159,14 @@ export default function PolitiqueDeConfidentialite() {
                 </td>
                 <td>1 an</td>
               </tr>
+              <tr>
+                <td>Crisp</td>
+                <td>Chat d'assistance et continuité de la conversation d'un échange à l'autre</td>
+                <td>
+                  <code>crisp-client/*</code>
+                </td>
+                <td>6 mois</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -171,7 +179,7 @@ export default function PolitiqueDeConfidentialite() {
         <h3>Cookies strictement nécessaires</h3>
         <p>
           Les cookies techniques indispensables au bon fonctionnement du service (session, sécurité CSRF, préférences d'interface) sont déposés sans consentement préalable,
-          conformément à l'article 82 de la loi Informatique et Libertés. Le cookie <code>plateform_consent</code> conserve votre choix de mesure d'audience pendant un an.
+          conformément à l'article 82 de la loi Informatique et Libertés. Le cookie <code>plateform_consent</code> conserve vos choix de consentement pendant un an.
         </p>
       </div>
     </main>
