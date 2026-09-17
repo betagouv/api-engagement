@@ -42,8 +42,11 @@ resource "scaleway_function" "sentry_webhook" {
     "DEBUG_PAYLOAD"               = var.sentry_webhook_debug_payload ? "true" : "false"
   }
 
+  # WEBHOOK_TOKEN : token partagé ajouté en query de l'url configurée dans Sentry (`?token=...`).
+  # Vide tant que la clé n'existe pas dans le Secret Manager : la fonction ne vérifie alors pas de token.
   secret_environment_variables = {
-    "SLACK_TOKEN" = local.secrets.SLACK_TOKEN
+    "SLACK_TOKEN"   = local.secrets.SLACK_TOKEN
+    "WEBHOOK_TOKEN" = lookup(local.secrets, "SENTRY_WEBHOOK_TOKEN", "")
   }
 }
 
