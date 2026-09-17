@@ -1,9 +1,9 @@
 import { MATCHING_ENGINE_VERSION } from "@/config";
 import { captureMessage } from "@/error";
-import { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES } from "@engagement/taxonomy";
+import { ENRICHABLE_TAXONOMIES, GATE_TAXONOMIES, MISSION_DERIVED_TAXONOMIES } from "@engagement/taxonomy";
 import type { MatchingEngineTaxonomy, MatchingEngineTaxonomyWeights, MatchingEngineVersion, MatchingEngineVersionConfig } from "./types";
 
-export const MATCHING_ENGINE_TAXONOMIES = [...ENRICHABLE_TAXONOMIES, ...GATE_TAXONOMIES] as readonly (keyof MatchingEngineTaxonomyWeights)[];
+export const MATCHING_ENGINE_TAXONOMIES = [...ENRICHABLE_TAXONOMIES, ...MISSION_DERIVED_TAXONOMIES, ...GATE_TAXONOMIES] as readonly (keyof MatchingEngineTaxonomyWeights)[];
 
 export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
 
@@ -23,6 +23,8 @@ type MatchingEngineVersionDefinition = {
   gateRemoteFullGeoScoreOnIntent?: boolean;
   // Socle acquis d'office par taxonomie matchée (cf. MatchingEngineVersionConfig.taxonomyOrBaseScore).
   taxonomyOrBaseScore: number;
+  // Règles de couverture optionnelles, sans modification du score de pertinence.
+  dispositifCoverage?: { minScore: number; maxScoreGap: number };
 };
 
 export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
@@ -41,6 +43,7 @@ export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDef
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
     gateRemoteFullGeoScoreOnIntent: definition.gateRemoteFullGeoScoreOnIntent ?? false,
     taxonomyOrBaseScore: definition.taxonomyOrBaseScore,
+    dispositifCoverage: definition.dispositifCoverage ?? null,
   };
 };
 
@@ -165,6 +168,36 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
     gateRemoteFullGeoScoreOnIntent: true,
     taxonomyOrBaseScore: 0.5,
+  }),
+  m6: defineMatchingEngineVersion({
+    // Identique à m5, avec un signal de dispositif permettant de rapprocher les
+    // préférences déduites du profil des dispositifs déterministes des missions.
+    taxonomyWeights: {
+      domaine: 1,
+      secteur_activite: 1,
+      type_mission: 1,
+      competence_rome: 1,
+      region_internationale: 1,
+      engagement_intent: 1,
+      formation_onisep: 1,
+      domaine_engagement: 1.5,
+      rythme: 1.2,
+      activite: 1.5,
+      equipe: 0.6,
+      interaction: 0.6,
+      autonomie: 0.6,
+      imprevu: 0.6,
+      motivation_recherche: 1,
+      dispositif: 1,
+    },
+    geoWeight: 0.3,
+    remoteFullGeoScore: 0.9,
+    remoteLocalGeoScore: 0.95,
+    gateRemoteFullGeoScoreOnIntent: true,
+    taxonomyOrBaseScore: 0.5,
+    // Chaque dispositif déduit du user-scoring peut être couvert dans le top 10,
+    // uniquement si sa meilleure mission reste proche du seuil de pertinence initial.
+    dispositifCoverage: { minScore: 0.5, maxScoreGap: 0.1 },
   }),
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

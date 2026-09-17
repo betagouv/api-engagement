@@ -92,6 +92,7 @@ const buildRanking = (params: {
   remoteLocalGeoScore: number | null;
   gateRemoteFullGeoScoreOnIntent: boolean;
   taxonomyOrBaseScore: number;
+  dispositifCoverage: { minScore: number; maxScoreGap: number } | null;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
   limit: number;
@@ -205,6 +206,112 @@ const buildRanking = (params: {
       CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_address_id" END AS "closest_address_id",
       CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_city" END AS "closest_city",
       CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_address" END AS "closest_address"`;
+  const baseTotalScoreSql = Prisma.sql`
+    CASE
+      WHEN r."geo_score" IS NULL THEN r."taxonomy_score"
+      ELSE (
+        (CAST(${params.taxonomyWeight} AS double precision) * r."taxonomy_score") +
+        (CAST(${params.geoWeight} AS double precision) * r."geo_score")
+      ) / NULLIF(
+        CAST(${params.taxonomyWeight} AS double precision) + CAST(${params.geoWeight} AS double precision),
+        0.0
+      )
+    END`;
+  const dispositifCoverageEnabled = params.dispositifCoverage !== null;
+  const dispositifCoverageCtesSql = !params.dispositifCoverage
+    ? Prisma.empty
+    : Prisma.sql`,
+  base_ordered AS (
+    SELECT
+      br.*,
+      md."value_key" AS "dispositif_value_key",
+      ROW_NUMBER() OVER (ORDER BY br."base_total_score" DESC, br."mission_id" ASC) AS "base_position"
+    FROM base_ranked br
+    LEFT JOIN LATERAL (
+      SELECT msv."value_key"
+      FROM "mission_scoring_value" msv
+      WHERE msv."mission_scoring_id" = br."mission_scoring_id"
+        AND msv."taxonomy_key" = 'dispositif'
+      ORDER BY msv."score" DESC, msv."value_key" ASC
+      LIMIT 1
+    ) md ON TRUE
+  ),
+  top_base AS (
+    SELECT bo.*
+    FROM base_ordered bo
+    WHERE bo."base_position" <= 10
+  ),
+  top_cutoff AS (
+    SELECT MIN(tb."base_total_score") AS "score" FROM top_base tb
+  ),
+  missing_dispositifs AS (
+    SELECT DISTINCT ON (uv."value_key")
+      bo."mission_id",
+      uv."value_key",
+      uv."user_score",
+      bo."base_total_score"
+    FROM user_values uv
+    JOIN base_ordered bo ON bo."dispositif_value_key" = uv."value_key"
+    CROSS JOIN top_cutoff tc
+    WHERE uv."taxonomy_key" = 'dispositif'
+      AND NOT EXISTS (
+        SELECT 1 FROM top_base tb WHERE tb."dispositif_value_key" = uv."value_key"
+      )
+      AND bo."base_total_score" >= CAST(${params.dispositifCoverage.minScore} AS double precision)
+      AND bo."base_total_score" >= tc."score" - CAST(${params.dispositifCoverage.maxScoreGap} AS double precision)
+    ORDER BY uv."value_key" ASC, bo."base_total_score" DESC, bo."mission_id" ASC
+  ),
+  removable_top AS (
+    SELECT
+      tb."mission_id",
+      ROW_NUMBER() OVER (ORDER BY tb."base_total_score" ASC, tb."mission_id" DESC) AS "removal_position"
+    FROM (
+      SELECT
+        top_base.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY "dispositif_value_key"
+          ORDER BY "base_total_score" DESC, "mission_id" ASC
+        ) AS "device_position"
+      FROM top_base
+    ) tb
+    WHERE tb."dispositif_value_key" IS NULL OR tb."device_position" > 1
+  ),
+  coverage_candidates AS (
+    SELECT mc."mission_id"
+    FROM (
+      SELECT
+        md.*,
+        ROW_NUMBER() OVER (
+          ORDER BY md."user_score" DESC, md."base_total_score" DESC, md."value_key" ASC
+        ) AS "coverage_position"
+      FROM missing_dispositifs md
+    ) mc
+    WHERE mc."coverage_position" <= (SELECT COUNT(*) FROM removable_top)
+  ),
+  removed_top AS (
+    SELECT rt."mission_id"
+    FROM removable_top rt
+    WHERE rt."removal_position" <= (SELECT COUNT(*) FROM coverage_candidates)
+  ),
+  coverage_top AS (
+    SELECT tb."mission_id"
+    FROM top_base tb
+    WHERE NOT EXISTS (SELECT 1 FROM removed_top rt WHERE rt."mission_id" = tb."mission_id")
+    UNION ALL
+    SELECT cc."mission_id"
+    FROM coverage_candidates cc
+  ),
+  coverage_ordered AS (
+    SELECT
+      bo.*,
+      CASE WHEN ct."mission_id" IS NULL THEN 1 ELSE 0 END AS "coverage_priority"
+    FROM base_ordered bo
+    LEFT JOIN coverage_top ct ON ct."mission_id" = bo."mission_id"
+  )`;
+  const rankedRowsSql = dispositifCoverageEnabled ? Prisma.sql`coverage_ordered r` : Prisma.sql`base_ranked r`;
+  const rankingOrderSql = dispositifCoverageEnabled
+    ? Prisma.sql`r."coverage_priority" ASC, r."base_total_score" DESC, r."mission_id" ASC`
+    : Prisma.sql`"total_score" DESC, r."mission_id" ASC`;
 
   return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
@@ -582,20 +689,17 @@ const buildRanking = (params: {
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN user_geo ug
       ON TRUE
-  )
+  ),
+  base_ranked AS (
+    SELECT
+      r.*,
+      ${baseTotalScoreSql} AS "base_total_score"
+    FROM ranked r
+  )${dispositifCoverageCtesSql}
   SELECT
     r."mission_id",
     r."mission_scoring_id",
-    CASE
-      WHEN r."geo_score" IS NULL THEN r."taxonomy_score"
-      ELSE (
-        (CAST(${params.taxonomyWeight} AS double precision) * r."taxonomy_score") +
-        (CAST(${params.geoWeight} AS double precision) * r."geo_score")
-      ) / NULLIF(
-        CAST(${params.taxonomyWeight} AS double precision) + CAST(${params.geoWeight} AS double precision),
-        0.0
-      )
-    END AS "total_score",
+    r."base_total_score" AS "total_score",
     r."taxonomy_score",
     r."geo_score",
     r."distance_km",
@@ -606,8 +710,8 @@ const buildRanking = (params: {
     r."closest_address",
     -- Total des missions classées pour cet utilisateur (avant pagination), borné par le pool de candidats.
     COUNT(*) OVER () AS "total_count"
-  FROM ranked r
-  ORDER BY "total_score" DESC, r."mission_id" ASC
+  FROM ${rankedRowsSql}
+  ORDER BY ${rankingOrderSql}
   LIMIT ${params.limit}
   OFFSET ${params.offset}
 `;
@@ -732,6 +836,7 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
     gateRemoteFullGeoScoreOnIntent: versionConfig.gateRemoteFullGeoScoreOnIntent,
     taxonomyOrBaseScore: input.taxonomyOrBaseScore ?? versionConfig.taxonomyOrBaseScore,
+    dispositifCoverage: versionConfig.dispositifCoverage,
     taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
     geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
   };
@@ -752,6 +857,7 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
     remoteLocalGeoScore: params.remoteLocalGeoScore,
     gateRemoteFullGeoScoreOnIntent: params.gateRemoteFullGeoScoreOnIntent,
     taxonomyOrBaseScore: params.taxonomyOrBaseScore,
+    dispositifCoverage: params.dispositifCoverage,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
     limit: params.rankingLimit,
@@ -806,22 +912,20 @@ export const matchingEngineService = {
 
     return {
       version,
-      items: responseRows.map(
-        (row): MatchMissionItem => ({
-          missionId: row.mission_id,
-          missionScoringId: row.mission_scoring_id,
-          missionAddressId: row.closest_address_id ?? null,
-          totalScore: clampScore(Number(row.total_score)),
-          taxonomyScore: clampScore(Number(row.taxonomy_score)),
-          geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
-          distanceKm: nullableNumber(row.distance_km),
-          closestLat: nullableNumber(row.closest_lat),
-          closestLon: nullableNumber(row.closest_lon),
-          closestCity: row.closest_city ?? null,
-          closestAddress: row.closest_address ?? null,
-          taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
-        })
-      ),
+      items: responseRows.map((row): MatchMissionItem => ({
+        missionId: row.mission_id,
+        missionScoringId: row.mission_scoring_id,
+        missionAddressId: row.closest_address_id ?? null,
+        totalScore: clampScore(Number(row.total_score)),
+        taxonomyScore: clampScore(Number(row.taxonomy_score)),
+        geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
+        distanceKm: nullableNumber(row.distance_km),
+        closestLat: nullableNumber(row.closest_lat),
+        closestLon: nullableNumber(row.closest_lon),
+        closestCity: row.closest_city ?? null,
+        closestAddress: row.closest_address ?? null,
+        taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
+      })),
       tookMs: Date.now() - startedAt,
       total,
       avgDistanceKmTop5,

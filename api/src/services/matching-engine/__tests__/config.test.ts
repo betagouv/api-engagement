@@ -2,7 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
-import { DEFAULT_MATCHING_ENGINE_VERSION, defineMatchingEngineVersion, MATCHING_ENGINE_VERSIONS, resolveMatchingEngineVersion } from "@/services/matching-engine/config";
+import {
+  DEFAULT_MATCHING_ENGINE_VERSION,
+  defineMatchingEngineVersion,
+  MATCHING_ENGINE_TAXONOMIES,
+  MATCHING_ENGINE_VERSIONS,
+  resolveMatchingEngineVersion,
+} from "@/services/matching-engine/config";
 
 vi.mock("@/error", () => ({ captureMessage: vi.fn() }));
 
@@ -32,6 +38,20 @@ describe("matching engine config", () => {
     }
   });
 
+  it("autorise le dispositif comme taxonomie déterministe de ranking", () => {
+    const config = defineMatchingEngineVersion({
+      taxonomyWeights: { dispositif: 0.5 },
+      geoWeight: 0.3,
+      remoteFullGeoScore: null,
+      remoteLocalGeoScore: null,
+      taxonomyOrBaseScore: 0.8,
+    });
+
+    expect(config.taxonomyWeights.dispositif).toBe(0.5);
+    expect(config.taxonomyKeys).toContain("dispositif");
+    expect(MATCHING_ENGINE_TAXONOMIES).toContain("dispositif");
+  });
+
   it("refuse d'attribuer un poids de ranking à une gate", () => {
     expect(() =>
       defineMatchingEngineVersion({
@@ -51,10 +71,26 @@ describe("matching engine config", () => {
     }
   });
 
-  it("ne conditionne le boost remote=full à l'intention que pour m5", () => {
-    expect(MATCHING_ENGINE_VERSIONS.m5.gateRemoteFullGeoScoreOnIntent).toBe(true);
+  it("conditionne le boost remote=full à l'intention pour m5 et m6", () => {
+    for (const version of ["m5", "m6"] as const) {
+      expect(MATCHING_ENGINE_VERSIONS[version].gateRemoteFullGeoScoreOnIntent).toBe(true);
+    }
     for (const version of ["m1", "m2", "m3", "m4"] as const) {
       expect(MATCHING_ENGINE_VERSIONS[version].gateRemoteFullGeoScoreOnIntent).toBe(false);
+    }
+  });
+
+  it("ajoute le poids dispositif uniquement à m6", () => {
+    expect(MATCHING_ENGINE_VERSIONS.m6.taxonomyWeights.dispositif).toBeGreaterThan(0);
+    for (const version of ["m1", "m2", "m3", "m4", "m5"] as const) {
+      expect(MATCHING_ENGINE_VERSIONS[version].taxonomyWeights.dispositif).toBeUndefined();
+    }
+  });
+
+  it("active les règles de couverture des dispositifs uniquement pour m6", () => {
+    expect(MATCHING_ENGINE_VERSIONS.m6.dispositifCoverage).toEqual({ minScore: 0.5, maxScoreGap: 0.1 });
+    for (const version of ["m1", "m2", "m3", "m4", "m5"] as const) {
+      expect(MATCHING_ENGINE_VERSIONS[version].dispositifCoverage).toBeNull();
     }
   });
 

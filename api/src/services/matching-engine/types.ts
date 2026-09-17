@@ -1,10 +1,10 @@
-import type { EnrichableTaxonomyKey, GateTaxonomyKey } from "@engagement/taxonomy";
+import type { EnrichableTaxonomyKey, GateTaxonomyKey, MissionDerivedTaxonomyKey } from "@engagement/taxonomy";
 
-export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | GateTaxonomyKey;
+export type MatchingEngineTaxonomy = EnrichableTaxonomyKey | MissionDerivedTaxonomyKey | GateTaxonomyKey;
 
 export type MatchingEngineTaxonomyWeights = Partial<Record<MatchingEngineTaxonomy, number>>;
 
-export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4" | "m5";
+export type MatchingEngineVersion = "m1" | "m2" | "m3" | "m4" | "m5" | "m6";
 
 export type MatchingEngineVersionConfig = {
   taxonomyKeys: readonly MatchingEngineTaxonomy[];
@@ -20,6 +20,8 @@ export type MatchingEngineVersionConfig = {
   // Socle acquis d'office par taxonomie dès qu'une valeur est en commun (part matchée sur le reste).
   // Plus il est bas, plus la qualité du match (part des valeurs matchées) pèse dans le taxonomy_score.
   taxonomyOrBaseScore: number;
+  // Couverture optionnelle du top 10, appliquée après le score et les gates.
+  dispositifCoverage: { minScore: number; maxScoreGap: number } | null;
 };
 
 export type RankMissionsByUserScoringInput = {

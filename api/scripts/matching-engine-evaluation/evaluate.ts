@@ -116,7 +116,6 @@ type EvaluationProfile = z.infer<typeof profileSchema>;
 
 type RankedMissionWithDiagnostics = RankedMissionForEvaluation & {
   position: number;
-  coverageReason?: MatchMissionItem["coverageReason"];
   taxonomyScore: number;
   geoScore: number | null;
   distanceKm: number | null;
@@ -246,7 +245,6 @@ const loadRankedMissions = async (items: MatchMissionItem[], offset = 0): Promis
       missionScoringId: item.missionScoringId,
       missionTitle: missionScoring?.mission.title ?? null,
       totalScore: item.totalScore,
-      coverageReason: item.coverageReason,
       position: offset + index + 1,
       taxonomyScore: item.taxonomyScore,
       geoScore: item.geoScore,
@@ -265,7 +263,6 @@ const toFailureCandidate = (mission: RankedMissionWithDiagnostics, top10CutoffSc
   missionScoringId: mission.missionScoringId,
   missionTitle: mission.missionTitle,
   totalScore: mission.totalScore,
-  coverageReason: mission.coverageReason,
   taxonomyScore: mission.taxonomyScore,
   geoScore: mission.geoScore,
   distanceKm: mission.distanceKm,
@@ -415,11 +412,6 @@ const printHumanReport = (profiles: ProfileEvaluation[]): void => {
             expectation.max === undefined ? `au moins ${expectation.min}` : expectation.min === expectation.max ? `${expectation.min}` : `${expectation.min} à ${expectation.max}`,
           occurrences: expectation.count,
           positions: expectation.positions.join(", ") || "absent",
-          couverture:
-            expectation.matchedMissions
-              .filter((mission) => mission.coverageReason)
-              .map((mission) => `#${mission.position}:${mission.coverageReason}`)
-              .join(", ") || "—",
           résultat: expectation.found ? "OK" : "ÉCHEC",
           candidat_échec: expectation.found
             ? "—"
