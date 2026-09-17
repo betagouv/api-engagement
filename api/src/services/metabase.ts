@@ -2,9 +2,7 @@ import { METABASE_API_KEY, METABASE_URL } from "@/config";
 
 type VariableValue = string | number | boolean | Array<string | number>;
 type QueryOptions = {
-  parameters?: Array<unknown>;
   variables?: Record<string, VariableValue>;
-  body?: Record<string, unknown>;
 };
 
 type MetabaseCardParameter = {
@@ -80,7 +78,7 @@ const buildHeaders = () => {
 };
 
 export const metabaseService = {
-  async queryCard(cardId: string | number, { parameters, variables, body }: QueryOptions = {}) {
+  async queryCard(cardId: string | number, { variables }: QueryOptions = {}) {
     if (!METABASE_URL) {
       throw new Error("METABASE_URL is missing");
     }
@@ -88,8 +86,8 @@ export const metabaseService = {
       throw new Error("METABASE_API_KEY is missing");
     }
 
-    const payload: Record<string, unknown> = { ...(body || {}) };
-    const computedParameters = parameters ?? (variables ? buildParametersFromVariables(variables, cardId, await getCardParameters(cardId)) : undefined);
+    const payload: Record<string, unknown> = {};
+    const computedParameters = variables ? buildParametersFromVariables(variables, cardId, await getCardParameters(cardId)) : undefined;
     if (computedParameters?.length) {
       payload.parameters = computedParameters;
     }
