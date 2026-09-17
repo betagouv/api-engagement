@@ -24,6 +24,7 @@ const FOOTER_NAV_CATEGORIES = [
   {
     title: "Liens utiles",
     links: [
+      { to: "https://trouvetamission.crisp.help/fr/", label: "Centre d'aide", external: true },
       { to: "/plan-du-site", label: "Plan du site" },
       { to: "/accessibilite", label: "Accessibilité" },
       { to: "/mentions-legales", label: "Mentions légales" },
@@ -49,9 +50,15 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
                   <ul className="fr-footer__top-list">
                     {category.links.map((link) => (
                       <li key={link.to}>
-                        <Link className="fr-footer__top-link" to={link.to}>
-                          {link.label}
-                        </Link>
+                        {"external" in link && link.external ? (
+                          <a className="fr-footer__top-link" href={link.to} target="_blank" rel="noopener external" title={`${link.label} - nouvelle fenêtre`}>
+                            {link.label}
+                          </a>
+                        ) : (
+                          <Link className="fr-footer__top-link" to={link.to}>
+                            {link.label}
+                          </Link>
+                        )}
                       </li>
                     ))}
                   </ul>
