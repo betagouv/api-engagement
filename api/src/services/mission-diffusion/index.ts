@@ -133,6 +133,53 @@ export const missionDiffusionService = {
 
     return { distributionPublisherId, desired, added, removed, durationMs: Date.now() - start, dryRun: options.dryRun || undefined };
   },
+
+  /**
+   * Recompute ciblé de `mission_diffusion` pour UNE mission (chemin temps réel : création v2 sans
+   * attendre le rebuild 6h). Inverse du rebuild par diffuseur : au lieu de balayer la population, on
+   * ne teste que les diffuseurs candidats (ceux portant une root sur l'annonceur + l'annonceur
+   * lui-même), puis on applique le diff sur les lignes de cette mission. Idempotent et relançable ;
+   * une mission supprimée / hors périmètre voit simplement toutes ses lignes retirées.
+   */
+  async rebuildForMission(missionId: string): Promise<{ desired: number; added: number; removed: number }> {
+    const mission = await missionRepository.findUnique({ where: { id: missionId }, select: { publisherId: true } });
+
+    const candidateIds = new Set<string>();
+    if (mission?.publisherId) {
+      const population = new Set(await publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot());
+      const rootOwners = await publisherDiffusionRuleService.findDistributionPublisherIdsDiffusingAnnonceur(mission.publisherId);
+      for (const id of [mission.publisherId, ...rootOwners]) {
+        if (population.has(id)) {
+          candidateIds.add(id);
+        }
+      }
+    }
+
+    const desiredIds: string[] = [];
+    for (const distributionPublisherId of candidateIds) {
+      const snapshotWhere = await publisherDiffusionRuleService.buildMissionDiffuseurSnapshotWhere(distributionPublisherId);
+      const matches = await missionRepository.findIds({ AND: [snapshotWhere, { deletedAt: null }, { id: missionId }] });
+      if (matches.length > 0) {
+        desiredIds.push(distributionPublisherId);
+      }
+    }
+
+    const currentRows = await missionDiffusionRepository.findDistributionPublishersByMission(missionId);
+    const currentIds = new Set(currentRows.map((row) => row.distributionPublisher.id));
+    const desiredSet = new Set(desiredIds);
+
+    const toAdd = desiredIds.filter((id) => !currentIds.has(id));
+    const toRemove = [...currentIds].filter((id) => !desiredSet.has(id));
+
+    for (const distributionPublisherId of toAdd) {
+      await missionDiffusionRepository.createManyForDistributionPublisher(distributionPublisherId, [missionId]);
+    }
+    for (const distributionPublisherId of toRemove) {
+      await missionDiffusionRepository.deleteManyForDistributionPublisher(distributionPublisherId, [missionId]);
+    }
+
+    return { desired: desiredIds.length, added: toAdd.length, removed: toRemove.length };
+  },
 };
 
 export default missionDiffusionService;

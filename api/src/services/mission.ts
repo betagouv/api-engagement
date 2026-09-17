@@ -591,6 +591,14 @@ export const missionService = {
     }
   },
 
+  async enqueueMissionDiffusion(missionId: string): Promise<void> {
+    try {
+      await asyncTaskBus.publish({ type: "mission.diffusion", payload: { missionId } });
+    } catch (error) {
+      captureException(error, { extra: { context: "enqueueMissionDiffusion", missionId } });
+    }
+  },
+
   async enqueueMissionProcessing(missionId: string): Promise<void> {
     try {
       await missionEnrichmentService.enqueue(missionId);
