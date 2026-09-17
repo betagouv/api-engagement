@@ -332,7 +332,12 @@ router.get("/campaign/:id", cors({ origin: "*" }), async (req, res) => {
     } as StatEventRecord;
 
     const clickId = await statEventService.createStatEvent(obj);
-    href = buildTrackingUrl(href, clickId).href;
+    // Une campagne n'a pas de mission : l'URL est saisie librement par le diffuseur. Si elle pointe
+    // directement sur une démarche numérique de l'annonceur, on préremplit l'annotation avec l'id du clic
+    // pour que le job d'import des candidatures puisse rattacher le dossier à cette redirection.
+    const demarcheUrl = await generateDemarcheNumeriqueDossierUrl(campaign.url, campaign.toPublisherId, clickId);
+    href = buildTrackingUrl(demarcheUrl || href, clickId).href;
+    console.log(`[redirect] campaign ${campaign.id} -> ${href}`);
     res.redirect(302, href);
     redirected = true;
 
