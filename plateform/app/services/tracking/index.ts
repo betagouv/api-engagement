@@ -1,16 +1,20 @@
-import { TRACKING_PROVIDER } from "~/services/config";
+import { GTM_CONTAINER_ID, TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
 import { CAMPAIGN_UTM_KEYS, getCampaignParamsFromSearch, resolveActiveCampaign, type CampaignParams } from "~/utils/campaign-attribution";
 import { getInternalUserFlagAction, isInternalUserFlagEnabled, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
 import { createProvider } from "./providers";
+import { createGtmProvider } from "./providers/gtm";
 import { IDENTITY_TRACKING_PROPERTIES, sanitizePropertiesForConsent } from "./consent";
 import type { TrackingConsentStatus, TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
 
 export type { TrackingConsentStatus, TrackingProperties, TrackingProvider, TrackingProviderName, TrackingTraits } from "./types";
 
-// Provider courant, instancié paresseusement à la première utilisation côté navigateur.
-let provider: TrackingProvider | null = null;
+// Providers actifs, instanciés paresseusement à la première utilisation côté navigateur. Le provider
+// d'analytics (posthog/local) est toujours présent ; GTM s'y ajoute quand un conteneur est configuré.
+// Chaque appel public est diffusé à tous : PostHog porte identité/consentement/super properties, GTM
+// ne consomme que les évènements (ses autres méthodes sont absentes, donc no-op à la diffusion).
+let providers: TrackingProvider[] | null = null;
 let consentStatus: TrackingConsentStatus = "pending";
 let identitySubscriptionInitialized = false;
 // Origine "landing" de la session courante, conservée pour être ré-enregistrée après une transition de
@@ -22,16 +26,20 @@ function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
-function getProvider(): TrackingProvider | null {
-  if (!isBrowser()) return null;
-  if (!provider) {
-    provider = createProvider(TRACKING_PROVIDER as TrackingProviderName);
-    provider.init?.();
+function getProviders(): TrackingProvider[] {
+  if (!isBrowser()) return [];
+  if (!providers) {
+    providers = [createProvider(TRACKING_PROVIDER as TrackingProviderName)];
+    if (GTM_CONTAINER_ID) providers.push(createGtmProvider());
+
+    for (const p of providers) p.init?.();
     initializeIdentitySubscription();
-    applyConsentAndIdentity(provider);
-    syncContextSuperProperties(provider);
+    for (const p of providers) {
+      applyConsentAndIdentity(p);
+      syncContextSuperProperties(p);
+    }
   }
-  return provider;
+  return providers;
 }
 
 // Super properties d'identité attachées à TOUS les évènements (via posthog.register) :
@@ -100,8 +108,7 @@ function initializeIdentitySubscription(): void {
     if (state.quizAttemptId === lastAttemptId && state.userScoringId === lastSessionId) return;
     lastAttemptId = state.quizAttemptId;
     lastSessionId = state.userScoringId;
-    const currentProvider = getProvider();
-    if (currentProvider && shouldSyncIdentity(currentProvider)) syncIdentitySuperProperties(currentProvider, state);
+    for (const p of getProviders()) if (shouldSyncIdentity(p)) syncIdentitySuperProperties(p, state);
   });
 }
 
@@ -150,9 +157,9 @@ function syncCampaignSuperProperties(provider: TrackingProvider): void {
   if (Object.keys(campaign).length > 0) provider.register?.(campaign);
 }
 
-// Déclenche l'init paresseuse (provider + identité + flag interne) au plus tôt, sans attendre un premier track().
+// Déclenche l'init paresseuse (providers + identité + flag interne) au plus tôt, sans attendre un premier track().
 export function initTracking(): void {
-  getProvider();
+  getProviders();
 }
 
 // Synchronise le choix affiché dans le gestionnaire DSFR avec PostHog. Pending et denied restent
@@ -161,12 +168,14 @@ export function setTrackingConsentStatus(status: TrackingConsentStatus): void {
   if (!isBrowser() || status === consentStatus) return;
   consentStatus = status;
 
-  if (provider) {
-    applyConsentAndIdentity(provider);
-    // PostHog réinitialise ses propriétés lors d'une transition cookieless ↔ persistante.
-    syncContextSuperProperties(provider);
+  if (providers) {
+    for (const p of providers) {
+      applyConsentAndIdentity(p);
+      // PostHog réinitialise ses propriétés lors d'une transition cookieless ↔ persistante.
+      syncContextSuperProperties(p);
+    }
   } else {
-    getProvider();
+    getProviders();
   }
 }
 
@@ -177,9 +186,7 @@ export function getTrackingConsentStatus(): TrackingConsentStatus {
 // Force l'enregistrement du quiz_session_id (ex. accès direct à /results/:id où l'id vient de l'URL
 // et non du store). No-op pendant le SSR.
 export function setQuizSessionId(userScoringId: string): void {
-  const currentProvider = getProvider();
-  if (!currentProvider || !shouldSyncIdentity(currentProvider)) return;
-  currentProvider.register?.({ quiz_session_id: userScoringId });
+  for (const p of getProviders()) if (shouldSyncIdentity(p)) p.register?.({ quiz_session_id: userScoringId });
 }
 
 // Enregistre l'origine "landing" comme super property attachée à tous les évènements suivants
@@ -188,13 +195,13 @@ export function setQuizSessionId(userScoringId: string): void {
 // consentement (cf. syncLandingOrigin). No-op pendant le SSR.
 export function registerLandingOrigin(origin: string): void {
   landingOrigin = origin;
-  getProvider()?.register?.({ landing_origin: origin });
+  for (const p of getProviders()) p.register?.({ landing_origin: origin });
 }
 
 // Désactive le flag interne depuis l'UI de debug. No-op pendant le SSR.
 export function disableInternalUserFlag(): void {
-  const provider = getProvider();
-  if (!provider) return;
+  const list = getProviders();
+  if (!list.length) return;
 
   try {
     persistInternalUserFlagAction("disable", window.localStorage);
@@ -202,7 +209,7 @@ export function disableInternalUserFlag(): void {
     // Le marqueur UI ne doit pas empêcher la synchronisation PostHog.
   }
 
-  provider.unregister?.("internal_user");
+  for (const p of list) p.unregister?.("internal_user");
 }
 
 // Retire les clés à valeur `undefined` : permet aux events de passer une propriété optionnelle
@@ -217,16 +224,14 @@ function omitUndefined(properties: TrackingProperties): TrackingProperties {
 
 // Enregistre un évènement avec ses propriétés. No-op pendant le SSR.
 export function track(event: string, properties?: TrackingProperties): void {
-  const currentProvider = getProvider();
-  if (!currentProvider) return;
+  const list = getProviders();
+  if (!list.length) return;
 
   const sanitized = properties ? sanitizePropertiesForConsent(omitUndefined(properties), consentStatus) : properties;
-  currentProvider.track(event, sanitized);
+  for (const p of list) p.track(event, sanitized);
 }
 
 // Associe l'utilisateur courant à un identifiant (ex. `distinctId` du quiz). No-op pendant le SSR.
 export function identify(distinctId: string, traits?: TrackingTraits): void {
-  const currentProvider = getProvider();
-  if (!currentProvider || !shouldSyncIdentity(currentProvider)) return;
-  currentProvider.identify?.(distinctId, traits);
+  for (const p of getProviders()) if (shouldSyncIdentity(p)) p.identify?.(distinctId, traits);
 }
