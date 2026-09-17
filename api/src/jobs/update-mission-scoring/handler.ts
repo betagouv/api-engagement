@@ -1,3 +1,4 @@
+import type { MissionType } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
@@ -11,6 +12,7 @@ const LOG_PREFIX = "[update-mission-scoring-job]";
 export interface UpdateMissionScoringJobPayload {
   promptVersion?: string;
   publisherId?: string;
+  type?: MissionType;
   limit?: number;
   force?: boolean;
 }
@@ -47,7 +49,7 @@ export const selectActiveEnrichments = <T extends MissionEnrichmentCandidate>(en
 export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionScoringJobPayload, UpdateMissionScoringJobResult> {
   name = "Scoring des missions";
 
-  async handle({ promptVersion, publisherId, limit, force }: UpdateMissionScoringJobPayload = {}): Promise<UpdateMissionScoringJobResult> {
+  async handle({ promptVersion, publisherId, type, limit, force }: UpdateMissionScoringJobPayload = {}): Promise<UpdateMissionScoringJobResult> {
     const promptVersionFilter: { promptVersion?: string } = promptVersion !== undefined ? { promptVersion } : force ? {} : { promptVersion: CURRENT_PROMPT_VERSION };
     const versionLabel = promptVersionFilter.promptVersion ?? "all";
 
@@ -59,6 +61,7 @@ export class UpdateMissionScoringHandler implements BaseHandler<UpdateMissionSco
           mission: {
             deletedAt: null,
             ...(publisherId ? { publisherId } : {}),
+            ...(type ? { type } : {}),
           },
           ...(!force
             ? {
