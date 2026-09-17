@@ -2,6 +2,7 @@ import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
 import Pagination, { type PaginationTrigger } from "~/components/ui/pagination";
+import Spinner from "~/components/ui/spinner";
 import { RESULTS_PAGE_SIZE } from "~/services/matching";
 
 interface ResultsMissionsProps {
@@ -36,7 +37,8 @@ export default function ResultsMissions({
   onPageChange,
 }: ResultsMissionsProps) {
   return (
-    <div className="relative w-full px-6">
+    <div className="relative w-full px-6" aria-busy={loading || pageLoading}>
+      {loading && <Spinner label="Chargement des missions…" className="justify-center py-12" />}
       {!loading && error && (
         <div className="fr-alert fr-alert--error my-6" role="alert">
           {/* RGAA 9.1 : en état d'erreur le h1 « X missions pour toi » n'est pas rendu — ce titre devient le titre principal de la page. */}
@@ -49,9 +51,7 @@ export default function ResultsMissions({
           {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, le h1 « X missions pour toi » est le seul titre visible au-dessus. */}
           <h2 className="fr-sr-only">Les missions sélectionnées pour toi</h2>
           {pageLoading ? (
-            <p role="status" className="text-mention-grey py-8 text-sm">
-              Chargement…
-            </p>
+            <Spinner label="Chargement des missions…" className="justify-center py-12" />
           ) : (
             <ul role="list" className="grid grid-cols-1 gap-6 list-none! p-0! m-0! lg:grid-cols-2">
               {items.map((item, index) => (

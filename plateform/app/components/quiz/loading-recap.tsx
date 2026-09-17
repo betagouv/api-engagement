@@ -1,5 +1,6 @@
 import type { TaxonomyValueKey } from "@engagement/taxonomy";
 import { useEffect, useMemo, useState } from "react";
+import Spinner from "~/components/ui/spinner";
 import { OPTIONS } from "~/config/quiz-options";
 import { fetchInitialMatches } from "~/services/matching";
 import { useQuizStore } from "~/stores/quiz";
@@ -102,9 +103,7 @@ export default function LoadingRecap({ onComplete }: Props) {
           </li>
         ))}
       </ul>
-      <p className="fr-sr-only" role="status">
-        Chargement de tes résultats…
-      </p>
+      {visibleCount >= items.length && <Spinner label="Chargement de tes résultats…" labelHidden className="animate-slide-up-fade" />}
     </div>
   );
 }
