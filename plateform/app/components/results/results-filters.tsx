@@ -24,6 +24,11 @@ export default function ResultsFilters() {
   const initialFilterSelection = useRef<FilterSelection | null>(null);
   if (initialFilterSelection.current === null) initialFilterSelection.current = filterSelectionFromAnswers(answers);
 
+  // Sélection courante (store) vs brouillon : tant que rien n'a changé, il n'y a pas de nouveau scoring à demander.
+  const currentSelection = filterSelectionFromAnswers(answers);
+  const pendingSelection: FilterSelection = { ...currentSelection, ...draft };
+  const hasFilterChanges = diffFilterAnswers(currentSelection, pendingSelection).length > 0;
+
   const handleChange = (filter: ResultsFilterDef, optionIds: string[]) => {
     setDraft((prev) => ({ ...prev, [filter.stepId]: optionIds }));
   };
@@ -33,8 +38,6 @@ export default function ResultsFilters() {
     if (loading) return;
 
     // Tracking (avant le re-scoring, quiz_session_id = ancien scoring) : un event par filtre modifié.
-    const currentSelection = filterSelectionFromAnswers(answers);
-    const pendingSelection: FilterSelection = { ...currentSelection, ...draft };
     const changes = diffFilterAnswers(currentSelection, pendingSelection);
     const modifiedFilterCount = diffFilterAnswers(initialFilterSelection.current ?? {}, pendingSelection).length;
     for (const change of changes) {
@@ -74,7 +77,7 @@ export default function ResultsFilters() {
             </p>
           )}
         </div>
-        <button type="button" className="fr-btn fr-btn--sm fr-btn--secondary shrink-0" disabled={loading} onClick={handleApply}>
+        <button type="button" className="fr-btn fr-btn--sm fr-btn--secondary shrink-0" disabled={loading || !hasFilterChanges} onClick={handleApply}>
           Voir les résultats
         </button>
       </div>
