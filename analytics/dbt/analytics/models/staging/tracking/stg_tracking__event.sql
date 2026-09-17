@@ -26,6 +26,10 @@ with base as (
     properties ->> 'utm_source' as utm_source,
     properties ->> 'utm_campaign' as utm_campaign,
     properties ->> 'utm_medium' as utm_medium,
+    properties ->> 'utm_term' as utm_term,
+    properties ->> 'utm_content' as utm_content,
+    properties ->> 'gclid' as gclid,
+    properties ->> 'fbclid' as fbclid,
     coalesce((properties ->> 'internal_user')::boolean, false)
       as is_internal_user
   from {{ source('analytics_raw', 'tracking_event') }}

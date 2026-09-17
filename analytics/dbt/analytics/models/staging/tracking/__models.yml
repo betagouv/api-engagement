@@ -34,6 +34,20 @@ models:
         description: Identifiant de session backend (`userScoringId`), présent sur les events post-quiz.
       - name: quiz_version
         description: Version du quiz ayant émis l'événement.
+      - name: utm_term
+        description: >
+          `utm_term` capté par PostHog (mot-clé SEA). Comme les autres UTM, super property posée à
+          l'atterrissage, valeur brute non nettoyée.
+      - name: utm_content
+        description: >
+          `utm_content` capté par PostHog (variante d'annonce). Valeur brute.
+      - name: gclid
+        description: >
+          Identifiant de clic Google Ads (auto-tagging), capté par PostHog dans l'URL d'arrivée. Opaque
+          (seul Google sait le décoder), sert de marqueur « trafic Google payant » et de clé pour un
+          éventuel rapprochement futur avec un export Google Ads.
+      - name: fbclid
+        description: Identifiant de clic Meta, même logique que `gclid`.
 
   - name: stg_tracking__quiz_started
     description: Entrée du tunnel quiz (`quiz.started`), événement de référence de tous les ratios.

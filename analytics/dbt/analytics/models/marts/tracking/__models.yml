@@ -214,3 +214,141 @@ models:
           la valeur est basse, mieux les missions cliquées sont classées.
       - name: all_clicks_matching_engine_match_rate
         description: Part de l'ensemble des clics de résultats rattachés à un rang du moteur.
+
+  - name: tracking_campaign_session
+    description: >
+      Fait session (grain `tracking_session_id`) du suivi des campagnes sur Trouve Ta Mission, exposé à
+      Metabase pour le drill-down (une ligne par session avec `landing_url`, UTM bruts, `gclid`,
+      `attribution_method`). Part de `int_tracking_session` (atterrissage sur TTM, quiz lancé ou non) et
+      rattache la session à une campagne du référentiel `int_tracking_campaign` (API, Adwords, Meta,
+      emailing…) par deux méthodes, dans cet ordre : (1) `click_id` = `landing_click_id`
+      (`?apiengagement_id=` posé par la redirection `/r/campaign/`) joint sur le mart `click` avec
+      `source = 'campaign'`, robuste et indépendant des UTM et du consentement, campagnes API uniquement ;
+      (2) `utm` en repli = triplet (`utm_source`, `utm_campaign`, `utm_medium`) de la session comparé, en
+      `lower()` et null-safe, au triplet du référentiel (campagne API active d'abord, puis la plus récente).
+      Le repli couvre les liens partagés sans `/r/campaign/`, les campagnes API dont l'URL a changé, et toutes
+      les campagnes non API (SEA…), qui n'ont ni lien tracké ni `apiengagement_id`. L'attribution est prise
+      sur le PREMIER événement de la session. Les UTM sont gardés bruts (une session de scanner avec
+      `utm_source` en `javascript:` reste hors campagne, sans nettoyage supplémentaire).
+      DEUX MESURES DE CLIC À NE PAS CONFONDRE : `front_mission_click_count` = événement PostHog
+      `mission.clicked` (clic sur une carte, vers la fiche ou un lien externe) ; `backend_click_count` =
+      clic API de sortie vers l'annonceur (`stat_event` porteur de `custom_attributes.user_scoring_id`), seule
+      vraie redirection. Les candidatures (`apply_count`) sont rattachées via ces clics backend, donc
+      UNIQUEMENT via le parcours quiz : les clics API sans `user_scoring_id` (parcours `/missions` hors quiz,
+      exemples de la home) ne sont reliables à aucune session et sont hors périmètre. Compteurs à 0 et flags à
+      `false` (jamais null) en l'absence de conversion. Personnes internes exclues au niveau du `distinct_id`.
+    columns:
+      - name: tracking_session_id
+        tests:
+          - not_null
+          - unique
+      - name: campaign_key
+        description: >
+          `coalesce(campaign_key_from_click, campaign_key_from_utm)` : id de campagne API ou
+          `utm:source|medium|campaign`. Null si la session n'est rattachée à aucune campagne.
+      - name: campaign_type
+        description: >
+          Canal de la campagne attribuée (`api`, `adwords`, `meta`, `emailing`, `utm`), null hors campagne.
+          Une campagne API sortie du périmètre du référentiel (URL modifiée) reste typée `api`.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['api', 'adwords', 'meta', 'emailing', 'utm']
+      - name: campaign_name
+        description: Nom de la campagne (back-office ou `utm_campaign`), null hors campagne.
+      - name: api_campaign_id
+        description: Id de la campagne API, pour rejoindre le back-office. Null hors type `api`.
+      - name: attribution_method
+        description: >
+          `click_id` si rattachée par l'`apiengagement_id` de l'URL d'arrivée, `utm` si par le triplet UTM,
+          null hors campagne. Priorité `click_id` > `utm`.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['click_id', 'utm']
+      - name: is_from_campaign
+        description: Vrai si `campaign_key` est non null.
+      - name: gclid
+        description: >
+          Identifiant de clic Google Ads vu dans la session (auto-tagging). Opaque, sert de marqueur
+          « trafic Google payant » même sans UTM ; rapprochement clic à clic possible plus tard si un export
+          Google Ads est importé. Idem `fbclid` pour Meta.
+      - name: front_mission_click_count
+        description: Nombre de `mission.clicked` PostHog (clic carte). Pas la redirection vers l'annonceur.
+      - name: backend_click_count
+        description: >
+          Nombre de clics API de sortie vers l'annonceur rattachés aux `quiz_session_ids` de la session.
+          Bots exclus. 0 si aucun.
+      - name: backend_clicked_mission_count
+        description: Nombre de missions distinctes visées par les clics backend de la session.
+      - name: apply_count
+        description: >
+          Nombre de candidatures rattachées aux clics backend (`apply.click_id`). Uniquement via le parcours
+          quiz. 0 si aucune.
+      - name: has_apply
+        description: Vrai si `apply_count > 0` ; implique `has_backend_click`.
+
+  - name: tracking_campaign_funnel_daily
+    description: >
+      Tunnel quotidien par campagne (arrivée → quiz → clic mission → candidature), grain
+      (`kpi_date`, `campaign_key`), tous canaux confondus. Table à brancher directement dans Metabase :
+      filtrer ou agréger par `campaign_type` (api, adwords, meta, emailing, utm), `campaign_name`, ou croiser
+      `utm_source` × `utm_medium` × `utm_campaign` ; sommer `sessions`, `sessions_quiz_completed`,
+      `sessions_backend_click`, `sessions_apply` et dériver les taux (aucun ratio calculé ici). Le grain jour
+      permet les comparaisons de périodes natives de Metabase. Les sessions hors campagne (`campaign_key`
+      null, `campaign_type` = `none`, `campaign_name` = « Hors campagne ») sont conservées comme base de
+      comparaison. UTM : ce sont ceux de RÉFÉRENCE de la campagne (URL du lien tracké pour l'API, triplet
+      observé pour les autres), pas les UTM bruts de chaque session (voir `tracking_campaign_session`) ; une
+      campagne API sans UTM dans son URL a ces colonnes à null, d'où l'importance de mettre des UTM dans tous
+      les liens trackés.
+      DÉNOMINATEUR HORS POSTHOG VS SOUS-ENSEMBLE TRACKÉ : `origin_clicks` = clics comptés par la plateforme
+      d'origine, indépendamment du consentement PostHog. Renseigné pour les campagnes API (redirections
+      `/r/campaign/`, mart `click`, hors bots, 0 si aucun clic ce jour-là), null pour les autres types tant
+      qu'aucun export (Google Ads, Meta) n'est importé ; pour ces canaux, le dénominateur est dans la console
+      de la plateforme. `sessions` compte les sessions PostHog attribuées, normalement un sous-ensemble.
+      `sessions` peut dépasser `origin_clicks` sur un jour (1) quand des sessions sont attribuées par UTM
+      sans être passées par `/r/campaign/` (lien partagé, URL de campagne recopiée) ou (2) quand la même URL
+      d'atterrissage, avec son `apiengagement_id`, est ouverte par plusieurs navigateurs (cas observé : QR
+      code, 2 personnes par clic). Full outer join sessions × clics API : un jour avec clics sans session
+      trackée (ou l'inverse) apparaît quand même, compteurs à 0.
+      Comme dans `tracking_campaign_session` : `sessions_front_mission_click` = clic carte PostHog,
+      `sessions_backend_click` = redirection API vers l'annonceur, `sessions_apply` uniquement via le parcours
+      quiz.
+    columns:
+      - name: kpi_date
+        description: Date de l'atterrissage (sessions) ou du clic API (`origin_clicks`), en UTC.
+        tests:
+          - not_null
+      - name: campaign_key
+        description: Id de campagne API ou `utm:source|medium|campaign`. Null pour les sessions hors campagne.
+      - name: campaign_type
+        description: Canal (`api`, `adwords`, `meta`, `emailing`, `utm`), `none` hors campagne.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['api', 'adwords', 'meta', 'emailing', 'utm', 'none']
+      - name: campaign_name
+        description: Nom de la campagne, « Hors campagne » si `campaign_key` est null.
+        tests:
+          - not_null
+      - name: api_campaign_id
+        description: Id de la campagne API (jointure back-office). Null hors type `api`.
+      - name: utm_source
+        description: >
+          UTM de référence de la campagne (pas ceux des sessions). Null hors campagne ou si le lien tracké
+          n'en porte pas. Idem `utm_medium`, `utm_campaign`.
+      - name: origin_clicks
+        description: >
+          Clics comptés par la plateforme d'origine, hors PostHog : redirections `/r/campaign/` pour les
+          campagnes API (0 si aucun ce jour-là), null pour les autres types.
+      - name: sessions
+        description: Sessions PostHog attribuées à la campagne (sous-ensemble tracké).
+      - name: sessions_backend_click
+        description: Sessions avec au moins un clic API de sortie vers l'annonceur.
+      - name: sessions_apply
+        description: Sessions avec au moins une candidature (via clic backend, parcours quiz uniquement).
+      - name: backend_clicks
+        description: Somme des `backend_click_count` des sessions du jour.
+      - name: applies
+        description: Somme des `apply_count` des sessions du jour.

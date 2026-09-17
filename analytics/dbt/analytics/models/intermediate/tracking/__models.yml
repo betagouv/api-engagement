@@ -188,3 +188,99 @@ models:
       - name: page_name
         tests:
           - not_null
+
+  - name: int_tracking_session
+    description: >
+      Session de tracking PostHog sur Trouve Ta Mission, une ligne par `tracking_session_id`. Point d'entrée
+      du suivi de campagne : contrairement à `int_tracking_quiz_session` (qui part de `quiz.started`), cette
+      vue part de l'ATTERRISSAGE, donc les visiteurs qui n'ont jamais lancé le quiz sont comptés. Clé de
+      session : `posthog_session_id`, avec repli `distinct_id || ':' || date` pour les rares events sans
+      session PostHog (~1 % des events, tous porteurs d'un `distinct_id`). Les colonnes `landing_*`, les UTM
+      et `landing_click_id` sont lus sur le PREMIER événement de la session (jamais le dernier) : les UTM sont
+      des super properties PostHog qui peuvent être perdues si le consentement cookies est donné après avoir
+      quitté la page d'arrivée. PIÈGE : `quiz_session_id` est aussi une super property et persiste entre les
+      visites d'une même personne ; chaque `quiz_session_id` n'est rattaché qu'à la session où il est observé
+      pour la première fois (`quiz_session_ids`), sinon les conversions backend seraient recomptées à chaque
+      visite ultérieure. Personnes internes exclues au niveau du `distinct_id`.
+    columns:
+      - name: tracking_session_id
+        description: >
+          `posthog_session_id`, ou `distinct_id || ':' || date` si l'événement n'a pas de session PostHog.
+        tests:
+          - not_null
+          - unique
+      - name: landing_at
+        description: Horodatage du premier événement de la session ; `session_date` en est la date.
+      - name: landing_url
+        description: URL complète du premier événement (porte l'`apiengagement_id` le cas échéant).
+      - name: landing_utm_source
+        description: UTM bruts du premier événement, non nettoyés (peut contenir des valeurs de scanners).
+      - name: utm_source
+        description: >
+          UTM du premier événement ; si `utm_source` y est null, UTM du premier événement de la session
+          en portant un. Valeur brute, non nettoyée. Même logique pour `utm_campaign` et `utm_medium`.
+      - name: landing_click_id
+        description: >
+          `stat_event_id` du clic de campagne extrait de `current_url` (`?apiengagement_id=<uuid>`), posé
+          par l'API à la redirection `/r/campaign/`. Null si arrivée directe ou id tronqué.
+      - name: utm_term
+        description: >
+          `utm_term` du même événement que `utm_source` (mot-clé SEA). Idem `utm_content`.
+      - name: gclid
+        description: >
+          Identifiant de clic Google Ads (auto-tagging) vu dans la session, opaque. Marqueur « trafic
+          Google payant » même quand les UTM manquent ; clé d'un futur rapprochement avec un export Ads.
+      - name: fbclid
+        description: Identifiant de clic Meta, même logique que `gclid`.
+      - name: front_mission_click_count
+        description: >
+          Nombre d'événements PostHog `mission.clicked` (clic sur une carte, vers la fiche ou un lien
+          externe). N'est PAS la redirection vers l'annonceur : le CTA « Découvrir la mission » de la fiche
+          n'émet aucun événement PostHog, la redirection réelle est le clic API (`backend_click`).
+      - name: quiz_attempt_count
+        description: Nombre de `quiz_attempt_id` distincts ayant émis `quiz.started` dans la session.
+      - name: quiz_session_ids
+        description: >
+          `quiz_session_id` (= `user_scoring_id` backend) dont la session est propriétaire, c'est-à-dire
+          vus pour la première fois dans cette session. Pont vers `int_tracking_backend_conversion`.
+      - name: first_quiz_session_id
+        description: Premier `quiz_session_id` propriétaire rencontré dans l'ordre des événements.
+
+  - name: int_tracking_campaign
+    description: >
+      Référentiel des campagnes suivies sur Trouve Ta Mission, une ligne par `campaign_key`, tous canaux
+      confondus. Deux sources en `union` : (1) les campagnes API (liens trackés `/r/campaign/`,
+      `campaign_type = 'api'`, `campaign_key` = id de la campagne), limitées à celles qui atterrissent sur TTM.
+      PÉRIMÈTRE PAR L'URL, PAS PAR L'ANNONCEUR : host de l'URL matchant un motif de
+      `PLATEFORME_ENGAGEMENT_HOST_PATTERNS` (ancien domaine `plateforme.api-engagement…` et nouveau
+      `trouvetamission.gouv.fr`) OU annonceur `PUBLISHER_PLATEFORME_ENGAGEMENT_ID`. Cas réel : le QR code
+      « Défi engagement » a pour annonceur Service Civique mais renvoie vers `/missions` de TTM. Supprimées
+      incluses (`deleted_at` exposé). (2) Les triplets UTM observés dans les sessions PostHog arrivées SANS
+      lien tracké (SEA, Meta, emailing…), découverts automatiquement, `campaign_key` = `utm:source|medium|campaign`,
+      type déduit de la convention `utm_source` / `utm_medium` (google + cpc → `adwords`, facebook / instagram /
+      meta → `meta`, medium email / newsletter → `emailing`, sinon `utm`). Aucune liste à maintenir. Hygiène
+      minimale : seules les valeurs UTM de type slug deviennent des campagnes (les injections de scanners
+      restent hors campagne). Un triplet déjà porté par une campagne API active n'est pas dupliqué.
+      Le triplet UTM (`lower()`) est la clé de rapprochement des sessions.
+    columns:
+      - name: campaign_key
+        description: Id de campagne API, ou `utm:source|medium|campaign` pour les campagnes découvertes.
+        tests:
+          - not_null
+          - unique
+      - name: campaign_type
+        description: Canal de la campagne. `api` pour les liens trackés, sinon déduit des UTM.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['api', 'adwords', 'meta', 'emailing', 'utm']
+      - name: campaign_name
+        description: Nom back-office pour les campagnes API, `utm_campaign` pour les autres.
+      - name: api_campaign_id
+        description: Id de la campagne dans l'API (jointure back-office). Null hors type `api`.
+      - name: utm_source
+        description: >
+          `utm_source` de référence de la campagne, en minuscules : parsé dans l'URL pour les campagnes API
+          (null si l'URL n'en porte pas ; une telle campagne ne peut pas servir de repli UTM), triplet observé
+          pour les autres. Idem `utm_medium`, `utm_campaign`.
