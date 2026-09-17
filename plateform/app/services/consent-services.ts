@@ -11,8 +11,6 @@ declare global {
 }
 
 // Injecte le widget Crisp. Idempotent, et sans effet côté serveur.
-// ponytail: pas de retrait à chaud sur "denied" après un "granted" déjà chargé — le prochain
-// chargement de page tranche (prepareCookieConsent relit le cookie). Ajouter un session:reset si besoin.
 function loadCrisp(): void {
   if (typeof window === "undefined" || !CRISP_WEBSITE_ID || document.getElementById("crisp-client")) return;
   window.$crisp = [];
