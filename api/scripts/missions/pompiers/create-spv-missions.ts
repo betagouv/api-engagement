@@ -52,6 +52,11 @@ function loadAddresses(): Map<string, Address[]> {
   return map;
 }
 
+const IMAGES = [
+  "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68592785908f206f72c88a8f/sdis-1.jpg",
+  "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/68592785908f206f72c88a8f/sdis-2.jpg",
+];
+
 const API_URLS: Record<string, string> = {
   prod: "https://api.api-engagement.beta.gouv.fr",
   sandbox: "https://api.bac-a-sable.api-engagement.beta.gouv.fr",
@@ -85,6 +90,7 @@ function buildMissionPayload(entry: SdisEntry, addresses: Map<string, Address[]>
     organizationName: entry.organizationName,
     organizationUrl: entry.organizationUrl,
     organizationDescription: "Le SDIS est chargé des missions de secours et d'incendie dans le département.",
+    image: IMAGES[Math.floor(Math.random() * IMAGES.length)],
     ...(deptAddresses.length > 0 ? { addresses: deptAddresses } : {}),
   };
 }
