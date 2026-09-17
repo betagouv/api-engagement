@@ -14,6 +14,9 @@ export const TRACKING_PROVIDER = (import.meta.env.VITE_TRACKING_PROVIDER as stri
 export const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
 export const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) || "https://eu.i.posthog.com";
 
+// ID du site Crisp (public, côté client) pour le chat d'assistance.
+export const CRISP_WEBSITE_ID = "0825b9e0-ff50-4cae-8899-a22aa9f932a3";
+
 // Formulaire Tally de recueil de feedback (bandeau « version bêta »). Un seul formulaire pour
 // les deux parcours : le champ caché `source` (quiz / results) aiguille vers le bon jeu de questions.
 export const TALLY_FEEDBACK_URL = "https://tally.so/r/QKQYQY";
