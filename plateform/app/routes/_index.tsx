@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
-import Hero from "~/components/landing/hero";
-import HowItWorks from "~/components/landing/how-it-works";
-import MissionExamples from "~/components/landing/mission-examples";
-import ProSpace from "~/components/landing/pro-space";
-import Testimonials from "~/components/landing/testimonials";
+import Hero from "~/components/home/hero";
+import HowItWorks from "~/components/home/how-it-works";
+import MissionExamples from "~/components/home/mission-examples";
+import ProSpace from "~/components/home/pro-space";
+import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
