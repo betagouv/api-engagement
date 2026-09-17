@@ -119,4 +119,65 @@ describe("RedirectController /campaign/:id", () => {
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
   });
+
+  it("prefills the demarche numerique annotation with the click id when the campaign url targets a demarche of the annonceur", async () => {
+    const annonceur = await createTestPublisher({
+      demarcheSimplifiees: [
+        {
+          number: 12345,
+          name: "Ma demarche",
+          url: "https://demarche.numerique.gouv.fr/commencer/ma-demarche",
+          annotationKey: "champ_Q2hhbXAtMQ",
+        },
+      ],
+    });
+
+    const campaign = await campaignService.createCampaign({
+      name: "Campaign Demarche",
+      type: "OTHER",
+      url: "https://demarche.numerique.gouv.fr/commencer/ma-demarche",
+      fromPublisherId: publisher1.id,
+      toPublisherId: annonceur.id,
+    });
+
+    vi.spyOn(utils, "identify").mockReturnValue({
+      user: "user-identifier",
+      referer: "https://referrer.example.com",
+      userAgent: "Mozilla/5.0",
+    });
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    const response = await request(app).get(`/r/campaign/${campaign.id}`);
+
+    expect(response.status).toBe(302);
+    const redirectUrl = new URL(response.headers.location);
+    expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe("https://demarche.numerique.gouv.fr/commencer/ma-demarche");
+
+    const clickId = redirectUrl.searchParams.get("apiengagement_id");
+    expect(clickId).toBeTruthy();
+    expect(redirectUrl.searchParams.get("champ_Q2hhbXAtMQ")).toBe(clickId);
+  });
+
+  it("leaves the campaign url untouched when the annonceur has no matching demarche", async () => {
+    const campaign = await campaignService.createCampaign({
+      name: "Campaign Without Demarche",
+      type: "OTHER",
+      url: "https://demarche.numerique.gouv.fr/commencer/une-autre-demarche",
+      fromPublisherId: publisher1.id,
+      toPublisherId: publisher2.id,
+    });
+
+    vi.spyOn(utils, "identify").mockReturnValue({
+      user: "user-identifier",
+      referer: "https://referrer.example.com",
+      userAgent: "Mozilla/5.0",
+    });
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    const response = await request(app).get(`/r/campaign/${campaign.id}`);
+
+    expect(response.status).toBe(302);
+    const redirectUrl = new URL(response.headers.location);
+    expect([...redirectUrl.searchParams.keys()]).toEqual(["apiengagement_id", "apiengagement_tracking_token"]);
+  });
 });
