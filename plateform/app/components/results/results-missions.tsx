@@ -13,6 +13,7 @@ interface ResultsMissionsProps {
   pageLoading: boolean;
   error: string | null;
   userScoringId: string | undefined;
+  userValueKeys: ReadonlySet<string>;
   showDebug: boolean;
   highlightedMissionId?: string | null;
   onMissionHover?: (missionId: string | null) => void;
@@ -30,6 +31,7 @@ export default function ResultsMissions({
   pageLoading,
   error,
   userScoringId,
+  userValueKeys,
   showDebug,
   highlightedMissionId,
   onMissionHover,
@@ -68,6 +70,7 @@ export default function ResultsMissions({
                     rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
                     pageNumber={page}
                     userScoringId={userScoringId}
+                    userValueKeys={userValueKeys}
                     onEmailClick={onEmailClick}
                   />
                   {showDebug && <DebugButton missionId={item.mission.id} />}

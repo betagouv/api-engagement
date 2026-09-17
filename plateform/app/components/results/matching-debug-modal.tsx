@@ -1,4 +1,4 @@
-import type { MissionMatchItem } from "@engagement/dto";
+import type { MissionMatchItem, MissionMatchUserValue } from "@engagement/dto";
 import type React from "react";
 import { useSearchParams } from "react-router";
 import Modal from "~/components/layout/modal";
@@ -7,13 +7,6 @@ import "./matching-debug-modal.css";
 const DEBUG_ID_PARAM = "debug_id";
 
 const formatScore = (score: number | null): string => (score === null ? "—" : score.toFixed(3));
-
-export type MatchingDebugUserValue = {
-  taxonomyKey: string;
-  taxonomyValueKey: string;
-  taxonomyValueLabel: string;
-  userScore: number;
-};
 
 export function DebugButton({ missionId }: { missionId: string }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -27,7 +20,12 @@ export function DebugButton({ missionId }: { missionId: string }) {
   };
 
   return (
-    <button type="button" className="fr-btn fr-btn--tertiary fr-btn--icon-only absolute bottom-2 left-2 z-10" onClick={handleClick} aria-label="Débuguer le matching">
+    <button
+      type="button"
+      className="absolute bottom-2 left-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+      onClick={handleClick}
+      aria-label="Débuguer le matching"
+    >
       <i className="fr-icon-settings-5-line fr-icon--sm" aria-hidden="true" />
     </button>
   );
@@ -35,7 +33,7 @@ export function DebugButton({ missionId }: { missionId: string }) {
 
 interface Props {
   items: MissionMatchItem[];
-  userValues: MatchingDebugUserValue[];
+  userValues: MissionMatchUserValue[];
 }
 
 export default function MatchingDebugModal({ items, userValues }: Props) {

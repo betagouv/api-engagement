@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionDetailCompensation, MissionMatchItem } from "@engagement/dto";
+import type { MissionBrowse, MissionDetailCompensation, MissionMatchItem, MissionMatchUserValue } from "@engagement/dto";
 import { getMissionCardTag } from "@engagement/taxonomy";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
@@ -103,6 +103,10 @@ const MAX_CARD_TAGS = 6;
  * Quand le matching en produit moins de `MIN_CARD_TAGS`, la carte est complétée par les tags
  * standards (cf. buildMissionBrowseTags) pour rester lisible.
  */
+export function userValueKeysFromScoring(userValues: MissionMatchUserValue[]): Set<string> {
+  return new Set(userValues.map((value) => `${value.taxonomyKey}.${value.taxonomyValueKey}`));
+}
+
 export function buildMissionMatchTags(item: MissionMatchItem, userValueKeys: ReadonlySet<string>): string[] {
   const entries: { score: number; tags: string[] }[] = [];
 

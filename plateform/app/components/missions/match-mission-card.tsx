@@ -1,11 +1,8 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
-import { useMemo } from "react";
 
-import { getTaxonomyValue } from "~/config/quiz-options";
 import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
-import { useQuizStore } from "~/stores/quiz";
 import { buildMissionDetailHref, buildMissionMatchTags } from "~/utils/mission";
 import MissionCard from "./mission-card";
 
@@ -26,6 +23,7 @@ export default function MatchMissionCard({
   rank,
   pageNumber,
   userScoringId,
+  userValueKeys,
   onEmailClick,
 }: {
   item: MissionMatchItem;
@@ -34,22 +32,10 @@ export default function MatchMissionCard({
   // Numéro de page de la liste paginée (absent pour la similarité).
   pageNumber?: number;
   userScoringId?: string;
+  userValueKeys: ReadonlySet<string>;
   onEmailClick?: (mission: MissionMatchItem["mission"]) => void;
 }) {
   const { mission } = item;
-  const answers = useQuizStore((s) => s.answers);
-
-  // Clés plates "taxonomie.valeur" des réponses du quiz : les tags ne retiennent que les valeurs
-  // de la mission que l'utilisateur a effectivement demandées.
-  const userValueKeys = useMemo(
-    () =>
-      new Set(
-        Object.values(answers).flatMap((answer) =>
-          answer?.type === "options" ? answer.option_ids.map((optionId) => `${answer.taxonomy}.${getTaxonomyValue(answer.taxonomy, optionId)}`) : [],
-        ),
-      ),
-    [answers],
-  );
 
   const entrySource = section === "similar" ? undefined : DETAIL_ENTRY_SOURCE_BY_SECTION[section];
   const state: MissionDetailNavState | undefined = entrySource ? { entrySource, rank } : undefined;
