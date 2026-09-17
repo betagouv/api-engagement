@@ -1,10 +1,10 @@
 # Fonction sentry-webhook : relais Sentry self-hosted → Slack. Une seule fonction pour tous
-# les environnements, déployée par le workspace production : elle choisit le channel selon
-# l'environnement de l'événement Sentry. Le bundle est construit avant le plan (CI ou local) :
-# voir functions/README.md.
+# les environnements, déployée par le workspace qui active `enable_sentry_webhook` (staging
+# aujourd'hui) : elle choisit le channel selon l'environnement de l'événement Sentry. Le bundle
+# est construit avant le plan (CI ou local) : voir functions/README.md.
 
 data "archive_file" "sentry_webhook" {
-  count = local.deploy_sentry_webhook ? 1 : 0
+  count = var.enable_sentry_webhook ? 1 : 0
 
   type        = "zip"
   source_file = "${path.module}/build/sentry-webhook/handler.mjs"
@@ -12,7 +12,7 @@ data "archive_file" "sentry_webhook" {
 }
 
 resource "scaleway_function_namespace" "functions" {
-  count = local.deploy_sentry_webhook ? 1 : 0
+  count = var.enable_sentry_webhook ? 1 : 0
 
   name        = "${var.workspace}-functions"
   description = "${var.workspace} functions namespace"
@@ -20,7 +20,7 @@ resource "scaleway_function_namespace" "functions" {
 }
 
 resource "scaleway_function" "sentry_webhook" {
-  count = local.deploy_sentry_webhook ? 1 : 0
+  count = var.enable_sentry_webhook ? 1 : 0
 
   name         = "sentry-webhook"
   description  = "Relais Sentry → Slack"
@@ -39,6 +39,7 @@ resource "scaleway_function" "sentry_webhook" {
   environment_variables = {
     "SLACK_CHANNEL_ID_PRODUCTION" = var.sentry_slack_channel_id_production
     "SLACK_CHANNEL_ID_STAGING"    = var.sentry_slack_channel_id_staging
+    "DEBUG_PAYLOAD"               = var.sentry_webhook_debug_payload ? "true" : "false"
   }
 
   secret_environment_variables = {
@@ -47,5 +48,5 @@ resource "scaleway_function" "sentry_webhook" {
 }
 
 output "sentry_webhook_endpoint" {
-  value = local.deploy_sentry_webhook ? (var.sentry_webhook_hostname != "" ? "https://${var.sentry_webhook_hostname}" : "https://${scaleway_function.sentry_webhook[0].domain_name}") : ""
+  value = var.enable_sentry_webhook ? (var.sentry_webhook_hostname != "" ? "https://${var.sentry_webhook_hostname}" : "https://${scaleway_function.sentry_webhook[0].domain_name}") : ""
 }
