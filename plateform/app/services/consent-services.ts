@@ -1,4 +1,4 @@
-import { CRISP_WEBSITE_ID, POSTHOG_KEY, TRACKING_PROVIDER } from "~/services/config";
+import { CRISP_WEBSITE_ID, GTM_CONTAINER_ID, POSTHOG_KEY, TRACKING_PROVIDER } from "~/services/config";
 import { initTracking, setTrackingConsentStatus, type TrackingConsentStatus } from "~/services/tracking";
 
 export type ConsentStatus = TrackingConsentStatus;
@@ -7,6 +7,7 @@ declare global {
   interface Window {
     $crisp?: unknown[];
     CRISP_WEBSITE_ID?: string;
+    dataLayer?: unknown[];
   }
 }
 
@@ -19,6 +20,20 @@ function loadCrisp(): void {
   script.id = "crisp-client";
   script.src = "https://client.crisp.chat/l.js";
   script.async = true;
+  document.head.appendChild(script);
+}
+
+// Charge Google Tag Manager (extrait <head> officiel). Idempotent, sans effet côté serveur.
+// Le <noscript> officiel n'est pas injecté : il se déclencherait hors consentement (le flux de
+// consentement est en JS), ce qui contredirait la finalité gclid/conversions.
+function loadGtm(): void {
+  if (typeof window === "undefined" || !GTM_CONTAINER_ID || document.getElementById("gtm-client")) return;
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+  const script = document.createElement("script");
+  script.id = "gtm-client";
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_CONTAINER_ID}`;
   document.head.appendChild(script);
 }
 
@@ -59,6 +74,17 @@ const consentServices: ConsentService[] = [
       if (status === "granted") return loadCrisp();
       // Retrait du consentement : rechargement contrôlé si le widget est déjà chargé (prepareCookieConsent ne le relancera pas tant que le refus est stocké).
       if (typeof document !== "undefined" && document.getElementById("crisp-client")) window.location.reload();
+    },
+  },
+  {
+    id: "gtm",
+    version: 1,
+    title: "Mesure des conversions publicitaires",
+    description:
+      "Google Tag Manager mesure les conversions issues de nos campagnes publicitaires et conserve l'identifiant de clic publicitaire (gclid) afin d'en optimiser la diffusion. Sans accord, aucun tag Google n'est chargé.",
+    isEnabled: () => Boolean(GTM_CONTAINER_ID),
+    applyConsent(status) {
+      if (status === "granted") loadGtm();
     },
   },
 ];
