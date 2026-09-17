@@ -181,6 +181,14 @@ export default function PolitiqueDeConfidentialite() {
                 </td>
                 <td>6 mois</td>
               </tr>
+              <tr>
+                <td>Google Tag Manager</td>
+                <td>Mesure des conversions publicitaires et conservation de l'identifiant de clic (gclid)</td>
+                <td>
+                  <code>_gcl_au</code>, <code>_ga*</code>
+                </td>
+                <td>Jusqu'à 13 mois</td>
+              </tr>
             </tbody>
           </table>
         </div>

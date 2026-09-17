@@ -84,7 +84,9 @@ const consentServices: ConsentService[] = [
       "Google Tag Manager mesure les conversions issues de nos campagnes publicitaires et conserve l'identifiant de clic publicitaire (gclid) afin d'en optimiser la diffusion. Sans accord, aucun tag Google n'est chargé.",
     isEnabled: () => Boolean(GTM_CONTAINER_ID),
     applyConsent(status) {
-      if (status === "granted") loadGtm();
+      if (status === "granted") return loadGtm();
+      // Retrait du consentement : rechargement contrôlé si GTM est déjà chargé (prepareCookieConsent ne le relancera pas tant que le refus est stocké).
+      if (typeof document !== "undefined" && document.getElementById("gtm-client")) window.location.reload();
     },
   },
 ];
