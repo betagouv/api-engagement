@@ -9,7 +9,8 @@ import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/api/missions";
-import { trackPageViewed } from "~/services/tracking/events";
+import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
+import type { CtaSection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
@@ -57,7 +58,8 @@ export default function Landing() {
     trackPageViewed({ pageName: "homepage" });
   }, []);
 
-  const handleStartQuiz = () => {
+  const handleStartQuiz = (ctaSection: CtaSection) => {
+    trackCtaClicked({ pageName: "homepage", ctaSection, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     reset();
     navigate("/quiz/age", { state: { entrySource: "homepage_cta" } });
   };
@@ -66,7 +68,7 @@ export default function Landing() {
     <main id="contenu" tabIndex={-1}>
       <GradientBg className="bg-size-[100%_640px]">
         <div className="relative lg:min-h-[640px] lg:overflow-hidden">
-          <Hero onStartQuiz={handleStartQuiz} />
+          <Hero onStartQuiz={() => handleStartQuiz("hero")} />
           <div className="relative overflow-hidden w-full lg:absolute lg:right-[-140px] lg:top-0 lg:h-[640px] lg:w-[80%] xl:w-auto lg:max-w-[1024px]">
             <svg
               aria-hidden
@@ -81,8 +83,8 @@ export default function Landing() {
         </div>
         <MissionExamples missions={examples} className="-mt-14 lg:-mt-16" />
       </GradientBg>
-      <HowItWorks onStartQuiz={handleStartQuiz} />
-      <Testimonials onStartQuiz={handleStartQuiz} />
+      <HowItWorks onStartQuiz={() => handleStartQuiz("how_it_works")} />
+      <Testimonials onStartQuiz={() => handleStartQuiz("testimonials")} />
       <ProSpace />
       <Partners style="compact" />
       <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
