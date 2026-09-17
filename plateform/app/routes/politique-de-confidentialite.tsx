@@ -28,6 +28,10 @@ export default function PolitiqueDeConfidentialite() {
           La plateforme de l'engagement collecte seulement l'adresse courriel, qui peut souvent contenir aussi le nom et le prénom. Le reste des données collectées ne sont pas
           identifiantes, et sont liées à la mission.
         </p>
+        <p>
+          Si vous utilisez le chat d'assistance, le contenu des messages que vous y saisissez (et toute donnée personnelle que vous choisissez d'y indiquer) est traité par notre
+          sous-traitant Crisp afin de répondre à votre demande et d'assurer la continuité de la conversation. Ces échanges sont conservés 6 mois puis supprimés.
+        </p>
 
         <h2>Quelles sont les données utilisées du Service National Universel ?</h2>
         <p>Certaines données sont récupérées via le SNU pour certains volontaires, notamment le nom, prénom, numéro de téléphone, adresse courriel, date de naissance.</p>
@@ -119,6 +123,16 @@ export default function PolitiqueDeConfidentialite() {
                 <td>
                   <a href="https://www.brevo.com/legal/termsofuse/#annex" target="_blank" rel="noopener" title="Conditions d'utilisation - nouvelle fenêtre">
                     Conditions d'utilisation
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>Crisp</td>
+                <td>France</td>
+                <td>Chat d'assistance (contenu des conversations)</td>
+                <td>
+                  <a href="https://crisp.chat/fr/privacy/" target="_blank" rel="noopener" title="Politique de confidentialité Crisp - nouvelle fenêtre">
+                    Politique de confidentialité
                   </a>
                 </td>
               </tr>
