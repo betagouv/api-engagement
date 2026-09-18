@@ -114,7 +114,7 @@ describe("missionBrowseService.browse", () => {
     const { facets } = await missionBrowseService.browse(baseParams);
 
     expect(facets.type_mission).toEqual([{ key: "benevolat", count: 42 }]);
-    expect(facets.domaine).toEqual([]);
+    expect(facets.domaine_engagement).toEqual([]);
   });
 
   it("utilise la recherche, le tri et les facettes du widget sans modifier le mode intégrateur", async () => {
