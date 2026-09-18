@@ -76,6 +76,7 @@ export const SCORING_RULES = [
     condition: { operator: "equals", value: PUBLISHER_IDS.ROC },
     mode: "replace",
     values: [
+      "dispositif.reserve_armees",
       "tranche_age.moins_18_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
