@@ -294,8 +294,7 @@
             { "value": "service_civique", "min": 1 },
             { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
             { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 0, "max": 0 },
-            { "value": "reserve_armees", "min": 1 }
+            { "value": "reserve_police_nationale", "min": 0, "max": 0 }
           ]
         },
         {

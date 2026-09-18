@@ -24,7 +24,7 @@ describe("getUserScoringRuleKeys", () => {
     {
       taxonomyKey: "motivation_recherche",
       valueKey: "indemnisation",
-      expected: ["dispositif.service_civique", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
+      expected: ["dispositif.service_civique", "dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
     },
     {
       taxonomyKey: "motivation_recherche",
@@ -44,7 +44,7 @@ describe("getUserScoringRuleKeys", () => {
     {
       taxonomyKey: "domaine_engagement",
       valueKey: "securite_secours",
-      expected: ["dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale"],
+      expected: ["dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
     },
     {
       taxonomyKey: "domaine_engagement",
@@ -101,7 +101,7 @@ describe("getUserScoringRuleValues", () => {
       { key: "dispositif.sapeurs_pompiers", score: 2 },
       { key: "dispositif.reserve_gendarmerie", score: 2 },
       { key: "dispositif.reserve_police_nationale", score: 2 },
-      { key: "dispositif.reserve_armees", score: 1 },
+      { key: "dispositif.reserve_armees", score: 2 },
     ]);
   });
 
@@ -115,6 +115,7 @@ describe("getUserScoringRuleValues", () => {
       { key: "dispositif.sapeurs_pompiers", score: 1 },
       { key: "dispositif.reserve_gendarmerie", score: 1 },
       { key: "dispositif.reserve_police_nationale", score: 1 },
+      { key: "dispositif.reserve_armees", score: 1 },
     ]);
 
     expect(getUserScoringRuleValues([{ taxonomyKey: "activite", valueKey: "secourir_proteger" }])).toEqual([]);

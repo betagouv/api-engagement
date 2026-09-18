@@ -23,8 +23,6 @@ type MatchingEngineVersionDefinition = {
   gateRemoteFullGeoScoreOnIntent?: boolean;
   // Socle acquis d'office par taxonomie matchée (cf. MatchingEngineVersionConfig.taxonomyOrBaseScore).
   taxonomyOrBaseScore: number;
-  // Règles de couverture optionnelles, sans modification du score de pertinence.
-  dispositifCoverage?: { minScore: number; maxScoreGap: number };
 };
 
 export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
@@ -43,7 +41,6 @@ export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDef
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
     gateRemoteFullGeoScoreOnIntent: definition.gateRemoteFullGeoScoreOnIntent ?? false,
     taxonomyOrBaseScore: definition.taxonomyOrBaseScore,
-    dispositifCoverage: definition.dispositifCoverage ?? null,
   };
 };
 
@@ -170,8 +167,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     taxonomyOrBaseScore: 0.5,
   }),
   m6: defineMatchingEngineVersion({
-    // Identique à m5, avec un signal de dispositif permettant de rapprocher les
-    // préférences déduites du profil des dispositifs déterministes des missions.
+    // Identique à m5, avec un signal de dispositif issu des préférences déduites du profil.
     taxonomyWeights: {
       domaine: 1,
       secteur_activite: 1,
@@ -195,9 +191,6 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
     gateRemoteFullGeoScoreOnIntent: true,
     taxonomyOrBaseScore: 0.5,
-    // Chaque dispositif déduit du user-scoring peut être couvert dans le top 10,
-    // uniquement si sa meilleure mission reste proche du seuil de pertinence initial.
-    dispositifCoverage: { minScore: 0.5, maxScoreGap: 0.1 },
   }),
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

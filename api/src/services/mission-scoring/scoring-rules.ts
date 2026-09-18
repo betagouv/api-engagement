@@ -135,6 +135,8 @@ export const SCORING_RULES = [
       "activite.secourir_proteger",
       "activite.organiser_coordonner",
       "motivation_recherche.decouverte_metier",
+      "motivation_recherche.securite_pays",
+      "motivation_recherche.indemnisation",
     ],
   },
   // Toutes les réserves opérationnelles sont des missions de découverte métier et partagent les
@@ -144,7 +146,7 @@ export const SCORING_RULES = [
     field: "type",
     condition: { operator: "equals", value: "volontariat_reserve_operationnelle" },
     mode: "add",
-    values: ["motivation_recherche.decouverte_metier", "activite.fabriquer_reparer_terrain", "activite.organiser_coordonner"],
+    values: ["motivation_recherche.decouverte_metier", "activite.fabriquer_reparer_terrain", "activite.organiser_coordonner", "motivation_recherche.indemnisation"],
   },
   // Réserve gendarmerie / police / armée : ces missions portent en plus Sport, Sécurité, Citoyenneté et
   // l'activité de protection. Ciblage publisher pour exclure les réserves des armées.

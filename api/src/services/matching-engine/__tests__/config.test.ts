@@ -87,13 +87,6 @@ describe("matching engine config", () => {
     }
   });
 
-  it("active les règles de couverture des dispositifs uniquement pour m6", () => {
-    expect(MATCHING_ENGINE_VERSIONS.m6.dispositifCoverage).toEqual({ minScore: 0.5, maxScoreGap: 0.1 });
-    for (const version of ["m1", "m2", "m3", "m4", "m5"] as const) {
-      expect(MATCHING_ENGINE_VERSIONS[version].dispositifCoverage).toBeNull();
-    }
-  });
-
   it("applique false par défaut au flag gateRemoteFullGeoScoreOnIntent", () => {
     const config = defineMatchingEngineVersion({
       taxonomyWeights: { domaine: 0.5 },

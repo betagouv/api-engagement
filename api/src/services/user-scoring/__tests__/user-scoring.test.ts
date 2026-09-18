@@ -183,6 +183,7 @@ describe("userScoringService.create — dispositifs déduits", () => {
       "dispositif.sapeurs_pompiers",
       "dispositif.reserve_gendarmerie",
       "dispositif.reserve_police_nationale",
+      "dispositif.reserve_armees",
     ]);
   });
 });

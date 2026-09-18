@@ -36,7 +36,7 @@ export const SCORING_RULES = [
   {
     taxonomy: "motivation_recherche",
     condition: { operator: "equals", value: "indemnisation" },
-    values: ["dispositif.service_civique", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
+    values: ["dispositif.service_civique", "dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
   },
   {
     taxonomy: "motivation_recherche",
@@ -46,7 +46,7 @@ export const SCORING_RULES = [
   {
     taxonomy: "motivation_recherche",
     condition: { operator: "equals", value: "decouverte_metier" },
-    values: ["dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale"],
+    values: ["dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
   },
   {
     taxonomy: "motivation_recherche",
@@ -61,7 +61,7 @@ export const SCORING_RULES = [
   {
     taxonomy: "rythme",
     condition: { operator: "equals", value: "ponctuelle_journee" },
-    values: ["dispositif.benevolat"],
+    values: ["dispositif.benevolat", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale"],
   },
   {
     taxonomy: "rythme",
@@ -96,7 +96,7 @@ export const SCORING_RULES = [
   {
     taxonomy: "domaine_engagement",
     condition: { operator: "equals", value: "securite_secours" },
-    values: ["dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale"],
+    values: ["dispositif.sapeurs_pompiers", "dispositif.reserve_gendarmerie", "dispositif.reserve_police_nationale", "dispositif.reserve_armees"],
   },
   {
     taxonomy: "domaine_engagement",
@@ -123,9 +123,18 @@ export const SCORING_RULES = [
     condition: { operator: "equals", value: "aider_accompagner" },
     values: ["dispositif.sapeurs_pompiers"],
   },
-  // Les domaines et activités restent des signaux thématiques directs. Les convertir aussi en
-  // dispositifs compterait deux fois la même information puisque les missions concernées portent
-  // déjà ces valeurs, via l'enrichissement ou les règles déterministes du mission-scoring.
+  {
+    taxonomy: "activite",
+    condition: { operator: "equals", value: "fabriquer_reparer_terrain" },
+    values: ["dispositif.sapeurs_pompiers"],
+  },
+  {
+    taxonomy: "activite",
+    condition: { operator: "equals", value: "organiser_coordonner" },
+    values: ["dispositif.sapeurs_pompiers"],
+  },
+  // Les réponses ci-dessus restent aussi des signaux thématiques directs ; seules les affinités
+  // de dispositif explicitement listées sont déduites en complément.
 ] as const satisfies readonly UserScoringRule[];
 
 export const getUserScoringRuleValues = (values: UserScoringValue[]): UserScoringRuleValue[] => {

@@ -228,6 +228,8 @@ describe("missionScoringService.score", () => {
       "activite.secourir_proteger",
       "activite.organiser_coordonner",
       "motivation_recherche.decouverte_metier",
+      "motivation_recherche.securite_pays",
+      "motivation_recherche.indemnisation",
     ];
 
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
