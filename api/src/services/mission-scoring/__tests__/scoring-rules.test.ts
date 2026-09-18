@@ -156,6 +156,14 @@ describe("getMissionScoringRuleKeys — élargissement thématique des dispositi
     expect(keys).toContain("motivation_recherche.decouverte_metier");
     expect(keys).toContain("dispositif.reserve_police_nationale");
   });
+
+  it("déduit le dispositif Réserves des armées du publisher ROC (sans Citoyenneté, réservée gendarmerie/police)", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.ROC, type: "volontariat_reserve_operationnelle" }));
+
+    expect(keys).toContain("dispositif.reserve_armees");
+    expect(keys).toContain("motivation_recherche.decouverte_metier");
+    expect(keys).not.toContain("domaine_engagement.citoyennete");
+  });
 });
 
 // Note : la co-occurrence de DEUX règles sur la même taxonomie `tranche_age` est exercée par
