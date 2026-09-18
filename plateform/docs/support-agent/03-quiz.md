@@ -75,7 +75,13 @@ La version active du quiz est la version "q2". Les étapes du quiz sont organis�
 ### Rythme
 
 - **Type de réponse** : Choix unique
-- **Options** : Non spécifiées dans les sources fournies.
+- **Options** :
+  - Ponctuelle journée (`ponctuelle_journee`)
+  - Quelques heures par semaine (`quelques_heures_semaine`)
+  - Plusieurs jours par semaine (`plusieurs_jours_semaine`)
+  - Quelques jours par an (`quelques_jours_annee`)
+  - Temps plein plusieurs mois (`temps_plein_plusieurs_mois`)
+  - Je ne sais pas (`je_ne_sais_pas`)
 
 ### Domaines d'engagement
 

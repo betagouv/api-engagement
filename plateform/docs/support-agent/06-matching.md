@@ -8,11 +8,9 @@ La première page est mise en cache en mémoire par `userScoringId`. Une erreur 
 
 ## Versions du moteur
 
-Le code définit les versions `m1`, `m2`, `m3` et `m4`. La version active est `m4`. Une valeur de configuration inconnue provoque un signalement puis un retour à `m3`.
+Le code définit les versions `m1`, `m2`, `m3`, `m4`, et `m5`. La version active est `m5`. Une valeur de configuration inconnue provoque un signalement puis un retour à `m3`.
 
-Les versions `m1` à `m3` pondèrent de manière égale les taxonomies `domaine`, `secteur_activite`, `type_mission`, `competence_rome`, `region_internationale`, `engagement_intent` et `formation_onisep`. Le poids géographique vaut `0.7` dans `m1`, puis `0.3` dans `m2` et `m3`.
-
-`m3` attribue un score géographique naturel de `0.9` aux missions entièrement à distance et de `0.95` aux missions de type `remote=local`. `m4` reprend cette géographie et ajoute les taxonomies `domaine_engagement`, `rythme`, `activite`, `equipe`, `interaction`, `autonomie`, `imprevu` et `motivation_recherche`, avec des poids variés, par exemple `1.5` pour `domaine_engagement` et `activite`, et `0.6` pour `equipe`, `interaction`, `autonomie` et `imprevu`.
+La version `m5` est identique à `m4`, mais le score de proximité forcé des missions entièrement à distance (`remote=full`) n'est accordé qu'aux utilisateurs ayant coché « je veux participer à distance ». Les autres reçoivent un score géographique de 0 sur ces missions.
 
 ## Taxonomies et gates
 
@@ -26,13 +24,13 @@ Sur une requête de première page, le moteur calcule au moins vingt résultats 
 
 Le score total d'une mission est une combinaison pondérée des scores de taxonomie et du score géographique. La formule est la suivante :
 
-1. **Score de taxonomie** : Chaque taxonomie matchée contribue au score selon un socle de base (`taxonomyOrBaseScore`) et une part restante liée à la qualité intra-taxonomie. Pour `m4`, le socle est de `0.5`, tandis qu'il est de `0.8` pour les versions précédentes. La qualité intra-taxonomie est calculée en fonction des valeurs matchées par rapport aux valeurs possibles, pondérée par le poids de la taxonomie.
+1. **Score de taxonomie** : Chaque taxonomie matchée contribue au score selon un socle de base (`taxonomyOrBaseScore`) et une part restante liée à la qualité intra-taxonomie. Pour `m5`, le socle est de `0.5`. La qualité intra-taxonomie est calculée en fonction des valeurs matchées par rapport aux valeurs possibles, pondérée par le poids de la taxonomie.
 
-2. **Score géographique** : Le score géographique est pondéré par `geoWeight`. Pour `m4`, ce poids est de `0.3`. Les missions `remote=full` et `remote=local` reçoivent des scores géographiques fixes de `0.9` et `0.95` respectivement.
+2. **Score géographique** : Le score géographique est pondéré par `geoWeight`. Pour `m5`, ce poids est de `0.3`. Les missions `remote=full` et `remote=local` reçoivent des scores géographiques fixes de `0.9` et `0.95` respectivement, mais le score `remote=full` est conditionné par l'intention de l'utilisateur de participer à distance.
 
 3. **Normalisation** : Le score total est normalisé par la somme des poids actifs des taxonomies et du poids géographique.
 
-### Pondérations `taxonomyWeights` pour `m4`
+### Pondérations `taxonomyWeights` pour `m5`
 
 - `domaine`: 1
 - `secteur_activite`: 1
@@ -52,7 +50,7 @@ Le score total d'une mission est une combinaison pondérée des scores de taxono
 
 ### Cas remote
 
-- `remoteFullGeoScore`: 0.9
+- `remoteFullGeoScore`: 0.9 (conditionné par l'intention de l'utilisateur)
 - `remoteLocalGeoScore`: 0.95
 
 ### Dénominateur de normalisation
@@ -66,8 +64,8 @@ Les missions sont classées par score total décroissant. En cas d'égalité de 
 ## Sources
 
 - `plateform/app/services/matching.ts`
-- `plateform/app/hooks/useMissionResults.ts`
-- `packages/dto/src/resources/mission-match.ts`
 - `api/src/services/matching-engine/config.ts`
 - `api/src/services/matching-engine/index.ts`
+- `api/src/services/matching-engine/types.ts`
 - `api/src/services/mission-match/index.ts`
+- `packages/dto/src/resources/mission-match.ts`
