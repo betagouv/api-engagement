@@ -15,8 +15,11 @@ interface HeroProps {
 
 export default function Hero({ onStartQuiz }: HeroProps) {
   return (
-    // Le texte et le collage partagent la même cellule de grille à partir de `lg` : le collage se cale à
-    // droite sous le texte, et la hauteur du bandeau beige suit celle de l'illustration comme sur la maquette.
+    // Sous `lg`, le collage remonte de 184px derrière le texte (`z-10`) : il passe sous les tuiles et le bouton
+    // comme sur la maquette. Un décalage fixe, et non proportionnel, pour que le recouvrement reste le même
+    // quelle que soit la largeur — le collage grandit avec l'écran alors que le texte, lui, raccourcit.
+    // À partir de `lg`, texte et collage partagent la même cellule de grille : le collage se cale à droite
+    // sous le texte et donne sa hauteur au bandeau beige.
     <section className="bg-brown-cafe-creme-975 lg:grid">
       <div className="fr-container relative z-10 py-8! lg:col-start-1 lg:row-start-1 lg:self-center lg:py-0!">
         <div className="w-full lg:max-w-[48%]">
@@ -38,7 +41,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
           </ul>
 
           <div className="w-full! lg:w-fit! flex flex-col items-center">
-            <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg lg:px-12! justify-center!">
+            <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg lg:px-12! justify-center! w-full! lg:w-auto!">
               Trouver ma mission
             </button>
             <p className="fr-text--xs text-mention-grey fr-mt-1w w-full! text-center! italic">À un clic de tout l'engagement public.</p>
@@ -46,7 +49,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
         </div>
       </div>
 
-      <div className="w-full lg:col-start-1 lg:row-start-1 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
+      <div className="-mt-46 w-full lg:col-start-1 lg:row-start-1 lg:mt-0 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
         <img src={HeroBackgroundPng} alt="" aria-hidden="true" className="w-full" />
       </div>
     </section>

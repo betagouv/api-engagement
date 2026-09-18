@@ -2,10 +2,15 @@ import AscLogo from "~/assets/images/logo/asc-logo.png";
 import JvaLogo from "~/assets/images/logo/jva-logo.png";
 import RocLogo from "~/assets/images/logo/roc-logo.png";
 import SpvLogo from "~/assets/images/logo/spv-logo.png";
-import TestimonialAdrien from "~/assets/images/testimonial-adrien.jpg";
-import TestimonialMarie from "~/assets/images/testimonial-marie.jpg";
-import TestimonialQuentin from "~/assets/images/testimonial-quentin.jpg";
-import TestimonialSeb from "~/assets/images/testimonial-seb.jpg";
+
+import TestimonialEducation from "~/assets/images/home/testimonial-education.jpg";
+import TestimonialMemory from "~/assets/images/home/testimonial-memory.jpg";
+import TestimonialPrevention1 from "~/assets/images/home/testimonial-prevention-1.jpg";
+import TestimonialPrevention2 from "~/assets/images/home/testimonial-prevention-2.jpg";
+import TestimonialPrevention3 from "~/assets/images/home/testimonial-prevention-3.jpg";
+import TestimonialSkill from "~/assets/images/home/testimonial-skill.jpg";
+import TestimonialSolidarity from "~/assets/images/home/testimonial-solidarity.jpg";
+
 import Carousel from "~/components/ui/carousel";
 
 import Highlight from "../ui/highlight";
@@ -22,7 +27,7 @@ type Testimonial = {
 const TESTIMONIALS: Testimonial[] = [
   {
     id: "1",
-    image: TestimonialQuentin,
+    image: TestimonialPrevention1,
     domain: "Prévention et protection",
     title: "Quentin participe à des missions de sécurité et de secours aux côtés de l'armée, depuis 8 mois",
     publisherName: "La réserve des armées",
@@ -30,7 +35,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "2",
-    image: TestimonialSeb,
+    image: TestimonialSolidarity,
     domain: "Solidarité",
     title: "Seb, améliore la qualité de vie des personnes en situation de handicap depuis 6 mois",
     publisherName: "Service Civique",
@@ -38,7 +43,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "3",
-    image: TestimonialMarie,
+    image: TestimonialPrevention2,
     domain: "Prévention et protection",
     title: "Marie, pompier 2 fois par semaine depuis 7 mois",
     publisherName: "Sapeurs pompiers volontaires",
@@ -46,10 +51,34 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     id: "4",
-    image: TestimonialAdrien,
+    image: TestimonialEducation,
     domain: "Éducation pour tous",
     title: "Adrien, accompagne des mineurs étrangers vers la réussite de leur apprentissage depuis 9 mois",
-    publisherName: "Je Veux Aider",
+    publisherName: "JeVeuxAider.gouv.fr",
+    publisherLogo: JvaLogo,
+  },
+  {
+    id: "5",
+    image: TestimonialMemory,
+    domain: "Mémoire et citoyenneté",
+    title: "Sarah, Je participe à des actions citoyennes et je découvre la gendarmerie depuis 9 mois",
+    publisherName: "Gendarmerie nationale",
+    publisherLogo: JvaLogo,
+  },
+  {
+    id: "6",
+    image: TestimonialSkill,
+    domain: "Bénévolat de compétences",
+    title: "Émilie accompagne des projets de communication pour des associations depuis 1 an",
+    publisherName: "JeVeuxAider.gouv.fr",
+    publisherLogo: JvaLogo,
+  },
+  {
+    id: "7",
+    image: TestimonialPrevention3,
+    domain: "Prévention et protection",
+    title: "Steve, participe aux collectes de vêtements depuis 7 mois",
+    publisherName: "JeVeuxAider.gouv.fr",
     publisherLogo: JvaLogo,
   },
 ];
@@ -57,25 +86,26 @@ const TESTIMONIALS: Testimonial[] = [
 export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void }) {
   // `overflow-x-clip` : les cartes débordent du bandeau jusqu'au bord de l'écran, sans scroll horizontal
   // (`50vw` inclut la barre de défilement, contrairement à la largeur du document).
+  // Sur mobile la carte active est centrée : la liste est étalée sur toute la largeur de l'écran et
+  // `10vw` de part et d'autre laisse exactement la même amorce des deux côtés d'une carte en `80vw`.
+  // À partir de `md`, on revient au calage à gauche sur le conteneur avec débord à droite.
   return (
-    <section className="fr-container overflow-x-clip">
-      <div className="bg-brown-cafe-creme-975 fr-py-8w px-8">
-        <div className="flex flex-col items-center fr-mb-6w">
-          <h2 className="fr-h1 mb-0! md:mb-3!">
-            Des histoires vraies qui donnent <Highlight className="bg-green-emeraude-925">envie d'agir</Highlight>
-          </h2>
-          <p className="fr-text--lead text-default-grey mx-auto max-w-5xl! fr-mb-0 text-center hidden! md:block!">
-            Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre la mission qui
-            correspond à <strong>ce qui t'anime</strong>.
-          </p>
-        </div>
+    <section className="fr-container overflow-x-clip p-0!">
+      <div className="bg-brown-cafe-creme-975 flex-col items-center gap-6 p-6 md:gap-6 md:px-6 lg:gap-8 lg:px-8 lg:py-20">
+        <h2 className="fr-h2">
+          Des histoires vraies qui donnent <Highlight className="bg-green-emeraude-925">envie d'agir</Highlight>
+        </h2>
+        <p className="fr-text--sm md:fr-text--lead text-default-grey mx-auto fr-mb-0 text-left lg:text-center">
+          Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre la mission qui
+          correspond à <strong>ce qui t'anime</strong>.
+        </p>
 
         <Carousel
           label="Témoignages d'engagés"
           previousLabel="Voir les témoignages précédents"
           nextLabel="Voir les témoignages suivants"
-          listClassName="-ml-32! scroll-pl-32! pl-32! mr-[calc(50%-50vw)]!"
-          itemClassName="w-[80vw] max-w-[330px] md:w-[330px]"
+          listClassName="mx-[calc(50%-50vw)]! px-[10vw]! scroll-px-[10vw]! md:-ml-32! md:pr-4! md:pl-32! md:scroll-pr-4! md:scroll-pl-32!"
+          itemClassName="w-[80vw] md:w-[330px]"
           action={
             <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary w-full! justify-center md:w-auto!">
               Trouver ma mission
