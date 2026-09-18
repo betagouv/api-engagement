@@ -15,7 +15,7 @@ interface HeroProps {
 
 export default function Hero({ onStartQuiz }: HeroProps) {
   return (
-    // Sous `lg`, le collage remonte de 184px derrière le texte (`z-10`) : il passe sous les tuiles et le bouton
+    // Sous `lg`, le collage remonte de 98rem derrière le texte (`z-10`) : il passe sous les tuiles et le bouton
     // comme sur la maquette. Un décalage fixe, et non proportionnel, pour que le recouvrement reste le même
     // quelle que soit la largeur — le collage grandit avec l'écran alors que le texte, lui, raccourcit.
     // À partir de `lg`, texte et collage partagent la même cellule de grille : le collage se cale à droite
@@ -49,7 +49,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
         </div>
       </div>
 
-      <div className="-mt-46 w-full lg:col-start-1 lg:row-start-1 lg:mt-0 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
+      <div className="-mt-98 w-full lg:col-start-1 lg:row-start-1 lg:mt-0 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
         <img src={HeroBackgroundPng} alt="" aria-hidden="true" className="w-full" />
       </div>
     </section>

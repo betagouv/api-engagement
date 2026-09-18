@@ -6,16 +6,15 @@ import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
 
 type Props = {
   missions: MissionBrowse[];
-  className?: string;
 };
 
 const CARD_CLASS = "bg-background border-border-default-grey flex h-full w-full overflow-hidden border shadow-lg";
 
-export default function MissionExamples({ missions, className }: Props) {
+export default function MissionExamples({ missions }: Props) {
   if (!missions?.length) return null;
 
   return (
-    <section className={`fr-pb-4w relative z-10 ${className}`}>
+    <section className="relative z-10 pt-4 md:pt-8" aria-label="Exemples de missions d'engagement">
       {/* RGAA 9.1 : titre de section masqué — les titres de cartes sont des <h3>, sans saut depuis le h1 du hero. */}
       <h2 className="fr-sr-only">Exemples de missions d'engagement</h2>
       <div className="fr-container">

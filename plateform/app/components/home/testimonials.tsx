@@ -90,12 +90,12 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
   // `10vw` de part et d'autre laisse exactement la même amorce des deux côtés d'une carte en `80vw`.
   // À partir de `md`, on revient au calage à gauche sur le conteneur avec débord à droite.
   return (
-    <section className="fr-container overflow-x-clip p-0!">
+    <section className="fr-container p-0!">
       <div className="bg-brown-cafe-creme-975 flex-col items-center gap-6 p-6 md:gap-6 md:px-6 lg:gap-8 lg:px-8 lg:py-20">
-        <h2 className="fr-h2">
+        <h2 className="fr-h2 text-center">
           Des histoires vraies qui donnent <Highlight className="bg-green-emeraude-925">envie d'agir</Highlight>
         </h2>
-        <p className="fr-text--sm md:fr-text--lead text-default-grey mx-auto fr-mb-0 text-left lg:text-center">
+        <p className="text-sm leading-6 md:text-xl! md:leading-8! text-default-grey mx-auto fr-mb-0 text-left lg:text-center">
           Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre la mission qui
           correspond à <strong>ce qui t'anime</strong>.
         </p>

@@ -43,7 +43,7 @@ export default function About() {
       <div className="grid flex-1 mt-2! md:mt-0! grid-cols-1 gap-8 sm:grid-cols-2">
         {BENEFITS.map((benefit) => (
           <div key={benefit.title} className="flex items-start gap-2 sm:flex-col">
-            <div className="bg-blue-ecume-975 flex size-12 shrink-0 items-center justify-center rounded-3xl">
+            <div className="bg-blue-ecume-975 dark:bg-white flex size-12 shrink-0 items-center justify-center rounded-3xl">
               <img src={benefit.icon} alt="" className="size-8" aria-hidden="true" />
             </div>
             <div className="flex flex-col sm:gap-2">

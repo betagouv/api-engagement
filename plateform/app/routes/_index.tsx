@@ -11,7 +11,8 @@ import HowItWorks from "~/components/home/how-it-works";
 import MissionExamples from "~/components/home/mission-examples";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
-import Partners, { type Partner } from "~/components/layout/partners";
+import Partners from "~/components/home/partners";
+import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
 import { trackPageViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
@@ -116,7 +117,7 @@ export default function Landing() {
   return (
     <main id="contenu" tabIndex={-1}>
       <Hero onStartQuiz={handleStartQuiz} />
-      <MissionExamples missions={examples} className="fr-pt-6w" />
+      <MissionExamples missions={examples} />
       <HowItWorks onStartQuiz={handleStartQuiz} />
       <Testimonials onStartQuiz={handleStartQuiz} />
       <About />
@@ -126,7 +127,7 @@ export default function Landing() {
         ctaText="Je m'inscris"
         hintText="1 email. Pas de spam. Tu te désinscris quand tu veux."
       />
-      <Partners style="carousel" partners={PARTNERS} title="Toutes les missions d'engagement vérifiées par l'État" />
+      <Partners partners={PARTNERS} title="Toutes les missions d'engagement vérifiées par l'État" />
     </main>
   );
 }
