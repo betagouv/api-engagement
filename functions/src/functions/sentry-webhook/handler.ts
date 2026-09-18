@@ -6,11 +6,13 @@
 //  - plugin legacy WebHooks (champs à la racine + event) : https://develop.sentry.dev/integrations/webhooks/
 //  - intégration Sentry / Sentry App, alerte "issue alert" (tout est sous data.event) :
 //    https://docs.sentry.io/organization/integrations/integration-platform/webhooks/issue-alerts/
+import { createHmac, timingSafeEqual } from "node:crypto";
+
 type FunctionEvent = {
   httpMethod: string;
   body?: string;
   isBase64Encoded?: boolean;
-  queryStringParameters?: Record<string, string | undefined>;
+  headers?: Record<string, string | undefined>;
 };
 
 type SentryEvent = {
@@ -74,15 +76,25 @@ export const handle = async (event: FunctionEvent) => {
     return json({ error: "Method not allowed" }, 405);
   }
 
-  // Sentry ne permet de configurer qu'une url, sans en-tête : le token partagé est donc passé en
-  // query (`?token=...`). Tant que WEBHOOK_TOKEN est vide, la vérification est désactivée.
-  const expectedToken = process.env.WEBHOOK_TOKEN || "";
-  if (expectedToken !== "" && event.queryStringParameters?.token !== expectedToken) {
-    console.warn(`${LOG_PREFIX} requête rejetée: token absent ou invalide`);
-    return json({ error: "Unauthorized" }, 401);
+  // L'intégration Sentry signe chaque requête : l'en-tête Sentry-Hook-Signature contient le HMAC
+  // SHA256 du body brut, calculé avec le Client Secret de la Custom Integration. La signature porte
+  // sur les octets reçus : elle se vérifie avant tout parsing. Tant que SENTRY_CLIENT_SECRET est
+  // vide, la vérification est désactivée (le plugin legacy, lui, ne signe rien).
+  const rawBody = Buffer.from(event.body ?? "", event.isBase64Encoded ? "base64" : "utf8");
+  const raw = rawBody.toString();
+
+  const clientSecret = process.env.SENTRY_CLIENT_SECRET || "";
+  console.log(event.headers);
+
+  if (clientSecret !== "") {
+    const signature = Object.entries(event.headers ?? {}).find(([key]) => key.toLowerCase() === "sentry-hook-signature")?.[1] ?? "";
+    const expected = createHmac("sha256", clientSecret).update(rawBody).digest("hex");
+    if (signature.length !== expected.length || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      console.warn(`${LOG_PREFIX} requête rejetée: signature ${signature === "" ? "absente" : "invalide"} (body: ${rawBody.length} octets)`);
+      return json({ error: "Unauthorized" }, 401);
+    }
   }
 
-  const raw = event.isBase64Encoded ? Buffer.from(event.body ?? "", "base64").toString() : (event.body ?? "");
   let payload: SentryWebhookPayload;
   try {
     payload = JSON.parse(raw) ?? {};
@@ -97,8 +109,8 @@ export const handle = async (event: FunctionEvent) => {
     return json({ error: "Not a Sentry payload" }, 400);
   }
 
-  // Le plugin legacy n'apporte aucune preuve d'origine (contrairement à l'intégration Sentry et son
-  // en-tête Sentry-Hook-Signature) : on vérifie donc que les liens du payload sont ceux de notre instance.
+  // Filet pour le plugin legacy, qui ne signe rien : on vérifie que les liens du payload pointent
+  // vers notre instance. Ça n'authentifie pas l'expéditeur, seule la signature le fait.
   const payloadUrls = [payload.url, sentryEvent.web_url, sentryEvent.url];
   if (!payloadUrls.some((url) => url?.startsWith(SENTRY_URL))) {
     console.warn(`${LOG_PREFIX} requête rejetée: aucun lien vers ${SENTRY_URL} (urls: ${payloadUrls.filter(Boolean).join(", ") || "aucune"})`);
