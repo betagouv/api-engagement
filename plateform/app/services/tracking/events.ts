@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionMatchItem } from "@engagement/dto";
+import type { MissionBrowse, MissionDetailResponse, MissionMatchItem } from "@engagement/dto";
 import { resolveTrancheAgeValues } from "@engagement/taxonomy";
 
 import { QUIZ_FLOW_VERSION, type StepId } from "~/config/quiz-flow";
@@ -8,6 +8,7 @@ import type { BetaBannerSource } from "~/utils/beta-banner";
 import { track } from "./index";
 import type {
   CtaDestination,
+  CtaPageName,
   CtaSection,
   EmailMissionDetailEntrySource,
   EmailMissionsEntryPage,
@@ -77,7 +78,7 @@ export function trackPageViewed(params: { pageName: PageViewedPageName; activeFi
 
 // `cta.clicked` (feature_usage) : clic sur un CTA d'une landing. `cta_destination` est la propriété clé
 // de comparaison ; `cta_label` isole l'effet du wording, `destination_path` vérifie l'URL réellement visée.
-export function trackCtaClicked(params: { pageName: LandingName; ctaSection: CtaSection; ctaLabel: string; ctaDestination: CtaDestination; destinationPath: string }): void {
+export function trackCtaClicked(params: { pageName: CtaPageName; ctaSection: CtaSection; ctaLabel: string; ctaDestination: CtaDestination; destinationPath: string }): void {
   track("cta.clicked", {
     page_name: params.pageName,
     cta_section: params.ctaSection,
@@ -148,6 +149,25 @@ export function trackMissionClickedFromBrowse(
     opens_external: context.opensExternal,
     distance_km: null,
     entry_page: context.entryPage,
+  });
+}
+
+// Clic sur le CTA "Découvrir la mission" de la fiche détail : redirige vers le site annonceur
+// (`opens_external: true`). `section`/`entry_page` = "mission_detail" pour distinguer ce clic de ceux
+// des cartes de la liste /missions.
+export function trackMissionClickedFromDetail(mission: MissionDetailResponse): void {
+  trackMissionClicked({
+    mission_id: mission.id,
+    publisher_id: mission.publisherId ?? "",
+    publisher_name: mission.publisherName ?? "",
+    section: "mission_detail",
+    rank: null,
+    page_number: null,
+    mission_domain: mission.domain,
+    mission_type: mission.type,
+    opens_external: true,
+    distance_km: null,
+    entry_page: "mission_detail",
   });
 }
 

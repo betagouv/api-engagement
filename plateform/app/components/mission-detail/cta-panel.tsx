@@ -1,6 +1,7 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import type { ReactNode } from "react";
 import EmailMissionModal from "~/components/mission-detail/email-mission-details-modal";
+import { trackMissionClickedFromDetail } from "~/services/tracking/events";
 import { buildMissionApplicationHref, formatCompensation, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
@@ -57,7 +58,14 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
       <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:mx-0!" />
 
       <div className="flex flex-col gap-3">
-        <a href={applicationHref} target="_blank" rel="noopener noreferrer" title="Découvrir la mission - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
+        <a
+          href={applicationHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Découvrir la mission - nouvelle fenêtre"
+          className="fr-btn w-full! justify-center!"
+          onClick={() => trackMissionClickedFromDetail(mission)}
+        >
           Découvrir la mission
         </a>
 

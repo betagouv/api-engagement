@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const tracking = vi.hoisted(() => ({ initTracking: vi.fn(), setTrackingConsentStatus: vi.fn() }));
 
-vi.mock("~/services/config", () => ({ POSTHOG_KEY: "phc_test", TRACKING_PROVIDER: "posthog", CRISP_WEBSITE_ID: undefined }));
+vi.mock("~/services/config", () => ({ POSTHOG_KEY: "phc_test", TRACKING_PROVIDER: "posthog", CRISP_WEBSITE_ID: undefined, GTM_CONTAINER_ID: undefined }));
 vi.mock("~/services/tracking", () => tracking);
 
 import { getCookieConsentPreferences, parseCookieConsent, saveCookieConsent } from "../cookie-consent";
