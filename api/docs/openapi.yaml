@@ -883,6 +883,136 @@ paths:
   # ────────────────────────────────────────────────────────────────────────────
 
   /v2/mission:
+    get:
+      summary: Lister les missions diffusées
+      description: |
+        Retourne les missions accessibles à votre clé API au format v2, avec les mêmes
+        filtres que GET /v0/mission. L'ordre est croissant sur l'identifiant de mission.
+        Pour continuer, transmettez `nextCursor` dans le paramètre `cursor` en conservant
+        les mêmes filtres. `nextCursor` vaut null quand la liste est terminée.
+        La pagination ne calcule pas le nombre total de missions.
+        Les paramètres `skip` et `from` ne sont pas acceptés.
+      operationId: listMissionsV2
+      tags: [Missions]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+          description: Nombre maximal de missions par page
+        - name: cursor
+          in: query
+          schema: { type: string }
+          description: Valeur nextCursor renvoyée par la page précédente
+        - name: keywords
+          in: query
+          schema: { type: string }
+          description: Recherche dans le titre, le nom d'organisation, la ville et le domaine
+        - name: activity
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: city
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: clientId
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: country
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: departmentName
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: domain
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: publisher
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: organizationRNA
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: organizationStatusJuridique
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: remote
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: type
+          in: query
+          schema:
+            type: array
+            items: { type: string, enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle] }
+          style: form
+          explode: true
+        - name: openToMinors
+          in: query
+          schema: { type: string, enum: ["true", "false", "yes", "no", "1", "0"] }
+        - name: reducedMobilityAccessible
+          in: query
+          schema: { type: string, enum: ["true", "false", "yes", "no", "1", "0"] }
+        - name: snu
+          in: query
+          schema: { type: string, enum: ["true", "false"] }
+        - name: startAt
+          in: query
+          schema: { type: string }
+          description: Filtre de date, par exemple gt:2026-01-01 ou lt:2027-01-01
+        - name: createdAt
+          in: query
+          schema: { type: string }
+          description: Filtre de date, par exemple gt:2026-01-01 ou lt:2027-01-01
+        - name: lat
+          in: query
+          schema: { type: number }
+          description: Latitude, à fournir avec lon
+        - name: lon
+          in: query
+          schema: { type: number }
+          description: Longitude, à fournir avec lat
+        - name: distance
+          in: query
+          schema: { type: string }
+          description: Rayon de recherche géographique, 50km par défaut
+      responses:
+        "200":
+          description: Page de missions au format v2
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, data, limit, nextCursor, hasMore]
+                properties:
+                  ok: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/MissionV2" }
+                  limit: { type: integer, example: 25 }
+                  nextCursor: { type: string, nullable: true }
+                  hasMore: { type: boolean }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     post:
       summary: Créer une mission
       description: |
