@@ -196,9 +196,27 @@ model User {
   userPublishers        UserPublisher[]
   campaignsReassignedBy Campaign[]      @relation("CampaignReassignedByUserRelation")
   loginHistory          LoginHistory[]
+  mfaChallenges         MfaChallenge[]
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
+}
+
+model MfaChallenge {
+  id           String    @id @default(uuid())
+  userId       String    @map("user_id")
+  codeHash     String    @map("code_hash")
+  expiresAt    DateTime  @map("expires_at")
+  attemptCount Int       @default(0) @map("attempt_count")
+  resendAfter  DateTime? @map("resend_after")
+  consumedAt   DateTime? @map("consumed_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "mfa_challenge_user_id_idx")
+  @@map("mfa_challenge")
 }
 
 model LoginHistory {

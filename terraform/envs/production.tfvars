@@ -39,6 +39,7 @@ enable_analytics_jobs = true
 enable_rdb_backup_job = true
 enable_typesense      = true
 enable_public_gateway = true
+enable_mfa            = true
 
 enable_plateform   = true
 plateform_hostname = "plateforme.api-engagement.beta.gouv.fr"

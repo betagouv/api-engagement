@@ -8,6 +8,7 @@ export const TEMPLATE_IDS = {
   INVITATION: 1,
   FORGOT_PASSWORD: 5,
   MISSION_MATCHING_RESULTS: 27,
+  MFA_CODE: 28,
 };
 
 const buildEmailBody = (templateId: number, options: EmailOptions): EmailBody => {

@@ -160,7 +160,7 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
 
 export const userService = {
   /**
-   * Retire les champs sensibles (`password`, `invitationToken`, `forgotPasswordToken`, `forgotPasswordExpiresAt`)
+   * Retire les champs sensibles (`password`, tokens d'invitation, mot de passe oublié)
    * d'un record : à utiliser pour toute réponse HTTP contenant un user.
    */
   toPublicUser(user: UserRecord): PublicUserRecord {

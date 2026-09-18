@@ -44,7 +44,9 @@ class APIHandler {
         body: JSON.stringify(data),
         credentials: "include",
       });
-      if (response.status === 401) {
+      // skipAuthRedirect : pour les endpoints pré-authentification (ex. MFA), un 401 ne doit pas
+      // déconnecter/rediriger mais être traité par l'appelant (code erroné, session challenge expirée).
+      if (response.status === 401 && !options.skipAuthRedirect) {
         return this.logout();
       }
       const res = await response.json();

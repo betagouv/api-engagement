@@ -38,6 +38,7 @@ enable_intern_jobs    = true
 enable_analytics_jobs = true
 enable_typesense      = true
 enable_public_gateway = true
+enable_mfa            = true
 
 private_network_cidr = "10.41.0.0/22"
 
