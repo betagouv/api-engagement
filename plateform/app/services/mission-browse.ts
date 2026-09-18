@@ -12,8 +12,8 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   if (filters.pageSize) params.set("pageSize", String(filters.pageSize));
   appendMulti(params, "publisherId", filters.publisherId);
   appendMulti(params, "departmentCode", filters.departmentCode);
-  appendMulti(params, "domaine", filters.domaine);
-  appendMulti(params, "secteur_activite", filters.secteur_activite);
+  appendMulti(params, "domaine_engagement", filters.domaine_engagement);
+  appendMulti(params, "activite", filters.activite);
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
   appendMulti(params, "dispositif", filters.dispositif);

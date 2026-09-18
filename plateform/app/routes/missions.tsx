@@ -20,7 +20,8 @@ import type { Route } from "./+types/missions";
 
 const PAGE_SIZE = 9;
 
-const FILTER_KEYS = ["departmentCode", "dispositif", "tranche_age", "type_mission", "secteur_activite", "domaine"] as const satisfies readonly (keyof MissionBrowseFilters)[];
+// La clé d'un filtre est aussi sa clé de taxonomie, son param d'URL et sa facette API.
+const FILTER_KEYS = ["departmentCode", "dispositif", "tranche_age", "type_mission", "activite", "domaine_engagement"] as const satisfies readonly (keyof MissionBrowseFilters)[];
 const SINGLE_FILTER_KEYS = new Set<FilterKey>(["tranche_age"]);
 
 type FilterKey = (typeof FILTER_KEYS)[number];
@@ -31,8 +32,8 @@ const FILTER_TYPE_BY_KEY: Record<FilterKey, MissionsFilterType> = {
   dispositif: "dispositif",
   tranche_age: "tranche_age",
   type_mission: "type_mission",
-  secteur_activite: "secteur_activite",
-  domaine: "domaine",
+  activite: "activite",
+  domaine_engagement: "domaine_engagement",
 };
 type BrowseParams = MissionBrowseFilters;
 type TaxonomyFilterValue = { label: string; hidden?: boolean };
@@ -108,8 +109,8 @@ export default function MissionsPage() {
     if (filterValues.dispositif.length) browseInput.dispositif = filterValues.dispositif;
     if (filterValues.tranche_age.length) browseInput.tranche_age = filterValues.tranche_age;
     if (filterValues.type_mission.length) browseInput.type_mission = filterValues.type_mission;
-    if (filterValues.secteur_activite.length) browseInput.secteur_activite = filterValues.secteur_activite;
-    if (filterValues.domaine.length) browseInput.domaine = filterValues.domaine;
+    if (filterValues.activite.length) browseInput.activite = filterValues.activite;
+    if (filterValues.domaine_engagement.length) browseInput.domaine_engagement = filterValues.domaine_engagement;
 
     browseMissions(browseInput, controller.signal)
       .then((res) => {
@@ -159,18 +160,18 @@ export default function MissionsPage() {
       options: buildTaxonomyFilterOptions("type_mission", facets.type_mission),
     },
     {
-      key: "secteur_activite",
+      key: "activite",
       label: "Activité",
       placeholder: "Toutes",
-      selected: filterValues.secteur_activite,
-      options: buildTaxonomyFilterOptions("secteur_activite", facets.secteur_activite),
+      selected: filterValues.activite,
+      options: buildTaxonomyFilterOptions("activite", facets.activite),
     },
     {
-      key: "domaine",
+      key: "domaine_engagement",
       label: "Domaine",
       placeholder: "Tous",
-      selected: filterValues.domaine,
-      options: buildTaxonomyFilterOptions("domaine", facets.domaine),
+      selected: filterValues.domaine_engagement,
+      options: buildTaxonomyFilterOptions("domaine_engagement", facets.domaine_engagement),
     },
     {
       key: "dispositif",
