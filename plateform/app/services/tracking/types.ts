@@ -107,7 +107,7 @@ export type MissionDetailEntrySource = "results_list" | "results_map" | "mission
 export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number; backTo?: string };
 
 // --- missions_filter.applied ---
-export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
+export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "activite" | "domaine_engagement";
 
 // --- emails ---
 // Provenance de la fiche depuis laquelle l'email d'une mission est envoyé. `results_card` : CTA email

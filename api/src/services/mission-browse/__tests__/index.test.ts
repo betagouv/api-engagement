@@ -76,7 +76,7 @@ describe("missionBrowseService.browse", () => {
     await missionBrowseService.browse(baseParams);
 
     expect(facetSearch("departmentCodes").max_facet_values).toBe(120);
-    expect(facetSearch("domaine").max_facet_values).toBe(100);
+    expect(facetSearch("domaine_engagement").max_facet_values).toBe(100);
   });
 
   it("combine le publisher demandé avec le filtre de diffusion sans faire confiance au paramètre", async () => {
@@ -89,17 +89,17 @@ describe("missionBrowseService.browse", () => {
     await missionBrowseService.browse({
       ...baseParams,
       type_mission: ["benevolat", "volontariat"], // 2 valeurs du même groupe
-      secteur_activite: ["sante"], // un autre groupe
+      activite: ["sante"], // un autre groupe
     });
 
-    // Les parts suivent l'ordre de INDEXED_TAXONOMY_KEYS : secteur_activite avant type_mission.
-    const allGroups = `${DIFFUSION} && secteur_activite:=[\`sante\`] && type_mission:=[\`benevolat\`,\`volontariat\`]`;
+    // Les parts suivent l'ordre de INDEXED_TAXONOMY_KEYS : activite avant type_mission.
+    const allGroups = `${DIFFUSION} && activite:=[\`sante\`] && type_mission:=[\`benevolat\`,\`volontariat\`]`;
     // La facette type_mission ignore SA sélection mais garde diffusion + l'autre groupe.
-    expect(facetSearch("type_mission").filter_by).toBe(`${DIFFUSION} && secteur_activite:=[\`sante\`]`);
-    // La facette secteur_activite ignore SA sélection mais garde diffusion + type_mission.
-    expect(facetSearch("secteur_activite").filter_by).toBe(`${DIFFUSION} && type_mission:=[\`benevolat\`,\`volontariat\`]`);
+    expect(facetSearch("type_mission").filter_by).toBe(`${DIFFUSION} && activite:=[\`sante\`]`);
+    // La facette activite ignore SA sélection mais garde diffusion + type_mission.
+    expect(facetSearch("activite").filter_by).toBe(`${DIFFUSION} && type_mission:=[\`benevolat\`,\`volontariat\`]`);
     // Une facette d'un groupe non sélectionné garde tous les filtres.
-    expect(facetSearch("domaine").filter_by).toBe(allGroups);
+    expect(facetSearch("domaine_engagement").filter_by).toBe(allGroups);
     // La requête résultats applique tous les filtres.
     expect(resultsSearch().filter_by).toBe(allGroups);
   });

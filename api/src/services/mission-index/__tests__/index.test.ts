@@ -57,7 +57,7 @@ const buildMission = (overrides: Record<string, unknown> = {}) => ({
   moderationStatuses: [{ publisherId: "moderateur-1" }],
   missionScorings: [
     {
-      missionScoringValues: [{ taxonomyKey: "domaine", valueKey: "social_solidarite" }],
+      missionScoringValues: [{ taxonomyKey: "domaine_engagement", valueKey: "solidarite_inclusion" }],
     },
   ],
   ...overrides,
@@ -97,7 +97,7 @@ describe("missionIndexService.upsert", () => {
         mission_domain: "Environnement",
         departmentCodes: ["75"],
         distributionPublisherIds: ["diffuser-1", "diffuser-2"],
-        domaine: ["social_solidarite"],
+        domaine_engagement: ["solidarite_inclusion"],
       })
     );
     expect(deleteDocumentMock).not.toHaveBeenCalled();
@@ -115,8 +115,8 @@ describe("missionIndexService.upsert", () => {
           },
           {
             missionScoringValues: [
-              { taxonomyKey: "domaine", valueKey: "social_solidarite" },
-              { taxonomyKey: "secteur_activite", valueKey: "sante_social_aide_personne" },
+              { taxonomyKey: "domaine_engagement", valueKey: "solidarite_inclusion" },
+              { taxonomyKey: "activite", valueKey: "aider_accompagner" },
               { taxonomyKey: "tranche_age", valueKey: "moins_18_ans" },
             ],
           },
@@ -129,8 +129,8 @@ describe("missionIndexService.upsert", () => {
 
     expect(upsertDocumentMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        domaine: ["social_solidarite"],
-        secteur_activite: ["sante_social_aide_personne"],
+        domaine_engagement: ["solidarite_inclusion"],
+        activite: ["aider_accompagner"],
         tranche_age: ["entre_18_25_ans"],
         dispositif: ["service_civique"],
       })
@@ -146,13 +146,13 @@ describe("missionIndexService.upsert", () => {
           {
             missionEnrichment: { promptVersion: "v_precalcul" },
             missionScoringValues: [
-              { taxonomyKey: "domaine", valueKey: "sport" },
-              { taxonomyKey: "secteur_activite", valueKey: "sante_social_aide_personne" },
+              { taxonomyKey: "domaine_engagement", valueKey: "sport" },
+              { taxonomyKey: "activite", valueKey: "aider_accompagner" },
             ],
           },
           {
             missionEnrichment: { promptVersion: CURRENT_PROMPT_VERSION },
-            missionScoringValues: [{ taxonomyKey: "domaine", valueKey: "social_solidarite" }],
+            missionScoringValues: [{ taxonomyKey: "domaine_engagement", valueKey: "solidarite_inclusion" }],
           },
         ],
       })
@@ -163,10 +163,10 @@ describe("missionIndexService.upsert", () => {
 
     expect(upsertDocumentMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        // `domaine` vient de la version active (repli écarté), `secteur_activite` retombe sur le
+        // `domaine_engagement` vient de la version active (repli écarté), `activite` retombe sur le
         // scoring précalculé qui est le seul à la renseigner.
-        domaine: ["social_solidarite"],
-        secteur_activite: ["sante_social_aide_personne"],
+        domaine_engagement: ["solidarite_inclusion"],
+        activite: ["aider_accompagner"],
       })
     );
   });

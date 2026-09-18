@@ -25,9 +25,9 @@ import type { Route } from "./+types/defis-engagement";
 // et environnement), un service civique sportif et la réserve de la Gendarmerie. Un créneau sans résultat
 // est simplement absent du carrousel.
 const MISSION_SLOTS: MissionBrowseFilters[] = [
-  { dispositif: "benevolat", domaine: "social_solidarite", tranche_age: "moins_18_ans" },
-  { dispositif: "service_civique", domaine: "sport_animation", tranche_age: "moins_18_ans" },
-  { dispositif: "benevolat", domaine: "environnement_nature", tranche_age: "moins_18_ans" },
+  { dispositif: "benevolat", domaine_engagement: "solidarite_inclusion", tranche_age: "moins_18_ans" },
+  { dispositif: "service_civique", domaine_engagement: "sport", tranche_age: "moins_18_ans" },
+  { dispositif: "benevolat", domaine_engagement: "environnement_animaux", tranche_age: "moins_18_ans" },
   { dispositif: "reserve_gendarmerie" },
 ];
 
