@@ -23,6 +23,10 @@ Le résultat du service peut être l'un des suivants : `sent`, `skipped`, `faile
 - **404 Not Found** : Scoring utilisateur introuvable.
 - **502 Bad Gateway** : Échec de l'envoi de l'email.
 
+### Comportement en cas d'absence de résultat de matching
+
+Lorsqu'aucun résultat de matching n'est trouvé pour un `userScoringId` donné, la fonction `buildMissionMatchingEmailParams` retourne `null`. Dans ce cas, l'envoi de l'email est ignoré et le statut `skipped` est retourné avec la raison `NO_MATCHING_RESULT`.
+
 ## Newsletter
 
 L'inscription à la newsletter est gérée via l'endpoint `/api/newsletter`. Seuls les publishers associés à une liste configurée sont autorisés à inscrire des adresses email.
