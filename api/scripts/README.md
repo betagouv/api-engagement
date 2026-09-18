@@ -17,6 +17,22 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Liste des scripts
 
+- **compare-mission-v0-v2.mjs**
+
+  - Exécution depuis `api/` :
+
+    ```bash
+    API_ENGAGEMENT_BASE_URL="https://api.example.fr" \
+    API_ENGAGEMENT_API_KEY="<clé API du diffuseur>" \
+    node scripts/compare-mission-v0-v2.mjs --publisher-id "<id de l'annonceur>"
+    ```
+
+  - Compare les **identifiants des missions diffusées** par cet annonceur et accessibles avec la clé du diffuseur. Les réponses v0 et v2 ont des formats de champs différents : ce script ne compare pas leurs contenus champ par champ.
+  - La v2 est parcourue par curseur. La v0 est interrogée par lots de `clientId`, toujours avec `skip=0`. Un seul `COUNT` global v0 est nécessaire pour détecter des missions uniquement présentes en v0 ; l'exécuter de préférence hors période de charge. Le script ne déclenche aucun grand `OFFSET`.
+  - Options : `--page-size` (1 à 100, défaut 100), `--batch-size` (1 à 100, défaut 25), `--delay-ms` (défaut 250), `--max-missions` (défaut 10 000). Si la limite de missions est dépassée ou si une réponse est incohérente, la comparaison s'arrête sans annoncer une égalité.
+  - Codes de sortie : `0` si identiques, `1` si différents, `2` si la comparaison est impossible. Une modification des missions pendant l'exécution peut produire une différence temporaire ; relancer dans ce cas sur un jeu de données stable.
+
+
 - **backfill-publisher-organizations.ts**
 
   - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`
