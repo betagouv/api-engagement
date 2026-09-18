@@ -18,6 +18,7 @@
   --color-beige-gris-galet: var(--beige-gris-galet-925-125);
   /* Text */
   --color-title-grey: var(--text-title-grey);
+  --color-default-grey: var(--text-default-grey);
   --color-mention-grey: var(--text-mention-grey);
   --color-inverted-blue-france: var(--text-inverted-blue-france);
   --color-error: var(--text-default-error);
@@ -41,10 +42,18 @@
   --color-blue-france-975: var(--blue-france-975-75);
   --color-beige-gris-galet-975: var(--beige-gris-galet-975-75); /* #F9F6F2 */
   --color-yellow-tournesol-925: var(--yellow-tournesol-925-125);
+  --color-yellow-tournesol-950: var(--yellow-tournesol-950-100);
   --color-yellow-moutarde-975: var(--yellow-moutarde-925-125);
   --color-yellow-moutarde-850: var(--yellow-moutarde-850-200);
+  --color-brown-cafe-creme-975: var(--brown-cafe-creme-975-75); /* #FBF6ED */
+  --color-brown-caramel-950: var(--brown-caramel-950-100);
+  --color-green-bourgeon-975: var(--green-bourgeon-975-75);
+  --color-green-emeraude-925: var(--green-emeraude-925-125);
+  --color-pink-tuile-950: var(--pink-tuile-950-100);
+  --color-blue-ecume-975: var(--blue-ecume-975-75);
 
   --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.05);
+  --shadow-tile: 0px 4px 14px 0px #0000001c;
 }
 
 .header-shadow {
