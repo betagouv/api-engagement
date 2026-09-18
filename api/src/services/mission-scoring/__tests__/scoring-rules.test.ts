@@ -149,7 +149,7 @@ describe("getMissionScoringRuleKeys — élargissement thématique des dispositi
     expect(keys).toContain("motivation_recherche.decouverte_metier");
     expect(keys).toContain("activite.fabriquer_reparer_terrain");
     expect(keys).toContain("activite.organiser_coordonner");
-    // Ces valeurs sont réservées à la gendarmerie / police (ciblage publisher), pas au type seul.
+    // Ces valeurs sont ajoutées selon le publisher, pas au type seul.
     expect(keys).not.toContain("domaine_engagement.sport");
     expect(keys).not.toContain("domaine_engagement.securite_secours");
     expect(keys).not.toContain("domaine_engagement.citoyennete");
@@ -186,12 +186,19 @@ describe("getMissionScoringRuleKeys — élargissement thématique des dispositi
     expect(keys).toContain("dispositif.reserve_police_nationale");
   });
 
-  it("déduit le dispositif Réserves des armées du publisher ROC (sans Citoyenneté, réservée gendarmerie/police)", () => {
+  it("déduit le dispositif Réserves des armées du publisher ROC avec ses signaux thématiques", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.ROC, type: "volontariat_reserve_operationnelle" }));
 
-    expect(keys).toContain("dispositif.reserve_armees");
-    expect(keys).toContain("motivation_recherche.decouverte_metier");
-    expect(keys).not.toContain("domaine_engagement.citoyennete");
+    expect(keys).toEqual(
+      expect.arrayContaining([
+        "dispositif.reserve_armees",
+        "motivation_recherche.decouverte_metier",
+        "domaine_engagement.sport",
+        "domaine_engagement.securite_secours",
+        "domaine_engagement.citoyennete",
+        "activite.secourir_proteger",
+      ])
+    );
   });
 });
 
