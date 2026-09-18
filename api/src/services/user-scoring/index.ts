@@ -1,7 +1,8 @@
 import type { UserScoringCreateResponse, UserScoringUpdateResponse } from "@engagement/dto";
-import { isNeutralTaxonomyValueKey, TAXONOMY } from "@engagement/taxonomy";
+import { isNeutralTaxonomyValueKey, parseTaxonomyValueKey, TAXONOMY } from "@engagement/taxonomy";
 
 import { userScoringRepository } from "@/repositories/user-scoring";
+import { getUserScoringRuleKeys } from "@/services/user-scoring/scoring-rules";
 
 type UserScoringAnswerInput = {
   taxonomy: string;
@@ -108,13 +109,20 @@ const resolveAnswer = (answer: UserScoringAnswerInput): ResolvedAnswer => {
 };
 
 const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
-  const seen = new Set<string>();
-  const uniquePairs: Array<{ taxonomyKey: string; valueKey: string }> = [];
+  const valuesByKey = new Map<string, { taxonomyKey: string; valueKey: string; score: number }>();
   let geo: UserScoringGeoInput | undefined;
   // Vrai dès qu'une réponse valide a été résolue (valeur — neutre incluse — ou géo). Sert à
   // distinguer un payload vide/illisible d'un payload légitime dont il ne reste aucune valeur
   // après filtrage des réponses neutres.
   let hasResolvedInput = false;
+
+  const addValue = (taxonomyKey: string, valueKey: string): void => {
+    const key = `${taxonomyKey}.${valueKey}`;
+    if (!valuesByKey.has(key)) {
+      valuesByKey.set(key, { taxonomyKey, valueKey, score: 1 });
+    }
+  };
+
   for (const answer of answers) {
     const resolvedAnswer = resolveAnswer(answer);
     if (resolvedAnswer.geo) {
@@ -133,11 +141,7 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
       if (isNeutralTaxonomyValueKey(answer.taxonomy, valueKey)) {
         continue;
       }
-      const key = `${answer.taxonomy}.${valueKey}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        uniquePairs.push({ taxonomyKey: answer.taxonomy, valueKey });
-      }
+      addValue(answer.taxonomy, valueKey);
     }
   }
 
@@ -148,12 +152,15 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
     throw new UserScoringAnswerValidationError("No taxonomy value resolved from answers");
   }
 
+  for (const key of getUserScoringRuleKeys([...valuesByKey.values()])) {
+    const parsedKey = parseTaxonomyValueKey(key);
+    if (parsedKey) {
+      addValue(parsedKey.taxonomyKey, parsedKey.valueKey);
+    }
+  }
+
   return {
-    values: uniquePairs.map(({ taxonomyKey, valueKey }) => ({
-      taxonomyKey,
-      valueKey,
-      score: 1.0,
-    })),
+    values: [...valuesByKey.values()],
     geo,
   };
 };

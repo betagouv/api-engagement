@@ -294,8 +294,7 @@
             { "value": "service_civique", "min": 1 },
             { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
             { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 0, "max": 0 },
-            { "value": "reserve_armees", "min": 1 }
+            { "value": "reserve_police_nationale", "min": 0, "max": 0 }
           ]
         },
         {
@@ -370,8 +369,7 @@
             { "value": "service_civique", "min": 1 },
             { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
             { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 1 },
-            { "value": "reserve_armees", "min": 1 }
+            { "value": "reserve_police_nationale", "min": 1 }
           ]
         },
         {
@@ -519,9 +517,7 @@
           "values": [
             { "value": "benevolat", "min": 1 },
             { "value": "service_civique", "min": 1 },
-            { "value": "sapeurs_pompiers", "min": 1 },
-            { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 1 }
+            { "value": "sapeurs_pompiers", "min": 1 }
           ]
         }
       ]
@@ -598,9 +594,7 @@
           "values": [
             { "value": "benevolat", "min": 1 },
             { "value": "service_civique", "min": 1 },
-            { "value": "sapeurs_pompiers", "min": 1 },
-            { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 1 }
+            { "value": "sapeurs_pompiers", "min": 1 }
           ]
         },
         {
@@ -932,7 +926,6 @@
           "taxonomy": "dispositif",
           "values": [
             { "value": "service_civique", "min": 1 },
-            { "value": "sapeurs_pompiers", "min": 1 },
             { "value": "reserve_gendarmerie", "min": 1 },
             { "value": "reserve_police_nationale", "min": 1 },
             { "value": "reserve_armees", "min": 1 }
