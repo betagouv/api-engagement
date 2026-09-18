@@ -27,7 +27,7 @@ Variables de la fonction :
 - `SLACK_TOKEN` (secrète) — token de l'app Slack, repris du Secret Manager du workspace (`staging-secret`, le même que l'api).
 - `SLACK_CHANNEL_ID_PRODUCTION` / `SLACK_CHANNEL_ID_STAGING` — ids des channels Slack, renseignés via `sentry_slack_channel_id_production` et `sentry_slack_channel_id_staging` dans `envs/staging.tfvars`.
 - `DEBUG_PAYLOAD` — `"true"` pour logguer le payload Sentry brut (voir _Débugger_), piloté par `sentry_webhook_debug_payload`.
-- `WEBHOOK_TOKEN` (secrète) — token partagé attendu en query de l'url (`?token=...`), repris de la clé `SENTRY_WEBHOOK_TOKEN` du Secret Manager du workspace. Vide tant que la clé n'existe pas : la vérification est alors désactivée (voir _Protection_).
+- `SENTRY_CLIENT_SECRET` (secrète) — Client Secret de la Custom Integration Sentry, repris de la clé du même nom dans le Secret Manager du workspace (`staging-secret`, le même que l'api). Vide tant que la clé n'existe pas : la vérification de signature est alors désactivée (voir _Protection_).
 
 L'app Slack doit être invitée dans les channels (`/invite @NomDeLApp`).
 
@@ -49,22 +49,21 @@ npm run typecheck
 
 La fonction est publique (Sentry doit pouvoir la joindre) et se fait donc scanner par des bots. Trois filtres, appliqués dans cet ordre avant tout appel à Slack, chacun loguant une seule ligne `requête rejetée: ...` :
 
-- **Token partagé** — quand `WEBHOOK_TOKEN` est renseigné, la fonction n'accepte que les requêtes dont l'url porte `?token=<valeur>` et répond `401` aux autres. C'est le secret qui authentifie l'expéditeur, et il marche pour les deux branchements.
+- **Signature Sentry** — quand `SENTRY_CLIENT_SECRET` est renseigné, la fonction recalcule le HMAC SHA256 du body brut avec ce secret et le compare à l'en-tête `Sentry-Hook-Signature` ; signature absente ou invalide, elle répond `401`. C'est le seul filtre qui authentifie l'expéditeur, mais il ne couvre que l'intégration Sentry : le plugin legacy ne signe rien.
 - **Forme du payload** — la requête doit être un `POST`, du JSON, et contenir un événement Sentry (`event` pour le plugin legacy, `data.event` pour l'intégration). Une sonde type `{"query": "..."}` est écartée là.
-- **Origine du payload** — au moins un des liens du payload (`url`, `event.web_url`, `event.url`) doit pointer vers `SENTRY_URL`, la constante en tête du handler (`https://sentry.incubateur.net`). Si l'instance Sentry change d'url, c'est la seule ligne à modifier — sinon les alertes sont rejetées en `403`.
+- **Origine du payload** — au moins un des liens du payload (`url`, `event.web_url`, `event.url`) doit avoir pour origine `SENTRY_URL`, la constante en tête du handler (`https://sentry.incubateur.net`) : l'url est parsée et son origine comparée à l'identique, un host qui commence pareil (`sentry.incubateur.net.exemple.com`) ne passe pas. Si l'instance Sentry change d'url, c'est la seule ligne à modifier — sinon les alertes sont rejetées en `403`.
 
-Les deux derniers filtres ne coûtent rien et couvrent la période où `WEBHOOK_TOKEN` n'est pas renseigné, mais ils n'authentifient pas l'expéditeur : un payload forgé qui reprend la bonne forme et les bonnes urls passerait. Seul le token protège vraiment.
+Les deux derniers filtres ne coûtent rien et couvrent la période où `SENTRY_CLIENT_SECRET` n'est pas renseigné (et le plugin legacy, qui ne peut pas signer), mais ils n'authentifient pas l'expéditeur : un payload forgé qui reprend la bonne forme et les bonnes urls passerait. Seule la signature protège vraiment.
 
-Pour activer le token :
+Pour activer la vérification :
 
-1. Générer une valeur : `openssl rand -hex 32`.
-2. L'ajouter sous la clé `SENTRY_WEBHOOK_TOKEN` dans le Secret Manager du workspace qui héberge la fonction (`staging-secret`, le même que l'api).
+1. Récupérer le Client Secret de la Custom Integration dans Sentry (**Settings → Custom Integrations → l'intégration**).
+2. L'ajouter sous la clé `SENTRY_CLIENT_SECRET` dans le Secret Manager du workspace qui héberge la fonction (`staging-secret`, le même que l'api).
 3. Déployer (`terraform apply`).
-4. Mettre à jour la Webhook URL **dans chaque branchement Sentry** (intégration et/ou plugin legacy) : `https://sentry-webhook.../?token=<valeur>`.
 
-L'ordre compte : entre le déploiement et la mise à jour des urls, la fonction répond `401` et les alertes n'arrivent plus dans Slack. Pour revenir en arrière, vider la clé du Secret Manager et redéployer.
+Rien à changer côté Sentry : la signature voyage dans un en-tête ([HMAC SHA256 du body](https://docs.sentry.io/organization/integrations/integration-platform/webhooks/)), les urls configurées restent les mêmes et le secret ne circule jamais. Pour revenir en arrière, vider la clé du Secret Manager et redéployer.
 
-Alternative si le Client Secret de la Custom Integration est accessible : vérifier l'en-tête `Sentry-Hook-Signature` ([HMAC SHA256 du body](https://docs.sentry.io/organization/integrations/integration-platform/webhooks/)). C'est plus propre — aucune url à changer, et le secret ne circule pas dans l'url — mais Sentry n'affiche ce Client Secret qu'à la création de l'intégration, et ça ne couvre pas le plugin legacy, qui ne signe rien.
+Attention en revanche au plugin legacy WebHooks : il ne signe rien, donc dès que `SENTRY_CLIENT_SECRET` est renseigné, les projets branchés dessus reçoivent `401` et leurs alertes n'arrivent plus dans Slack. Les basculer sur l'intégration Sentry avant d'activer la vérification.
 
 ## Brancher Sentry
 
@@ -88,7 +87,7 @@ Un appel qui aboutit produit quatre lignes (une requête rejetée n'en produit q
 [sentry-webhook] message posté dans C052V2UF918 (ts 1757856…) en 412 ms
 ```
 
-Les cas d'échec sont logués avec la raison exacte : méthode refusée, token absent ou invalide, JSON invalide, payload non reconnu (avec les clés reçues), configuration incomplète (quelle variable manque), et l'erreur renvoyée par Slack (`channel_not_found`, `not_in_channel`, `invalid_auth`…).
+Les cas d'échec sont logués avec la raison exacte : méthode refusée, signature absente ou invalide, JSON invalide, payload non reconnu (avec les clés reçues), configuration incomplète (quelle variable manque), et l'erreur renvoyée par Slack (`channel_not_found`, `not_in_channel`, `invalid_auth`…).
 
 Pour voir le payload complet, passer `sentry_webhook_debug_payload = true` dans les tfvars du workspace (activé en staging) : la fonction logue alors le body brut, tronqué à 4 000 caractères. À garder désactivé en dehors d'une session de debug — la fonction relaie aussi les événements de production, dont le payload peut contenir des données personnelles.
 
