@@ -59,8 +59,10 @@ export default function Landing() {
   }, []);
 
   const handleStartQuiz = (ctaSection: CtaSection) => {
-    trackCtaClicked({ pageName: "homepage", ctaSection, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
+    // reset() regénère quiz_attempt_id : le tracer avant émettrait cta.clicked avec l'ancien id et le
+    // découplerait de quiz.started et du reste du funnel PostHog. On reset donc avant de tracer.
     reset();
+    trackCtaClicked({ pageName: "homepage", ctaSection, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     navigate("/quiz/age", { state: { entrySource: "homepage_cta" } });
   };
 
