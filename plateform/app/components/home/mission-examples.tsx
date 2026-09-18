@@ -1,159 +1,74 @@
 import type { MissionBrowse } from "@engagement/dto";
-import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
+import Carousel from "~/components/ui/carousel";
 import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
-import { getScrollBehavior } from "~/utils/motion";
 
 type Props = {
   missions: MissionBrowse[];
   className?: string;
 };
 
+const CARD_CLASS = "bg-background border-border-default-grey flex h-full w-full overflow-hidden border shadow-lg";
+
 export default function MissionExamples({ missions, className }: Props) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const updateScrollState = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 0);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-  };
-
-  useEffect(() => {
-    updateScrollState();
-  }, [missions]);
-
-  const handleScroll = (direction: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const offset = direction === "left" ? -380 : 380;
-    scrollRef.current.scrollBy({ left: offset, behavior: getScrollBehavior() });
-  };
-
   if (!missions?.length) return null;
 
   return (
-    // `overflow-x-clip` : le débord jusqu'aux bords de l'écran ne doit pas créer de scroll horizontal
-    // (`50vw` inclut la barre de défilement, contrairement à la largeur du document).
-    <section className={`fr-pb-8w relative z-10 overflow-x-clip ${className}`} aria-roledescription="carousel" aria-label="Exemples de missions d'engagement">
+    <section className={`fr-pb-4w relative z-10 ${className}`}>
       {/* RGAA 9.1 : titre de section masqué — les titres de cartes sont des <h3>, sans saut depuis le h1 du hero. */}
       <h2 className="fr-sr-only">Exemples de missions d'engagement</h2>
-      <div className="fr-container max-w-7xl! relative">
-        <div
-          ref={scrollRef}
-          id="missions-carousel"
-          onScroll={updateScrollState}
-          className="snap-x snap-mandatory md:snap-none overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ml-[calc(50%-50vw)] mr-[calc(50%-50vw)] md:pl-[calc(50vw-50%)]"
-          aria-live="polite"
-          aria-atomic="false"
+      <div className="fr-container">
+        <Carousel
+          label="Exemples de missions d'engagement"
+          previousLabel="Voir les missions précédentes"
+          nextLabel="Voir les missions suivantes"
+          listClassName="-ml-32! scroll-pl-32! pl-32! mr-[calc(50%-50vw)]!"
+          itemClassName="w-[80vw] max-w-[360px] md:w-[360px]"
         >
-          <div className="flex w-max gap-4 px-[10vw] pb-4 md:pl-0 md:pr-8">
-            {missions.map((mission, i) => {
-              return (
-                <div key={mission.id} role="group" aria-roledescription="slide" aria-label={`Mission ${i + 1} sur ${missions.length}`} className="flex shrink-0 snap-center">
-                  {mission.applicationUrl ? (
-                    <Link
-                      to={mission.applicationUrl}
-                      onClick={() =>
-                        trackMissionClickedFromBrowse(mission, { section: "homepage_examples", entryPage: "homepage", opensExternal: Boolean(mission.applicationUrl) })
-                      }
-                      className="bg-background flex w-[80vw] max-w-[360px] shrink-0 overflow-hidden shadow-lg border border-border-default-grey underline-none! bg-none! hover:bg-background! md:w-[360px]"
-                    >
-                      {mission.domainLogo ? (
-                        <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />
-                      ) : (
-                        <div className="bg-beige-gris-galet w-28 shrink-0" />
-                      )}
-                      <div className="flex flex-1 flex-col gap-4 p-6">
-                        <h3 className="fr-h6 line-clamp-2 mb-0!">{mission.title}</h3>
-                        <div className="fr-mt-auto flex items-center gap-2">
-                          {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
-                          {mission.publisherName && (
-                            <>
-                              {mission.publisherLogo && (
-                                <div className="size-10 rounded object-contain bg-white">
-                                  <img src={mission.publisherLogo} aria-hidden="true" alt="" className="size-full object-contain" />
-                                </div>
-                              )}
-                              <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </Link>
-                  ) : (
-                    <div className="bg-background flex h-full w-full overflow-hidden shadow-lg border border-border-default-grey">
-                      {mission.domainLogo ? (
-                        <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />
-                      ) : (
-                        <div className="bg-beige-gris-galet w-28 shrink-0" />
-                      )}
-                      <div className="flex flex-1 flex-col gap-4 p-6">
-                        <h3 className="fr-h6 line-clamp-2 mb-0!">{mission.title}</h3>
-                        <div className="fr-mt-auto flex items-center gap-2">
-                          {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
-                          {mission.publisherName && (
-                            <>
-                              {mission.publisherLogo && (
-                                <div className="size-10 rounded object-contain bg-white">
-                                  <img src={mission.publisherLogo} aria-hidden="true" alt="" className="size-full object-contain" />
-                                </div>
-                              )}
-                              <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+          {missions.map((mission) => {
+            const content = (
+              <>
+                {mission.domainLogo ? (
+                  <img src={mission.domainLogo} alt="" className="w-28 shrink-0 object-cover" loading="lazy" />
+                ) : (
+                  <div className="bg-beige-gris-galet w-28 shrink-0" />
+                )}
+                <div className="flex flex-1 flex-col gap-4 p-6">
+                  <h3 className="fr-h6 line-clamp-2 mb-0!">{mission.title}</h3>
+                  <div className="fr-mt-auto flex items-center gap-2">
+                    {/* RGAA 1.1 : sans nom d'annonceur, on n'affiche pas le logo. */}
+                    {mission.publisherName && (
+                      <>
+                        {mission.publisherLogo && (
+                          <div className="size-10 rounded bg-white">
+                            <img src={mission.publisherLogo} aria-hidden="true" alt="" className="size-full object-contain" />
+                          </div>
+                        )}
+                        <span className="fr-text--xs text-mention-grey line-clamp-1 mb-0!">{mission.publisherName}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+              </>
+            );
 
-        <div className="mt-6 flex justify-center gap-3 md:hidden">
-          <button
-            type="button"
-            onClick={() => handleScroll("left")}
-            disabled={!canScrollLeft}
-            aria-label="Voir les missions précédentes"
-            aria-controls="missions-carousel"
-            className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
-          ></button>
-          <button
-            type="button"
-            onClick={() => handleScroll("right")}
-            disabled={!canScrollRight}
-            aria-label="Voir les missions suivantes"
-            aria-controls="missions-carousel"
-            className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
-          ></button>
-        </div>
-
-        {canScrollLeft && (
-          <button
-            type="button"
-            onClick={() => handleScroll("left")}
-            aria-label="Voir les missions précédentes"
-            aria-controls="missions-carousel"
-            className="bg-background! text-title-grey absolute left-0 top-1/2 hidden size-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full shadow-md md:flex"
-          >
-            <span aria-hidden className="fr-icon-arrow-left-s-line" />
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => handleScroll("right")}
-          disabled={!canScrollRight}
-          aria-label="Voir les missions suivantes"
-          aria-controls="missions-carousel"
-          className="bg-background! text-title-grey absolute right-0 top-1/2 hidden size-12 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full shadow-md md:flex disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <span aria-hidden className="fr-icon-arrow-right-s-line" />
-        </button>
+            return mission.applicationUrl ? (
+              <Link
+                key={mission.id}
+                to={mission.applicationUrl}
+                onClick={() => trackMissionClickedFromBrowse(mission, { section: "homepage_examples", entryPage: "homepage", opensExternal: true })}
+                className={`${CARD_CLASS} no-underline! bg-none! hover:bg-background!`}
+              >
+                {content}
+              </Link>
+            ) : (
+              <div key={mission.id} className={CARD_CLASS}>
+                {content}
+              </div>
+            );
+          })}
+        </Carousel>
       </div>
     </section>
   );

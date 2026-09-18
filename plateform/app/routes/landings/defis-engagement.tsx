@@ -2,9 +2,9 @@ import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
-import AscPng from "~/assets/images/asc-logo.png";
-import JvaPng from "~/assets/images/jva-logo.png";
-import RocPng from "~/assets/images/roc-logo.png";
+import AscPng from "~/assets/images/logo/asc-logo.png";
+import JvaPng from "~/assets/images/logo/jva-logo.png";
+import RocPng from "~/assets/images/logo/roc-logo.png";
 import CadreMineurs from "~/components/landings/defis-engagement/cadre-mineurs";
 import Etapes from "~/components/landings/defis-engagement/etapes";
 import Hero from "~/components/landings/defis-engagement/hero";

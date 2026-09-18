@@ -1,13 +1,17 @@
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
+import AscPng from "~/assets/images/logo/asc-logo.png";
+import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
+import JvaPng from "~/assets/images/logo/jva-logo.png";
+import RocPng from "~/assets/images/logo/roc-logo.png";
+import SpvPng from "~/assets/images/logo/spv-logo.png";
+import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
 import HowItWorks from "~/components/home/how-it-works";
 import MissionExamples from "~/components/home/mission-examples";
-import ProSpace from "~/components/home/pro-space";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
-import Partners from "~/components/layout/partners";
-import GradientBg from "~/components/ui/gradient-bg";
+import Partners, { type Partner } from "~/components/layout/partners";
 import { browseMissions } from "~/services/api/missions";
 import { trackPageViewed } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
@@ -19,10 +23,53 @@ export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
 
 import type { Route } from "./+types/_index";
 
-import type { MissionBrowse } from "@engagement/dto";
-import LandingPng from "~/assets/images/people-landing.png";
+import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 
-const EXAMPLES_COUNT = 5;
+// Un exemple par dispositif d'engagement, dans l'ordre d'affichage du carrousel. Un dispositif
+// sans mission disponible est simplement absent.
+const MISSION_SLOTS: MissionBrowseFilters[] = [
+  { dispositif: "benevolat" },
+  { dispositif: "sapeurs_pompiers" },
+  { dispositif: "service_civique" },
+  { dispositif: "reserve_armees" },
+  { dispositif: "reserve_gendarmerie" },
+  { dispositif: "reserve_police_nationale" },
+];
+
+// Les liens de redirection sont les campagnes dédiées à la page d'accueil, pour attribuer les clics à
+// cette page. Les réserves des armées n'ont pas encore de campagne : le nom s'affiche sans lien.
+const PARTNERS: Partner[] = [
+  {
+    name: "Les réserves des armées",
+    description: "Des missions indemnisées de réservistes.",
+    logo: RocPng,
+  },
+  {
+    name: "Le Service Civique",
+    description: "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/b6e310b8-961c-4d2d-a7b4-94b383adce64",
+    logo: AscPng,
+  },
+  {
+    name: "JeVeuxAider.gouv.fr",
+    description: "La plateforme publique du bénévolat.",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/4de09e85-0651-4eff-af78-a825041ef303",
+    logo: JvaPng,
+  },
+  {
+    name: "Sapeurs-pompiers de France",
+    description: "Deviens sapeur-pompier volontaire près de chez toi.",
+    url: "https://api.api-engagement.beta.gouv.fr/r/campaign/e681deef-81d8-40b7-b78f-af40eb29f151",
+    logo: SpvPng,
+  },
+  {
+    // Lien direct vers le site de la Gendarmerie : pas de redirection /r/campaign, les clics ne sont donc pas tracés.
+    name: "Gendarmerie nationale",
+    description: "Deviens gendarme près de chez toi.",
+    url: "https://www.gendarmerie.interieur.gouv.fr/reserves/reserve-operationnelle-de-la-gendarmerie-nationale",
+    logo: GendarmeriePng,
+  },
+];
 
 export function meta(): Route.MetaDescriptors {
   return [
@@ -35,14 +82,18 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export async function loader({ request }: Route.LoaderArgs): Promise<{ examples: MissionBrowse[] }> {
-  try {
-    const res = await browseMissions({ pageSize: EXAMPLES_COUNT }, request);
-    return {
-      examples: res.data.slice(0, EXAMPLES_COUNT),
-    };
-  } catch {
-    return { examples: [] };
-  }
+  const browse = async (filters: MissionBrowseFilters) => {
+    try {
+      const res = await browseMissions({ ...filters, pageSize: 1 }, request);
+      return res.data;
+    } catch {
+      return [];
+    }
+  };
+
+  const results = await Promise.all(MISSION_SLOTS.map(browse));
+
+  return { examples: results.flat() };
 }
 
 export default function Landing() {
@@ -64,28 +115,18 @@ export default function Landing() {
 
   return (
     <main id="contenu" tabIndex={-1}>
-      <GradientBg className="bg-size-[100%_640px]">
-        <div className="relative lg:min-h-[640px] lg:overflow-hidden">
-          <Hero onStartQuiz={handleStartQuiz} />
-          <div className="relative overflow-hidden w-full lg:absolute lg:right-[-140px] lg:top-0 lg:h-[640px] lg:w-[80%] xl:w-auto lg:max-w-[1024px]">
-            <svg
-              aria-hidden
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-              className="absolute left-1/2 top-0 -translate-x-1/2 h-[680px] w-[680px] lg:top-[20px] lg:h-[480px] lg:w-[580px] text-yellow-moutarde-975 dark:text-transparent"
-            >
-              <ellipse cx="50" cy="50" rx="50" ry="50" fill="currentColor" />
-            </svg>
-            <img src={LandingPng} alt="" className="relative block object-cover h-[420px] w-full lg:h-[640px] lg:w-full lg:object-contain lg:object-right" />
-          </div>
-        </div>
-        <MissionExamples missions={examples} className="-mt-14 lg:-mt-16" />
-      </GradientBg>
+      <Hero onStartQuiz={handleStartQuiz} />
+      <MissionExamples missions={examples} className="fr-pt-6w" />
       <HowItWorks onStartQuiz={handleStartQuiz} />
       <Testimonials onStartQuiz={handleStartQuiz} />
-      <ProSpace />
-      <Partners style="compact" />
-      <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
+      <About />
+      <Newsletter
+        title="Inscris-toi à la newsletter"
+        subtitle="1 e-mail par mois avec nos meilleures missions adaptées à tes critères"
+        ctaText="Je m'inscris"
+        hintText="1 email. Pas de spam. Tu te désinscris quand tu veux."
+      />
+      <Partners style="carousel" partners={PARTNERS} title="Toutes les missions d'engagement vérifiées par l'État" />
     </main>
   );
 }
