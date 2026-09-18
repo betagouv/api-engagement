@@ -3,13 +3,13 @@ import JvaLogo from "~/assets/images/logo/jva-logo.png";
 import RocLogo from "~/assets/images/logo/roc-logo.png";
 import SpvLogo from "~/assets/images/logo/spv-logo.png";
 
-import TestimonialEducation from "~/assets/images/home/testimonial-education.jpg";
-import TestimonialMemory from "~/assets/images/home/testimonial-memory.jpg";
-import TestimonialPrevention1 from "~/assets/images/home/testimonial-prevention-1.jpg";
-import TestimonialPrevention2 from "~/assets/images/home/testimonial-prevention-2.jpg";
-import TestimonialPrevention3 from "~/assets/images/home/testimonial-prevention-3.jpg";
-import TestimonialSkill from "~/assets/images/home/testimonial-skill.jpg";
-import TestimonialSolidarity from "~/assets/images/home/testimonial-solidarity.jpg";
+import TestimonialEducation from "~/assets/images/home/testimonial-education.webp";
+import TestimonialMemory from "~/assets/images/home/testimonial-memory.webp";
+import TestimonialPrevention1 from "~/assets/images/home/testimonial-prevention-1.webp";
+import TestimonialPrevention2 from "~/assets/images/home/testimonial-prevention-2.webp";
+import TestimonialPrevention3 from "~/assets/images/home/testimonial-prevention-3.webp";
+import TestimonialSkill from "~/assets/images/home/testimonial-skill.webp";
+import TestimonialSolidarity from "~/assets/images/home/testimonial-solidarity.webp";
 
 import Carousel from "~/components/ui/carousel";
 

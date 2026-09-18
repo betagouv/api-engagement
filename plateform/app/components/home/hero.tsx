@@ -1,4 +1,4 @@
-import HeroBackgroundPng from "~/assets/images/home/hero-background.png";
+import HeroBackground from "~/assets/images/home/hero-background.webp";
 
 const CHIPS = [
   { icon: "fr-icon-team-line", className: "bg-green-bourgeon-975 text-[#4b9f6c]", label: "Rencontrer des nouvelles personnes" },
@@ -50,7 +50,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
       </div>
 
       <div className="-mt-98 w-full lg:col-start-1 lg:row-start-1 lg:mt-0 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
-        <img src={HeroBackgroundPng} alt="" aria-hidden="true" className="w-full" />
+        <img src={HeroBackground} alt="" aria-hidden="true" width={1760} height={1514} fetchPriority="high" className="w-full" />
       </div>
     </section>
   );
