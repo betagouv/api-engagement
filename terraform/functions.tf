@@ -42,8 +42,12 @@ resource "scaleway_function" "sentry_webhook" {
     "DEBUG_PAYLOAD"               = var.sentry_webhook_debug_payload ? "true" : "false"
   }
 
+  # SENTRY_CLIENT_SECRET : Client Secret de la Custom Integration Sentry, avec lequel la fonction vérifie
+  # la signature (en-tête Sentry-Hook-Signature) de chaque requête.
+  # Vide tant que la clé n'existe pas dans le Secret Manager : la vérification est alors désactivée.
   secret_environment_variables = {
-    "SLACK_TOKEN" = local.secrets.SLACK_TOKEN
+    "SLACK_TOKEN"          = local.secrets.SLACK_TOKEN
+    "SENTRY_CLIENT_SECRET" = lookup(local.secrets, "SENTRY_CLIENT_SECRET", "")
   }
 }
 
