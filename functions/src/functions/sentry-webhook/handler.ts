@@ -111,8 +111,17 @@ export const handle = async (event: FunctionEvent) => {
 
   // Filet pour le plugin legacy, qui ne signe rien : on vérifie que les liens du payload pointent
   // vers notre instance. Ça n'authentifie pas l'expéditeur, seule la signature le fait.
+  // Comparaison sur l'origine parsée, pas sur le préfixe : "https://sentry.incubateur.net.exemple.com" commence
+  // bien par SENTRY_URL sans être notre instance.
   const payloadUrls = [payload.url, sentryEvent.web_url, sentryEvent.url];
-  if (!payloadUrls.some((url) => url?.startsWith(SENTRY_URL))) {
+  const fromOurSentry = payloadUrls.some((url) => {
+    try {
+      return new URL(url ?? "").origin === SENTRY_URL;
+    } catch {
+      return false;
+    }
+  });
+  if (!fromOurSentry) {
     console.warn(`${LOG_PREFIX} requête rejetée: aucun lien vers ${SENTRY_URL} (urls: ${payloadUrls.filter(Boolean).join(", ") || "aucune"})`);
     return json({ error: "Unexpected Sentry host" }, 403);
   }
