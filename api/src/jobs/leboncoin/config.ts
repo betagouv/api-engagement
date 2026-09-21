@@ -1,0 +1,200 @@
+import { BUCKET_NAME, PUBLISHER_IDS } from "@/config";
+
+// Diffuseur leboncoin : le périmètre des missions à diffuser est piloté par la table
+// `mission_diffusion` (snapshot par diffuseur). Aucune exclusion n'est codée ici.
+export const LEBONCOIN_PUBLISHER_ID = PUBLISHER_IDS.LEBONCOIN;
+export const SERVICE_CIVIQUE_PUBLISHER_ID = PUBLISHER_IDS.SERVICE_CIVIQUE;
+
+// Identifiants des comptes clients leboncoin (fournis par leboncoin, non secrets).
+// À renseigner via variables d'environnement avant la mise en production.
+export const LEBONCOIN_SC_USER_ID = process.env.LEBONCOIN_SC_USER_ID ?? "";
+export const LEBONCOIN_SPV_USER_ID = process.env.LEBONCOIN_SPV_USER_ID ?? "";
+
+// URLs publiques des flux sur S3 (deux comptes, deux rubriques).
+export const LEBONCOIN_SC_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/leboncoin-service-civique`;
+export const LEBONCOIN_SPV_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/leboncoin-spv`;
+
+// Quota global du job (config). SC : les 1000 missions les plus récentes.
+// SPV : pas de quota numérique, borné par mission_diffusion (1 offre / département).
+export const SERVICE_CIVIQUE_MAX_OFFERS = 1000;
+
+// Titre : "Service Civique - {title}" (18 caractères de préfixe).
+export const SC_TITLE_PREFIX = "Service Civique - ";
+// Le titre nettoyé est tronqué à 81 caractères avant l'ajout de "…".
+export const SC_TITLE_MAX_LENGTH = 81;
+
+// Paragraphe d'introduction fixe des offres Service Civique (texte brut, pas de HTML).
+export const SC_INTRO =
+  "Le Service Civique permet à tous les jeunes âgés de 16 à 25 ans (jusqu'à 30 ans en situation de handicap), " +
+  "de réaliser des missions indemnisées 620€ par mois pendant 6 à 12 mois dans différents domaines d'actions. " +
+  "L'opportunité de se sentir utile, acquérir des compétences ou se découvrir.";
+
+// Constantes leboncoin — Service Civique (rubrique Stage).
+export const SC_TIME_TYPE = 3; // Temps plein ou temps partiel
+export const SC_CONTRACT_TYPE = 6; // Stage → place l'offre dans la rubrique Stage
+
+// Constantes leboncoin — SPV (rubrique Bénévolat).
+export const SPV_TIME_TYPE = 2; // Temps partiel
+export const SPV_CONTRACT_TYPE = 7; // Bénévolat
+export const SPV_BUSINESS_SECTOR = 7; // Services publics & administrations
+export const SPV_OCCUPATION = 6; // Sécurité / Défense / Gardiennage
+
+// Constantes candidat communes.
+export const APPLICANT_DEGREE = 1; // Sans diplôme
+export const APPLICANT_EXPERIENCE = 1; // 0 à 2 ans
+
+// Longueurs max leboncoin.
+export const COMPANY_NAME_MAX_LENGTH = 50;
+export const COMPANY_URL_MAX_LENGTH = 255;
+export const CLIENT_REFERENCE_MAX_LENGTH = 30;
+
+// Annexe B — mapping domain (slug API) → job.business_sector leboncoin. Défaut : 18 (Autre).
+export const DOMAIN_BUSINESS_SECTOR: Record<string, number> = {
+  education: 7,
+  "solidarite-insertion": 16,
+  "culture-loisirs": 9,
+  sport: 15,
+  environnement: 5,
+  sante: 8,
+  "vivre-ensemble": 16,
+  humanitaire: 16,
+  "citoyennete-europeenne": 7, // présent en base mais absent de la constante DOMAINS
+  autre: 18,
+  "prevention-protection": 7,
+  animaux: 18,
+  "batiment-industrie-logistique": 2,
+  "benevolat-competences": 9,
+  communication: 10,
+  emploi: 9,
+  "gestion-finance-droit": 4,
+  "memoire-et-citoyennete": 7,
+  numerique: 10,
+  recherche: 9,
+  "service-public-defense-securite": 7,
+};
+export const DEFAULT_BUSINESS_SECTOR = 18;
+
+// Mapping activity → job.occupation (SC). On prend le PREMIER match dans l'ordre.
+// ponytail: les libellés de la spec sont des macro-catégories ; on matche par mots-clés
+// sur les activités de la mission (slugs). occupation est optionnel → omis si aucun match.
+export const ACTIVITY_OCCUPATION: Array<{ keywords: string[]; code: number }> = [
+  { keywords: ["transmission", "pedagogie", "pédagogie"], code: 15 }, // Formation / Éducation
+  { keywords: ["mediation", "médiation", "information"], code: 20 }, // Service client / Accueil
+  { keywords: ["preservation", "préservation", "patrimoine"], code: 17 }, // Ouvrier / Artisan
+  { keywords: ["secours", "aide"], code: 14 }, // Services à la personne
+  { keywords: ["prevention", "prévention", "sensibilisation"], code: 14 },
+  { keywords: ["animation", "valorisation"], code: 14 },
+  { keywords: ["soutien", "accompagnement"], code: 14 },
+];
+
+// Annexe A — chefs-lieux par département (ville + code postal pour job.location, nom pour job.title).
+// Les couples ville/code postal existent tels quels dans le référentiel géocodé validé par leboncoin.
+export interface DepartmentChefLieu {
+  name: string;
+  city: string;
+  zipCode: string;
+}
+
+export const DEPARTMENTS: Record<string, DepartmentChefLieu> = {
+  "01": { name: "Ain", city: "Bourg-en-Bresse", zipCode: "01000" },
+  "02": { name: "Aisne", city: "Laon", zipCode: "02000" },
+  "03": { name: "Allier", city: "Moulins", zipCode: "03000" },
+  "04": { name: "Alpes-de-Haute-Provence", city: "Digne-les-Bains", zipCode: "04000" },
+  "05": { name: "Hautes-Alpes", city: "Gap", zipCode: "05000" },
+  "06": { name: "Alpes-Maritimes", city: "Nice", zipCode: "06000" },
+  "07": { name: "Ardèche", city: "Privas", zipCode: "07000" },
+  "08": { name: "Ardennes", city: "Charleville-Mézières", zipCode: "08000" },
+  "09": { name: "Ariège", city: "Foix", zipCode: "09000" },
+  "10": { name: "Aube", city: "Troyes", zipCode: "10000" },
+  "11": { name: "Aude", city: "Carcassonne", zipCode: "11000" },
+  "12": { name: "Aveyron", city: "Rodez", zipCode: "12000" },
+  "13": { name: "Bouches-du-Rhône", city: "Marseille", zipCode: "13001" },
+  "14": { name: "Calvados", city: "Caen", zipCode: "14000" },
+  "15": { name: "Cantal", city: "Aurillac", zipCode: "15000" },
+  "16": { name: "Charente", city: "Angoulême", zipCode: "16000" },
+  "17": { name: "Charente-Maritime", city: "La Rochelle", zipCode: "17000" },
+  "18": { name: "Cher", city: "Bourges", zipCode: "18000" },
+  "19": { name: "Corrèze", city: "Tulle", zipCode: "19000" },
+  "2A": { name: "Corse-du-Sud", city: "Ajaccio", zipCode: "20000" },
+  "2B": { name: "Haute-Corse", city: "Bastia", zipCode: "20200" },
+  "21": { name: "Côte-d'Or", city: "Dijon", zipCode: "21000" },
+  "22": { name: "Côtes-d'Armor", city: "Saint-Brieuc", zipCode: "22000" },
+  "23": { name: "Creuse", city: "Guéret", zipCode: "23000" },
+  "24": { name: "Dordogne", city: "Périgueux", zipCode: "24000" },
+  "25": { name: "Doubs", city: "Besançon", zipCode: "25000" },
+  "26": { name: "Drôme", city: "Valence", zipCode: "26000" },
+  "27": { name: "Eure", city: "Évreux", zipCode: "27000" },
+  "28": { name: "Eure-et-Loir", city: "Chartres", zipCode: "28000" },
+  "29": { name: "Finistère", city: "Quimper", zipCode: "29000" },
+  "30": { name: "Gard", city: "Nîmes", zipCode: "30000" },
+  "31": { name: "Haute-Garonne", city: "Toulouse", zipCode: "31000" },
+  "32": { name: "Gers", city: "Auch", zipCode: "32000" },
+  "33": { name: "Gironde", city: "Bordeaux", zipCode: "33000" },
+  "34": { name: "Hérault", city: "Montpellier", zipCode: "34000" },
+  "35": { name: "Ille-et-Vilaine", city: "Rennes", zipCode: "35000" },
+  "36": { name: "Indre", city: "Châteauroux", zipCode: "36000" },
+  "37": { name: "Indre-et-Loire", city: "Tours", zipCode: "37000" },
+  "38": { name: "Isère", city: "Grenoble", zipCode: "38000" },
+  "39": { name: "Jura", city: "Lons-le-Saunier", zipCode: "39000" },
+  "40": { name: "Landes", city: "Mont-de-Marsan", zipCode: "40000" },
+  "41": { name: "Loir-et-Cher", city: "Blois", zipCode: "41000" },
+  "42": { name: "Loire", city: "Saint-Étienne", zipCode: "42000" },
+  "43": { name: "Haute-Loire", city: "Le Puy-en-Velay", zipCode: "43000" },
+  "44": { name: "Loire-Atlantique", city: "Nantes", zipCode: "44000" },
+  "45": { name: "Loiret", city: "Orléans", zipCode: "45000" },
+  "46": { name: "Lot", city: "Cahors", zipCode: "46000" },
+  "47": { name: "Lot-et-Garonne", city: "Agen", zipCode: "47000" },
+  "48": { name: "Lozère", city: "Mende", zipCode: "48000" },
+  "49": { name: "Maine-et-Loire", city: "Angers", zipCode: "49000" },
+  "50": { name: "Manche", city: "Saint-Lô", zipCode: "50000" },
+  "51": { name: "Marne", city: "Châlons-en-Champagne", zipCode: "51000" },
+  "52": { name: "Haute-Marne", city: "Chaumont", zipCode: "52000" },
+  "53": { name: "Mayenne", city: "Laval", zipCode: "53000" },
+  "54": { name: "Meurthe-et-Moselle", city: "Nancy", zipCode: "54000" },
+  "55": { name: "Meuse", city: "Bar-le-Duc", zipCode: "55000" },
+  "56": { name: "Morbihan", city: "Vannes", zipCode: "56000" },
+  "57": { name: "Moselle", city: "Metz", zipCode: "57000" },
+  "58": { name: "Nièvre", city: "Nevers", zipCode: "58000" },
+  "59": { name: "Nord", city: "Lille", zipCode: "59000" },
+  "60": { name: "Oise", city: "Beauvais", zipCode: "60000" },
+  "61": { name: "Orne", city: "Alençon", zipCode: "61000" },
+  "62": { name: "Pas-de-Calais", city: "Arras", zipCode: "62000" },
+  "63": { name: "Puy-de-Dôme", city: "Clermont-Ferrand", zipCode: "63000" },
+  "64": { name: "Pyrénées-Atlantiques", city: "Pau", zipCode: "64000" },
+  "65": { name: "Hautes-Pyrénées", city: "Tarbes", zipCode: "65000" },
+  "66": { name: "Pyrénées-Orientales", city: "Perpignan", zipCode: "66000" },
+  "67": { name: "Bas-Rhin", city: "Strasbourg", zipCode: "67000" },
+  "68": { name: "Haut-Rhin", city: "Colmar", zipCode: "68000" },
+  "69": { name: "Rhône", city: "Lyon", zipCode: "69001" },
+  "70": { name: "Haute-Saône", city: "Vesoul", zipCode: "70000" },
+  "71": { name: "Saône-et-Loire", city: "Mâcon", zipCode: "71000" },
+  "72": { name: "Sarthe", city: "Le Mans", zipCode: "72000" },
+  "73": { name: "Savoie", city: "Chambéry", zipCode: "73000" },
+  "74": { name: "Haute-Savoie", city: "Annecy", zipCode: "74000" },
+  "75": { name: "Paris", city: "Paris", zipCode: "75001" },
+  "76": { name: "Seine-Maritime", city: "Rouen", zipCode: "76000" },
+  "77": { name: "Seine-et-Marne", city: "Melun", zipCode: "77000" },
+  "78": { name: "Yvelines", city: "Versailles", zipCode: "78000" },
+  "79": { name: "Deux-Sèvres", city: "Niort", zipCode: "79000" },
+  "80": { name: "Somme", city: "Amiens", zipCode: "80000" },
+  "81": { name: "Tarn", city: "Albi", zipCode: "81000" },
+  "82": { name: "Tarn-et-Garonne", city: "Montauban", zipCode: "82000" },
+  "83": { name: "Var", city: "Toulon", zipCode: "83000" },
+  "84": { name: "Vaucluse", city: "Avignon", zipCode: "84000" },
+  "85": { name: "Vendée", city: "La Roche-sur-Yon", zipCode: "85000" },
+  "86": { name: "Vienne", city: "Poitiers", zipCode: "86000" },
+  "87": { name: "Haute-Vienne", city: "Limoges", zipCode: "87000" },
+  "88": { name: "Vosges", city: "Épinal", zipCode: "88000" },
+  "89": { name: "Yonne", city: "Auxerre", zipCode: "89000" },
+  "90": { name: "Territoire de Belfort", city: "Belfort", zipCode: "90000" },
+  "91": { name: "Essonne", city: "Évry-Courcouronnes", zipCode: "91000" },
+  "92": { name: "Hauts-de-Seine", city: "Nanterre", zipCode: "92000" },
+  "93": { name: "Seine-Saint-Denis", city: "Bobigny", zipCode: "93000" },
+  "94": { name: "Val-de-Marne", city: "Créteil", zipCode: "94000" },
+  "95": { name: "Val-d'Oise", city: "Cergy", zipCode: "95000" },
+  "971": { name: "Guadeloupe", city: "Basse-Terre", zipCode: "97100" },
+  "972": { name: "Martinique", city: "Fort-de-France", zipCode: "97200" },
+  "973": { name: "Guyane", city: "Cayenne", zipCode: "97300" },
+  "974": { name: "La Réunion", city: "Saint-Denis", zipCode: "97400" },
+  "976": { name: "Mayotte", city: "Mamoudzou", zipCode: "97600" },
+};
