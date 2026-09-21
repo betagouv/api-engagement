@@ -213,6 +213,7 @@ const Frame = ({ widget }) => {
       <div className="border-grey-border my-10 border-b shadow-lg" />
       <iframe
         key={iframeKey}
+        title="Aperçu du widget"
         border="0"
         width="100%"
         style={{ border: "none", margin: "0", padding: "0" }}

@@ -47,6 +47,7 @@ export default function QuizHeader({ step = 0, stepCount, backHref, onBack }: Qu
 
       <div
         role="progressbar"
+        aria-label="Progression du quiz"
         aria-valuemin={0}
         aria-valuemax={stepCount}
         aria-valuenow={step}
