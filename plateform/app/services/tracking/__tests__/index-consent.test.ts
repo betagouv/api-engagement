@@ -12,7 +12,7 @@ const trackingProvider = vi.hoisted(() => ({
 
 const quizState = vi.hoisted(() => ({ distinctId: "quiz-distinct-id", quizAttemptId: "attempt-id", userScoringId: "result-id" }));
 
-vi.mock("~/services/config", () => ({ TRACKING_PROVIDER: "posthog" }));
+vi.mock("~/services/config", () => ({ TRACKING_PROVIDER: "posthog", GTM_CONTAINER_ID: undefined }));
 vi.mock("~/services/tracking/providers", () => ({ createProvider: () => trackingProvider }));
 vi.mock("~/stores/quiz", () => ({ useQuizStore: { getState: () => quizState, subscribe: vi.fn() } }));
 vi.mock("~/utils/campaign-attribution", () => ({
