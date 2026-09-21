@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RiErrorWarningFill } from "react-icons/ri";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -13,6 +13,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [step, setStep] = useState("credentials");
   const [mfaToken, setMfaToken] = useState(null);
+  const mfaHeadingRef = useRef(null);
   const { setAuth } = useStore();
   const navigate = useNavigate();
 
@@ -20,6 +21,10 @@ const Login = () => {
     const loggedout = new URLSearchParams(window.location.search).get("loggedout");
     if (loggedout) toast.info("Vous avez été déconnecté");
   }, []);
+
+  useEffect(() => {
+    if (step === "mfa") mfaHeadingRef.current?.focus();
+  }, [step]);
 
   const completeLogin = (data) => {
     api.setToken(data.token);
@@ -133,7 +138,9 @@ const Login = () => {
     return (
       <form onSubmit={handleVerifyMfa} noValidate className="flex h-full flex-col bg-white px-4 py-10 sm:px-32">
         <title>API Engagement - Vérification</title>
-        <h1 className="font-light">Vérification</h1>
+        <h1 ref={mfaHeadingRef} tabIndex={-1} className="font-light">
+          Vérification
+        </h1>
         <h2 className="text-4xl font-bold">Saisissez votre code</h2>
         <p className="text-text-mention mt-4 text-sm">Un code à 6 chiffres vous a été envoyé par e-mail.</p>
 
@@ -151,7 +158,6 @@ const Login = () => {
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
-          autoFocus
           required
           aria-required="true"
           aria-invalid={errors.code ? true : undefined}
