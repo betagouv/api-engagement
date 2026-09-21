@@ -2,7 +2,7 @@ const js = require("@eslint/js");
 const tsParser = require("@typescript-eslint/parser");
 const tsPlugin = require("@typescript-eslint/eslint-plugin");
 const globals = require("globals");
-const jsxA11y = require("eslint-plugin-jsx-a11y");
+const { default: jsxA11y } = require("eslint-plugin-jsx-a11y-x");
 
 module.exports = [
   {
@@ -24,12 +24,12 @@ module.exports = [
     },
     plugins: {
       "@typescript-eslint": tsPlugin,
-      "jsx-a11y": jsxA11y,
+      "jsx-a11y-x": jsxA11y,
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
-      ...jsxA11y.flatConfigs.recommended.rules,
-      "jsx-a11y/no-redundant-roles": "off",
+      ...jsxA11y.configs.recommended.rules,
+      "jsx-a11y-x/no-redundant-roles": "off",
       "@typescript-eslint/no-explicit-any": "warn",
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
