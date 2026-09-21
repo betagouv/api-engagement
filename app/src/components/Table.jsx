@@ -43,7 +43,7 @@ const Table = ({ header, caption, sortBy, total, onSort, loading, children, stic
 
   return (
     <>
-      {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- La région défilable doit recevoir le focus pour pouvoir être parcourue horizontalement au clavier. */}
+      {/* eslint-disable jsx-a11y-x/no-noninteractive-tabindex -- La région défilable doit recevoir le focus pour pouvoir être parcourue horizontalement au clavier. */}
       <div
         className={`relative w-full overflow-x-auto overflow-y-visible ${className}`}
         role="region"
@@ -89,7 +89,7 @@ const Table = ({ header, caption, sortBy, total, onSort, loading, children, stic
           </tbody>
         </table>
       </div>
-      {/* eslint-enable jsx-a11y/no-noninteractive-tabindex */}
+      {/* eslint-enable jsx-a11y-x/no-noninteractive-tabindex */}
       {pagination && <Pagination page={resolvedPage} setPage={handleSetPage} end={Math.ceil(total / pageSize) || 1} />}
     </>
   );

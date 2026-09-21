@@ -25,7 +25,7 @@ const Modal = ({ open, children, onClose, title, className = "w-[90vw] max-w-2xl
   };
 
   return (
-    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- Le clic ne concerne que l'arrière-plan du dialogue, qui dispose aussi d'un bouton de fermeture au clavier.
+    // eslint-disable-next-line jsx-a11y-x/click-events-have-key-events, jsx-a11y-x/no-noninteractive-element-interactions -- Le clic ne concerne que l'arrière-plan du dialogue, qui dispose aussi d'un bouton de fermeture au clavier.
     <dialog
       ref={dialogRef}
       aria-modal="true"
