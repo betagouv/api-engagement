@@ -18,7 +18,7 @@ export const expectNoRgaaViolation = async (page: Page, testInfo: TestInfo) => {
 
   const summary = results.violations
     .map((violation) => {
-      const targets = violation.nodes.map((node) => `  - ${node.target.join(" > ")}`).join("\n");
+      const targets = violation.nodes.map((node) => `  - ${node.target.join(" > ")}\n    ${node.html}\n    ${node.failureSummary ?? ""}`).join("\n");
       return `${violation.id} (${violation.impact ?? "impact inconnu"}) — ${violation.help}\n${targets}`;
     })
     .join("\n\n");

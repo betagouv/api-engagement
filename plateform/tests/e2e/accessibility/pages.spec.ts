@@ -23,6 +23,8 @@ async function gotoPage(page: Page, path: string) {
 test.describe("Accessibilité RGAA", { tag: "@a11y" }, () => {
   test("Accueil", async ({ page }, testInfo) => {
     await gotoPage(page, "/");
+    // Le nom accessible est ajouté après l'hydratation, lorsque le débordement du carrousel est mesuré.
+    await page.getByRole("list", { name: "Témoignages d'engagés" }).waitFor({ state: "visible" });
 
     await expectNoRgaaViolation(page, testInfo);
   });
