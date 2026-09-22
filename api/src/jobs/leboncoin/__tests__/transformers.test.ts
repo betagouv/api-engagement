@@ -5,7 +5,7 @@ import { MissionRecord } from "@/types/mission";
 
 vi.mock("../config", async () => {
   const config = await vi.importActual<typeof import("@/jobs/leboncoin/config")>("../config");
-  return { ...config, LEBONCOIN_SC_USER_ID: "sc-user", LEBONCOIN_SPV_USER_ID: "spv-user", LEBONCOIN_JVA_USER_ID: "jva-user" };
+  return { ...config, LEBONCOIN_USER_IDS: { "service-civique": "sc-user", spv: "spv-user", jva: "jva-user" } };
 });
 
 vi.mock("../../../utils/mission", () => ({

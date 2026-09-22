@@ -1,8 +1,10 @@
-// Identifiants des comptes clients leboncoin (un compte = un flux par publisher).
+// Identifiants des comptes clients leboncoin, par dispositif (un compte = un flux par publisher).
 // Fournis par leboncoin, à renseigner ici.
-export const LEBONCOIN_SC_USER_ID = "";
-export const LEBONCOIN_SPV_USER_ID = "";
-export const LEBONCOIN_JVA_USER_ID = "";
+export const LEBONCOIN_USER_IDS = {
+  "service-civique": "",
+  spv: "",
+  jva: "",
+};
 
 // Annexe B — mapping domain (slug API) → job.business_sector leboncoin. Défaut : 18 (Autre).
 export const DOMAIN_BUSINESS_SECTOR: Record<string, number> = {

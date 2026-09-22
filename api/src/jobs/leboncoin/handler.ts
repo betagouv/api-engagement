@@ -4,7 +4,6 @@ import { ENV, PUBLISHER_IDS } from "@/config";
 import { Prisma } from "@/db/core";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
-import { LEBONCOIN_JVA_USER_ID, LEBONCOIN_SC_USER_ID, LEBONCOIN_SPV_USER_ID } from "@/jobs/leboncoin/config";
 import { missionToOffer } from "@/jobs/leboncoin/transformers";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { generateXML, storeXML } from "@/jobs/leboncoin/utils";
@@ -35,10 +34,6 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
   public async handle(): Promise<LeboncoinJobResult> {
     const start = new Date();
     try {
-      if (ENV !== "development" && (!LEBONCOIN_SC_USER_ID || !LEBONCOIN_SPV_USER_ID || !LEBONCOIN_JVA_USER_ID)) {
-        throw new Error("LEBONCOIN_SC_USER_ID / LEBONCOIN_SPV_USER_ID / LEBONCOIN_JVA_USER_ID non renseignés dans la config");
-      }
-
       const serviceCivique = await this.buildServiceCiviqueFeed(start);
       const spv = await this.buildSpvFeed(start);
       const jva = await this.buildJvaFeed(start);

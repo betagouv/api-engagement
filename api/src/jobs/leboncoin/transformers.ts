@@ -1,20 +1,11 @@
 import { PUBLISHER_IDS } from "@/config";
-import {
-  ACTIVITY_OCCUPATION,
-  DEFAULT_BUSINESS_SECTOR,
-  DepartmentChefLieu,
-  DEPARTMENTS,
-  DOMAIN_BUSINESS_SECTOR,
-  LEBONCOIN_JVA_USER_ID,
-  LEBONCOIN_SC_USER_ID,
-  LEBONCOIN_SPV_USER_ID,
-} from "@/jobs/leboncoin/config";
+import { ACTIVITY_OCCUPATION, DEFAULT_BUSINESS_SECTOR, DepartmentChefLieu, DEPARTMENTS, DOMAIN_BUSINESS_SECTOR, LEBONCOIN_USER_IDS } from "@/jobs/leboncoin/config";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { buildScTitle, stripHtml, truncate, truncateAtWord } from "@/jobs/leboncoin/utils";
 import { MissionRecord } from "@/types/mission";
 import { getMissionTrackedApplicationUrl } from "@/utils";
 
-export type Dispositif = "service-civique" | "spv" | "jva";
+export type Dispositif = keyof typeof LEBONCOIN_USER_IDS;
 
 const SC_INTRO =
   "Le Service Civique permet à tous les jeunes âgés de 16 à 25 ans (jusqu'à 30 ans en situation de handicap), " +
@@ -35,10 +26,10 @@ function isRemote(mission: MissionRecord): boolean {
 }
 
 // Champs constants par dispositif (contract_type et time.type en texte, cf. flux d'exemple leboncoin).
-const DISPOSITIF_CONFIG: Record<Dispositif, { userId: string; contractType: string; timeType: string }> = {
-  "service-civique": { userId: LEBONCOIN_SC_USER_ID, contractType: "Stage", timeType: "Temps plein ou temps partiel" },
-  spv: { userId: LEBONCOIN_SPV_USER_ID, contractType: "Bénévolat", timeType: "Temps partiel" },
-  jva: { userId: LEBONCOIN_JVA_USER_ID, contractType: "Bénévolat", timeType: "Temps partiel" },
+const DISPOSITIF_CONFIG: Record<Dispositif, { contractType: string; timeType: string }> = {
+  "service-civique": { contractType: "Stage", timeType: "Temps plein ou temps partiel" },
+  spv: { contractType: "Bénévolat", timeType: "Temps partiel" },
+  jva: { contractType: "Bénévolat", timeType: "Temps partiel" },
 };
 
 /** Chef-lieu du département de la mission SPV (via le departmentCode d'une adresse), ou null. */
@@ -141,7 +132,7 @@ export function missionToOffer(mission: MissionRecord, dispositif: Dispositif): 
 
   const config = DISPOSITIF_CONFIG[dispositif];
   return {
-    user_id: config.userId,
+    user_id: LEBONCOIN_USER_IDS[dispositif],
     partner_unique_reference: resolvePartnerReference(mission, dispositif),
     title: resolveTitle(mission, dispositif),
     description: resolveDescription(mission, dispositif),
