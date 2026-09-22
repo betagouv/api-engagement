@@ -1,7 +1,7 @@
 import { XMLBuilder } from "fast-xml-parser";
 import { convert } from "html-to-text";
 
-import { SC_TITLE_MAX_LENGTH, SC_TITLE_PREFIX } from "@/jobs/leboncoin/config";
+import { BUCKET_NAME } from "@/config";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 
@@ -33,7 +33,7 @@ export function stripHtml(text: string | null | undefined): string {
     selectors: [
       { selector: "a", options: { ignoreHref: true } },
       { selector: "img", format: "skip" },
-      // Par défaut html-to-text met les titres en MAJUSCULES : on conserve la casse d'origine.
+      // html-to-text met les titres en MAJUSCULES par défaut : on conserve la casse d'origine.
       ...["h1", "h2", "h3", "h4", "h5", "h6"].map((selector) => ({ selector, options: { uppercase: false } })),
     ],
   }).trim();
@@ -50,25 +50,30 @@ export function truncate(value: string, max: number): string {
 }
 
 /**
+ * Tronque un titre à `maxLength` caractères sans couper de mot : nettoyage (trim + espaces
+ * réduits), coupe au dernier espace, retrait de la ponctuation finale, ajout de "…" (U+2026).
+ */
+export function truncateAtWord(rawTitle: string, maxLength: number): string {
+  const cleaned = rawTitle.trim().replace(/\s+/g, " ");
+  if (cleaned.length <= maxLength) {
+    return cleaned;
+  }
+  const slice = cleaned.slice(0, maxLength - 1); // on garde une place pour le "…"
+  const lastSpace = slice.lastIndexOf(" ");
+  let cut = lastSpace === -1 ? slice : slice.slice(0, lastSpace);
+  cut = cut.replace(/[\s.,;:(/…·•-]+$/u, "");
+  return `${cut}…`;
+}
+
+/**
  * Construit le titre d'une offre Service Civique : "Service Civique - {title}".
- * Règle : titre nettoyé (trim + espaces réduits). Si ≤ 82 → inchangé. Sinon coupe à 81
- * caractères max, au dernier espace avant la position 81 (jamais au milieu d'un mot),
- * retire la ponctuation/espaces finaux, puis ajoute "…" (U+2026). Résultat ≤ 100 caractères.
+ * Si le titre nettoyé fait ≤ 82 caractères, il est conservé tel quel ; sinon il est tronqué
+ * à 81 caractères au dernier espace puis suffixé de "…" (résultat ≤ 100 caractères).
  */
 export function buildScTitle(rawTitle: string): string {
   const cleaned = rawTitle.trim().replace(/\s+/g, " ");
-  if (cleaned.length <= 82) {
-    return `${SC_TITLE_PREFIX}${cleaned}`;
-  }
-
-  const slice = cleaned.slice(0, SC_TITLE_MAX_LENGTH); // 81 premiers caractères
-  const lastSpace = slice.lastIndexOf(" ");
-  // Mot unique très long sans espace : coupe sèche à 81 caractères.
-  let cut = lastSpace === -1 ? slice : slice.slice(0, lastSpace);
-  // Retire ponctuation et espaces en fin de chaîne.
-  cut = cut.replace(/[\s.,;:(/…·•-]+$/u, "");
-
-  return `${SC_TITLE_PREFIX}${cut}…`;
+  const truncated = cleaned.length <= 82 ? cleaned : truncateAtWord(cleaned, 82);
+  return `Service Civique - ${truncated}`;
 }
 
 /** Construit le flux XML (envelope <source> → n × <job>) à partir d'une liste d'offres. */
@@ -111,11 +116,11 @@ export function generateXML(offers: LeboncoinOffer[]): string {
 }
 
 /** Publie le flux sur S3 : objet daté + objet stable. Retourne l'URL de l'objet daté. */
-export async function storeXML(xml: string, slug: string, baseUrl: string): Promise<string> {
+export async function storeXML(xml: string, slug: string): Promise<string> {
   const date = formatDate(new Date());
 
   await putObject(`xml/${slug}-${date}.xml`, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
   await putObject(`xml/${slug}.xml`, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
 
-  return `${baseUrl}-${date}.xml`;
+  return `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/${slug}-${date}.xml`;
 }

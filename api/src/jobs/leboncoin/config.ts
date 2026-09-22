@@ -1,52 +1,6 @@
-import { BUCKET_NAME, PUBLISHER_IDS } from "@/config";
-
-// Diffuseur leboncoin : le périmètre des missions à diffuser est piloté par la table
-// `mission_diffusion` (snapshot par diffuseur). Aucune exclusion n'est codée ici.
-export const LEBONCOIN_PUBLISHER_ID = PUBLISHER_IDS.LEBONCOIN;
-export const SERVICE_CIVIQUE_PUBLISHER_ID = PUBLISHER_IDS.SERVICE_CIVIQUE;
-
-// Identifiants des comptes clients leboncoin (fournis par leboncoin, non secrets).
-// À renseigner via variables d'environnement avant la mise en production.
-export const LEBONCOIN_SC_USER_ID = process.env.LEBONCOIN_SC_USER_ID ?? "";
-export const LEBONCOIN_SPV_USER_ID = process.env.LEBONCOIN_SPV_USER_ID ?? "";
-
-// URLs publiques des flux sur S3 (deux comptes, deux rubriques).
-export const LEBONCOIN_SC_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/leboncoin-service-civique`;
-export const LEBONCOIN_SPV_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/leboncoin-spv`;
-
-// Quota global du job (config). SC : les 1000 missions les plus récentes.
-// SPV : pas de quota numérique, borné par mission_diffusion (1 offre / département).
-export const SERVICE_CIVIQUE_MAX_OFFERS = 1000;
-
-// Titre : "Service Civique - {title}" (18 caractères de préfixe).
-export const SC_TITLE_PREFIX = "Service Civique - ";
-// Le titre nettoyé est tronqué à 81 caractères avant l'ajout de "…".
-export const SC_TITLE_MAX_LENGTH = 81;
-
-// Paragraphe d'introduction fixe des offres Service Civique (texte brut, pas de HTML).
-export const SC_INTRO =
-  "Le Service Civique permet à tous les jeunes âgés de 16 à 25 ans (jusqu'à 30 ans en situation de handicap), " +
-  "de réaliser des missions indemnisées 620€ par mois pendant 6 à 12 mois dans différents domaines d'actions. " +
-  "L'opportunité de se sentir utile, acquérir des compétences ou se découvrir.";
-
-// Constantes leboncoin — Service Civique (rubrique Stage).
-export const SC_TIME_TYPE = 3; // Temps plein ou temps partiel
-export const SC_CONTRACT_TYPE = 6; // Stage → place l'offre dans la rubrique Stage
-
-// Constantes leboncoin — SPV (rubrique Bénévolat).
-export const SPV_TIME_TYPE = 2; // Temps partiel
-export const SPV_CONTRACT_TYPE = 7; // Bénévolat
-export const SPV_BUSINESS_SECTOR = 7; // Services publics & administrations
-export const SPV_OCCUPATION = 6; // Sécurité / Défense / Gardiennage
-
-// Constantes candidat communes.
-export const APPLICANT_DEGREE = 1; // Sans diplôme
-export const APPLICANT_EXPERIENCE = 1; // 0 à 2 ans
-
-// Longueurs max leboncoin.
-export const COMPANY_NAME_MAX_LENGTH = 50;
-export const COMPANY_URL_MAX_LENGTH = 255;
-export const CLIENT_REFERENCE_MAX_LENGTH = 30;
+// Identifiants des comptes clients leboncoin (fournis par leboncoin). À renseigner ici.
+export const LEBONCOIN_SC_USER_ID = "";
+export const LEBONCOIN_BENEVOLAT_USER_ID = "";
 
 // Annexe B — mapping domain (slug API) → job.business_sector leboncoin. Défaut : 18 (Autre).
 export const DOMAIN_BUSINESS_SECTOR: Record<string, number> = {
@@ -58,7 +12,7 @@ export const DOMAIN_BUSINESS_SECTOR: Record<string, number> = {
   sante: 8,
   "vivre-ensemble": 16,
   humanitaire: 16,
-  "citoyennete-europeenne": 7, // présent en base mais absent de la constante DOMAINS
+  "citoyennete-europeenne": 7,
   autre: 18,
   "prevention-protection": 7,
   animaux: 18,
@@ -74,9 +28,7 @@ export const DOMAIN_BUSINESS_SECTOR: Record<string, number> = {
 };
 export const DEFAULT_BUSINESS_SECTOR = 18;
 
-// Mapping activity → job.occupation (SC). On prend le PREMIER match dans l'ordre.
-// ponytail: les libellés de la spec sont des macro-catégories ; on matche par mots-clés
-// sur les activités de la mission (slugs). occupation est optionnel → omis si aucun match.
+// Mapping activity → job.occupation. On prend le premier match dans l'ordre.
 export const ACTIVITY_OCCUPATION: Array<{ keywords: string[]; code: number }> = [
   { keywords: ["transmission", "pedagogie", "pédagogie"], code: 15 }, // Formation / Éducation
   { keywords: ["mediation", "médiation", "information"], code: 20 }, // Service client / Accueil
@@ -88,7 +40,6 @@ export const ACTIVITY_OCCUPATION: Array<{ keywords: string[]; code: number }> = 
 ];
 
 // Annexe A — chefs-lieux par département (ville + code postal pour job.location, nom pour job.title).
-// Les couples ville/code postal existent tels quels dans le référentiel géocodé validé par leboncoin.
 export interface DepartmentChefLieu {
   name: string;
   city: string;
