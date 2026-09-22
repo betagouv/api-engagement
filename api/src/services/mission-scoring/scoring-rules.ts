@@ -95,14 +95,7 @@ export const SCORING_RULES = [
     field: "type",
     condition: { operator: "equals", value: "volontariat_sapeurs_pompiers" },
     mode: "replace",
-    values: [
-      "dispositif.sapeurs_pompiers",
-      "tranche_age.moins_18_ans",
-      "tranche_age.entre_18_25_ans",
-      "tranche_age.entre_25_30_ans",
-      "tranche_age.entre_30_45_ans",
-      "tranche_age.entre_46_66_ans",
-    ],
+    values: ["dispositif.sapeurs_pompiers", "tranche_age.entre_18_25_ans", "tranche_age.entre_25_30_ans", "tranche_age.entre_30_45_ans", "tranche_age.entre_46_66_ans"],
   },
   {
     field: "publisherId",
@@ -123,36 +116,57 @@ export const SCORING_RULES = [
   // motivations produits par l'enrichissement (« Sécurité et secours » / « Secourir et protéger »)
   // au lieu de les remplacer, pour ouvrir ces missions à de nouvelles portes d'entrée du quiz.
 
-  // Sapeurs-pompiers volontaires : le secours à personne est l'essentiel de l'activité, on
-  // référence donc aussi Santé et bien-être, Solidarité et l'activité « Aider et accompagner ».
-  // On leur rattache également « Je veux découvrir un métier » (mission de découverte métier).
+  // Sapeurs-pompiers volontaires : on matérialise ici leurs portes d'entrée thématiques stables.
+  // Ces valeurs restent donc de simples matches domaine/activité côté utilisateur ; elles ne sont
+  // pas converties une seconde fois en affinités de dispositif dans le user-scoring.
   {
     field: "type",
     condition: { operator: "equals", value: "volontariat_sapeurs_pompiers" },
     mode: "add",
-    values: ["domaine_engagement.sante_bien_etre", "domaine_engagement.solidarite_inclusion", "activite.aider_accompagner", "motivation_recherche.decouverte_metier"],
+    values: [
+      "domaine.social_solidarite",
+      "domaine_engagement.sante_bien_etre",
+      "domaine_engagement.solidarite_inclusion",
+      "domaine_engagement.sport",
+      "domaine_engagement.securite_secours",
+      "domaine_engagement.citoyennete",
+      "activite.aider_accompagner",
+      "activite.fabriquer_reparer_terrain",
+      "activite.secourir_proteger",
+      "activite.organiser_coordonner",
+      "motivation_recherche.decouverte_metier",
+      "motivation_recherche.securite_pays",
+      "motivation_recherche.indemnisation",
+    ],
   },
-  // Réserves opérationnelles (police, gendarmerie, et armées à venir) : missions de découverte
-  // d'un métier. Ciblé sur le type pour couvrir toutes les réserves, y compris sans publisher dédié.
+  // Toutes les réserves opérationnelles sont des missions de découverte métier et partagent les
+  // activités de terrain et de coordination. Les domaines et activités plus spécifiques restent
+  // ciblés par publisher pour ne pas les attribuer indistinctement aux réserves des armées.
   {
     field: "type",
     condition: { operator: "equals", value: "volontariat_reserve_operationnelle" },
     mode: "add",
-    values: ["motivation_recherche.decouverte_metier"],
+    values: ["motivation_recherche.decouverte_metier", "activite.fabriquer_reparer_terrain", "activite.organiser_coordonner", "motivation_recherche.indemnisation"],
   },
-  // Réserve gendarmerie / police : on ajoute Citoyenneté aux missions de réserve. Ciblé sur le
-  // publisher (et non le type) pour n'inclure que ces deux réserves, à l'exclusion des armées.
+  // Réserve gendarmerie / police / armée : ces missions portent en plus Sport, Sécurité, Citoyenneté et
+  // l'activité de protection. Ciblage publisher pour exclure les réserves des armées.
   {
     field: "publisherId",
     condition: { operator: "equals", value: PUBLISHER_IDS.GENDARMERIE },
     mode: "add",
-    values: ["domaine_engagement.citoyennete"],
+    values: ["domaine_engagement.sport", "domaine_engagement.securite_secours", "domaine_engagement.citoyennete", "activite.secourir_proteger"],
   },
   {
     field: "publisherId",
     condition: { operator: "equals", value: PUBLISHER_IDS.POLICE },
     mode: "add",
-    values: ["domaine_engagement.citoyennete"],
+    values: ["domaine_engagement.sport", "domaine_engagement.securite_secours", "domaine_engagement.citoyennete", "activite.secourir_proteger"],
+  },
+  {
+    field: "publisherId",
+    condition: { operator: "equals", value: PUBLISHER_IDS.ROC },
+    mode: "add",
+    values: ["domaine_engagement.sport", "domaine_engagement.securite_secours", "domaine_engagement.citoyennete", "activite.secourir_proteger"],
   },
 
   // Mission fermée aux mineurs : seules les tranches d'âge adultes sont autorisées.

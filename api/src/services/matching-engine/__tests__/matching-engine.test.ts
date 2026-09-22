@@ -555,6 +555,7 @@ describe("matchingEngineService", () => {
       expect(result.version).toBe("m3");
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'full' THEN CAST(");
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'local' THEN CAST(");
+      expect(rankingSql).not.toContain("dispositif_affinities");
       expect(rankingSql).toContain('JOIN "mission" m');
       expect(rankingSql).toContain("forced_remote_candidates AS (");
       expect(rankingSql).toContain("unscored_remote_missions AS (");
@@ -592,6 +593,27 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain("ELSE CAST(0 AS double precision)");
       // remote=local reste inconditionnel.
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'local' THEN CAST(");
+    });
+
+    it("pondère le dispositif dans m6 sans bonus final ni promotion forcée", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-m6" }]).mockResolvedValueOnce([]);
+      missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
+        id: "mission-matching-result-m6",
+      });
+
+      await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m6",
+        version: "m6",
+      });
+
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(rankingValues).toContain("dispositif");
+      expect(rankingSql).not.toContain("dispositif_affinities");
+      expect(rankingSql).toContain("FROM ranked r");
+      expect(rankingSql).toContain('ORDER BY "total_score" DESC, r."mission_id" ASC');
+      expect(rankingSql).not.toContain("coverage_ordered");
     });
 
     it("does not gate the remote=full geo score for the m3 version (non-regression)", async () => {
