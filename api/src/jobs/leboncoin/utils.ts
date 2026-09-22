@@ -33,6 +33,8 @@ export function stripHtml(text: string | null | undefined): string {
     selectors: [
       { selector: "a", options: { ignoreHref: true } },
       { selector: "img", format: "skip" },
+      // Par défaut html-to-text met les titres en MAJUSCULES : on conserve la casse d'origine.
+      ...["h1", "h2", "h3", "h4", "h5", "h6"].map((selector) => ({ selector, options: { uppercase: false } })),
     ],
   }).trim();
 }
