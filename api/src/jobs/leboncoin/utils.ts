@@ -1,9 +1,8 @@
-import { XMLBuilder } from "fast-xml-parser";
 import { convert } from "html-to-text";
 
-import { BUCKET_NAME } from "@/config";
+import { buildFeedXml } from "@/jobs/base/xml";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
-import { OBJECT_ACL, putObject } from "@/services/s3";
+import { BUCKET_URL, OBJECT_ACL, putObject } from "@/services/s3";
 
 // Champs texte à encapsuler en CDATA (à n'importe quel niveau de l'arbre).
 const CDATA_KEYS = [
@@ -77,40 +76,7 @@ export function buildScTitle(rawTitle: string): string {
 
 /** Construit le flux XML (envelope <source> → n × <job>) à partir d'une liste d'offres. */
 export function generateXML(offers: LeboncoinOffer[]): string {
-  const wrapWithCdata = (obj: any, parentKey?: string): any => {
-    if (Array.isArray(obj)) {
-      if (parentKey && CDATA_KEYS.includes(parentKey)) {
-        return obj.map((el) => (typeof el === "string" ? { "#cdata": el } : wrapWithCdata(el)));
-      }
-      return obj.map((el) => wrapWithCdata(el));
-    }
-    if (obj && typeof obj === "object") {
-      const result: any = {};
-      for (const key of Object.keys(obj)) {
-        const value = obj[key];
-        if (CDATA_KEYS.includes(key) && typeof value === "string") {
-          result[key] = { "#cdata": value };
-        } else if (Array.isArray(value) || (value && typeof value === "object")) {
-          result[key] = wrapWithCdata(value, key);
-        } else {
-          result[key] = value;
-        }
-      }
-      return result;
-    }
-    return obj;
-  };
-
-  const obj = {
-    source: {
-      publisher: "api-engagement",
-      publisherurl: "https://api-engagement.beta.gouv.fr/",
-      job: offers.map((offer) => wrapWithCdata(offer)),
-    },
-  };
-
-  const builder = new XMLBuilder({ ignoreAttributes: false, format: true, suppressEmptyNode: true, cdataPropName: "#cdata" });
-  return builder.build(obj);
+  return buildFeedXml({ publisher: "api-engagement", publisherurl: "https://api-engagement.beta.gouv.fr/", job: offers }, CDATA_KEYS);
 }
 
 /** Publie le flux sur S3 : objet daté + objet stable. Retourne l'URL de l'objet daté. */
@@ -120,5 +86,5 @@ export async function storeXML(xml: string, slug: string): Promise<string> {
   await putObject(`xml/${slug}-${date}.xml`, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
   await putObject(`xml/${slug}.xml`, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
 
-  return `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/${slug}-${date}.xml`;
+  return `${BUCKET_URL}/xml/${slug}-${date}.xml`;
 }
