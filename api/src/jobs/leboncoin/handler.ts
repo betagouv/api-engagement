@@ -26,6 +26,9 @@ export interface LeboncoinJobResult extends JobResult {
   jva?: { sent: number; url: string };
 }
 
+// Chaque flux ne diffuse que les missions présentes dans `mission_diffusion` pour LEBONCOIN :
+// c'est le paramètre `diffuseurPublisherId` de `buildWhere` qui applique ce filtre
+// (`missionDiffusions.some.distributionPublisherId = LEBONCOIN`, cf. services/mission.ts).
 export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, LeboncoinJobResult> {
   name = "Génération des feeds Leboncoin";
 
