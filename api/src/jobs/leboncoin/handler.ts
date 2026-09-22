@@ -14,9 +14,9 @@ import { buildWhere, missionService } from "@/services/mission";
 import { publisherService } from "@/services/publisher";
 import { PublisherMissionType } from "@/types/publisher";
 
-// Quotas : les N missions les plus récentes diffusées à leboncoin (SPV borné par mission_diffusion).
+// Quota Service Civique : les 1000 missions les plus récentes diffusées à leboncoin.
+// SPV et JeVeuxAider ne sont pas plafonnés (bornés par mission_diffusion).
 const SERVICE_CIVIQUE_MAX_OFFERS = 1000;
-const JVA_MAX_OFFERS = 1000;
 
 export interface LeboncoinJobPayload {}
 
@@ -90,10 +90,10 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     return { sent: offers.length, url };
   }
 
-  /** JeVeuxAider (rubrique Bénévolat) : 1 offre par mission, les 1000 plus récentes diffusées à leboncoin. */
+  /** JeVeuxAider (rubrique Bénévolat) : 1 offre par mission, toutes les missions actives diffusées à leboncoin. */
   private async buildJvaFeed(start: Date): Promise<{ sent: number; url: string }> {
     const where = await buildWhere({ diffuseurPublisherId: PUBLISHER_IDS.LEBONCOIN, publisherIds: [PUBLISHER_IDS.JEVEUXAIDER], statusCode: "ACCEPTED", limit: 0, skip: 0 });
-    const missions = await missionService.findMissionsBy(where, { limit: JVA_MAX_OFFERS, orderBy: { createdAt: Prisma.SortOrder.desc } });
+    const missions = await missionService.findMissionsBy(where, { orderBy: { createdAt: Prisma.SortOrder.desc } });
 
     const offers = missions.map(missionToJvaOffer).filter((offer): offer is LeboncoinOffer => offer !== null);
     const url = await this.publish(offers, "leboncoin-jeveuxaider", "LEBONCOIN_JEVEUXAIDER", start);
