@@ -98,7 +98,7 @@ describe("missionToOffer — spv", () => {
   it("mappe une mission SPV en offre départementale (localisation forcée au chef-lieu)", () => {
     const offer = missionToOffer(spvMission as MissionRecord, "spv")!;
     expect(offer.user_id).toBe("spv-user");
-    expect(offer.partner_unique_reference).toBe("spv-13");
+    expect(offer.partner_unique_reference).toBe("uuid-spv-1");
     expect(offer.client_reference).toBe("SPV-13");
     expect(offer.title).toBe("Volontariat Sapeur-Pompier - Bouches-du-Rhône");
     expect(offer.contract_type).toBe("Bénévolat");

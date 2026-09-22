@@ -83,14 +83,6 @@ function resolveDescription(mission: MissionRecord, dispositif: Dispositif): str
   return stripHtml(mission.description);
 }
 
-function resolvePartnerReference(mission: MissionRecord, dispositif: Dispositif): string {
-  if (dispositif === "spv") {
-    const dept = spvDepartment(mission);
-    return dept ? `spv-${dept.code}` : mission.id;
-  }
-  return mission.id;
-}
-
 function resolveClientReference(mission: MissionRecord, dispositif: Dispositif): string | undefined {
   if (dispositif === "spv") {
     const dept = spvDepartment(mission);
@@ -133,7 +125,7 @@ export function missionToOffer(mission: MissionRecord, dispositif: Dispositif): 
   const config = DISPOSITIF_CONFIG[dispositif];
   return {
     user_id: LEBONCOIN_USER_IDS[dispositif],
-    partner_unique_reference: resolvePartnerReference(mission, dispositif),
+    partner_unique_reference: mission.id,
     title: resolveTitle(mission, dispositif),
     description: resolveDescription(mission, dispositif),
     contract_type: config.contractType,
