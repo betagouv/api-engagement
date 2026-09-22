@@ -26,6 +26,13 @@ const SPV_OCCUPATION = 6; // Sécurité / Défense / Gardiennage
 const TITLE_MAX_LENGTH = 100;
 const COMPANY_NAME_MAX_LENGTH = 50;
 const CLIENT_REFERENCE_MAX_LENGTH = 30;
+const REMOTE_TITLE_PREFIX = "[À distance] ";
+const REMOTE_LOCATION = { city: "Paris", zip_code: "75001", country: "FR" };
+
+/** Mission entièrement à distance (pas de lieu physique). */
+function isRemote(mission: MissionRecord): boolean {
+  return mission.remote === "full";
+}
 
 // Champs constants par dispositif (contract_type et time.type en texte, cf. flux d'exemple leboncoin).
 const DISPOSITIF_CONFIG: Record<Dispositif, { userId: string; contractType: string; timeType: string }> = {
@@ -41,20 +48,26 @@ function spvDepartment(mission: MissionRecord): (DepartmentChefLieu & { code: st
   return code ? { code, ...DEPARTMENTS[code] } : null;
 }
 
-/** SPV : toujours le chef-lieu du département. Autres : la première adresse. Null si non localisable. */
+/**
+ * SPV : toujours le chef-lieu du département. Mission à distance : Paris 75001.
+ * Autres : la première adresse valable (avec code postal ET ville). Null si non localisable.
+ */
 function resolveLocation(mission: MissionRecord, dispositif: Dispositif): LeboncoinOffer["location"] | null {
   if (dispositif === "spv") {
     const dept = spvDepartment(mission);
     return dept ? { city: dept.city, zip_code: dept.zipCode, country: "FR" } : null;
   }
-  const address = mission.addresses[0];
+  if (isRemote(mission)) {
+    return { ...REMOTE_LOCATION };
+  }
+  const address = mission.addresses.find((a) => a.postalCode && a.city);
   if (!address || !address.postalCode || !address.city) {
     return null;
   }
   return { city: address.city, zip_code: address.postalCode, country: "FR" };
 }
 
-function resolveTitle(mission: MissionRecord, dispositif: Dispositif): string {
+function baseTitle(mission: MissionRecord, dispositif: Dispositif): string {
   if (dispositif === "service-civique") {
     return buildScTitle(mission.title);
   }
@@ -62,7 +75,14 @@ function resolveTitle(mission: MissionRecord, dispositif: Dispositif): string {
     const dept = spvDepartment(mission);
     return dept ? `Volontariat Sapeur-Pompier - ${dept.name}` : mission.title;
   }
-  return truncateAtWord(mission.title, TITLE_MAX_LENGTH);
+  return mission.title;
+}
+
+/** Titre du dispositif, préfixé de "[À distance] " si la mission est entièrement à distance, ≤ 100 caractères. */
+function resolveTitle(mission: MissionRecord, dispositif: Dispositif): string {
+  const base = baseTitle(mission, dispositif);
+  const full = isRemote(mission) ? `${REMOTE_TITLE_PREFIX}${base}` : base;
+  return truncateAtWord(full, TITLE_MAX_LENGTH);
 }
 
 function resolveDescription(mission: MissionRecord, dispositif: Dispositif): string {

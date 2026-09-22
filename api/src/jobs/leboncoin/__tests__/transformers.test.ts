@@ -50,9 +50,33 @@ describe("missionToOffer — service-civique", () => {
     expect(missionToOffer(mission as MissionRecord, "service-civique")).toBeNull();
   });
 
+  it("prend la première adresse valable en ignorant une adresse incomplète", () => {
+    const mission = {
+      ...scMission,
+      addresses: [{ city: "Paris", postalCode: null } as any, { city: "Nantes", postalCode: "44000" } as any],
+    };
+    expect(missionToOffer(mission as MissionRecord, "service-civique")!.location).toEqual({ city: "Nantes", zip_code: "44000", country: "FR" });
+  });
+
   it("bascule sur organizationLogo puis omet logo", () => {
     expect(missionToOffer({ ...scMission, domainLogo: "https://dl.png" } as MissionRecord, "service-civique")!.logo).toBe("https://dl.png");
     expect(missionToOffer({ ...scMission, domainLogo: null, organizationLogo: null } as MissionRecord, "service-civique")!.logo).toBeUndefined();
+  });
+});
+
+describe("missionToOffer — mission à distance", () => {
+  it("préfixe le titre et localise à Paris 75001 (SC entièrement à distance, sans adresse)", () => {
+    const remote = { ...scMission, remote: "full" as const, addresses: [] };
+    const offer = missionToOffer(remote as MissionRecord, "service-civique")!;
+    expect(offer.title.startsWith("[À distance] Service Civique - ")).toBe(true);
+    expect(offer.title.length).toBeLessThanOrEqual(100);
+    expect(offer.location).toEqual({ city: "Paris", zip_code: "75001", country: "FR" });
+  });
+
+  it("ne préfixe pas et garde l'adresse quand remote = possible", () => {
+    const offer = missionToOffer({ ...scMission, remote: "possible" as const } as MissionRecord, "service-civique")!;
+    expect(offer.title.startsWith("[À distance]")).toBe(false);
+    expect(offer.location.city).toBe("Lyon");
   });
 });
 
