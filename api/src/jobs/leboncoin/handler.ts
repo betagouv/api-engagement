@@ -105,7 +105,7 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
       return { sent: offers.length, url, ok: true };
     } catch (error) {
       captureException(error);
-      console.error(`[Leboncoin] ${slug} en échec`, error);
+      console.error("[Leboncoin] %s en échec", slug, error);
       await this.recordImport(importName, "FAILED", 0, start);
       return { sent: 0, url: "", ok: false };
     }
