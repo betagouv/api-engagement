@@ -83,14 +83,6 @@ function resolveDescription(mission: MissionRecord, dispositif: Dispositif): str
   return stripHtml(mission.description);
 }
 
-function resolveClientReference(mission: MissionRecord, dispositif: Dispositif): string | undefined {
-  if (dispositif === "spv") {
-    const dept = spvDepartment(mission);
-    return dept ? truncate(`SPV-${dept.code}`, CLIENT_REFERENCE_MAX_LENGTH) : undefined;
-  }
-  return mission.clientId ? truncate(mission.clientId, CLIENT_REFERENCE_MAX_LENGTH) : undefined;
-}
-
 function resolveBusinessSector(mission: MissionRecord, dispositif: Dispositif): number {
   if (dispositif === "spv") {
     return SPV_BUSINESS_SECTOR;
@@ -134,7 +126,7 @@ export function missionToOffer(mission: MissionRecord, dispositif: Dispositif): 
     time: { type: config.timeType },
     company: mission.organizationName ? truncate(mission.organizationName, COMPANY_NAME_MAX_LENGTH) : undefined,
     logo: mission.domainLogo || mission.organizationLogo || undefined,
-    client_reference: resolveClientReference(mission, dispositif),
+    client_reference: mission.clientId ? truncate(mission.clientId, CLIENT_REFERENCE_MAX_LENGTH) : undefined,
     business_sector: resolveBusinessSector(mission, dispositif),
     occupation: resolveOccupation(mission, dispositif),
   };

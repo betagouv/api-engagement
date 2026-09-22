@@ -83,6 +83,7 @@ describe("missionToOffer — mission à distance", () => {
 const spvMission: Partial<MissionRecord> = {
   _id: "000000000000000000000999",
   id: "uuid-spv-1",
+  clientId: "sdis13-ref",
   title: "SDIS 13",
   description: "<h2>Devenez pompier</h2><p>Rejoignez-nous</p>",
   organizationName: "SDIS 13",
@@ -99,7 +100,7 @@ describe("missionToOffer — spv", () => {
     const offer = missionToOffer(spvMission as MissionRecord, "spv")!;
     expect(offer.user_id).toBe("spv-user");
     expect(offer.partner_unique_reference).toBe("uuid-spv-1");
-    expect(offer.client_reference).toBe("SPV-13");
+    expect(offer.client_reference).toBe("sdis13-ref");
     expect(offer.title).toBe("Volontariat Sapeur-Pompier - Bouches-du-Rhône");
     expect(offer.contract_type).toBe("Bénévolat");
     expect(offer.time).toEqual({ type: "Temps partiel" });
