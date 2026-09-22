@@ -82,8 +82,10 @@ describe("matching engine config", () => {
 
   it("ajoute le poids dispositif uniquement à m6", () => {
     expect(MATCHING_ENGINE_VERSIONS.m6.taxonomyWeights.dispositif).toBeGreaterThan(0);
+    expect(MATCHING_ENGINE_VERSIONS.m6.dispositifCoverage).toEqual({ limit: 10 });
     for (const version of ["m1", "m2", "m3", "m4", "m5"] as const) {
       expect(MATCHING_ENGINE_VERSIONS[version].taxonomyWeights.dispositif).toBeUndefined();
+      expect(MATCHING_ENGINE_VERSIONS[version].dispositifCoverage).toBeNull();
     }
   });
 

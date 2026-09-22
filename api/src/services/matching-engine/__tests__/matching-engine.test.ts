@@ -595,8 +595,11 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'local' THEN CAST(");
     });
 
-    it("pondère le dispositif dans m6 sans bonus final ni promotion forcée", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-m6" }]).mockResolvedValueOnce([]);
+    it("pondère le dispositif dans m6 sans modifier le score SQL", async () => {
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([{ id: "user-scoring-m6" }])
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m6",
       });
@@ -606,14 +609,72 @@ describe("matchingEngineService", () => {
         version: "m6",
       });
 
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[2][0]);
       expect(rankingValues).toContain("dispositif");
       expect(rankingSql).not.toContain("dispositif_affinities");
-      expect(rankingSql).toContain("FROM ranked r");
-      expect(rankingSql).toContain('ORDER BY "total_score" DESC, r."mission_id" ASC');
+      expect(rankingSql).toContain("FROM scored");
+      expect(rankingSql).toContain('ORDER BY "total_score" DESC, "mission_id" ASC');
       expect(rankingSql).not.toContain("coverage_ordered");
+      expect(rankingSql).not.toContain("coverage_best_candidates");
+    });
+
+    it("promeut dans le top 10 le meilleur candidat de chaque dispositif explicitement requis", async () => {
+      const rankedRows = Array.from({ length: 12 }, (_, index) => ({
+        mission_id: `mission-${index + 1}`,
+        mission_scoring_id: `mission-scoring-${index + 1}`,
+        total_score: 1 - index / 100,
+        taxonomy_score: 1 - index / 100,
+        geo_score: null,
+        distance_km: null,
+        closest_address_id: null,
+        total_count: 12,
+      }));
+      prismaMock.$queryRaw
+        .mockResolvedValueOnce([{ id: "user-scoring-m6-coverage" }])
+        .mockResolvedValueOnce([
+          { value_key: "service_civique" },
+          { value_key: "sapeurs_pompiers" },
+          { value_key: "reserve_gendarmerie" },
+          { value_key: "reserve_police_nationale" },
+          { value_key: "reserve_armees" },
+        ])
+        .mockResolvedValueOnce(rankedRows)
+        .mockResolvedValueOnce([
+          { mission_scoring_id: "mission-scoring-11", value_key: "service_civique" },
+          { mission_scoring_id: "mission-scoring-12", value_key: "reserve_gendarmerie" },
+        ])
+        .mockResolvedValueOnce([]);
+
+      const result = await matchingEngineService.rankMissionsByUserScoring({
+        userScoringId: "user-scoring-m6-coverage",
+        version: "m6",
+        limit: 10,
+        persistMatchingResult: false,
+      });
+
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[2][0]);
+      expect(rankingSql).toContain("coverage_best_candidates");
+      expect(rankingValues).toContain("service_civique");
+      expect(rankingValues).toContain("sapeurs_pompiers");
+      expect(rankingValues).toContain("reserve_gendarmerie");
+      expect(result.items.map((item) => item.missionId)).toEqual([
+        "mission-1",
+        "mission-2",
+        "mission-3",
+        "mission-4",
+        "mission-5",
+        "mission-6",
+        "mission-7",
+        "mission-8",
+        "mission-12",
+        "mission-11",
+      ]);
+      expect(new Set(result.items.map((item) => item.missionId)).size).toBe(10);
+      expect(result.total).toBe(12);
+      expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).not.toHaveBeenCalled();
     });
 
     it("does not gate the remote=full geo score for the m3 version (non-regression)", async () => {

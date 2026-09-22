@@ -126,6 +126,7 @@ type FailureReason = "below_min" | "above_max";
 
 type FailureCandidate = Omit<RankedMissionWithDiagnostics, "taxonomyValues"> & {
   scoreGapToTop10: number;
+  scoreLeadOverTop10: number;
 };
 
 type EvaluatedExpectation = ExpectedTaxonomyResult & {
@@ -268,6 +269,7 @@ const toFailureCandidate = (mission: RankedMissionWithDiagnostics, top10CutoffSc
   distanceKm: mission.distanceKm,
   taxonomyScores: mission.taxonomyScores,
   scoreGapToTop10: top10CutoffScore === null ? 0 : Number(Math.max(0, top10CutoffScore - mission.totalScore).toFixed(6)),
+  scoreLeadOverTop10: top10CutoffScore === null ? 0 : Number(Math.max(0, mission.totalScore - top10CutoffScore).toFixed(6)),
 });
 
 const diagnoseFailedExpectations = async (params: {
@@ -416,7 +418,9 @@ const printHumanReport = (profiles: ProfileEvaluation[]): void => {
           candidat_échec: expectation.found
             ? "—"
             : expectation.failureCandidate
-              ? `#${expectation.failureCandidate.position} · score=${expectation.failureCandidate.totalScore.toFixed(6)} · écart_top10=${expectation.failureCandidate.scoreGapToTop10.toFixed(6)}`
+              ? expectation.failureReason === "above_max"
+                ? `#${expectation.failureCandidate.position} · score=${expectation.failureCandidate.totalScore.toFixed(6)} · avance_top10=${expectation.failureCandidate.scoreLeadOverTop10.toFixed(6)}`
+                : `#${expectation.failureCandidate.position} · score=${expectation.failureCandidate.totalScore.toFixed(6)} · écart_top10=${expectation.failureCandidate.scoreGapToTop10.toFixed(6)}`
               : expectation.failureCandidateSearchComplete
                 ? "aucune mission correspondante"
                 : `non trouvée jusqu'au rang ${expectation.failureCandidateSearchMaxPosition}`,

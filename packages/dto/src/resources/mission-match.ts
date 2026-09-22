@@ -73,9 +73,9 @@ export type MissionMatchResponse = {
   items: MissionMatchItem[];
   // Optionnel : une plateform récente peut interroger une API plus ancienne qui ne renvoie pas ce champ.
   userValues?: MissionMatchUserValue[];
-  // Nombre total de missions classées pour l'utilisateur (avant pagination).
+  // Nombre de missions retournées, limité à 100.
   total: number;
   // Distance moyenne (km) entre l'utilisateur et les 5 premières missions recommandées.
-  // Null sans localisation ou hors première page.
+  // Null sans localisation.
   avgDistanceKmTop5: number | null;
 };
