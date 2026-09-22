@@ -1,5 +1,13 @@
 import { PUBLISHER_IDS } from "@/config";
-import { ACTIVITY_OCCUPATION, DEFAULT_BUSINESS_SECTOR, DEPARTMENTS, DOMAIN_BUSINESS_SECTOR, LEBONCOIN_BENEVOLAT_USER_ID, LEBONCOIN_SC_USER_ID } from "@/jobs/leboncoin/config";
+import {
+  ACTIVITY_OCCUPATION,
+  DEFAULT_BUSINESS_SECTOR,
+  DEPARTMENTS,
+  DOMAIN_BUSINESS_SECTOR,
+  LEBONCOIN_JVA_USER_ID,
+  LEBONCOIN_SC_USER_ID,
+  LEBONCOIN_SPV_USER_ID,
+} from "@/jobs/leboncoin/config";
 import { LeboncoinApplicant, LeboncoinCompany, LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { buildScTitle, formatDate, stripHtml, truncate, truncateAtWord } from "@/jobs/leboncoin/utils";
 import { MissionAddress, MissionRecord } from "@/types/mission";
@@ -135,7 +143,7 @@ export function missionToSpvOffer(mission: MissionRecord): LeboncoinOffer | null
   const hasSalary = (mission.compensationAmount != null && mission.compensationAmount > 0) || (mission.compensationAmountMax != null && mission.compensationAmountMax > 0);
 
   return {
-    user_id: LEBONCOIN_BENEVOLAT_USER_ID,
+    user_id: LEBONCOIN_SPV_USER_ID,
     partner_unique_reference: `spv-${code}`,
     client_reference: truncate(`SPV-${code}`, CLIENT_REFERENCE_MAX_LENGTH),
     title: `Volontariat Sapeur-Pompier - ${dept.name}`,
@@ -158,7 +166,7 @@ export function missionToSpvOffer(mission: MissionRecord): LeboncoinOffer | null
  * Offre bénévolat JeVeuxAider (rubrique Bénévolat), une par mission. Retourne null si aucune
  * adresse n'a de code postal ET de ville.
  */
-export function missionToBenevolatOffer(mission: MissionRecord): LeboncoinOffer | null {
+export function missionToJvaOffer(mission: MissionRecord): LeboncoinOffer | null {
   const address = firstLocatableAddress(mission);
   if (!address || !address.postalCode || !address.city) {
     return null;
@@ -167,7 +175,7 @@ export function missionToBenevolatOffer(mission: MissionRecord): LeboncoinOffer 
   const hasSalary = mission.compensationAmount != null && mission.compensationAmount > 0;
 
   return {
-    user_id: LEBONCOIN_BENEVOLAT_USER_ID,
+    user_id: LEBONCOIN_JVA_USER_ID,
     partner_unique_reference: mission.id,
     client_reference: mission.clientId ? truncate(mission.clientId, CLIENT_REFERENCE_MAX_LENGTH) : undefined,
     title: truncateAtWord(mission.title, TITLE_MAX_LENGTH),

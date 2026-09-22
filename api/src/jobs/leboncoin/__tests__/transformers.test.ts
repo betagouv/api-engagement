@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { missionToBenevolatOffer, missionToServiceCiviqueOffer, missionToSpvOffer } from "@/jobs/leboncoin/transformers";
+import { missionToJvaOffer, missionToServiceCiviqueOffer, missionToSpvOffer } from "@/jobs/leboncoin/transformers";
 import { MissionRecord } from "@/types/mission";
 
 vi.mock("../config", async () => {
   const config = await vi.importActual<typeof import("@/jobs/leboncoin/config")>("../config");
-  return { ...config, LEBONCOIN_SC_USER_ID: "sc-user", LEBONCOIN_BENEVOLAT_USER_ID: "benevolat-user" };
+  return { ...config, LEBONCOIN_SC_USER_ID: "sc-user", LEBONCOIN_SPV_USER_ID: "spv-user", LEBONCOIN_JVA_USER_ID: "jva-user" };
 });
 
 vi.mock("../../../utils/mission", () => ({
@@ -89,7 +89,7 @@ const spvMission: Partial<MissionRecord> = {
 describe("missionToSpvOffer", () => {
   it("mappe une mission SPV en offre départementale (localisation forcée au chef-lieu)", () => {
     const offer = missionToSpvOffer(spvMission as MissionRecord)!;
-    expect(offer.user_id).toBe("benevolat-user");
+    expect(offer.user_id).toBe("spv-user");
     expect(offer.partner_unique_reference).toBe("spv-13");
     expect(offer.client_reference).toBe("SPV-13");
     expect(offer.title).toBe("Volontariat Sapeur-Pompier - Bouches-du-Rhône");
@@ -128,10 +128,10 @@ const jvaMission: Partial<MissionRecord> = {
   addresses: [{ city: "Autun", postalCode: "71400", departmentCode: "71", departmentName: "Saône-et-Loire", country: "France", street: null, region: null, location: null } as any],
 };
 
-describe("missionToBenevolatOffer (JeVeuxAider)", () => {
+describe("missionToJvaOffer (JeVeuxAider)", () => {
   it("mappe une mission JVA en offre bénévolat", () => {
-    const offer = missionToBenevolatOffer(jvaMission as MissionRecord)!;
-    expect(offer.user_id).toBe("benevolat-user");
+    const offer = missionToJvaOffer(jvaMission as MissionRecord)!;
+    expect(offer.user_id).toBe("jva-user");
     expect(offer.partner_unique_reference).toBe("uuid-jva-1");
     expect(offer.contract_type).toBe(7);
     expect(offer.time_type).toBe(2);
@@ -146,13 +146,13 @@ describe("missionToBenevolatOffer (JeVeuxAider)", () => {
 
   it("tronque un titre trop long à 100 caractères avec …", () => {
     const long = { ...jvaMission, title: "A".repeat(150) };
-    const offer = missionToBenevolatOffer(long as MissionRecord)!;
+    const offer = missionToJvaOffer(long as MissionRecord)!;
     expect(offer.title.length).toBeLessThanOrEqual(100);
     expect(offer.title.endsWith("…")).toBe(true);
   });
 
   it("exclut une mission JVA sans code postal", () => {
     const mission = { ...jvaMission, addresses: [{ city: "Autun", postalCode: null } as any] };
-    expect(missionToBenevolatOffer(mission as MissionRecord)).toBeNull();
+    expect(missionToJvaOffer(mission as MissionRecord)).toBeNull();
   });
 });
