@@ -5,7 +5,7 @@ import { Prisma } from "@/db/core";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { LEBONCOIN_JVA_USER_ID, LEBONCOIN_SC_USER_ID, LEBONCOIN_SPV_USER_ID } from "@/jobs/leboncoin/config";
-import { missionToJvaOffer, missionToServiceCiviqueOffer, missionToSpvOffer } from "@/jobs/leboncoin/transformers";
+import { missionToOffer } from "@/jobs/leboncoin/transformers";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { generateXML, storeXML } from "@/jobs/leboncoin/utils";
 import { JobResult } from "@/jobs/types";
@@ -70,7 +70,7 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     const where = await buildWhere({ diffuseurPublisherId: PUBLISHER_IDS.LEBONCOIN, publisherIds: [PUBLISHER_IDS.SERVICE_CIVIQUE], statusCode: "ACCEPTED", limit: 0, skip: 0 });
     const missions = await missionService.findMissionsBy(where, { limit: SERVICE_CIVIQUE_MAX_OFFERS, orderBy: { createdAt: Prisma.SortOrder.desc } });
 
-    const offers = missions.map(missionToServiceCiviqueOffer).filter((offer): offer is LeboncoinOffer => offer !== null);
+    const offers = missions.map((mission) => missionToOffer(mission, "service-civique")).filter((offer): offer is LeboncoinOffer => offer !== null);
     const url = await this.publish(offers, "leboncoin-service-civique", "LEBONCOIN_SERVICE_CIVIQUE", start);
     console.log(`[Leboncoin] Service Civique: ${missions.length} missions, ${offers.length} offres`);
     return { sent: offers.length, url };
@@ -85,7 +85,7 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     if (spvPublisherIds.length) {
       const where = await buildWhere({ diffuseurPublisherId: PUBLISHER_IDS.LEBONCOIN, publisherIds: spvPublisherIds, statusCode: "ACCEPTED", limit: 0, skip: 0 });
       const missions = await missionService.findMissionsBy(where, { orderBy: { createdAt: Prisma.SortOrder.desc } });
-      offers = missions.map(missionToSpvOffer).filter((offer): offer is LeboncoinOffer => offer !== null);
+      offers = missions.map((mission) => missionToOffer(mission, "spv")).filter((offer): offer is LeboncoinOffer => offer !== null);
     }
 
     const url = await this.publish(offers, "leboncoin-spv", "LEBONCOIN_SPV", start);
@@ -98,7 +98,7 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     const where = await buildWhere({ diffuseurPublisherId: PUBLISHER_IDS.LEBONCOIN, publisherIds: [PUBLISHER_IDS.JEVEUXAIDER], statusCode: "ACCEPTED", limit: 0, skip: 0 });
     const missions = await missionService.findMissionsBy(where, { orderBy: { createdAt: Prisma.SortOrder.desc } });
 
-    const offers = missions.map(missionToJvaOffer).filter((offer): offer is LeboncoinOffer => offer !== null);
+    const offers = missions.map((mission) => missionToOffer(mission, "jva")).filter((offer): offer is LeboncoinOffer => offer !== null);
     const url = await this.publish(offers, "leboncoin-jeveuxaider", "LEBONCOIN_JEVEUXAIDER", start);
     console.log(`[Leboncoin] JeVeuxAider: ${missions.length} missions, ${offers.length} offres`);
     return { sent: offers.length, url };

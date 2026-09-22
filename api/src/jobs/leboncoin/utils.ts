@@ -11,16 +11,15 @@ const CDATA_KEYS = [
   "client_reference",
   "title",
   "description",
+  "contract_type",
+  "mode",
   "contact",
-  "street",
-  "zip_code",
   "city",
+  "zip_code",
   "country",
-  "name",
-  "url",
-  "profile",
-  "skills",
-  "picture",
+  "type",
+  "company",
+  "logo",
 ];
 
 /** Nettoie un texte HTML en texte brut (leboncoin refuse toute mise en forme HTML). */
@@ -106,7 +105,6 @@ export function generateXML(offers: LeboncoinOffer[]): string {
     source: {
       publisher: "api-engagement",
       publisherurl: "https://api-engagement.beta.gouv.fr/",
-      lastbuilddate: new Date().toUTCString(),
       job: offers.map((offer) => wrapWithCdata(offer)),
     },
   };
