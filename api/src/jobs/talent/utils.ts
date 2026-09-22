@@ -1,12 +1,12 @@
 import { JVA_LOGO_URL } from "@/config";
-import { buildFeedXml } from "@/jobs/base/xml";
 import { CATEGORY_MAPPING, TALENT_XML_URL } from "@/jobs/talent/config";
 import { missionToTalentJob } from "@/jobs/talent/transformers";
 import { TalentJob } from "@/jobs/talent/types";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { MissionRecord } from "@/types/mission";
+import { buildFeedXml } from "@/utils/xml";
 
-export { getMissionsCursor } from "@/jobs/base/missions-cursor";
+export { getMissionsCursor } from "@/utils/mission-cursor";
 
 export async function generateJobs(missionsCursor: AsyncIterable<MissionRecord>): Promise<{ jobs: TalentJob[]; expired: number; processed: number }> {
   const jobs = [] as TalentJob[];

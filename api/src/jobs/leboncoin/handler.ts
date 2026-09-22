@@ -4,7 +4,6 @@ import { ENV, PUBLISHER_IDS } from "@/config";
 import { Prisma } from "@/db/core";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
-import { getMissionsCursor } from "@/jobs/base/missions-cursor";
 import { Dispositif, missionToOffer } from "@/jobs/leboncoin/transformers";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { generateXML, storeXML } from "@/jobs/leboncoin/utils";
@@ -13,6 +12,7 @@ import { importService } from "@/services/import";
 import { publisherService } from "@/services/publisher";
 import { MissionSearchFilters } from "@/types/mission";
 import { PublisherMissionType } from "@/types/publisher";
+import { getMissionsCursor } from "@/utils/mission-cursor";
 
 // Quota Service Civique : les 1000 missions les plus récentes diffusées à leboncoin.
 // SPV et JeVeuxAider ne sont pas plafonnés (bornés par mission_diffusion).

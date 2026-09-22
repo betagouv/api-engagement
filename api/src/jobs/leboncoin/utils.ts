@@ -1,8 +1,8 @@
 import { convert } from "html-to-text";
 
-import { buildFeedXml } from "@/jobs/base/xml";
 import { LeboncoinOffer } from "@/jobs/leboncoin/types";
 import { BUCKET_URL, OBJECT_ACL, putObject } from "@/services/s3";
+import { buildFeedXml } from "@/utils/xml";
 
 // Champs texte à encapsuler en CDATA (à n'importe quel niveau de l'arbre).
 const CDATA_KEYS = [
