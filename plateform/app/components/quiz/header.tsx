@@ -1,4 +1,6 @@
 import { Link } from "react-router";
+
+import TtmLogoSvg from "~/assets/svg/ttm-logo.svg";
 import ExitModal from "./exit-modal";
 
 interface QuizHeaderProps {
@@ -14,23 +16,24 @@ export default function QuizHeader({ step = 0, stepCount, backHref, onBack }: Qu
   return (
     <header role="banner" className="fr-header filter-none! relative">
       <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-2 right-4 p-2 z-10 hidden lg:block" />
-      <div className="fr-container hidden lg:block">
-        <div className="fr-header__body-row items-start">
-          <div className="fr-enlarge-link hover:bg-raised-grey-hover -my-4 flex items-center">
-            <div className="fr-header__brand-top">
-              <div className="fr-header__logo">
-                <p className="fr-logo">
-                  République
-                  <br />
-                  Française
-                </p>
+      <div className="fr-header__body hidden lg:block">
+        <div className="fr-container">
+          <div className="fr-header__body-row">
+            <div className="fr-header__brand">
+              <div className="fr-header__brand-top">
+                <div className="fr-header__logo">
+                  <p className="fr-logo">
+                    République
+                    <br />
+                    Française
+                  </p>
+                </div>
+                <div className="fr-header__operator">
+                  <Link to="/" title="Accueil — Trouve ta mission">
+                    <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-[149px]" />
+                  </Link>
+                </div>
               </div>
-            </div>
-            <div className="p-4 text-title-grey">
-              <Link to="/" title="Trouve ta mission">
-                <p className="fr-header__service-title">Trouve ta mission</p>
-              </Link>
-              <p className="fr-header__service-tagline">Service public pour trouver une mission d'engagement</p>
             </div>
           </div>
         </div>
@@ -42,7 +45,9 @@ export default function QuizHeader({ step = 0, stepCount, backHref, onBack }: Qu
             Retour
           </Link>
         )}
-        <p className="fr-h6 absolute left-1/2 -translate-x-1/2 mb-0">Trouve ta mission</p>
+        <Link to="/" title="Accueil — Trouve ta mission" className="absolute left-1/2 -translate-x-1/2">
+          <img src={TtmLogoSvg} alt="Trouve ta mission" className="h-10 w-[72px]" />
+        </Link>
       </div>
 
       <div
