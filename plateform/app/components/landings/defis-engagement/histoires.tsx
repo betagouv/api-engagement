@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 
-import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage-1.jpg";
-import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
-import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
+import Temoignage1Webp from "~/assets/images/landings/defis-engagement/temoignage-1.webp";
+import Temoignage2Webp from "~/assets/images/landings/defis-engagement/temoignage-2.webp";
+import Temoignage3Webp from "~/assets/images/landings/defis-engagement/temoignage-3.webp";
 import DoubleQuotesSvg from "~/assets/svg/double-quotes.svg";
 import Highlight from "~/components/ui/highlight";
 import type { LandingCta } from "~/services/tracking/types";
@@ -57,7 +57,7 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
           <Temoignage {...NACIM} />
           {/* Sur tablette la photo absorbe la hauteur restante de la rangée, à taille fixe sur desktop. */}
           <img
-            src={Temoignage1Jpg}
+            src={Temoignage1Webp}
             alt=""
             loading="lazy"
             className="h-[235px] w-full rounded-2xl object-cover md:h-auto md:min-h-[235px] md:flex-1 lg:h-[235px] lg:min-h-0 lg:flex-none"
@@ -68,7 +68,7 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
         <Temoignage {...VICTORIA} className="md:col-start-1 md:row-start-2 lg:col-start-2" />
 
         <img
-          src={Temoignage2Jpg}
+          src={Temoignage2Webp}
           alt=""
           loading="lazy"
           className="h-[414px] w-full rounded-2xl object-cover md:col-start-2 md:row-start-1 md:h-full md:min-h-[414px] lg:h-[414px] lg:min-h-0"
@@ -76,7 +76,7 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
 
         <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2 lg:col-start-3 lg:row-start-1 lg:row-span-2">
           <Temoignage {...ELODIE} />
-          <img src={Temoignage3Jpg} alt="" loading="lazy" className="hidden h-[235px] w-full rounded-2xl object-cover md:block" />
+          <img src={Temoignage3Webp} alt="" loading="lazy" className="hidden h-[235px] w-full rounded-2xl object-cover md:block" />
         </div>
       </div>
 
