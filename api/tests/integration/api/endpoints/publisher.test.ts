@@ -236,7 +236,7 @@ describe("Dashboard publisher controller", () => {
     const res = await request(app)
       .put(`/publisher/${publisherId}`)
       .set({ Authorization: `jwt ${adminToken}` })
-      .send({ hasApiRights: true, publishers: [{ publisherId: annonceur.id }] });
+      .send({ hasApiRights: true, category: "association", publishers: [{ publisherId: annonceur.id }] });
 
     expect(res.status).toBe(200);
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId } });

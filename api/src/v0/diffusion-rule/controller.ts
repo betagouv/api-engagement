@@ -122,7 +122,11 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "No diffuseur match the request" });
     }
 
-    const created = await Promise.all(
+    // allSettled (pas Promise.all) : si un diffuseur du batch échoue, on attend quand même que les
+    // autres finissent (création + enqueue) avant de répondre, sinon la réponse HTTP peut partir avant
+    // que leurs écritures ne soient committées (Promise.all ne fait qu'attendre la PREMIÈRE promesse
+    // réglée en cas de rejet, sans attendre les autres).
+    const settled = await Promise.allSettled(
       diffuseurIds.map(async (diffuseurId) => {
         const rule = await publisherDiffusionRuleService.createScopedRule({
           diffuseurPublisherId: diffuseurId,
@@ -133,14 +137,21 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
           value: body.data.value,
         });
 
-        // Enqueue dès la création réussie de CE diffuseur : si un autre diffuseur du même batch échoue
-        // ensuite (Promise.all rejette), la règle déjà committée ici ne doit pas rester avec un
-        // snapshot mission_diffusion stale.
+        // Enqueue dès la création réussie de CE diffuseur : si un autre diffuseur du même batch échoue,
+        // la règle déjà committée ici ne doit pas rester avec un snapshot mission_diffusion stale.
         await publisherService.enqueuePublisherDiffusion(diffuseurId);
 
         return rule;
       })
     );
+
+    const created = [];
+    for (const result of settled) {
+      if (result.status === "rejected") {
+        throw result.reason;
+      }
+      created.push(result.value);
+    }
 
     return res.status(201).send({
       ok: true,
