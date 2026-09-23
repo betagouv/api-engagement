@@ -44,7 +44,7 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
 export default function Histoires({ cta }: { cta: LandingCta }) {
   return (
     <section className="fr-container">
-      <h2 className="fr-h1 fr-mb-6w text-center">
+      <h2 className="fr-h1 text-center mb-4! md:mb-8!">
         Des histoires vraies
         <br />
         qui donnent <Highlight className="bg-[#fbe769] dark:bg-transparent">envie d'agir</Highlight>
@@ -58,19 +58,19 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
       <div className="fr-mb-6w grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
           <Temoignage {...NACIM} />
-          <img src={Temoignage1Jpg} alt="" loading="lazy" className="aspect-[2/1] w-full rounded-2xl object-cover" />
+          <img src={Temoignage1Jpg} alt="" loading="lazy" className="aspect-2/1 w-full rounded-2xl object-cover" />
           <Temoignage {...VICTORIA} className="lg:hidden" />
         </div>
 
         <div className="flex flex-col gap-6 lg:contents">
           <div className="flex flex-col gap-6">
-            <img src={Temoignage2Jpg} alt="" loading="lazy" className="h-[190px] w-full rounded-2xl object-cover object-[center_30%] md:h-[414px] lg:h-[366px]" />
+            <img src={Temoignage2Jpg} alt="" loading="lazy" className="h-47.5 w-full rounded-2xl object-cover object-[center_30%] md:h-104 lg:h-92" />
             <Temoignage {...VICTORIA} className="hidden lg:flex" />
           </div>
 
           <div className="flex flex-col gap-6">
             <Temoignage {...CAMILLE} />
-            <img src={Temoignage3Jpg} alt="" loading="lazy" className="aspect-[3/2] w-full rounded-2xl object-cover" />
+            <img src={Temoignage3Jpg} alt="" loading="lazy" className="aspect-3/2 w-full rounded-2xl object-cover" />
           </div>
         </div>
       </div>

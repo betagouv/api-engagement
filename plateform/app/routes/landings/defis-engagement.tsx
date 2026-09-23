@@ -133,7 +133,7 @@ export default function DefisEngagement() {
   });
 
   return (
-    <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-16! md:gap-24!">
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
       <Missions missions={missions} cta={missionsCta("missions")} />
       <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />

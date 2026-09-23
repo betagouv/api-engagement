@@ -94,7 +94,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
         open={open}
         onClose={handleClose}
         title={missionId ? "Reçois ta mission par email" : "Reçois tes missions par email"}
-        beforeTitle={<MailIllustration className="mx-auto mb-6 h-[100px]" />}
+        beforeTitle={<MailIllustration className="mx-auto mb-6 h-25" />}
         className=""
       >
         {success ? (
