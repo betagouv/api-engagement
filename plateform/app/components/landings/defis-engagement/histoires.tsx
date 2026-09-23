@@ -1,8 +1,5 @@
 import { Link } from "react-router";
 
-import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage-1.jpg";
-import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
-import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
 import DoubleQuotesSvg from "~/assets/svg/double-quotes.svg";
 import Highlight from "~/components/ui/highlight";
 import type { LandingCta } from "~/services/tracking/types";
