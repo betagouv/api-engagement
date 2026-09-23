@@ -106,7 +106,14 @@ export class LeboncoinHandler implements BaseHandler<LeboncoinJobPayload, Lebonc
     } catch (error) {
       captureException(error);
       console.error("[Leboncoin] %s en échec", slug, error);
-      await this.recordImport(importName, "FAILED", 0, start);
+      // La trace d'échec ne doit jamais s'échapper de runFeed : sinon un flux dont seule
+      // la journalisation est indisponible avorterait les flux suivants (perte d'isolation).
+      try {
+        await this.recordImport(importName, "FAILED", 0, start);
+      } catch (importError) {
+        captureException(importError);
+        console.error("[Leboncoin] %s : trace d'import en échec", slug, importError);
+      }
       return { sent: 0, url: "", ok: false };
     }
   }
