@@ -1,8 +1,8 @@
 import { Link } from "react-router";
 
-import Temoignage1Jpg from "~/assets/images/landings/defis-engagement/temoignage-1.jpg";
-import Temoignage2Jpg from "~/assets/images/landings/defis-engagement/temoignage-2.jpg";
-import Temoignage3Jpg from "~/assets/images/landings/defis-engagement/temoignage-3.jpg";
+import Temoignage1Webp from "~/assets/images/landings/defis-engagement/temoignage-1.webp";
+import Temoignage2Webp from "~/assets/images/landings/defis-engagement/temoignage-2.webp";
+import Temoignage3Webp from "~/assets/images/landings/defis-engagement/temoignage-3.webp";
 import DoubleQuotesSvg from "~/assets/svg/double-quotes.svg";
 import Highlight from "~/components/ui/highlight";
 import type { LandingCta } from "~/services/tracking/types";
@@ -58,19 +58,19 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
       <div className="fr-mb-6w grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
           <Temoignage {...NACIM} />
-          <img src={Temoignage1Jpg} alt="" loading="lazy" className="aspect-2/1 w-full rounded-2xl object-cover" />
+          <img src={Temoignage1Webp} alt="" loading="lazy" className="aspect-2/1 w-full rounded-2xl object-cover" />
           <Temoignage {...VICTORIA} className="lg:hidden" />
         </div>
 
         <div className="flex flex-col gap-6 lg:contents">
           <div className="flex flex-col gap-6">
-            <img src={Temoignage2Jpg} alt="" loading="lazy" className="h-47.5 w-full rounded-2xl object-cover object-[center_30%] md:h-104 lg:h-92" />
+            <img src={Temoignage2Webp} alt="" loading="lazy" className="h-47.5 w-full rounded-2xl object-cover object-[center_30%] md:h-104 lg:h-92" />
             <Temoignage {...VICTORIA} className="hidden lg:flex" />
           </div>
 
           <div className="flex flex-col gap-6">
             <Temoignage {...CAMILLE} />
-            <img src={Temoignage3Jpg} alt="" loading="lazy" className="aspect-3/2 w-full rounded-2xl object-cover" />
+            <img src={Temoignage3Webp} alt="" loading="lazy" className="aspect-3/2 w-full rounded-2xl object-cover" />
           </div>
         </div>
       </div>
