@@ -16,7 +16,11 @@ interface CursorOptions {
  */
 export async function* getMissionsCursor(filters: Omit<MissionSearchFilters, "limit" | "skip">, options: CursorOptions = {}): AsyncGenerator<MissionRecord> {
   const batchSize = options.batchSize ?? DEFAULT_BATCH_SIZE;
-  const orderBy = options.orderBy ?? { createdAt: Prisma.SortOrder.asc };
+  // Pagination par `skip` : sans clé de tri unique, PostgreSQL peut réordonner les ex æquo
+  // (même `createdAt`) entre deux lots → missions dupliquées ou omises. On complète donc
+  // systématiquement le tri par `id` (unique) pour garantir un ordre total et stable.
+  const requestedOrderBy = options.orderBy ?? { createdAt: Prisma.SortOrder.asc };
+  const orderBy = [...(Array.isArray(requestedOrderBy) ? requestedOrderBy : [requestedOrderBy]), { id: Prisma.SortOrder.asc }];
   const where = await buildWhere({ ...filters, limit: batchSize, skip: 0 });
   const total = options.limit ?? (await missionService.countBy(where));
 
