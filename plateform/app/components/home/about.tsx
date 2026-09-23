@@ -35,7 +35,7 @@ export default function About() {
           Qui est <Highlight className="bg-yellow-tournesol-925">TrouveTaMission.gouv.fr</Highlight> ?
         </h2>
         <p className="fr-text--lg text-default-grey fr-mb-0">
-          TrouveTaMission.gouv.fr est le service public numérique de l'engagement, ouvert à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des
+          TrouveTaMission.gouv.fr est le service public numérique de l'engagement, accessible à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des
           citoyennes vers les missions d'intérêt général.
         </p>
       </div>
