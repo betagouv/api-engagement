@@ -3,9 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 const handleMock = vi.fn();
 
 vi.mock("@/jobs/mission-diffusion-rebuild/handler", () => ({
-  MissionDiffusionRebuildHandler: vi.fn().mockImplementation(() => ({
-    handle: handleMock,
-  })),
+  // Implémentation en `function` (pas une arrow function) : handlePublisherDiffusion instancie cette
+  // classe via `new`, et une arrow function ne peut pas servir de constructeur.
+  MissionDiffusionRebuildHandler: vi.fn().mockImplementation(function () {
+    return { handle: handleMock };
+  }),
 }));
 
 import { handlePublisherDiffusion } from "@/worker/handlers/publisher-diffusion";

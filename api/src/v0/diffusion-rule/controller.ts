@@ -29,7 +29,9 @@ const ALLOWED_RULE_FIELDS = ["publisherOrganization.clientId", "publisherOrganiz
 // une règle hors registre casserait le filtrage des missions (match / missions-browse).
 const ruleBodySchema = zod
   .object({
-    publisherIds: zod.array(zod.string()).min(1),
+    // Borne alignée sur REINDEX_PUBLISH_BATCH_SIZE (mission-diffusion-rebuild/handler.ts) : chaque
+    // diffuseur déclenche un rebuild complet de son snapshot, pas de fan-out illimité par requête.
+    publisherIds: zod.array(zod.string()).min(1).max(50),
     field: zod.enum(ALLOWED_RULE_FIELDS),
     fieldType: zod.enum(["string"]).optional().nullable(),
     operator: zod.string().min(1),
@@ -113,7 +115,7 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
 
     const allowedDiffuseurs = await publisherService.findPublishers({ diffuseurOf: user.id });
     const allowedIds = new Set(allowedDiffuseurs.map((diffuseur) => diffuseur.id));
-    const diffuseurIds = body.data.publisherIds.filter((id) => allowedIds.has(id));
+    const diffuseurIds = [...new Set(body.data.publisherIds.filter((id) => allowedIds.has(id)))];
 
     if (!diffuseurIds.length) {
       res.locals = { code: FORBIDDEN, message: "No diffuseur match the request" };
@@ -121,20 +123,24 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
     }
 
     const created = await Promise.all(
-      diffuseurIds.map((diffuseurId) =>
-        publisherDiffusionRuleService.createScopedRule({
+      diffuseurIds.map(async (diffuseurId) => {
+        const rule = await publisherDiffusionRuleService.createScopedRule({
           diffuseurPublisherId: diffuseurId,
           annonceurPublisherId: user.id,
           field: body.data.field,
           fieldType: body.data.fieldType ?? "string",
           operator: body.data.operator,
           value: body.data.value,
-        })
-      )
-    );
+        });
 
-    // Chaque diffuseur scopé par la règle voit potentiellement son allowlist changer.
-    await Promise.all(diffuseurIds.map((diffuseurId) => publisherService.enqueuePublisherDiffusion(diffuseurId)));
+        // Enqueue dès la création réussie de CE diffuseur : si un autre diffuseur du même batch échoue
+        // ensuite (Promise.all rejette), la règle déjà committée ici ne doit pas rester avec un
+        // snapshot mission_diffusion stale.
+        await publisherService.enqueuePublisherDiffusion(diffuseurId);
+
+        return rule;
+      })
+    );
 
     return res.status(201).send({
       ok: true,
