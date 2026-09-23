@@ -100,7 +100,7 @@ export default function Carousel({
         role="list"
         tabIndex={scrollable ? 0 : undefined}
         aria-label={scrollable ? label : undefined}
-        className={`scrollbar-none mt-0! mb-6! flex list-none! snap-x snap-mandatory items-stretch gap-4 md:gap-6 overflow-x-auto -mx-4! px-4! py-6! scroll-px-4! ${listClassName}`}
+        className={`scrollbar-none my-0! flex list-none! snap-x snap-mandatory items-stretch gap-4 md:gap-6 overflow-x-auto -mx-4! px-4! py-6! scroll-px-4! ${listClassName}`}
       >
         {/* Le DSFR pose `content` sur `li::marker` : `list-none` ne suffit pas à masquer le compteur d'une `<ol>`. */}
         {slides.map((slide, index) => (
@@ -111,7 +111,7 @@ export default function Carousel({
       </ListTag>
 
       {(scrollable || action) && (
-        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-center md:gap-3">
+        <div className="flex flex-col mt-6 items-center gap-4 md:flex-row md:justify-center md:gap-3">
           {scrollable && (
             <div className="flex gap-6 md:gap-3">
               <button

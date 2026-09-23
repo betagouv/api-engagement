@@ -6,10 +6,13 @@
 //  - plugin legacy WebHooks (champs à la racine + event) : https://develop.sentry.dev/integrations/webhooks/
 //  - intégration Sentry / Sentry App, alerte "issue alert" (tout est sous data.event) :
 //    https://docs.sentry.io/organization/integrations/integration-platform/webhooks/issue-alerts/
+import { createHmac, timingSafeEqual } from "node:crypto";
+
 type FunctionEvent = {
   httpMethod: string;
   body?: string;
   isBase64Encoded?: boolean;
+  headers?: Record<string, string | undefined>;
 };
 
 type SentryEvent = {
@@ -50,6 +53,10 @@ type SentryWebhookPayload = {
 // Préfixe commun des logs, pour les isoler facilement dans Cockpit.
 const LOG_PREFIX = "[sentry-webhook]";
 
+// Instance Sentry self-hosted qui envoie les alertes : tous les liens d'un payload légitime
+// (issue, url d'api de l'événement) pointent dessus.
+const SENTRY_URL = "https://sentry.incubateur.net";
+
 const LEVEL_EMOJIS: Record<string, string> = { fatal: "⚫️", error: "🔴", warning: "🟡", info: "🔵", debug: "🟢" };
 // Couleur de la barre latérale de l'attachment Slack, indexée sur le niveau Sentry.
 const LEVEL_COLORS: Record<string, string> = { fatal: "#b3131a", error: "#e03e2f", warning: "#f2a100", info: "#439fe0", debug: "#9b9b9b" };
@@ -61,35 +68,80 @@ const escapeMrkdwn = (text: string) => text.replace(/&/g, "&amp;").replace(/</g,
 
 export const handle = async (event: FunctionEvent) => {
   const startedAt = Date.now();
-  console.log(`${LOG_PREFIX} requête ${event.httpMethod} (body: ${event.body?.length ?? 0} octets, base64: ${event.isBase64Encoded === true})`);
 
+  // La fonction est publique : les gardes ci-dessous rejettent le bruit (scanners, bots) en une
+  // seule ligne de log, avant de parler à Slack.
   if (event.httpMethod !== "POST") {
-    console.warn(`${LOG_PREFIX} méthode refusée: ${event.httpMethod}`);
+    console.warn(`${LOG_PREFIX} requête rejetée: méthode ${event.httpMethod}`);
     return json({ error: "Method not allowed" }, 405);
   }
 
-  const raw = event.isBase64Encoded ? Buffer.from(event.body ?? "", "base64").toString() : (event.body ?? "");
+  // L'intégration Sentry signe chaque requête : l'en-tête Sentry-Hook-Signature contient le HMAC
+  // SHA256 du body brut, calculé avec le Client Secret de la Custom Integration. La signature porte
+  // sur les octets reçus : elle se vérifie avant tout parsing. Tant que SENTRY_CLIENT_SECRET est
+  // vide, la vérification est désactivée (le plugin legacy, lui, ne signe rien).
+  const rawBody = Buffer.from(event.body ?? "", event.isBase64Encoded ? "base64" : "utf8");
+  const raw = rawBody.toString();
+
+  const clientSecret = process.env.SENTRY_CLIENT_SECRET || "";
+  console.log(event.headers);
+
+  if (clientSecret !== "") {
+    const signature = Object.entries(event.headers ?? {}).find(([key]) => key.toLowerCase() === "sentry-hook-signature")?.[1] ?? "";
+    const expected = createHmac("sha256", clientSecret).update(rawBody).digest("hex");
+    if (signature.length !== expected.length || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      console.warn(`${LOG_PREFIX} requête rejetée: signature ${signature === "" ? "absente" : "invalide"} (body: ${rawBody.length} octets)`);
+      return json({ error: "Unauthorized" }, 401);
+    }
+  }
+
   let payload: SentryWebhookPayload;
   try {
-    payload = JSON.parse(raw);
+    payload = JSON.parse(raw) ?? {};
   } catch {
-    console.error(`${LOG_PREFIX} body illisible, JSON invalide (début: ${raw.slice(0, 200)})`);
+    console.warn(`${LOG_PREFIX} requête rejetée: JSON invalide (body: ${raw.length} octets)`);
     return json({ error: "Invalid JSON body" }, 400);
   }
+
+  const sentryEvent = payload.event ?? payload.data?.event;
+  if (!sentryEvent) {
+    console.warn(`${LOG_PREFIX} requête rejetée: payload non reconnu, ni event ni data.event (clés: ${Object.keys(payload).join(", ") || "aucune"})`);
+    return json({ error: "Not a Sentry payload" }, 400);
+  }
+
+  // Filet pour le plugin legacy, qui ne signe rien : on vérifie que les liens du payload pointent
+  // vers notre instance. Ça n'authentifie pas l'expéditeur, seule la signature le fait.
+  // Comparaison sur l'origine parsée, pas sur le préfixe : "https://sentry.incubateur.net.exemple.com" commence
+  // bien par SENTRY_URL sans être notre instance.
+  const payloadUrls = [payload.url, sentryEvent.web_url, sentryEvent.url];
+  const fromOurSentry = payloadUrls.some((url) => {
+    try {
+      return new URL(url ?? "").origin === SENTRY_URL;
+    } catch {
+      return false;
+    }
+  });
+  if (!fromOurSentry) {
+    console.warn(`${LOG_PREFIX} requête rejetée: aucun lien vers ${SENTRY_URL} (urls: ${payloadUrls.filter(Boolean).join(", ") || "aucune"})`);
+    return json({ error: "Unexpected Sentry host" }, 403);
+  }
+
+  console.log(`${LOG_PREFIX} requête POST (body: ${raw.length} octets, base64: ${event.isBase64Encoded === true})`);
 
   // Dump complet du payload, utile quand Sentry change de format ou qu'un champ tombe en fallback.
   // Désactivé par défaut : un payload de production peut contenir des données personnelles.
   if (process.env.DEBUG_PAYLOAD === "true") console.log(`${LOG_PREFIX} payload brut: ${raw.slice(0, 4000)}`);
 
-  const sentryEvent = payload.event ?? payload.data?.event ?? {};
-  const format = payload.event ? "plugin legacy" : payload.data?.event ? "intégration Sentry" : "inconnu";
+  const format = payload.event ? "plugin legacy" : "intégration Sentry";
   console.log(`${LOG_PREFIX} format: ${format} (clés: ${Object.keys(payload).join(", ")})`);
   if (!sentryEvent.event_id) console.warn(`${LOG_PREFIX} payload inattendu: aucun event_id, le message sera construit avec les valeurs de repli`);
 
   const channelId = (sentryEvent.environment === "staging" ? process.env.SLACK_CHANNEL_ID_STAGING : process.env.SLACK_CHANNEL_ID_PRODUCTION) || "";
   const slackToken = process.env.SLACK_TOKEN || "";
   if (slackToken === "" || channelId === "") {
-    console.error(`${LOG_PREFIX} configuration incomplète (SLACK_TOKEN renseigné: ${slackToken !== ""}, channel pour l'env "${sentryEvent.environment ?? "?"}" renseigné: ${channelId !== ""})`);
+    console.error(
+      `${LOG_PREFIX} configuration incomplète (SLACK_TOKEN renseigné: ${slackToken !== ""}, channel pour l'env "${sentryEvent.environment ?? "?"}" renseigné: ${channelId !== ""})`
+    );
     return json({ error: "Slack token or channel id is not set" }, 500);
   }
 
@@ -112,7 +164,7 @@ export const handle = async (event: FunctionEvent) => {
   const projectName = payload.project_name ?? payload.project ?? projectFromEventUrl ?? "?";
 
   console.log(
-    `${LOG_PREFIX} event ${sentryEvent.event_id ?? "?"} · projet ${projectName} · env ${sentryEvent.environment ?? "?"} · niveau ${level} · titre "${title.slice(0, 120)}" · lien ${issueUrl ? "oui" : "non"} → channel ${channelId}`,
+    `${LOG_PREFIX} event ${sentryEvent.event_id ?? "?"} · projet ${projectName} · env ${sentryEvent.environment ?? "?"} · niveau ${level} · titre "${title.slice(0, 120)}" · lien ${issueUrl ? "oui" : "non"} → channel ${channelId}`
   );
 
   const context = [`Projet : \`${projectName.replace("api-engagement-", "")}\``];

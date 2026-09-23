@@ -35,13 +35,13 @@ export const getDossier = async (number: number) => {
           email
         }
         annotations {
-          key
-          value
+          label
+          stringValue
         }
       }
     }
   `;
-  return query<{ dossier: { id: string; number: number; state: string; dateDepot: string; usager: { email: string } } }>(graphqlQuery, { number });
+  return query<{ dossier: DossierNode }>(graphqlQuery, { number });
 };
 
 // Récupère l'id de l'annotation "Identifiant de la redirection" d'une démarche, au format de clé de

@@ -1,7 +1,7 @@
 import FirefighterSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/firefighter.svg?url";
 import NavyBachiSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/navy-bachi.svg?url";
 import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
-import HeroPng from "~/assets/images/people-landing.png";
+import HeroWebp from "~/assets/images/landings/defis-engagement/people-landing.webp";
 
 export default function Hero({ onStartQuiz }: { onStartQuiz: () => void }) {
   return (
@@ -26,7 +26,7 @@ export default function Hero({ onStartQuiz }: { onStartQuiz: () => void }) {
       <div className="relative w-full md:absolute md:bottom-0 md:left-[42.6%] md:w-[66.2%]">
         <div className="relative aspect-[390/346] w-full overflow-hidden md:aspect-[4080/2724] md:overflow-visible">
           <div className="bg-[#fbe769] absolute top-0 left-[-15.6%] h-[121.4%] w-[131.3%] rounded-full md:left-[22.8%] md:h-auto md:aspect-square md:w-[50.4%]" />
-          <img src={HeroPng} alt="" className="relative size-full object-cover" />
+          <img src={HeroWebp} alt="" fetchPriority="high" className="relative size-full object-cover" />
         </div>
         <img src={FirefighterSvg} alt="" aria-hidden="true" className="absolute top-[-4.3%] left-[14.1%] w-[19.6%] rotate-[18deg] md:top-[-0.7%] md:left-[25.4%] md:w-[9.1%]" />
         <img src={NavyBachiSvg} alt="" aria-hidden="true" className="absolute top-[-4.1%] left-[33.4%] w-[18.1%] rotate-[15deg] md:top-[11.9%] md:left-[37.6%] md:w-[10.7%]" />

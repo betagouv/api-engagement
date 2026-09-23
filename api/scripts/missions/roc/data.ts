@@ -1,12 +1,15 @@
 /**
  * Offres Réserve Opérationnelle des Armées (ROC).
  *
- * Un seul publisher annonceur (ROC) porte les 7 offres ; chaque offre a un
+ * Un seul publisher annonceur (ROC) porte les offres ; chaque offre a un
  * `clientId` distinct. Les champs `type` et `postedAt` sont ajoutés par le
  * script au moment de l'envoi.
  */
 
 export const ROC_TYPE = "volontariat_reserve_operationnelle" as const;
+
+// Visuel générique partagé par toutes les offres ROC (hébergé sur le bucket du publisher).
+export const ROC_IMAGE = "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/65d7715cc0d3764cbed3afaf/generique.jpeg";
 
 export const ROC_OFFERS = [
   {
@@ -18,10 +21,11 @@ export const ROC_OFFERS = [
 <li>Animer et encadrer les équipiers EAJ, veiller au bon déroulement des sessions dans un cadre sécurisé.</li>
 <li>Organiser les activités conformément au référentiel (planning, déroulé de séance, convocation des équipiers, réservation des moyens).</li>
 <li>Gérer la partie administrative de l'activité (note de service, assurance, transport).</li>
-</ul>`,
+</ul>
+<p>Activités de septembre à juin, principalement le mercredi après-midi, ainsi que d'autres journées pour l'organisation et le suivi administratif. Contrat de 3 ans souhaité.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=304&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: "https://www.defense.gouv.fr/sites/default/files/styles/16_9_lg/public/air/2024_A106_138_L_001_024.jpg?itok=oaF-9UJx",
+    image: ROC_IMAGE,
     domain: "service-public-defense-securite",
     activities: ["animation"],
     requirements: [
@@ -33,8 +37,7 @@ export const ROC_OFFERS = [
       "Des connaissances en aéronautique sont un plus",
     ],
     softSkills: ["Sens du relationnel", "Rigueur", "Dynamisme", "Esprit d'équipe", "Motivation", "Disponibilité", "Pédagogie"],
-    schedule:
-      "Activités de septembre à juin, principalement le mercredi après-midi, ainsi que d'autres journées pour l'organisation et le suivi administratif. ~60 jours/an, contrat souhaité de 3 ans.",
+    schedule: "Mercredi après-midi. 60 jours/an.",
     remote: "local",
     openToMinors: true,
     organizationName: "Armée de l'Air et de l'Espace",
@@ -60,10 +63,11 @@ export const ROC_OFFERS = [
 <p><strong>Activités secondaires :</strong></p>
 <ul>
 <li>Participer aux missions Sentinelle.</li>
-</ul>`,
+</ul>
+<p>Contrat de 3 ans souhaité.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=304&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: "https://devenir-aviateur.gouv.fr/uploads/media/1440x/06/2196-desktop%201%20s%C3%A9curit%C3%A9%20protection.webp?v=1-0",
+    image: ROC_IMAGE,
     domain: "service-public-defense-securite",
     activities: ["operations-militaires"],
     requirements: [
@@ -72,7 +76,7 @@ export const ROC_OFFERS = [
       "Formation militaire complémentaire de réserve (FMCR) - formation interne",
     ],
     softSkills: ["Capacité d'adaptation", "Rigueur", "Dynamisme", "Esprit d'équipe", "Motivation", "Disponibilité"],
-    schedule: "Contrat de 3 ans souhaité, 60 jours d'activité par an. Périodes d'activité définies en fonction de la disponibilité du réserviste et des besoins de l'employeur.",
+    schedule: "60 jours d'activité par an. Selon disponibilité du réserviste et des besoins de l'employeur.",
     remote: "local",
     openToMinors: true,
     organizationName: "Armée de l'Air et de l'Espace",
@@ -85,7 +89,7 @@ export const ROC_OFFERS = [
     organizationStatusJuridique: "Organisme militaire - Ministère des Armées",
   },
   {
-    clientId: "roc-jdc-animateur",
+    clientId: "roc-jdc-animateur-accompagnateur",
     title: "Animateur - Accompagnateur JDC",
     description: `<p>Officier / sous-officier de réserve (SGT à CNE), chargé d'animer les différents ateliers de la Journée Défense et Citoyenneté (JDC).</p>
 <h3>Vos missions</h3>
@@ -94,16 +98,16 @@ export const ROC_OFFERS = [
 <li>Répondre aux questions des jeunes portant sur les métiers des armées, direction et services et culture militaire.</li>
 <li>Co-animer des ateliers thématiques tels que tir sportif laser, atelier de réalité virtuelle et jeu de rôle « STRAT&amp;J ».</li>
 <li>Contribuer à la logistique nécessaire au bon déroulement de la journée.</li>
-</ul>`,
+</ul>
+<p>Contrat de 1 à 5 ans souhaité.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=304&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: "https://www.defense.gouv.fr/sites/default/files/styles/16_9_md/public/sga/2024_SGA047_R_003_16_9.jpg?h=c673cd1c&itok=bqEcOsKP",
+    image: ROC_IMAGE,
     domain: "memoire-et-citoyennete",
     activities: ["enseignement-formation"],
     requirements: ["Aucun diplôme requis", "Aucune formation exigée"],
     softSkills: ["Savoir-être", "Sens pédagogique", "Communication", "Goût du contact", "Connaissance du milieu militaire"],
-    schedule:
-      "Contrat de 1 à 5 ans souhaité, 30 jours d'activité par an. Périodes d'activité définies en fonction de la disponibilité du réserviste et des besoins de l'employeur.",
+    schedule: "30 jours d'activité par an. Selon disponibilité du réserviste et des besoins de l'employeur.",
     remote: "local",
     openToMinors: true,
     organizationName: "Armée de l'Air et de l'Espace",
@@ -116,7 +120,7 @@ export const ROC_OFFERS = [
     organizationStatusJuridique: "Organisme militaire - Ministère des Armées",
   },
   {
-    clientId: "roc-seo-architecte-donnees",
+    clientId: "roc-seo-architecte-donnees-reserviste",
     title: "Architecte de données, Réserviste Spécialiste",
     description: `<p>Réserviste au profit du Service de l'Énergie Opérationnelle et de son système d'information Réserviste Opérationnel Connecté (ROC).</p>
 <p>Rejoignez l'équipe de l'État-Major des Armées et du Service de l'Énergie Opérationnelle, et participez au développement du système d'information ROC. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion : c'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
@@ -134,8 +138,8 @@ export const ROC_OFFERS = [
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
 </ul>`,
     applicationUrl:
-      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: "https://devenir-aviateur.gouv.fr/uploads/media/1440x/09/879-%5B2%5D%20Slider_vertical-Resp_systeme_numerique-02.webp?v=1-0",
+      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=309&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+    image: ROC_IMAGE,
     domain: "numerique",
     activities: ["informatique"],
     requirements: [
@@ -147,13 +151,12 @@ export const ROC_OFFERS = [
       "Habiter en région parisienne",
     ],
     schedule: "Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.",
-    remote: "no",
+    remote: "local",
     openToMinors: true,
     compensationAmount: 50,
     compensationAmountMax: 100,
     compensationUnit: "day",
     compensationType: "net",
-    addresses: [{ region: "Île-de-France", country: "France" }],
     organizationName: "Service de l'Énergie Opérationnelle (SEO)",
     organizationUrl: "https://www.defense.gouv.fr/energie-ops",
     organizationDescription:
@@ -176,8 +179,8 @@ export const ROC_OFFERS = [
 </ul>
 <p>Vous êtes formé·e et encadré·e à chaque étape, la formation initiale vous donne toutes les bases progressivement. Vous voulez en faire plus ? Sécurité d'installations militaires (missions de garde opérationnelles), Opération Sentinelle (protection des lieux publics, gares et frontières).</p>`,
     applicationUrl:
-      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/65d7715cc0d3764cbed3afaf/AdobeStock%2015509515.jpeg",
+      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=309&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+    image: ROC_IMAGE,
     domain: "gestion-finance-droit",
     activities: ["gestion-ressources-humaines"],
     requirements: [
@@ -217,7 +220,8 @@ export const ROC_OFFERS = [
 </ul>
 <p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>`,
     applicationUrl:
-      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=303&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+    image: ROC_IMAGE,
     domain: "service-public-defense-securite",
     activities: ["prevention-protection"],
     requirements: [
@@ -247,7 +251,7 @@ export const ROC_OFFERS = [
   {
     clientId: "roc-marine-semaphore",
     title: "Réserviste Sémaphore - Marine nationale",
-    image: "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/65d7715cc0d3764cbed3afaf/AdobeStock%20712216732.jpeg",
+    image: ROC_IMAGE,
     description: `<p>Protection des approches maritimes.</p>
 <p>Selon vos disponibilités, rejoignez une unité de la Marine Nationale et participez concrètement à la protection des approches maritimes au sein d'un sémaphore. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme. C'est un engagement réel, au sein d'une unité, qui vous permettra de valoriser cette expérience. Vous serez ainsi formé et accompagné à chaque étape.</p>
 <p>En tant que réserviste, vous participerez à :</p>
@@ -260,7 +264,7 @@ export const ROC_OFFERS = [
 </ul>
 <p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>`,
     applicationUrl:
-      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=303&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     domain: "service-public-defense-securite",
     activities: ["prevention-protection"],
     requirements: [
@@ -286,5 +290,90 @@ export const ROC_OFFERS = [
       "Armée - composante des forces armées françaises, régie par le Code de la défense (Livre II, art. L3211-1 et s. ; organisation de la marine nationale : art. R3223-1 à R3223-61), sous l'autorité du chef d'état-major de la marine, subordonné au chef d'état-major des armées et au ministre des Armées",
     organizationStatusJuridique:
       "Armée - composante des forces armées françaises, régie par le Code de la défense (Livre II, art. L3211-1 et s. ; organisation de la marine nationale : art. R3223-1 à R3223-61), sous l'autorité du chef d'état-major de la marine, subordonné au chef d'état-major des armées et au ministre des Armées",
+  },
+  {
+    clientId: "roc-terre-c3t-combattant",
+    title: "Réserviste dans l'armée de terre : combattant.e concept commun du combat terrestre (C3T)",
+    description: `<p>Vous rejoignez une unité opérationnelle de l'Armée de Terre et participez concrètement à la défense du territoire. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion. C'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
+<p>En tant que réserviste combattant·e, de militaire du rang à sous-officier, vous participerez à :</p>
+<ul>
+<li>Opération Sentinelle (protection des lieux publics, gares et frontières) ;</li>
+<li>exercices en unité (manœuvres, commandement, cohésion) ;</li>
+<li>sécurité d'installations militaires (missions de garde opérationnelles).</li>
+</ul>
+<p>Selon votre profil : possibilité de missions à l'étranger. Vous êtes formé·e et encadré·e à chaque étape, la formation initiale vous donne toutes les bases progressivement.</p>
+<p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>
+<h3>Indemnisations complémentaires</h3>
+<ul>
+<li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si 37 jours par an).</li>
+<li>🎓 Allocation mensuelle de 100 € pour les étudiant·e·s de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
+<li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
+</ul>`,
+    applicationUrl:
+      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+    image: ROC_IMAGE,
+    domain: "service-public-defense-securite",
+    activities: ["operations-militaires"],
+    requirements: [
+      "17 ans et +",
+      "Aucun diplôme requis pour la plupart des postes ; toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)",
+      "Aptitude médicale requise",
+    ],
+    schedule: "Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    remote: "local",
+    openToMinors: true,
+    compensationAmount: 50,
+    compensationAmountMax: 100,
+    compensationUnit: "day",
+    compensationType: "net",
+    organizationName: "Armée de Terre",
+    organizationUrl: "https://www.defense.gouv.fr/terre",
+    organizationDescription:
+      "L'armée de Terre est l'une des composantes des forces armées françaises, forte de plus de 120 000 femmes et hommes, militaires et civils de la défense. Présente sur le territoire national et à l'étranger, elle est engagée sur trois missions : protéger la France et les Français sur le territoire national, renforcer la solidarité stratégique entre alliés en Europe et au Moyen-Orient, et nouer des partenariats de l'Afrique à l'Indopacifique. Elle mobilise en permanence près de 30 000 soldats en posture opérationnelle, en coordination avec la Marine nationale, l'Armée de l'Air et de l'Espace et la Gendarmerie nationale.",
+    organizationLogo: "https://upload.wikimedia.org/wikipedia/commons/5/50/Logo_of_the_French_Army_(Armee_de_Terre).svg",
+    organizationType: "Armée - composante des forces armées françaises",
+    organizationStatusJuridique: "Armée - composante des forces armées françaises",
+  },
+  {
+    clientId: "roc-terre-etat-major-redacteur",
+    title: "Réserviste dans l'armée de terre : rédacteur.e et traitant.e en état-major",
+    image: ROC_IMAGE,
+    description: `<p>Vous rejoignez un état-major de l'Armée de Terre et participez concrètement à la défense du territoire. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion. C'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
+<p>En tant que réserviste, de sous-officier à officier, vous devrez :</p>
+<ul>
+<li>agir collectivement et de façon coordonnée pour atteindre un objectif commun ;</li>
+<li>mener des actions de manière indépendante dans le cadre de vos responsabilités ;</li>
+<li>répondre personnellement des actions relevant de vos attributions et en assumer les conséquences ;</li>
+<li>vous adapter à votre environnement de travail, à des situations variées ;</li>
+<li>et ajuster vos comportements en fonction des enjeux de la situation.</li>
+</ul>
+<p>Selon votre profil : possibilité de missions à l'étranger. Vous êtes formé·e et encadré·e à chaque étape.</p>
+<p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>
+<p>Bac requis.</p>
+<h3>Indemnisations complémentaires</h3>
+<ul>
+<li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si 37 jours par an).</li>
+<li>🎓 Allocation mensuelle de 100 € pour les étudiant·e·s de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
+<li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
+</ul>`,
+    applicationUrl:
+      "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
+    domain: "service-public-defense-securite",
+    activities: ["taches-administratives"],
+    requirements: ["17 ans et +", "BAC requis", "Toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)", "Aptitude médicale requise"],
+    schedule: "Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    remote: "local",
+    openToMinors: true,
+    compensationAmount: 50,
+    compensationAmountMax: 100,
+    compensationUnit: "day",
+    compensationType: "net",
+    organizationName: "Armée de Terre",
+    organizationUrl: "https://www.defense.gouv.fr/terre",
+    organizationDescription:
+      "L'armée de Terre est l'une des composantes des forces armées françaises, forte de plus de 120 000 femmes et hommes, militaires et civils de la défense. Présente sur le territoire national et à l'étranger, elle est engagée sur trois missions : protéger la France et les Français sur le territoire national, renforcer la solidarité stratégique entre alliés en Europe et au Moyen-Orient, et nouer des partenariats de l'Afrique à l'Indopacifique. Elle mobilise en permanence près de 30 000 soldats en posture opérationnelle, en coordination avec la Marine nationale, l'Armée de l'Air et de l'Espace et la Gendarmerie nationale.",
+    organizationLogo: "https://upload.wikimedia.org/wikipedia/commons/5/50/Logo_of_the_French_Army_(Armee_de_Terre).svg",
+    organizationType: "Armée - composante des forces armées françaises",
+    organizationStatusJuridique: "Armée - composante des forces armées françaises",
   },
 ];
