@@ -75,6 +75,7 @@ export default function Partners({ partners = DEFAULT_PARTNERS, title }: { partn
           ref={scrollRef}
           id={listId}
           role="list"
+          // eslint-disable-next-line jsx-a11y-x/no-noninteractive-tabindex -- Liste défilable horizontalement : le tabIndex rend le défilement accessible au clavier (WCAG 2.1.1), la liste elle-même reste non interactive.
           tabIndex={scrollable ? 0 : undefined}
           aria-label={scrollable ? title : undefined}
           className="scrollbar-none list-none! m-0! mr-[calc(50%-50vw)]! flex snap-x snap-mandatory gap-4 overflow-x-auto p-0!"
