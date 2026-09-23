@@ -2,8 +2,10 @@ import { randomBytes, randomUUID } from "crypto";
 
 import { MissionType, Prisma, Publisher } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { captureException } from "@/error";
 import { publisherRepository } from "@/repositories/publisher";
 import { publisherDiffusionRuleRepository } from "@/repositories/publisher-diffusion-rule";
+import { asyncTaskBus } from "@/services/async-task";
 import { normalizeDemarches, publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import publisherDiffusionRuleService, { DIFFUSION_SCOPE_ROOT_CRITERIA } from "@/services/publisher-diffusion-rule";
 import {
@@ -523,11 +525,23 @@ export const publisherService = (() => {
     return new Map(publishers.map((publisher) => [publisher.id, publisher.name]));
   }
 
+  // Recompute asynchrone de mission_diffusion pour ce publisher (mode ciblé du rebuild), déclenché
+  // après une mise à jour de ses diffuseurs depuis l'admin. Fire-and-forget : un échec de publish ne
+  // doit pas faire échouer la requête HTTP.
+  async function enqueuePublisherDiffusion(publisherId: string): Promise<void> {
+    try {
+      await asyncTaskBus.publish({ type: "publisher.diffusion", payload: { publisherId } });
+    } catch (error) {
+      captureException(error, { extra: { context: "enqueuePublisherDiffusion", publisherId } });
+    }
+  }
+
   return {
     countPublishers,
     createPublisher,
     updatePublisher,
     publisherExistsByName,
+    enqueuePublisherDiffusion,
     findOnePublisherByApiKey,
     findOnePublisherById,
     findOnePublisherByName,

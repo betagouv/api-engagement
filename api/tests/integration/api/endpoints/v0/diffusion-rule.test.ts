@@ -1,6 +1,7 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { asyncTaskBus } from "@/services/async-task";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { type PublisherRecord } from "@/types";
 
@@ -287,6 +288,20 @@ describe("DiffusionRule API Integration Tests", () => {
       expect(persisted.map((rule) => rule.publisherId).sort()).toEqual([diffuseur1.id, diffuseur2.id].sort());
     });
 
+    it("enqueues a publisher.diffusion recompute for each allowed diffuseur, but not for unrelated ones", async () => {
+      vi.mocked(asyncTaskBus.publish).mockClear();
+
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, publisherIds: [diffuseur1.id, diffuseur2.id, otherDiffuseur.id] });
+
+      expect(response.status).toBe(201);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur1.id } });
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur2.id } });
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: otherDiffuseur.id } });
+    });
+
     it("should default fieldType to string when missing", async () => {
       const response = await request(app)
         .post("/v0/diffusion-rule")
@@ -415,6 +430,23 @@ describe("DiffusionRule API Integration Tests", () => {
 
       expect(await publisherDiffusionRuleService.findRuleById(child.id)).toBeNull();
       expect(await publisherDiffusionRuleService.findRuleById(root.id)).not.toBeNull();
+    });
+
+    it("enqueues a publisher.diffusion recompute for the rule's diffuseur", async () => {
+      const child = await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur1.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: "org-1",
+      });
+      vi.mocked(asyncTaskBus.publish).mockClear();
+
+      const response = await request(app).delete(`/v0/diffusion-rule/${child.id}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur1.id } });
     });
   });
 });

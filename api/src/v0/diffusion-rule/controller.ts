@@ -133,6 +133,9 @@ router.post("/", async (req: PublisherRequest, res: Response, next: NextFunction
       )
     );
 
+    // Chaque diffuseur scopé par la règle voit potentiellement son allowlist changer.
+    await Promise.all(diffuseurIds.map((diffuseurId) => publisherService.enqueuePublisherDiffusion(diffuseurId)));
+
     return res.status(201).send({
       ok: true,
       data: created.map((rule) => ({
@@ -178,6 +181,7 @@ router.delete("/:id", async (req: PublisherRequest, res: Response, next: NextFun
     }
 
     await publisherDiffusionRuleService.deleteRule(rule.id);
+    await publisherService.enqueuePublisherDiffusion(rule.publisherId);
 
     return res.status(200).send({ ok: true });
   } catch (error) {

@@ -201,6 +201,10 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
 
     const data = await publisherService.createPublisher(payload);
 
+    if (body.data.publishers !== undefined) {
+      await publisherService.enqueuePublisherDiffusion(data.id);
+    }
+
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     if (error instanceof PublisherDiffusionPartnerNotFoundError) {
@@ -349,6 +353,11 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
           fields: Object.keys(patch).filter((key) => patch[key as keyof typeof patch] !== undefined),
         },
       });
+
+      if (body.data.publishers !== undefined) {
+        await publisherService.enqueuePublisherDiffusion(params.data.id);
+      }
+
       res.status(200).send({ ok: true, data: updated });
     } catch (error) {
       if (error instanceof PublisherNotFoundError) {
