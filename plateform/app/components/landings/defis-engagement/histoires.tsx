@@ -21,19 +21,20 @@ const VICTORIA = {
   role: "Bénévole pour Cosmos Arts à Vitry sur Seine",
 };
 
-const ELODIE = {
-  quote: "Cette expérience m'a permis de reprendre confiance dans mon projet professionnel dans le social alors que j'allais l'abandonner. J'ai vécu des moments très forts.",
-  name: "Elodie",
-  role: "Bénévole auprès d'une association accueillant des femmes et enfants maltraités",
+const CAMILLE = {
+  quote:
+    "Ce Service Civique m'a offert la possibilité d'agir concrètement, à ma mesure, pour l'environnement. Il a redonné du sens à mes gestes et à mes valeurs, dans une société où l'individualisme nous étouffe trop souvent.",
+  name: "Camille",
+  role: "Volontaire à la LPO",
 };
 
 function Temoignage({ quote, name, role, className = "" }: { quote: string; name: string; role: string; className?: string }) {
   return (
-    <figure className={`bg-blue-france-975 border-border-default-grey m-0! flex flex-col gap-6 rounded-2xl border p-8 ${className}`}>
+    <figure className={`bg-blue-france-975 border-border-default-grey m-0! flex flex-col gap-6 rounded-2xl border p-3 md:p-4 lg:p-8 ${className}`}>
       <img src={DoubleQuotesSvg} alt="" aria-hidden="true" className="size-8" />
-      <blockquote className="fr-text--lg text-default-grey m-0! p-0!">{quote}</blockquote>
-      <figcaption className="text-mention-grey">
-        <span className="block font-bold mb-4!">{name}</span>
+      <blockquote className="text-default-grey m-0! p-0!">{quote}</blockquote>
+      <figcaption className="text-mention-grey fr-text--sm mb-0!">
+        <span className="fr-text--lg block font-bold mb-2!">{name}</span>
         {role}
       </figcaption>
     </figure>
@@ -49,34 +50,28 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
         qui donnent <Highlight className="bg-[#fbe769] dark:bg-transparent">envie d'agir</Highlight>
       </h2>
 
-      {/* Mosaïque de 4 blocs, placés explicitement car leur répartition change à chaque palier :
-          mobile 1 colonne (ordre du DOM) ; tablette 2 colonnes (Nacim + photo puis Victoria à gauche,
-          photo puis Elodie + photo à droite) ; desktop 3 colonnes, les blocs latéraux occupant les 2 rangées. */}
-      <div className="fr-mb-6w grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="flex flex-col gap-6 md:col-start-1 md:row-start-1 lg:row-span-2">
+      {/* Mosaïque en colonnes dont la répartition change à chaque palier :
+          mobile 1 colonne (Nacim, photo, Victoria, photo, Camille, photo) ;
+          tablette 2 colonnes (Nacim, photo, Victoria | photo, Camille, photo) ;
+          desktop 3 colonnes (Nacim, photo | photo, Victoria | Camille, photo).
+          Victoria change de colonne entre tablette et desktop : son bloc est rendu deux fois, un seul est affiché. */}
+      <div className="fr-mb-6w grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-6">
           <Temoignage {...NACIM} />
-          {/* Sur tablette la photo absorbe la hauteur restante de la rangée, à taille fixe sur desktop. */}
-          <img
-            src={Temoignage1Jpg}
-            alt=""
-            loading="lazy"
-            className="h-[235px] w-full rounded-2xl object-cover md:h-auto md:min-h-[235px] md:flex-1 lg:h-[235px] lg:min-h-0 lg:flex-none"
-          />
+          <img src={Temoignage1Jpg} alt="" loading="lazy" className="aspect-[2/1] w-full rounded-2xl object-cover" />
+          <Temoignage {...VICTORIA} className="lg:hidden" />
         </div>
 
-        {/* Sur mobile la maquette place le témoignage avant la photo, l'inverse à partir de la tablette. */}
-        <Temoignage {...VICTORIA} className="md:col-start-1 md:row-start-2 lg:col-start-2" />
+        <div className="flex flex-col gap-6 lg:contents">
+          <div className="flex flex-col gap-6">
+            <img src={Temoignage2Jpg} alt="" loading="lazy" className="h-[190px] w-full rounded-2xl object-cover object-[center_30%] md:h-[414px] lg:h-[366px]" />
+            <Temoignage {...VICTORIA} className="hidden lg:flex" />
+          </div>
 
-        <img
-          src={Temoignage2Jpg}
-          alt=""
-          loading="lazy"
-          className="h-[414px] w-full rounded-2xl object-cover md:col-start-2 md:row-start-1 md:h-full md:min-h-[414px] lg:h-[414px] lg:min-h-0"
-        />
-
-        <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2 lg:col-start-3 lg:row-start-1 lg:row-span-2">
-          <Temoignage {...ELODIE} />
-          <img src={Temoignage3Jpg} alt="" loading="lazy" className="hidden h-[235px] w-full rounded-2xl object-cover md:block" />
+          <div className="flex flex-col gap-6">
+            <Temoignage {...CAMILLE} />
+            <img src={Temoignage3Jpg} alt="" loading="lazy" className="aspect-[3/2] w-full rounded-2xl object-cover" />
+          </div>
         </div>
       </div>
 

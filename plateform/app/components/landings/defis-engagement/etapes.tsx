@@ -8,7 +8,7 @@ import Highlight from "~/components/ui/highlight";
 const ETAPES = [
   { icon: SelfTrainingSvg, title: "Réponds en trois minutes", description: "Le formulaire du gouv le plus court de ta vie" },
   { icon: SearchSvg, title: "Découvre les missions", description: "On te montre celles qui vont te plaire." },
-  { icon: MailSendSvg, title: "Ton engagement commence ici", description: "On te met en relation avec le service public qui recrute" },
+  { icon: MailSendSvg, title: "Ton engagement commence ici", description: "On te met en relation avec le service public qui mobilise" },
 ];
 
 export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
