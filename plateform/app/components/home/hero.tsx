@@ -1,4 +1,5 @@
-import HeroBackground from "~/assets/images/home/hero-background.webp";
+import HeroBackgroundDesktop from "~/assets/images/home/hero-background-desktop.webp";
+import HeroBackgroundMobile from "~/assets/images/home/hero-background-mobile.webp";
 
 const CHIPS = [
   { icon: "fr-icon-team-line", className: "bg-green-bourgeon-975 text-[#4b9f6c]", label: "Rencontrer des nouvelles personnes" },
@@ -15,9 +16,8 @@ interface HeroProps {
 
 export default function Hero({ onStartQuiz }: HeroProps) {
   return (
-    // Sous `lg`, le collage remonte de 98rem derrière le texte (`z-10`) : il passe sous les tuiles et le bouton
-    // comme sur la maquette. Un décalage fixe, et non proportionnel, pour que le recouvrement reste le même
-    // quelle que soit la largeur — le collage grandit avec l'écran alors que le texte, lui, raccourcit.
+    // Sous `lg`, le collage mobile se place sous le texte et remonte légèrement derrière (`z-10`) : sa marge haute
+    // est transparente, elle passe sous la mention du bouton.
     // À partir de `lg`, texte et collage partagent la même cellule de grille : le collage se cale à droite
     // sous le texte et donne sa hauteur au bandeau beige.
     <section className="bg-brown-cafe-creme-975 lg:grid">
@@ -49,9 +49,10 @@ export default function Hero({ onStartQuiz }: HeroProps) {
         </div>
       </div>
 
-      <div className="-mt-98 w-full lg:col-start-1 lg:row-start-1 lg:mt-0 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
-        <img src={HeroBackground} alt="" aria-hidden="true" width={1760} height={1514} fetchPriority="high" className="w-full" />
-      </div>
+      <picture className="-mt-20 block w-full lg:col-start-1 lg:row-start-1 lg:mt-0 lg:w-[61.1%] lg:max-w-220 lg:justify-self-end">
+        <source media="(min-width: 64rem)" srcSet={HeroBackgroundDesktop} width={1760} height={1518} />
+        <img src={HeroBackgroundMobile} alt="" aria-hidden="true" width={1170} height={645} fetchPriority="high" className="h-auto w-full" />
+      </picture>
     </section>
   );
 }

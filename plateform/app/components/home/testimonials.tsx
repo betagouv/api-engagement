@@ -92,7 +92,7 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
   return (
     <section className="fr-container p-0!">
       <div className="bg-brown-cafe-creme-975 flex-col items-center gap-6 p-6 md:gap-6 md:px-6 lg:gap-8 lg:px-8 lg:py-20">
-        <h2 className="fr-h2 text-center">
+        <h2 className="fr-h2 text-left md:text-center">
           Des histoires vraies qui donnent <Highlight className="bg-green-emeraude-925">envie d'agir</Highlight>
         </h2>
         <p className="text-sm leading-6 md:text-xl! md:leading-8! text-default-grey mx-auto fr-mb-0 text-left lg:text-center">
@@ -104,7 +104,7 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
           label="Témoignages d'engagés"
           previousLabel="Voir les témoignages précédents"
           nextLabel="Voir les témoignages suivants"
-          listClassName="mx-[calc(50%-50vw)]! px-[10vw]! scroll-px-[10vw]! md:-ml-32! md:pr-4! md:pl-32! md:scroll-pr-4! md:scroll-pl-32!"
+          listClassName="mx-[calc(50%-50vw)]! px-[10vw]! scroll-px-[10vw]! md:-ml-32! md:pr-4! md:pl-32! md:scroll-pr-4! md:scroll-pl-32! md:mt-6!"
           itemClassName="w-[80vw] md:w-[330px]"
           action={
             <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary w-full! justify-center md:w-auto!">

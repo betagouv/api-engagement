@@ -29,8 +29,8 @@ const BENEFITS: Benefit[] = [
 
 export default function About() {
   return (
-    <section className="fr-container py-6! md:py-12! px-6! flex flex-col gap-4 lg:flex-row lg:gap-16">
-      <div className="w-full lg:w-[36%]">
+    <section className="fr-container py-6! md:py-12! px-6! flex flex-col gap-4 lg:flex-row lg:gap-24">
+      <div className="w-full lg:w-[34%]">
         <h2 className="fr-h2 -pr-4">
           Qui est <Highlight className="bg-yellow-tournesol-925">TrouveTaMission.gouv.fr</Highlight> ?
         </h2>
