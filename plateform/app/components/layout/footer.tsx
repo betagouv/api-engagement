@@ -4,9 +4,7 @@ import { useIsMobile } from "~/hooks/useIsMobile";
 import { COOKIE_CONSENT_MODAL_ID, isCookieConsentEnabled, openCookieConsentPanel } from "~/services/cookie-consent";
 import { isGlobalFooterVisible } from "~/utils/layout";
 
-const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine.values)
-  .filter(([key]) => key !== "je_ne_sais_pas")
-  .map(([key, value]) => ({ to: `/missions?domaine=${key}`, label: value.label }));
+const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine_engagement.values).map(([key, value]) => ({ to: `/missions?domaine_engagement=${key}`, label: value.label }));
 
 const FOOTER_NAV_CATEGORIES = [
   {

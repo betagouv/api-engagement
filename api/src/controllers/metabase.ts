@@ -8,6 +8,7 @@ import { requirePublisherAccessFrom } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { metabaseService } from "@/services/metabase";
 import { UserRequest } from "@/types/passport";
+import { normalizePublisherId } from "@/utils/publisher-access";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -65,20 +66,24 @@ router.post(
 
       const body = zod
         .object({
-          variables: zod.record(zod.string(), zod.union([zod.string(), zod.number(), zod.boolean(), zod.array(zod.union([zod.string(), zod.number()]))])).optional(),
-          parameters: zod.array(zod.unknown()).optional(),
-          body: zod.record(zod.string(), zod.unknown()).optional(),
+          variables: zod
+            .record(zod.string(), zod.union([zod.string(), zod.number(), zod.boolean(), zod.array(zod.union([zod.string(), zod.number()]))]))
+            .refine((variables) => variables.publisher_id === undefined || (typeof variables.publisher_id === "string" && Boolean(variables.publisher_id.trim())), {
+              message: "Invalid variables.publisher_id",
+            })
+            .optional(),
         })
+        .strict()
         .safeParse(req.body);
       if (!body.success) {
         return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
       }
 
       try {
+        const variables = body.data.variables;
+        const publisherId = normalizePublisherId(variables?.publisher_id);
         const metabaseResponse = await metabaseService.queryCard(params.data.cardId, {
-          variables: body.data.variables,
-          parameters: body.data.parameters,
-          body: body.data.body,
+          variables: variables && publisherId ? { ...variables, publisher_id: publisherId } : variables,
         });
 
         return res.status(metabaseResponse.status ?? 200).send({

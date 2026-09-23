@@ -59,6 +59,8 @@ export type PageViewedPageName = "homepage" | "missions_list" | LandingName;
 // pour ne pas maintenir ici la liste des sections de toutes les landings.
 export type CtaSection = string;
 export type CtaDestination = "quiz" | "missions_list";
+// Page portant le CTA : homepage ou une landing (les landings couvrent aussi le CTA "Voir les missions").
+export type CtaPageName = "homepage" | LandingName;
 // Prop d'un CTA de landing partagé entre plusieurs blocs : destination + wording définis une seule fois,
 // `onClick` porte le trackCtaClicked (le bloc renseigne son propre `cta_section`).
 export type LandingCta = { to: string; label: string; onClick: () => void };
@@ -66,9 +68,10 @@ export type LandingCta = { to: string; label: string; onClick: () => void };
 // --- mission.clicked ---
 // Surface d'où provient le clic sur une carte mission. Sur les résultats : `list` (liste paginée) et
 // `map` (clic sur la carte de prévisualisation de la mission sur la map).
-export type MissionClickedSection = "list" | "map" | "homepage_examples" | "missions_list" | "similar" | LandingName;
-// Page sur laquelle se trouve l'utilisateur au moment du clic.
-export type MissionClickedEntryPage = "results" | "homepage" | "missions_list" | LandingName;
+export type MissionClickedSection = "list" | "map" | "homepage_examples" | "missions_list" | "similar" | "mission_detail" | LandingName;
+// Page sur laquelle se trouve l'utilisateur au moment du clic. `mission_detail` : clic sur le CTA
+// "Découvrir la mission" de la fiche (redirige vers le site annonceur).
+export type MissionClickedEntryPage = "results" | "homepage" | "missions_list" | "mission_detail" | LandingName;
 
 export interface MissionClickedPayload {
   mission_id: string;
@@ -107,7 +110,7 @@ export type MissionDetailEntrySource = "results_list" | "results_map" | "mission
 export type MissionDetailNavState = { entrySource: MissionDetailEntrySource; rank?: number; backTo?: string };
 
 // --- missions_filter.applied ---
-export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "secteur_activite" | "domaine";
+export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | "type_mission" | "activite" | "domaine_engagement";
 
 // --- emails ---
 // Provenance de la fiche depuis laquelle l'email d'une mission est envoyé. `results_card` : CTA email

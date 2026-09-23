@@ -1,13 +1,13 @@
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { ensureSearchCollection } from "@/services/search/collections";
-import missionSchemaV5 from "@/services/search/collections/missions/schemas/v5";
+import missionSchemaV6 from "@/services/search/collections/missions/schemas/v6";
 
 const LOG_PREFIX = "[setup-search-collections-job]";
 
 // Manifest des collections à initialiser.
 // Pour ajouter une collection : importer son dernier schéma et l'ajouter ici.
-const SCHEMAS = [missionSchemaV5];
+const SCHEMAS = [missionSchemaV6];
 
 export interface SetupSearchCollectionsJobResult extends JobResult {
   collections: string[];

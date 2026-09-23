@@ -205,7 +205,16 @@ const buildRanking = (params: {
       CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_address_id" END AS "closest_address_id",
       CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_city" END AS "closest_city",
       CASE WHEN m."remote"::text IN ('full', 'local') THEN NULL ELSE gs."closest_address" END AS "closest_address"`;
-
+  const baseTotalScoreSql = Prisma.sql`CASE
+      WHEN r."geo_score" IS NULL THEN r."taxonomy_score"
+      ELSE (
+        (CAST(${params.taxonomyWeight} AS double precision) * r."taxonomy_score") +
+        (CAST(${params.geoWeight} AS double precision) * r."geo_score")
+      ) / NULLIF(
+        CAST(${params.taxonomyWeight} AS double precision) + CAST(${params.geoWeight} AS double precision),
+        0.0
+      )
+    END`;
   return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
     VALUES ${buildTaxonomyWeightsValuesSql(params.taxonomyWeights)}
@@ -586,16 +595,7 @@ const buildRanking = (params: {
   SELECT
     r."mission_id",
     r."mission_scoring_id",
-    CASE
-      WHEN r."geo_score" IS NULL THEN r."taxonomy_score"
-      ELSE (
-        (CAST(${params.taxonomyWeight} AS double precision) * r."taxonomy_score") +
-        (CAST(${params.geoWeight} AS double precision) * r."geo_score")
-      ) / NULLIF(
-        CAST(${params.taxonomyWeight} AS double precision) + CAST(${params.geoWeight} AS double precision),
-        0.0
-      )
-    END AS "total_score",
+    ${baseTotalScoreSql} AS "total_score",
     r."taxonomy_score",
     r."geo_score",
     r."distance_km",
@@ -806,22 +806,20 @@ export const matchingEngineService = {
 
     return {
       version,
-      items: responseRows.map(
-        (row): MatchMissionItem => ({
-          missionId: row.mission_id,
-          missionScoringId: row.mission_scoring_id,
-          missionAddressId: row.closest_address_id ?? null,
-          totalScore: clampScore(Number(row.total_score)),
-          taxonomyScore: clampScore(Number(row.taxonomy_score)),
-          geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
-          distanceKm: nullableNumber(row.distance_km),
-          closestLat: nullableNumber(row.closest_lat),
-          closestLon: nullableNumber(row.closest_lon),
-          closestCity: row.closest_city ?? null,
-          closestAddress: row.closest_address ?? null,
-          taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
-        })
-      ),
+      items: responseRows.map((row): MatchMissionItem => ({
+        missionId: row.mission_id,
+        missionScoringId: row.mission_scoring_id,
+        missionAddressId: row.closest_address_id ?? null,
+        totalScore: clampScore(Number(row.total_score)),
+        taxonomyScore: clampScore(Number(row.taxonomy_score)),
+        geoScore: row.geo_score === null ? null : clampScore(Number(row.geo_score)),
+        distanceKm: nullableNumber(row.distance_km),
+        closestLat: nullableNumber(row.closest_lat),
+        closestLon: nullableNumber(row.closest_lon),
+        closestCity: row.closest_city ?? null,
+        closestAddress: row.closest_address ?? null,
+        taxonomyScores: taxonomyScoresByMissionScoringId[row.mission_scoring_id] ?? {},
+      })),
       tookMs: Date.now() - startedAt,
       total,
       avgDistanceKmTop5,

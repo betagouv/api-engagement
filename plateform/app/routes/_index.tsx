@@ -9,12 +9,13 @@ import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
 import HowItWorks from "~/components/home/how-it-works";
 import MissionExamples from "~/components/home/mission-examples";
+import Partners from "~/components/home/partners";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
-import Partners from "~/components/home/partners";
 import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
-import { trackPageViewed } from "~/services/tracking/events";
+import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
+import type { CtaSection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
 export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
@@ -109,17 +110,20 @@ export default function Landing() {
     trackPageViewed({ pageName: "homepage" });
   }, []);
 
-  const handleStartQuiz = () => {
+  const handleStartQuiz = (ctaSection: CtaSection) => {
+    // reset() regénère quiz_attempt_id : le tracer avant émettrait cta.clicked avec l'ancien id et le
+    // découplerait de quiz.started et du reste du funnel PostHog. On reset donc avant de tracer.
     reset();
+    trackCtaClicked({ pageName: "homepage", ctaSection, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     navigate("/quiz/age", { state: { entrySource: "homepage_cta" } });
   };
 
   return (
     <main id="contenu" tabIndex={-1}>
-      <Hero onStartQuiz={handleStartQuiz} />
+      <Hero onStartQuiz={() => handleStartQuiz("hero")} />
       <MissionExamples missions={examples} />
-      <HowItWorks onStartQuiz={handleStartQuiz} />
-      <Testimonials onStartQuiz={handleStartQuiz} />
+      <HowItWorks onStartQuiz={() => handleStartQuiz("how_it_works")} />
+      <Testimonials onStartQuiz={() => handleStartQuiz("testimonials")} />
       <About />
       <Newsletter
         title="Inscris-toi à la newsletter"

@@ -37,6 +37,7 @@ beforeEach(async () => {
     prisma.domain.deleteMany({}),
     prisma.activity.deleteMany({}),
     prisma.moderationEvent.deleteMany({}),
+    prisma.mfaChallenge.deleteMany({}),
     prisma.userPublisher.deleteMany({}),
     prisma.user.deleteMany({}),
   ]);

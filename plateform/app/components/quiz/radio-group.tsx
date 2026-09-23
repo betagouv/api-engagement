@@ -16,7 +16,14 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
   return (
     // `block!` : contourne un bug de layout iOS Safari sur fr-fieldset (display:flex) — cf checkbox-group-rich.
 
-    <fieldset className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`} id="storybook-form" aria-labelledby="storybook-form-legend storybook-form-messages">
+    <fieldset
+      className={`fr-fieldset block! ${error ? "fr-fieldset--error" : ""}`}
+      id="storybook-form"
+      role="radiogroup"
+      aria-required={required || undefined}
+      aria-invalid={error ? true : undefined}
+      aria-describedby={error ? "storybook-form-legend radio-group-messages" : "storybook-form-legend"}
+    >
       <legend className="mb-6! md:mb-8! fr-fieldset__legend--regular fr-fieldset__legend" id="storybook-form-legend">
         <h1 className={`fr-h1 mb-4! ${error ? "text-error!" : ""}`}>{title}</h1>
         {subtitle && (
@@ -38,8 +45,6 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
               onChange={() => onChange(o.value)}
               checked={!o.disabled && selected === o.value}
               disabled={o.disabled}
-              aria-required={required ? "true" : undefined}
-              aria-invalid={error ? true : undefined}
             />
             <label className={`fr-label ${o.disabled ? "cursor-not-allowed!" : ""}`} htmlFor={`radio-group-${o.value}`}>
               {o.label}

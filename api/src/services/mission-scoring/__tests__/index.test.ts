@@ -211,71 +211,34 @@ describe("missionScoringService.score", () => {
       missionEnrichmentId: "enrichment-1",
     });
 
+    const expectedKeys = [
+      "dispositif.sapeurs_pompiers",
+      "tranche_age.entre_18_25_ans",
+      "tranche_age.entre_25_30_ans",
+      "tranche_age.entre_30_45_ans",
+      "tranche_age.entre_46_66_ans",
+      "domaine.social_solidarite",
+      "domaine_engagement.sante_bien_etre",
+      "domaine_engagement.solidarite_inclusion",
+      "domaine_engagement.sport",
+      "domaine_engagement.securite_secours",
+      "domaine_engagement.citoyennete",
+      "activite.aider_accompagner",
+      "activite.fabriquer_reparer_terrain",
+      "activite.secourir_proteger",
+      "activite.organiser_coordonner",
+      "motivation_recherche.decouverte_metier",
+      "motivation_recherche.securite_pays",
+      "motivation_recherche.indemnisation",
+    ];
+
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
-      values: [
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "dispositif",
-          valueKey: "sapeurs_pompiers",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "tranche_age",
-          valueKey: "moins_18_ans",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "tranche_age",
-          valueKey: "entre_18_25_ans",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "tranche_age",
-          valueKey: "entre_25_30_ans",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "tranche_age",
-          valueKey: "entre_30_45_ans",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "tranche_age",
-          valueKey: "entre_46_66_ans",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "domaine_engagement",
-          valueKey: "sante_bien_etre",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "domaine_engagement",
-          valueKey: "solidarite_inclusion",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "activite",
-          valueKey: "aider_accompagner",
-          score: 1,
-        },
-        {
-          missionEnrichmentValueId: null,
-          taxonomyKey: "motivation_recherche",
-          valueKey: "decouverte_metier",
-          score: 1,
-        },
-      ],
+      values: expectedKeys.map((key) => {
+        const [taxonomyKey, valueKey] = key.split(".");
+        return { missionEnrichmentValueId: null, taxonomyKey, valueKey, score: 1 };
+      }),
     });
   });
 

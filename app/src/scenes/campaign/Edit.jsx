@@ -197,7 +197,7 @@ const Edit = () => {
           <Trackers values={values} onChange={setValues} />
 
           <div className="flex flex-col">
-            <label className="text-sm">Lien à insérer dans le contenu de votre campagne</label>
+            <p className="text-sm">Lien à insérer dans le contenu de votre campagne</p>
             <div className="border-blue-france-925 bg-blue-france-975 my-2 flex items-center justify-between border px-4 py-4">
               <span className="truncate text-sm">{trackedLink}</span>
               <button type="button" className="secondary-btn" onClick={handleCopy}>

@@ -7,6 +7,7 @@ import {
   getTaxonomyList,
   isNeutralTaxonomyValueKey,
   isValidTaxonomyValueKey,
+  MISSION_DERIVED_TAXONOMIES,
   NEUTRAL_TAXONOMY_VALUE_KEYS,
   parseTaxonomyValueKey,
 } from "../utils";
@@ -111,7 +112,7 @@ describe("NEUTRAL_TAXONOMY_VALUE_KEYS / isNeutralTaxonomyValueKey", () => {
   });
 });
 
-describe("ENRICHABLE_TAXONOMIES / GATE_TAXONOMIES", () => {
+describe("sous-ensembles de taxonomies", () => {
   it("ENRICHABLE_TAXONOMIES contient exactement les taxonomies enrichable", () => {
     const expected = (Object.keys(TAXONOMY) as TaxonomyKey[]).filter((key) => TAXONOMY[key].enrichable);
     expect([...ENRICHABLE_TAXONOMIES].sort()).toEqual(expected.sort());
@@ -120,5 +121,15 @@ describe("ENRICHABLE_TAXONOMIES / GATE_TAXONOMIES", () => {
   it("GATE_TAXONOMIES contient exactement les taxonomies gate", () => {
     const expected = (Object.keys(TAXONOMY) as TaxonomyKey[]).filter((key) => TAXONOMY[key].gate);
     expect([...GATE_TAXONOMIES].sort()).toEqual(expected.sort());
+  });
+
+  it("MISSION_DERIVED_TAXONOMIES contient les taxonomies calculées depuis la mission", () => {
+    const expected = (Object.keys(TAXONOMY) as TaxonomyKey[]).filter((key) => {
+      const taxonomy = TAXONOMY[key];
+      return "missionDerived" in taxonomy && taxonomy.missionDerived === true;
+    });
+
+    expect(MISSION_DERIVED_TAXONOMIES).toEqual(["dispositif"]);
+    expect([...MISSION_DERIVED_TAXONOMIES].sort()).toEqual(expected.sort());
   });
 });

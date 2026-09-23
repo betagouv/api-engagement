@@ -1,5 +1,6 @@
 const js = require("@eslint/js");
 const importPlugin = require("eslint-plugin-import-x");
+const { default: jsxA11y } = require("eslint-plugin-jsx-a11y-x");
 const globals = require("globals");
 
 module.exports = [
@@ -24,8 +25,11 @@ module.exports = [
     },
     plugins: {
       import: importPlugin,
+      "jsx-a11y-x": jsxA11y,
     },
     rules: {
+      ...jsxA11y.configs.recommended.rules,
+      "jsx-a11y-x/no-redundant-roles": "off",
       "import/prefer-default-export": "off",
       "no-console": "off",
       "no-control-regex": "off",

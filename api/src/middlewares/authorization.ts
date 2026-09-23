@@ -12,8 +12,6 @@ type RequestSource = "body" | "query" | "params";
 const readPath = (root: unknown, path: string): unknown =>
   path.split(".").reduce<unknown>((acc, segment) => (acc && typeof acc === "object" ? (acc as Record<string, unknown>)[segment] : undefined), root);
 
-const readPublisherIdFrom = (req: UserRequest, source: RequestSource, key: string): string | null => normalizePublisherId(readPath(req[source], key));
-
 type PublisherAccessResolution = {
   publisherIds: string[];
   locals?: Record<string, unknown>;
@@ -133,9 +131,10 @@ export const authorizeStatsSearch = () => (req: UserRequest, res: Response, next
 export const requirePublisherAccessFrom =
   ({ source, key }: { source: RequestSource; key: string }) =>
   (req: UserRequest, res: Response, next: NextFunction) => {
-    const publisherId = readPublisherIdFrom(req, source, key);
+    const rawPublisherId = readPath(req[source], key);
+    const publisherId = normalizePublisherId(rawPublisherId);
 
-    if (publisherId && !hasAdminOrDirectPublisherAccess(req.user, publisherId)) {
+    if (rawPublisherId !== undefined && (!publisherId || !hasAdminOrDirectPublisherAccess(req.user, publisherId))) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
     }
 

@@ -168,6 +168,12 @@ variable "enable_async_tasks" {
   default = true
 }
 
+variable "enable_mfa" {
+  type        = bool
+  default     = true
+  description = "Enable email OTP MFA on back-office login (disabled on dev/sandbox)"
+}
+
 variable "enable_intern_jobs" {
   type        = bool
   default     = true
