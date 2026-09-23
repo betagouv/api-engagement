@@ -114,20 +114,36 @@ router.put("/:organizationClientId", async (req: PublisherRequest, res: Response
         field: EXCLUSION_RULE_FIELD,
         value: params.data.organizationClientId,
       });
+      // Ces diffuseurs redeviennent éligibles aux missions de cette organisation : leur snapshot
+      // mission_diffusion doit être recalculé sans attendre le rebuild périodique (~6h).
+      await Promise.all(toDelete.map((diffuseurId) => publisherService.enqueuePublisherDiffusion(diffuseurId)));
     }
 
-    await Promise.all(
-      toCreate.map((diffuseurId) =>
-        publisherDiffusionRuleService.createScopedRule({
+    // allSettled (pas Promise.all) : même pattern que POST /v0/diffusion-rule -- si un diffuseur du
+    // batch échoue, on attend quand même que les autres finissent (création + enqueue) avant de
+    // répondre, sinon la réponse HTTP peut partir avant que leurs écritures ne soient committées.
+    const createSettled = await Promise.allSettled(
+      toCreate.map(async (diffuseurId) => {
+        await publisherDiffusionRuleService.createScopedRule({
           diffuseurPublisherId: diffuseurId,
           annonceurPublisherId: user.id,
           field: EXCLUSION_RULE_FIELD,
           fieldType: "string",
           operator: "is_not",
           value: params.data.organizationClientId,
-        })
-      )
+        });
+
+        // Enqueue dès la création réussie de CE diffuseur : si un autre diffuseur du même batch échoue,
+        // la règle déjà committée ici ne doit pas rester avec un snapshot mission_diffusion stale.
+        await publisherService.enqueuePublisherDiffusion(diffuseurId);
+      })
     );
+
+    for (const result of createSettled) {
+      if (result.status === "rejected") {
+        throw result.reason;
+      }
+    }
 
     const data = publishers.map((publisher) => ({
       _id: publisher.id,

@@ -1,9 +1,10 @@
+import { asyncTaskBus } from "@/services/async-task";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import publisherOrganizationService from "@/services/publisher-organization";
-import { MissionRecord, PublisherMissionType, PublisherRecord } from "@/types";
+import { MissionRecord, PublisherRecord } from "@/types";
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createTestMission, createTestPublisher } from "../../../../fixtures";
 import { createStatEventFixture } from "../../../../fixtures/stat-event";
 import { createTestApp } from "../../../../testApp";
@@ -195,6 +196,31 @@ describe("MyOrganization API Integration Tests", () => {
 
       expect(await hasExclusionRule(publisher1.id, publisher.id, orgId)).toBe(false);
       expect(await hasExclusionRule(publisher2.id, publisher.id, orgId)).toBe(false);
+    });
+
+    it("enqueues a publisher.diffusion recompute for diffuseurs newly excluded and newly included", async () => {
+      await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: publisher1.id,
+        annonceurPublisherId: publisher.id,
+        field: RULE_FIELD,
+        fieldType: "string",
+        operator: "is_not",
+        value: orgId,
+      });
+      vi.mocked(asyncTaskBus.publish).mockClear();
+
+      // publisher1 was excluded and becomes allowed (toDelete); publisher2 was allowed and becomes
+      // excluded (toCreate) -- both directions must recompute the diffuseur's mission_diffusion snapshot.
+      const response = await request(app)
+        .put(`/v0/myorganization/${orgId}`)
+        .set("x-api-key", apiKey)
+        .set("apikey", apiKey)
+        .send({ publisherIds: [publisher1.id] });
+
+      expect(response.status).toBe(200);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: publisher1.id } });
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: publisher2.id } });
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ payload: { publisherId: publisher3.id } }));
     });
 
     it("should not overwrite exclusions when receiving publisherId of a different publisher", async () => {
