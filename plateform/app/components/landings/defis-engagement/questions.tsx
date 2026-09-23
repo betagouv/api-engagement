@@ -28,7 +28,7 @@ const QUESTIONS = [
 export default function Questions({ cta }: { cta: LandingCta }) {
   return (
     <section className="fr-container">
-      <h2 className="fr-h1 fr-mb-6w text-center">
+      <h2 className="fr-h1 text-center mb-4! md:mb-8!">
         Tu te poses les <Highlight className="bg-[#9ef9be] dark:bg-transparent">mêmes questions</Highlight> ?
       </h2>
 
@@ -47,7 +47,7 @@ export default function Questions({ cta }: { cta: LandingCta }) {
         {QUESTIONS.map((item) => (
           <div key={item.question} className="bg-blue-france-975 border-border-default-grey flex h-full flex-col gap-2! rounded-2xl! border p-6!">
             <div className="bg-background fr-mb-1w flex size-20 items-center justify-center rounded-full md:size-24">
-              <img src={item.icon} alt="" aria-hidden="true" className="size-[60px] md:size-[72px] dark:rounded-full dark:bg-white" />
+              <img src={item.icon} alt="" aria-hidden="true" className="size-15 md:size-18 dark:rounded-full dark:bg-white" />
             </div>
             <h3 className="fr-h6 mb-0!">{item.question}</h3>
             <p className="fr-text--lg mb-0!">{item.answer}</p>

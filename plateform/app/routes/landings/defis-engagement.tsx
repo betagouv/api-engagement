@@ -5,6 +5,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import AscPng from "~/assets/images/logo/asc-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
+import SpvPng from "~/assets/images/logo/spv-logo.png";
 import CadreMineurs from "~/components/landings/defis-engagement/cadre-mineurs";
 import Etapes from "~/components/landings/defis-engagement/etapes";
 import Hero from "~/components/landings/defis-engagement/hero";
@@ -32,8 +33,8 @@ const MISSION_SLOTS: MissionBrowseFilters[] = [
   { dispositif: "reserve_gendarmerie" },
 ];
 
-// Partenaires affichés en bas de la landing, sans les sapeurs-pompiers (demande des testeurs). Les liens
-// pointent vers des campagnes dédiées à la landing, pour attribuer les clics à cette page.
+// Partenaires affichés en bas de la landing. Les liens pointent vers des campagnes dédiées à la landing,
+// pour attribuer les clics à cette page.
 const PARTNERS: Partner[] = [
   {
     name: "JeVeuxAider.gouv.fr",
@@ -42,12 +43,17 @@ const PARTNERS: Partner[] = [
   },
   {
     name: "Le Service Civique",
-    description: "De 6 à 12 mois, des missions d'intérêt général rémunérées.",
+    description: "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
     logo: AscPng,
   },
   {
-    name: "La réserve de la Gendarmerie nationale",
-    description: "Des missions rémunérées de réservistes.",
+    name: "Sapeurs-pompiers de France",
+    description: "Deviens sapeur-pompier volontaire près de chez toi.",
+    logo: SpvPng,
+  },
+  {
+    name: "Gendarmerie nationale",
+    description: "Deviens gendarme près de chez toi.",
     logo: RocPng,
   },
 ];
@@ -127,7 +133,7 @@ export default function DefisEngagement() {
   });
 
   return (
-    <main id="contenu" tabIndex={-1} className="flex flex-col gap-8! md:gap-10! lg:gap-24!">
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-16! md:gap-24!">
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
       <Missions missions={missions} cta={missionsCta("missions")} />
       <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />
