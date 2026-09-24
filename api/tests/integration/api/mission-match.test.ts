@@ -194,6 +194,74 @@ beforeEach(async () => {
 });
 
 describe("GET /missions/match", () => {
+  it("retourne au plus 100 résultats sans pagination et couvre les dispositifs attendus dans le top 10 de m6", async () => {
+    const userResponse = await withApiKey(request(app).post("/user-scoring")).send({
+      answers: [
+        { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
+        { taxonomy: "motivation_recherche", value: "indemnisation" },
+        { taxonomy: "domaine_engagement", value: "solidarite_inclusion" },
+        { taxonomy: "activite", value: "aider_accompagner" },
+        { taxonomy: "equipe", value: "grand_collectif" },
+      ],
+    });
+    expect(userResponse.status).toBe(201);
+
+    for (let index = 0; index < 10; index++) {
+      const mission = await createTestMission({ publisherId, title: `Bénévolat ${index}` });
+      const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+      await createTestMissionScoring({
+        missionId: mission.id,
+        missionEnrichmentId: enrichment.id,
+        values: [
+          { taxonomyKey: "domaine_engagement", valueKey: "solidarite_inclusion" },
+          { taxonomyKey: "activite", valueKey: "aider_accompagner" },
+          { taxonomyKey: "dispositif", valueKey: "benevolat" },
+          { taxonomyKey: "tranche_age", valueKey: "entre_18_25_ans" },
+        ],
+      });
+    }
+
+    const serviceCivique = await createTestMission({ publisherId, title: "Service civique couvert" });
+    const serviceCiviqueEnrichment = await createTestMissionEnrichment({ missionId: serviceCivique.id });
+    await createTestMissionScoring({
+      missionId: serviceCivique.id,
+      missionEnrichmentId: serviceCiviqueEnrichment.id,
+      values: [
+        { taxonomyKey: "domaine_engagement", valueKey: "solidarite_inclusion", score: 0.8 },
+        { taxonomyKey: "activite", valueKey: "aider_accompagner", score: 0.2 },
+        { taxonomyKey: "dispositif", valueKey: "service_civique" },
+        { taxonomyKey: "tranche_age", valueKey: "entre_18_25_ans" },
+      ],
+    });
+
+    const sapeursPompiers = await createTestMission({ publisherId, title: "Sapeurs-pompiers couvert" });
+    const sapeursPompiersEnrichment = await createTestMissionEnrichment({ missionId: sapeursPompiers.id });
+    await createTestMissionScoring({
+      missionId: sapeursPompiers.id,
+      missionEnrichmentId: sapeursPompiersEnrichment.id,
+      values: [
+        { taxonomyKey: "domaine_engagement", valueKey: "solidarite_inclusion", score: 0.2 },
+        { taxonomyKey: "activite", valueKey: "aider_accompagner", score: 0.2 },
+        { taxonomyKey: "dispositif", valueKey: "sapeurs_pompiers" },
+        { taxonomyKey: "tranche_age", valueKey: "entre_18_25_ans" },
+      ],
+    });
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({
+      userScoringId: userResponse.body.data.id,
+      engineVersion: "m6",
+      limit: 1,
+      offset: 10,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.items).toHaveLength(12);
+    expect(response.body.data.total).toBe(12);
+    expect(response.body.data.items.slice(0, 10).some((item: { mission: { id: string } }) => item.mission.id === serviceCivique.id)).toBe(true);
+    expect(response.body.data.items.slice(0, 10).some((item: { mission: { id: string } }) => item.mission.id === sapeursPompiers.id)).toBe(true);
+    expect(new Set(response.body.data.items.map((item: { mission: { id: string } }) => item.mission.id)).size).toBe(12);
+  });
+
   it("rejects an unknown engine version", async () => {
     const response = await withApiKey(request(app).get("/missions/match")).query({
       userScoringId: "00000000-0000-0000-0000-000000000000",

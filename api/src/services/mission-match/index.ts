@@ -3,7 +3,7 @@ import type { MissionMatchResponse } from "@engagement/dto";
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
-import { MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
+import { MATCHING_ENGINE_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MatchingEngineVersion } from "@/services/matching-engine/types";
 import {
   buildMissionIndex,
@@ -19,8 +19,6 @@ export type MissionMatchInput = {
   userScoringId: string;
   publisherId: string;
   version?: MatchingEngineVersion;
-  limit: number;
-  offset: number;
 };
 
 export const missionMatchService = {
@@ -29,10 +27,10 @@ export const missionMatchService = {
     // sinon un ancien scoring serait re-classé avec la version courante et ses résultats changeraient.
     // Un override explicite (input.version) reste prioritaire ; sans snapshot, le moteur retombe sur la version courante.
     const version = input.version ?? (await missionMatchingResultRepository.findEarliestVersion(input.userScoringId)) ?? undefined;
-    const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, version });
+    const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, version, limit: MATCHING_ENGINE_RESULTS_LIMIT });
 
     if (result.items.length === 0) {
-      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: result.total, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [] };
+      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: 0, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [] };
     }
 
     const missionIds = result.items.map((item) => item.missionId);
@@ -62,7 +60,7 @@ export const missionMatchService = {
       tookMs: result.tookMs,
       engineVersion: result.version,
       items: result.items.map((item) => toMissionMatchItem(item, missionIndex, valuesIndex, input.publisherId, ignoreRemoteAddress)),
-      total: result.total,
+      total: result.items.length,
       avgDistanceKmTop5: result.avgDistanceKmTop5,
       userValues: buildUserValues(userValueRows),
     };

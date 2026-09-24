@@ -6,6 +6,7 @@ import type { MatchingEngineTaxonomy, MatchingEngineTaxonomyWeights, MatchingEng
 export const MATCHING_ENGINE_TAXONOMIES = [...ENRICHABLE_TAXONOMIES, ...MISSION_DERIVED_TAXONOMIES, ...GATE_TAXONOMIES] as readonly (keyof MatchingEngineTaxonomyWeights)[];
 
 export const MATCHING_ENGINE_TOP_RESULTS_LIMIT = 20;
+export const MATCHING_ENGINE_RESULTS_LIMIT = 100;
 
 /** Version de matching utilisée par défaut si la variable d'env est absente ou invalide. */
 export const DEFAULT_MATCHING_ENGINE_VERSION: MatchingEngineVersion = "m3";
@@ -23,6 +24,7 @@ type MatchingEngineVersionDefinition = {
   gateRemoteFullGeoScoreOnIntent?: boolean;
   // Socle acquis d'office par taxonomie matchée (cf. MatchingEngineVersionConfig.taxonomyOrBaseScore).
   taxonomyOrBaseScore: number;
+  dispositifCoverage?: { limit: number };
 };
 
 export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDefinition): MatchingEngineVersionConfig => {
@@ -41,6 +43,7 @@ export const defineMatchingEngineVersion = (definition: MatchingEngineVersionDef
     remoteLocalGeoScore: definition.remoteLocalGeoScore,
     gateRemoteFullGeoScoreOnIntent: definition.gateRemoteFullGeoScoreOnIntent ?? false,
     taxonomyOrBaseScore: definition.taxonomyOrBaseScore,
+    dispositifCoverage: definition.dispositifCoverage ?? null,
   };
 };
 
@@ -191,6 +194,7 @@ export const MATCHING_ENGINE_VERSIONS = {
     remoteLocalGeoScore: 0.95,
     gateRemoteFullGeoScoreOnIntent: true,
     taxonomyOrBaseScore: 0.5,
+    dispositifCoverage: { limit: 10 },
   }),
 } as const satisfies Record<MatchingEngineVersion, MatchingEngineVersionConfig>;
 

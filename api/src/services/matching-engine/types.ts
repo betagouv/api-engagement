@@ -20,6 +20,8 @@ export type MatchingEngineVersionConfig = {
   // Socle acquis d'office par taxonomie dès qu'une valeur est en commun (part matchée sur le reste).
   // Plus il est bas, plus la qualité du match (part des valeurs matchées) pèse dans le taxonomy_score.
   taxonomyOrBaseScore: number;
+  // Couverture optionnelle des dispositifs explicitement requis par les règles utilisateur.
+  dispositifCoverage: { limit: number } | null;
 };
 
 export type RankMissionsByUserScoringInput = {

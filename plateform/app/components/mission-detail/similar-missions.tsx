@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import Highlight from "~/components/ui/highlight";
-import { fetchMatches } from "~/services/matching";
+import { fetchInitialMatches } from "~/services/matching";
 import { userValueKeysFromScoring } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 
@@ -18,7 +18,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
   const scrollRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    fetchMatches(userScoringId, 11, 0)
+    fetchInitialMatches(userScoringId)
       .then((res) => {
         setItems(res.items.filter((item) => item.mission.id !== currentMissionId).slice(0, 10));
         setUserValueKeys(userValueKeysFromScoring(res.userValues ?? []));

@@ -3,7 +3,7 @@ import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
-import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
+import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_RESULTS_LIMIT, MATCHING_ENGINE_TAXONOMIES, MATCHING_ENGINE_TOP_RESULTS_LIMIT, MATCHING_ENGINE_VERSIONS } from "./config";
 import type {
   MatchMissionItem,
   MatchingEngineTaxonomy,
@@ -32,6 +32,15 @@ type DbTaxonomyScoreRow = {
   mission_scoring_id: string;
   taxonomy_key: string;
   taxonomy_score: number;
+};
+
+type DbMatchedDispositifRow = {
+  mission_scoring_id: string;
+  value_key: string;
+};
+
+type DbUserScoringValueRow = {
+  value_key: string;
 };
 
 type UserScoringStateRow = {
@@ -94,6 +103,7 @@ const buildRanking = (params: {
   taxonomyOrBaseScore: number;
   taxonomyCandidateLimit: number;
   geoCandidateLimit: number;
+  coverageDispositifs: string[];
   limit: number;
   offset: number;
 }) => {
@@ -215,6 +225,47 @@ const buildRanking = (params: {
         0.0
       )
     END`;
+  const coverageCandidatesCteSql =
+    params.coverageDispositifs.length === 0
+      ? Prisma.empty
+      : Prisma.sql`,
+  coverage_best_candidates AS (
+    SELECT ranked_coverage.*
+    FROM (
+      SELECT
+        s.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY msv."value_key"
+          ORDER BY s."total_score" DESC, s."mission_id" ASC
+        ) AS "coverage_rank"
+      FROM scored s
+      JOIN "mission_scoring_value" msv
+        ON msv."mission_scoring_id" = s."mission_scoring_id"
+       AND msv."taxonomy_key" = 'dispositif'
+       AND msv."value_key" IN (${Prisma.join(params.coverageDispositifs)})
+    ) ranked_coverage
+    WHERE ranked_coverage."coverage_rank" = 1
+  ),
+  selected_results AS (
+    SELECT primary_results.*
+    FROM primary_results
+    UNION
+    SELECT
+      cbc."mission_id",
+      cbc."mission_scoring_id",
+      cbc."total_score",
+      cbc."taxonomy_score",
+      cbc."geo_score",
+      cbc."distance_km",
+      cbc."closest_lat",
+      cbc."closest_lon",
+      cbc."closest_address_id",
+      cbc."closest_city",
+      cbc."closest_address",
+      cbc."total_count"
+    FROM coverage_best_candidates cbc
+  )`;
+  const selectedResultsTableSql = params.coverageDispositifs.length === 0 ? Prisma.sql`primary_results` : Prisma.sql`selected_results`;
   return Prisma.sql`
   WITH taxonomy_weights ("taxonomy_key", "taxonomy_weight") AS (
     VALUES ${buildTaxonomyWeightsValuesSql(params.taxonomyWeights)}
@@ -591,8 +642,9 @@ const buildRanking = (params: {
       ON gs."mission_scoring_id" = cm."mission_scoring_id"
     LEFT JOIN user_geo ug
       ON TRUE
-  )
-  SELECT
+  ),
+  scored AS (
+    SELECT
     r."mission_id",
     r."mission_scoring_id",
     ${baseTotalScoreSql} AS "total_score",
@@ -607,9 +659,17 @@ const buildRanking = (params: {
     -- Total des missions classées pour cet utilisateur (avant pagination), borné par le pool de candidats.
     COUNT(*) OVER () AS "total_count"
   FROM ranked r
-  ORDER BY "total_score" DESC, r."mission_id" ASC
-  LIMIT ${params.limit}
-  OFFSET ${params.offset}
+  ),
+  primary_results AS (
+    SELECT *
+    FROM scored
+    ORDER BY "total_score" DESC, "mission_id" ASC
+    LIMIT ${params.limit}
+    OFFSET ${params.offset}
+  )${coverageCandidatesCteSql}
+  SELECT *
+  FROM ${selectedResultsTableSql}
+  ORDER BY "total_score" DESC, "mission_id" ASC
 `;
 };
 
@@ -694,6 +754,85 @@ const buildTaxonomyScoresIndex = (rows: DbTaxonomyScoreRow[]): Record<string, Pa
   return result;
 };
 
+const getCoverageDispositifs = async (userScoringId: string): Promise<string[]> => {
+  const values = await prisma.$queryRaw<DbUserScoringValueRow[]>`
+    SELECT "value_key"
+    FROM "user_scoring_value"
+    WHERE "user_scoring_id" = ${userScoringId}
+      AND "taxonomy_key" = 'dispositif'
+  `;
+
+  return values.map((value) => value.value_key);
+};
+
+const buildMatchedDispositifsSql = (params: { coverageDispositifs: string[]; missionScoringIds: string[] }) => Prisma.sql`
+  SELECT DISTINCT
+    msv."mission_scoring_id",
+    msv."value_key"
+  FROM "mission_scoring_value" msv
+  WHERE msv."taxonomy_key" = 'dispositif'
+    AND msv."value_key" IN (${Prisma.join(params.coverageDispositifs)})
+    AND msv."mission_scoring_id" IN (${Prisma.join(params.missionScoringIds)})
+`;
+
+const applyDispositifCoverage = (rows: DbRankRow[], matches: DbMatchedDispositifRow[], requiredDispositifs: string[], coverage: { limit: number }): DbRankRow[] => {
+  if (rows.length <= coverage.limit || matches.length === 0) {
+    return rows;
+  }
+
+  const dispositifsByMissionScoringId = new Map<string, string[]>();
+  for (const match of matches) {
+    const dispositifs = dispositifsByMissionScoringId.get(match.mission_scoring_id) ?? [];
+    dispositifs.push(match.value_key);
+    dispositifsByMissionScoringId.set(match.mission_scoring_id, dispositifs);
+  }
+
+  const topRows = rows.slice(0, coverage.limit);
+  const topDispositifCounts = new Map<string, number>();
+  for (const row of topRows) {
+    for (const dispositif of dispositifsByMissionScoringId.get(row.mission_scoring_id) ?? []) {
+      topDispositifCounts.set(dispositif, (topDispositifCounts.get(dispositif) ?? 0) + 1);
+    }
+  }
+
+  for (const requiredDispositif of requiredDispositifs) {
+    if ((topDispositifCounts.get(requiredDispositif) ?? 0) > 0) {
+      continue;
+    }
+
+    const promotedRow = rows
+      .slice(coverage.limit)
+      .find((row) => (dispositifsByMissionScoringId.get(row.mission_scoring_id) ?? []).includes(requiredDispositif) && !topRows.includes(row));
+    if (!promotedRow) {
+      continue;
+    }
+
+    let replacementIndex = -1;
+    for (let index = topRows.length - 1; index >= 0; index--) {
+      const canReplace = (dispositifsByMissionScoringId.get(topRows[index].mission_scoring_id) ?? []).every((dispositif) => (topDispositifCounts.get(dispositif) ?? 0) > 1);
+      if (canReplace) {
+        replacementIndex = index;
+        break;
+      }
+    }
+    if (replacementIndex < 0) {
+      break;
+    }
+
+    const replacedRow = topRows[replacementIndex];
+    for (const dispositif of dispositifsByMissionScoringId.get(replacedRow.mission_scoring_id) ?? []) {
+      topDispositifCounts.set(dispositif, (topDispositifCounts.get(dispositif) ?? 0) - 1);
+    }
+    topRows[replacementIndex] = promotedRow;
+    for (const dispositif of dispositifsByMissionScoringId.get(promotedRow.mission_scoring_id) ?? []) {
+      topDispositifCounts.set(dispositif, (topDispositifCounts.get(dispositif) ?? 0) + 1);
+    }
+  }
+
+  const topMissionScoringIds = new Set(topRows.map((row) => row.mission_scoring_id));
+  return [...topRows, ...rows.filter((row) => !topMissionScoringIds.has(row.mission_scoring_id))];
+};
+
 const buildMissionMatchingResultItems = (params: {
   rows: DbRankRow[];
   taxonomyScoresByMissionScoringId: Record<string, Partial<Record<MatchingEngineTaxonomy, number>>>;
@@ -711,10 +850,17 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
   const versionConfig = MATCHING_ENGINE_VERSIONS[version];
   const limit = Math.max(1, Math.min(500, input.limit ?? 20));
   const offset = Math.max(0, input.offset ?? 0);
+  const dispositifCoverage = versionConfig.dispositifCoverage;
   // The persisted snapshot is defined as the first page of the ranking. Les évaluations peuvent
   // désactiver cette écriture tout en conservant une première page et des rangs strictement identiques.
   const shouldPersistTopResults = offset === 0 && input.persistMatchingResult !== false;
-  const rankingLimit = shouldPersistTopResults ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : limit;
+  const rankingOffset = dispositifCoverage === null ? offset : 0;
+  const rankingLimit =
+    dispositifCoverage === null
+      ? shouldPersistTopResults
+        ? Math.max(limit, MATCHING_ENGINE_TOP_RESULTS_LIMIT)
+        : limit
+      : Math.max(offset + limit, MATCHING_ENGINE_RESULTS_LIMIT, shouldPersistTopResults ? MATCHING_ENGINE_TOP_RESULTS_LIMIT : 0);
 
   return {
     version,
@@ -722,6 +868,8 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     offset,
     shouldPersistTopResults,
     rankingLimit,
+    rankingOffset,
+    dispositifCoverage,
     taxonomyWeights: versionConfig.taxonomyWeights,
     rankingTaxonomyKeys: Object.keys(versionConfig.taxonomyWeights) as MatchingEngineTaxonomy[],
     taxonomyWeight: input.taxonomyWeight ?? 0.3,
@@ -732,12 +880,12 @@ const resolveRankingParams = (input: RankMissionsByUserScoringInput) => {
     remoteLocalGeoScore: input.remoteLocalGeoScore !== undefined ? input.remoteLocalGeoScore : versionConfig.remoteLocalGeoScore,
     gateRemoteFullGeoScoreOnIntent: versionConfig.gateRemoteFullGeoScoreOnIntent,
     taxonomyOrBaseScore: input.taxonomyOrBaseScore ?? versionConfig.taxonomyOrBaseScore,
-    taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset }),
-    geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset }),
+    taxonomyCandidateLimit: getTaxonomyCandidateLimit({ limit: rankingLimit, offset: rankingOffset }),
+    geoCandidateLimit: getGeoCandidateLimit({ limit: rankingLimit, offset: rankingOffset }),
   };
 };
 
-const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): Promise<Prisma.Sql> => {
+const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput, coverageDispositifs: string[] = []): Promise<Prisma.Sql> => {
   const params = resolveRankingParams(input);
 
   return buildRanking({
@@ -754,20 +902,36 @@ const buildRankingSqlForInput = async (input: RankMissionsByUserScoringInput): P
     taxonomyOrBaseScore: params.taxonomyOrBaseScore,
     taxonomyCandidateLimit: params.taxonomyCandidateLimit,
     geoCandidateLimit: params.geoCandidateLimit,
+    coverageDispositifs,
     limit: params.rankingLimit,
-    offset: params.offset,
+    offset: params.rankingOffset,
   });
 };
 
 export const matchingEngineService = {
   async rankMissionsByUserScoring(input: RankMissionsByUserScoringInput): Promise<RankMissionsByUserScoringResult> {
     const startedAt = Date.now();
-    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys, taxonomyOrBaseScore } = resolveRankingParams(input);
+    const { version, limit, offset, shouldPersistTopResults, rankingTaxonomyKeys, taxonomyOrBaseScore, dispositifCoverage } = resolveRankingParams(input);
 
     await assertUserScoringExists(input.userScoringId);
 
-    const rows = await prisma.$queryRaw<DbRankRow[]>(await buildRankingSqlForInput(input));
-    const missionScoringIdsForDetails = rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT).map((row) => row.mission_scoring_id);
+    const coverageDispositifs = dispositifCoverage === null ? [] : await getCoverageDispositifs(input.userScoringId);
+    const rows = await prisma.$queryRaw<DbRankRow[]>(await buildRankingSqlForInput(input, coverageDispositifs));
+    let orderedRows = rows;
+    if (dispositifCoverage !== null && coverageDispositifs.length > 0 && rows.length > 0) {
+      const matchedDispositifs = await prisma.$queryRaw<DbMatchedDispositifRow[]>(
+        buildMatchedDispositifsSql({
+          coverageDispositifs,
+          missionScoringIds: rows.map((row) => row.mission_scoring_id),
+        })
+      );
+      orderedRows = applyDispositifCoverage(rows, matchedDispositifs, coverageDispositifs, dispositifCoverage);
+    }
+
+    const responseRows = dispositifCoverage === null ? (shouldPersistTopResults ? orderedRows.slice(0, limit) : orderedRows) : orderedRows.slice(offset, offset + limit);
+    const missionScoringIdsForDetails = [
+      ...new Set([...responseRows, ...(shouldPersistTopResults ? orderedRows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT) : [])].map((row) => row.mission_scoring_id)),
+    ];
     const taxonomyScoresRows =
       missionScoringIdsForDetails.length > 0
         ? await prisma.$queryRaw<DbTaxonomyScoreRow[]>(
@@ -780,13 +944,12 @@ export const matchingEngineService = {
           )
         : [];
     const taxonomyScoresByMissionScoringId = buildTaxonomyScoresIndex(taxonomyScoresRows);
-    const responseRows = shouldPersistTopResults ? rows.slice(0, limit) : rows;
 
     const total = rows.length > 0 ? Number(rows[0].total_count) : 0;
     // Distance moyenne des 5 premières missions recommandées : pertinente uniquement sur la 1re page.
     let avgDistanceKmTop5: number | null = null;
     if (offset === 0) {
-      const top5Distances = rows
+      const top5Distances = orderedRows
         .slice(0, 5)
         .map((row) => nullableNumber(row.distance_km))
         .filter((distance): distance is number => distance !== null);
@@ -798,7 +961,7 @@ export const matchingEngineService = {
         userScoringId: input.userScoringId,
         matchingEngineVersion: version,
         results: buildMissionMatchingResultItems({
-          rows: rows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT),
+          rows: orderedRows.slice(0, MATCHING_ENGINE_TOP_RESULTS_LIMIT),
           taxonomyScoresByMissionScoringId,
         }),
       });
@@ -830,7 +993,9 @@ export const matchingEngineService = {
   // donné (mêmes paramètres que rankMissionsByUserScoring). Utilisé par scripts/explain-matching-ranking.ts.
   async explainRanking(input: RankMissionsByUserScoringInput): Promise<string> {
     await assertUserScoringExists(input.userScoringId);
-    const sql = await buildRankingSqlForInput(input);
+    const { dispositifCoverage } = resolveRankingParams(input);
+    const coverageDispositifs = dispositifCoverage === null ? [] : await getCoverageDispositifs(input.userScoringId);
+    const sql = await buildRankingSqlForInput(input, coverageDispositifs);
     const rows = await prisma.$queryRaw<Array<Record<string, string>>>(Prisma.sql`EXPLAIN (ANALYZE, BUFFERS) ${sql}`);
 
     return rows.map((row) => row["QUERY PLAN"]).join("\n");
