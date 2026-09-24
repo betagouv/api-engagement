@@ -38,3 +38,7 @@ export const missionIndexPayloadSchema = z.object({
 export const missionDiffusionPayloadSchema = z.object({
   missionId: z.string().min(1),
 });
+
+export const publisherDiffusionPayloadSchema = z.object({
+  publisherId: z.string().min(1),
+});

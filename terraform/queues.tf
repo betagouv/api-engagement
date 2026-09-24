@@ -69,6 +69,10 @@ locals {
       task_type = "mission.diffusion"
       name      = "${var.workspace}-mission-diffusion"
     }
+    publisher_diffusion = {
+      task_type = "publisher.diffusion"
+      name      = "${var.workspace}-publisher-diffusion"
+    }
   }
 }
 

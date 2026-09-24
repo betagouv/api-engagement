@@ -2,6 +2,7 @@ import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
+import { asyncTaskBus } from "@/services/async-task";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { PublisherMissionType } from "@/types/publisher";
@@ -225,6 +226,47 @@ describe("Dashboard publisher controller", () => {
         metadata: { fields: ["name"] },
       })
     );
+  });
+
+  it("enqueues a publisher.diffusion recompute when PUT /publisher/:id includes publishers", async () => {
+    vi.mocked(asyncTaskBus.publish).mockClear();
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const annonceur = await createTestPublisher({ name: "Annonceur diffusion recompute" });
+
+    const res = await request(app)
+      .put(`/publisher/${publisherId}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ hasApiRights: true, category: "association", publishers: [{ publisherId: annonceur.id }] });
+
+    expect(res.status).toBe(200);
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId } });
+  });
+
+  it("does not enqueue a publisher.diffusion recompute when PUT /publisher/:id omits publishers", async () => {
+    vi.mocked(asyncTaskBus.publish).mockClear();
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+
+    const res = await request(app)
+      .put(`/publisher/${publisherId}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ name: "Renamed without touching diffusion" });
+
+    expect(res.status).toBe(200);
+    expect(asyncTaskBus.publish).not.toHaveBeenCalledWith(expect.objectContaining({ type: "publisher.diffusion" }));
+  });
+
+  it("enqueues a publisher.diffusion recompute when POST /publisher includes publishers", async () => {
+    vi.mocked(asyncTaskBus.publish).mockClear();
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const annonceur = await createTestPublisher({ name: "Annonceur created diffuseur", isAnnonceur: true, moderator: true });
+
+    const res = await request(app)
+      .post("/publisher")
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ name: "Diffuseur created", hasApiRights: true, publishers: [{ publisherId: annonceur.id }] });
+
+    expect(res.status).toBe(200);
+    expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: res.body.data.id } });
   });
 
   it("preserves child rules of kept roots when PUT /publisher/:id changes the partner list", async () => {

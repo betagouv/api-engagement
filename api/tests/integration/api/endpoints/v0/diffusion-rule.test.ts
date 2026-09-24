@@ -1,6 +1,7 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { asyncTaskBus } from "@/services/async-task";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { type PublisherRecord } from "@/types";
 
@@ -200,6 +201,9 @@ describe("DiffusionRule API Integration Tests", () => {
    * - should default fieldType to "string" when missing
    * - should be idempotent and return the existing rule when posted twice
    * - should return 409 when the same field and value is posted with a different operator
+   * - recomputes diffusion for a diffuseur whose rule was created even when another diffuseur in the same batch conflicts
+   * - deduplicates repeated diffuseur ids instead of creating the rule twice
+   * - should return 400 when publisherIds exceeds the max batch size
    */
   describe("POST /v0/diffusion-rule", () => {
     const validRule = {
@@ -287,6 +291,20 @@ describe("DiffusionRule API Integration Tests", () => {
       expect(persisted.map((rule) => rule.publisherId).sort()).toEqual([diffuseur1.id, diffuseur2.id].sort());
     });
 
+    it("enqueues a publisher.diffusion recompute for each allowed diffuseur, but not for unrelated ones", async () => {
+      vi.mocked(asyncTaskBus.publish).mockClear();
+
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, publisherIds: [diffuseur1.id, diffuseur2.id, otherDiffuseur.id] });
+
+      expect(response.status).toBe(201);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur1.id } });
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur2.id } });
+      expect(asyncTaskBus.publish).not.toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: otherDiffuseur.id } });
+    });
+
     it("should default fieldType to string when missing", async () => {
       const response = await request(app)
         .post("/v0/diffusion-rule")
@@ -345,6 +363,52 @@ describe("DiffusionRule API Integration Tests", () => {
       });
       expect(persisted).toHaveLength(1);
       expect(persisted[0].operator).toBe("is_not");
+    });
+
+    it("recomputes diffusion for a diffuseur whose rule was created even when another diffuseur in the same batch conflicts", async () => {
+      const first = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, operator: "is_not", publisherIds: [diffuseur1.id] });
+      expect(first.status).toBe(201);
+
+      vi.mocked(asyncTaskBus.publish).mockClear();
+
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, operator: "is", publisherIds: [diffuseur1.id, diffuseur2.id] });
+
+      // diffuseur1 conflicts (rule already exists with a different operator) and makes the whole
+      // request fail, but diffuseur2's rule was independently created before the batch rejected.
+      expect(response.status).toBe(409);
+
+      const persisted = await publisherDiffusionRuleService.findRules({
+        publisherIds: [diffuseur2.id],
+        field: "publisherOrganization.clientId",
+        value: organization.clientId,
+      });
+      expect(persisted).toHaveLength(1);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur2.id } });
+    });
+
+    it("deduplicates repeated diffuseur ids instead of creating the rule twice", async () => {
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, publisherIds: [diffuseur1.id, diffuseur1.id] });
+
+      expect(response.status).toBe(201);
+      expect(response.body.total).toBe(1);
+    });
+
+    it("should return 400 when publisherIds exceeds the max batch size", async () => {
+      const response = await request(app)
+        .post("/v0/diffusion-rule")
+        .set("x-api-key", apiKey)
+        .send({ ...validRule, publisherIds: Array.from({ length: 51 }, (_, i) => `diffuseur-${i}`) });
+
+      expect(response.status).toBe(400);
     });
   });
 
@@ -415,6 +479,23 @@ describe("DiffusionRule API Integration Tests", () => {
 
       expect(await publisherDiffusionRuleService.findRuleById(child.id)).toBeNull();
       expect(await publisherDiffusionRuleService.findRuleById(root.id)).not.toBeNull();
+    });
+
+    it("enqueues a publisher.diffusion recompute for the rule's diffuseur", async () => {
+      const child = await publisherDiffusionRuleService.createScopedRule({
+        diffuseurPublisherId: diffuseur1.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: "org-1",
+      });
+      vi.mocked(asyncTaskBus.publish).mockClear();
+
+      const response = await request(app).delete(`/v0/diffusion-rule/${child.id}`).set("x-api-key", apiKey);
+
+      expect(response.status).toBe(200);
+      expect(asyncTaskBus.publish).toHaveBeenCalledWith({ type: "publisher.diffusion", payload: { publisherId: diffuseur1.id } });
     });
   });
 });
