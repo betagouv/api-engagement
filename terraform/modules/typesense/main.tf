@@ -57,6 +57,10 @@ resource "scaleway_instance_server" "node" {
   security_group_id = scaleway_instance_security_group.typesense[each.value.zone].id
   tags              = ["typesense", var.workspace, each.key]
 
+  root_volume {
+    size_in_gb = each.value.root_volume_size_in_gb
+  }
+
   user_data = {
     cloud-init = templatefile("${path.module}/templates/cloud-init.yaml.tftpl", {
       api_port               = local.api_port
