@@ -58,9 +58,13 @@ describe("missionToOffer — service-civique", () => {
     expect(missionToOffer(mission as MissionRecord, "service-civique")!.location).toEqual({ city: "Nantes", zip_code: "44000", country: "FR" });
   });
 
-  it("bascule sur organizationLogo puis omet logo", () => {
-    expect(missionToOffer({ ...scMission, domainLogo: "https://dl.png" } as MissionRecord, "service-civique")!.logo).toBe("https://dl.png");
-    expect(missionToOffer({ ...scMission, domainLogo: null, organizationLogo: null } as MissionRecord, "service-civique")!.logo).toBeUndefined();
+  it("logo = logo du partenaire, pictures = image de la mission", () => {
+    const offer = missionToOffer({ ...scMission, domainLogo: "https://dl.png" } as MissionRecord, "service-civique")!;
+    expect(offer.logo).toBe("https://logo.png"); // organizationLogo
+    expect(offer.pictures).toEqual({ picture: ["https://dl.png"] }); // domainLogo
+    const noImages = missionToOffer({ ...scMission, domainLogo: null, organizationLogo: null } as MissionRecord, "service-civique")!;
+    expect(noImages.logo).toBeUndefined();
+    expect(noImages.pictures).toBeUndefined();
   });
 });
 

@@ -19,6 +19,7 @@ const CDATA_KEYS = [
   "type",
   "company",
   "logo",
+  "picture",
 ];
 
 /** Nettoie un texte HTML en texte brut (leboncoin refuse toute mise en forme HTML). */
@@ -26,7 +27,7 @@ export function stripHtml(text: string | null | undefined): string {
   if (!text) {
     return "";
   }
-  return convert(text, {
+  const text_ = convert(text, {
     wordwrap: false,
     selectors: [
       { selector: "a", options: { ignoreHref: true } },
@@ -34,7 +35,12 @@ export function stripHtml(text: string | null | undefined): string {
       // html-to-text met les titres en MAJUSCULES par défaut : on conserve la casse d'origine.
       ...["h1", "h2", "h3", "h4", "h5", "h6"].map((selector) => ({ selector, options: { uppercase: false } })),
     ],
-  }).trim();
+  });
+  // Titres et paragraphes sont séparés par une ligne vide ; on normalise les sauts multiples à \n\n.
+  return text_
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 /** Formate une date au format AAAA-MM-JJ. */

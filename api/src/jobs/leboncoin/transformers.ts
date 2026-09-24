@@ -125,9 +125,10 @@ export function missionToOffer(mission: MissionRecord, dispositif: Dispositif): 
     location,
     time: { type: config.timeType },
     company: mission.organizationName ? truncate(mission.organizationName, COMPANY_NAME_MAX_LENGTH) : undefined,
-    logo: mission.domainLogo || mission.organizationLogo || undefined,
+    logo: mission.organizationLogo || undefined, // logo du partenaire
     client_reference: mission.clientId ? truncate(mission.clientId, CLIENT_REFERENCE_MAX_LENGTH) : undefined,
     business_sector: resolveBusinessSector(mission, dispositif),
     occupation: resolveOccupation(mission, dispositif),
+    pictures: mission.domainLogo ? { picture: [mission.domainLogo] } : undefined, // image de la mission
   };
 }

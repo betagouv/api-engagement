@@ -16,4 +16,5 @@ export interface LeboncoinOffer {
   client_reference?: string;
   business_sector?: number;
   occupation?: number;
+  pictures?: { picture: string[] };
 }
