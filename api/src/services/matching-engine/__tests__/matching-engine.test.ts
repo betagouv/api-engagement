@@ -6,11 +6,18 @@ vi.mock("@/repositories/mission-matching-result", () => ({
   },
 }));
 
+vi.mock("@/services/user-scoring", () => ({
+  userScoringService: {
+    exists: vi.fn(),
+  },
+}));
+
 import { prisma } from "@/db/postgres";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { matchingEngineService } from "@/services/matching-engine";
 import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
+import { userScoringService } from "@/services/user-scoring";
 
 const prismaMock = prisma as unknown as {
   $queryRaw: ReturnType<typeof vi.fn>;
@@ -18,6 +25,10 @@ const prismaMock = prisma as unknown as {
 
 const missionMatchingResultRepositoryMock = missionMatchingResultRepository as unknown as {
   createForUserScoringVersion: ReturnType<typeof vi.fn>;
+};
+
+const userScoringServiceMock = userScoringService as unknown as {
+  exists: ReturnType<typeof vi.fn>;
 };
 
 const getSqlText = (query: unknown): string => {
@@ -48,11 +59,13 @@ describe("matchingEngineService", () => {
   beforeEach(() => {
     prismaMock.$queryRaw.mockReset();
     missionMatchingResultRepositoryMock.createForUserScoringVersion.mockReset();
+    userScoringServiceMock.exists.mockReset();
+    userScoringServiceMock.exists.mockResolvedValue(true);
   });
 
   describe("rankMissionsByUserScoring", () => {
     it("throws when the user scoring does not exist", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([]);
+      userScoringServiceMock.exists.mockResolvedValueOnce(false);
 
       await expect(
         matchingEngineService.rankMissionsByUserScoring({
@@ -60,16 +73,12 @@ describe("matchingEngineService", () => {
         })
       ).rejects.toThrow("[matchingEngineService] user_scoring 'user-scoring-missing' not found.");
 
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
+      expect(userScoringServiceMock.exists).toHaveBeenCalledWith("user-scoring-missing");
+      expect(prismaMock.$queryRaw).not.toHaveBeenCalled();
     });
 
     it("returns ranked missions with clamped scores and indexed taxonomy scores", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-1",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-1",
@@ -117,10 +126,10 @@ describe("matchingEngineService", () => {
       });
 
       expect(result.version).toBe(CURRENT_MATCHING_ENGINE_VERSION);
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
-      const taxonomyScoresValues = getSqlValues(prismaMock.$queryRaw.mock.calls[2][0]);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[0][0]);
+      const taxonomyScoresValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingSql).toContain('ma."id" AS "closest_address_id"');
       expect(rankingSql).toContain("JOIN taxonomy_weights tw");
       expect(rankingValues).toContain("domaine");
@@ -174,7 +183,7 @@ describe("matchingEngineService", () => {
     });
 
     it("joint directement le snapshot complet pour le diffuseur", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-table-filter" }]).mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-table-filter",
       });
@@ -184,7 +193,7 @@ describe("matchingEngineService", () => {
         publisherId: "publisher-diffuseur-1",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(rankingSql).toContain('JOIN "mission_diffusion" md');
       expect(rankingSql).toContain('md."mission_id" = m."id"');
       expect(rankingSql).toContain('md."distribution_publisher_id" =');
@@ -193,13 +202,7 @@ describe("matchingEngineService", () => {
     });
 
     it("does not query taxonomy scores when no mission is ranked", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-empty",
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-empty",
       });
@@ -210,7 +213,7 @@ describe("matchingEngineService", () => {
 
       expect(result.version).toBe(CURRENT_MATCHING_ENGINE_VERSION);
       expect(result.items).toEqual([]);
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(1);
       expect(missionMatchingResultRepositoryMock.createForUserScoringVersion).toHaveBeenCalledWith({
         userScoringId: "user-scoring-empty",
         matchingEngineVersion: CURRENT_MATCHING_ENGINE_VERSION,
@@ -219,7 +222,7 @@ describe("matchingEngineService", () => {
     });
 
     it("does not persist the first page when persistence is disabled", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-evaluation" }]).mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
 
       const result = await matchingEngineService.rankMissionsByUserScoring({
         userScoringId: "user-scoring-evaluation",
@@ -232,13 +235,7 @@ describe("matchingEngineService", () => {
     });
 
     it("uses the requested m1 version config and persists the m1 snapshot", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m1",
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m1",
       });
@@ -249,7 +246,7 @@ describe("matchingEngineService", () => {
         taxonomyWeight: 0.11,
       });
 
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m1");
       expect(rankingValues).toContain(0.7);
       expect(rankingValues).not.toContain(0.3);
@@ -262,11 +259,6 @@ describe("matchingEngineService", () => {
 
     it("weights the new taxonomies under m4 while still ranking missions scored only on old taxonomies", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m4",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-old-only",
@@ -294,7 +286,7 @@ describe("matchingEngineService", () => {
         version: "m4",
       });
 
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m4");
       // m4 pondère les nouvelles taxonomies du parcours de recommandation…
       for (const taxonomy of ["domaine_engagement", "rythme", "activite", "motivation_recherche"]) {
@@ -324,11 +316,6 @@ describe("matchingEngineService", () => {
       prismaMock.$queryRaw
         .mockResolvedValueOnce([
           {
-            id: "user-scoring-gate-filtered",
-          },
-        ])
-        .mockResolvedValueOnce([
-          {
             mission_id: "mission-eligible",
             mission_scoring_id: "mission-scoring-eligible",
             total_score: 0.8,
@@ -353,8 +340,8 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-gate-filtered",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
       expect(rankingSql).toContain("user_gate_values");
       expect(rankingSql).toContain("matched_gate_taxonomies");
       expect(rankingSql).not.toContain('AND usv."taxonomy_key" NOT IN');
@@ -380,11 +367,6 @@ describe("matchingEngineService", () => {
 
     it("keeps excluded missions out of the final payload and ignores their taxonomy rows", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-gate-taxonomies",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-1",
@@ -416,7 +398,7 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-gate-taxonomies",
       });
 
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
       expect(result.items).toEqual([
         {
           missionId: "mission-1",
@@ -439,11 +421,6 @@ describe("matchingEngineService", () => {
 
     it("uses bounded OR taxonomy scoring with multi-value bonus", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-or-taxonomy",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-1",
@@ -470,8 +447,8 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-or-taxonomy",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      const taxonomyScoresSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
+      const taxonomyScoresSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
 
       expect(result.items[0].taxonomyScores.domaine).toBe(0.866667);
       expect(rankingSql).toContain('COALESCE(SUM(COALESCE(dw."taxonomy_weight", 1.0)), 0) AS "taxonomy_total"');
@@ -482,11 +459,6 @@ describe("matchingEngineService", () => {
 
     it("does not persist a snapshot when the caller requests an offset page", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-page-2",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-2",
@@ -534,13 +506,7 @@ describe("matchingEngineService", () => {
     });
 
     it("injects the forced remote geo score branches and values for the m3 version", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m3",
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m3",
       });
@@ -550,8 +516,8 @@ describe("matchingEngineService", () => {
         version: "m3",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m3");
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'full' THEN CAST(");
       expect(rankingSql).toContain("WHEN m.\"remote\"::text = 'local' THEN CAST(");
@@ -568,13 +534,7 @@ describe("matchingEngineService", () => {
     });
 
     it("gates the remote=full geo score on the user's remote intent for the m5 version", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m5",
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m5",
       });
@@ -584,7 +544,7 @@ describe("matchingEngineService", () => {
         version: "m5",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m5");
       // Le score forcé remote=full est conditionné à l'intention de l'utilisateur.
       expect(rankingSql).toContain("usv.\"taxonomy_key\" = 'motivation_recherche'");
@@ -596,10 +556,7 @@ describe("matchingEngineService", () => {
     });
 
     it("pondère le dispositif dans m6 sans modifier le score SQL", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([{ id: "user-scoring-m6" }])
-        .mockResolvedValueOnce([])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m6",
       });
@@ -609,9 +566,9 @@ describe("matchingEngineService", () => {
         version: "m6",
       });
 
-      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(3);
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[2][0]);
+      expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingValues).toContain("dispositif");
       expect(rankingSql).not.toContain("dispositif_affinities");
       expect(rankingSql).toContain("FROM scored");
@@ -632,7 +589,6 @@ describe("matchingEngineService", () => {
         total_count: 12,
       }));
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([{ id: "user-scoring-m6-coverage" }])
         .mockResolvedValueOnce([
           { value_key: "service_civique" },
           { value_key: "sapeurs_pompiers" },
@@ -654,8 +610,8 @@ describe("matchingEngineService", () => {
         persistMatchingResult: false,
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[2][0]);
-      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[2][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingValues = getSqlValues(prismaMock.$queryRaw.mock.calls[1][0]);
       expect(rankingSql).toContain("coverage_best_candidates");
       expect(rankingValues).toContain("service_civique");
       expect(rankingValues).toContain("sapeurs_pompiers");
@@ -678,13 +634,7 @@ describe("matchingEngineService", () => {
     });
 
     it("does not gate the remote=full geo score for the m3 version (non-regression)", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m3-ungated",
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m3-ungated",
       });
@@ -694,20 +644,14 @@ describe("matchingEngineService", () => {
         version: "m3",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m3");
       expect(rankingSql).not.toContain("usv.\"value_key\" = 'remote'");
       expect(rankingSql).not.toContain("WHEN m.\"remote\"::text = 'full' THEN CASE");
     });
 
     it("does not inject the remote=full branch for the m2 version (non-regression)", async () => {
-      prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m2",
-          },
-        ])
-        .mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-m2",
       });
@@ -717,14 +661,14 @@ describe("matchingEngineService", () => {
         version: "m2",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m2");
       expect(rankingSql).not.toContain('m."remote"::text');
       expect(rankingSql).not.toContain("forced_remote_candidates");
     });
 
     it("uses the mobility radius as a linear geo score cutoff", async () => {
-      prismaMock.$queryRaw.mockResolvedValueOnce([{ id: "user-scoring-radius" }]).mockResolvedValueOnce([]);
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-radius",
       });
@@ -733,7 +677,7 @@ describe("matchingEngineService", () => {
         userScoringId: "user-scoring-radius",
       });
 
-      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[1][0]);
+      const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(rankingSql).toContain('COALESCE(NULLIF(ug."radius_km", 0), CAST(');
       expect(rankingSql).toContain('WHEN gs."distance_km" >= COALESCE(');
       expect(rankingSql).toContain('1.0 - (gs."distance_km" / COALESCE(');
@@ -741,11 +685,6 @@ describe("matchingEngineService", () => {
 
     it("returns a geo score of 1 for a remote=full mission ranked with m3", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m3-remote",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-remote-full",
@@ -779,11 +718,6 @@ describe("matchingEngineService", () => {
 
     it("returns the configured local geo score for a remote=local mission ranked with m3", async () => {
       prismaMock.$queryRaw
-        .mockResolvedValueOnce([
-          {
-            id: "user-scoring-m3-local",
-          },
-        ])
         .mockResolvedValueOnce([
           {
             mission_id: "mission-remote-local",

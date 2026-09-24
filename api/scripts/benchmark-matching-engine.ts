@@ -9,8 +9,8 @@
  *   --sample-size N            Nombre de profils auto-selectionnes si aucun id n'est fourni (defaut : 8)
  *   --iterations N             Iterations mesurees par scenario/profil (defaut : 5)
  *   --warmup N                 Iterations non mesurees par scenario/profil (defaut : 1)
- *   --limits 20,50,100         Tailles de page a tester (defaut : 20,100,500)
- *   --offsets 1,100            Offsets a tester (defaut : 1 pour eviter la persistance du service)
+ *   --limits 20,50,100         Limites a tester (defaut : MATCHING_ENGINE_RESULTS_LIMIT)
+ *   --version VERSION          Version du moteur (defaut : version active)
  *   --taxonomy-weight N        Poids taxonomie (defaut : moteur)
  *   --geo-weight N             Poids geo (defaut : moteur)
  *   --geo-half-decay-km N      Demi-vie geo en km (defaut : moteur)
@@ -24,7 +24,7 @@ dotenv.config();
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
-import { CURRENT_MATCHING_ENGINE_VERSION } from "@/services/matching-engine/config";
+import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_RESULTS_LIMIT } from "@/services/matching-engine/config";
 import type { MatchingEngineVersion, RankMissionsByUserScoringInput } from "@/services/matching-engine/types";
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
@@ -40,7 +40,6 @@ type BenchmarkOptions = {
   iterations: number;
   warmup: number;
   limits: number[];
-  offsets: number[];
   version: MatchingEngineVersion;
   taxonomyWeight?: number;
   geoWeight?: number;
@@ -74,7 +73,6 @@ type ScenarioResult = {
   };
   scenario: {
     limit: number;
-    offset: number;
     taxonomyWeight?: number;
     geoWeight?: number;
     geoHalfDecayKm?: number;
@@ -150,15 +148,15 @@ const parseNumber = (flag: string): number | undefined => {
   return parsed;
 };
 
-const parseIntegerList = (flag: string, defaultValue: number[]): number[] => {
+const parsePositiveIntegerList = (flag: string, defaultValue: number[]): number[] => {
   const rawValue = getFlagValue(flag);
   if (!rawValue) {
     return defaultValue;
   }
 
   const parsed = rawValue.split(",").map((value) => Number.parseInt(value.trim(), 10));
-  if (parsed.length === 0 || parsed.some((value) => !Number.isInteger(value) || value < 0)) {
-    throw new Error(`${flag} doit etre une liste d'entiers positifs ou nuls. Recu: ${rawValue}`);
+  if (parsed.length === 0 || parsed.some((value) => !Number.isInteger(value) || value <= 0)) {
+    throw new Error(`${flag} doit etre une liste d'entiers strictement positifs. Recu: ${rawValue}`);
   }
 
   return Array.from(new Set(parsed));
@@ -169,8 +167,7 @@ const parseOptions = (): BenchmarkOptions => ({
   sampleSize: parsePositiveInteger("--sample-size", 8),
   iterations: parsePositiveInteger("--iterations", 5),
   warmup: parsePositiveOrZeroInteger("--warmup", 1),
-  limits: parseIntegerList("--limits", [20, 100, 500]).filter((limit) => limit > 0),
-  offsets: parseIntegerList("--offsets", [1]),
+  limits: parsePositiveIntegerList("--limits", [MATCHING_ENGINE_RESULTS_LIMIT]),
   version: (getFlagValue("--version") ?? CURRENT_MATCHING_ENGINE_VERSION) as MatchingEngineVersion,
   taxonomyWeight: parseNumber("--taxonomy-weight"),
   geoWeight: parseNumber("--geo-weight"),
@@ -315,21 +312,22 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
     LIMIT ${sampleSize}
   `;
 
-const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, limit: number, offset: number): RankMissionsByUserScoringInput => ({
+const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, limit: number): RankMissionsByUserScoringInput => ({
   userScoringId,
   version: options.version,
   limit,
-  offset,
   taxonomyWeight: options.taxonomyWeight,
   geoWeight: options.geoWeight,
   geoHalfDecayKm: options.geoHalfDecayKm,
+  // Un benchmark ne doit pas ecrire un snapshot a chaque iteration.
+  persistMatchingResult: false,
 });
 
-const benchmarkScenario = async (params: { options: BenchmarkOptions; userScoring: UserScoringCandidate; limit: number; offset: number }): Promise<ScenarioResult> => {
+const benchmarkScenario = async (params: { options: BenchmarkOptions; userScoring: UserScoringCandidate; limit: number }): Promise<ScenarioResult> => {
   const measuredMs: number[] = [];
   const serviceTookMs: number[] = [];
   let itemCount = 0;
-  const input = buildRankingInput(params.options, params.userScoring.id, params.limit, params.offset);
+  const input = buildRankingInput(params.options, params.userScoring.id, params.limit);
 
   for (let index = 0; index < params.options.warmup; index++) {
     await matchingEngineService.rankMissionsByUserScoring(input);
@@ -352,7 +350,6 @@ const benchmarkScenario = async (params: { options: BenchmarkOptions; userScorin
     },
     scenario: {
       limit: params.limit,
-      offset: params.offset,
       taxonomyWeight: params.options.taxonomyWeight,
       geoWeight: params.options.geoWeight,
       geoHalfDecayKm: params.options.geoHalfDecayKm,
@@ -383,7 +380,6 @@ const printTable = (params: { dataset: DatasetSummary; options: BenchmarkOptions
       gates: result.profile.gateValueCount,
       geo: result.profile.hasGeo,
       limit: result.scenario.limit,
-      offset: result.scenario.offset,
       items: result.itemCount,
       minMs: result.stats.minMs,
       medianMs: result.stats.medianMs,
@@ -396,9 +392,6 @@ const printTable = (params: { dataset: DatasetSummary; options: BenchmarkOptions
 
 const run = async () => {
   const options = parseOptions();
-  if (options.limits.length === 0) {
-    throw new Error("--limits doit contenir au moins une valeur strictement positive.");
-  }
 
   await prisma.$connect();
 
@@ -417,43 +410,32 @@ const run = async () => {
       throw new Error(`user_scoring introuvable ou expire: ${missingIds.join(", ")}`);
     }
 
-    // Mode diagnostic : affiche le plan EXPLAIN (ANALYZE, BUFFERS) du SQL de ranking par scenario.
+    // Mode diagnostic : affiche un plan pour chaque couple profil/limite.
     if (options.explain) {
       for (const userScoring of userScorings) {
         for (const limit of options.limits) {
-          for (const offset of options.offsets) {
-            console.log(`\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} version=${options.version} limit=${limit} offset=${offset}`);
-            const plan = await matchingEngineService.explainRanking(buildRankingInput(options, userScoring.id, limit, offset));
-            console.log(plan);
-          }
+          console.log(`\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} version=${options.version} limit=${limit}`);
+          const plan = await matchingEngineService.explainRanking(buildRankingInput(options, userScoring.id, limit));
+          console.log(plan);
         }
       }
       return;
     }
 
     const results: ScenarioResult[] = [];
-    const scenarioCount = userScorings.length * options.limits.length * options.offsets.length;
+    const scenarioCount = userScorings.length * options.limits.length;
     let currentScenario = 0;
 
     for (const userScoring of userScorings) {
       for (const limit of options.limits) {
-        for (const offset of options.offsets) {
-          currentScenario++;
-          if (!options.json) {
-            console.log(
-              `[${SCRIPT_LABEL}] ${currentScenario}/${scenarioCount} userScoringId=${userScoring.id} values=${userScoring.value_count} geo=${userScoring.has_geo} limit=${limit} offset=${offset}`
-            );
-          }
-
-          results.push(
-            await benchmarkScenario({
-              options,
-              userScoring,
-              limit,
-              offset,
-            })
+        currentScenario++;
+        if (!options.json) {
+          console.log(
+            `[${SCRIPT_LABEL}] ${currentScenario}/${scenarioCount} userScoringId=${userScoring.id} values=${userScoring.value_count} geo=${userScoring.has_geo} limit=${limit}`
           );
         }
+
+        results.push(await benchmarkScenario({ options, userScoring, limit }));
       }
     }
 
