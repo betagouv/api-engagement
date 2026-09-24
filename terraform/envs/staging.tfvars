@@ -44,6 +44,7 @@ private_network_cidr = "10.41.0.0/22"
 
 enable_plateform   = true
 plateform_hostname = "plateforme.api-engagement-dev.fr"
+ttm_hostname       = "trouvetamission.api-engagement-dev.fr"
 
 typesense_load_balancer_private_ip = "10.41.2.10"
 
