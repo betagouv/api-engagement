@@ -16,7 +16,7 @@ sentry_webhook_hostname            = "sentry-webhook.api-engagement-dev.fr"
 sentry_webhook_debug_payload       = true
 
 mission_enrichment_prompt_version = "v5"
-matching_engine_version           = "m5"
+matching_engine_version           = "m6"
 
 api_cpu_limit    = 250
 api_memory_limit = 512
