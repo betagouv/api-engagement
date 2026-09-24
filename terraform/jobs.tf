@@ -188,7 +188,28 @@ resource "scaleway_job_definition" "linkedin-stats" {
   env = local.all_env_vars
 }
 
-# Job Definition for the 'leboncoin' task
+# Job Definition for the 'leboncoin-alerts' task (alertes Slack des missions refusées)
+resource "scaleway_job_definition" "leboncoin_alerts" {
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-leboncoin-alerts"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "leboncoin-alerts"]
+  timeout                = "15m"
+
+  cron {
+    schedule = "0 10 * * *" # Every day at 10:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'leboncoin' task (génération des feeds XML Service Civique + SPV)
 resource "scaleway_job_definition" "leboncoin" {
   count                  = var.enable_intern_jobs ? 1 : 0
   name                   = "${terraform.workspace}-leboncoin"
@@ -198,11 +219,11 @@ resource "scaleway_job_definition" "leboncoin" {
   local_storage_capacity = 1024
   image_uri              = local.image_uri
   startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "leboncoin"]
-  timeout                = "15m"
+  args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "leboncoin"]
+  timeout                = "45m"
 
   cron {
-    schedule = "0 10 * * *" # Every day at 10:00 AM
+    schedule = "0 4 * * *" # Every day at 4:00 AM
     timezone = "Europe/Paris"
   }
 
