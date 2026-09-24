@@ -123,18 +123,18 @@ export const ROC_OFFERS = [
     clientId: "roc-seo-architecte-donnees-reserviste",
     title: "Architecte de données, Réserviste Spécialiste",
     description: `<p>Réserviste au profit du Service de l'Énergie Opérationnelle et de son système d'information Réserviste Opérationnel Connecté (ROC).</p>
-<p>Rejoignez l'équipe de l'État-Major des Armées et du Service de l'Énergie Opérationnelle, et participez au développement du système d'information ROC. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion : c'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
+<p>Rejoignez l'équipe de l'État-Major des Armées et du Service de l'Énergie Opérationnelle, et participez au développement du système d'information ROC. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion : c'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
 <p>En tant que réserviste :</p>
 <ul>
 <li>travaillez en équipe pour participer au développement du SI ROC ;</li>
 <li>participez à l'élaboration de la stratégie de recette, à l'écriture des cahiers de recette et à la recette du système d'information sur l'environnement de développement (PICSEL) et de pré-production ;</li>
 <li>contribuez à la remontée au SI ROC des anomalies du système en production.</li>
 </ul>
-<p>Vous êtes formé·e et encadré·e à chaque étape, la formation initiale vous donne toutes les bases progressivement.</p>
+<p>Vous êtes formé et encadré à chaque étape, la formation initiale vous donne toutes les bases progressivement.</p>
 <h3>Indemnisations complémentaires</h3>
 <ul>
 <li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si minimum 37 jours par an).</li>
-<li>🎓 Allocation mensuelle de 100 € pour les étudiant·e·s de moins de 25 ans (si contrat 5 ans, et minimum 37 j/an).</li>
+<li>🎓 Allocation mensuelle de 100 € pour les étudiants de moins de 25 ans (si contrat 5 ans, et minimum 37 j/an).</li>
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
 </ul>`,
     applicationUrl:
@@ -146,7 +146,7 @@ export const ROC_OFFERS = [
       "17 ans et +",
       "Bac +2",
       "Connaissances bureautiques et maîtrise informatique (PICSEL, JIRA)",
-      "Ouvert à toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)",
+      "Ouvert à toutes situations (étudiant, salarié, demandeur d'emploi)",
       "Aptitude médicale requise",
       "Habiter en région parisienne",
     ],
@@ -170,14 +170,14 @@ export const ROC_OFFERS = [
     clientId: "roc-seo-assistant-rh",
     title: "Assistant gestion du personnel, Réserviste (militaire du rang)",
     description: `<p>Réserviste administratif au profit du Service de l'Énergie Opérationnelle (SEO).</p>
-<p>Rejoignez l'équipe de l'État-Major du SEO, et participez à la gestion du personnel de réserve du service. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion : c'est un engagement réel, avec une unité, des missions et une formation dès le premier jour. Et si vous êtes volontaire pour plus, participez concrètement à la défense du territoire.</p>
+<p>Rejoignez l'équipe de l'État-Major du SEO, et participez à la gestion du personnel de réserve du service. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion : c'est un engagement réel, avec une unité, des missions et une formation dès le premier jour. Et si vous êtes volontaire pour plus, participez concrètement à la défense du territoire.</p>
 <p>En tant que réserviste :</p>
 <ul>
 <li>rejoignez l'équipe RH pour contribuer à la gestion de l'ensemble des réservistes du service ;</li>
 <li>devenez technicien du système d'information Réserviste Opérationnel Connecté (ROC) du SEO ;</li>
 <li>participez à la remontée des anomalies du système en production.</li>
 </ul>
-<p>Vous êtes formé·e et encadré·e à chaque étape, la formation initiale vous donne toutes les bases progressivement. Vous voulez en faire plus ? Sécurité d'installations militaires (missions de garde opérationnelles), Opération Sentinelle (protection des lieux publics, gares et frontières).</p>`,
+<p>Vous êtes formé et encadré à chaque étape, la formation initiale vous donne toutes les bases progressivement. Vous voulez en faire plus ? Sécurité d'installations militaires (missions de garde opérationnelles), Opération Sentinelle (protection des lieux publics, gares et frontières).</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=309&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -187,7 +187,7 @@ export const ROC_OFFERS = [
       "17 ans et +",
       "Bac",
       "Maîtrise bureautique",
-      "Ouvert à toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)",
+      "Ouvert à toutes situations (étudiant, salarié, demandeur d'emploi)",
       "Aptitude médicale requise",
       "Si possible, habiter en région Est (Nancy-Metz)",
     ],
@@ -211,7 +211,7 @@ export const ROC_OFFERS = [
     clientId: "roc-marine-fusiliers-marins",
     title: "Réserviste dans la marine nationale au sein d'un bataillon de fusiliers marins",
     description: `<p>Mission : participer à la protection du territoire national.</p>
-<p>Selon vos disponibilités, rejoignez une unité de la Marine Nationale et participez concrètement à la défense du territoire au sein d'un bataillon de fusiliers marins. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme. C'est un engagement réel, au sein d'une unité qui vous permettra de valoriser cette expérience. Vous serez ainsi formé et accompagné à chaque étape.</p>
+<p>Selon vos disponibilités, rejoignez une unité de la Marine Nationale et participez concrètement à la défense du territoire au sein d'un bataillon de fusiliers marins. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme. C'est un engagement réel, au sein d'une unité qui vous permettra de valoriser cette expérience. Vous serez ainsi formé et accompagné à chaque étape.</p>
 <p>En tant que réserviste, vous participerez à :</p>
 <ul>
 <li>la protection des emprises militaires et points d'intérêt vitaux ;</li>
@@ -227,7 +227,7 @@ export const ROC_OFFERS = [
     requirements: [
       "17 ans et +",
       "Accessible sans condition de diplôme (pour de nombreux postes)",
-      "Ouvert à toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)",
+      "Ouvert à toutes situations (étudiant, salarié, demandeur d'emploi)",
       "Aptitude médicale requise",
     ],
     schedule: "Dès 30 jours par an. Contrat de 1 à 5 ans, renouvelable.",
@@ -253,7 +253,7 @@ export const ROC_OFFERS = [
     title: "Réserviste Sémaphore - Marine nationale",
     image: ROC_IMAGE,
     description: `<p>Protection des approches maritimes.</p>
-<p>Selon vos disponibilités, rejoignez une unité de la Marine Nationale et participez concrètement à la protection des approches maritimes au sein d'un sémaphore. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme. C'est un engagement réel, au sein d'une unité, qui vous permettra de valoriser cette expérience. Vous serez ainsi formé et accompagné à chaque étape.</p>
+<p>Selon vos disponibilités, rejoignez une unité de la Marine Nationale et participez concrètement à la protection des approches maritimes au sein d'un sémaphore. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme. C'est un engagement réel, au sein d'une unité, qui vous permettra de valoriser cette expérience. Vous serez ainsi formé et accompagné à chaque étape.</p>
 <p>En tant que réserviste, vous participerez à :</p>
 <ul>
 <li>la protection des approches maritimes au sein d'un sémaphore ;</li>
@@ -270,7 +270,7 @@ export const ROC_OFFERS = [
     requirements: [
       "17 ans et +",
       "Aucun diplôme requis pour la plupart des postes, accessible sans condition de diplôme (pour de nombreux postes)",
-      "Ouvert à toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)",
+      "Ouvert à toutes situations (étudiant, salarié, demandeur d'emploi)",
       "Aptitude médicale requise",
     ],
     schedule: "Dès 30 jours par an. Contrat de 1 à 5 ans, renouvelable.",
@@ -293,20 +293,20 @@ export const ROC_OFFERS = [
   },
   {
     clientId: "roc-terre-c3t-combattant",
-    title: "Réserviste dans l'armée de terre : combattant.e concept commun du combat terrestre (C3T)",
-    description: `<p>Vous rejoignez une unité opérationnelle de l'Armée de Terre et participez concrètement à la défense du territoire. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion. C'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
-<p>En tant que réserviste combattant·e, de militaire du rang à sous-officier, vous participerez à :</p>
+    title: "Réserviste dans l'armée de terre : combattant concept commun du combat terrestre (C3T)",
+    description: `<p>Vous rejoignez une unité opérationnelle de l'Armée de Terre et participez concrètement à la défense du territoire. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion. C'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
+<p>En tant que réserviste combattant, de militaire du rang à sous-officier, vous participerez à :</p>
 <ul>
 <li>Opération Sentinelle (protection des lieux publics, gares et frontières) ;</li>
 <li>exercices en unité (manœuvres, commandement, cohésion) ;</li>
 <li>sécurité d'installations militaires (missions de garde opérationnelles).</li>
 </ul>
-<p>Selon votre profil : possibilité de missions à l'étranger. Vous êtes formé·e et encadré·e à chaque étape, la formation initiale vous donne toutes les bases progressivement.</p>
+<p>Selon votre profil : possibilité de missions à l'étranger. Vous êtes formé et encadré à chaque étape, la formation initiale vous donne toutes les bases progressivement.</p>
 <p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>
 <h3>Indemnisations complémentaires</h3>
 <ul>
 <li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si 37 jours par an).</li>
-<li>🎓 Allocation mensuelle de 100 € pour les étudiant·e·s de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
+<li>🎓 Allocation mensuelle de 100 € pour les étudiants de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
 </ul>`,
     applicationUrl:
@@ -314,11 +314,7 @@ export const ROC_OFFERS = [
     image: ROC_IMAGE,
     domain: "service-public-defense-securite",
     activities: ["operations-militaires"],
-    requirements: [
-      "17 ans et +",
-      "Aucun diplôme requis pour la plupart des postes ; toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)",
-      "Aptitude médicale requise",
-    ],
+    requirements: ["17 ans et +", "Aucun diplôme requis pour la plupart des postes ; toutes situations (étudiant, salarié, demandeur d'emploi)", "Aptitude médicale requise"],
     schedule: "Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.",
     remote: "local",
     openToMinors: true,
@@ -336,9 +332,9 @@ export const ROC_OFFERS = [
   },
   {
     clientId: "roc-terre-etat-major-redacteur",
-    title: "Réserviste dans l'armée de terre : rédacteur.e et traitant.e en état-major",
+    title: "Réserviste dans l'armée de terre : rédacteur et traitant en état-major",
     image: ROC_IMAGE,
-    description: `<p>Vous rejoignez un état-major de l'Armée de Terre et participez concrètement à la défense du territoire. Que vous soyez étudiant·e, salarié·e ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion. C'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
+    description: `<p>Vous rejoignez un état-major de l'Armée de Terre et participez concrètement à la défense du territoire. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme, sans quitter votre vie. Ce n'est pas un stage ni un week-end de cohésion. C'est un engagement réel, avec une unité, des missions et une formation dès le premier jour.</p>
 <p>En tant que réserviste, de sous-officier à officier, vous devrez :</p>
 <ul>
 <li>agir collectivement et de façon coordonnée pour atteindre un objectif commun ;</li>
@@ -347,20 +343,20 @@ export const ROC_OFFERS = [
 <li>vous adapter à votre environnement de travail, à des situations variées ;</li>
 <li>et ajuster vos comportements en fonction des enjeux de la situation.</li>
 </ul>
-<p>Selon votre profil : possibilité de missions à l'étranger. Vous êtes formé·e et encadré·e à chaque étape.</p>
+<p>Selon votre profil : possibilité de missions à l'étranger. Vous êtes formé et encadré à chaque étape.</p>
 <p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>
 <p>Bac requis.</p>
 <h3>Indemnisations complémentaires</h3>
 <ul>
 <li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si 37 jours par an).</li>
-<li>🎓 Allocation mensuelle de 100 € pour les étudiant·e·s de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
+<li>🎓 Allocation mensuelle de 100 € pour les étudiants de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
 </ul>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     domain: "service-public-defense-securite",
     activities: ["taches-administratives"],
-    requirements: ["17 ans et +", "BAC requis", "Toutes situations (étudiant·e, salarié·e, demandeur·euse d'emploi)", "Aptitude médicale requise"],
+    requirements: ["17 ans et +", "BAC requis", "Toutes situations (étudiant, salarié, demandeur d'emploi)", "Aptitude médicale requise"],
     schedule: "Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.",
     remote: "local",
     openToMinors: true,
