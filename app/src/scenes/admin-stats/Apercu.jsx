@@ -40,7 +40,7 @@ const Filters = ({ filters, onChange, idPrefix, showLabel = true }) => {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
       <div className="flex-1 space-y-2">
-        {showLabel ? <label className="text-gray-425 text-sm font-semibold uppercase">Période</label> : null}
+        {showLabel ? <p className="text-gray-425 text-sm font-semibold uppercase">Période</p> : null}
         <DateRangePicker value={filters} onChange={(value) => onChange({ ...filters, ...value })} />
       </div>
       <label htmlFor={`${idPrefix}-mission-type`} className="sr-only">

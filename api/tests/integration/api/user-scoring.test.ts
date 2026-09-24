@@ -213,7 +213,26 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
       orderBy: [{ valueKey: "asc" }],
     });
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_18_25_ans"]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_18_25_ans", "dispositif.service_civique"]);
+  });
+
+  it("should persist each inferred dispositif once with a score of 1", async () => {
+    const res = await postUserScoringRequest().send({
+      answers: [
+        { taxonomy: "tranche_age", params: { age: 18, handicap: false } },
+        { taxonomy: "motivation_recherche", value: "premiere_experience" },
+      ],
+    });
+
+    expect(res.status).toBe(201);
+    const dispositifs = await prisma.userScoringValue.findMany({
+      where: { userScoringId: res.body.data.id, taxonomyKey: "dispositif" },
+      orderBy: { valueKey: "asc" },
+    });
+    expect(dispositifs.map(({ valueKey, score }) => ({ valueKey, score }))).toEqual([
+      { valueKey: "benevolat", score: 1 },
+      { valueKey: "service_civique", score: 1 },
+    ]);
   });
 
   it("should create a user scoring with handicap tranche_age params", async () => {
@@ -227,7 +246,11 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
       orderBy: [{ valueKey: "asc" }],
     });
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_25_30_ans", "tranche_age.moins_31_ans_handicap"]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual([
+      "tranche_age.entre_25_30_ans",
+      "tranche_age.moins_31_ans_handicap",
+      "dispositif.service_civique",
+    ]);
   });
 
   it("should deduplicate direct and resolved answers", async () => {
@@ -243,7 +266,7 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(1);
+    expect(values).toHaveLength(2);
   });
 
   it("should return 400 when taxonomy is unknown", async () => {
@@ -294,7 +317,7 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(3);
 
     const geo = await prisma.userScoringGeo.findUnique({
       where: { userScoringId: res.body.data.id },
@@ -881,12 +904,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body.data.created_count).toBe(1);
+    expect(res.body.data.created_count).toBe(2);
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(1);
+    expect(values).toHaveLength(2);
   });
 
   it("should replace existing tranche_age values when age changes", async () => {
@@ -897,7 +920,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
     });
     expect(firstRes.status).toBe(200);
-    expect(firstRes.body.data.created_count).toBe(1);
+    expect(firstRes.body.data.created_count).toBe(2);
 
     const secondRes = await putUserScoringRequest(userScoringId).send({
       distinctId,
