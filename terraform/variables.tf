@@ -220,6 +220,11 @@ variable "plateform_hostname" {
   default = ""
 }
 
+variable "ttm_hostname" {
+  type    = string
+  default = ""
+}
+
 variable "plateform_cpu_limit" {
   type    = number
   default = 250

@@ -41,8 +41,9 @@ enable_typesense      = true
 enable_public_gateway = true
 enable_mfa            = true
 
-enable_plateform   = true
-plateform_hostname = "plateforme.api-engagement.beta.gouv.fr"
+enable_plateform      = true
+plateform_hostname    = "plateforme.api-engagement.beta.gouv.fr"
+ttm_hostname          = "trouvetamission.gouv.fr"
 
 private_network_cidr = "10.40.0.0/22"
 
