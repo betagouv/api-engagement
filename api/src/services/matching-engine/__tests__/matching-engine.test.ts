@@ -343,8 +343,10 @@ describe("matchingEngineService", () => {
 
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
-      expect(rankingSql).toContain("user_gate_values");
-      expect(rankingSql).toContain("matched_gate_taxonomies");
+      expect(rankingSql).toContain("user_gate_values AS MATERIALIZED");
+      expect(rankingSql).toContain("matching_gate_values AS MATERIALIZED");
+      expect(rankingSql).not.toContain("mission_gate_values AS");
+      expect(rankingSql).toContain("matched_gate_taxonomies AS");
       expect(rankingSql).not.toContain('AND usv."taxonomy_key" NOT IN');
       expect(result.items).toEqual([
         {

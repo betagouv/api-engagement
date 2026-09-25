@@ -265,7 +265,9 @@ export const buildRankingQuery = (params: {
       ms."created_at" DESC,
       ms."id" DESC
   ),
-  user_gate_values AS (
+  -- Charger une seule fois les quelques valeurs utilisateur appartenant aux taxonomies gate.
+  -- Elles servent ensuite de point de départ à la recherche des scorings compatibles.
+  user_gate_values AS MATERIALIZED (
     SELECT DISTINCT
       usv."taxonomy_key" AS "taxonomy_key",
       usv."value_key" AS "value_key"
@@ -273,31 +275,37 @@ export const buildRankingQuery = (params: {
     WHERE usv."user_scoring_id" = ${params.userScoringId}
       AND usv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
   ),
-  mission_gate_values AS (
-    SELECT DISTINCT
+  -- Agréger directement par taxonomie évite de conserver toutes les valeurs gate de chaque
+  -- mission. Ce CTE contient au plus une ligne par couple scoring/taxonomie gate.
+  mission_gate_taxonomies AS MATERIALIZED (
+    SELECT
       ams."mission_scoring_id",
-      ams."mission_id",
-      msv."taxonomy_key" AS "taxonomy_key",
-      msv."value_key" AS "value_key"
-    FROM "mission_scoring_value" msv
-    JOIN active_mission_scorings ams
-      ON ams."mission_scoring_id" = msv."mission_scoring_id"
-    WHERE msv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
+      msv."taxonomy_key"
+    FROM active_mission_scorings ams
+    JOIN "mission_scoring_value" msv
+      ON msv."mission_scoring_id" = ams."mission_scoring_id"
+     AND msv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
+    GROUP BY ams."mission_scoring_id", msv."taxonomy_key"
   ),
-  mission_gate_taxonomies AS (
-    SELECT DISTINCT
-      mgv."mission_scoring_id",
-      mgv."taxonomy_key"
-    FROM mission_gate_values mgv
+  -- Partir des quelques valeurs gate du profil utilise l'index couvrant orienté taxonomie/valeur.
+  -- La matérialisation empêche le planificateur de revenir à une recherche par mission.
+  matching_gate_values AS MATERIALIZED (
+    SELECT
+      msv."mission_scoring_id",
+      ugv."taxonomy_key"
+    FROM user_gate_values ugv
+    JOIN "mission_scoring_value" msv
+      ON msv."taxonomy_key" = ugv."taxonomy_key"
+     AND msv."value_key" = ugv."value_key"
+    GROUP BY msv."mission_scoring_id", ugv."taxonomy_key"
   ),
   matched_gate_taxonomies AS (
-    SELECT DISTINCT
+    SELECT
       mgv."mission_scoring_id",
       mgv."taxonomy_key"
-    FROM mission_gate_values mgv
-    JOIN user_gate_values ugv
-      ON ugv."taxonomy_key" = mgv."taxonomy_key"
-     AND ugv."value_key" = mgv."value_key"
+    FROM matching_gate_values mgv
+    JOIN active_mission_scorings ams
+      ON ams."mission_scoring_id" = mgv."mission_scoring_id"
   ),
   eligible_mission_scorings AS (
     SELECT
