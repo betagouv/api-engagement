@@ -229,6 +229,20 @@ export const buildRankingQuery = (params: {
     LEFT JOIN taxonomy_weights dw
       ON dw."taxonomy_key" = udt."taxonomy_key"
   ),
+  -- Matérialiser les correspondances depuis les quelques valeurs du profil empêche PostgreSQL
+  -- de réordonner la jointure en une recherche mission par mission dans mission_scoring_value.
+  -- L'agrégation précoce réduit aussi le volume conservé avant le filtre des scorings éligibles.
+  matching_mission_values AS MATERIALIZED (
+    SELECT
+      msv."mission_scoring_id",
+      uv."taxonomy_key",
+      SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
+    FROM user_values uv
+    JOIN "mission_scoring_value" msv
+      ON msv."taxonomy_key" = uv."taxonomy_key"
+     AND msv."value_key" = uv."value_key"
+    GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
+  ),
   -- Phase 2 : ne garder qu'un scoring actif par mission, puis appliquer les taxonomies « gate ».
   -- Une gate présente sur une mission doit partager au moins une valeur avec le profil utilisateur.
   active_mission_scorings AS (
@@ -307,16 +321,12 @@ export const buildRankingQuery = (params: {
   matched_values AS (
     SELECT
       ems."mission_id",
-      msv."mission_scoring_id",
-      uv."taxonomy_key",
-      SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
-    FROM user_values uv
-    JOIN "mission_scoring_value" msv
-      ON msv."taxonomy_key" = uv."taxonomy_key"
-     AND msv."value_key" = uv."value_key"
+      mmv."mission_scoring_id",
+      mmv."taxonomy_key",
+      mmv."taxonomy_sum"
+    FROM matching_mission_values mmv
     JOIN eligible_mission_scorings ems
-      ON ems."mission_scoring_id" = msv."mission_scoring_id"
-    GROUP BY ems."mission_id", msv."mission_scoring_id", uv."taxonomy_key"
+      ON ems."mission_scoring_id" = mmv."mission_scoring_id"
   ),
   taxonomy_scores AS (
     SELECT
