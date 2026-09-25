@@ -3,12 +3,15 @@ import { convert } from "html-to-text";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionService } from "@/services/mission";
-import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
+import { MissionCreateInput, MissionRemote, MissionSearchFilters, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
-import { PublisherRecord } from "@/types/publisher";
+import { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
+import { getDistanceKm } from "@/utils";
 import { getModeration } from "@/utils/mission-moderation";
+import { missionQuerySchema } from "@/v0/mission/query";
+import { normalizeQueryArray, parseDateFilter } from "@/v0/mission/utils";
 
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
@@ -114,6 +117,27 @@ const missionClientIdParamSchema = zod.object({
   clientId: zod.string(),
 });
 
+const missionListQuerySchema = missionQuerySchema
+  .omit({ limit: true, skip: true })
+  .extend({
+    limit: zod.coerce.number().int().min(1).max(100).default(25),
+    cursor: zod.string().min(1).max(256).optional(),
+  })
+  .strict();
+
+const parseBooleanQuery = (value?: string): boolean | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (["true", "yes", "1"].includes(value.toLowerCase())) {
+    return true;
+  }
+  if (["false", "no", "0"].includes(value.toLowerCase())) {
+    return false;
+  }
+  return undefined;
+};
+
 const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
 
 const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCreateInput, "description" | "descriptionHtml"> => {
@@ -133,6 +157,58 @@ const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCre
     descriptionHtml: description,
   };
 };
+
+// GET /v2/mission — liste à pagination par curseur
+router.get("/", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const publisher = req.user as PublisherRecordWithRelations;
+    const parsed = missionListQuerySchema.safeParse(req.query);
+    if (!parsed.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: parsed.error });
+    }
+    const query = parsed.data;
+    const filters: MissionSearchFilters & { diffuseurPublisherId: string } = {
+      diffuseurPublisherId: publisher.id,
+      moderationAcceptedFor: publisher.moderator ? publisher.id : undefined,
+      publisherIds: normalizeQueryArray(query.publisher),
+      activity: normalizeQueryArray(query.activity),
+      city: normalizeQueryArray(query.city),
+      clientId: normalizeQueryArray(query.clientId),
+      country: normalizeQueryArray(query.country),
+      createdAt: parseDateFilter(query.createdAt),
+      departmentName: normalizeQueryArray(query.departmentName),
+      domain: normalizeQueryArray(query.domain),
+      keywords: query.keywords,
+      organizationRNA: normalizeQueryArray(query.organizationRNA),
+      organizationStatusJuridique: normalizeQueryArray(query.organizationStatusJuridique),
+      openToMinors: parseBooleanQuery(query.openToMinors),
+      reducedMobilityAccessible: parseBooleanQuery(query.reducedMobilityAccessible),
+      remote: normalizeQueryArray(query.remote) as MissionRemote[] | undefined,
+      snu: query.snu,
+      startAt: parseDateFilter(query.startAt),
+      type: normalizeQueryArray(query.type),
+      limit: query.limit,
+      skip: 0,
+    };
+    if (query.lat !== undefined && query.lon !== undefined) {
+      const rawDistance = query.distance === "0" || query.distance === "0km" ? "10km" : query.distance || "50km";
+      filters.lat = query.lat;
+      filters.lon = query.lon;
+      filters.distanceKm = getDistanceKm(rawDistance);
+    }
+
+    const result = await missionService.findMissionsAfterId(filters, query.cursor);
+    return res.status(200).send({
+      ok: true,
+      data: result.data.map(buildData),
+      limit: query.limit,
+      nextCursor: result.nextCursor,
+      hasMore: result.hasMore,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // ──────────────────────────────────────────────────────────────────────────────
 // POST /v2/mission — Create

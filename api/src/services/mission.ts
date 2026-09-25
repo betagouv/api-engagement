@@ -4,6 +4,7 @@ import { Mission, Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { captureException } from "@/error";
 import { missionRepository } from "@/repositories/mission";
+import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import { activityService } from "@/services/activity";
 import { asyncTaskBus } from "@/services/async-task";
 import { buildMissionEnrichmentScoringWhere, missionEnrichmentService } from "@/services/mission-enrichment";
@@ -699,6 +700,33 @@ export const missionService = {
     ]);
 
     return { data: missions.map((mission) => toMissionRecord(mission as MissionWithRelations, filters.moderationAcceptedFor)), total };
+  },
+
+  async findMissionsAfterId(
+    filters: MissionSearchFilters & { diffuseurPublisherId: string },
+    afterId?: string
+  ): Promise<{ data: MissionRecord[]; nextCursor: string | null; hasMore: boolean }> {
+    // Le périmètre du diffuseur est porté par mission_diffusion, dont l'index actif
+    // (distribution_publisher_id, mission_id) sert aussi le curseur et l'ordre.
+    const where = await buildWhere({ ...filters, diffuseurPublisherId: undefined });
+    if (filters.publisherIds?.length === 0) {
+      where.id = { in: [] };
+    }
+
+    const pageIds = await missionDiffusionRepository.findMissionIdsPageByDistributionPublisher(filters.diffuseurPublisherId, {
+      afterMissionId: afterId,
+      take: filters.limit + 1,
+      missionWhere: where,
+    });
+    const hasMore = pageIds.length > filters.limit;
+    const ids = pageIds.slice(0, filters.limit);
+    const data = await this.findMissionsByIds(ids, filters.moderationAcceptedFor ?? null);
+
+    return {
+      data,
+      nextCursor: hasMore ? ids[ids.length - 1] : null,
+      hasMore,
+    };
   },
 
   async findMissionsWithFacets(filters: MissionSearchFilters): Promise<{ data: MissionRecord[]; total: number; facets: MissionFacets }> {

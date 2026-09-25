@@ -105,7 +105,17 @@ describe("OpenAPI spec compliance", () => {
     });
   });
 
-  // ── Missions (v2 — écriture annonceur) ──────────────────────────────────
+  // ── Missions (v2) ───────────────────────────────────────────────────────
+
+  describe("GET /v2/mission", () => {
+    it("returns 200 with v2 mission list", async () => {
+      const mission = await createTestMission({ publisherId: annonceurId });
+      await missionDiffusionRepository.createManyForDistributionPublisher(diffuseurId, [mission.id]);
+      const res = await request(app).get("/v2/mission").set("x-api-key", diffuseurApiKey);
+      expect(res.status).toBe(200);
+      expect(res.body.data).toHaveLength(1);
+    });
+  });
 
   describe("POST /v2/mission", () => {
     it("returns 201 when mission is created", async () => {

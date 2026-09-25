@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const { enqueueMock, captureExceptionMock } = vi.hoisted(() => ({
   enqueueMock: vi.fn(),
@@ -14,6 +14,7 @@ vi.mock("@/error", () => ({
   captureException: captureExceptionMock,
 }));
 
+import { missionDiffusionRepository } from "@/repositories/mission-diffusion";
 import { buildWhere, missionService } from "@/services/mission";
 
 describe("buildWhere diffusion publisher filter", () => {
@@ -64,5 +65,47 @@ describe("missionService.enqueueMissionProcessing", () => {
     expect(captureExceptionMock).toHaveBeenCalledWith(error, {
       extra: { context: "enqueueMissionProcessing", missionId: "mission-1" },
     });
+  });
+});
+
+describe("missionService.findMissionsAfterId", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("utilise une borne sur id et renvoie la page sans total", async () => {
+    const findPage = vi.spyOn(missionDiffusionRepository, "findMissionIdsPageByDistributionPublisher").mockResolvedValue(["mission-2", "mission-3"]);
+    vi.spyOn(missionService, "findMissionsByIds").mockResolvedValue([]);
+
+    const result = await missionService.findMissionsAfterId({ diffuseurPublisherId: "diffuseur-1", publisherIds: ["publisher-1"], limit: 1, skip: 0 }, "mission-1");
+
+    expect(findPage).toHaveBeenCalledWith(
+      "diffuseur-1",
+      expect.objectContaining({
+        afterMissionId: "mission-1",
+        take: 2,
+        missionWhere: expect.objectContaining({ publisherId: { in: ["publisher-1"] }, statusCode: "ACCEPTED", deletedAt: null }),
+      })
+    );
+    expect(result).toMatchObject({ hasMore: true, nextCursor: "mission-2" });
+    expect(result).not.toHaveProperty("total");
+  });
+
+  it("signale la fin lorsque la page est vide", async () => {
+    vi.spyOn(missionDiffusionRepository, "findMissionIdsPageByDistributionPublisher").mockResolvedValue([]);
+    vi.spyOn(missionService, "findMissionsByIds").mockResolvedValue([]);
+
+    const result = await missionService.findMissionsAfterId({ diffuseurPublisherId: "diffuseur-1", limit: 1, skip: 0 });
+
+    expect(result.hasMore).toBe(false);
+    expect(result.nextCursor).toBeNull();
+    expect(result).not.toHaveProperty("total");
+  });
+
+  it("ne retourne rien lorsque la liste de publishers demandée est vide", async () => {
+    const findPage = vi.spyOn(missionDiffusionRepository, "findMissionIdsPageByDistributionPublisher").mockResolvedValue([]);
+    vi.spyOn(missionService, "findMissionsByIds").mockResolvedValue([]);
+
+    await missionService.findMissionsAfterId({ diffuseurPublisherId: "diffuseur-1", publisherIds: [], limit: 1, skip: 0 });
+
+    expect(findPage.mock.calls[0][1].missionWhere?.id).toEqual({ in: [] });
   });
 });
