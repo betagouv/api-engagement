@@ -1,5 +1,6 @@
 import { MissionEnrichment, MissionEnrichmentStatus, MissionScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import type { TaxonomyKey } from "@engagement/taxonomy";
 
 export const createTestMissionEnrichment = async (data: { missionId: string; status?: MissionEnrichmentStatus; promptVersion?: string }): Promise<MissionEnrichment> => {
@@ -7,7 +8,7 @@ export const createTestMissionEnrichment = async (data: { missionId: string; sta
     data: {
       missionId: data.missionId,
       status: data.status ?? "completed",
-      promptVersion: data.promptVersion ?? "test-v1",
+      promptVersion: data.promptVersion ?? CURRENT_PROMPT_VERSION,
     },
   });
 };
