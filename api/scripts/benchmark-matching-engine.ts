@@ -10,6 +10,7 @@
  *   --iterations N             Iterations mesurees par scenario/profil (defaut : 5)
  *   --warmup N                 Iterations non mesurees par scenario/profil (defaut : 1)
  *   --limits 20,50,100         Limites a tester (defaut : MATCHING_ENGINE_RESULTS_LIMIT)
+ *   --publisher-id ID          Diffuseur utilise pour filtrer les missions (defaut : PLATEFORME_ENGAGEMENT)
  *   --version VERSION          Version du moteur (defaut : version active)
  *   --taxonomy-weight N        Poids taxonomie (defaut : moteur)
  *   --geo-weight N             Poids geo (defaut : moteur)
@@ -21,6 +22,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import { PUBLISHER_IDS } from "@/config";
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { matchingEngineService } from "@/services/matching-engine";
@@ -40,6 +42,7 @@ type BenchmarkOptions = {
   iterations: number;
   warmup: number;
   limits: number[];
+  publisherId: string;
   version: MatchingEngineVersion;
   taxonomyWeight?: number;
   geoWeight?: number;
@@ -168,6 +171,7 @@ const parseOptions = (): BenchmarkOptions => ({
   iterations: parsePositiveInteger("--iterations", 5),
   warmup: parsePositiveOrZeroInteger("--warmup", 1),
   limits: parsePositiveIntegerList("--limits", [MATCHING_ENGINE_RESULTS_LIMIT]),
+  publisherId: getFlagValue("--publisher-id") ?? PUBLISHER_IDS.PLATEFORME_ENGAGEMENT,
   version: (getFlagValue("--version") ?? CURRENT_MATCHING_ENGINE_VERSION) as MatchingEngineVersion,
   taxonomyWeight: parseNumber("--taxonomy-weight"),
   geoWeight: parseNumber("--geo-weight"),
@@ -316,6 +320,7 @@ const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, lim
   userScoringId,
   version: options.version,
   limit,
+  publisherId: options.publisherId,
   taxonomyWeight: options.taxonomyWeight,
   geoWeight: options.geoWeight,
   geoHalfDecayKm: options.geoHalfDecayKm,
@@ -370,7 +375,9 @@ const printTable = (params: { dataset: DatasetSummary; options: BenchmarkOptions
     missionAddressesWithGeo: params.dataset.missionAddressWithGeoCount,
   });
 
-  console.log(`[${SCRIPT_LABEL}] version=${params.options.version} iterations=${params.options.iterations} warmup=${params.options.warmup}`);
+  console.log(
+    `[${SCRIPT_LABEL}] version=${params.options.version} publisherId=${params.options.publisherId} iterations=${params.options.iterations} warmup=${params.options.warmup}`
+  );
 
   console.table(
     params.results.map((result) => ({
@@ -414,7 +421,9 @@ const run = async () => {
     if (options.explain) {
       for (const userScoring of userScorings) {
         for (const limit of options.limits) {
-          console.log(`\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} version=${options.version} limit=${limit}`);
+          console.log(
+            `\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} publisherId=${options.publisherId} version=${options.version} limit=${limit}`
+          );
           const plan = await matchingEngineService.explainRanking(buildRankingInput(options, userScoring.id, limit));
           console.log(plan);
         }
@@ -431,7 +440,7 @@ const run = async () => {
         currentScenario++;
         if (!options.json) {
           console.log(
-            `[${SCRIPT_LABEL}] ${currentScenario}/${scenarioCount} userScoringId=${userScoring.id} values=${userScoring.value_count} geo=${userScoring.has_geo} limit=${limit}`
+            `[${SCRIPT_LABEL}] ${currentScenario}/${scenarioCount} userScoringId=${userScoring.id} publisherId=${options.publisherId} values=${userScoring.value_count} geo=${userScoring.has_geo} limit=${limit}`
           );
         }
 
