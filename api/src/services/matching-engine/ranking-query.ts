@@ -243,27 +243,24 @@ export const buildRankingQuery = (params: {
      AND msv."value_key" = uv."value_key"
     GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
   ),
-  -- Phase 2 : ne garder qu'un scoring actif par mission, puis appliquer les taxonomies « gate ».
-  -- Une gate présente sur une mission doit partager au moins une valeur avec le profil utilisateur.
+  -- Phase 2 : récupérer le scoring de la version courante, puis appliquer les taxonomies « gate ».
+  -- L'unicité (mission, version du prompt) garantit au plus un enrichissement courant par mission.
+  -- Une mission sans scoring terminé pour cette version est volontairement exclue : aucun fallback
+  -- vers un scoring historique n'est effectué.
   active_mission_scorings AS (
-    SELECT DISTINCT ON (ms."mission_id")
+    SELECT
       ms."id" AS "mission_scoring_id",
       ms."mission_id"
     FROM "mission_scoring" ms
     JOIN "mission_enrichment" me
       ON me."id" = ms."mission_enrichment_id"
+     AND me."prompt_version" = ${CURRENT_PROMPT_VERSION}
      AND me."status" = 'completed'
     JOIN "mission" m
       ON m."id" = ms."mission_id"
     ${params.publisherDiffusionJoinSql ?? Prisma.empty}
     WHERE m."deleted_at" IS NULL
       AND m."status_code" = 'ACCEPTED'
-    ORDER BY
-      ms."mission_id" ASC,
-      (me."prompt_version" = ${CURRENT_PROMPT_VERSION}) DESC,
-      me."completed_at" DESC NULLS LAST,
-      ms."created_at" DESC,
-      ms."id" DESC
   ),
   -- Charger une seule fois les quelques valeurs utilisateur appartenant aux taxonomies gate.
   -- Elles servent ensuite de point de départ à la recherche des scorings compatibles.
@@ -539,7 +536,9 @@ export const buildRankingQuery = (params: {
   -- Calculer ici seulement l'adresse réellement la plus proche des candidats retenus.
   geo_scores AS (
     SELECT
+      cm."mission_id",
       cm."mission_scoring_id",
+      cm."weighted_sum",
       COALESCE(cm."distance_km", closest."distance_km") AS "distance_km",
       closest."closest_lat",
       closest."closest_lon",
@@ -581,10 +580,10 @@ export const buildRankingQuery = (params: {
   -- Phase 6 : normaliser les deux composantes et produire le score final pondéré.
   ranked AS (
     SELECT
-      cm."mission_id",
-      cm."mission_scoring_id",
+      gs."mission_id",
+      gs."mission_scoring_id",
       CASE
-        WHEN ut."taxonomy_total" > 0 THEN cm."weighted_sum" / ut."taxonomy_total"
+        WHEN ut."taxonomy_total" > 0 THEN gs."weighted_sum" / ut."taxonomy_total"
         ELSE 0
       END AS "taxonomy_score",
       CASE
@@ -597,12 +596,10 @@ export const buildRankingQuery = (params: {
           END
         ELSE NULL
       END AS "geo_score",${rankedGeoColumnsSql}
-    FROM candidate_missions cm
+    FROM geo_scores gs
     CROSS JOIN weighted_user_totals ut
     JOIN "mission" m
-      ON m."id" = cm."mission_id"
-    LEFT JOIN geo_scores gs
-      ON gs."mission_scoring_id" = cm."mission_scoring_id"
+      ON m."id" = gs."mission_id"
     LEFT JOIN user_geo ug
       ON TRUE
   ),

@@ -135,12 +135,17 @@ describe("matchingEngineService", () => {
       expect(rankingValues).toContain("domaine");
       expect(rankingValues).toContain(CURRENT_PROMPT_VERSION);
       expect(rankingSql).toContain('me."prompt_version" =');
+      expect(rankingSql).toContain('me."id" = ms."mission_enrichment_id"');
+      expect(rankingSql).not.toContain("SELECT DISTINCT ON");
+      expect(rankingSql).not.toContain('me."completed_at"');
       expect(rankingValues).toContain("tranche_age");
       expect(taxonomyScoresValues).toContain("domaine");
       expect(taxonomyScoresValues).not.toContain("tranche_age");
       expect(rankingValues).not.toContain("rythme");
       expect(rankingSql).toContain('ORDER BY "distance_km" ASC, ma."created_at" ASC, ma."id" ASC');
       expect(rankingSql).toContain("matching_mission_values AS MATERIALIZED");
+      expect(rankingSql).toContain("FROM geo_scores gs");
+      expect(rankingSql).not.toContain("LEFT JOIN geo_scores gs");
       expect(rankingSql).toContain('ems."mission_id",\n      mmv."mission_scoring_id"');
       expect(rankingSql).toContain('MAX(cmr."weighted_sum") AS "weighted_sum"');
       expect(rankingSql).not.toContain('LEFT JOIN taxonomy_scores ts\n      ON ts."mission_scoring_id" = cm."mission_scoring_id"');
