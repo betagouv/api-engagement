@@ -39,7 +39,7 @@ const Header = () => {
               <p className="text-sm">Plateforme de partage de missions de bénévolat et de volontariat</p>
             </div>
           </Link>
-          <nav role="navigation" aria-label="Navigation d'en-tête" className="text-blue-france relative flex items-center gap-3 text-sm">
+          <nav role="navigation" aria-label="Menu principal" className="text-blue-france relative flex items-center gap-3 text-sm">
             <a href="https://doc.api-engagement.beta.gouv.fr/" target="_blank" className="text-blue-france flex items-center" aria-label="Documentation">
               <RiBookletLine className="mr-2" aria-hidden="true" />
               <span className="hidden sm:block">Documentation</span>
@@ -94,7 +94,7 @@ const NotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Ouvrir le menu des alertes">
+      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Menu des alertes">
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
@@ -217,7 +217,7 @@ const AdminNotificationMenu = () => {
 
   return (
     <Menu>
-      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Ouvrir le menu des alertes">
+      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Menu des alertes">
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
       </MenuButton>
