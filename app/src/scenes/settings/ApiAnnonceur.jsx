@@ -12,6 +12,7 @@ const ApiAnnonceur = () => {
   const { publisher, setPublisher } = useStore();
   const [curl, setCurl] = useState(`curl --location --request POST '${API_URL}/v2/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
   const [confirmAction, setConfirmAction] = useState(null); // "generate" | "delete" | null
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setCurl(`curl --location --request POST '${API_URL}/v2/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
@@ -20,7 +21,9 @@ const ApiAnnonceur = () => {
   const maskedApiKey = publisher.apikey ? `(•••• ${publisher.apikey.slice(-4)}) ` : "";
 
   const handleNewApiKey = async () => {
+    if (loading) return;
     try {
+      setLoading(true);
       const res = await api.post(`/publisher/${publisher.id}/apikey`);
       if (!res.ok) throw res;
       setPublisher({ ...publisher, apikey: res.data });
@@ -28,12 +31,15 @@ const ApiAnnonceur = () => {
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id } });
     } finally {
+      setLoading(false);
       setConfirmAction(null);
     }
   };
 
   const handleDelete = async () => {
+    if (loading) return;
     try {
+      setLoading(true);
       const res = await api.delete(`/publisher/${publisher.id}/apikey`);
       if (!res.ok) throw res;
       setPublisher({ ...publisher, apikey: undefined });
@@ -41,6 +47,7 @@ const ApiAnnonceur = () => {
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id } });
     } finally {
+      setLoading(false);
       setConfirmAction(null);
     }
   };
@@ -103,34 +110,34 @@ const ApiAnnonceur = () => {
         </div>
       </div>
 
-      <Modal open={confirmAction === "generate"} onClose={() => setConfirmAction(null)} title={`Générer une nouvelle clé API pour ${publisher.name} ?`}>
+      <Modal open={confirmAction === "generate"} onClose={() => !loading && setConfirmAction(null)} title={`Générer une nouvelle clé API pour ${publisher.name} ?`}>
         <p>
           La clé actuelle {maskedApiKey}sera immédiatement désactivée. Les échanges de missions avec l'API Engagement, envoi comme récupération, seront interrompus tant que le
           partenaire n'aura pas intégré la nouvelle clé.
         </p>
         <p className="font-semibold">Ne confirmez que si la demande vient du partenaire ou si vous avez son accord.</p>
         <div className="flex justify-end gap-6">
-          <button type="button" className="tertiary-btn" onClick={() => setConfirmAction(null)}>
+          <button type="button" className="tertiary-btn" onClick={() => setConfirmAction(null)} disabled={loading}>
             Annuler
           </button>
-          <button type="button" className="primary-btn" onClick={handleNewApiKey}>
-            Générer la nouvelle clé
+          <button type="button" className="primary-btn" onClick={handleNewApiKey} disabled={loading}>
+            {loading ? <Loader className="mr-2" /> : "Générer la nouvelle clé"}
           </button>
         </div>
       </Modal>
 
-      <Modal open={confirmAction === "delete"} onClose={() => setConfirmAction(null)} title={`Supprimer la clé API de ${publisher.name} ?`}>
+      <Modal open={confirmAction === "delete"} onClose={() => !loading && setConfirmAction(null)} title={`Supprimer la clé API de ${publisher.name} ?`}>
         <p>
           La clé {maskedApiKey}sera désactivée définitivement et ne pourra pas être restaurée. Les échanges de missions avec l'API Engagement seront interrompus jusqu'à la création
           d'une nouvelle clé.
         </p>
         <p className="font-semibold">Ne confirmez que si la demande vient du partenaire ou si vous avez son accord.</p>
         <div className="flex justify-end gap-6">
-          <button type="button" className="tertiary-btn" onClick={() => setConfirmAction(null)}>
+          <button type="button" className="tertiary-btn" onClick={() => setConfirmAction(null)} disabled={loading}>
             Annuler
           </button>
-          <button type="button" className="red-btn" onClick={handleDelete}>
-            Supprimer la clé
+          <button type="button" className="red-btn" onClick={handleDelete} disabled={loading}>
+            {loading ? <Loader className="mr-2" /> : "Supprimer la clé"}
           </button>
         </div>
       </Modal>
