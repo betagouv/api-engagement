@@ -18,6 +18,16 @@ const Modal = ({ open, children, onClose, title, className = "w-[90vw] max-w-2xl
     }
   }, [open]);
 
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) {
+      return;
+    }
+    // Escape triggers the native "close" event without going through onClose, leaving parent state stale.
+    dialog.addEventListener("close", onClose);
+    return () => dialog.removeEventListener("close", onClose);
+  }, [onClose]);
+
   const handleBackdropClick = (e) => {
     if (e.target === dialogRef.current) {
       onClose();
