@@ -2,6 +2,7 @@ import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
 
+import Loader from "@/components/Loader";
 import Modal from "@/components/Modal";
 import api from "@/services/api";
 import { API_URL } from "@/services/config";
