@@ -22,7 +22,8 @@ export const ROC_OFFERS = [
 <li>Organiser les activités conformément au référentiel (planning, déroulé de séance, convocation des équipiers, réservation des moyens).</li>
 <li>Gérer la partie administrative de l'activité (note de service, assurance, transport).</li>
 </ul>
-<p>Activités de septembre à juin, principalement le mercredi après-midi, ainsi que d'autres journées pour l'organisation et le suivi administratif. Contrat de 3 ans souhaité.</p>`,
+<p>Activités de septembre à juin, principalement le mercredi après-midi, ainsi que d'autres journées pour l'organisation et le suivi administratif. 
+~60 jours/an, contrat souhaité de 3 ans.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=304&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -37,7 +38,7 @@ export const ROC_OFFERS = [
       "Des connaissances en aéronautique sont un plus",
     ],
     softSkills: ["Sens du relationnel", "Rigueur", "Dynamisme", "Esprit d'équipe", "Motivation", "Disponibilité", "Pédagogie"],
-    schedule: "Mercredi après-midi. 60 jours/an.",
+    schedule: "Mercredi après-midi. ~60 jours/an.",
     remote: "local",
     openToMinors: true,
     organizationName: "Armée de l'Air et de l'Espace",
@@ -64,7 +65,7 @@ export const ROC_OFFERS = [
 <ul>
 <li>Participer aux missions Sentinelle.</li>
 </ul>
-<p>Contrat de 3 ans souhaité.</p>`,
+<p>Contrat de 3 ans souhaité. 60 jours d'activité/an. Périodes d'activité définies en fonction de la disponibilité du réserviste et des besoins de l'employeur.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=304&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -76,7 +77,7 @@ export const ROC_OFFERS = [
       "Formation militaire complémentaire de réserve (FMCR) - formation interne",
     ],
     softSkills: ["Capacité d'adaptation", "Rigueur", "Dynamisme", "Esprit d'équipe", "Motivation", "Disponibilité"],
-    schedule: "60 jours d'activité par an. Selon disponibilité du réserviste et des besoins de l'employeur.",
+    schedule: "60 jours d'activité par an",
     remote: "local",
     openToMinors: true,
     organizationName: "Armée de l'Air et de l'Espace",
@@ -99,7 +100,7 @@ export const ROC_OFFERS = [
 <li>Co-animer des ateliers thématiques tels que tir sportif laser, atelier de réalité virtuelle et jeu de rôle « STRAT&amp;J ».</li>
 <li>Contribuer à la logistique nécessaire au bon déroulement de la journée.</li>
 </ul>
-<p>Contrat de 1 à 5 ans souhaité.</p>`,
+<p>Contrat de 1 à 5 ans souhaité, 30 jours d'activité par an. Périodes d'activité définies en fonction de la disponibilité du réserviste et des besoins de l'employeur.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=304&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -107,7 +108,7 @@ export const ROC_OFFERS = [
     activities: ["enseignement-formation"],
     requirements: ["Aucun diplôme requis", "Aucune formation exigée"],
     softSkills: ["Savoir-être", "Sens pédagogique", "Communication", "Goût du contact", "Connaissance du milieu militaire"],
-    schedule: "30 jours d'activité par an. Selon disponibilité du réserviste et des besoins de l'employeur.",
+    schedule: "30 jours d'activité par an",
     remote: "local",
     openToMinors: true,
     organizationName: "Armée de l'Air et de l'Espace",
@@ -136,7 +137,8 @@ export const ROC_OFFERS = [
 <li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si minimum 37 jours par an).</li>
 <li>🎓 Allocation mensuelle de 100 € pour les étudiants de moins de 25 ans (si contrat 5 ans, et minimum 37 j/an).</li>
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
-</ul>`,
+</ul>
+<p>Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=309&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -150,7 +152,7 @@ export const ROC_OFFERS = [
       "Aptitude médicale requise",
       "Habiter en région parisienne",
     ],
-    schedule: "Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    schedule: "Environ 50 jours par an.",
     remote: "local",
     openToMinors: true,
     compensationAmount: 50,
@@ -177,7 +179,8 @@ export const ROC_OFFERS = [
 <li>devenez technicien du système d'information Réserviste Opérationnel Connecté (ROC) du SEO ;</li>
 <li>participez à la remontée des anomalies du système en production.</li>
 </ul>
-<p>Vous êtes formé et encadré à chaque étape, la formation initiale vous donne toutes les bases progressivement. Vous voulez en faire plus ? Sécurité d'installations militaires (missions de garde opérationnelles), Opération Sentinelle (protection des lieux publics, gares et frontières).</p>`,
+<p>Vous êtes formé et encadré à chaque étape, la formation initiale vous donne toutes les bases progressivement. Vous voulez en faire plus ? Sécurité d'installations militaires (missions de garde opérationnelles), Opération Sentinelle (protection des lieux publics, gares et frontières).</p>
+<p>Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=309&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -191,7 +194,7 @@ export const ROC_OFFERS = [
       "Aptitude médicale requise",
       "Si possible, habiter en région Est (Nancy-Metz)",
     ],
-    schedule: "Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    schedule: "Environ 50 jours par an",
     remote: "no",
     openToMinors: true,
     compensationAmount: 50,
@@ -218,7 +221,8 @@ export const ROC_OFFERS = [
 <li>la sécurité et la sûreté d'installations militaires (missions de garde opérationnelles) ;</li>
 <li>garantir l'intégrité des biens et des personnes.</li>
 </ul>
-<p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>`,
+<p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>
+<p>Dès 30 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=303&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
@@ -230,7 +234,7 @@ export const ROC_OFFERS = [
       "Ouvert à toutes situations (étudiant, salarié, demandeur d'emploi)",
       "Aptitude médicale requise",
     ],
-    schedule: "Dès 30 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    schedule: "Dès 30 jours par an",
     remote: "local",
     openToMinors: true,
     compensationAmount: 50,
@@ -262,7 +266,8 @@ export const ROC_OFFERS = [
 <li>assurer la surveillance visuelle et radar de l'environnement ;</li>
 <li>alerter en cas de situation anormale ou dangereuse.</li>
 </ul>
-<p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>`,
+<p>Plus de 100 postes sont ouverts actuellement. Certaines unités recrutent immédiatement.</p>
+<p>Dès 30 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=303&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     domain: "service-public-defense-securite",
@@ -273,7 +278,7 @@ export const ROC_OFFERS = [
       "Ouvert à toutes situations (étudiant, salarié, demandeur d'emploi)",
       "Aptitude médicale requise",
     ],
-    schedule: "Dès 30 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    schedule: "Dès 30 jours par an",
     remote: "local",
     openToMinors: true,
     compensationAmount: 50,
@@ -308,14 +313,15 @@ export const ROC_OFFERS = [
 <li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si 37 jours par an).</li>
 <li>🎓 Allocation mensuelle de 100 € pour les étudiants de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
-</ul>`,
+</ul>
+<p>Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     image: ROC_IMAGE,
     domain: "service-public-defense-securite",
     activities: ["operations-militaires"],
     requirements: ["17 ans et +", "Aucun diplôme requis pour la plupart des postes ; toutes situations (étudiant, salarié, demandeur d'emploi)", "Aptitude médicale requise"],
-    schedule: "Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    schedule: "Environ 46 jours par an",
     remote: "local",
     openToMinors: true,
     compensationAmount: 50,
@@ -351,13 +357,14 @@ export const ROC_OFFERS = [
 <li>🎯 Prime de fidélité : 250 € par an dès le 2e contrat (si 37 jours par an).</li>
 <li>🎓 Allocation mensuelle de 100 € pour les étudiants de moins de 25 ans (contrat 5 ans, 37 j/an).</li>
 <li>🚗 Financement du permis B jusqu'à 1 000 € pour les moins de 25 ans (50 jours de service effectués).</li>
-</ul>`,
+</ul>
+<p>Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
     domain: "service-public-defense-securite",
     activities: ["taches-administratives"],
     requirements: ["17 ans et +", "BAC requis", "Toutes situations (étudiant, salarié, demandeur d'emploi)", "Aptitude médicale requise"],
-    schedule: "Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.",
+    schedule: "Environ 46 jours par an",
     remote: "local",
     openToMinors: true,
     compensationAmount: 50,
