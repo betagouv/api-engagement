@@ -2,6 +2,7 @@ import { toast } from "@/services/toast";
 import { useEffect, useState } from "react";
 import { RiBookletFill, RiFileCopyFill } from "react-icons/ri";
 
+import Modal from "@/components/Modal";
 import api from "@/services/api";
 import { API_URL } from "@/services/config";
 import { captureError } from "@/services/error";
@@ -10,14 +11,15 @@ import useStore from "@/services/store";
 const ApiAnnonceur = () => {
   const { publisher, setPublisher } = useStore();
   const [curl, setCurl] = useState(`curl --location --request POST '${API_URL}/v2/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
+  const [confirmAction, setConfirmAction] = useState(null); // "generate" | "delete" | null
 
   useEffect(() => {
     setCurl(`curl --location --request POST '${API_URL}/v2/mission' --header 'apikey: ${publisher.apikey || "<apikey>"}'`);
   }, [publisher]);
 
+  const maskedApiKey = publisher.apikey ? `(•••• ${publisher.apikey.slice(-4)}) ` : "";
+
   const handleNewApiKey = async () => {
-    const confirm = window.confirm("Êtes-vous sûr de vouloir générer une nouvelle clé API ?");
-    if (!confirm) return;
     try {
       const res = await api.post(`/publisher/${publisher.id}/apikey`);
       if (!res.ok) throw res;
@@ -25,12 +27,12 @@ const ApiAnnonceur = () => {
       toast.success("Nouvelle clé API générée");
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id } });
+    } finally {
+      setConfirmAction(null);
     }
   };
 
   const handleDelete = async () => {
-    const confirm = window.confirm("Êtes-vous sûr de vouloir supprimer la clé API ?");
-    if (!confirm) return;
     try {
       const res = await api.delete(`/publisher/${publisher.id}/apikey`);
       if (!res.ok) throw res;
@@ -38,6 +40,8 @@ const ApiAnnonceur = () => {
       toast.success("Clé API supprimée");
     } catch (error) {
       captureError(error, { extra: { publisherId: publisher.id } });
+    } finally {
+      setConfirmAction(null);
     }
   };
 
@@ -75,12 +79,14 @@ const ApiAnnonceur = () => {
             </button>
           </div>
           <div className="flex flex-wrap gap-4">
-            <button className="secondary-btn" onClick={handleNewApiKey}>
+            <button className="secondary-btn" onClick={() => setConfirmAction("generate")}>
               Générer une nouvelle clé
             </button>
-            <button className="secondary-btn" onClick={handleDelete}>
-              Supprimer la clé
-            </button>
+            {publisher.apikey && (
+              <button className="secondary-btn" onClick={() => setConfirmAction("delete")}>
+                Supprimer la clé
+              </button>
+            )}
           </div>
         </div>
         <div className="flex flex-col gap-4 pt-6">
@@ -96,6 +102,38 @@ const ApiAnnonceur = () => {
           />
         </div>
       </div>
+
+      <Modal open={confirmAction === "generate"} onClose={() => setConfirmAction(null)} title={`Générer une nouvelle clé API pour ${publisher.name} ?`}>
+        <p>
+          La clé actuelle {maskedApiKey}sera immédiatement désactivée. Les échanges de missions avec l'API Engagement, envoi comme récupération, seront interrompus tant que le
+          partenaire n'aura pas intégré la nouvelle clé.
+        </p>
+        <p className="font-semibold">Ne confirmez que si la demande vient du partenaire ou si vous avez son accord.</p>
+        <div className="flex justify-end gap-6">
+          <button type="button" className="tertiary-btn" onClick={() => setConfirmAction(null)}>
+            Annuler
+          </button>
+          <button type="button" className="primary-btn" onClick={handleNewApiKey}>
+            Générer la nouvelle clé
+          </button>
+        </div>
+      </Modal>
+
+      <Modal open={confirmAction === "delete"} onClose={() => setConfirmAction(null)} title={`Supprimer la clé API de ${publisher.name} ?`}>
+        <p>
+          La clé {maskedApiKey}sera désactivée définitivement et ne pourra pas être restaurée. Les échanges de missions avec l'API Engagement seront interrompus jusqu'à la création
+          d'une nouvelle clé.
+        </p>
+        <p className="font-semibold">Ne confirmez que si la demande vient du partenaire ou si vous avez son accord.</p>
+        <div className="flex justify-end gap-6">
+          <button type="button" className="tertiary-btn" onClick={() => setConfirmAction(null)}>
+            Annuler
+          </button>
+          <button type="button" className="red-btn" onClick={handleDelete}>
+            Supprimer la clé
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };
