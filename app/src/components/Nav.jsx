@@ -123,7 +123,6 @@ const Nav = () => {
         <ul
           className={`m-0 w-full list-none flex-col items-start justify-between gap-x-6 gap-y-2 p-0 pb-4 lg:flex lg:flex-row lg:items-center lg:pb-0 ${menuOpen ? "flex" : "hidden lg:flex"}`}
           role="list"
-          aria-label="Menu principal"
         >
           <li className="flex w-full flex-col items-start gap-4 lg:w-auto lg:flex-row lg:items-center lg:gap-6">
             {publisher.isAnnonceur && (publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights) && <FluxMenu value={flux} onChange={handleFluxChange} />}
