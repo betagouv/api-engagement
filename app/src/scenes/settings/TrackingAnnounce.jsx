@@ -33,7 +33,7 @@ const TrackingAnnounce = () => {
             href="https://doc.api-engagement.beta.gouv.fr/annoncer-des-missions/tracking-des-candidatures/rajout-de-la-balise-et-des-commandes-de-tracking-par-le-tag"
             target="_blank"
             rel="noreferrer"
-            className="text-blue-france shrink-0 text-sm underline"
+            className="text-blue-france min-w-0 text-sm wrap-break-word underline"
           >
             Ouvrir la documentation
           </a>
@@ -93,7 +93,7 @@ const TrackingAnnounce = () => {
           </div>
           <div className="flex items-start gap-2 pb-6">
             <BiSolidInfoSquare className="text-info mt-1 text-xs" aria-hidden="true" />
-            <p className="text-info text-xs leading-4">
+            <p className="text-info min-w-0 text-xs leading-4 break-words">
               clientId = votre identifiant de mission utilisé dans le flux XML (transmis dans le paramètre <span className="font-['courier']">mission</span>). <br />
               Exemple : <span className="font-['courier']">window.apieng && window.apieng("trackAccount", "6294b108de43a106f6ca6d5f")</span> <br />
               NB: Si vous n’en avez pas, ne l’indiquez pas dans la commande. Exemple : <span className="font-['courier']">window.apieng && window.apieng(“trackAccount”)</span>
