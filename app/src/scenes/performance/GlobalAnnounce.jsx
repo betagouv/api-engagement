@@ -69,8 +69,11 @@ const GlobalAnnounce = ({ filters, onFiltersChange }) => {
                 </div>
               ) : (
                 <>
-                  <p className="text-[28px] font-bold">{totalMissionAvailable.toLocaleString("fr")}</p>
-                  <p className="text-base">{totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}</p>
+                  <p className="text-base">
+                    <span className="text-[28px] font-bold">{totalMissionAvailable.toLocaleString("fr")}</span>
+                    <br />
+                    {totalMissionAvailable > 1 ? "missions disponibles sur la période" : "mission disponible sur la période"}
+                  </p>
                 </>
               )}
             </div>
