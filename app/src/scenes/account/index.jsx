@@ -45,7 +45,6 @@ const Account = () => {
   };
 
   const isChanged = () => values.firstname !== user.firstname || values.lastname !== user.lastname;
-  const isErrors = () => !!errors.firstname;
 
   if (!user) {
     return <Navigate to="/login" />;
@@ -128,7 +127,7 @@ const Account = () => {
           <div className="flex flex-wrap justify-end gap-4 sm:col-span-2">
             <ResetPasswordModal />
 
-            <button type="submit" className="primary-btn" disabled={!isChanged() || isErrors()}>
+            <button type="submit" className="primary-btn" disabled={!isChanged()}>
               Mettre à jour
             </button>
           </div>
@@ -161,6 +160,9 @@ const ResetPasswordModal = () => {
 
   const handleSubmit = async () => {
     const errors = {};
+    if (!values.oldPassword) {
+      errors.oldPassword = "Le champ Ancien mot de passe est obligatoire";
+    }
     if (values.newPassword.length < 12 || !/[a-zA-Z]/.test(values.newPassword) || !/[0-9]/.test(values.newPassword) || !/[!-@#$%^&*(),.?":{}|<>]/.test(values.newPassword)) {
       errors.newPassword = "Le nouveau mot de passe ne respecte pas les critères de sécurité";
     }
@@ -183,11 +185,15 @@ const ResetPasswordModal = () => {
           setErrors({ newPassword: "Le nouveau mot de passe ne respecte pas les critères de sécurité" });
           return;
         }
+        if (res.code === "INVALID_QUERY") {
+          setErrors({ oldPassword: "L'ancien mot de passe est incorrect" });
+          return;
+        }
 
         throw res;
       }
       toast.success("Mot de passe mis à jour");
-      setOpen(false);
+      onClose();
     } catch (error) {
       captureError(error);
     }
@@ -202,8 +208,6 @@ const ResetPasswordModal = () => {
     });
     setOpen(false);
   };
-
-  const isErrors = () => errors.oldPassword || errors.newPassword || errors.confirmPassword;
 
   return (
     <>
@@ -330,10 +334,10 @@ const ResetPasswordModal = () => {
         </div>
 
         <div className="flex justify-end gap-2">
-          <button type="button" className="tertiary-btn" onClick={() => setOpen(false)}>
+          <button type="button" className="tertiary-btn" onClick={onClose}>
             Annuler
           </button>
-          <button type="button" className="primary-btn" disabled={isErrors()} onClick={handleSubmit}>
+          <button type="button" className="primary-btn" onClick={handleSubmit}>
             Mettre à jour
           </button>
         </div>
