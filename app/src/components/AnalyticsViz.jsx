@@ -67,7 +67,7 @@ const AnalyticsViz = ({
   // validé par Ethic First) et annoncée dans l'aria-label, sans aria-describedby
   const histogramAriaProps =
     chartTitle && (chartDescriptionMode === "visible" || chartDescriptionMode === "collapsible")
-      ? { role: "img", "aria-label": `${chartTitle} - description détaillée ci-dessous` }
+      ? { role: "img", "aria-label": `${chartTitle} - description détaillée disponible ci-dessous` }
       : chartAriaProps;
 
   useEffect(() => {

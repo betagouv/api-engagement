@@ -136,89 +136,87 @@ const Campaigns = () => {
           )}
         </div>
       </div>
+
+      <div className="flex flex-col items-center justify-between lg:flex-row">
+        <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
+          {loading ? "Chargement..." : data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`}
+        </p>
+
+        {user.role === "admin" && (
+          <div className="flex items-center">
+            <Toggle
+              id="toggle-show-inactive-campaigns"
+              aria-label="Afficher les campagnes désactivées"
+              value={!filters.active}
+              onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })}
+            />
+            <label className="ml-2" htmlFor="toggle-show-inactive-campaigns">
+              Afficher les campagnes désactivées
+            </label>
+          </div>
+        )}
+      </div>
       {loading ? (
         <div className="flex h-full items-center justify-center">
           <Loader />
         </div>
       ) : (
-        <>
-          <div className="flex flex-col items-center justify-between lg:flex-row">
-            <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
-              {data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`}
-            </p>
-
-            {user.role === "admin" && (
-              <div className="flex items-center">
-                <Toggle
-                  id="toggle-show-inactive-campaigns"
-                  aria-label="Afficher les campagnes désactivées"
-                  value={!filters.active}
-                  onChange={(checked) => setFilters({ ...filters, active: !checked, page: 1 })}
-                />
-                <label className="ml-2" htmlFor="toggle-show-inactive-campaigns">
-                  Afficher les campagnes désactivées
-                </label>
-              </div>
-            )}
-          </div>
-
-          <Table
-            caption="Liste des campagnes"
-            header={TABLE_HEADER}
-            pagination
-            page={filters.page}
-            pageSize={filters.pageSize}
-            onPageChange={(page) => setFilters({ ...filters, page })}
-            total={data.length}
-            auto
-          >
-            {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
-              <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-                <td className="px-4 py-3">
+        <Table
+          caption="Liste des campagnes"
+          header={TABLE_HEADER}
+          pagination
+          page={filters.page}
+          pageSize={filters.pageSize}
+          onPageChange={(page) => setFilters({ ...filters, page })}
+          total={data.length}
+          auto
+        >
+          {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
+            <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+              <td className="px-4 py-3">
+                {user.role === "admin" ? (
+                  <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france break-words">
+                    {item.name}
+                  </Link>
+                ) : (
+                  <span className="break-words">{item.name}</span>
+                )}
+              </td>
+              <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{item.toPublisherName}</td>
+              <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
+              <td className="px-4 py-3">
+                <div className="flex w-fit gap-2 text-lg">
                   {user.role === "admin" ? (
-                    <Link to={`/broadcast/campaign/${item.id}`} className="text-blue-france break-words">
-                      {item.name}
+                    <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
+                      <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
                     </Link>
                   ) : (
-                    <span className="break-words">{item.name}</span>
+                    <button type="button" className="secondary-btn flex items-center" disabled>
+                      <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
+                    </button>
                   )}
-                </td>
-                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{item.toPublisherName}</td>
-                <td className={`px-4 py-3 ${!item.active ? "opacity-50" : "opacity-100"}`}>{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-                <td className="px-4 py-3">
-                  <div className="flex w-fit gap-2 text-lg">
-                    {user.role === "admin" ? (
-                      <Link className="secondary-btn flex items-center" to={`/broadcast/campaign/${item.id}`}>
-                        <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
-                      </Link>
-                    ) : (
-                      <button type="button" className="secondary-btn flex items-center" disabled>
-                        <RiEditFill className="text-lg" role="img" aria-label="Modifier la campagne" />
-                      </button>
-                    )}
-                    <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
-                      <RiLink className="text-lg" role="img" aria-label="Copier le lien de la campagne" />
-                    </button>
-                    <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)} disabled={user.role !== "admin"}>
-                      <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
-                    </button>
-                    <Link className="secondary-btn flex items-center" to={`/settings/real-time?sourceId=${item.id}&sourceType=campaign`}>
-                      <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct de la campagne ${item.name || ""}`.trim()} />
-                    </Link>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <Toggle
-                    aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()}
-                    value={item.active}
-                    onChange={(v) => handleActivate(v, item)}
-                    disabled={user.role !== "admin"}
-                  />
-                </td>
-              </tr>
-            ))}
-          </Table>
-        </>
+                  <button className="secondary-btn flex items-center" onClick={() => handleCopy(item.id)}>
+                    <RiLink className="text-lg" role="img" aria-label="Copier le lien de la campagne" />
+                  </button>
+                  <button className="secondary-btn flex items-center" onClick={() => handleDuplicate(item.id)} disabled={user.role !== "admin"}>
+                    <RiFileCopyLine className="text-lg" role="img" aria-label="Dupliquer la campagne" />
+                  </button>
+                  <Link className="secondary-btn flex items-center" to={`/settings/real-time?sourceId=${item.id}&sourceType=campaign`}>
+                    <RiPulseLine className="text-lg" role="img" aria-label={`Voir les événements en direct de la campagne ${item.name || ""}`.trim()} />
+                  </Link>
+                </div>
+              </td>
+              <td className="px-4 py-3">
+                <Toggle
+                  aria-label={`${item.active ? "Désactiver" : "Activer"} la campagne ${item.name || ""}`.trim()}
+                  value={item.active}
+                  onChange={(v) => handleActivate(v, item)}
+                  disabled={user.role !== "admin"}
+                />
+              </td>
+            </tr>
+          ))}
+        </Table>
       )}
     </div>
   );

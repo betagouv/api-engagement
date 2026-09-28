@@ -79,7 +79,7 @@ const Widgets = () => {
       <div className="flex flex-col items-center justify-between lg:flex-row">
         {/* La zone de statut doit rester montée en permanence : une zone live re-insérée dans le DOM n'est pas restituée par les lecteurs d'écran (RGAA 7.5) */}
         <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
-          {loading ? "" : data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}
+          {loading ? "Chargement..." : data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}
         </p>
         {user.role === "admin" && (
           <div className="flex items-center">

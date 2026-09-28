@@ -39,8 +39,8 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
               </button>
             </div>
           ) : (
-            <h2 role="status" aria-live="polite" aria-atomic="true" className="text-xl font-semibold">
-              {total.toLocaleString("fr")} missions diffusables
+            <h2 className="text-xl font-semibold">
+              <span role="status" aria-live="polite" aria-atomic="true">{`${total.toLocaleString("fr")} missions diffusables`}</span>
             </h2>
           )}
           <div className="flex items-center gap-4">
@@ -57,8 +57,8 @@ const Header = ({ total, data, size, sort, selected, onSize, onSort, onSelect, o
 
   return (
     <div className="mx-4 flex flex-wrap items-center justify-between gap-4 py-4 sm:mx-12">
-      <h2 role="status" aria-live="polite" aria-atomic="true" className="text-xl font-semibold">
-        {total.toLocaleString("fr")} missions diffusables
+      <h2 className="text-xl font-semibold">
+        <span role="status" aria-live="polite" aria-atomic="true">{`${total.toLocaleString("fr")} missions diffusables`}</span>
       </h2>
 
       <div className="flex flex-wrap items-center gap-2">
