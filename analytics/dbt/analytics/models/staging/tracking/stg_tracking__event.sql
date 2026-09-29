@@ -31,7 +31,11 @@ with base as (
     properties ->> 'gclid' as gclid,
     properties ->> 'fbclid' as fbclid,
     coalesce((properties ->> 'internal_user')::boolean, false)
-      as is_internal_user
+      as is_internal_user,
+    -- Posée par PostHog sur les événements sans consentement cookies ;
+    -- absente (et non `false`) sur les autres.
+    coalesce((properties ->> '$cookieless_mode')::boolean, false)
+      as is_cookieless_mode
   from {{ source('analytics_raw', 'tracking_event') }}
   where event not like '$%'
 )

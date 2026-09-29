@@ -18,6 +18,9 @@ with sessions as (
     max(campaign_name) as campaign_name,
     max(api_campaign_id) as api_campaign_id,
     count(*) as sessions,
+    -- Dénominateur des taux sur les conversions backend : elles ne sont
+    -- rattachables qu'aux sessions avec consentement cookies.
+    count(*) filter (where not is_cookieless) as sessions_with_consent,
     count(*) filter (where has_quiz_started) as sessions_quiz_started,
     count(*) filter (where has_quiz_completed) as sessions_quiz_completed,
     count(*) filter (where has_results_viewed) as sessions_results_viewed,
@@ -72,6 +75,7 @@ joined as (
     s.api_campaign_id as session_api_campaign_id,
     a.origin_clicks,
     coalesce(s.sessions, 0) as sessions,
+    coalesce(s.sessions_with_consent, 0) as sessions_with_consent,
     coalesce(s.sessions_quiz_started, 0) as sessions_quiz_started,
     coalesce(s.sessions_quiz_completed, 0) as sessions_quiz_completed,
     coalesce(s.sessions_results_viewed, 0) as sessions_results_viewed,
@@ -104,6 +108,7 @@ select
       then coalesce(j.origin_clicks, 0)
   end as origin_clicks,
   j.sessions,
+  j.sessions_with_consent,
   j.sessions_quiz_started,
   j.sessions_quiz_completed,
   j.sessions_results_viewed,

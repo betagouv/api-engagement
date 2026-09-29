@@ -215,6 +215,11 @@ models:
         description: URL complète du premier événement (porte l'`apiengagement_id` le cas échéant).
       - name: landing_utm_source
         description: UTM bruts du premier événement, non nettoyés (peut contenir des valeurs de scanners).
+      - name: landing_referring_domain
+        description: >
+          `referring_domain` PostHog (`$referring_domain`) du premier événement, brut : domaine, nom de
+          package d'appli Android (`com.google.android.gm`), `$direct` ou null. Base du canal d'acquisition
+          (`tracking_campaign_session.acquisition_channel`).
       - name: utm_source
         description: >
           UTM du premier événement ; si `utm_source` y est null, UTM du premier événement de la session
@@ -232,6 +237,13 @@ models:
           Google payant » même quand les UTM manquent ; clé d'un futur rapprochement avec un export Ads.
       - name: fbclid
         description: Identifiant de clic Meta, même logique que `gclid`.
+      - name: is_cookieless
+        description: >
+          Vrai si TOUS les événements de la session sont en mode cookieless (sans consentement cookies). Un
+          consentement donné en cours de session rend la session non cookieless : les événements suivants
+          portent les identifiants de rattachement.
+        tests:
+          - not_null
       - name: front_mission_click_count
         description: >
           Nombre d'événements PostHog `mission.clicked` (clic sur une carte, vers la fiche ou un lien

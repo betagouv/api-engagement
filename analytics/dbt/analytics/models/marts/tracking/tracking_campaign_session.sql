@@ -3,7 +3,9 @@
 -- PostHog à une campagne du référentiel `int_tracking_campaign` (API, Adwords,
 -- Meta, emailing...) et y agrège le tunnel front (quiz, résultats, clics
 -- cartes) et les conversions backend (redirections API vers l'annonceur,
--- candidatures).
+-- candidatures). Classe aussi chaque session par canal d'acquisition
+-- (`acquisition_channel`, macro du même nom) et expose `is_cookieless` :
+-- aucune conversion backend n'est rattachable à une session sans consentement.
 with sessions as (
   select * from {{ ref('int_tracking_session') }}
 ),
@@ -102,6 +104,7 @@ select
   a.landing_utm_source,
   a.landing_utm_campaign,
   a.landing_utm_medium,
+  a.landing_referring_domain,
   a.utm_source,
   a.utm_campaign,
   a.utm_medium,
@@ -126,6 +129,10 @@ select
     when a.campaign_key_from_utm is not null then 'utm'
   end as attribution_method,
   a.campaign_key is not null as is_from_campaign,
+  {{ acquisition_channel(
+    'a.landing_referring_domain', 'a.campaign_key is not null'
+  ) }} as acquisition_channel,
+  a.is_cookieless,
   a.has_quiz_started,
   a.has_quiz_completed,
   a.has_results_viewed,
