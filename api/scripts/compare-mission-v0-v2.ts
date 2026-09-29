@@ -9,6 +9,7 @@ type Options = {
   batchSize: number;
   delayMs: number;
   maxMissions: number;
+  offset?: number;
 };
 
 type AuthenticatedOptions = Options & { apiKey: string };
@@ -17,7 +18,7 @@ type MissionIdentity = { id: string; clientId: string; publisherId: string };
 type ApiPage = { ok: true; data: MissionIdentity[]; total?: number; hasMore?: boolean; nextCursor?: string | null };
 type Fetch = typeof fetch;
 type Pause = (delayMs: number) => Promise<void>;
-type RequestTiming = { version: 0 | 2; status: number; durationMs: number };
+type RequestTiming = { version: 0 | 2; status: number; durationMs: number; limit?: number; offset?: number };
 type LogRequestTiming = (timing: RequestTiming) => void;
 
 export type ComparisonResult = {
@@ -55,7 +56,7 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     values.set(name, value);
   }
 
-  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--batch-size", "--delay-ms", "--max-missions"]);
+  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--batch-size", "--delay-ms", "--max-missions", "--offset"]);
   for (const name of values.keys()) {
     if (!allowed.has(name)) {
       throw new Error(`Option inconnue : ${name}`);
@@ -81,6 +82,7 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     batchSize: parseInteger(values.get("--batch-size") ?? DEFAULTS.batchSize, "--batch-size", 1, 100),
     delayMs: parseInteger(values.get("--delay-ms") ?? DEFAULTS.delayMs, "--delay-ms", 0, 60000),
     maxMissions: parseInteger(values.get("--max-missions") ?? DEFAULTS.maxMissions, "--max-missions", 1, 1000000),
+    offset: values.has("--offset") ? parseInteger(values.get("--offset")!, "--offset", 0, 1000000000) : undefined,
   };
 };
 
@@ -110,14 +112,19 @@ const requestPage = async (
     }
   }
 
+  const requestDetails = {
+    version,
+    limit: typeof parameters.limit === "number" ? parameters.limit : undefined,
+    offset: typeof parameters.skip === "number" ? parameters.skip : undefined,
+  };
   const startedAt = performance.now();
   const response = await fetchImpl(url, { headers: { "x-api-key": options.apiKey }, signal: AbortSignal.timeout(30000) });
   if (!response.ok) {
-    logRequestTiming({ version, status: response.status, durationMs: performance.now() - startedAt });
+    logRequestTiming({ ...requestDetails, status: response.status, durationMs: performance.now() - startedAt });
     throw new Error(`GET /v${version}/mission : HTTP ${response.status}`);
   }
   const payload = (await response.json()) as Partial<ApiPage> | null;
-  logRequestTiming({ version, status: response.status, durationMs: performance.now() - startedAt });
+  logRequestTiming({ ...requestDetails, status: response.status, durationMs: performance.now() - startedAt });
   if (!payload || payload.ok !== true || !Array.isArray(payload.data)) {
     throw new Error(`Réponse v${version} invalide`);
   }
@@ -177,9 +184,9 @@ export const compareMissions = async (
   const v2 = await collectV2(options, fetchImpl, pause, logRequestTiming);
   await pause(options.delayMs);
 
-  // Un seul COUNT global v0. Les autres lectures v0 ciblent les clientId de la v2
-  // et restent à skip=0 : aucune page profonde n'est demandée à la base core.
-  const firstV0 = await requestPage(options, 0, { limit: 1, skip: 0 }, fetchImpl, logRequestTiming);
+  // Un seul COUNT global v0. --offset permet de mesurer explicitement une page
+  // profonde ; les autres lectures v0 ciblent les clientId et restent à skip=0.
+  const firstV0 = await requestPage(options, 0, { limit: options.offset === undefined ? 1 : options.pageSize, skip: options.offset ?? 0 }, fetchImpl, logRequestTiming);
   if (!Number.isSafeInteger(firstV0.total) || (firstV0.total ?? -1) < 0) {
     throw new Error("Total v0 invalide");
   }
@@ -243,8 +250,9 @@ const main = async () => {
       throw new Error(`Le publisher ${options.publisherId} ne possède pas de clé API`);
     }
 
-    const result = await compareMissions({ ...options, apiKey: publisher.apikey }, fetch, sleep, ({ version, status, durationMs }) => {
-      console.log(`GET /v${version}/mission — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
+    const result = await compareMissions({ ...options, apiKey: publisher.apikey }, fetch, sleep, ({ version, status, durationMs, limit, offset }) => {
+      const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
+      console.log(`GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
     });
     console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v2Pages} page(s) v2, ${result.v0Batches} lot(s) v0`);
     console.log(result.same ? "Identiques : mêmes identifiants de missions" : "Différence : ensembles de missions distincts");
