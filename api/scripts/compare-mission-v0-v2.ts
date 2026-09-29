@@ -6,7 +6,6 @@ type Options = {
   publisherId: string;
   baseUrl: URL;
   pageSize: number;
-  batchSize: number;
   delayMs: number;
   maxMissions: number;
   offset?: number;
@@ -27,13 +26,12 @@ export type ComparisonResult = {
   v0Total: number;
   v2Total: number;
   v2Pages: number;
-  v0Batches: number;
+  v0Pages: number;
   onlyV2: string[];
-  onlyV0Found: string[];
-  onlyV0Unknown: number;
+  onlyV0: string[];
 };
 
-const DEFAULTS = { pageSize: 20, batchSize: 25, delayMs: 250, maxMissions: 10000 };
+const DEFAULTS = { pageSize: 20, delayMs: 250, maxMissions: 10000 };
 const sleep: Pause = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 const ignoreRequestTiming: LogRequestTiming = () => {};
 
@@ -56,7 +54,7 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     values.set(name, value);
   }
 
-  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--batch-size", "--delay-ms", "--max-missions", "--offset"]);
+  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--delay-ms", "--max-missions", "--offset"]);
   for (const name of values.keys()) {
     if (!allowed.has(name)) {
       throw new Error(`Option inconnue : ${name}`);
@@ -79,7 +77,6 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     publisherId,
     baseUrl,
     pageSize: parseInteger(values.get("--page-size") ?? DEFAULTS.pageSize, "--page-size", 1, 100),
-    batchSize: parseInteger(values.get("--batch-size") ?? DEFAULTS.batchSize, "--batch-size", 1, 100),
     delayMs: parseInteger(values.get("--delay-ms") ?? DEFAULTS.delayMs, "--delay-ms", 0, 60000),
     maxMissions: parseInteger(values.get("--max-missions") ?? DEFAULTS.maxMissions, "--max-missions", 1, 1000000),
     offset: values.has("--offset") ? parseInteger(values.get("--offset")!, "--offset", 0, 1000000000) : undefined,
@@ -131,13 +128,7 @@ const requestPage = async (
   return payload as ApiPage;
 };
 
-const collectV2 = async (
-  options: AuthenticatedOptions,
-  fetchImpl: Fetch,
-  pause: Pause,
-  logRequestTiming: LogRequestTiming
-): Promise<{ byClientId: Map<string, string>; ids: Set<string>; pages: number }> => {
-  const byClientId = new Map<string, string>();
+const collectV2 = async (options: AuthenticatedOptions, fetchImpl: Fetch, pause: Pause, logRequestTiming: LogRequestTiming): Promise<{ ids: Set<string>; pages: number }> => {
   const ids = new Set<string>();
   const cursors = new Set<string>();
   let cursor: string | undefined;
@@ -151,11 +142,10 @@ const collectV2 = async (
     }
     for (const mission of page.data) {
       assertMission(mission, "v2", options.publisherId);
-      if (ids.has(mission.id) || byClientId.has(mission.clientId)) {
-        throw new Error("Doublon d'identifiant ou de clientId dans la v2");
+      if (ids.has(mission.id)) {
+        throw new Error("Doublon d'identifiant dans la v2");
       }
       ids.add(mission.id);
-      byClientId.set(mission.clientId, mission.id);
     }
     if (ids.size > options.maxMissions) {
       throw new Error(`Comparaison interrompue : plus de ${options.maxMissions} missions en v2 (--max-missions)`);
@@ -164,13 +154,58 @@ const collectV2 = async (
       if (page.nextCursor !== null) {
         throw new Error("Pagination v2 invalide : nextCursor attendu à null en fin de liste");
       }
-      return { byClientId, ids, pages };
+      return { ids, pages };
     }
     if (!page.data.length || typeof page.nextCursor !== "string" || !page.nextCursor || cursors.has(page.nextCursor)) {
       throw new Error("Pagination v2 invalide : curseur absent ou répété");
     }
     cursor = page.nextCursor;
     cursors.add(cursor);
+    await pause(options.delayMs);
+  }
+};
+
+const collectV0 = async (
+  options: AuthenticatedOptions,
+  fetchImpl: Fetch,
+  pause: Pause,
+  logRequestTiming: LogRequestTiming
+): Promise<{ ids: Set<string>; pages: number; total: number }> => {
+  const ids = new Set<string>();
+  let offset = 0;
+  let pages = 0;
+  let expectedTotal: number | undefined;
+
+  while (true) {
+    const page = await requestPage(options, 0, { limit: options.pageSize, skip: offset }, fetchImpl, logRequestTiming);
+    pages += 1;
+    if (!Number.isSafeInteger(page.total) || (page.total ?? -1) < 0 || page.data.length > options.pageSize) {
+      throw new Error("Pagination v0 invalide");
+    }
+    if (expectedTotal === undefined) {
+      expectedTotal = page.total;
+    } else if (page.total !== expectedTotal) {
+      throw new Error("Le total v0 a changé pendant le parcours");
+    }
+
+    for (const mission of page.data) {
+      assertMission(mission, "v0", options.publisherId);
+      if (ids.has(mission.id)) {
+        throw new Error("Doublon d'identifiant dans la v0");
+      }
+      ids.add(mission.id);
+    }
+    if (ids.size > options.maxMissions || expectedTotal > options.maxMissions) {
+      throw new Error(`Comparaison interrompue : plus de ${options.maxMissions} missions en v0 (--max-missions)`);
+    }
+    if (ids.size === expectedTotal) {
+      return { ids, pages, total: expectedTotal };
+    }
+    if (page.data.length !== options.pageSize || ids.size > expectedTotal) {
+      throw new Error("Pagination v0 incomplète ou incohérente");
+    }
+
+    offset += options.pageSize;
     await pause(options.delayMs);
   }
 };
@@ -184,53 +219,25 @@ export const compareMissions = async (
   const v2 = await collectV2(options, fetchImpl, pause, logRequestTiming);
   await pause(options.delayMs);
 
-  // Un seul COUNT global v0. --offset permet de mesurer explicitement une page
-  // profonde ; les autres lectures v0 ciblent les clientId et restent à skip=0.
-  const firstV0 = await requestPage(options, 0, { limit: options.pageSize, skip: options.offset ?? 0 }, fetchImpl, logRequestTiming);
-  if (!Number.isSafeInteger(firstV0.total) || (firstV0.total ?? -1) < 0) {
-    throw new Error("Total v0 invalide");
-  }
-  const v0Total = firstV0.total as number;
-  const v0Ids = new Set<string>();
-  const entries = [...v2.byClientId.entries()];
-  let batches = 0;
-
-  for (let index = 0; index < entries.length; index += options.batchSize) {
+  // Sonde facultative pour mesurer directement un offset précis avant le parcours complet.
+  if (options.offset !== undefined) {
+    await requestPage(options, 0, { limit: options.pageSize, skip: options.offset }, fetchImpl, logRequestTiming);
     await pause(options.delayMs);
-    const batch = entries.slice(index, index + options.batchSize);
-    const clientIds = batch.map(([clientId]) => clientId);
-    const page = await requestPage(options, 0, { clientId: clientIds, limit: batch.length, skip: 0 }, fetchImpl, logRequestTiming);
-    batches += 1;
-    if (!Number.isSafeInteger(page.total) || page.total !== page.data.length || page.data.length > batch.length) {
-      throw new Error("Lot v0 incomplet ou total incohérent : comparaison impossible");
-    }
-    const requested = new Set(clientIds);
-    for (const mission of page.data) {
-      assertMission(mission, "v0", options.publisherId);
-      if (!requested.has(mission.clientId) || v0Ids.has(mission.id)) {
-        throw new Error("Lot v0 inattendu ou identifiant dupliqué");
-      }
-      v0Ids.add(mission.id);
-    }
   }
+  const v0 = await collectV0(options, fetchImpl, pause, logRequestTiming);
 
-  const onlyV2 = [...v2.ids].filter((id) => !v0Ids.has(id));
-  const onlyV0Found = [...v0Ids].filter((id) => !v2.ids.has(id));
-  const onlyV0Unknown = v0Total - v0Ids.size;
-  if (onlyV0Unknown < 0) {
-    throw new Error("Le total v0 a changé pendant la comparaison : relancer sur un jeu de données stable");
-  }
+  const onlyV2 = [...v2.ids].filter((id) => !v0.ids.has(id));
+  const onlyV0 = [...v0.ids].filter((id) => !v2.ids.has(id));
 
   return {
-    same: v0Total === v2.ids.size && onlyV2.length === 0 && onlyV0Found.length === 0 && onlyV0Unknown === 0,
+    same: v0.total === v2.ids.size && onlyV2.length === 0 && onlyV0.length === 0,
     publisherId: options.publisherId,
-    v0Total,
+    v0Total: v0.total,
     v2Total: v2.ids.size,
     v2Pages: v2.pages,
-    v0Batches: batches,
+    v0Pages: v0.pages,
     onlyV2,
-    onlyV0Found,
-    onlyV0Unknown,
+    onlyV0,
   };
 };
 
@@ -250,16 +257,26 @@ const main = async () => {
       throw new Error(`Le publisher ${options.publisherId} ne possède pas de clé API`);
     }
 
+    const responseTimes: Record<0 | 2, number[]> = { 0: [], 2: [] };
     const result = await compareMissions({ ...options, apiKey: publisher.apikey }, fetch, sleep, ({ version, status, durationMs, limit, offset }) => {
+      responseTimes[version].push(durationMs);
       const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
       console.log(`GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
     });
-    console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v2Pages} page(s) v2, ${result.v0Batches} lot(s) v0`);
+    console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v0Pages} page(s) v0, ${result.v2Pages} page(s) v2`);
+    for (const version of [0, 2] as const) {
+      const durations = responseTimes[version];
+      const total = durations.reduce((sum, duration) => sum + duration, 0);
+      const average = durations.length ? total / durations.length : 0;
+      const maximum = durations.length ? Math.max(...durations) : 0;
+      console.log(
+        `Résumé GET /v${version}/mission — ${durations.length} requête(s) — total ${total.toFixed(0)} ms — moyenne ${average.toFixed(0)} ms — max ${maximum.toFixed(0)} ms`
+      );
+    }
     console.log(result.same ? "Identiques : mêmes identifiants de missions" : "Différence : ensembles de missions distincts");
     if (!result.same) {
       console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
-      console.log(`Identifiées uniquement en v0 (${result.onlyV0Found.length}) : ${result.onlyV0Found.slice(0, 20).join(", ") || "aucune"}`);
-      console.log(`Autres missions v0 non identifiées sans pagination à grand offset : ${result.onlyV0Unknown}`);
+      console.log(`Présentes uniquement en v0 (${result.onlyV0.length}) : ${result.onlyV0.slice(0, 20).join(", ") || "aucune"}`);
       process.exitCode = 1;
     }
   } finally {

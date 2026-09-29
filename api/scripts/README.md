@@ -29,9 +29,9 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
     ```
 
   - Récupère la clé API du publisher dans PostgreSQL avec `DATABASE_URL_CORE`, puis compare les **identifiants des missions diffusées** par cet annonceur. Les réponses v0 et v2 ont des formats de champs différents : ce script ne compare pas leurs contenus champ par champ.
-  - La v2 est parcourue par curseur. La v0 est interrogée par lots de `clientId`, avec `skip=0`. Un seul `COUNT` global v0 est nécessaire pour détecter des missions uniquement présentes en v0. Avec `--offset`, cette requête charge aussi une page v0 à l'offset demandé afin d'en mesurer le coût ; l'exécuter de préférence hors période de charge.
-  - Chaque appel affiche son endpoint, son statut HTTP et son temps de réponse en millisecondes.
-  - Options : `--offset` (offset v0 à tester), `--page-size` (1 à 100, défaut 20, appliqué aux requêtes v0 et v2), `--batch-size` (1 à 100, défaut 25), `--delay-ms` (défaut 250), `--max-missions` (défaut 10 000). Si la limite de missions est dépassée ou si une réponse est incohérente, la comparaison s'arrête sans annoncer une égalité.
+  - Les deux endpoints sont parcourus intégralement : la v2 par curseur et la v0 par offsets successifs (`0`, `20`, `40`...) jusqu'au `total`. `--offset` ajoute une sonde v0 à l'offset demandé avant le parcours complet. Ce benchmark reproduit volontairement les offsets élevés ; l'exécuter de préférence hors période de charge.
+  - Chaque appel affiche son endpoint, son statut HTTP et son temps de réponse. Un résumé par endpoint donne ensuite le nombre de requêtes, le temps HTTP cumulé, la moyenne et le maximum.
+  - Options : `--offset` (sonde v0 supplémentaire), `--page-size` (1 à 100, défaut 20, appliqué aux requêtes v0 et v2), `--delay-ms` (défaut 250 entre deux pages), `--max-missions` (défaut 10 000). Si la limite de missions est dépassée ou si une réponse est incohérente, la comparaison s'arrête sans annoncer une égalité.
   - Codes de sortie : `0` si identiques, `1` si différents, `2` si la comparaison est impossible. Une modification des missions pendant l'exécution peut produire une différence temporaire ; relancer dans ce cas sur un jeu de données stable.
 
 
