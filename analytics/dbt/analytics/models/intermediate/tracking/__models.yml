@@ -252,8 +252,8 @@ models:
       confondus. Deux sources en `union` : (1) les campagnes API (liens trackés `/r/campaign/`,
       `campaign_type = 'api'`, `campaign_key` = id de la campagne), limitées à celles qui atterrissent sur TTM.
       PÉRIMÈTRE PAR L'URL, PAS PAR L'ANNONCEUR : host de l'URL matchant un motif de
-      `PLATEFORME_ENGAGEMENT_HOST_PATTERNS` (ancien domaine `plateforme.api-engagement…` et nouveau
-      `trouvetamission.gouv.fr`) OU annonceur `PUBLISHER_PLATEFORME_ENGAGEMENT_ID`. Cas réel : le QR code
+      `TROUVE_TA_MISSION_HOST_PATTERNS` (ancien domaine `plateforme.api-engagement…` et nouveau
+      `trouvetamission.gouv.fr`) OU annonceur `PUBLISHER_TROUVE_TA_MISSION_ID`. Cas réel : le QR code
       « Défi engagement » a pour annonceur Service Civique mais renvoie vers `/missions` de TTM. Supprimées
       incluses (`deleted_at` exposé). (2) Les triplets UTM observés dans les sessions PostHog arrivées SANS
       lien tracké (SEA, Meta, emailing…), découverts automatiquement, `campaign_key` = `utm:source|medium|campaign`,

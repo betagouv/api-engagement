@@ -1,8 +1,8 @@
--- Part de marché par annonceur sur la Plateforme de l'Engagement : croise le
--- stock de missions diffusables PDE (`mission_diffusion`, diffuseur = PDE) avec
+-- Part de marché par annonceur sur Trouve Ta Mission : croise le stock de
+-- missions diffusables TTM (`mission_diffusion`, diffuseur = TTM) avec
 -- les recommandations et les clics du quiz, pour repérer les annonceurs sur- ou
 -- sous-représentés par rapport à leur offre. Grain : une ligne par annonceur
--- (`publisher_id`) présent dans le stock diffusable PDE.
+-- (`publisher_id`) présent dans le stock diffusable TTM.
 with stock as (
   select
     m.publisher_id,
@@ -11,7 +11,7 @@ with stock as (
   inner join {{ ref('stg_mission') }} as m on md.mission_id = m.id
   where
     md.distribution_publisher_id
-    = '{{ var("PUBLISHER_PLATEFORME_ENGAGEMENT_ID") }}'
+    = '{{ var("PUBLISHER_TROUVE_TA_MISSION_ID") }}'
     and md.deleted_at is null
     and m.publisher_id is not null
   group by m.publisher_id

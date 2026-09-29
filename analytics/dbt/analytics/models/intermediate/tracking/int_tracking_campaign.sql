@@ -2,8 +2,8 @@
 -- `campaign_key`, tous canaux confondus. Deux sources :
 -- 1. les campagnes API (liens trackés `/r/campaign/`), `campaign_type = 'api'`,
 --    limitées à celles qui atterrissent sur TTM : host de l'URL (ancien ou
---    nouveau domaine, cf. `PLATEFORME_ENGAGEMENT_HOST_PATTERNS`) OU annonceur
---    PDE. L'annonceur déclaré n'est pas forcément TTM (ex. QR code « Défi
+--    nouveau domaine, cf. `TROUVE_TA_MISSION_HOST_PATTERNS`) OU annonceur
+--    TTM. L'annonceur déclaré n'est pas forcément TTM (ex. QR code « Défi
 --    engagement », annonceur Service Civique, URL vers `/missions` de TTM).
 --    Supprimées conservées (`deleted_at` exposé) : leurs clics passés restent
 --    nommés.
@@ -25,8 +25,8 @@ with api_campaigns as (
     lower(substring(url from 'utm_campaign=([^&#]+)')) as utm_campaign
   from {{ ref('stg_campaign') }}
   where
-    annonceur_id = '{{ var("PUBLISHER_PLATEFORME_ENGAGEMENT_ID") }}'
-    {% for pattern in var("PLATEFORME_ENGAGEMENT_HOST_PATTERNS") %}
+    annonceur_id = '{{ var("PUBLISHER_TROUVE_TA_MISSION_ID") }}'
+    {% for pattern in var("TROUVE_TA_MISSION_HOST_PATTERNS") %}
       or substring(url from '^https?://([^/]+)') like '{{ pattern }}'
     {% endfor %}
 ),
