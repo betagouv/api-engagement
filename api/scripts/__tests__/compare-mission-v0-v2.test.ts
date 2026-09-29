@@ -3,10 +3,10 @@ import { test } from "node:test";
 
 import { compareMissions, parseOptions } from "../compare-mission-v0-v2";
 
-const options = () =>
-  parseOptions(["--publisher-id", "publisher-1", "--base-url", "https://example.test", "--page-size", "1", "--batch-size", "2", "--delay-ms", "0"], {
-    API_ENGAGEMENT_API_KEY: "secret-test",
-  });
+const options = () => ({
+  ...parseOptions(["--publisher-id", "publisher-1", "--base-url", "https://example.test", "--page-size", "1", "--batch-size", "2", "--delay-ms", "0"], {}),
+  apiKey: "secret-test",
+});
 
 const mission = (id: string, clientId: string) => ({ id, clientId, publisherId: "publisher-1" });
 const json = (body: object) => new Response(JSON.stringify({ ok: true, ...body }), { status: 200, headers: { "content-type": "application/json" } });
