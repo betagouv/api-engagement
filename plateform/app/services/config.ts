@@ -16,6 +16,8 @@ export const POSTHOG_HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undef
 
 // ID du site Crisp (public, côté client) pour le chat d'assistance.
 export const CRISP_WEBSITE_ID = "0825b9e0-ff50-4cae-8899-a22aa9f932a3";
+// Scénario bot Crisp joué à chaque ouverture du chat.
+export const CRISP_BOT_SCENARIO_ID = "scenario_2c549f12-5242-41cd-a8f1-4fd236cb2f9c";
 
 // Conteneur Google Tag Manager (public, côté client). Chargé uniquement après consentement :
 // mesure des conversions publicitaires et conservation de l'identifiant de clic (gclid).

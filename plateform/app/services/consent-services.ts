@@ -1,4 +1,4 @@
-import { CRISP_WEBSITE_ID, GTM_CONTAINER_ID, POSTHOG_KEY, TRACKING_PROVIDER } from "~/services/config";
+import { CRISP_BOT_SCENARIO_ID, CRISP_WEBSITE_ID, GTM_CONTAINER_ID, POSTHOG_KEY, TRACKING_PROVIDER } from "~/services/config";
 import { initTracking, setTrackingConsentStatus, type TrackingConsentStatus } from "~/services/tracking";
 
 export type ConsentStatus = TrackingConsentStatus;
@@ -16,6 +16,7 @@ function loadCrisp(): void {
   if (typeof window === "undefined" || !CRISP_WEBSITE_ID || document.getElementById("crisp-client")) return;
   window.$crisp = [];
   window.CRISP_WEBSITE_ID = CRISP_WEBSITE_ID;
+  window.$crisp.push(["on", "chat:opened", () => window.$crisp?.push(["do", "bot:scenario:run", [CRISP_BOT_SCENARIO_ID]])]);
   const script = document.createElement("script");
   script.id = "crisp-client";
   script.src = "https://client.crisp.chat/l.js";
