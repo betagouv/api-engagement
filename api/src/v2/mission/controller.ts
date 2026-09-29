@@ -121,8 +121,12 @@ const missionClientIdParamSchema = zod.object({
 const missionListQuerySchema = missionQuerySchema
   .omit({ limit: true, skip: true })
   .extend({
-    limit: zod.coerce.number().int().min(1).max(100).default(25),
+    limit: zod.coerce.number().int().min(1).default(25),
     cursor: zod.string().min(1).max(256).optional(),
+    updatedAt: zod
+      .string()
+      .refine((value) => parseDateFilter(value)?.gt !== undefined, { message: "updatedAt doit utiliser le format gt:<date ISO>" })
+      .optional(),
   })
   .strict();
 
@@ -164,9 +168,11 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), pu
   try {
     const publisher = req.user as PublisherRecordWithRelations;
     const parsed = missionListQuerySchema.safeParse(req.query);
+
     if (!parsed.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: parsed.error });
     }
+
     const query = parsed.data;
     const filters: MissionSearchFilters & { diffuseurPublisherId: string } = {
       diffuseurPublisherId: publisher.id,
@@ -188,9 +194,11 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), pu
       snu: query.snu,
       startAt: parseDateFilter(query.startAt),
       type: normalizeQueryArray(query.type),
+      updatedAt: parseDateFilter(query.updatedAt),
       limit: query.limit,
       skip: 0,
     };
+
     if (query.lat !== undefined && query.lon !== undefined) {
       const rawDistance = query.distance === "0" || query.distance === "0km" ? "10km" : query.distance || "50km";
       filters.lat = query.lat;
@@ -198,13 +206,15 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), pu
       filters.distanceKm = getDistanceKm(rawDistance);
     }
 
-    const result = await missionService.findMissionsAfterId(filters, query.cursor);
+    const [result, total] = await Promise.all([missionService.findMissionsAfterId(filters, query.cursor), missionService.countMissions(filters)]);
+
     return res.status(200).send({
       ok: true,
       data: result.data.map(buildData),
       limit: query.limit,
       nextCursor: result.nextCursor,
       hasMore: result.hasMore,
+      total,
     });
   } catch (error) {
     next(error);
