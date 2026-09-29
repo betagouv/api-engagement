@@ -128,6 +128,15 @@ select
     when a.campaign_key_from_click is not null then 'click_id'
     when a.campaign_key_from_utm is not null then 'utm'
   end as attribution_method,
+  -- Clé de visite. Accepter les cookies en cours de navigation réinitialise
+  -- l'identité PostHog (nouveau `distinct_id`, nouvelle session) : une visite
+  -- par lien tracké produit deux sessions portant le même `apiengagement_id`.
+  -- On les regroupe par clic ; sans clic, rien ne les relie (une visite par
+  -- session). Même condition que `attribution_method = 'click_id'`.
+  case
+    when a.campaign_key_from_click is not null then lower(a.landing_click_id)
+    else a.tracking_session_id
+  end as visit_key,
   a.campaign_key is not null as is_from_campaign,
   {{ acquisition_channel(
     'a.landing_referring_domain', 'a.campaign_key is not null'

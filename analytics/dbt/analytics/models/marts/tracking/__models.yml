@@ -296,6 +296,15 @@ models:
           - accepted_values:
               arguments:
                 values: ['click_id', 'utm']
+      - name: visit_key
+        description: >
+          Clé de visite. Identifiant du clic de campagne (`landing_click_id`, en minuscules) pour les
+          sessions attribuées par `click_id`, `tracking_session_id` sinon. Regroupe les deux sessions créées
+          par la bascule de consentement : accepter les cookies en cours de navigation réinitialise
+          l'identité PostHog (nouveau `distinct_id`, nouvelle session), et les deux sessions portent le même
+          `apiengagement_id`. Hors lien tracké, rien ne les relie : une visite par session.
+        tests:
+          - not_null
       - name: is_from_campaign
         description: Vrai si `campaign_key` est non null.
       - name: gclid
@@ -373,7 +382,17 @@ models:
           Clics comptés par la plateforme d'origine, hors PostHog : redirections `/r/campaign/` pour les
           campagnes API (0 si aucun ce jour-là), null pour les autres types.
       - name: sessions
-        description: Sessions PostHog attribuées à la campagne (sous-ensemble tracké).
+        description: >
+          Sessions PostHog attribuées à la campagne (sous-ensemble tracké). Peut compter deux fois une même
+          visite, quand le visiteur accepte les cookies en cours de navigation. Préférer `visits` ; gardée
+          comme contrôle.
+      - name: visits
+        description: >
+          Visites dédoublonnées : `count(distinct visit_key)` par jour et par campagne. Exacte pour les liens
+          trackés de l'API (une visite par clic) ; pour le trafic UTM et hors campagne, égale à `sessions`
+          (doublons non corrigés). Dénominateur à utiliser pour les taux sur les visites. Limite : le
+          dédoublonnage est journalier, un clic dont les deux sessions tombent de part et d'autre de minuit
+          compte pour une visite chaque jour.
       - name: sessions_with_consent
         description: >
           Sessions avec consentement cookies (`not is_cookieless`). DÉNOMINATEUR à utiliser pour tout taux
