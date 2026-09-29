@@ -105,6 +105,24 @@ components:
           nullable: true
           description: Pays (code ISO 3166-1 alpha-2 ou nom)
           example: "France"
+        location:
+          type: object
+          description: |
+            Coordonnées GPS (WGS84) du lieu de la mission, optionnelles. Si elles sont renseignées, l'adresse n'est pas géocodée par API Engagement et vos coordonnées sont conservées telles quelles. Sinon, elles sont déterminées à partir de l'adresse.
+          required: [lat, lon]
+          properties:
+            lat:
+              type: number
+              minimum: -90
+              maximum: 90
+              description: Latitude en degrés décimaux
+              example: 48.8698
+            lon:
+              type: number
+              minimum: -180
+              maximum: 180
+              description: Longitude en degrés décimaux
+              example: 2.3311
 
     # ── Mission (réponse v2) ───────────────────────────────────────────────────
     Mission:

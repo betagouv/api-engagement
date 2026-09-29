@@ -138,7 +138,8 @@ export const upsertPublisherOrganization = async (body: OrgBody, publisherId: st
 // Transformers
 // ──────────────────────────────────────────────────────────────────────────────
 
-export const buildAddresses = (addresses?: MissionAddress[]) => addresses?.map((a) => ({ ...a, geolocStatus: "SHOULD_ENRICH" }));
+// Coordonnées fournies par le partenaire : l'adresse n'a pas besoin d'être géocodée par le job
+export const buildAddresses = (addresses?: MissionAddress[]) => addresses?.map((a) => ({ ...a, geolocStatus: a.location ? "ENRICHED_BY_PUBLISHER" : "SHOULD_ENRICH" }));
 
 export const buildData = (mission: MissionRecord) => ({
   id: mission.id,

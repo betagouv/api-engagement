@@ -27,6 +27,7 @@ const addressSchema = zod.object({
   departmentName: zod.string().optional(),
   region: zod.string().optional(),
   country: zod.string().optional(),
+  location: zod.object({ lat: zod.number().min(-90).max(90), lon: zod.number().min(-180).max(180) }).optional(),
 });
 
 const orgFields = {

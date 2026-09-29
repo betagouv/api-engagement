@@ -12,11 +12,20 @@ dotenv.config();
 import { readFileSync } from "fs";
 import { join } from "path";
 
+import { DEPARTMENTS } from "@/constants/departments";
 import { prisma } from "@/db/postgres";
 import { DESCRIPTION_SPV, SDIS_DATA, type SdisEntry } from "./data";
 import { findPublisherForDept } from "./publisher";
 
-type Address = { street: string; postalCode: string; city: string; departmentCode: string };
+type Address = {
+  street: string;
+  postalCode: string;
+  city: string;
+  departmentCode: string;
+  departmentName?: string;
+  region?: string;
+  location?: { lat: number; lon: number };
+};
 
 function parseCsvLine(line: string): string[] {
   const result: string[] = [];
@@ -41,12 +50,15 @@ function loadAddresses(): Map<string, Address[]> {
   const map = new Map<string, Address[]>();
   for (const line of lines) {
     const cols = parseCsvLine(line);
-    const [dept, , street, postalCode, city] = cols.map((v) => v.trim());
+    const [dept, , street, postalCode, city, lat, lon] = cols.map((v) => v.trim());
     if (!dept || !city || !postalCode) {
       continue;
     }
     const list = map.get(dept) ?? [];
-    list.push({ street, postalCode, city, departmentCode: dept });
+    const [departmentName, region] = DEPARTMENTS[dept as keyof typeof DEPARTMENTS] ?? [];
+    // Coordonnées OSM envoyées telles quelles : pas de re-géocodage de l'adresse texte
+    const location = Number.isFinite(parseFloat(lat)) && Number.isFinite(parseFloat(lon)) ? { lat: parseFloat(lat), lon: parseFloat(lon) } : undefined;
+    list.push({ street, postalCode, city, departmentCode: dept, departmentName, region, ...(location ? { location } : {}) });
     map.set(dept, list);
   }
   return map;
