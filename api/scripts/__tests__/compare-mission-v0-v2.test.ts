@@ -13,6 +13,7 @@ const json = (body: object) => new Response(JSON.stringify({ ok: true, ...body }
 
 test("compare les ensembles indépendamment de leur ordre, sans offset v0 profond", async () => {
   const calls: Array<{ path: string; query: URLSearchParams; apiKey: string }> = [];
+  const timings: Array<{ version: 0 | 2; status: number; durationMs: number }> = [];
   const fetchImpl: typeof fetch = async (input, init) => {
     const url = input as URL;
     const query = url.searchParams;
@@ -29,7 +30,12 @@ test("compare les ensembles indépendamment de leur ordre, sans offset v0 profon
     return json({ data: [mission("id-2", "client-2"), mission("id-1", "client-1")], total: 2 });
   };
 
-  const result = await compareMissions(options(), fetchImpl, async () => {});
+  const result = await compareMissions(
+    options(),
+    fetchImpl,
+    async () => {},
+    (timing) => timings.push(timing)
+  );
 
   assert.equal(result.same, true);
   assert.equal(result.v0Total, 2);
@@ -40,6 +46,16 @@ test("compare les ensembles indépendamment de leur ordre, sans offset v0 profon
     ["0", "0"]
   );
   assert.ok(calls.every((call) => call.apiKey === "secret-test" && call.query.get("publisher") === "publisher-1"));
+  assert.deepEqual(
+    timings.map(({ version, status }) => ({ version, status })),
+    [
+      { version: 2, status: 200 },
+      { version: 2, status: 200 },
+      { version: 0, status: 200 },
+      { version: 0, status: 200 },
+    ]
+  );
+  assert.ok(timings.every(({ durationMs }) => Number.isFinite(durationMs) && durationMs >= 0));
 });
 
 test("détecte une mission uniquement en v0 grâce au total global", async () => {
