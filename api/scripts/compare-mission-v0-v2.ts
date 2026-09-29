@@ -33,7 +33,7 @@ export type ComparisonResult = {
   onlyV0Unknown: number;
 };
 
-const DEFAULTS = { pageSize: 100, batchSize: 25, delayMs: 250, maxMissions: 10000 };
+const DEFAULTS = { pageSize: 20, batchSize: 25, delayMs: 250, maxMissions: 10000 };
 const sleep: Pause = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 const ignoreRequestTiming: LogRequestTiming = () => {};
 
@@ -186,7 +186,7 @@ export const compareMissions = async (
 
   // Un seul COUNT global v0. --offset permet de mesurer explicitement une page
   // profonde ; les autres lectures v0 ciblent les clientId et restent à skip=0.
-  const firstV0 = await requestPage(options, 0, { limit: options.offset === undefined ? 1 : options.pageSize, skip: options.offset ?? 0 }, fetchImpl, logRequestTiming);
+  const firstV0 = await requestPage(options, 0, { limit: options.pageSize, skip: options.offset ?? 0 }, fetchImpl, logRequestTiming);
   if (!Number.isSafeInteger(firstV0.total) || (firstV0.total ?? -1) < 0) {
     throw new Error("Total v0 invalide");
   }
