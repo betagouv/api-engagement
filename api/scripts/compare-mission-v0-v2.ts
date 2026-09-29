@@ -1,12 +1,17 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 type Options = {
   publisherId: string;
-  apiKey: string;
   baseUrl: URL;
   pageSize: number;
   batchSize: number;
   delayMs: number;
   maxMissions: number;
 };
+
+type AuthenticatedOptions = Options & { apiKey: string };
 
 type MissionIdentity = { id: string; clientId: string; publisherId: string };
 type ApiPage = { ok: true; data: MissionIdentity[]; total?: number; hasMore?: boolean; nextCursor?: string | null };
@@ -55,10 +60,9 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
   }
 
   const publisherId = values.get("--publisher-id");
-  const apiKey = env.API_ENGAGEMENT_API_KEY;
   const rawBaseUrl = values.get("--base-url") ?? env.API_ENGAGEMENT_BASE_URL;
-  if (!publisherId || !apiKey || !rawBaseUrl) {
-    throw new Error("--publisher-id, --base-url (ou API_ENGAGEMENT_BASE_URL) et API_ENGAGEMENT_API_KEY sont requis");
+  if (!publisherId || !rawBaseUrl) {
+    throw new Error("--publisher-id et --base-url (ou API_ENGAGEMENT_BASE_URL) sont requis");
   }
 
   const baseUrl = new URL(rawBaseUrl);
@@ -69,7 +73,6 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
 
   return {
     publisherId,
-    apiKey,
     baseUrl,
     pageSize: parseInteger(values.get("--page-size") ?? DEFAULTS.pageSize, "--page-size", 1, 100),
     batchSize: parseInteger(values.get("--batch-size") ?? DEFAULTS.batchSize, "--batch-size", 1, 100),
@@ -85,7 +88,12 @@ function assertMission(mission: unknown, version: string, publisherId: string): 
   }
 }
 
-const requestPage = async (options: Options, version: 0 | 2, parameters: Record<string, string | number | string[] | undefined>, fetchImpl: Fetch): Promise<ApiPage> => {
+const requestPage = async (
+  options: AuthenticatedOptions,
+  version: 0 | 2,
+  parameters: Record<string, string | number | string[] | undefined>,
+  fetchImpl: Fetch
+): Promise<ApiPage> => {
   const url = new URL(`v${version}/mission`, options.baseUrl);
   url.searchParams.set("publisher", options.publisherId);
   for (const [name, value] of Object.entries(parameters)) {
@@ -109,7 +117,7 @@ const requestPage = async (options: Options, version: 0 | 2, parameters: Record<
   return payload as ApiPage;
 };
 
-const collectV2 = async (options: Options, fetchImpl: Fetch, pause: Pause): Promise<{ byClientId: Map<string, string>; ids: Set<string>; pages: number }> => {
+const collectV2 = async (options: AuthenticatedOptions, fetchImpl: Fetch, pause: Pause): Promise<{ byClientId: Map<string, string>; ids: Set<string>; pages: number }> => {
   const byClientId = new Map<string, string>();
   const ids = new Set<string>();
   const cursors = new Set<string>();
@@ -148,7 +156,7 @@ const collectV2 = async (options: Options, fetchImpl: Fetch, pause: Pause): Prom
   }
 };
 
-export const compareMissions = async (options: Options, fetchImpl: Fetch = fetch, pause: Pause = sleep): Promise<ComparisonResult> => {
+export const compareMissions = async (options: AuthenticatedOptions, fetchImpl: Fetch = fetch, pause: Pause = sleep): Promise<ComparisonResult> => {
   const v2 = await collectV2(options, fetchImpl, pause);
   await pause(options.delayMs);
 
@@ -204,14 +212,31 @@ export const compareMissions = async (options: Options, fetchImpl: Fetch = fetch
 
 const main = async () => {
   const options = parseOptions(process.argv.slice(2), process.env);
-  const result = await compareMissions(options);
-  console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v2Pages} page(s) v2, ${result.v0Batches} lot(s) v0`);
-  console.log(result.same ? "Identiques : mêmes identifiants de missions" : "Différence : ensembles de missions distincts");
-  if (!result.same) {
-    console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
-    console.log(`Identifiées uniquement en v0 (${result.onlyV0Found.length}) : ${result.onlyV0Found.slice(0, 20).join(", ") || "aucune"}`);
-    console.log(`Autres missions v0 non identifiées sans pagination à grand offset : ${result.onlyV0Unknown}`);
-    process.exitCode = 1;
+  const { pgDisconnect, prisma } = await import("@/db/postgres");
+
+  try {
+    const publisher = await prisma.publisher.findFirst({
+      where: { id: options.publisherId, deletedAt: null },
+      select: { apikey: true },
+    });
+    if (!publisher) {
+      throw new Error(`Publisher introuvable en base : ${options.publisherId}`);
+    }
+    if (!publisher.apikey) {
+      throw new Error(`Le publisher ${options.publisherId} ne possède pas de clé API`);
+    }
+
+    const result = await compareMissions({ ...options, apiKey: publisher.apikey });
+    console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v2Pages} page(s) v2, ${result.v0Batches} lot(s) v0`);
+    console.log(result.same ? "Identiques : mêmes identifiants de missions" : "Différence : ensembles de missions distincts");
+    if (!result.same) {
+      console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
+      console.log(`Identifiées uniquement en v0 (${result.onlyV0Found.length}) : ${result.onlyV0Found.slice(0, 20).join(", ") || "aucune"}`);
+      console.log(`Autres missions v0 non identifiées sans pagination à grand offset : ${result.onlyV0Unknown}`);
+      process.exitCode = 1;
+    }
+  } finally {
+    await pgDisconnect();
   }
 };
 
