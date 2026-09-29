@@ -1,8 +1,12 @@
+-- Rollup quotidien de la qualité des recommandations. Clics des résultats
+-- classés : sections `pinned` / `other` avant la refonte du 17/09/2026,
+-- `list` / `map` après ; `rank` est le rang absolu dans le scoring.
 with results as (
   select
     session_date as kpi_date,
     count(*) as results_viewed_count,
-    count(*) filter (where has_click_pinned) as sessions_with_pinned_click,
+    count(*) filter (where has_click_top5) as sessions_with_top5_click,
+    count(*) filter (where has_click_top10) as sessions_with_top10_click,
     count(*) filter (where is_zero_click) as zero_click_sessions,
     avg(avg_distance_km_top5) as avg_distance_km_top5,
     avg(click_count) as avg_clicks_per_session
@@ -20,9 +24,13 @@ clicks as (
     count(*) filter (where rank = 3) as rank_3_clicks,
     count(*) filter (where rank = 4) as rank_4_clicks,
     count(*) filter (where rank = 5) as rank_5_clicks,
-    count(*) filter (where rank >= 6) as rank_6plus_clicks
+    count(*) filter (where rank between 6 and 10) as rank_6_10_clicks,
+    count(*) filter (where rank >= 11) as rank_11plus_clicks,
+    count(*) filter (where section = 'map') as map_clicks
   from {{ ref('int_tracking_mission_click') }}
-  where session_date is not null and section in ('pinned', 'other')
+  where
+    session_date is not null
+    and section in ('pinned', 'other', 'list', 'map')
   group by session_date
 ),
 
@@ -41,8 +49,10 @@ select
   r.avg_distance_km_top5,
   r.avg_clicks_per_session,
   b.avg_score_top5,
-  r.sessions_with_pinned_click::numeric
-  / nullif(r.results_viewed_count, 0) as pinned_click_rate,
+  r.sessions_with_top5_click::numeric
+  / nullif(r.results_viewed_count, 0) as top5_click_rate,
+  r.sessions_with_top10_click::numeric
+  / nullif(r.results_viewed_count, 0) as top10_click_rate,
   r.zero_click_sessions::numeric
   / nullif(r.results_viewed_count, 0) as zero_click_rate,
   c.rank_1_clicks::numeric / nullif(c.click_count, 0) as click_share_rank_1,
@@ -50,8 +60,11 @@ select
   c.rank_3_clicks::numeric / nullif(c.click_count, 0) as click_share_rank_3,
   c.rank_4_clicks::numeric / nullif(c.click_count, 0) as click_share_rank_4,
   c.rank_5_clicks::numeric / nullif(c.click_count, 0) as click_share_rank_5,
-  c.rank_6plus_clicks::numeric
-  / nullif(c.click_count, 0) as click_share_rank_6plus
+  c.rank_6_10_clicks::numeric
+  / nullif(c.click_count, 0) as click_share_rank_6_10,
+  c.rank_11plus_clicks::numeric
+  / nullif(c.click_count, 0) as click_share_rank_11plus,
+  c.map_clicks::numeric / nullif(c.click_count, 0) as click_share_map
 from results as r
 left join clicks as c on r.kpi_date = c.kpi_date
 left join backend as b on r.kpi_date = b.kpi_date

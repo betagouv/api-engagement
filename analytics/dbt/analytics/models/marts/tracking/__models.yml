@@ -47,8 +47,20 @@ models:
         description: >
           Vrai si la session a vu les résultats et a cliqué avec `entry_page = 'results'` (clic depuis la
           page de résultats). Numérateur du taux de clic sur les résultats.
-      - name: has_click_pinned
-        description: Vrai si, parmi les clics de la session, au moins un porte sur une mission pinned.
+      - name: has_click_top5
+        description: >
+          Vrai si la session a cliqué une mission de rang <= 5 dans les résultats classés (`pinned` / `other`
+          avant le 17/09/2026, `list` / `map` après).
+      - name: has_click_top10
+        description: Vrai si la session a cliqué une mission de rang <= 10 dans les résultats classés.
+      - name: has_click_beyond_top10
+        description: Vrai si la session a cliqué une mission de rang > 10 dans les résultats classés.
+      - name: max_clicked_page_number
+        description: Page la plus lointaine de la liste de résultats d'où un clic a été émis. Null sinon.
+      - name: page_size
+        description: Nombre de missions par page de résultats (depuis la refonte du 17/09/2026).
+      - name: total_pages
+        description: Nombre de pages de résultats (depuis la refonte du 17/09/2026).
       - name: has_click_external
         description: Vrai si, parmi les clics de la session, au moins un ouvre une candidature externe.
       - name: is_zero_click
@@ -65,6 +77,10 @@ models:
         tests:
           - not_null
           - unique
+      - name: page_number
+        description: >
+          Numéro de la page de la liste de résultats d'où provient le clic (depuis la refonte du 17/09/2026).
+          Null hors résultats paginés.
       - name: mission_score
         description: >
           Score de la mission cliquée = moyenne de ses `taxonomyScores` dans le run de matching actif au
@@ -115,13 +131,27 @@ models:
 
   - name: tracking_scoring_kpi_daily
     description: >
-      Rollup quotidien de la qualité des recommandations : clic pinned, zéro-clic, distance et score moyens du
-      top 5, répartition des clics par rang.
+      Rollup quotidien de la qualité des recommandations : clic dans le top 5 / top 10, zéro-clic, distance et
+      score moyens du top 5, répartition des clics par rang et part des clics via la carte. Clics des résultats
+      classés : sections `pinned` / `other` avant la refonte du 17/09/2026, `list` / `map` après (`rank` =
+      rang absolu). Les taux sont rapportés à `results_viewed_count` (sessions ayant vu la page de résultats).
     columns:
       - name: kpi_date
         tests:
           - not_null
           - unique
+      - name: top5_click_rate
+        description: Part des sessions ayant vu les résultats avec au moins un clic sur une mission de rang <= 5.
+      - name: top10_click_rate
+        description: Part des sessions ayant vu les résultats avec au moins un clic sur une mission de rang <= 10.
+      - name: click_share_rank_6_10
+        description: Part des clics sur les résultats classés portant sur les rangs 6 à 10.
+      - name: click_share_rank_11plus
+        description: Part des clics sur les résultats classés portant sur un rang >= 11 (au-delà de la page 1).
+      - name: click_share_map
+        description: >
+          Part des clics sur les résultats classés émis depuis la carte (`section = 'map'`). Transverse aux
+          parts par rang (un clic carte a aussi un rang) : ne pas l'additionner avec elles.
 
   - name: tracking_recommendation
     description: >
@@ -197,7 +227,9 @@ models:
         tests:
           - not_null
       - name: result_click_count
-        description: Nombre total de clics sur les résultats `pinned` ou `other`.
+        description: >
+          Nombre total de clics sur les résultats classés : `pinned` / `other` avant la refonte du 17/09/2026,
+          `list` / `map` après.
         tests:
           - not_null
       - name: matched_result_click_count

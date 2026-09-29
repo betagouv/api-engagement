@@ -130,6 +130,19 @@ models:
           - not_null
       - name: has_results
         description: Faux si aucune mission retournée.
+      - name: pinned_count
+        description: >
+          Nombre de missions « pinned » affichées. N'est plus émis depuis la refonte des résultats du
+          17/09/2026 (liste paginée + carte) ; conservé pour l'historique.
+      - name: page_size
+        description: Nombre de missions par page de la liste de résultats (depuis la refonte du 17/09/2026).
+      - name: total_pages
+        description: Nombre de pages de la liste de résultats (depuis la refonte du 17/09/2026).
+      - name: previous_quiz_session_id
+        description: >
+          `quiz_session_id` du scoring précédent, présent uniquement quand `results.viewed` est ré-émis après
+          un re-scoring par les filtres de la page de résultats ; l'événement porte alors le NOUVEAU
+          `quiz_session_id`. Null sinon.
 
   - name: stg_tracking__mission_clicked
     description: Clic sur une carte mission (`mission.clicked`), base des breakdowns rang/distance/section.
@@ -142,10 +155,32 @@ models:
         tests:
           - not_null
       - name: section
-        description: Section d'où provient le clic.
+        description: >
+          Section d'où provient le clic. Résultats classés : `pinned` / `other` jusqu'à la refonte du
+          17/09/2026, puis `list` (liste paginée) / `map` (carte). Aussi `similar`, `homepage_examples`,
+          `missions_list`, `mission_detail` et les sections de landing `landing_*` (dynamiques, exclues du test).
         tests:
           - accepted_values:
-              values: ["pinned", "other", "homepage_examples", "missions_list", "similar"]
+              arguments:
+                values:
+                  - "pinned"
+                  - "other"
+                  - "list"
+                  - "map"
+                  - "homepage_examples"
+                  - "missions_list"
+                  - "similar"
+                  - "mission_detail"
+              config:
+                where: "section not like 'landing%'"
+      - name: rank
+        description: >
+          Rang ABSOLU de la mission dans le scoring (continue au-delà de 10 dans la liste paginée). Null
+          hors résultats classés.
+      - name: page_number
+        description: >
+          Numéro de la page de la liste de résultats d'où provient le clic (depuis la refonte du 17/09/2026).
+          Null hors résultats paginés (missions similaires, homepage, liste /missions…).
       - name: entry_page
         description: Page depuis laquelle le clic est émis.
         tests:

@@ -26,6 +26,7 @@ select
   c.publisher_name,
   c.section,
   c.rank,
+  c.page_number,
   c.mission_domain,
   c.mission_type,
   c.opens_external,

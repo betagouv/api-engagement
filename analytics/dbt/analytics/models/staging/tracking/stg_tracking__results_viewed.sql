@@ -15,6 +15,9 @@ with base as (
     (properties ->> 'has_results')::boolean as has_results,
     (properties ->> 'pinned_count')::int as pinned_count,
     (properties ->> 'total_results_count')::int as total_results_count,
+    (properties ->> 'page_size')::int as page_size,
+    (properties ->> 'total_pages')::int as total_pages,
+    properties ->> 'previous_quiz_session_id' as previous_quiz_session_id,
     (properties ->> 'avg_distance_km_top5')::numeric as avg_distance_km_top5
   from {{ ref('stg_tracking__event') }}
   where event_name = 'results.viewed'
