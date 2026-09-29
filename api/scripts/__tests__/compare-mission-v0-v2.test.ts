@@ -3,8 +3,8 @@ import { test } from "node:test";
 
 import { compareMissions, parseOptions } from "../compare-mission-v0-v2";
 
-const options = () => ({
-  ...parseOptions(["--publisher-id", "publisher-1", "--base-url", "https://example.test", "--page-size", "1", "--batch-size", "2", "--delay-ms", "0"], {}),
+const options = (additionalArguments: string[] = []) => ({
+  ...parseOptions(["--publisher-id", "publisher-1", "--base-url", "https://example.test", "--page-size", "1", "--batch-size", "2", "--delay-ms", "0", ...additionalArguments], {}),
   apiKey: "secret-test",
 });
 
@@ -88,4 +88,21 @@ test("détecte des identifiants divergents pour le même clientId", async () => 
   assert.equal(result.same, false);
   assert.deepEqual(result.onlyV2, ["id-v2"]);
   assert.deepEqual(result.onlyV0Found, ["id-v0"]);
+});
+
+test("applique l'offset demandé uniquement à la requête v0 de mesure", async () => {
+  const v0Offsets: string[] = [];
+  const fetchImpl: typeof fetch = async (input) => {
+    const url = input as URL;
+    if (url.pathname === "/v2/mission") {
+      return json({ data: [mission("id-1", "client-1")], hasMore: false, nextCursor: null });
+    }
+    v0Offsets.push(url.searchParams.get("skip") ?? "absent");
+    return json({ data: url.searchParams.has("clientId") ? [mission("id-1", "client-1")] : [], total: 1 });
+  };
+
+  const result = await compareMissions(options(["--offset", "5000"]), fetchImpl, async () => {});
+
+  assert.equal(result.same, true);
+  assert.deepEqual(v0Offsets, ["5000", "0"]);
 });
