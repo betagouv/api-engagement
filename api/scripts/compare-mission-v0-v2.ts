@@ -182,11 +182,13 @@ const collectV0 = async (
     if (!Number.isSafeInteger(page.total) || (page.total ?? -1) < 0 || page.data.length > options.pageSize) {
       throw new Error("Pagination v0 invalide");
     }
+    const pageTotal = page.total as number;
     if (expectedTotal === undefined) {
-      expectedTotal = page.total;
-    } else if (page.total !== expectedTotal) {
+      expectedTotal = pageTotal;
+    } else if (pageTotal !== expectedTotal) {
       throw new Error("Le total v0 a changé pendant le parcours");
     }
+    const total = expectedTotal ?? pageTotal;
 
     for (const mission of page.data) {
       assertMission(mission, "v0", options.publisherId);
@@ -195,13 +197,13 @@ const collectV0 = async (
       }
       ids.add(mission.id);
     }
-    if (ids.size > options.maxMissions || expectedTotal > options.maxMissions) {
+    if (ids.size > options.maxMissions || total > options.maxMissions) {
       throw new Error(`Comparaison interrompue : plus de ${options.maxMissions} missions en v0 (--max-missions)`);
     }
-    if (ids.size === expectedTotal) {
-      return { ids, pages, total: expectedTotal };
+    if (ids.size === total) {
+      return { ids, pages, total };
     }
-    if (page.data.length !== options.pageSize || ids.size > expectedTotal) {
+    if (page.data.length !== options.pageSize || ids.size > total) {
       throw new Error("Pagination v0 incomplète ou incohérente");
     }
 
