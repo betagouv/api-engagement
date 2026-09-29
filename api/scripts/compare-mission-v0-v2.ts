@@ -1,15 +1,34 @@
-import { pathToFileURL } from "node:url";
-
-const DEFAULTS = {
-  pageSize: 100,
-  batchSize: 25,
-  delayMs: 250,
-  maxMissions: 10000,
+type Options = {
+  publisherId: string;
+  apiKey: string;
+  baseUrl: URL;
+  pageSize: number;
+  batchSize: number;
+  delayMs: number;
+  maxMissions: number;
 };
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+type MissionIdentity = { id: string; clientId: string; publisherId: string };
+type ApiPage = { ok: true; data: MissionIdentity[]; total?: number; hasMore?: boolean; nextCursor?: string | null };
+type Fetch = typeof fetch;
+type Pause = (delayMs: number) => Promise<void>;
 
-const parseInteger = (value, name, minimum, maximum) => {
+export type ComparisonResult = {
+  same: boolean;
+  publisherId: string;
+  v0Total: number;
+  v2Total: number;
+  v2Pages: number;
+  v0Batches: number;
+  onlyV2: string[];
+  onlyV0Found: string[];
+  onlyV0Unknown: number;
+};
+
+const DEFAULTS = { pageSize: 100, batchSize: 25, delayMs: 250, maxMissions: 10000 };
+const sleep: Pause = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
+
+const parseInteger = (value: string | number, name: string, minimum: number, maximum: number): number => {
   const number = Number(value);
   if (!Number.isSafeInteger(number) || number < minimum || number > maximum) {
     throw new Error(`${name} doit être un entier entre ${minimum} et ${maximum}`);
@@ -17,8 +36,8 @@ const parseInteger = (value, name, minimum, maximum) => {
   return number;
 };
 
-export const parseOptions = (args, env) => {
-  const values = new Map();
+export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options => {
+  const values = new Map<string, string>();
   for (let index = 0; index < args.length; index += 2) {
     const name = args[index];
     const value = args[index + 1];
@@ -59,13 +78,14 @@ export const parseOptions = (args, env) => {
   };
 };
 
-const assertMission = (mission, version, publisherId) => {
-  if (!mission || typeof mission.id !== "string" || !mission.id || typeof mission.clientId !== "string" || !mission.clientId || mission.publisherId !== publisherId) {
+function assertMission(mission: unknown, version: string, publisherId: string): asserts mission is MissionIdentity {
+  const candidate = mission as Partial<MissionIdentity> | null;
+  if (!candidate || typeof candidate.id !== "string" || !candidate.id || typeof candidate.clientId !== "string" || !candidate.clientId || candidate.publisherId !== publisherId) {
     throw new Error(`Réponse ${version} invalide ou mission hors du publisher demandé`);
   }
-};
+}
 
-const requestPage = async (options, version, parameters, fetchImpl) => {
+const requestPage = async (options: Options, version: 0 | 2, parameters: Record<string, string | number | string[] | undefined>, fetchImpl: Fetch): Promise<ApiPage> => {
   const url = new URL(`v${version}/mission`, options.baseUrl);
   url.searchParams.set("publisher", options.publisherId);
   for (const [name, value] of Object.entries(parameters)) {
@@ -82,18 +102,18 @@ const requestPage = async (options, version, parameters, fetchImpl) => {
   if (!response.ok) {
     throw new Error(`GET /v${version}/mission : HTTP ${response.status}`);
   }
-  const payload = await response.json();
+  const payload = (await response.json()) as Partial<ApiPage> | null;
   if (!payload || payload.ok !== true || !Array.isArray(payload.data)) {
     throw new Error(`Réponse v${version} invalide`);
   }
-  return payload;
+  return payload as ApiPage;
 };
 
-const collectV2 = async (options, fetchImpl, pause) => {
-  const byClientId = new Map();
-  const ids = new Set();
-  const cursors = new Set();
-  let cursor;
+const collectV2 = async (options: Options, fetchImpl: Fetch, pause: Pause): Promise<{ byClientId: Map<string, string>; ids: Set<string>; pages: number }> => {
+  const byClientId = new Map<string, string>();
+  const ids = new Set<string>();
+  const cursors = new Set<string>();
+  let cursor: string | undefined;
   let pages = 0;
 
   while (true) {
@@ -128,18 +148,18 @@ const collectV2 = async (options, fetchImpl, pause) => {
   }
 };
 
-export const compareMissions = async (options, fetchImpl = fetch, pause = sleep) => {
+export const compareMissions = async (options: Options, fetchImpl: Fetch = fetch, pause: Pause = sleep): Promise<ComparisonResult> => {
   const v2 = await collectV2(options, fetchImpl, pause);
   await pause(options.delayMs);
 
   // Un seul COUNT global v0. Les autres lectures v0 ciblent les clientId de la v2
   // et restent à skip=0 : aucune page profonde n'est demandée à la base core.
   const firstV0 = await requestPage(options, 0, { limit: 1, skip: 0 }, fetchImpl);
-  if (!Number.isSafeInteger(firstV0.total) || firstV0.total < 0) {
+  if (!Number.isSafeInteger(firstV0.total) || (firstV0.total ?? -1) < 0) {
     throw new Error("Total v0 invalide");
   }
-  const v0Total = firstV0.total;
-  const v0Ids = new Set();
+  const v0Total = firstV0.total as number;
+  const v0Ids = new Set<string>();
   const entries = [...v2.byClientId.entries()];
   let batches = 0;
 
@@ -195,7 +215,7 @@ const main = async () => {
   }
 };
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (require.main === module) {
   main().catch((error) => {
     console.error(`Comparaison impossible : ${error instanceof Error ? error.message : String(error)}`);
     process.exitCode = 2;
