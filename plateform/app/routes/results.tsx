@@ -26,8 +26,9 @@ import { useQuizStore } from "~/stores/quiz";
 import { userValueKeysFromScoring } from "~/utils/mission";
 import type { Route } from "./+types/results";
 
+// Page de résultats personnels (un lien unique par jeune) : pas d'indexation si le lien circule.
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Tes missions recommandées — Trouve ta mission" }];
+  return [{ title: "Tes missions recommandées — Trouve ta mission" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
 export async function clientLoader() {

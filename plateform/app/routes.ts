@@ -3,6 +3,10 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 export default [
   index("routes/_index.tsx"),
 
+  // SEO : robots.txt + sitemap.xml (généré à partir des pages publiques, cf. routes/sitemap.xml.ts).
+  route("robots.txt", "routes/robots.txt.ts"),
+  route("sitemap.xml", "routes/sitemap.xml.ts"),
+
   // Facade publique SSR : ces routes signent les appels backend avec PUBLISHER_API_KEY sans exposer la cle au navigateur.
   route("api/missions/browse", "routes/api.missions.browse.ts"),
   route("api/missions/browse/:id", "routes/api.missions.browse.$id.ts"),
