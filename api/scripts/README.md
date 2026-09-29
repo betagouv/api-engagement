@@ -17,14 +17,14 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Liste des scripts
 
-- **compare-mission-v0-v2.mjs**
+- **compare-mission-v0-v2.ts**
 
   - Exécution depuis `api/` :
 
     ```bash
     API_ENGAGEMENT_BASE_URL="https://api.example.fr" \
     API_ENGAGEMENT_API_KEY="<clé API du diffuseur>" \
-    node scripts/compare-mission-v0-v2.mjs --publisher-id "<id de l'annonceur>"
+    npx ts-node scripts/compare-mission-v0-v2.ts --publisher-id "<id de l'annonceur>"
     ```
 
   - Compare les **identifiants des missions diffusées** par cet annonceur et accessibles avec la clé du diffuseur. Les réponses v0 et v2 ont des formats de champs différents : ce script ne compare pas leurs contenus champ par champ.
