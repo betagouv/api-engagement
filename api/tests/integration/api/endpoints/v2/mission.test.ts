@@ -274,6 +274,16 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(addresses[0].locationLon).toBeCloseTo(-60.871268);
     });
 
+    it("should accept location: null and fall back to SHOULD_ENRICH", async () => {
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-geo-null", title: "Mission", addresses: [{ city: "Paris", postalCode: "75001", location: null }] });
+      expect(response.status).toBe(201);
+      const addresses = await prisma.missionAddress.findMany({ where: { mission: { clientId: "test-geo-null", publisherId: publisher.id } } });
+      expect(addresses[0].geolocStatus).toBe("SHOULD_ENRICH");
+    });
+
     it("should return 400 when coordinates are out of range", async () => {
       const response = await request(app)
         .post("/v2/mission")

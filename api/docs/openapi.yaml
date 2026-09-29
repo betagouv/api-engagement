@@ -107,6 +107,7 @@ components:
           example: "France"
         location:
           type: object
+          nullable: true
           description: |
             Coordonnées GPS (WGS84) du lieu de la mission, optionnelles. Si elles sont renseignées, l'adresse n'est pas géocodée par API Engagement et vos coordonnées sont conservées telles quelles. Sinon, elles sont déterminées à partir de l'adresse.
           required: [lat, lon]
