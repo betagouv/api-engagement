@@ -205,6 +205,7 @@ export type MissionSearchFilters = {
   closeToTransport?: boolean;
   country?: string[];
   createdAt?: { gt?: Date; lt?: Date };
+  updatedAt?: { gt?: Date; lt?: Date };
   departmentName?: string[];
   domain?: string[];
   keywords?: string;

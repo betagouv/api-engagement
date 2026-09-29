@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-
 dotenv.config();
 
 type Options = {
@@ -7,7 +6,6 @@ type Options = {
   baseUrl: URL;
   pageSize: number;
   delayMs: number;
-  maxMissions: number;
   offset?: number;
 };
 
@@ -31,14 +29,15 @@ export type ComparisonResult = {
   onlyV0: string[];
 };
 
-const DEFAULTS = { pageSize: 20, delayMs: 250, maxMissions: 10000 };
+const DEFAULTS = { pageSize: 20, delayMs: 0 };
 const sleep: Pause = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 const ignoreRequestTiming: LogRequestTiming = () => {};
 
-const parseInteger = (value: string | number, name: string, minimum: number, maximum: number): number => {
+const parseInteger = (value: string | number, name: string, minimum: number, maximum?: number): number => {
   const number = Number(value);
-  if (!Number.isSafeInteger(number) || number < minimum || number > maximum) {
-    throw new Error(`${name} doit être un entier entre ${minimum} et ${maximum}`);
+  if (!Number.isSafeInteger(number) || number < minimum || (maximum !== undefined && number > maximum)) {
+    const range = maximum === undefined ? `supérieur ou égal à ${minimum}` : `entre ${minimum} et ${maximum}`;
+    throw new Error(`${name} doit être un entier ${range}`);
   }
   return number;
 };
@@ -54,7 +53,7 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     values.set(name, value);
   }
 
-  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--delay-ms", "--max-missions", "--offset"]);
+  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--delay-ms", "--offset"]);
   for (const name of values.keys()) {
     if (!allowed.has(name)) {
       throw new Error(`Option inconnue : ${name}`);
@@ -76,17 +75,23 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
   return {
     publisherId,
     baseUrl,
-    pageSize: parseInteger(values.get("--page-size") ?? DEFAULTS.pageSize, "--page-size", 1, 100),
+    pageSize: parseInteger(values.get("--page-size") ?? DEFAULTS.pageSize, "--page-size", 1),
     delayMs: parseInteger(values.get("--delay-ms") ?? DEFAULTS.delayMs, "--delay-ms", 0, 60000),
-    maxMissions: parseInteger(values.get("--max-missions") ?? DEFAULTS.maxMissions, "--max-missions", 1, 1000000),
     offset: values.has("--offset") ? parseInteger(values.get("--offset")!, "--offset", 0, 1000000000) : undefined,
   };
 };
 
-function assertMission(mission: unknown, version: string, publisherId: string): asserts mission is MissionIdentity {
+function assertMission(mission: unknown, version: string): asserts mission is MissionIdentity {
   const candidate = mission as Partial<MissionIdentity> | null;
-  if (!candidate || typeof candidate.id !== "string" || !candidate.id || typeof candidate.clientId !== "string" || !candidate.clientId || candidate.publisherId !== publisherId) {
-    throw new Error(`Réponse ${version} invalide ou mission hors du publisher demandé`);
+  if (
+    !candidate ||
+    typeof candidate.id !== "string" ||
+    !candidate.id ||
+    typeof candidate.clientId !== "string" ||
+    !candidate.clientId ||
+    typeof candidate.publisherId !== "string"
+  ) {
+    throw new Error(`Réponse ${version} invalide`);
   }
 }
 
@@ -98,7 +103,6 @@ const requestPage = async (
   logRequestTiming: LogRequestTiming
 ): Promise<ApiPage> => {
   const url = new URL(`v${version}/mission`, options.baseUrl);
-  url.searchParams.set("publisher", options.publisherId);
   for (const [name, value] of Object.entries(parameters)) {
     if (Array.isArray(value)) {
       for (const item of value) {
@@ -128,33 +132,45 @@ const requestPage = async (
   return payload as ApiPage;
 };
 
-const collectV2 = async (options: AuthenticatedOptions, fetchImpl: Fetch, pause: Pause, logRequestTiming: LogRequestTiming): Promise<{ ids: Set<string>; pages: number }> => {
+const collectV2 = async (
+  options: AuthenticatedOptions,
+  fetchImpl: Fetch,
+  pause: Pause,
+  logRequestTiming: LogRequestTiming
+): Promise<{ ids: Set<string>; pages: number; total: number }> => {
   const ids = new Set<string>();
   const cursors = new Set<string>();
   let cursor: string | undefined;
   let pages = 0;
+  let expectedTotal: number | undefined;
 
   while (true) {
     const page = await requestPage(options, 2, { limit: options.pageSize, cursor }, fetchImpl, logRequestTiming);
     pages += 1;
-    if (typeof page.hasMore !== "boolean" || page.data.length > options.pageSize) {
+    if (typeof page.hasMore !== "boolean" || !Number.isSafeInteger(page.total) || (page.total ?? -1) < 0 || page.data.length > options.pageSize) {
       throw new Error("Pagination v2 invalide");
     }
+    const pageTotal = page.total as number;
+    if (expectedTotal === undefined) {
+      expectedTotal = pageTotal;
+    } else if (pageTotal !== expectedTotal) {
+      throw new Error("Le total v2 a changé pendant le parcours");
+    }
     for (const mission of page.data) {
-      assertMission(mission, "v2", options.publisherId);
+      assertMission(mission, "v2");
       if (ids.has(mission.id)) {
         throw new Error("Doublon d'identifiant dans la v2");
       }
       ids.add(mission.id);
     }
-    if (ids.size > options.maxMissions) {
-      throw new Error(`Comparaison interrompue : plus de ${options.maxMissions} missions en v2 (--max-missions)`);
-    }
     if (!page.hasMore) {
       if (page.nextCursor !== null) {
         throw new Error("Pagination v2 invalide : nextCursor attendu à null en fin de liste");
       }
-      return { ids, pages };
+      if (ids.size !== expectedTotal) {
+        throw new Error("Pagination v2 incomplète ou incohérente");
+      }
+      return { ids, pages, total: expectedTotal };
     }
     if (!page.data.length || typeof page.nextCursor !== "string" || !page.nextCursor || cursors.has(page.nextCursor)) {
       throw new Error("Pagination v2 invalide : curseur absent ou répété");
@@ -191,14 +207,11 @@ const collectV0 = async (
     const total = expectedTotal ?? pageTotal;
 
     for (const mission of page.data) {
-      assertMission(mission, "v0", options.publisherId);
+      assertMission(mission, "v0");
       if (ids.has(mission.id)) {
         throw new Error("Doublon d'identifiant dans la v0");
       }
       ids.add(mission.id);
-    }
-    if (ids.size > options.maxMissions || total > options.maxMissions) {
-      throw new Error(`Comparaison interrompue : plus de ${options.maxMissions} missions en v0 (--max-missions)`);
     }
     if (ids.size === total) {
       return { ids, pages, total };
@@ -232,10 +245,10 @@ export const compareMissions = async (
   const onlyV0 = [...v0.ids].filter((id) => !v2.ids.has(id));
 
   return {
-    same: v0.total === v2.ids.size && onlyV2.length === 0 && onlyV0.length === 0,
+    same: v0.total === v2.total && onlyV2.length === 0 && onlyV0.length === 0,
     publisherId: options.publisherId,
     v0Total: v0.total,
-    v2Total: v2.ids.size,
+    v2Total: v2.total,
     v2Pages: v2.pages,
     v0Pages: v0.pages,
     onlyV2,
@@ -252,9 +265,11 @@ const main = async () => {
       where: { id: options.publisherId, deletedAt: null },
       select: { apikey: true },
     });
+
     if (!publisher) {
       throw new Error(`Publisher introuvable en base : ${options.publisherId}`);
     }
+
     if (!publisher.apikey) {
       throw new Error(`Le publisher ${options.publisherId} ne possède pas de clé API`);
     }
@@ -265,6 +280,7 @@ const main = async () => {
       const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
       console.log(`GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
     });
+
     console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v0Pages} page(s) v0, ${result.v2Pages} page(s) v2`);
     for (const version of [0, 2] as const) {
       const durations = responseTimes[version];
@@ -286,9 +302,7 @@ const main = async () => {
   }
 };
 
-if (require.main === module) {
-  main().catch((error) => {
-    console.error(`Comparaison impossible : ${error instanceof Error ? error.message : String(error)}`);
-    process.exitCode = 2;
-  });
-}
+main().catch((error) => {
+  console.error(`Comparaison impossible : ${error instanceof Error ? error.message : String(error)}`);
+  process.exitCode = 2;
+});

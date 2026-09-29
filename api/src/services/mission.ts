@@ -308,6 +308,10 @@ export const buildWhere = async (filters: MissionSearchFilters): Promise<Prisma.
   if (createdAtFilter) {
     where.createdAt = createdAtFilter;
   }
+  const updatedAtFilter = buildDateFilter(filters.updatedAt);
+  if (updatedAtFilter) {
+    where.updatedAt = updatedAtFilter;
+  }
   const startAtFilter = buildDateFilter(filters.startAt);
   if (startAtFilter) {
     where.startAt = startAtFilter;
