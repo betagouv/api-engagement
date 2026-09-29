@@ -17,6 +17,8 @@ type MissionIdentity = { id: string; clientId: string; publisherId: string };
 type ApiPage = { ok: true; data: MissionIdentity[]; total?: number; hasMore?: boolean; nextCursor?: string | null };
 type Fetch = typeof fetch;
 type Pause = (delayMs: number) => Promise<void>;
+type RequestTiming = { version: 0 | 2; status: number; durationMs: number };
+type LogRequestTiming = (timing: RequestTiming) => void;
 
 export type ComparisonResult = {
   same: boolean;
@@ -32,6 +34,7 @@ export type ComparisonResult = {
 
 const DEFAULTS = { pageSize: 100, batchSize: 25, delayMs: 250, maxMissions: 10000 };
 const sleep: Pause = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
+const ignoreRequestTiming: LogRequestTiming = () => {};
 
 const parseInteger = (value: string | number, name: string, minimum: number, maximum: number): number => {
   const number = Number(value);
@@ -92,7 +95,8 @@ const requestPage = async (
   options: AuthenticatedOptions,
   version: 0 | 2,
   parameters: Record<string, string | number | string[] | undefined>,
-  fetchImpl: Fetch
+  fetchImpl: Fetch,
+  logRequestTiming: LogRequestTiming
 ): Promise<ApiPage> => {
   const url = new URL(`v${version}/mission`, options.baseUrl);
   url.searchParams.set("publisher", options.publisherId);
@@ -106,18 +110,26 @@ const requestPage = async (
     }
   }
 
+  const startedAt = performance.now();
   const response = await fetchImpl(url, { headers: { "x-api-key": options.apiKey }, signal: AbortSignal.timeout(30000) });
   if (!response.ok) {
+    logRequestTiming({ version, status: response.status, durationMs: performance.now() - startedAt });
     throw new Error(`GET /v${version}/mission : HTTP ${response.status}`);
   }
   const payload = (await response.json()) as Partial<ApiPage> | null;
+  logRequestTiming({ version, status: response.status, durationMs: performance.now() - startedAt });
   if (!payload || payload.ok !== true || !Array.isArray(payload.data)) {
     throw new Error(`Réponse v${version} invalide`);
   }
   return payload as ApiPage;
 };
 
-const collectV2 = async (options: AuthenticatedOptions, fetchImpl: Fetch, pause: Pause): Promise<{ byClientId: Map<string, string>; ids: Set<string>; pages: number }> => {
+const collectV2 = async (
+  options: AuthenticatedOptions,
+  fetchImpl: Fetch,
+  pause: Pause,
+  logRequestTiming: LogRequestTiming
+): Promise<{ byClientId: Map<string, string>; ids: Set<string>; pages: number }> => {
   const byClientId = new Map<string, string>();
   const ids = new Set<string>();
   const cursors = new Set<string>();
@@ -125,7 +137,7 @@ const collectV2 = async (options: AuthenticatedOptions, fetchImpl: Fetch, pause:
   let pages = 0;
 
   while (true) {
-    const page = await requestPage(options, 2, { limit: options.pageSize, cursor }, fetchImpl);
+    const page = await requestPage(options, 2, { limit: options.pageSize, cursor }, fetchImpl, logRequestTiming);
     pages += 1;
     if (typeof page.hasMore !== "boolean" || page.data.length > options.pageSize) {
       throw new Error("Pagination v2 invalide");
@@ -156,13 +168,18 @@ const collectV2 = async (options: AuthenticatedOptions, fetchImpl: Fetch, pause:
   }
 };
 
-export const compareMissions = async (options: AuthenticatedOptions, fetchImpl: Fetch = fetch, pause: Pause = sleep): Promise<ComparisonResult> => {
-  const v2 = await collectV2(options, fetchImpl, pause);
+export const compareMissions = async (
+  options: AuthenticatedOptions,
+  fetchImpl: Fetch = fetch,
+  pause: Pause = sleep,
+  logRequestTiming: LogRequestTiming = ignoreRequestTiming
+): Promise<ComparisonResult> => {
+  const v2 = await collectV2(options, fetchImpl, pause, logRequestTiming);
   await pause(options.delayMs);
 
   // Un seul COUNT global v0. Les autres lectures v0 ciblent les clientId de la v2
   // et restent à skip=0 : aucune page profonde n'est demandée à la base core.
-  const firstV0 = await requestPage(options, 0, { limit: 1, skip: 0 }, fetchImpl);
+  const firstV0 = await requestPage(options, 0, { limit: 1, skip: 0 }, fetchImpl, logRequestTiming);
   if (!Number.isSafeInteger(firstV0.total) || (firstV0.total ?? -1) < 0) {
     throw new Error("Total v0 invalide");
   }
@@ -175,7 +192,7 @@ export const compareMissions = async (options: AuthenticatedOptions, fetchImpl: 
     await pause(options.delayMs);
     const batch = entries.slice(index, index + options.batchSize);
     const clientIds = batch.map(([clientId]) => clientId);
-    const page = await requestPage(options, 0, { clientId: clientIds, limit: batch.length, skip: 0 }, fetchImpl);
+    const page = await requestPage(options, 0, { clientId: clientIds, limit: batch.length, skip: 0 }, fetchImpl, logRequestTiming);
     batches += 1;
     if (!Number.isSafeInteger(page.total) || page.total !== page.data.length || page.data.length > batch.length) {
       throw new Error("Lot v0 incomplet ou total incohérent : comparaison impossible");
@@ -226,7 +243,9 @@ const main = async () => {
       throw new Error(`Le publisher ${options.publisherId} ne possède pas de clé API`);
     }
 
-    const result = await compareMissions({ ...options, apiKey: publisher.apikey });
+    const result = await compareMissions({ ...options, apiKey: publisher.apikey }, fetch, sleep, ({ version, status, durationMs }) => {
+      console.log(`GET /v${version}/mission — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
+    });
     console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v2Pages} page(s) v2, ${result.v0Batches} lot(s) v0`);
     console.log(result.same ? "Identiques : mêmes identifiants de missions" : "Différence : ensembles de missions distincts");
     if (!result.same) {
