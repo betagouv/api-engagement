@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BetaBanner from "~/components/layout/beta-banner";
 import BackButton from "~/components/quiz/back-button";
-import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
+import QuizProgress from "~/components/quiz/progress";
 import { QUIZ_FLOW, QUIZ_FLOW_REGISTRY, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { captureException } from "~/services/sentry";
@@ -42,7 +42,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
 export async function clientLoader() {
-  return { header: "hidden" };
+  return null;
 }
 
 export function HydrateFallback() {
@@ -169,9 +169,9 @@ export default function QuizLayout() {
 
   return (
     <div className="flex min-h-svh flex-1 flex-col">
-      <QuizHeader step={loadingResults ? steps.length + 1 : currentIndex + 1} stepCount={steps.length + 1} />
+      <QuizProgress step={loadingResults ? steps.length + 1 : currentIndex + 1} stepCount={steps.length + 1} />
       {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
-      <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
+      <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
         <div className="fr-container flex flex-1 flex-col gap-10">
           {!loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />}
           {scoringError && !loadingResults && (

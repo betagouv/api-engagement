@@ -19,11 +19,6 @@ import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
-export async function clientLoader({ serverLoader }: Route.ClientLoaderArgs) {
-  const serverData = await serverLoader();
-  return { ...serverData, backHref: null };
-}
-
 import type { Route } from "./+types/_index";
 
 import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";

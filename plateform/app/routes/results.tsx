@@ -32,7 +32,7 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export async function clientLoader() {
-  return { backHref: null };
+  return null;
 }
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];

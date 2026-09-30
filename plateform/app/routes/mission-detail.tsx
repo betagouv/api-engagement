@@ -7,8 +7,8 @@ export function meta(): Route.MetaDescriptors {
   return [{ title: "Détail de la mission — Trouve ta mission" }];
 }
 
-export async function clientLoader({ params }: { params: { userScoringId?: string } }) {
-  return { backHref: params.userScoringId ? `/results/${params.userScoringId}` : "/missions" };
+export async function clientLoader() {
+  return null;
 }
 
 import BetaBanner from "~/components/layout/beta-banner";
@@ -80,7 +80,7 @@ export default function MissionDetailPage() {
   if (loading) {
     return (
       <GradientBg>
-        <main id="contenu" tabIndex={-1} className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
+        <main id="contenu" tabIndex={-1} className="mx-auto max-w-7xl px-5 py-10 md:px-6">
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
           </Link>
@@ -95,7 +95,7 @@ export default function MissionDetailPage() {
   if (error || !mission) {
     return (
       <GradientBg>
-        <main id="contenu" tabIndex={-1} className="mx-auto max-w-[1200px] px-5 py-10 md:px-6">
+        <main id="contenu" tabIndex={-1} className="mx-auto max-w-7xl px-5 py-10 md:px-6">
           <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-8">
             {backLabel}
           </Link>
@@ -114,12 +114,17 @@ export default function MissionDetailPage() {
       <main id="contenu" tabIndex={-1}>
         <GradientBg className="bg-size-[100%_680px] min-h-screen">
           {mission.photo && (
-            <div className="h-[216px] w-full overflow-hidden md:hidden">
+            <div className="h-54 w-full overflow-hidden md:hidden">
               <img src={mission.photo} alt="" className="h-full w-full object-cover" />
             </div>
           )}
+          <div className="bg-background px-3 pt-2 md:hidden">
+            <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left">
+              {backLabel}
+            </Link>
+          </div>
 
-          <div className={`mx-auto max-w-[1200px] ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
+          <div className={`mx-auto max-w-7xl ${userScoringId ? "pb-6" : "pb-28"} md:pt-6 md:px-6 md:py-10 bg-beige-gris-galet-975 md:bg-transparent`}>
             <Link to={backPath} className="fr-btn fr-btn--tertiary-no-outline fr-icon-arrow-left-line fr-btn--icon-left mb-6 hidden! md:inline-flex!">
               {backLabel}
             </Link>
@@ -136,7 +141,7 @@ export default function MissionDetailPage() {
               <aside className="hidden w-[384px] flex-none md:block">
                 <div className="sticky top-4 flex flex-col">
                   {mission.photo && (
-                    <div className="h-[216px] w-full overflow-hidden">
+                    <div className="h-54 w-full overflow-hidden">
                       <img src={mission.photo} alt="" className="h-full w-full object-cover" />
                     </div>
                   )}

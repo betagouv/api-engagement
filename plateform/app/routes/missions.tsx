@@ -59,7 +59,7 @@ const getFilterValues = (searchParams: URLSearchParams): Record<FilterKey, strin
   ) as Record<FilterKey, string[]>;
 
 export async function clientLoader() {
-  return { backHref: "/" };
+  return null;
 }
 
 export function HydrateFallback() {
