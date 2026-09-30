@@ -58,12 +58,13 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
       <hr className="h-px! pb-0! bg-border-default-grey -mx-5! md:mx-0!" />
 
       <div className="flex flex-col gap-3">
+        {/* En mobile, le bouton primaire vit uniquement dans la barre fixe de la fiche (retour SIG). */}
         <a
           href={applicationHref}
           target="_blank"
           rel="noopener noreferrer"
           title="Découvrir la mission - nouvelle fenêtre"
-          className="fr-btn w-full! justify-center!"
+          className="fr-btn w-full! justify-center! max-md:hidden!"
           onClick={() => trackMissionClickedFromDetail(mission)}
         >
           Découvrir la mission

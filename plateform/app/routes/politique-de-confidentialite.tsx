@@ -8,25 +8,25 @@ export default function PolitiqueDeConfidentialite() {
   return (
     <main id="contenu" tabIndex={-1}>
       <div className="fr-container max-w-3xl py-8 md:py-16">
-        <h1>Politique de confidentialité de la Plateforme de l'Engagement</h1>
+        <h1>Politique de confidentialité de Trouve ta mission</h1>
 
         <h2>Qui sommes-nous ?</h2>
         <p>
-          La plateforme de l'engagement est le{" "}
-          <strong>service de référence de l'engagement public : elle agrège l'ensemble de l'offre publique d'engagement et la rend visible aux citoyens</strong>.
+          Trouve ta mission est le{" "}
+          <strong>service de référence de l'engagement public : il agrège l'ensemble de l'offre publique d'engagement et la rend visible aux citoyens</strong>.
         </p>
         <p>
-          La plateforme de l'engagement est sous la responsabilité de la Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA) au sein du ministère
-          des Sports, de la Jeunesse et de la Vie Associative.
+          Trouve ta mission est sous la responsabilité de la Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA) au sein du ministère des Sports,
+          de la Jeunesse et de la Vie Associative.
         </p>
 
         <h2>Pourquoi traitons-nous des données à caractère personnel ?</h2>
-        <p>La plateforme de l'engagement traite des données à caractère personnel pour permettre de proposer des missions d'engagement en fonction des préférences des citoyens.</p>
+        <p>Trouve ta mission traite des données à caractère personnel pour permettre de proposer des missions d'engagement en fonction des préférences des citoyens.</p>
 
         <h2>Quelles sont les données collectées sur la plateforme ?</h2>
         <p>
-          La plateforme de l'engagement collecte seulement l'adresse courriel, qui peut souvent contenir aussi le nom et le prénom. Le reste des données collectées ne sont pas
-          identifiantes, et sont liées à la mission.
+          Trouve ta mission collecte seulement l'adresse courriel, qui peut souvent contenir aussi le nom et le prénom. Le reste des données collectées ne sont pas identifiantes,
+          et sont liées à la mission.
         </p>
         <p>
           Si vous utilisez le chat d'assistance, le contenu des messages que vous y saisissez (et toute donnée personnelle que vous choisissez d'y indiquer) est traité par notre
@@ -38,8 +38,8 @@ export default function PolitiqueDeConfidentialite() {
 
         <h2>Qu'est-ce qui nous autorise à traiter des données à caractère personnel ?</h2>
         <p>
-          La plateforme de l'engagement traite des données à caractère personnel pour l'exécution d'une mission d'intérêt public ou relevant de l'exercice de l'autorité publique
-          dont est investi le responsable de traitement conformément à l'article 6-1 e) du RGPD.
+          Trouve ta mission traite des données à caractère personnel pour l'exécution d'une mission d'intérêt public ou relevant de l'exercice de l'autorité publique dont est
+          investi le responsable de traitement conformément à l'article 6-1 e) du RGPD.
         </p>
         <p>Cette mission d'intérêt public se traduit en pratique par :</p>
         <ul>
@@ -82,7 +82,7 @@ export default function PolitiqueDeConfidentialite() {
         </ol>
 
         <h2>Qui peut accéder à vos données ?</h2>
-        <p>Les destinataires des données d'inscription sont uniquement accessibles aux membres habilités de l'équipe de la plateforme de l'engagement.</p>
+        <p>Les destinataires des données d'inscription sont uniquement accessibles aux membres habilités de l'équipe de Trouve ta mission.</p>
 
         <h2>Qui nous aide à traiter vos données à caractère personnel ?</h2>
         <p>

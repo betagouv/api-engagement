@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BetaBanner from "~/components/layout/beta-banner";
 import BackButton from "~/components/quiz/back-button";
-import QuizHeader from "~/components/quiz/header";
 import LoadingRecap from "~/components/quiz/loading-recap";
+import QuizProgress from "~/components/quiz/progress";
 import { QUIZ_FLOW, QUIZ_FLOW_REGISTRY, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { captureException } from "~/services/sentry";
@@ -42,7 +42,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
 export async function clientLoader() {
-  return { header: "hidden" };
+  return null;
 }
 
 export function HydrateFallback() {
@@ -162,27 +162,18 @@ export default function QuizLayout() {
     navigate(prev ? prev.route : QUIZ_FLOW[0].route, { replace: true });
   };
 
-  // quiz.back_navigated : clic sur un bouton "Retour" (header mobile ou BackButton desktop).
+  // quiz.back_navigated : clic sur un bouton "Retour" (BackButton au-dessus de la question).
   const handleBackNavigated = () => {
     if (currentStep) trackQuizBackNavigated({ fromStepName: currentStep.id, fromStepIndex: currentIndex + 1 });
   };
 
   return (
-    <div className="flex flex-col flex-1">
-      <QuizHeader
-        step={loadingResults ? steps.length + 1 : currentIndex + 1}
-        stepCount={steps.length + 1}
-        backHref={!loadingResults ? (currentIndex > 0 ? steps[currentIndex - 1].route : "/") : undefined}
-        onBack={handleBackNavigated}
-      />
+    <div className="flex min-h-svh flex-1 flex-col">
+      <QuizProgress step={loadingResults ? steps.length + 1 : currentIndex + 1} stepCount={steps.length + 1} />
       {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
-      <main id="contenu" tabIndex={-1} className="flex-1 bg-gradient-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 pb-24 md:pb-10">
-        <div className="fr-container flex flex-col gap-10">
-          {!loadingResults && (
-            <div className="hidden lg:block">
-              <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />
-            </div>
-          )}
+      <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
+        <div className="fr-container flex flex-1 flex-col gap-10">
+          {!loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />}
           {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>

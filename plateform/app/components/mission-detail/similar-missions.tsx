@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
+import Carousel from "~/components/ui/carousel";
 import Highlight from "~/components/ui/highlight";
 import { fetchInitialMatches } from "~/services/matching";
 import { userValueKeysFromScoring } from "~/utils/mission";
-import { getScrollBehavior } from "~/utils/motion";
 
 interface Props {
   userScoringId: string;
@@ -15,7 +15,6 @@ interface Props {
 export default function SimilarMissions({ userScoringId, currentMissionId }: Props) {
   const [items, setItems] = useState<MissionMatchItem[]>([]);
   const [userValueKeys, setUserValueKeys] = useState<ReadonlySet<string>>(() => new Set());
-  const scrollRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     fetchInitialMatches(userScoringId)
@@ -28,53 +27,26 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
 
   if (items.length === 0) return null;
 
-  const scrollBy = (direction: -1 | 1) => {
-    scrollRef.current?.scrollBy({ left: direction * 300, behavior: getScrollBehavior() });
-  };
-
   return (
-    <section className="fr-background-alt--blue-france px-5 py-10 pb-28 md:px-6 md:pb-10">
+    <section className="fr-background-alt--blue-france overflow-x-clip px-5 py-10 pb-28 md:px-6 md:pb-10">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="fr-h4 mb-0!">
-            Découvre <Highlight>ta sélection</Highlight> de missions
-          </h2>
-          <div className="hidden gap-3 md:flex">
-            <NavButtons onScroll={scrollBy} />
-          </div>
-        </div>
-
-        <ul ref={scrollRef} role="list" className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none list-none! p-0! m-0!">
+        <Carousel
+          label="Ta sélection de missions"
+          header={
+            <h2 className="fr-h4 mb-0!">
+              Découvre <Highlight>ta sélection</Highlight> de missions
+            </h2>
+          }
+          previousLabel="Voir les missions précédentes"
+          nextLabel="Voir les missions suivantes"
+          listClassName="-ml-32! scroll-pl-32! pl-32! mr-[calc(50%-50vw)]!"
+          itemClassName="w-[85vw] max-w-[384px] md:w-[384px]"
+        >
           {items.map((item, index) => (
-            <li key={item.mission.id} className="w-[310px] flex-none snap-start md:w-[283px]">
-              <MatchMissionCard item={item} section="similar" rank={index + 1} userScoringId={userScoringId} userValueKeys={userValueKeys} />
-            </li>
+            <MatchMissionCard key={item.mission.id} item={item} section="similar" rank={index + 1} userScoringId={userScoringId} userValueKeys={userValueKeys} />
           ))}
-        </ul>
-
-        <div className="mt-6 flex justify-center gap-3 md:hidden">
-          <NavButtons onScroll={scrollBy} />
-        </div>
+        </Carousel>
       </div>
     </section>
-  );
-}
-
-function NavButtons({ onScroll }: { onScroll: (direction: -1 | 1) => void }) {
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => onScroll(-1)}
-        className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-left-s-line size-10! justify-center! items-center! p-0! rounded-full!"
-        aria-label="Précédent"
-      />
-      <button
-        type="button"
-        onClick={() => onScroll(1)}
-        className="fr-btn fr-btn--secondary fr-btn--icon-only fr-icon-arrow-right-s-line size-10! justify-center! items-center! p-0! rounded-full!"
-        aria-label="Suivant"
-      />
-    </>
   );
 }

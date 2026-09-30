@@ -32,7 +32,7 @@ export function meta(): Route.MetaDescriptors {
 }
 
 export async function clientLoader() {
-  return { backHref: null };
+  return null;
 }
 
 const FRANCE_CENTER: [number, number] = [46.6, 2.3];
@@ -219,7 +219,7 @@ export default function ResultsPage() {
 
           {selectedMission && !expanded && (
             <div
-              className={`absolute inset-x-0 bottom-3 z-[500] ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
+              className={`absolute inset-x-0 bottom-3 z-500 ${isClosingCard ? "animate-slide-down-fade" : "animate-slide-up-fade"}`}
               onAnimationEnd={() => {
                 if (!isClosingCard) return;
                 setSelectedMission(null);
@@ -227,11 +227,7 @@ export default function ResultsPage() {
               }}
             >
               {/* Carrousel : carte de la mission cliquée, swipe horizontal pour parcourir les autres. Fermeture en tapant la map. */}
-              <div
-                ref={carouselRef}
-                onScroll={handleCarouselScroll}
-                className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
+              <div ref={carouselRef} onScroll={handleCarouselScroll} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 scrollbar-none [&::-webkit-scrollbar]:hidden">
                 {items.map((item, index) => (
                   <div key={item.mission.id} className="w-full shrink-0 snap-center">
                     <MatchMissionCard
@@ -250,7 +246,7 @@ export default function ResultsPage() {
           )}
 
           <div
-            className={`absolute inset-x-0 bottom-0 z-[1000] flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
+            className={`absolute inset-x-0 bottom-0 z-1000 flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
           >
             {/* eslint-disable-next-line jsx-a11y-x/click-events-have-key-events, jsx-a11y-x/no-static-element-interactions -- Le panneau est aussi commandé par le bouton adjacent, accessible au clavier et exposant aria-expanded. */}
             <div className={`flex flex-col gap-2 p-6 items-center! justify-center! ${!expanded ? "h-full" : ""}`} onClick={handleToggleSheet}>
@@ -349,7 +345,7 @@ export default function ResultsPage() {
               <ProfileModal quizHref={quizHref} />
             </div>
             <div className="flex flex-row">
-              <div className="flex flex-col flex-1">
+              <div className="flex flex-col w-[60%]">
                 <ResultsMissions
                   items={items}
                   page={page}
@@ -366,20 +362,20 @@ export default function ResultsPage() {
                   onPageChange={handlePageChange}
                 />
               </div>
-              <div className="sticky top-6 max-h-[624px] flex-1">
+              <div className="sticky top-6 max-h-156 flex-1">
                 {showMap && (
                   <div className="relative h-full overflow-hidden rounded-lg">
                     <LazyMissionMap
                       items={items}
                       center={mapCenter}
                       onMarkerClick={handleMarkerClick}
-                      selectionPadding={[360, 0]}
+                      selectionPadding={[350, 0]}
                       activeMissionId={activeMissionId}
                       onMissionHover={setHoveredPinMissionId}
                     />
 
                     {displayedMission && (
-                      <div className={`absolute top-4 left-4 z-[500] w-[290px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
+                      <div className={`absolute top-4 left-4 z-500 w-[320px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
                         <div className="relative">
                           <MatchMissionCard
                             item={displayedMission}

@@ -38,7 +38,7 @@ export default function PrecisionParcoursupFormationNomStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+    <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-10">
       <Label subtitle={STEP.subtitle} htmlFor="formation-input" error={error} required>
         {STEP.title}
       </Label>

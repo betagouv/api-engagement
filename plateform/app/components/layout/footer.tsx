@@ -1,8 +1,9 @@
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Link, useLocation } from "react-router";
+import ChacunPourTousLogo from "~/assets/images/logo/chacun-pour-tous.png";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { COOKIE_CONSENT_MODAL_ID, isCookieConsentEnabled, openCookieConsentPanel } from "~/services/cookie-consent";
-import { isGlobalFooterVisible } from "~/utils/layout";
+import { hasMobileFixedBottomBar, isGlobalFooterVisible } from "~/utils/layout";
 
 const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine_engagement.values).map(([key, value]) => ({ to: `/missions?domaine_engagement=${key}`, label: value.label }));
 
@@ -69,12 +70,13 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
       <div className="fr-container">
         <div className="fr-footer__body">
           <div className="fr-footer__brand fr-enlarge-link">
-            <a href="/" title="Accueil — Trouve ta mission">
-              <p className="fr-logo">
-                République
-                <br />
-                Française
-              </p>
+            <p className="fr-logo">
+              République
+              <br />
+              Française
+            </p>
+            <a className="fr-footer__brand-link" href="/" title="Accueil — Trouve ta mission">
+              <img className="fr-footer__logo w-40" src={ChacunPourTousLogo} alt="Chacun pour tous" />
             </a>
           </div>
           <div className="fr-footer__content">
@@ -153,6 +155,14 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
               </li>
             )}
           </ul>
+          <div className="fr-footer__bottom-copy">
+            <p>
+              Sauf mention contraire, tous les contenus de ce site sont sous licence{" "}
+              <a href="https://github.com/etalab/licence-ouverte/blob/master/LO.md" target="_blank" rel="noopener external" title="etalab-2.0 - nouvelle fenêtre">
+                etalab-2.0
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
@@ -165,6 +175,14 @@ export default function Footer() {
 
   if (!isGlobalFooterVisible(location.pathname, isMobile)) {
     return null;
+  }
+
+  if (hasMobileFixedBottomBar(location.pathname)) {
+    return (
+      <div className="max-md:pb-28">
+        <FooterContent />
+      </div>
+    );
   }
 
   return <FooterContent />;
