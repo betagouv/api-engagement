@@ -9,6 +9,7 @@ type Props = {
   listClassName?: string;
   itemClassName?: string;
   action?: ReactNode;
+  header?: ReactNode;
   previousLabel?: string;
   nextLabel?: string;
   ordered?: boolean;
@@ -38,6 +39,7 @@ type Props = {
  * `listClassName` est l'échappatoire pour passer en grille sur grand écran
  * (ex. `md:grid md:grid-cols-3`), en pensant à neutraliser le débord (`md:mx-0! md:px-0!`).
  * `ordered` rend une `<ol>` quand l'ordre des diapositives porte du sens (des étapes).
+ * `header` (ex. le titre de la section) place les flèches à sa droite sur desktop ; elles restent sous la liste sur mobile.
  */
 export default function Carousel({
   label,
@@ -46,6 +48,7 @@ export default function Carousel({
   listClassName = "",
   itemClassName = "",
   action,
+  header,
   previousLabel = "Précédent",
   nextLabel = "Suivant",
   ordered = false,
@@ -92,8 +95,36 @@ export default function Carousel({
 
   const ListTag = ordered ? "ol" : "ul";
 
+  const arrows = (
+    <div className="flex gap-6 md:gap-3">
+      <button
+        type="button"
+        onClick={() => handleScroll(-1)}
+        disabled={atStart}
+        aria-label={previousLabel}
+        aria-controls={listId}
+        className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
+      />
+      <button
+        type="button"
+        onClick={() => handleScroll(1)}
+        disabled={atEnd}
+        aria-label={nextLabel}
+        aria-controls={listId}
+        className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
+      />
+    </div>
+  );
+
   return (
     <div className={className}>
+      {header && (
+        <div className="flex items-center justify-between gap-4">
+          {header}
+          {scrollable && <div className="hidden md:block">{arrows}</div>}
+        </div>
+      )}
+
       <ListTag
         ref={scrollRef}
         id={listId}
@@ -111,27 +142,8 @@ export default function Carousel({
       </ListTag>
 
       {(scrollable || action) && (
-        <div className="flex flex-col mt-6 items-center gap-4 md:flex-row md:justify-center md:gap-3">
-          {scrollable && (
-            <div className="flex gap-6 md:gap-3">
-              <button
-                type="button"
-                onClick={() => handleScroll(-1)}
-                disabled={atStart}
-                aria-label={previousLabel}
-                aria-controls={listId}
-                className="fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-icon--md rounded-full"
-              />
-              <button
-                type="button"
-                onClick={() => handleScroll(1)}
-                disabled={atEnd}
-                aria-label={nextLabel}
-                aria-controls={listId}
-                className="fr-btn fr-btn--secondary fr-icon-arrow-right-line fr-icon--md rounded-full"
-              />
-            </div>
-          )}
+        <div className={`flex flex-col mt-6 items-center gap-4 md:flex-row md:justify-center md:gap-3 ${header && !action ? "md:hidden" : ""}`}>
+          {scrollable && <div className={header ? "md:hidden" : ""}>{arrows}</div>}
           {action}
         </div>
       )}
