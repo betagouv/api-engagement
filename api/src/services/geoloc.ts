@@ -1,3 +1,5 @@
+import { parse } from "csv-parse/sync";
+
 import { DEPARTMENTS } from "@/constants/departments";
 import { captureException } from "@/error";
 import geopfService from "@/services/geopf";
@@ -36,9 +38,11 @@ export interface GeolocResult {
   geolocStatus: GeolocStatus;
 }
 
+// Conserve les lettres accentuées (la Géoplateforme les attend), remplace le reste par des espaces
+const cleanAddressPart = (value?: string | null) => (value || "").normalize("NFC").replace(/[^\p{L}\p{N}]/gu, " ");
+
 const parseGeopfResults = (results: string, missions: GeolocMissionInput[]): GeolocResult[] => {
-  const lines = results.split("\n").filter((line: string) => line.trim());
-  const data = lines.map((line: string) => line.split(","));
+  const data: string[][] = parse(results, { skip_empty_lines: true, relax_column_count: true });
   const header = data.shift();
   if (!header) {
     throw new Error("No header in geopf results");
@@ -129,8 +133,8 @@ export const enrichWithGeoloc = async (label: string, missions: GeolocMissionInp
           return;
         }
         const clientId = mission.clientId;
-        const street = (addressItem.street || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
-        const city = (addressItem.city || "").replace(/[^a-zA-Z0-9]/g, " ") || "";
+        const street = cleanAddressPart(addressItem.street);
+        const city = cleanAddressPart(addressItem.city);
         const postcode = addressItem.postalCode || "";
         const departmentCode = addressItem.departmentCode || "";
         csv.push(`${clientId},${addressIndex},${street},${city},${postcode},${departmentCode}`);
@@ -161,7 +165,7 @@ export const enrichWithGeoloc = async (label: string, missions: GeolocMissionInp
           if (!notFoundKeys.has(`${mission.clientId}:${addressIndex}`)) {
             return;
           }
-          const city = (addressItem.city || "").replace(/[^a-zA-Z0-9]/g, " ").trim();
+          const city = cleanAddressPart(addressItem.city).trim();
           const postcode = addressItem.postalCode || "";
           const departmentCode = addressItem.departmentCode || "";
           if (!city && !postcode) {
@@ -173,7 +177,7 @@ export const enrichWithGeoloc = async (label: string, missions: GeolocMissionInp
 
       if (retryCsv.length > 1) {
         try {
-          const retryResults = await geopfService.searchAddressesCsv(retryCsv.join("\n"));
+          const retryResults = await geopfService.searchAddressesCsv(retryCsv.join("\n"), { filterPostcode: false });
           if (retryResults) {
             const retryParsed = parseGeopfResults(retryResults, missions);
             let retryFound = 0;

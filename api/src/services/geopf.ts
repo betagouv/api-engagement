@@ -2,12 +2,17 @@ import { captureException } from "@/error";
 const URL = "https://data.geopf.fr/geocodage/";
 
 const geopfService = {
-  async searchAddressesCsv(csv: string): Promise<string | null> {
+  async searchAddressesCsv(csv: string, { filterPostcode = true }: { filterPostcode?: boolean } = {}): Promise<string | null> {
     try {
       const formData = new FormData();
       // transform csv string to blob
       const blob = new Blob([csv], { type: "text/csv" });
       formData.append("data", blob, "data.csv");
+      // Sans `columns`, l'API concatène toutes les colonnes (clientid, index…) dans la requête et dilue le score
+      ["address", "city", "postcode"].forEach((column) => formData.append("columns", column));
+      if (filterPostcode) {
+        formData.append("postcode", "postcode");
+      }
       const res = await fetch(`${URL}/search/csv`, {
         method: "POST",
         body: formData,
