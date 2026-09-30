@@ -259,6 +259,39 @@ describe("Mission V2 Write API Integration Tests", () => {
       expect(addresses[0].geolocStatus).toBe("SHOULD_ENRICH");
     });
 
+    it("should store publisher coordinates with geolocStatus = ENRICHED_BY_PUBLISHER", async () => {
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-geo-coords", title: "Mission", addresses: [{ city: "Le Marin", postalCode: "97290", location: { lat: 14.469943, lon: -60.871268 } }] });
+      expect(response.status).toBe(201);
+      const addresses = await prisma.missionAddress.findMany({
+        where: { mission: { clientId: "test-geo-coords", publisherId: publisher.id } },
+      });
+      expect(addresses.length).toBe(1);
+      expect(addresses[0].geolocStatus).toBe("ENRICHED_BY_PUBLISHER");
+      expect(addresses[0].locationLat).toBeCloseTo(14.469943);
+      expect(addresses[0].locationLon).toBeCloseTo(-60.871268);
+    });
+
+    it("should accept location: null and fall back to SHOULD_ENRICH", async () => {
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-geo-null", title: "Mission", addresses: [{ city: "Paris", postalCode: "75001", location: null }] });
+      expect(response.status).toBe(201);
+      const addresses = await prisma.missionAddress.findMany({ where: { mission: { clientId: "test-geo-null", publisherId: publisher.id } } });
+      expect(addresses[0].geolocStatus).toBe("SHOULD_ENRICH");
+    });
+
+    it("should return 400 when coordinates are out of range", async () => {
+      const response = await request(app)
+        .post("/v2/mission")
+        .set("x-api-key", apiKey)
+        .send({ clientId: "test-geo-invalid", title: "Mission", addresses: [{ city: "Paris", location: { lat: 91, lon: 2.3 } }] });
+      expect(response.status).toBe(400);
+    });
+
     it("should return 201 with compensation range (min/max)", async () => {
       const response = await request(app).post("/v2/mission").set("x-api-key", apiKey).send({
         clientId: "test-compensation-range",
