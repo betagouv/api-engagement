@@ -1,6 +1,8 @@
 -- Position moyenne quotidienne des missions recommandées cliquées, par
 -- version du moteur. Les compteurs et la somme permettent de recalculer une
 -- moyenne pondérée fiable sur une période quelconque dans Metabase.
+-- Sections des résultats : `pinned` / `other` avant la refonte du 17/09/2026,
+-- `list` / `map` après.
 with result_clicks as (
   select
     session_date as click_date,
@@ -12,7 +14,7 @@ with result_clicks as (
   where
     session_date is not null
     and entry_page = 'results'
-    and section in ('pinned', 'other')
+    and section in ('pinned', 'other', 'list', 'map')
 )
 
 select

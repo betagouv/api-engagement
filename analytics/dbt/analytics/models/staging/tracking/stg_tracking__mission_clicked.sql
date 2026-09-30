@@ -11,6 +11,7 @@ with base as (
     utm_medium,
     is_internal_user,
     (properties ->> 'rank')::int as rank,
+    (properties ->> 'page_number')::int as page_number,
     (properties ->> 'opens_external')::boolean as opens_external,
     (properties ->> 'distance_km')::numeric as distance_km,
     properties ->> 'mission_id' as mission_id,

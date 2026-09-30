@@ -70,12 +70,34 @@ models:
   - name: int_tracking_results_session
     description: >
       Vue « résultats + aval » par `quiz_session_id` : combine `results.viewed` avec les clics mission de la
-      session (taux de clic, clic pinned, clic externe, zéro-clic). Personnes internes exclues au niveau du `distinct_id`.
+      session (taux de clic, clic dans le top 5 / top 10, clic externe, zéro-clic). Personnes internes exclues
+      au niveau du `distinct_id`. Résultats classés = sections `pinned` / `other` avant la refonte du 17/09/2026,
+      `list` / `map` après. GRAIN une ligne par `quiz_session_id` : `results.viewed` peut être émis plusieurs
+      fois pour un même scoring (rechargement, ou retour sur une ancienne page `/results/<id>` depuis une autre
+      tentative, l'événement portant alors la tentative en cours). `quiz_attempt_id` et `distinct_id` sont ceux
+      de la PREMIÈRE vue, qui a produit le scoring. Un re-scoring par les filtres émet un nouveau
+      `quiz_session_id` (nouvelle ligne).
     columns:
       - name: quiz_session_id
         tests:
           - not_null
           - unique
+      - name: page_size
+        description: Nombre de missions par page de résultats (max des `results.viewed` de la session).
+      - name: total_pages
+        description: Nombre de pages de résultats (max des `results.viewed` de la session).
+      - name: max_clicked_page_number
+        description: >
+          Page la plus lointaine de la liste de résultats d'où un clic a été émis. Null si aucun clic depuis
+          la liste paginée (avant la refonte du 17/09/2026, ou clic hors liste).
+      - name: has_click_top5
+        description: Vrai si au moins un clic sur les résultats classés porte sur une mission de rang <= 5.
+      - name: has_click_top10
+        description: Vrai si au moins un clic sur les résultats classés porte sur une mission de rang <= 10.
+      - name: has_click_beyond_top10
+        description: >
+          Vrai si au moins un clic sur les résultats classés porte sur une mission de rang > 10 (au-delà de la
+          première page de la liste).
       - name: is_zero_click
         description: Vrai si la session a vu des résultats sans aucun clic mission.
 
@@ -96,6 +118,9 @@ models:
         description: Identifiant de la mission cliquée (text ; formats mixtes ObjectId Mongo / UUID).
         tests:
           - not_null
+      - name: page_number
+        description: >
+          Numéro de la page de la liste de résultats d'où provient le clic. Null hors résultats paginés.
       - name: backend_rank
         description: >
           Rang de la mission dans le run de matching actif au moment du clic (dernier `created_at` <=
