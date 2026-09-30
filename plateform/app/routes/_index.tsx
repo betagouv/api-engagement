@@ -132,7 +132,7 @@ export default function Landing() {
         title="Inscris-toi à la newsletter"
         subtitle="1 e-mail par mois avec nos meilleures missions adaptées à tes critères"
         ctaText="Je m'inscris"
-        hintText="1 email. Pas de spam. Tu te désinscris quand tu veux."
+        hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
       />
       <Partners partners={PARTNERS} title="Toutes les missions d'engagement vérifiées par l'État" />
     </main>

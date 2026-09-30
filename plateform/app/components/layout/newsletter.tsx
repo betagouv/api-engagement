@@ -1,9 +1,15 @@
 import { type SubmitEvent, useState } from "react";
 
-import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
-import TraceSvg from "~/assets/svg/trace.svg";
 import { subscribeNewsletter } from "~/services/newsletter";
 import { useQuizStore } from "~/stores/quiz";
+
+// TODO: renseigner les URLs des comptes officiels
+const SOCIAL_LINKS = [
+  { name: "Facebook", className: "fr-btn--facebook", href: "https://www.facebook.com/TrouveTaMission" },
+  { name: "TikTok", className: "fr-btn--tiktok", href: "https://www.tiktok.com/@trouvetamission" },
+  { name: "LinkedIn", className: "fr-btn--linkedin", href: "https://www.linkedin.com/company/trouvetamission" },
+  { name: "Instagram", className: "fr-btn--instagram", href: "https://www.instagram.com/trouvetamission_gouv" },
+];
 
 interface NewsletterProps {
   title: string;
@@ -14,9 +20,9 @@ interface NewsletterProps {
 
 export default function Newsletter({
   title = "Inscris-toi à la newsletter",
-  subtitle = "1 email. Pas de spam.",
+  subtitle = "1 e-mail par mois avec nos meilleures missions adaptées à tes critères",
   ctaText = "Je m'inscris",
-  hintText = "Tu te désinscris quand tu veux.",
+  hintText = "1 e-mail. Pas de spam. Tu te désinscris quand tu veux.",
 }: NewsletterProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [loading, setLoading] = useState(false);
@@ -46,57 +52,74 @@ export default function Newsletter({
   };
 
   return (
-    <section className="bg-blue-france-950 relative">
-      <img src={TraceSvg} alt="" aria-hidden="true" className="absolute top-20 left-0 w-1/5" />
-      <div className="fr-container py-6! md:py-12! px-6! flex flex-col md:flex-row gap-4 md:gap-2 items-center justify-center">
-        <div className="flex-1 z-10">
-          {/* SVG illustration à venir */}
-          <div className="flex items-center justify-center gap-4">
-            <img src={MailSendSvg} alt="" aria-hidden="true" className="hidden md:block rotate-12" />
-
-            <div className="flex-1 max-w-md">
-              <h2 className="fr-h2 fr-mb-2w">{title}</h2>
-              <p className="fr-mb-0 text-title-grey fr-text--lead">{subtitle}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex-1 w-full md:w-auto">
-          {success ? (
-            <div role="status" className="fr-alert fr-alert--success max-w-md">
-              <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="max-w-md">
-              <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
-                <label className="fr-label sr-only" htmlFor="newsletter-email">
-                  Adresse email
-                </label>
-                <input
-                  id="newsletter-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  aria-required="true"
-                  aria-invalid={error ? true : undefined}
-                  aria-describedby={error ? "newsletter-email-error" : undefined}
-                  className="fr-input bg-background!"
-                  placeholder="nom@email.fr"
-                />
-                <p className="fr-hint-text fr-mt-1w">Champ obligatoire</p>
-                {error && (
-                  <div className="fr-messages-group" id="newsletter-email-error" role="alert">
-                    <p className="fr-message fr-message--error">{error}</p>
+    <section className="fr-follow">
+      <div className="fr-container">
+        <div className="fr-grid-row">
+          <div className="fr-col-12 fr-col-md-8">
+            <div className="fr-follow__newsletter">
+              <div>
+                <h2 className="fr-h5">{title}</h2>
+                <p className="fr-text--sm">{subtitle}</p>
+              </div>
+              <div className="w-full">
+                {success ? (
+                  <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
+                    <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
                   </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <div className={`fr-input-group ${error ? "fr-input-group--error" : ""}`}>
+                      <label className="fr-label" htmlFor="newsletter-email">
+                        Votre adresse électronique (ex. : nom@domaine.fr)
+                      </label>
+                      <div className="fr-input-wrap fr-input-wrap--addon">
+                        <input
+                          id="newsletter-email"
+                          name="email"
+                          type="email"
+                          autoComplete="email"
+                          required
+                          aria-required="true"
+                          aria-invalid={error ? true : undefined}
+                          aria-describedby={`newsletter-email-hint ${error ? "newsletter-email-messages" : ""}`}
+                          className="fr-input"
+                          placeholder="Votre adresse électronique (ex. : nom@domaine.fr)"
+                        />
+                        <button type="submit" disabled={loading} className="fr-btn shrink-0! whitespace-nowrap!">
+                          {loading ? "Inscription en cours…" : ctaText}
+                        </button>
+                      </div>
+                      {error && (
+                        <div className="fr-messages-group" id="newsletter-email-messages" role="alert">
+                          <p className="fr-message fr-message--error">{error}</p>
+                        </div>
+                      )}
+                    </div>
+                    <p id="newsletter-email-hint" className="fr-hint-text">
+                      {hintText}
+                    </p>
+                  </form>
                 )}
               </div>
-              <button type="submit" disabled={loading} className="fr-btn w-full! md:w-auto! justify-center! md:justify-start!">
-                {loading ? "Inscription en cours…" : ctaText}
-              </button>
-              <p className="fr-hint-text fr-mt-1w">{hintText}</p>
-            </form>
-          )}
+            </div>
+          </div>
+          <div className="fr-col-12 fr-col-md-4">
+            <div className="fr-follow__social">
+              <h2 className="fr-h5">
+                Suivez-nous
+                <br /> sur les réseaux sociaux
+              </h2>
+              <ul className="fr-btns-group">
+                {SOCIAL_LINKS.map(({ name, className, href }) => (
+                  <li key={name}>
+                    <a className={`fr-btn ${className}`} href={href} title={`${name} - nouvelle fenêtre`} target="_blank" rel="noopener noreferrer">
+                      {name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>

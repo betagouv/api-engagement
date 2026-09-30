@@ -275,7 +275,12 @@ export default function MissionsPage() {
           </div>
         </div>
       </GradientBg>
-      <Newsletter title="Inscris-toi à la newsletter" subtitle="1 email. Pas de spam." ctaText="Je m'inscris" hintText="Tu te désinscris quand tu veux." />
+      <Newsletter
+        title="Inscris-toi à la newsletter"
+        subtitle="1 e-mail par mois avec nos meilleures missions adaptées à tes critères"
+        ctaText="Je m'inscris"
+        hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
+      />
       <Partners />
     </main>
   );
