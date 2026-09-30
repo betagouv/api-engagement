@@ -26,6 +26,13 @@ models:
         description: Vrai si l'événement porte le flag `internal_user` (membre de l'équipe). Jamais nul.
         tests:
           - not_null
+      - name: is_cookieless_mode
+        description: >
+          Vrai si l'événement a été émis sans consentement cookies (`$cookieless_mode` posé par PostHog,
+          absent et non `false` sur les autres événements). Jamais nul. En mode cookieless, le front ne pose
+          pas la super property `quiz_session_id` : aucune conversion backend n'est rattachable.
+        tests:
+          - not_null
       - name: device_type
         description: Type d'appareil PostHog (`$device_type`), ex. Mobile / Desktop / Tablet.
       - name: quiz_attempt_id

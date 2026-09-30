@@ -240,6 +240,11 @@ models:
         description: URL complète du premier événement (porte l'`apiengagement_id` le cas échéant).
       - name: landing_utm_source
         description: UTM bruts du premier événement, non nettoyés (peut contenir des valeurs de scanners).
+      - name: landing_referring_domain
+        description: >
+          `referring_domain` PostHog (`$referring_domain`) du premier événement, brut : domaine, nom de
+          package d'appli Android (`com.google.android.gm`), `$direct` ou null. Base du canal d'acquisition
+          (`tracking_campaign_session.acquisition_channel`).
       - name: utm_source
         description: >
           UTM du premier événement ; si `utm_source` y est null, UTM du premier événement de la session
@@ -257,6 +262,13 @@ models:
           Google payant » même quand les UTM manquent ; clé d'un futur rapprochement avec un export Ads.
       - name: fbclid
         description: Identifiant de clic Meta, même logique que `gclid`.
+      - name: is_cookieless
+        description: >
+          Vrai si TOUS les événements de la session sont en mode cookieless (sans consentement cookies). Un
+          consentement donné en cours de session rend la session non cookieless : les événements suivants
+          portent les identifiants de rattachement.
+        tests:
+          - not_null
       - name: front_mission_click_count
         description: >
           Nombre d'événements PostHog `mission.clicked` (clic sur une carte, vers la fiche ou un lien
@@ -277,8 +289,8 @@ models:
       confondus. Deux sources en `union` : (1) les campagnes API (liens trackés `/r/campaign/`,
       `campaign_type = 'api'`, `campaign_key` = id de la campagne), limitées à celles qui atterrissent sur TTM.
       PÉRIMÈTRE PAR L'URL, PAS PAR L'ANNONCEUR : host de l'URL matchant un motif de
-      `PLATEFORME_ENGAGEMENT_HOST_PATTERNS` (ancien domaine `plateforme.api-engagement…` et nouveau
-      `trouvetamission.gouv.fr`) OU annonceur `PUBLISHER_PLATEFORME_ENGAGEMENT_ID`. Cas réel : le QR code
+      `TROUVE_TA_MISSION_HOST_PATTERNS` (ancien domaine `plateforme.api-engagement…` et nouveau
+      `trouvetamission.gouv.fr`) OU annonceur `PUBLISHER_TROUVE_TA_MISSION_ID`. Cas réel : le QR code
       « Défi engagement » a pour annonceur Service Civique mais renvoie vers `/missions` de TTM. Supprimées
       incluses (`deleted_at` exposé). (2) Les triplets UTM observés dans les sessions PostHog arrivées SANS
       lien tracké (SEA, Meta, emailing…), découverts automatiquement, `campaign_key` = `utm:source|medium|campaign`,

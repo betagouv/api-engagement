@@ -4,7 +4,10 @@
 -- campagne). Table à brancher directement dans Metabase : agréger par
 -- `campaign_type`, `campaign_name` ou `utm_source` × `utm_medium`, comparer
 -- des périodes grâce au grain jour ; pas de ratio calculé ici, Metabase les
--- dérive (ex. `sessions_apply / sessions`).
+-- dérive (ex. `sessions_apply / sessions_with_consent`).
+-- `visits` = visites dédoublonnées (une par clic pour les liens trackés, cf.
+-- `visit_key`), à préférer à `sessions`. Dédoublonnage PAR JOUR : un clic dont
+-- les deux sessions tombent de part et d'autre de minuit compte chaque jour.
 -- `origin_clicks` = clics comptés par la plateforme d'origine, hors PostHog :
 -- redirections `/r/campaign/` pour les campagnes API, null pour les autres
 -- types tant qu'aucun export (Google Ads, Meta) n'est importé.
@@ -18,6 +21,10 @@ with sessions as (
     max(campaign_name) as campaign_name,
     max(api_campaign_id) as api_campaign_id,
     count(*) as sessions,
+    count(distinct visit_key) as visits,
+    -- Dénominateur des taux sur les conversions backend : elles ne sont
+    -- rattachables qu'aux sessions avec consentement cookies.
+    count(*) filter (where not is_cookieless) as sessions_with_consent,
     count(*) filter (where has_quiz_started) as sessions_quiz_started,
     count(*) filter (where has_quiz_completed) as sessions_quiz_completed,
     count(*) filter (where has_results_viewed) as sessions_results_viewed,
@@ -72,6 +79,8 @@ joined as (
     s.api_campaign_id as session_api_campaign_id,
     a.origin_clicks,
     coalesce(s.sessions, 0) as sessions,
+    coalesce(s.visits, 0) as visits,
+    coalesce(s.sessions_with_consent, 0) as sessions_with_consent,
     coalesce(s.sessions_quiz_started, 0) as sessions_quiz_started,
     coalesce(s.sessions_quiz_completed, 0) as sessions_quiz_completed,
     coalesce(s.sessions_results_viewed, 0) as sessions_results_viewed,
@@ -104,6 +113,8 @@ select
       then coalesce(j.origin_clicks, 0)
   end as origin_clicks,
   j.sessions,
+  j.visits,
+  j.sessions_with_consent,
   j.sessions_quiz_started,
   j.sessions_quiz_completed,
   j.sessions_results_viewed,

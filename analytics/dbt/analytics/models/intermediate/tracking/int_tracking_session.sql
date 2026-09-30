@@ -7,6 +7,10 @@
 -- Les UTM et l'`apiengagement_id` sont lus sur le PREMIER événement : les
 -- super properties PostHog peuvent être perdues si le consentement cookies est
 -- donné après avoir quitté la page d'arrivée.
+-- Le `referring_domain` est lui aussi lu sur le premier événement (canal
+-- d'acquisition). Une session n'est cookieless que si TOUS ses événements le
+-- sont : un consentement donné en cours de session rend les suivants
+-- rattachables.
 -- Personnes internes exclues au niveau du `distinct_id`.
 with events as (
   select
@@ -17,6 +21,7 @@ with events as (
     posthog_session_id,
     current_url,
     pathname,
+    referring_domain,
     utm_source,
     utm_campaign,
     utm_medium,
@@ -26,6 +31,7 @@ with events as (
     fbclid,
     quiz_attempt_id,
     quiz_session_id,
+    is_cookieless_mode,
     coalesce(
       nullif(posthog_session_id, ''),
       distinct_id || ':' || event_at::date
@@ -72,7 +78,8 @@ landing as (
     current_url as landing_url,
     utm_source as landing_utm_source,
     utm_campaign as landing_utm_campaign,
-    utm_medium as landing_utm_medium
+    utm_medium as landing_utm_medium,
+    referring_domain as landing_referring_domain
   from ordered
   where event_rank = 1
 ),
@@ -102,6 +109,7 @@ agg as (
     ) as landing_click_id,
     max(gclid) as gclid,
     max(fbclid) as fbclid,
+    bool_and(is_cookieless_mode) as is_cookieless,
     bool_or(event_name = 'quiz.started') as has_quiz_started,
     bool_or(event_name = 'quiz.completed') as has_quiz_completed,
     bool_or(event_name = 'results.viewed') as has_results_viewed,
@@ -134,6 +142,7 @@ select
   l.landing_utm_source,
   l.landing_utm_campaign,
   l.landing_utm_medium,
+  l.landing_referring_domain,
   u.utm_source,
   u.utm_campaign,
   u.utm_medium,
@@ -142,6 +151,7 @@ select
   a.landing_click_id,
   a.gclid,
   a.fbclid,
+  a.is_cookieless,
   a.has_quiz_started,
   a.has_quiz_completed,
   a.has_results_viewed,

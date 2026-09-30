@@ -181,10 +181,10 @@ models:
   - name: tracking_publisher_stock_share
     description: >
       KPIs de contrôle « relatif au stock » : par annonceur, croise le stock de missions diffusables sur la
-      Plateforme de l'Engagement (`mission_diffusion` filtré sur le diffuseur PDE, id figé en var
-      `PUBLISHER_PLATEFORME_ENGAGEMENT_ID`, `deleted_at is null`) avec les recommandations
+      Trouve Ta Mission (`mission_diffusion` filtré sur le diffuseur TTM, id figé en var
+      `PUBLISHER_TROUVE_TA_MISSION_ID`, `deleted_at is null`) avec les recommandations
       (`int_tracking_recommendation`) et les clics (`int_tracking_mission_click`) du quiz. Grain : une ligne
-      par annonceur présent dans le stock diffusable PDE. PIÈGE flux vs stock : le stock est l'état COURANT
+      par annonceur présent dans le stock diffusable TTM. PIÈGE flux vs stock : le stock est l'état COURANT
       (miroir `mission_diffusion`), les recos/clics sont cumulés sur tout l'historique ; un alignement
       temporel plus fin (stock à une date T via `created_at`/`deleted_at`) est une amélioration ultérieure.
     columns:
@@ -196,13 +196,13 @@ models:
       - name: publisher_name
         description: Nom de l'annonceur (jointure `stg_publisher`).
       - name: stock_mission_count
-        description: Nombre de missions distinctes de l'annonceur diffusables sur la PDE (stock courant).
+        description: Nombre de missions distinctes de l'annonceur diffusables sur TTM (stock courant).
       - name: reco_count
         description: Nombre de missions recommandées appartenant à l'annonceur.
       - name: click_count
         description: Nombre de clics sur des missions de l'annonceur.
       - name: stock_share
-        description: Part du stock diffusable PDE détenue par l'annonceur.
+        description: Part du stock diffusable TTM détenue par l'annonceur.
       - name: reco_vs_stock_index
         description: >
           Part des recommandations ÷ part du stock. >1 = annonceur sur-représenté dans les recos par
@@ -269,11 +269,41 @@ models:
       UNIQUEMENT via le parcours quiz : les clics API sans `user_scoring_id` (parcours `/missions` hors quiz,
       exemples de la home) ne sont reliables à aucune session et sont hors périmètre. Compteurs à 0 et flags à
       `false` (jamais null) en l'absence de conversion. Personnes internes exclues au niveau du `distinct_id`.
+      CANAL D'ACQUISITION : `acquisition_channel` classe toutes les sessions, campagne ou non, sur le modèle
+      du rapport « Type de canal » de Matomo. CONSENTEMENT : les sessions `is_cookieless` sont bien des
+      visites, mais aucune conversion backend ne peut leur être rattachée ; tout taux de conversion backend
+      se calcule sur les sessions `not is_cookieless`.
     columns:
       - name: tracking_session_id
         tests:
           - not_null
           - unique
+      - name: landing_referring_domain
+        description: >
+          `referring_domain` PostHog du premier événement, brut (domaine, package d'appli Android,
+          `$direct` ou null).
+      - name: acquisition_channel
+        description: >
+          Canal d'acquisition (macro `acquisition_channel`), évalué dans cet ordre : `campaign` si la
+          session est attribuée à une campagne (`is_from_campaign`) ; `direct` si pas de referrer, `$direct`
+          ou l'un de nos domaines (`TROUVE_TA_MISSION_HOST_PATTERNS`) ; `email` (webmails, applis mail) ;
+          `ai_assistant` (ChatGPT, Perplexity, Claude, Gemini, Copilot, Mistral) ; `search` (Google, Bing,
+          Qwant, DuckDuckGo, Ecosia, Yahoo, Lilo, Brave) ; `social` (Facebook, Instagram, LinkedIn, X,
+          TikTok, YouTube, Snapchat, WhatsApp) ; `website` pour tout le reste (partenaires, intranets,
+          Slack, Teams…). `email` et `ai_assistant` passent avant `search` car Gmail et Gemini sont des
+          domaines Google. Libellés français posés dans Metabase.
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['campaign', 'direct', 'email', 'ai_assistant', 'search', 'social', 'website']
+      - name: is_cookieless
+        description: >
+          Vrai si toute la session est sans consentement cookies. Aucune conversion backend
+          (`backend_click_count`, `apply_count`) n'y est rattachable : le rattachement passe par la super
+          property `quiz_session_id`, que le front ne pose pas en mode cookieless.
+        tests:
+          - not_null
       - name: campaign_key
         description: >
           `coalesce(campaign_key_from_click, campaign_key_from_utm)` : id de campagne API ou
@@ -298,6 +328,15 @@ models:
           - accepted_values:
               arguments:
                 values: ['click_id', 'utm']
+      - name: visit_key
+        description: >
+          Clé de visite. Identifiant du clic de campagne (`landing_click_id`, en minuscules) pour les
+          sessions attribuées par `click_id`, `tracking_session_id` sinon. Regroupe les deux sessions créées
+          par la bascule de consentement : accepter les cookies en cours de navigation réinitialise
+          l'identité PostHog (nouveau `distinct_id`, nouvelle session), et les deux sessions portent le même
+          `apiengagement_id`. Hors lien tracké, rien ne les relie : une visite par session.
+        tests:
+          - not_null
       - name: is_from_campaign
         description: Vrai si `campaign_key` est non null.
       - name: gclid
@@ -375,11 +414,30 @@ models:
           Clics comptés par la plateforme d'origine, hors PostHog : redirections `/r/campaign/` pour les
           campagnes API (0 si aucun ce jour-là), null pour les autres types.
       - name: sessions
-        description: Sessions PostHog attribuées à la campagne (sous-ensemble tracké).
+        description: >
+          Sessions PostHog attribuées à la campagne (sous-ensemble tracké). Peut compter deux fois une même
+          visite, quand le visiteur accepte les cookies en cours de navigation. Préférer `visits` ; gardée
+          comme contrôle.
+      - name: visits
+        description: >
+          Visites dédoublonnées : `count(distinct visit_key)` par jour et par campagne. Exacte pour les liens
+          trackés de l'API (une visite par clic) ; pour le trafic UTM et hors campagne, égale à `sessions`
+          (doublons non corrigés). Dénominateur à utiliser pour les taux sur les visites. Limite : le
+          dédoublonnage est journalier, un clic dont les deux sessions tombent de part et d'autre de minuit
+          compte pour une visite chaque jour.
+      - name: sessions_with_consent
+        description: >
+          Sessions avec consentement cookies (`not is_cookieless`). DÉNOMINATEUR à utiliser pour tout taux
+          sur `sessions_backend_click` ou `sessions_apply` : les conversions backend ne sont rattachables
+          qu'à ces sessions, un taux sur `sessions` serait sous-estimé d'un facteur 2 à 3.
       - name: sessions_backend_click
-        description: Sessions avec au moins un clic API de sortie vers l'annonceur.
+        description: >
+          Sessions avec au moins un clic API de sortie vers l'annonceur. Rattachées uniquement pour les
+          sessions avec consentement (dénominateur : `sessions_with_consent`).
       - name: sessions_apply
-        description: Sessions avec au moins une candidature (via clic backend, parcours quiz uniquement).
+        description: >
+          Sessions avec au moins une candidature (via clic backend, parcours quiz uniquement). Rattachées
+          uniquement pour les sessions avec consentement (dénominateur : `sessions_with_consent`).
       - name: backend_clicks
         description: Somme des `backend_click_count` des sessions du jour.
       - name: applies
