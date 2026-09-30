@@ -62,7 +62,7 @@ export default function Root() {
     <>
       {/* Barre de chargement pendant qu'une navigation attend les données de la page suivante. */}
       {navigation.state === "loading" && (
-        <div role="status" className="bg-blue-france-sun fixed inset-x-0 top-0 z-[2000] h-1 animate-pulse">
+        <div role="status" className="bg-blue-france-sun fixed inset-x-0 top-0 z-2000 h-1 animate-pulse">
           <span className="fr-sr-only">Chargement de la page…</span>
         </div>
       )}
