@@ -138,9 +138,17 @@ models:
         tests:
           - not_null
       - name: quiz_session_id
-        description: Identifiant backend (`userScoringId`), clé de jointure analytics.
+        description: >
+          Identifiant backend (`userScoringId`), clé de jointure analytics. Posé à la complétion pour les
+          visiteurs avec cookies ; toujours null pour les tentatives sans cookies (`quiz_attempt_id_source =
+          'session'`), la page du quiz n'ayant pas l'id dans son URL : il est repris du premier `results.viewed`
+          dans `int_tracking_quiz_session`. Test limité aux visiteurs avec cookies.
         tests:
-          - not_null
+          - not_null:
+              config:
+                where: "quiz_attempt_id_source = 'property'"
+      - name: quiz_attempt_id_source
+        description: Origine de `quiz_attempt_id` (`property` avec cookies, `session` sans), voir `stg_tracking__event`.
       - name: completion_type
         description: Type de complétion.
         tests:

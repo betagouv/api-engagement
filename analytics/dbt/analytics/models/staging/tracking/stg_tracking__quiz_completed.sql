@@ -4,6 +4,7 @@ with base as (
     event_at,
     distinct_id,
     quiz_attempt_id,
+    quiz_attempt_id_source,
     quiz_session_id,
     quiz_version,
     prompt_version,
