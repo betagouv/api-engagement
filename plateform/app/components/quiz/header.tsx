@@ -1,22 +1,21 @@
 import { Link } from "react-router";
 
 import TtmLogoSvg from "~/assets/svg/ttm-logo.svg";
+import { SERVICE_TAGLINE, SERVICE_TITLE } from "~/components/layout/header";
 import ExitModal from "./exit-modal";
 
 interface QuizHeaderProps {
   step: number;
   stepCount: number;
-  backHref?: string;
-  onBack?: () => void;
 }
 
-export default function QuizHeader({ step = 0, stepCount, backHref, onBack }: QuizHeaderProps) {
+export default function QuizHeader({ step = 0, stepCount }: QuizHeaderProps) {
   const progress = stepCount > 0 ? Math.min(100, Math.max(0, (step / stepCount) * 100)) : 0;
 
   return (
     <header role="banner" className="fr-header filter-none! relative">
       <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-2 right-4 p-2 z-10 hidden lg:block" />
-      <div className="fr-header__body hidden lg:block">
+      <div className="fr-header__body">
         <div className="fr-container">
           <div className="fr-header__body-row">
             <div className="fr-header__brand">
@@ -29,25 +28,18 @@ export default function QuizHeader({ step = 0, stepCount, backHref, onBack }: Qu
                   </p>
                 </div>
                 <div className="fr-header__operator">
-                  <Link to="/" title="Accueil — Trouve ta mission">
-                    <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-[149px]" />
-                  </Link>
+                  <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-24 lg:w-[149px]" />
                 </div>
+              </div>
+              <div className="fr-header__service">
+                <Link to="/" title={`Accueil — ${SERVICE_TITLE}`}>
+                  <p className="fr-header__service-title">{SERVICE_TITLE}</p>
+                </Link>
+                <p className="fr-header__service-tagline">{SERVICE_TAGLINE}</p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="relative flex lg:hidden items-center px-4 h-14">
-        {backHref && (
-          <Link to={backHref} onClick={onBack} title="Retour" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
-            Retour
-          </Link>
-        )}
-        <Link to="/" title="Accueil — Trouve ta mission" className="absolute left-1/2 -translate-x-1/2">
-          <img src={TtmLogoSvg} alt="Trouve ta mission" className="h-10 w-[72px]" />
-        </Link>
       </div>
 
       <div

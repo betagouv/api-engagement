@@ -167,7 +167,7 @@ export default function LocalisationStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+    <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-8">
       <div className={`fr-input-group ${error ? "fr-input-group--error" : ""}`}>
         <Label subtitle={STEP.subtitle} htmlFor="localisation-input" error={error} required>
           {STEP.title}

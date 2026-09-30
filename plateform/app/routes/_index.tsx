@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import { useLoaderData, useNavigate } from "react-router";
+import { Suspense, useEffect, useRef } from "react";
+import { Await, useLoaderData, useNavigate } from "react-router";
 import AscPng from "~/assets/images/logo/asc-logo.png";
 import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
@@ -12,6 +12,7 @@ import MissionExamples from "~/components/home/mission-examples";
 import Partners from "~/components/home/partners";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
+import Spinner from "~/components/ui/spinner";
 import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
@@ -83,7 +84,9 @@ export function meta(): Route.MetaDescriptors {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs): Promise<{ examples: MissionBrowse[] }> {
+// Les exemples ne sont pas attendus : la page s'affiche tout de suite et le carrousel se remplit
+// quand les 6 appels à l'API arrivent (promesse streamée, résolue dans <Await>).
+export function loader({ request }: Route.LoaderArgs): { examples: Promise<MissionBrowse[]> } {
   const browse = async (filters: MissionBrowseFilters) => {
     try {
       const res = await browseMissions({ ...filters, pageSize: 1 }, request);
@@ -93,9 +96,12 @@ export async function loader({ request }: Route.LoaderArgs): Promise<{ examples:
     }
   };
 
-  const results = await Promise.all(MISSION_SLOTS.map(browse));
+  const loadExamples = async () => {
+    const results = await Promise.all(MISSION_SLOTS.map(browse));
+    return results.flat();
+  };
 
-  return { examples: results.flat() };
+  return { examples: loadExamples() };
 }
 
 export default function Landing() {
@@ -121,7 +127,9 @@ export default function Landing() {
   return (
     <main id="contenu" tabIndex={-1}>
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
-      <MissionExamples missions={examples} />
+      <Suspense fallback={<Spinner label="Chargement des exemples de missions…" className="fr-container justify-center pt-8" />}>
+        <Await resolve={examples}>{(missions) => <MissionExamples missions={missions} />}</Await>
+      </Suspense>
       <HowItWorks onStartQuiz={() => handleStartQuiz("how_it_works")} />
       <Testimonials onStartQuiz={() => handleStartQuiz("testimonials")} />
       <About />

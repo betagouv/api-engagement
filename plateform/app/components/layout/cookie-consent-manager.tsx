@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Modal from "~/components/layout/modal";
+import { getConsentServices, type ConsentService } from "~/services/consent-services";
 import {
   COOKIE_CONSENT_MODAL_ID,
   getCookieConsentPreferences,
@@ -10,7 +11,6 @@ import {
   type ConsentChoice,
   type ConsentPreferences,
 } from "~/services/cookie-consent";
-import { getConsentServices, type ConsentService } from "~/services/consent-services";
 
 function preferencesForChoice(services: ConsentService[], choice: ConsentChoice): ConsentPreferences {
   return Object.fromEntries(services.map((service) => [service.id, choice]));
@@ -24,6 +24,11 @@ function choiceForAll(services: ConsentService[], preferences: ConsentPreference
 
 function hasPendingChoice(services: ConsentService[], preferences: ConsentPreferences): boolean {
   return services.some((service) => preferences[service.id] === "pending");
+}
+
+// Une finalité laissée sans réponse vaut refus : le bouton de confirmation reste actif.
+function denyPendingChoices(services: ConsentService[], preferences: ConsentPreferences): ConsentPreferences {
+  return Object.fromEntries(services.map((service) => [service.id, preferences[service.id] === "granted" ? "granted" : "denied"]));
 }
 
 export default function CookieConsentManager() {
@@ -67,7 +72,7 @@ export default function CookieConsentManager() {
 
       {preferences && hasPendingChoice(services, preferences) && (
         <div className="fr-consent-banner">
-          <h2 className="fr-h6">À propos des cookies sur la Plateforme de l'Engagement</h2>
+          <h2 className="fr-h6">À propos des cookies sur Trouve ta mission</h2>
           <div className="fr-consent-banner__content">
             <p className="fr-text--sm">
               Bienvenue ! Ce site utilise des cookies pour mesurer la fréquentation du site afin d’en améliorer le fonctionnement et l’administration et, avec votre accord, pour
@@ -216,9 +221,8 @@ export default function CookieConsentManager() {
               <button
                 type="button"
                 className="fr-btn"
-                disabled={hasPendingChoice(services, draftPreferences)}
                 onClick={() => {
-                  applyPreferences(draftPreferences);
+                  applyPreferences(denyPendingChoices(services, draftPreferences));
                   setModalOpen(false);
                 }}
               >

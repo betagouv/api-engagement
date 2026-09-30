@@ -5,7 +5,7 @@ import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
 import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import { type ReactNode, useEffect } from "react";
-import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useNavigation } from "react-router";
 import CookieConsentManager from "~/components/layout/cookie-consent-manager";
 import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
@@ -56,8 +56,16 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export default function Root() {
+  const navigation = useNavigation();
+
   return (
     <>
+      {/* Barre de chargement pendant qu'une navigation attend les données de la page suivante. */}
+      {navigation.state === "loading" && (
+        <div role="status" className="bg-blue-france-sun fixed inset-x-0 top-0 z-[2000] h-1 animate-pulse">
+          <span className="fr-sr-only">Chargement de la page…</span>
+        </div>
+      )}
       <Header />
       <Outlet />
       <Footer />

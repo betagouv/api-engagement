@@ -71,7 +71,7 @@ export default function AgeStep() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+    <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-8">
       <div className={`fr-select-group mb-0! ${error ? "fr-select-group--error" : ""}`}>
         <Label subtitle={STEP.subtitle} htmlFor="age-input" error={error} required>
           {STEP.title}

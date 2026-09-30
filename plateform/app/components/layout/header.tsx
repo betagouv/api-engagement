@@ -1,12 +1,13 @@
 import { Link, useLocation, useMatches } from "react-router";
 
 import TtmLogoSvg from "~/assets/svg/ttm-logo.svg";
-import { useIsMobile } from "~/hooks/useIsMobile";
+
+export const SERVICE_TITLE = "TrouveTaMission.gouv.fr";
+export const SERVICE_TAGLINE = "Tout l’engagement public à portée de clic";
 
 export default function Header() {
   const matches = useMatches();
   const location = useLocation();
-  const isMobile = useIsMobile();
   const activeMatch = [...matches].reverse().find((m) => m.loaderData != null);
   const routeData = activeMatch?.loaderData as { header?: string; backHref?: string | null } | undefined;
 
@@ -16,37 +17,11 @@ export default function Header() {
 
   const isHome = location.pathname === "/";
   const backHref = routeData?.backHref;
+  const showBackLink = !isHome && backHref !== null;
 
-  // Rendu conditionnel plutôt que masquage CSS : une seule version du header dans le DOM,
-  // pour ne pas dupliquer les liens « Accueil — Trouve ta mission ».
-  if (isMobile) {
-    return (
-      <header role="banner" className="fr-header">
-        {isHome || backHref === null ? (
-          <div className="relative flex items-center px-4 py-2">
-            <p className="fr-logo fr-logo--sm mb-0">
-              République
-              <br />
-              Française
-            </p>
-            <Link to="/" title="Accueil — Trouve ta mission" className="absolute left-1/2 -translate-x-1/2">
-              <img src={TtmLogoSvg} alt="Trouve ta mission" className="h-10 w-[72px]" />
-            </Link>
-          </div>
-        ) : (
-          <div className="relative flex h-14 items-center px-4">
-            <Link to={backHref ?? "/"} aria-label="Retour" className="fr-icon-arrow-left-line fr-btn--icon-left fr-btn--tertiary-no-outline font-semi-bold!">
-              Retour
-            </Link>
-            <Link to="/" title="Accueil — Trouve ta mission" className="absolute left-1/2 -translate-x-1/2">
-              <img src={TtmLogoSvg} alt="Trouve ta mission" className="h-10 w-[72px]" />
-            </Link>
-          </div>
-        )}
-      </header>
-    );
-  }
-
+  // Retour SIG : bloc marque + nom du service en toutes lettres sur toutes les pages, en mobile comme en desktop.
+  // Le DSFR passe le nom du service sous le bloc marque en mobile ; le lien « Retour » occupe la zone
+  // fonctionnelle à droite du bloc marque, en mobile uniquement (en desktop, les pages ont leur propre lien retour).
   return (
     <header role="banner" className="fr-header">
       <div className="fr-header__body">
@@ -62,10 +37,22 @@ export default function Header() {
                   </p>
                 </div>
                 <div className="fr-header__operator">
-                  <Link to="/" title="Accueil — Trouve ta mission">
-                    <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-[149px]" />
-                  </Link>
+                  <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-24 lg:w-[149px]" />
                 </div>
+                {showBackLink && (
+                  <Link
+                    to={backHref ?? "/"}
+                    className="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-icon-arrow-left-line fr-btn--icon-left mr-2 ml-auto self-start mt-2 lg:hidden!"
+                  >
+                    Retour
+                  </Link>
+                )}
+              </div>
+              <div className="fr-header__service">
+                <Link to="/" title={`Accueil — ${SERVICE_TITLE}`}>
+                  <p className="fr-header__service-title">{SERVICE_TITLE}</p>
+                </Link>
+                <p className="fr-header__service-tagline">{SERVICE_TAGLINE}</p>
               </div>
             </div>
           </div>

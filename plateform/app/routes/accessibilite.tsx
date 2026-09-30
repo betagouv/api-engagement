@@ -14,12 +14,12 @@ export default function Accessibilite() {
           accessibles (et ses applications mobiles et mobilier urbain numérique) conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005.
         </p>
         <p>À cette fin, la DJEPVA s'engage à publier prochainement son schéma pluriannuel de mise en accessibilité et les plans d'actions.</p>
-        <p>Cette déclaration d'accessibilité s'applique à plateforme.api-engagement.beta.gouv.fr.</p>
+        <p>Cette déclaration d'accessibilité s'applique à trouvetamission.gouv.fr.</p>
 
         <h2 className="fr-mt-4w">État de conformité</h2>
         <p>
-          La Plateforme de l'engagement est <strong>partiellement conforme</strong> avec le Référentiel Général d'Amélioration de l'Accessibilité (RGAA), version 4.1.2 en raison
-          des non-conformités énumérées ci-dessous.
+          Trouve ta mission est <strong>partiellement conforme</strong> avec le Référentiel Général d'Amélioration de l'Accessibilité (RGAA), version 4.1.2 en raison des
+          non-conformités énumérées ci-dessous.
         </p>
 
         <h3>Résultats des tests</h3>
@@ -82,8 +82,8 @@ export default function Accessibilite() {
 
         <h2 className="fr-mt-4w">Retour d'information et contact</h2>
         <p>
-          Si vous n'arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable de la Plateforme de l'engagement pour être orienté vers une alternative
-          accessible ou obtenir le contenu sous une autre forme.
+          Si vous n'arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable de Trouve ta mission pour être orienté vers une alternative accessible
+          ou obtenir le contenu sous une autre forme.
         </p>
         <ul className="fr-mb-3w">
           <li>

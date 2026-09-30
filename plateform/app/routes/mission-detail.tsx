@@ -20,7 +20,7 @@ import SimilarMissions from "~/components/mission-detail/similar-missions";
 import GradientBg from "~/components/ui/gradient-bg";
 import { fetchMissionDetail } from "~/services/mission-browse";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackMissionDetailViewed } from "~/services/tracking/events";
+import { trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/services/tracking/events";
 import type { MissionDetailNavState } from "~/services/tracking/types";
 import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
 import { buildMissionApplicationHref, formatDeadline } from "~/utils/mission";
@@ -150,8 +150,15 @@ export default function MissionDetailPage() {
         {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
 
         <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
-          <a href={applicationHref} target="_blank" rel="noopener noreferrer" title="Postuler - nouvelle fenêtre" className="fr-btn w-full! justify-center!">
-            Postuler
+          <a
+            href={applicationHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Découvrir la mission - nouvelle fenêtre"
+            className="fr-btn w-full! justify-center!"
+            onClick={() => trackMissionClickedFromDetail(mission)}
+          >
+            Découvrir la mission
           </a>
           {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
         </div>
