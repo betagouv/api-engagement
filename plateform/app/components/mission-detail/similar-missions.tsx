@@ -46,7 +46,7 @@ export default function SimilarMissions({ userScoringId, currentMissionId }: Pro
 
         <ul ref={scrollRef} role="list" className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 scrollbar-none list-none! p-0! m-0!">
           {items.map((item, index) => (
-            <li key={item.mission.id} className="w-[310px] flex-none snap-start md:w-[283px]">
+            <li key={item.mission.id} className="w-[85vw] max-w-[384px] flex-none snap-start md:w-[384px]">
               <MatchMissionCard item={item} section="similar" rank={index + 1} userScoringId={userScoringId} userValueKeys={userValueKeys} />
             </li>
           ))}

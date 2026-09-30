@@ -29,46 +29,48 @@ export default function MissionCard({
   onEmailClick?: () => void;
 }) {
   return (
-    <div className="border-border-default-grey bg-background shadow-card flex h-full w-full flex-col border">
-      {image ? <img className="h-[120px] w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-[120px] w-full" />}
+    <div className="border-border-default-grey bg-background shadow-card flex h-83.75 w-full flex-col border">
+      {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
 
-      <div className="flex flex-1 flex-col gap-4 px-4 py-3">
-        <div className="flex items-start gap-2">
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            {domainLabel && <p className="fr-tag fr-tag--sm m-0!">{domainLabel}</p>}
-            <h3
-              className="text-blue-france-sun! m-0! text-[16px]! leading-6!"
-              style={{ display: "-webkit-box", WebkitBoxOrient: "vertical" as const, WebkitLineClamp: 2, overflow: "hidden" }}
-            >
-              {title}
-            </h3>
+      <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex flex-col gap-2">
+            {domainLabel && (
+              <span className="bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 h-4 flex items-center leading-0! text-xs uppercase w-fit!">{domainLabel}</span>
+            )}
+            <h3 className="text-blue-france-sun! m-0! line-clamp-2 text-base! font-bold!">{title}</h3>
           </div>
           {onEmailClick && (
-            <button type="button" className="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-heart-line shrink-0" title="Recevoir cette mission par e-mail" onClick={onEmailClick}>
+            <button
+              type="button"
+              className="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-heart-line shrink-0 w-8! h-8! text-xs!"
+              title="Recevoir cette mission par e-mail"
+              onClick={onEmailClick}
+            >
               Recevoir cette mission par e-mail
             </button>
           )}
         </div>
 
-        <div className="flex h-[56px] flex-wrap content-start gap-2 overflow-hidden">
+        <div className="flex mt-auto flex-1 max-h-14 flex-wrap content-start gap-2 overflow-hidden">
           {tags.map((tag) => (
-            <p key={tag} className="fr-tag fr-tag--sm bg-(--background-contrast-grey)! text-title-grey! m-0!">
+            <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex items-center rounded-full px-2.5 py-0.5 text-xs! whitespace-nowrap">
               {tag}
-            </p>
+            </span>
           ))}
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-3">
           {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
           {publisherName ? (
-            <div className="text-mention-grey flex min-w-0 items-center gap-2 text-xs">
-              {publisherLogo && <img src={publisherLogo} alt="" aria-hidden="true" className="h-[25px] max-w-11 bg-white object-contain" loading="lazy" />}
+            <div className="text-mention-grey flex min-w-0 items-center gap-2 text-sm">
+              {publisherLogo && <img src={publisherLogo} alt="" aria-hidden="true" className="h-8 max-w-12 bg-white object-contain" loading="lazy" />}
               <span className="line-clamp-1">{publisherName}</span>
             </div>
           ) : (
             <span />
           )}
-          <Link to={to} state={state} onClick={onClick} className="fr-link fr-link--sm fr-icon-arrow-right-line fr-link--icon-right shrink-0">
+          <Link to={to} state={state} onClick={onClick} className="fr-link fr-icon-arrow-right-line fr-link--icon-right shrink-0">
             Détails<span className="fr-sr-only"> de la mission : {title}</span>
           </Link>
         </div>

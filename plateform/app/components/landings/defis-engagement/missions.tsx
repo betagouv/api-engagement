@@ -38,7 +38,7 @@ export default function Missions({ missions, cta }: { missions: MissionBrowse[];
             // restent alignées sur le titre) laisse la carte sortante glisser hors du bandeau ; à droite le
             // carrousel va jusqu'au bord de l'écran.
             listClassName="-ml-32! scroll-pl-32! pl-32! md:mr-[calc(50%-50vw)]!"
-            itemClassName="w-[80vw] max-w-[305px] md:w-[305px]"
+            itemClassName="w-[85vw] max-w-[384px] md:w-[384px]"
             action={
               <Link to={cta.to} onClick={cta.onClick} className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center md:w-auto!">
                 {cta.label}

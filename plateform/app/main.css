@@ -20,6 +20,7 @@
   --color-title-grey: var(--text-title-grey);
   --color-default-grey: var(--text-default-grey);
   --color-mention-grey: var(--text-mention-grey);
+  --color-label-grey: var(--text-label-grey);
   --color-inverted-blue-france: var(--text-inverted-blue-france);
   --color-error: var(--text-default-error);
   /* Borders */
