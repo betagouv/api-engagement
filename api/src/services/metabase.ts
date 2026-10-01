@@ -77,28 +77,8 @@ const buildHeaders = () => {
   return headers;
 };
 
-const CACHE_TTL_MS = 5 * 60 * 1000;
-const publicCache = new Map<string, { at: number; result: { ok: boolean; status: number; data: unknown } }>();
-
 export const metabaseService = {
-  async queryCard(cardId: string | number, options: QueryOptions = {}) {
-    // Cache des requêtes publiques (hors données scopées par publisher) pour ne pas solliciter Metabase à chaque visite.
-    if (options.variables?.publisher_id !== undefined) {
-      return this.fetchCard(cardId, options);
-    }
-    const key = `${cardId}:${JSON.stringify(options.variables ?? {})}`;
-    const hit = publicCache.get(key);
-    if (hit && Date.now() - hit.at < CACHE_TTL_MS) {
-      return hit.result;
-    }
-    const result = await this.fetchCard(cardId, options);
-    if (result.ok) {
-      publicCache.set(key, { at: Date.now(), result });
-    }
-    return result;
-  },
-
-  async fetchCard(cardId: string | number, { variables }: QueryOptions = {}) {
+  async queryCard(cardId: string | number, { variables }: QueryOptions = {}) {
     if (!METABASE_URL) {
       throw new Error("METABASE_URL is missing");
     }

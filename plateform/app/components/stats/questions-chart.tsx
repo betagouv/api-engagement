@@ -1,8 +1,8 @@
 import type { MetabasePoint } from "@engagement/dto";
 import { useMemo, useState } from "react";
-import { DsfrBarChart, StatsDataTable } from "./dsfr-charts";
-
-export type QuestionAnswerRow = { question: string; answer: string; value: number };
+import type { QuestionAnswerRow } from "~/utils/public-stats";
+import { BarChart } from "./bar-chart";
+import { ChartDataTable } from "./chart-data-table";
 
 export function QuestionsChart({ rows }: { rows: QuestionAnswerRow[] }) {
   const questions = useMemo(() => [...new Set(rows.map((r) => r.question))], [rows]);
@@ -23,8 +23,8 @@ export function QuestionsChart({ rows }: { rows: QuestionAnswerRow[] }) {
           ))}
         </select>
       </div>
-      <DsfrBarChart data={data} horizontal name={question} />
-      <StatsDataTable data={data} caption={`Réponses à la question : ${question}`} nameHeader="Réponse" />
+      <BarChart data={data} name={question} horizontal />
+      <ChartDataTable data={data} caption={`Réponses à la question : ${question}`} nameHeader="Réponse" />
     </>
   );
 }
