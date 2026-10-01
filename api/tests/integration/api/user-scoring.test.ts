@@ -13,25 +13,30 @@ const brevoMock = vi.hoisted(() => ({
   sendTemplate: vi.fn(),
 }));
 
+// subscribeToNewsletter garde sa vraie logique (choix des listes) : seul l'appel Brevo du contact est mocké.
+vi.mock("@/services/brevo/contact", () => ({
+  createOrUpdateContact: brevoMock.createOrUpdateContact,
+}));
+
 vi.mock("@/services/brevo", async () => {
-  const { buildMissionContentHtml } = await vi.importActual<typeof import("@/services/brevo/mission-content")>("@/services/brevo/mission-content");
+  const { subscribeToNewsletter } = await vi.importActual<typeof import("@/services/brevo/newsletter")>("@/services/brevo/newsletter");
   return {
     TEMPLATE_IDS: {
       INVITATION: 1,
       FORGOT_PASSWORD: 5,
-      MISSION_MATCHING_RESULTS: 0,
+      TTM_MISSIONS_LISTING: 0,
     },
     LIST_IDS: {
-      MISSION_MATCHING_RESULTS: 22,
+      TTM_MISSIONS_LISTING: 22,
     },
     createOrUpdateContact: brevoMock.createOrUpdateContact,
     sendTemplate: brevoMock.sendTemplate,
-    buildMissionContentHtml,
+    subscribeToNewsletter,
     default: {
       createOrUpdateContact: brevoMock.createOrUpdateContact,
       sendTemplate: brevoMock.sendTemplate,
       LIST_IDS: {
-        MISSION_MATCHING_RESULTS: 22,
+        TTM_MISSIONS_LISTING: 22,
       },
     },
   };
@@ -453,9 +458,9 @@ describe("PUT /user-scoring/:userScoringId", () => {
     return { missionScoringIds, missions };
   };
 
-  // En production, les emails de missions sont toujours envoyés avec le publisher API Engagement,
-  // seul publisher autorisé par la liste newsletter Brevo (subscribeToNewsletter).
-  const createEmailPublisher = () => createTestPublisher({ id: PUBLISHER_IDS.API_ENGAGEMENT, name: "Email Publisher" });
+  // Les emails de missions sont envoyés avec le publisher de la plateforme,
+  // seul publisher autorisé à inscrire à la newsletter Brevo (subscribeToNewsletter).
+  const createEmailPublisher = () => createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Email Publisher" });
 
   it("should require an api key to send mission emails", async () => {
     const res = await request(app)
@@ -598,7 +603,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       distinctId,
       userScoringId,
       missionAlertEnabled: true,
-      listId: 22,
+      listIds: [23],
     });
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
     const [templateId, payload] = brevoMock.sendTemplate.mock.calls[0];
@@ -607,7 +612,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(payload.tags).toEqual(["user-scoring", "mission-matching-results"]);
 
     const { contentHtml } = payload.params;
-    matching.missions.slice(0, 5).forEach((mission) => {
+    matching.missions.slice(0, 6).forEach((mission) => {
       expect(contentHtml).toContain(mission.title);
       expect(contentHtml).toContain(mission.city);
       expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`);
@@ -644,6 +649,47 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const contentHtml = brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml;
     expect(contentHtml).toContain(frozenMatching.missions[0].title);
     expect(contentHtml).not.toContain(currentMatching.missions[0].title);
+  });
+
+  it("should send the quiz top 6 with the quiz signup source", async () => {
+    const userScoringId = await createUserScoring();
+    const matching = await createStoredMatchingResult(userScoringId, 7);
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await postMissionEmailRequest().send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+      signupSource: "quiz",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.email_sent).toBe(true);
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ signupSource: "quiz", userScoringId }));
+
+    const { contentHtml, descriptionLink } = brevoMock.sendTemplate.mock.calls[0][1].params;
+    matching.missions.slice(0, 6).forEach((mission) => {
+      expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}&email_source=quiz`);
+    });
+    expect(contentHtml).not.toContain(matching.missions[6].title);
+    expect(descriptionLink).toBe(`http://localhost:3005/results/${userScoringId}/?utm_source=brevo&utm_medium=email&utm_campaign=quiz_missions`);
+  });
+
+  it("should reject an unknown signup source", async () => {
+    const userScoringId = await createUserScoring();
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await postMissionEmailRequest().send({
+      distinctId,
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      userScoringId,
+      signupSource: "footer",
+    });
+
+    expect(res.status).toBe(400);
+    expect(brevoMock.sendTemplate).not.toHaveBeenCalled();
   });
 
   it("should send matching email with the city from the matched mission address", async () => {

@@ -1,15 +1,15 @@
 import { API_URL, PLATEFORM_URL } from "@/config";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { userScoringRepository } from "@/repositories/user-scoring";
-import type { MissionContent } from "@/services/brevo";
-import { buildMissionContentHtml, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
+import { sendTemplate, subscribeToNewsletter, TEMPLATE_IDS } from "@/services/brevo";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
-import { subscribeToNewsletter } from "@/services/newsletter";
-import type { MissionEmailSkipReason, SendMissionEmailRequest } from "@engagement/dto";
+import type { MissionEmailSkipReason, SendMissionEmailRequest, SignupSource } from "@engagement/dto";
 
-const USER_SCORING_EMAIL_MISSION_LIMIT = 5;
+import { buildMissionContentHtml, type MissionContent } from "./mission-content";
+
+const USER_SCORING_EMAIL_MISSION_LIMIT = 6;
 
 export const MISSION_EMAIL_SKIP_REASONS = {
   NO_MATCHING_RESULT: "NO_MATCHING_RESULT",
@@ -56,10 +56,24 @@ const extractMissionMatchingResultItems = (results: unknown): MissionMatchingRes
     .slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionEmailUrl = (missionId: string, publisherId: string, userScoringId?: string) => {
+const buildMissionEmailUrl = (missionId: string, publisherId: string, userScoringId?: string, signupSource?: SignupSource) => {
   const url = new URL(`/r/email/${encodeURIComponent(missionId)}/${encodeURIComponent(publisherId)}`, API_URL);
   if (userScoringId) {
     url.searchParams.set("user_scoring_id", userScoringId);
+  }
+  if (signupSource) {
+    url.searchParams.set("email_source", signupSource);
+  }
+  return url.toString();
+};
+
+// Lien « voir mes résultats » : les UTM sont repris par le tracking de la plateforme (PostHog), ce qui mesure les clics depuis l'email.
+const buildResultsUrl = (userScoringId: string | undefined, missions: MissionContent[], signupSource?: SignupSource) => {
+  const url = new URL(`/results/${userScoringId}/${missions.length === 1 ? `missions/${missions[0].id}` : ``}`, PLATEFORM_URL);
+  if (signupSource) {
+    url.searchParams.set("utm_source", "brevo");
+    url.searchParams.set("utm_medium", "email");
+    url.searchParams.set("utm_campaign", `${signupSource}_missions`);
   }
   return url.toString();
 };
@@ -102,7 +116,7 @@ const formatCompensationLabel = (mission: EmailMission) => {
   return `${amountLabel} par ${unitLabel}`;
 };
 
-const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionContent => ({
+const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => ({
   id: mission.id,
   title: mission.title,
   imageUrl: mission.domainLogo || mission.publisherLogo || "",
@@ -113,10 +127,10 @@ const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userS
   publisherName: mission.publisherName ?? "",
   publisherOrganizationName: mission.publisherOrganizationName ?? mission.organizationName ?? "",
   city: mission.city ?? "",
-  url: buildMissionEmailUrl(mission.id, publisherId, userScoringId),
+  url: buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource),
 });
 
-const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionContent[] | null> => {
+const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string, signupSource?: SignupSource): Promise<MissionContent[] | null> => {
   // Même version figée que la page résultats : un ancien scoring n'a que son ancien snapshot (ex. m1),
   // pas celui de la version courante. Lire CURRENT renverrait null → email jamais envoyé.
   const version = (await missionMatchingResultRepository.findEarliestVersion(userScoringId)) ?? CURRENT_MATCHING_ENGINE_VERSION;
@@ -140,14 +154,14 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  return orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId));
+  return orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId, signupSource));
 };
 
 const normalizeMissionIds = (missionIds: string[]) => {
   return Array.from(new Set(missionIds)).slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string): Promise<MissionContent[] | null> => {
+const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string, signupSource?: SignupSource): Promise<MissionContent[] | null> => {
   const uniqueMissionIds = normalizeMissionIds(missionIds);
   const missions = await missionService.findMissionsByIds(uniqueMissionIds);
   const missionsById = new Map(missions.map((mission) => [mission.id, mission]));
@@ -157,18 +171,23 @@ const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: str
     return null;
   }
 
-  return orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId));
+  return orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId, signupSource));
 };
 
-export const buildMissionEmailParams = async (params: { publisherId: string; userScoringId?: string; missionIds?: string[] }): Promise<MissionContent[] | null> => {
+export const buildMissionEmailParams = async (params: {
+  publisherId: string;
+  userScoringId?: string;
+  missionIds?: string[];
+  signupSource?: SignupSource;
+}): Promise<MissionContent[] | null> => {
   if (params.missionIds?.length) {
-    return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId);
+    return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId, params.signupSource);
   }
 
   if (!params.userScoringId) {
     return null;
   }
-  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId);
+  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId, params.signupSource);
 };
 
 export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSkipReason => {
@@ -192,6 +211,7 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
       distinctId: input.distinctId,
       userScoringId: input.userScoringId,
       missionAlertEnabled: userScoring.missionAlertEnabled,
+      signupSource: input.signupSource,
     });
 
     if (!contactResult.ok) {
@@ -203,17 +223,18 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     publisherId: input.publisherId,
     userScoringId: input.userScoringId,
     missionIds: input.missionIds,
+    signupSource: input.signupSource,
   });
 
   if (!missions) {
     return { status: "skipped", reason: getMissionEmailSkipReason(input.missionIds) };
   }
 
-  const emailResult = await sendTemplate(TEMPLATE_IDS.MISSION_MATCHING_RESULTS, {
+  const emailResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
     emailTo: [input.email],
     params: {
       descriptionMission: missions.length === 1 ? "les détails de ta mission" : "les détails de ta sélection de missions",
-      descriptionLink: `${PLATEFORM_URL}/results/${input.userScoringId}/${missions.length === 1 ? `missions/${missions[0].id}` : ``}`,
+      descriptionLink: buildResultsUrl(input.userScoringId, missions, input.signupSource),
       contentHtml: buildMissionContentHtml(missions),
     },
     tags: ["user-scoring", "mission-matching-results"],

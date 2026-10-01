@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildMissionContentHtml } from "@/services/brevo/mission-content";
-import type { MissionContent } from "@/services/brevo/mission-content";
+import { buildMissionContentHtml, type MissionContent } from "@/services/mission-email/mission-content";
 
 const mission = (overrides: Partial<MissionContent> = {}): MissionContent => ({
   id: "mission-1",

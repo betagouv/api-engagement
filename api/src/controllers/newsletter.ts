@@ -4,7 +4,7 @@ import zod from "zod";
 
 import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY } from "@/error";
 import { plateformRateLimiter } from "@/middlewares/rate-limit";
-import { subscribeToNewsletter } from "@/services/newsletter";
+import { subscribeToNewsletter } from "@/services/brevo";
 import type { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
 import type { NewsletterSubscribeResponse } from "@engagement/dto";
