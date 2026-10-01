@@ -49,6 +49,10 @@ export default function EmailStep() {
     event.preventDefault();
     if (!userScoringId) return;
     const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      setError("Renseigne ton adresse email pour recevoir tes missions, ou continue sans laisser ton email.");
+      return;
+    }
     if (!isValidEmail(trimmedEmail)) {
       console.warn("Email format invalid:", trimmedEmail);
       setError(INVALID_EMAIL_FORMAT_ERROR);
@@ -101,7 +105,7 @@ export default function EmailStep() {
       </div>
 
       <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-col gap-4 bg-background p-4 md:static md:mx-0 md:mt-4 md:flex-row md:gap-6 md:bg-transparent md:p-0">
-        <button type="submit" disabled={!email.trim() || loading} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!">
+        <button type="submit" disabled={loading} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!">
           {loading ? "Envoi en cours…" : "Voir mes résultats"}
         </button>
         <button type="button" onClick={goToResults} disabled={loading} className="fr-btn fr-btn--lg fr-btn--secondary w-full! justify-center! md:w-auto!">
