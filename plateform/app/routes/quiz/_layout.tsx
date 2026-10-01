@@ -23,6 +23,8 @@ export type QuizOutletContext = {
   goNext: () => void;
   goBack: () => void;
   saveScoring: () => void;
+  // Affiche l'écran de chargement des résultats (utilisé par la page email en fin de parcours).
+  showLoadingRecap: () => void;
   // Step courant (pour le tracking des raccourcis depuis NextButton).
   currentStepId: StepId | null;
   currentStepIndex: number;
@@ -36,7 +38,8 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     Object.values(QUIZ_FLOW_REGISTRY)
       .flat()
       .find((s) => s.route === location.pathname);
-  const title = step ? `${step.title} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
+  const stepTitle = location.pathname === "/quiz/email" ? "Reçois tes prochaines missions" : step?.title;
+  const title = stepTitle ? `${stepTitle} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
   return [{ title }, { name: "robots", content: "noindex, nofollow" }];
 }
 
@@ -58,6 +61,7 @@ export default function QuizLayout() {
   const [scoringError, setScoringError] = useState<string | null>(null);
   const currentStep = useMemo(() => steps.find((s) => s.route === location.pathname) ?? null, [location.pathname, steps]);
   const loadingResults = loadingResultsPath === location.pathname;
+  const isEmailPage = location.pathname === "/quiz/email";
   // Promise en cours de save — partagée entre saveScoring() et goNext() pour éviter un double appel.
   const scoringPromiseRef = useRef<Promise<boolean> | null>(null);
 
@@ -145,7 +149,7 @@ export default function QuizLayout() {
       navigate(next.route);
     } else {
       trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
-      setLoadingResultsPath(location.pathname);
+      navigate("/quiz/email", { state: { completionType: "full" } });
     }
   };
 
@@ -169,11 +173,11 @@ export default function QuizLayout() {
 
   return (
     <div className="flex min-h-svh flex-1 flex-col">
-      <QuizProgress step={loadingResults ? steps.length + 1 : currentIndex + 1} stepCount={steps.length + 1} />
+      <QuizProgress step={loadingResults ? steps.length + 1 : isEmailPage ? steps.length : currentIndex + 1} stepCount={steps.length + 1} />
       {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
       <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
         <div className="fr-container flex flex-1 flex-col gap-10">
-          {!loadingResults && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />}
+          {!loadingResults && !isEmailPage && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />}
           {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>
@@ -189,6 +193,7 @@ export default function QuizLayout() {
                   goNext,
                   goBack,
                   saveScoring,
+                  showLoadingRecap: () => setLoadingResultsPath(location.pathname),
                   currentStepId: currentStep?.id ?? null,
                   currentStepIndex: currentIndex + 1,
                 } satisfies QuizOutletContext

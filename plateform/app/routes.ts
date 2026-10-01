@@ -32,6 +32,8 @@ export default [
     route("activite", "routes/quiz/activite.tsx"),
     route("equipe", "routes/quiz/equipe.tsx"),
     route("autonomie", "routes/quiz/autonomie.tsx"),
+    // Page email avant les résultats (fin du parcours ou raccourci « Voir toutes les missions »), hors flow.
+    route("email", "routes/quiz/email.tsx"),
     // Steps abandonnés par q3, conservés pour rollback vers q2.
     route("interaction", "routes/quiz/interaction.tsx"),
     route("imprevu", "routes/quiz/imprevu.tsx"),

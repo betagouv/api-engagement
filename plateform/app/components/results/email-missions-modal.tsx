@@ -86,7 +86,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
     <>
       {!hideTrigger && (
         <button type="button" onClick={() => setOpen(true)} className="fr-btn fr-btn--secondary fr-icon-mail-line fr-btn--icon-left w-full! justify-center!">
-          Recevoir ces 5 missions par email
+          Recevoir ces 6 missions par email
         </button>
       )}
 
@@ -111,7 +111,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
             <p className="fr-text--lead fr-mb-2w">
               {missionId
                 ? "On t'envoie cette mission pour que tu puisses la retrouver facilement."
-                : "On t'envoie ta sélection de 5 missions pour que tu puisses les retrouver facilement."}
+                : "On t'envoie ta sélection de 6 missions pour que tu puisses les retrouver facilement."}
             </p>
 
             <form onSubmit={handleSubmit}>
