@@ -345,7 +345,7 @@ export default function ResultsPage() {
               <ProfileModal quizHref={quizHref} />
             </div>
             <div className="flex flex-row">
-              <div className="flex flex-col w-[60%]">
+              <div className="flex flex-col w-[55%]">
                 <ResultsMissions
                   items={items}
                   page={page}

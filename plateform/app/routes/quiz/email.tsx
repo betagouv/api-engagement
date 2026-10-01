@@ -6,11 +6,8 @@ import { fetchInitialMatches } from "~/services/matching";
 import { trackEmailMissionsSent } from "~/services/tracking/events";
 import type { QuizCompletionType } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
+import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 import type { QuizOutletContext } from "./_layout";
-
-// Format attendu : nom@domaine.extension (pas de vérification de l'existence de la boîte).
-const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const INVALID_FORMAT_ERROR = "Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr";
 
 // Page affichée entre la dernière question (ou le raccourci « Voir toutes les missions ») et les résultats :
 // l'email reçoit le top 6 des missions et inscrit l'utilisateur aux listes Brevo de la source `quiz`.
@@ -52,9 +49,9 @@ export default function EmailStep() {
     event.preventDefault();
     if (!userScoringId) return;
     const trimmedEmail = email.trim();
-    if (!EMAIL_FORMAT.test(trimmedEmail)) {
+    if (!isValidEmail(trimmedEmail)) {
       console.warn("Email format invalid:", trimmedEmail);
-      setError(INVALID_FORMAT_ERROR);
+      setError(INVALID_EMAIL_FORMAT_ERROR);
       return;
     }
 
