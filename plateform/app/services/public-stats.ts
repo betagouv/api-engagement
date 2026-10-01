@@ -48,6 +48,8 @@ async function fetchPublicStats(request: Request) {
 const statsCache = createValueCache<Awaited<ReturnType<typeof fetchPublicStats>>>(({ complete }) => (complete ? STATS_CACHE_TTL_MS : STATS_PARTIAL_CACHE_TTL_MS));
 
 export async function loadPublicStats(request: Request) {
-  const { data } = await statsCache.get(() => fetchPublicStats(request));
+  // Le chargement est partagé entre visiteurs : il ne doit pas dépendre du signal d'annulation de la requête qui le déclenche.
+  const detachedRequest = new Request(request.url, { headers: request.headers });
+  const { data } = await statsCache.get(() => fetchPublicStats(detachedRequest));
   return data;
 }
