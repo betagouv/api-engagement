@@ -1,5 +1,5 @@
 import { sortDepartments, type DepartmentPoint } from "~/utils/public-stats";
-import { useChartsReady } from "./use-charts-ready";
+import { useChartsReady } from "./chart-library";
 
 const DATA_BOX_ID = "stats-departments";
 

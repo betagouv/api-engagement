@@ -1,5 +1,5 @@
 import type { MetabasePoint } from "@engagement/dto";
-import { useChartsReady } from "./use-charts-ready";
+import { useChartsReady } from "./chart-library";
 
 type BarChartProps = { data: MetabasePoint[]; name: string; horizontal?: boolean };
 
