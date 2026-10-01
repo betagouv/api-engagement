@@ -617,8 +617,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       expect(contentHtml).toContain(mission.city);
       expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`);
     });
-    expect(contentHtml).toContain("8 mois");
-    expect(contentHtml).toContain("à partir du 2 février");
+    expect(contentHtml).toContain("1 jour par semaine");
     expect(contentHtml).toContain("620€ par mois");
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
@@ -668,12 +667,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(res.body.data.email_sent).toBe(true);
     expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ signupSource: "quiz", userScoringId }));
 
-    const { contentHtml, descriptionLink } = brevoMock.sendTemplate.mock.calls[0][1].params;
+    const { contentHtml, resultUrl } = brevoMock.sendTemplate.mock.calls[0][1].params;
     matching.missions.slice(0, 6).forEach((mission) => {
       expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}&email_source=quiz`);
     });
     expect(contentHtml).not.toContain(matching.missions[6].title);
-    expect(descriptionLink).toBe(`http://localhost:3005/results/${userScoringId}/?utm_source=brevo&utm_medium=email&utm_campaign=quiz_missions`);
+    expect(resultUrl).toBe(`http://localhost:3005/results/${userScoringId}?utm_source=brevo&utm_medium=email&utm_campaign=quiz_missions`);
   });
 
   it("should reject an unknown signup source", async () => {
@@ -799,8 +798,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     const { contentHtml } = payload.params;
     expect(contentHtml).toContain(mission.title);
     expect(contentHtml).toContain("Paris");
-    expect(contentHtml).toContain("8 mois");
-    expect(contentHtml).toContain("à partir du 2 février");
+    expect(contentHtml).toContain("1 jour par semaine");
     expect(contentHtml).toContain("620€ par mois");
     expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`);
   });

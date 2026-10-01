@@ -5,7 +5,7 @@ import { sendTemplate, subscribeToNewsletter, TEMPLATE_IDS } from "@/services/br
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
-import type { MissionEmailSkipReason, SendMissionEmailRequest, SignupSource } from "@engagement/dto";
+import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
 
 import { buildMissionContentHtml, type MissionContent } from "./mission-content";
 
@@ -19,17 +19,16 @@ export const MISSION_EMAIL_SKIP_REASONS = {
 type EmailMission = {
   id: string;
   title: string;
-  duration?: number | null;
-  startAt?: Date | null;
-  endAt?: Date | null;
   compensationAmount?: number | null;
   compensationAmountMax?: number | null;
   compensationUnit?: string | null;
+  remote?: string | null;
+  schedule?: string | null;
+  domain?: string | null;
   domainLogo?: string | null;
+  organizationLogo?: string | null;
   publisherLogo?: string | null;
   publisherName?: string | null;
-  publisherOrganizationName?: string | null;
-  organizationName?: string | null;
   city?: string | null;
 };
 
@@ -68,8 +67,9 @@ const buildMissionEmailUrl = (missionId: string, publisherId: string, userScorin
 };
 
 // Lien « voir mes résultats » : les UTM sont repris par le tracking de la plateforme (PostHog), ce qui mesure les clics depuis l'email.
-const buildResultsUrl = (userScoringId: string | undefined, missions: MissionContent[], signupSource?: SignupSource) => {
-  const url = new URL(`/results/${userScoringId}/${missions.length === 1 ? `missions/${missions[0].id}` : ``}`, PLATEFORM_URL);
+// Sans scoring (envoi d'une mission depuis une landing), on renvoie vers la liste des missions.
+const buildResultsUrl = (userScoringId: string | undefined, signupSource?: SignupSource) => {
+  const url = new URL(userScoringId ? `/results/${userScoringId}` : "/missions", PLATEFORM_URL);
   if (signupSource) {
     url.searchParams.set("utm_source", "brevo");
     url.searchParams.set("utm_medium", "email");
@@ -78,55 +78,45 @@ const buildResultsUrl = (userScoringId: string | undefined, missions: MissionCon
   return url.toString();
 };
 
-const formatFrenchDayMonth = (date: Date) => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" }).format(date);
-
-const formatDurationLabel = (duration?: number | null) => {
-  if (!duration) {
-    return "";
-  }
-  return `${duration} mois`;
+const COMPENSATION_UNIT_LABELS: Record<string, string> = {
+  hour: "heure",
+  day: "jour",
+  week: "semaine",
+  month: "mois",
+  year: "an",
 };
 
-const formatStartAtLabel = (startAt?: Date | null) => {
-  if (!startAt) {
-    return "";
-  }
-  return `à partir du ${formatFrenchDayMonth(startAt)}`;
-};
-
-const formatCompensationAmount = (amount: number) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(amount)}€`;
-
+// Même libellé que la plateforme (formatCompensation dans plateform/app/utils/mission.ts).
 const formatCompensationLabel = (mission: EmailMission) => {
-  if (typeof mission.compensationAmount !== "number" || !mission.compensationUnit) {
-    return "";
+  if (typeof mission.compensationAmount !== "number") {
+    return null;
   }
+  const amount =
+    typeof mission.compensationAmountMax === "number"
+      ? mission.compensationAmount === 0
+        ? `Jusqu'à ${mission.compensationAmountMax}€`
+        : `Entre ${mission.compensationAmount} et ${mission.compensationAmountMax}€`
+      : `${mission.compensationAmount}€`;
+  if (!mission.compensationUnit) {
+    return amount;
+  }
+  return `${amount} par ${COMPENSATION_UNIT_LABELS[mission.compensationUnit] ?? mission.compensationUnit}`;
+};
 
-  const unitLabels: Record<string, string> = {
-    hour: "heure",
-    day: "jour",
-    month: "mois",
-    year: "an",
-  };
-  const unitLabel = unitLabels[mission.compensationUnit] ?? mission.compensationUnit;
-  const amountLabel =
-    typeof mission.compensationAmountMax === "number" && mission.compensationAmountMax > mission.compensationAmount
-      ? `${formatCompensationAmount(mission.compensationAmount)} à ${formatCompensationAmount(mission.compensationAmountMax)}`
-      : formatCompensationAmount(mission.compensationAmount);
-
-  return `${amountLabel} par ${unitLabel}`;
+// Mêmes tags que les cartes de la plateforme hors matching (buildMissionBrowseTags) : lieu, rythme et indemnité.
+const buildMissionTags = (mission: EmailMission) => {
+  const location = mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city;
+  return [location, mission.schedule, formatCompensationLabel(mission)].filter((tag): tag is string => Boolean(tag));
 };
 
 const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => ({
   id: mission.id,
   title: mission.title,
-  imageUrl: mission.domainLogo || mission.publisherLogo || "",
-  durationLabel: formatDurationLabel(mission.duration),
-  startAtLabel: formatStartAtLabel(mission.startAt),
-  compensationLabel: formatCompensationLabel(mission),
+  imageUrl: mission.domainLogo || mission.organizationLogo || mission.publisherLogo || "",
+  domainLabel: getDomainLabel(mission.domain ?? null) ?? "",
+  tags: buildMissionTags(mission),
   publisherLogo: mission.publisherLogo ?? "",
   publisherName: mission.publisherName ?? "",
-  publisherOrganizationName: mission.publisherOrganizationName ?? mission.organizationName ?? "",
-  city: mission.city ?? "",
   url: buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource),
 });
 
@@ -233,9 +223,8 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
   const emailResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
     emailTo: [input.email],
     params: {
-      descriptionMission: missions.length === 1 ? "les détails de ta mission" : "les détails de ta sélection de missions",
-      descriptionLink: buildResultsUrl(input.userScoringId, missions, input.signupSource),
       contentHtml: buildMissionContentHtml(missions),
+      resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
     },
     tags: ["user-scoring", "mission-matching-results"],
   });
