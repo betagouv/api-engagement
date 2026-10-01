@@ -72,28 +72,27 @@ export function DepartmentsMap({ data, name }: { data: DepartmentPoint[]; name: 
 }
 
 // Alternative accessible au graphique (RGAA 4.1) : mêmes données en tableau, masqué visuellement.
+// Pas de classe `fr-table` : le JS du DSFR en fait une zone défilante, non focusable une fois masquée (axe scrollable-region-focusable).
 export function StatsDataTable({ data, caption, nameHeader = "Libellé" }: { data: MetabasePoint[]; caption: string; nameHeader?: string }) {
   return (
     <div className="sr-only">
-      <div className="fr-table">
-        <table>
-          <caption>{caption}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{nameHeader}</th>
-              <th scope="col">Valeur</th>
+      <table>
+        <caption>{caption}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{nameHeader}</th>
+            <th scope="col">Valeur</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((point) => (
+            <tr key={point.name}>
+              <td>{point.name}</td>
+              <td>{formatNumber(point.value)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {data.map((point) => (
-              <tr key={point.name}>
-                <td>{point.name}</td>
-                <td>{formatNumber(point.value)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
