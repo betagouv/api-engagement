@@ -14,6 +14,14 @@ export const METABASE_CARD_ACCESS: Record<string, MetabaseCardAccess> = {
   "5531": "public", // PUBLIC_STATS_ACTIVE_ORGANIZATIONS
   "5537": "public", // PUBLIC_STATS_MISSIONS_DEPARTMENT
   "5536": "public", // PUBLIC_STATS_MISSIONS_DOMAIN
+  // Page /statistiques de la plateforme
+  "6575": "public", // PLATEFORM_STATS_HOMEPAGE_VIEWS_WEEKLY
+  "6576": "public", // PLATEFORM_STATS_QUIZ_COMPLETED_WEEKLY
+  "6577": "public", // PLATEFORM_STATS_QUIZ_STARTED_WEEKLY
+  "6578": "public", // PLATEFORM_STATS_IMPRESSIONS_BY_ADVERTISER
+  "6582": "public", // PLATEFORM_STATS_QUIZ_COMPLETED_BY_DEPARTMENT
+  "6583": "public", // PLATEFORM_STATS_REDIRECTIONS_WEEKLY
+  "6584": "public", // PLATEFORM_STATS_ANSWERS_BY_QUESTION
   // Cartes diffuseur / annonceur (scopées par publisher_id)
   "5497": "user", // EVOLUTION_STAT_EVENT
   "5494": "user", // DIFFUSEUR_TOTAL_MISSIONS

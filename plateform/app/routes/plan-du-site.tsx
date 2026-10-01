@@ -46,6 +46,11 @@ export default function PlanDuSite() {
               Politique de confidentialité
             </Link>
           </li>
+          <li className="py-1">
+            <Link className="fr-link" to="/statistiques">
+              Statistiques
+            </Link>
+          </li>
         </ul>
       </div>
     </main>
