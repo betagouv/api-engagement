@@ -44,6 +44,19 @@ describe("api.get", () => {
     expect(options.headers).toMatchObject({ "x-api-key": "test-key" });
   });
 
+  it("propage l'identifiant de requête", async () => {
+    const fetchMock = mockFetch(200, { ok: true, data: {} });
+    vi.stubGlobal("fetch", fetchMock);
+    const request = new Request("http://localhost", {
+      headers: { "x-request-id": "platform-request-42" },
+    });
+
+    await createApi(request).get("/missions");
+
+    const [, options] = fetchMock.mock.calls[0];
+    expect(options.headers).toMatchObject({ "x-request-id": "platform-request-42" });
+  });
+
   it("retourne data de l'enveloppe JSON", async () => {
     vi.stubGlobal("fetch", mockFetch(200, { ok: true, data: { id: 42, title: "Test" } }));
 
@@ -112,6 +125,25 @@ describe("api.get", () => {
     const [, options] = fetchMock.mock.calls[0];
     expect(options.headers?.["x-platform-client-ip"]).toBeUndefined();
   });
+
+  it("expose les timings du proxy et l'identifiant de requête sur la réponse", async () => {
+    const request = new Request("http://localhost", { headers: { "x-request-id": "platform-request-42" } });
+    const api = createApi(request);
+
+    await api.get("/missions");
+    const response = api.json({ ok: true, data: {} });
+
+    expect(response.headers.get("x-request-id")).toBe("platform-request-42");
+    expect(response.headers.get("server-timing")).toMatch(/upstream-ttfb;dur=\d+\.\d, upstream-body;dur=\d+\.\d, upstream;dur=\d+\.\d, serialize;dur=\d+\.\d, proxy;dur=\d+\.\d/);
+  });
+
+  it("génère un identifiant de requête quand l'en-tête entrant est absent", async () => {
+    const api = createApi(fakeRequest());
+
+    const response = api.json({ ok: true });
+
+    expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/);
+  });
 });
 
 describe("api.post", () => {
@@ -164,5 +196,15 @@ describe("upstreamErrorResponse", () => {
 
     expect(response.status).toBe(502);
     await expect(response.json()).resolves.toMatchObject({ ok: false, code: "upstream_error" });
+  });
+
+  it("conserve les informations d'observabilité sur une erreur de la façade", async () => {
+    const api = createApi(new Request("http://localhost", { headers: { "x-request-id": "failed-request" } }));
+
+    const response = api.error(new UpstreamApiError(504, { ok: false, code: "TIMEOUT" }));
+
+    expect(response.status).toBe(504);
+    expect(response.headers.get("x-request-id")).toBe("failed-request");
+    expect(response.headers.get("server-timing")).toContain("proxy;dur=");
   });
 });
