@@ -9,6 +9,7 @@ type TrancheAgeValueKey =
   | "entre_46_66_ans"
   | "entre_68_72_ans"
   | "plus_72_ans"
+  | "entre_17_18_ans"
   | "moins_31_ans_handicap";
 
 export const resolveTrancheAgeValues = (params: unknown): TrancheAgeValueKey[] => {
@@ -48,6 +49,10 @@ export const resolveTrancheAgeValues = (params: unknown): TrancheAgeValueKey[] =
     values.push("entre_68_72_ans");
   } else {
     values.push("plus_72_ans");
+  }
+
+  if (age >= 17 && age <= 18) {
+    values.push("entre_17_18_ans");
   }
 
   if (age < 31 && handicap) {

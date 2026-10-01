@@ -70,8 +70,7 @@
             { "value": "service_civique", "min": 1 },
             { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
             { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 0, "max": 0 },
-            { "value": "reserve_armees", "min": 0, "max": 0 }
+            { "value": "reserve_police_nationale", "min": 0, "max": 0 }
           ]
         }
       ]
@@ -300,6 +299,89 @@
         {
           "taxonomy": "motivation_recherche",
           "values": [{ "value": "remote", "min": 0, "max": 0 }]
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "label": "Suud, 18 ans, Aurillac",
+      "userScoring": {
+        "answers": [
+          {
+            "taxonomy": "tranche_age",
+            "params": {
+              "age": 18
+            }
+          },
+          {
+            "taxonomy": "location",
+            "params": {
+              "lat": 44.9267,
+              "lon": 2.4409,
+              "radius_km": 5,
+              "country_code": "FR"
+            }
+          },
+          {
+            "taxonomy": "mobilite",
+            "value": "pied_transports"
+          },
+          {
+            "taxonomy": "motivation_recherche",
+            "value": "autre"
+          },
+          {
+            "taxonomy": "rythme",
+            "value": "je_ne_sais_pas"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "solidarite_inclusion"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "environnement_animaux"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "art_culture"
+          },
+          {
+            "taxonomy": "domaine_engagement",
+            "value": "sport"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "aider_accompagner"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "transmettre_animer"
+          },
+          {
+            "taxonomy": "activite",
+            "value": "creer_communiquer"
+          },
+          {
+            "taxonomy": "equipe",
+            "value": "peu_importe"
+          },
+          {
+            "taxonomy": "autonomie",
+            "value": "je_ne_sais_pas"
+          }
+        ]
+      },
+      "expected": [
+        {
+          "taxonomy": "dispositif",
+          "values": [
+            { "value": "benevolat", "min": 1 },
+            { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 1 },
+            { "value": "reserve_gendarmerie", "min": 1 },
+            { "value": "reserve_police_nationale", "min": 1 }
+          ]
         }
       ]
     },
@@ -755,15 +837,10 @@
           "taxonomy": "dispositif",
           "values": [
             { "value": "service_civique", "min": 1 },
-            { "value": "sapeurs_pompiers", "min": 0, "max": 0 },
+            { "value": "sapeurs_pompiers", "min": 1 },
             { "value": "reserve_gendarmerie", "min": 1 },
-            { "value": "reserve_police_nationale", "min": 1 },
-            { "value": "reserve_armees", "min": 0, "max": 0 }
+            { "value": "reserve_police_nationale", "min": 1 }
           ]
-        },
-        {
-          "taxonomy": "motivation_recherche",
-          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     },
@@ -926,14 +1003,11 @@
           "taxonomy": "dispositif",
           "values": [
             { "value": "service_civique", "min": 1 },
+            { "value": "sapeurs_pompiers", "min": 1 },
             { "value": "reserve_gendarmerie", "min": 1 },
             { "value": "reserve_police_nationale", "min": 1 },
             { "value": "reserve_armees", "min": 1 }
           ]
-        },
-        {
-          "taxonomy": "motivation_recherche",
-          "values": [{ "value": "remote", "min": 0, "max": 0 }]
         }
       ]
     }

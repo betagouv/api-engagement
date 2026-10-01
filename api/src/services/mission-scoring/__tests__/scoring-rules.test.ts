@@ -25,7 +25,7 @@ const ADULT_TRANCHE_AGE_KEYS = [
   "tranche_age.plus_72_ans",
 ];
 
-const ALL_TRANCHE_AGE_KEYS = ["tranche_age.moins_18_ans", ...ADULT_TRANCHE_AGE_KEYS, "tranche_age.moins_31_ans_handicap"];
+const ALL_TRANCHE_AGE_KEYS = ["tranche_age.moins_18_ans", "tranche_age.entre_17_18_ans", ...ADULT_TRANCHE_AGE_KEYS, "tranche_age.moins_31_ans_handicap"];
 
 const sorted = (keys: string[]): string[] => [...keys].sort();
 
@@ -40,6 +40,12 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ openToMinors: true }));
 
     expect(sorted(keys)).toEqual(sorted(ALL_TRANCHE_AGE_KEYS));
+  });
+
+  it("n'ouvre pas les missions ordinaires fermées aux mineurs aux utilisateurs de 17 ans", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ openToMinors: false }));
+
+    expect(keys).not.toContain("tranche_age.entre_17_18_ans");
   });
 
   it("n'ajoute aucune contrainte tranche_age quand openToMinors=null", () => {
@@ -199,6 +205,15 @@ describe("getMissionScoringRuleKeys — élargissement thématique des dispositi
         "activite.secourir_proteger",
       ])
     );
+    expect(keys).toContain("tranche_age.entre_17_18_ans");
+    expect(keys).not.toContain("tranche_age.moins_18_ans");
+  });
+
+  it("conserve la borne ROC à 17 ans quand openToMinors=true", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.ROC, type: "volontariat_reserve_operationnelle", openToMinors: true }));
+
+    expect(keys).toContain("tranche_age.entre_17_18_ans");
+    expect(keys).not.toContain("tranche_age.moins_18_ans");
   });
 });
 
