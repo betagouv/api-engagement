@@ -1,16 +1,6 @@
-export const REQUEST_ID_HEADER = "x-request-id";
-
-const REQUEST_ID_PATTERN = /^[A-Za-z0-9._:-]{1,128}$/;
-
 export type ServerTimingMetric = {
   name: string;
   duration: number;
-};
-
-export const getOrCreateRequestId = (request: Request): string => {
-  const incomingRequestId = request.headers.get(REQUEST_ID_HEADER)?.trim();
-  if (incomingRequestId && REQUEST_ID_PATTERN.test(incomingRequestId)) return incomingRequestId;
-  return crypto.randomUUID();
 };
 
 const formatDuration = (duration: number) => Math.max(0, duration).toFixed(1);
