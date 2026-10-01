@@ -1,7 +1,8 @@
 import { adaptMetabasePoints } from "@engagement/dto";
-import { STATS_ANSWERS_CARD, STATS_CARDS, STATS_QUESTIONS } from "~/config/public-stats";
+import { STATS_ANSWERS_CARD, STATS_CACHE_TTL_MS, STATS_CARDS, STATS_PARTIAL_CACHE_TTL_MS, STATS_QUESTIONS } from "~/config/public-stats";
 import { createApi } from "~/services/api";
 import { toAnswerRows, toDepartmentPoints, toWeeklyPoints, type MetabaseCardResult } from "~/utils/public-stats";
+import { createValueCache } from "~/utils/value-cache";
 
 type Api = ReturnType<typeof createApi>;
 
@@ -14,7 +15,7 @@ async function fetchCard(api: Api, cardId: number, variables?: Record<string, st
   }
 }
 
-export async function loadPublicStats(request: Request) {
+async function fetchPublicStats(request: Request) {
   const api = createApi(request);
   const [homepageViews, quizStarted, quizCompleted, redirections, impressions, departments] = await Promise.all([
     fetchCard(api, STATS_CARDS.homepageViews),
@@ -28,7 +29,7 @@ export async function loadPublicStats(request: Request) {
     STATS_QUESTIONS.map(async (question) => [question, await fetchCard(api, STATS_ANSWERS_CARD, { question })] as [string, MetabaseCardResult | null]),
   );
 
-  return {
+  const data = {
     homepageViews: homepageViews && toWeeklyPoints(homepageViews),
     quizStarted: quizStarted && toWeeklyPoints(quizStarted),
     quizCompleted: quizCompleted && toWeeklyPoints(quizCompleted),
@@ -37,4 +38,16 @@ export async function loadPublicStats(request: Request) {
     departments: departments && toDepartmentPoints(departments),
     answers: answerCards.some(([, card]) => card) ? toAnswerRows(answerCards) : null,
   };
+  const complete = [homepageViews, quizStarted, quizCompleted, redirections, impressions, departments, ...answerCards.map(([, card]) => card)].every(Boolean);
+
+  return { data, complete };
+}
+
+// Une visite déclenche 16 appels Metabase, comptés par le rate limit IP partagé de l'instance : on mémorise donc le résultat.
+// Un résultat incomplet n'est gardé que brièvement pour réessayer vite sans marteler l'API.
+const statsCache = createValueCache<Awaited<ReturnType<typeof fetchPublicStats>>>(({ complete }) => (complete ? STATS_CACHE_TTL_MS : STATS_PARTIAL_CACHE_TTL_MS));
+
+export async function loadPublicStats(request: Request) {
+  const { data } = await statsCache.get(() => fetchPublicStats(request));
+  return data;
 }

@@ -12,3 +12,6 @@ export const STATS_CARDS = {
 export const STATS_ANSWERS_CARD = 6584;
 
 export const STATS_QUESTIONS = ["Âge", "Handicap reconnu", "Région", "Déplacements", "Ce qui les amène", "Rythme souhaité", "Domaines", "Activités", "Équipe", "Cadre de travail"];
+
+export const STATS_CACHE_TTL_MS = 5 * 60 * 1000;
+export const STATS_PARTIAL_CACHE_TTL_MS = 30 * 1000;
