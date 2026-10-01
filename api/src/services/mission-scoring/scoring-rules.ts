@@ -33,6 +33,7 @@ type MissionScoringRule = MissionScoringEqualsRule | MissionScoringPresentRule;
 
 const ALL_TRANCHE_AGE_KEYS = [
   "tranche_age.moins_18_ans",
+  "tranche_age.entre_17_18_ans",
   "tranche_age.entre_18_25_ans",
   "tranche_age.entre_25_30_ans",
   "tranche_age.entre_30_45_ans",
@@ -77,7 +78,7 @@ export const SCORING_RULES = [
     mode: "replace",
     values: [
       "dispositif.reserve_armees",
-      "tranche_age.moins_18_ans",
+      "tranche_age.entre_17_18_ans",
       "tranche_age.entre_18_25_ans",
       "tranche_age.entre_25_30_ans",
       "tranche_age.entre_30_45_ans",

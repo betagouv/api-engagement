@@ -117,6 +117,24 @@ describe("userScoringService.create — dispositifs déduits", () => {
     expect(persistedKeys()).toContain("dispositif.service_civique");
   });
 
+  it.each([17, 18])("ajoute la tranche ROC 17-18 ans pour un utilisateur de %i ans", async (age) => {
+    await userScoringService.create({
+      missionAlertEnabled: false,
+      answers: [{ taxonomy: "tranche_age", params: { age } }],
+    });
+
+    expect(persistedKeys()).toContain("tranche_age.entre_17_18_ans");
+  });
+
+  it.each([16, 19])("n'ajoute pas la tranche ROC 17-18 ans pour un utilisateur de %i ans", async (age) => {
+    await userScoringService.create({
+      missionAlertEnabled: false,
+      answers: [{ taxonomy: "tranche_age", params: { age } }],
+    });
+
+    expect(persistedKeys()).not.toContain("tranche_age.entre_17_18_ans");
+  });
+
   it("n'ajoute pas le Service Civique après 25 ans", async () => {
     await userScoringService.create({
       missionAlertEnabled: false,
