@@ -181,6 +181,10 @@ resource "scaleway_container" "plateform" {
   http_option    = "redirected"
   deploy         = true
 
+  scaling_option {
+    concurrent_requests_threshold = 10
+  }
+
   environment_variables = {
     "SERVER_API_URL" = "https://${var.api_hostname}"
   }
