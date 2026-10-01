@@ -17,6 +17,7 @@ select
   c.session_date,
   c.distinct_id,
   c.quiz_session_id,
+  c.quiz_session_id_source,
   c.quiz_attempt_id,
   c.utm_source,
   c.utm_campaign,

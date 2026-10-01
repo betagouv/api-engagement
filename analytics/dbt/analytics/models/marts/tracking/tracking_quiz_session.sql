@@ -38,6 +38,7 @@ backend as (
 select
   s.quiz_attempt_id,
   s.quiz_session_id,
+  s.is_cookieless_attempt,
   s.started_at,
   s.session_date,
   s.entry_source,

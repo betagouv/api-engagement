@@ -36,9 +36,36 @@ models:
       - name: device_type
         description: Type d'appareil PostHog (`$device_type`), ex. Mobile / Desktop / Tablet.
       - name: quiz_attempt_id
-        description: UUID de la tentative de quiz (présent sur tout le tunnel).
+        description: >
+          Tentative de quiz, présente sur tout le tunnel. Avec cookies : UUID posé par le front (super
+          property). Sans cookies, le front ne le pose pas : tentative RECONSTITUÉE
+          `cookieless:<session PostHog>:<n>`, où n est le numéro du `quiz.started` en cours dans la session
+          PostHog ; null avant le premier `quiz.started`. LIMITE : un consentement donné en plein quiz coupe la
+          tentative en deux (moitié reconstituée avec le démarrage, moitié avec le vrai UUID sans démarrage) ;
+          2 cas sur 310 tentatives en septembre 2026.
+      - name: quiz_attempt_id_source
+        description: >
+          Origine de `quiz_attempt_id` : `property` (super property, visiteur avec cookies), `session`
+          (reconstitué depuis la session PostHog, visiteur sans cookies), null si aucune tentative.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['property', 'session']
       - name: quiz_session_id
-        description: Identifiant de session backend (`userScoringId`), présent sur les events post-quiz.
+        description: >
+          Identifiant du scoring backend (`userScoringId` = `user_scoring_id`), présent sur les events post-quiz.
+          Lu en priorité dans la super property `quiz_session_id` ; à défaut, extrait de l'URL
+          (`/results/<id>`, `/results/<id>/missions/<mission>`). Le repli rattache les visiteurs SANS cookies,
+          dont le front retire la super property mais dont PostHog enregistre l'URL. RUPTURE DE SÉRIE à la mise en production du repli par l'URL des résultats (octobre 2026) : les events
+          cookieless des pages de résultats portent désormais un `quiz_session_id`.
+      - name: quiz_session_id_source
+        description: >
+          Origine de `quiz_session_id` : `property` (super property, visiteur avec cookies ou accès direct à
+          `/results/<id>`), `url` (repli sur l'URL, en pratique visiteur sans cookies), null si aucun id.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['property', 'url']
       - name: quiz_version
         description: Version du quiz ayant émis l'événement.
       - name: utm_term
@@ -111,9 +138,17 @@ models:
         tests:
           - not_null
       - name: quiz_session_id
-        description: Identifiant backend (`userScoringId`), clé de jointure analytics.
+        description: >
+          Identifiant backend (`userScoringId`), clé de jointure analytics. Posé à la complétion pour les
+          visiteurs avec cookies ; toujours null pour les tentatives sans cookies (`quiz_attempt_id_source =
+          'session'`), la page du quiz n'ayant pas l'id dans son URL : il est repris du premier `results.viewed`
+          dans `int_tracking_quiz_session`. Test limité aux visiteurs avec cookies.
         tests:
-          - not_null
+          - not_null:
+              config:
+                where: "quiz_attempt_id_source = 'property'"
+      - name: quiz_attempt_id_source
+        description: Origine de `quiz_attempt_id` (`property` avec cookies, `session` sans), voir `stg_tracking__event`.
       - name: completion_type
         description: Type de complétion.
         tests:

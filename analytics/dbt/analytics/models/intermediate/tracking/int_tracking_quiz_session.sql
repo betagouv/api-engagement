@@ -49,6 +49,19 @@ completed as (
   group by quiz_attempt_id
 ),
 
+-- Scoring de repli : sans cookies, `quiz.completed` ne porte pas de
+-- `quiz_session_id` (la page du quiz n'a pas l'id dans l'URL). On prend celui
+-- du premier `results.viewed` de la tentative, lu dans l'URL `/results/<id>`.
+-- Le premier, et non un re-scoring ultérieur par les filtres.
+first_results as (
+  select distinct on (quiz_attempt_id)
+    quiz_attempt_id,
+    quiz_session_id
+  from {{ ref('stg_tracking__results_viewed') }}
+  where quiz_attempt_id is not null and quiz_session_id is not null
+  order by quiz_attempt_id asc, event_at asc, event_uuid asc
+),
+
 -- Géo DÉCLARÉE au quiz (étape localisation), pas la géo GeoIP de PostHog.
 -- Null pour les tentatives ayant abandonné avant l'étape localisation.
 localisation_geo as (
@@ -102,7 +115,6 @@ geo_enriched as (
 
 joined as (
   select
-    c.quiz_session_id,
     s.started_at,
     s.started_at::date as session_date,
     s.entry_source,
@@ -127,6 +139,7 @@ joined as (
     coalesce(s.distinct_id, st.distinct_id, c.distinct_id) as distinct_id,
     coalesce(s.quiz_attempt_id, st.quiz_attempt_id, c.quiz_attempt_id)
       as quiz_attempt_id,
+    coalesce(c.quiz_session_id, fr.quiz_session_id) as quiz_session_id,
     c.completed_at is not null as is_completed,
     coalesce(c.steps_completed_count, st.step_events_count)
       as steps_completed_count
@@ -134,6 +147,10 @@ joined as (
   full outer join steps as st on s.quiz_attempt_id = st.quiz_attempt_id
   full outer join completed as c
     on coalesce(s.quiz_attempt_id, st.quiz_attempt_id) = c.quiz_attempt_id
+  left join first_results as fr
+    on
+      coalesce(s.quiz_attempt_id, st.quiz_attempt_id, c.quiz_attempt_id)
+      = fr.quiz_attempt_id
 )
 
 select
@@ -145,7 +162,8 @@ select
   ge.department_code,
   ge.department_name,
   ge.region_code,
-  ge.region_name
+  ge.region_name,
+  j.quiz_attempt_id like 'cookieless:%' as is_cookieless_attempt
 from joined as j
 left join geo_enriched as ge on j.quiz_attempt_id = ge.quiz_attempt_id
 where {{ exclude_internal_distinct_ids('j.distinct_id') }}
