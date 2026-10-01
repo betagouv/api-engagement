@@ -6,7 +6,9 @@ type Options = {
   baseUrl: URL;
   pageSize: number;
   delayMs: number;
+  concurrency: number;
   offset?: number;
+  version?: 0 | 2;
 };
 
 type AuthenticatedOptions = Options & { apiKey: string };
@@ -29,7 +31,7 @@ export type ComparisonResult = {
   onlyV0: string[];
 };
 
-const DEFAULTS = { pageSize: 20, delayMs: 0 };
+const DEFAULTS = { pageSize: 20, delayMs: 0, concurrency: 1 };
 const sleep: Pause = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs));
 const ignoreRequestTiming: LogRequestTiming = () => {};
 
@@ -53,7 +55,7 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     values.set(name, value);
   }
 
-  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--delay-ms", "--offset"]);
+  const allowed = new Set(["--publisher-id", "--base-url", "--page-size", "--delay-ms", "--concurrency", "--offset", "--version"]);
   for (const name of values.keys()) {
     if (!allowed.has(name)) {
       throw new Error(`Option inconnue : ${name}`);
@@ -72,14 +74,29 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
   }
   baseUrl.pathname = `${baseUrl.pathname.replace(/\/$/, "")}/`;
 
+  const rawVersion = values.get("--version");
+  if (rawVersion !== undefined && rawVersion !== "v0" && rawVersion !== "v2") {
+    throw new Error("--version doit valoir v0 ou v2");
+  }
+  const version = rawVersion === "v0" ? 0 : rawVersion === "v2" ? 2 : undefined;
+  const offset = values.has("--offset") ? parseInteger(values.get("--offset")!, "--offset", 0, 1000000000) : undefined;
+  if (version === 2 && offset !== undefined) {
+    throw new Error("--offset est uniquement disponible pour la v0");
+  }
+
   return {
     publisherId,
     baseUrl,
     pageSize: parseInteger(values.get("--page-size") ?? DEFAULTS.pageSize, "--page-size", 1),
     delayMs: parseInteger(values.get("--delay-ms") ?? DEFAULTS.delayMs, "--delay-ms", 0, 60000),
-    offset: values.has("--offset") ? parseInteger(values.get("--offset")!, "--offset", 0, 1000000000) : undefined,
+    concurrency: parseInteger(values.get("--concurrency") ?? DEFAULTS.concurrency, "--concurrency", 1),
+    offset,
+    version,
   };
 };
+
+const runConcurrently = <T>(concurrency: number, run: (workerIndex: number) => Promise<T>): Promise<T[]> =>
+  Promise.all(Array.from({ length: concurrency }, (_, workerIndex) => run(workerIndex)));
 
 function assertMission(mission: unknown, version: string): asserts mission is MissionIdentity {
   const candidate = mission as Partial<MissionIdentity> | null;
@@ -275,14 +292,43 @@ const main = async () => {
     }
 
     const responseTimes: Record<0 | 2, number[]> = { 0: [], 2: [] };
-    const result = await compareMissions({ ...options, apiKey: publisher.apikey }, fetch, sleep, ({ version, status, durationMs, limit, offset }) => {
-      responseTimes[version].push(durationMs);
-      const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
-      console.log(`GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
-    });
+    const authenticatedOptions = { ...options, apiKey: publisher.apikey };
+    const benchmarkStartedAt = performance.now();
+    const createLogRequestTiming =
+      (workerIndex: number): LogRequestTiming =>
+      ({ version, status, durationMs, limit, offset }) => {
+        responseTimes[version].push(durationMs);
+        const worker = options.concurrency > 1 ? `Worker ${workerIndex + 1}/${options.concurrency} — ` : "";
+        const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
+        console.log(`${worker}GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
+      };
 
-    console.log(`Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v0Pages} page(s) v0, ${result.v2Pages} page(s) v2`);
-    for (const version of [0, 2] as const) {
+    let results: ComparisonResult[] | undefined;
+    if (options.version === 0) {
+      const runs = await runConcurrently(options.concurrency, async (workerIndex) => {
+        const logRequestTiming = createLogRequestTiming(workerIndex);
+        if (options.offset !== undefined) {
+          await requestPage(authenticatedOptions, 0, { limit: options.pageSize, skip: options.offset }, fetch, logRequestTiming);
+          await sleep(options.delayMs);
+        }
+        return collectV0(authenticatedOptions, fetch, sleep, logRequestTiming);
+      });
+      const v0 = runs[0];
+      console.log(`Publisher ${options.publisherId} : v0=${v0.total}, ${v0.pages} page(s) par parcours, ${runs.length} parcours`);
+    } else if (options.version === 2) {
+      const runs = await runConcurrently(options.concurrency, (workerIndex) => collectV2(authenticatedOptions, fetch, sleep, createLogRequestTiming(workerIndex)));
+      const v2 = runs[0];
+      console.log(`Publisher ${options.publisherId} : v2=${v2.total}, ${v2.pages} page(s) par parcours, ${runs.length} parcours`);
+    } else {
+      results = await runConcurrently(options.concurrency, (workerIndex) => compareMissions(authenticatedOptions, fetch, sleep, createLogRequestTiming(workerIndex)));
+      const result = results[0];
+      console.log(
+        `Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v0Pages} page(s) v0 et ${result.v2Pages} page(s) v2 par parcours, ${results.length} parcours`
+      );
+    }
+
+    const benchmarkedVersions: Array<0 | 2> = options.version === undefined ? [0, 2] : [options.version];
+    for (const version of benchmarkedVersions) {
       const durations = responseTimes[version];
       const total = durations.reduce((sum, duration) => sum + duration, 0);
       const average = durations.length ? total / durations.length : 0;
@@ -291,11 +337,21 @@ const main = async () => {
         `Résumé GET /v${version}/mission — ${durations.length} requête(s) — total ${total.toFixed(0)} ms — moyenne ${average.toFixed(0)} ms — max ${maximum.toFixed(0)} ms`
       );
     }
-    console.log(result.same ? "Identiques : mêmes identifiants de missions" : "Différence : ensembles de missions distincts");
-    if (!result.same) {
-      console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
-      console.log(`Présentes uniquement en v0 (${result.onlyV0.length}) : ${result.onlyV0.slice(0, 20).join(", ") || "aucune"}`);
-      process.exitCode = 1;
+
+    const wallDurationMs = performance.now() - benchmarkStartedAt;
+    const requestCount = responseTimes[0].length + responseTimes[2].length;
+    const requestsPerSecond = wallDurationMs > 0 ? requestCount / (wallDurationMs / 1000) : 0;
+    console.log(`Résumé charge — concurrence ${options.concurrency} — durée réelle ${wallDurationMs.toFixed(0)} ms — débit moyen ${requestsPerSecond.toFixed(2)} req/s`);
+
+    if (results) {
+      const result = results.find((candidate) => !candidate.same) ?? results[0];
+      const identical = results.every((candidate) => candidate.same);
+      console.log(identical ? "Identiques : mêmes identifiants de missions pour tous les parcours" : "Différence : ensembles de missions distincts");
+      if (!identical) {
+        console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
+        console.log(`Présentes uniquement en v0 (${result.onlyV0.length}) : ${result.onlyV0.slice(0, 20).join(", ") || "aucune"}`);
+        process.exitCode = 1;
+      }
     }
   } finally {
     await pgDisconnect();
