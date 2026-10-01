@@ -7,7 +7,7 @@ import type { MissionMatchingResultItem } from "@/services/matching-engine/types
 import { missionService } from "@/services/mission";
 import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
 
-import { buildMissionContentHtml, type MissionContent } from "./mission-content";
+import { buildMissionContentHtml, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
 
 const USER_SCORING_EMAIL_MISSION_LIMIT = 6;
 
@@ -185,6 +185,7 @@ export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSk
 };
 
 export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<SendMissionEmailResult> => {
+  let missionAlertEnabled = false;
   if (input.userScoringId) {
     const userScoring = await userScoringRepository.findById(input.userScoringId);
     if (!userScoring) {
@@ -194,13 +195,18 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     if (!input.distinctId || !userScoring.distinctId || userScoring.distinctId !== input.distinctId) {
       return { status: "forbidden" };
     }
+    missionAlertEnabled = userScoring.missionAlertEnabled;
+  }
 
+  // Inscription Brevo depuis le quiz (scoring) ou depuis un point d'entrée identifié, même sans scoring
+  // (ex. cœur d'une carte sur une landing).
+  if (input.userScoringId || input.signupSource) {
     const contactResult = await subscribeToNewsletter({
       email: input.email,
       publisherId: input.publisherId,
       distinctId: input.distinctId,
       userScoringId: input.userScoringId,
-      missionAlertEnabled: userScoring.missionAlertEnabled,
+      missionAlertEnabled,
       signupSource: input.signupSource,
     });
 
@@ -220,14 +226,26 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     return { status: "skipped", reason: getMissionEmailSkipReason(input.missionIds) };
   }
 
-  const emailResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
-    emailTo: [input.email],
-    params: {
-      contentHtml: buildMissionContentHtml(missions),
-      resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
-    },
-    tags: ["user-scoring", "mission-matching-results"],
-  });
+  // Une seule mission demandée (cœur d'une carte, fiche mission) : grande carte, et le CTA « Découvrir la mission »
+  // du template pointe vers la mission. Sinon : la sélection de résultats en grille.
+  const emailResult =
+    input.missionIds?.length === 1
+      ? await sendTemplate(TEMPLATE_IDS.TTM_MISSION_SAVED, {
+          emailTo: [input.email],
+          params: {
+            contentHtml: buildSavedMissionContentHtml(missions[0]),
+            missionUrl: missions[0].url,
+          },
+          tags: ["mission-saved"],
+        })
+      : await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
+          emailTo: [input.email],
+          params: {
+            contentHtml: buildMissionContentHtml(missions),
+            resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
+          },
+          tags: ["user-scoring", "mission-matching-results"],
+        });
 
   if (!emailResult.ok) {
     return { status: "failed" };

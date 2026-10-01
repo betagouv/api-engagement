@@ -25,6 +25,7 @@ vi.mock("@/services/brevo", async () => {
       INVITATION: 1,
       FORGOT_PASSWORD: 5,
       TTM_MISSIONS_LISTING: 0,
+      TTM_MISSION_SAVED: 2,
     },
     LIST_IDS: {
       TTM_MISSIONS_LISTING: 22,
@@ -791,16 +792,35 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
     const [templateId, payload] = brevoMock.sendTemplate.mock.calls[0];
-    expect(templateId).toBe(0);
+    expect(templateId).toBe(2);
     expect(payload.emailTo).toEqual(["user@example.com"]);
-    expect(payload.tags).toEqual(["user-scoring", "mission-matching-results"]);
+    expect(payload.tags).toEqual(["mission-saved"]);
 
-    const { contentHtml } = payload.params;
+    const { contentHtml, missionUrl } = payload.params;
     expect(contentHtml).toContain(mission.title);
     expect(contentHtml).toContain("Paris");
     expect(contentHtml).toContain("1 jour par semaine");
     expect(contentHtml).toContain("620€ par mois");
-    expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`);
+    expect(contentHtml).not.toContain("Détails");
+    expect(missionUrl).toBe(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`);
+  });
+
+  it("should subscribe a saved mission contact without user scoring", async () => {
+    const publisher = await createTestPublisher({ name: "Saved Mission Publisher" });
+    const emailPublisher = await createEmailPublisher();
+    const mission = await createTestMission({ publisherId: publisher.id, title: "Saved Mission" });
+
+    const res = await postMissionEmailRequest().send({
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      missionIds: [mission.id],
+      signupSource: "save_mission",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.email_sent).toBe(true);
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds: [22, 23, 26], signupSource: "save_mission" }));
+    expect(brevoMock.sendTemplate.mock.calls[0][1].params.missionUrl).toBe(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?email_source=save_mission`);
   });
 
   it("should skip mission email when missionIds are not found", async () => {
