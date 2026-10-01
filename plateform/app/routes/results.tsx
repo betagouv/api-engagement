@@ -323,7 +323,6 @@ export default function ResultsPage() {
               onOpenChange={(open) => {
                 if (!open) setEmailMission(null);
               }}
-              hideTrigger
             />
           </div>
         </main>
@@ -441,7 +440,6 @@ export default function ResultsPage() {
         onOpenChange={(open) => {
           if (!open) setEmailMission(null);
         }}
-        hideTrigger
       />
     </>
   );

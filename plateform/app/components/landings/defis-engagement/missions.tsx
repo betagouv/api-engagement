@@ -71,7 +71,6 @@ export default function Missions({ missions, cta }: { missions: MissionBrowse[];
             missionId={emailMissionId ?? undefined}
             open={emailMissionId !== null}
             onOpenChange={(open) => !open && setEmailMissionId(null)}
-            hideTrigger
           />
         </div>
       </div>

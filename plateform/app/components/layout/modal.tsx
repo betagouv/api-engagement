@@ -54,7 +54,7 @@ export default function Modal({ open, children, onClose, title, beforeTitle, tit
               <div className="fr-modal__content">
                 {beforeTitle}
                 <h2 id={titleId} className="fr-modal__title">
-                  {titleIcon && <span className={`${titleIcon} fr-icon--lg`} aria-hidden="true" />}
+                  {titleIcon && <span className={`${titleIcon} fr-icon--lg mr-2!`} aria-hidden="true" />}
                   {title}
                 </h2>
                 {children}
