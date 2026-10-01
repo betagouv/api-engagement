@@ -1148,3 +1148,26 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(res.body.ok).toBe(false);
   });
 });
+
+describe("POST /newsletter", () => {
+  it("should subscribe a results banner contact to the future recommendations list only", async () => {
+    const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
+    const userScoringId = "00000000-0000-4000-8000-000000000000";
+
+    const res = await request(app)
+      .post("/newsletter")
+      .set("x-api-key", plateformPublisher.apikey!)
+      .send({ email: "user@example.com", distinctId: "distinct-id", userScoringId, signupSource: "result_list" });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true, data: { subscribed: true } });
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith({
+      email: "user@example.com",
+      distinctId: "distinct-id",
+      userScoringId,
+      missionAlertEnabled: false,
+      listIds: [26],
+      signupSource: "result_list",
+    });
+  });
+});

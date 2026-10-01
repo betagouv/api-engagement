@@ -6,6 +6,8 @@ export type SignupSource = (typeof SIGNUP_SOURCES)[number];
 export type NewsletterSubscribeRequest = {
   email: string;
   distinctId?: string;
+  userScoringId?: string;
+  signupSource?: SignupSource;
 };
 
 export type NewsletterSubscribeResponse = {

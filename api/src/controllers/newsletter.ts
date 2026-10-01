@@ -7,7 +7,7 @@ import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { subscribeToNewsletter } from "@/services/brevo";
 import type { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
-import type { NewsletterSubscribeResponse } from "@engagement/dto";
+import { SIGNUP_SOURCES, type NewsletterSubscribeResponse } from "@engagement/dto";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
@@ -19,6 +19,8 @@ const newsletterBodySchema = zod
   .object({
     email: emailSchema,
     distinctId: zod.string().trim().min(1).optional(),
+    userScoringId: zod.uuid().optional(),
+    signupSource: zod.enum(SIGNUP_SOURCES).optional(),
   })
   .strict();
 
