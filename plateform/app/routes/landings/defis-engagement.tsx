@@ -65,7 +65,7 @@ const MISSIONS_CTA = { to: "/missions?tranche_age=moins_18_ans", label: "Voir to
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
-    title: "Les défis de l'engagement — Trouve ta mission",
+    title: "Les défis de l'engagement | Trouve ta mission",
     description: "Des missions d'engagement en bénévolat, service civique, pompiers ou réservistes dès 16 ans, dans un cadre pensé pour les mineurs.",
     ogTitle: "Les défis de l'engagement",
     ogDescription: "Dès 16 ans, trouve la mission d'engagement qui te ressemble.",

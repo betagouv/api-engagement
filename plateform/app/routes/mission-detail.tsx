@@ -4,7 +4,7 @@ import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import type { Route } from "./+types/mission-detail";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Détail de la mission — Trouve ta mission" });
+  return pageMeta(location, { title: "Détail de la mission | Trouve ta mission" });
 }
 
 export async function clientLoader() {
@@ -56,7 +56,7 @@ export default function MissionDetailPage() {
   // RGAA 8.5/8.6 : la mission est chargée côté client, meta() ne peut donner qu'un titre générique.
   // On le remplace par le titre de la mission dès qu'elle est disponible.
   useEffect(() => {
-    if (mission?.title) document.title = `${mission.title} — Trouve ta mission`;
+    if (mission?.title) document.title = `${mission.title} | Trouve ta mission`;
   }, [mission]);
 
   // mission_detail.viewed : une fois la fiche chargée, émis une seule fois par mission.

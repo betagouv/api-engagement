@@ -29,7 +29,7 @@ import { pageMeta } from "~/utils/seo";
 
 // Page de résultats personnels (un lien unique par jeune) : pas d'indexation si le lien circule.
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Tes missions recommandées — Trouve ta mission", robots: "noindex, nofollow" });
+  return pageMeta(location, { title: "Tes missions recommandées | Trouve ta mission", robots: "noindex, nofollow" });
 }
 
 export async function clientLoader() {

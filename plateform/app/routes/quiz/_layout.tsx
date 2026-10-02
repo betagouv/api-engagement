@@ -37,7 +37,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     Object.values(QUIZ_FLOW_REGISTRY)
       .flat()
       .find((s) => s.route === location.pathname);
-  const title = step ? `${step.title} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
+  const title = step ? `${step.title} | Quiz Engagement | Trouve ta mission` : "Quiz Engagement | Trouve ta mission";
   return pageMeta(location, { title, robots: "noindex, nofollow" });
 }
 

@@ -2,7 +2,7 @@ import type { Route } from "./+types/politique-de-confidentialite";
 import { pageMeta } from "~/utils/seo";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Politique de confidentialité — Trouve ta mission" });
+  return pageMeta(location, { title: "Politique de confidentialité | Trouve ta mission" });
 }
 
 export default function PolitiqueDeConfidentialite() {

@@ -23,7 +23,7 @@ const apiEngagementTag = PUBLISHER_ID
 export function meta({ error }: Route.MetaArgs): Route.MetaDescriptors {
   if (!error) return [{ title: "Trouve ta mission" }];
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
-  return [{ title: isNotFound ? "Page introuvable — Trouve ta mission" : "Une erreur est survenue — Trouve ta mission" }];
+  return [{ title: isNotFound ? "Page introuvable | Trouve ta mission" : "Une erreur est survenue | Trouve ta mission" }];
 }
 
 export function Layout({ children }: { children: ReactNode }) {
