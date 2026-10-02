@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import type { Route } from "./+types/mission-detail";
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Détail de la mission — Trouve ta mission" }];
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  return pageMeta(location, { title: "Détail de la mission — Trouve ta mission" });
 }
 
 export async function clientLoader() {
@@ -24,6 +24,7 @@ import { trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/servi
 import type { MissionDetailNavState } from "~/services/tracking/types";
 import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
 import { buildMissionApplicationHref, formatDeadline } from "~/utils/mission";
+import { pageMeta } from "~/utils/seo";
 
 export default function MissionDetailPage() {
   const { missionId, userScoringId } = useParams<{ missionId: string; userScoringId?: string }>();

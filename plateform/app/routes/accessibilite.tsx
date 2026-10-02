@@ -1,7 +1,8 @@
 import type { Route } from "./+types/accessibilite";
+import { pageMeta } from "~/utils/seo";
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Déclaration d'accessibilité — Trouve ta mission" }];
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  return pageMeta(location, { title: "Déclaration d'accessibilité — Trouve ta mission" });
 }
 
 export default function Accessibilite() {

@@ -62,17 +62,13 @@ const PARTNERS: Partner[] = [
 // (liste pré-filtrée sur les mineurs) et même wording, définis ici une seule fois.
 const MISSIONS_CTA = { to: "/missions?tranche_age=moins_18_ans", label: "Voir toutes les missions" };
 
-export function meta(): Route.MetaDescriptors {
-  return [
-    { title: "Les défis de l'engagement — Trouve ta mission" },
-    {
-      name: "description",
-      content: "Des missions d'engagement en bénévolat, service civique, pompiers ou réservistes dès 16 ans, dans un cadre pensé pour les mineurs.",
-    },
-    { property: "og:title", content: "Les défis de l'engagement" },
-    { property: "og:description", content: "Dès 16 ans, trouve la mission d'engagement qui te ressemble." },
-    { property: "og:type", content: "website" },
-  ];
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  return pageMeta(location, {
+    title: "Les défis de l'engagement — Trouve ta mission",
+    description: "Des missions d'engagement en bénévolat, service civique, pompiers ou réservistes dès 16 ans, dans un cadre pensé pour les mineurs.",
+    ogTitle: "Les défis de l'engagement",
+    ogDescription: "Dès 16 ans, trouve la mission d'engagement qui te ressemble.",
+  });
 }
 
 export async function loader({ request }: Route.LoaderArgs): Promise<{ missions: MissionBrowse[] }> {

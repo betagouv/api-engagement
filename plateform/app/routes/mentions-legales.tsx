@@ -1,7 +1,8 @@
 import type { Route } from "./+types/mentions-legales";
+import { pageMeta } from "~/utils/seo";
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Mentions légales — Trouve ta mission" }];
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  return pageMeta(location, { title: "Mentions légales — Trouve ta mission" });
 }
 
 export default function MentionsLegales() {

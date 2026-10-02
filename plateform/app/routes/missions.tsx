@@ -17,6 +17,7 @@ import type { MissionDetailNavState, MissionsFilterType } from "~/services/track
 import { buildMissionBrowseTags } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 import type { Route } from "./+types/missions";
+import { pageMeta } from "~/utils/seo";
 
 const PAGE_SIZE = 9;
 
@@ -66,8 +67,13 @@ export function HydrateFallback() {
   return null;
 }
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Trouve ta mission" }];
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  return pageMeta(location, {
+    title: "Toutes les missions d'engagement",
+    description: "Parcours toutes les missions de bénévolat, de service civique et de réserve, et filtre par domaine, lieu ou rythme.",
+    // ponytail: liste rendue côté client (Google ne voit aucun contenu) ; retirer le noindex si elle passe en SSR.
+    robots: "noindex, follow",
+  });
 }
 
 export default function MissionsPage() {

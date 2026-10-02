@@ -24,8 +24,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
       <div className="fr-container relative z-10 py-8! lg:col-start-1 lg:row-start-1 lg:self-center lg:py-0!">
         <div className="w-full lg:max-w-[48%]">
           <h1 className="text-4xl! md:text-5xl! lg:text-6xl! xl:text-7xl! text-title-grey">
-            Et si une mission pouvait t'aider
-            <br /> à avancer ?
+            Tous les engagements publics, réunis en un seul endroit
           </h1>
           <p className="fr-text--lead text-default-grey fr-mb-3w">
             Service Civique, réserve militaire, pompiers volontaires, bénévolat… Réponds à quelques questions, et découvre la mission d'engagement qui te correspond !
