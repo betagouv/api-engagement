@@ -18,6 +18,7 @@ import type { CtaSection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/_index";
+import { pageMeta } from "~/utils/seo";
 
 const PARTNERS: Partner[] = [
   {
@@ -47,13 +48,36 @@ const PARTNERS: Partner[] = [
   },
 ];
 
-export function meta(): Route.MetaDescriptors {
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://trouvetamission.gouv.fr/#website",
+      name: "Trouve Ta Mission",
+      alternateName: ["TrouveTaMission.gouv.fr", "Trouve ta mission"],
+      url: "https://trouvetamission.gouv.fr/",
+      inLanguage: "fr",
+      publisher: { "@id": "https://trouvetamission.gouv.fr/#organization" },
+    },
+    {
+      "@type": "GovernmentOrganization",
+      "@id": "https://trouvetamission.gouv.fr/#organization",
+      name: "Trouve Ta Mission",
+      url: "https://trouvetamission.gouv.fr/",
+      logo: "https://trouvetamission.gouv.fr/logo.png",
+      parentOrganization: { "@type": "GovernmentOrganization", name: "Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA)" },
+    },
+  ],
+};
+
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return [
-    { title: "Trouve ta mission d'engagement" },
-    { name: "description", content: "À chacun sa façon d'agir. Bénévolat, service civique, réserve : trouve la mission d'engagement qui te ressemble près de chez toi." },
-    { property: "og:title", content: "Trouve ta mission d'engagement" },
-    { property: "og:description", content: "Bénévolat, service civique, réserve : trouve la mission qui te ressemble." },
-    { property: "og:type", content: "website" },
+    ...pageMeta(location, {
+      title: "S'engager et se rendre utile | Trouve Ta Mission",
+      description: "Bénévolat, service civique, réserves, pompiers : trouvez la mission qui vous ressemble, près de chez vous, à distance ou à l'étranger.",
+    }),
+    { "script:ld+json": STRUCTURED_DATA },
   ];
 }
 

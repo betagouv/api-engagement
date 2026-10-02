@@ -6,12 +6,20 @@ describe("resolveTrancheAgeValues", () => {
     expect(resolveTrancheAgeValues({ age: 15 })).toEqual(["moins_18_ans"]);
   });
 
-  it("ajoute le bucket caché 16-17 ans", () => {
+  it("ne classe pas les 16 ans dans le bucket caché 17-18 ans", () => {
     expect(resolveTrancheAgeValues({ age: 16 })).toEqual(["moins_18_ans"]);
   });
 
-  it("classe les 18-25 ans", () => {
-    expect(resolveTrancheAgeValues({ age: 18 })).toEqual(["entre_18_25_ans"]);
+  it("ajoute le bucket caché 17-18 ans à 17 ans", () => {
+    expect(resolveTrancheAgeValues({ age: 17 })).toEqual(["moins_18_ans", "entre_17_18_ans"]);
+  });
+
+  it("ajoute le bucket caché 17-18 ans à 18 ans", () => {
+    expect(resolveTrancheAgeValues({ age: 18 })).toEqual(["entre_18_25_ans", "entre_17_18_ans"]);
+  });
+
+  it("ne classe plus les utilisateurs dans le bucket caché après 18 ans", () => {
+    expect(resolveTrancheAgeValues({ age: 19 })).toEqual(["entre_18_25_ans"]);
   });
 
   it("classe les 25-30 ans", () => {

@@ -4,6 +4,9 @@
 -- (l'événement porte alors la tentative en cours). On garde la tentative et
 -- le `distinct_id` de la PREMIÈRE vue, celle qui a produit le scoring. Un
 -- re-scoring par les filtres émet un nouveau `quiz_session_id` (autre ligne).
+-- Personnes internes exclues VUE PAR VUE, avant agrégation (comme les clics) :
+-- un scoring créé par un interne puis ouvert par d'autres navigateurs (lien
+-- partagé, test sans cookies) garde une ligne bâtie sur leurs seules vues.
 -- Sections des résultats classés : `pinned` / `other` jusqu'à la refonte du
 -- 17/09/2026, puis `list` (liste paginée) / `map` (carte). `rank` est le rang
 -- absolu dans le scoring dans les deux cas.
@@ -21,7 +24,9 @@ with results as (
     max(total_pages) as total_pages,
     max(avg_distance_km_top5) as avg_distance_km_top5
   from {{ ref('stg_tracking__results_viewed') }}
-  where quiz_session_id is not null
+  where
+    quiz_session_id is not null
+    and {{ exclude_internal_distinct_ids('distinct_id') }}
   group by quiz_session_id
 ),
 
@@ -65,4 +70,3 @@ select
   coalesce(cl.click_count, 0) = 0 as is_zero_click
 from results as r
 left join clicks as cl on r.quiz_session_id = cl.quiz_session_id
-where {{ exclude_internal_distinct_ids('r.distinct_id') }}

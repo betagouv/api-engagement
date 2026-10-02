@@ -5,6 +5,7 @@ with base as (
     distinct_id,
     quiz_attempt_id,
     quiz_session_id,
+    quiz_session_id_source,
     device_type,
     utm_source,
     utm_campaign,

@@ -219,7 +219,7 @@ describe("POST /user-scoring", () => {
       where: { userScoringId: res.body.data.id },
       orderBy: [{ valueKey: "asc" }],
     });
-    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_18_25_ans", "dispositif.service_civique"]);
+    expect(values.map((value) => `${value.taxonomyKey}.${value.valueKey}`)).toEqual(["tranche_age.entre_17_18_ans", "tranche_age.entre_18_25_ans", "dispositif.service_civique"]);
   });
 
   it("should persist each inferred dispositif once with a score of 1", async () => {
@@ -272,7 +272,7 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(3);
   });
 
   it("should return 400 when taxonomy is unknown", async () => {
@@ -323,7 +323,7 @@ describe("POST /user-scoring", () => {
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId: res.body.data.id },
     });
-    expect(values).toHaveLength(3);
+    expect(values).toHaveLength(4);
 
     const geo = await prisma.userScoringGeo.findUnique({
       where: { userScoringId: res.body.data.id },
@@ -968,12 +968,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
     });
 
     expect(res.status).toBe(200);
-    expect(res.body.data.created_count).toBe(2);
+    expect(res.body.data.created_count).toBe(3);
 
     const values = await prisma.userScoringValue.findMany({
       where: { userScoringId },
     });
-    expect(values).toHaveLength(2);
+    expect(values).toHaveLength(3);
   });
 
   it("should replace existing tranche_age values when age changes", async () => {
@@ -984,7 +984,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
       answers: [{ taxonomy: "tranche_age", params: { age: 18, handicap: false } }],
     });
     expect(firstRes.status).toBe(200);
-    expect(firstRes.body.data.created_count).toBe(2);
+    expect(firstRes.body.data.created_count).toBe(3);
 
     const secondRes = await putUserScoringRequest(userScoringId).send({
       distinctId,

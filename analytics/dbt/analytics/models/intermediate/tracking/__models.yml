@@ -23,15 +23,26 @@ models:
       internes sont exclues au niveau du `distinct_id` (référentiel `int_internal_distinct_ids`).
       PIÈGE DE GRAIN : la géo n'existe que pour les tentatives ayant atteint l'étape `localisation` (les abandons
       antérieurs ont les colonnes géo à null) ; les analyses d'abandon par géo ne sont valides qu'à partir de
-      cette étape.
+      cette étape. VISITEURS SANS COOKIES : tentative reconstituée depuis la session PostHog (voir
+      `stg_tracking__event.quiz_attempt_id`) ; `quiz.completed` n'y porte pas de `quiz_session_id`, repris du
+      premier `results.viewed` de la tentative (id lu dans l'URL `/results/<id>`). RUPTURE DE SÉRIE à la mise en
+      production du suivi des visiteurs sans cookies (octobre 2026) : les tentatives sans cookies (~30 % des
+      démarrages en septembre 2026) sont incluses.
     columns:
       - name: quiz_attempt_id
-        description: UUID de la tentative de quiz.
+        description: >
+          UUID de la tentative (visiteur avec cookies) ou `cookieless:<session PostHog>:<n>` (sans cookies).
         tests:
           - not_null
           - unique
+      - name: is_cookieless_attempt
+        description: Vrai si la tentative est reconstituée (visiteur sans cookies).
+        tests:
+          - not_null
       - name: quiz_session_id
-        description: Identifiant backend (`userScoringId`), présent si le quiz a été complété.
+        description: >
+          Identifiant backend (`userScoringId`), présent si le quiz a été complété. Pris sur `quiz.completed`,
+          ou à défaut sur le premier `results.viewed` de la tentative (visiteur sans cookies).
       - name: quiz_version
         description: Version du quiz au démarrage de la tentative.
       - name: is_completed
@@ -71,7 +82,8 @@ models:
     description: >
       Vue « résultats + aval » par `quiz_session_id` : combine `results.viewed` avec les clics mission de la
       session (taux de clic, clic dans le top 5 / top 10, clic externe, zéro-clic). Personnes internes exclues
-      au niveau du `distinct_id`. Résultats classés = sections `pinned` / `other` avant la refonte du 17/09/2026,
+      vue par vue avant agrégation (niveau `distinct_id`), comme les clics : un scoring créé par un interne puis
+      ouvert par d'autres navigateurs garde une ligne bâtie sur leurs seules vues. Résultats classés = sections `pinned` / `other` avant la refonte du 17/09/2026,
       `list` / `map` après. GRAIN une ligne par `quiz_session_id` : `results.viewed` peut être émis plusieurs
       fois pour un même scoring (rechargement, ou retour sur une ancienne page `/results/<id>` depuis une autre
       tentative, l'événement portant alors la tentative en cours). `quiz_attempt_id` et `distinct_id` sont ceux
@@ -121,6 +133,14 @@ models:
       - name: page_number
         description: >
           Numéro de la page de la liste de résultats d'où provient le clic. Null hors résultats paginés.
+      - name: quiz_session_id_source
+        description: >
+          Origine du `quiz_session_id` du clic : `property` ou `url` (repli sur l'URL des résultats, visiteur
+          sans cookies). Mesure la part des clics rattachés au moteur grâce au repli.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['property', 'url']
       - name: backend_rank
         description: >
           Rang de la mission dans le run de matching actif au moment du clic (dernier `created_at` <=
@@ -265,8 +285,8 @@ models:
       - name: is_cookieless
         description: >
           Vrai si TOUS les événements de la session sont en mode cookieless (sans consentement cookies). Un
-          consentement donné en cours de session rend la session non cookieless : les événements suivants
-          portent les identifiants de rattachement.
+          consentement donné en cours de session rend la session non cookieless. Une session cookieless peut
+          posséder un `quiz_session_id` issu de l'URL des résultats (voir `stg_tracking__event`).
         tests:
           - not_null
       - name: front_mission_click_count

@@ -19,7 +19,14 @@ models:
           - not_null
           - unique
       - name: quiz_session_id
-        description: Identifiant backend, présent pour les sessions complétées.
+        description: >
+          Identifiant backend du scoring, présent pour les sessions complétées. Pris sur `quiz.completed`, ou à
+          défaut (visiteur sans cookies) sur le premier `results.viewed` de la tentative.
+      - name: is_cookieless_attempt
+        description: >
+          Vrai si la tentative est reconstituée depuis la session PostHog (visiteur sans cookies, voir
+          `stg_tracking__event.quiz_attempt_id`). Inclus à partir d'octobre 2026 : filtrer sur `false` pour
+          comparer avec l'historique.
       - name: postcode
         description: Code postal DÉCLARÉ à l'étape `localisation` (géo quiz, pas GeoIP). Nullable.
       - name: geo_lat
@@ -81,6 +88,15 @@ models:
         description: >
           Numéro de la page de la liste de résultats d'où provient le clic (depuis la refonte du 17/09/2026).
           Null hors résultats paginés.
+      - name: quiz_session_id_source
+        description: >
+          Origine du `quiz_session_id` du clic : `property` (super property) ou `url` (repli sur l'URL des
+          résultats, visiteur sans cookies). `url` explique les clics rattachés au moteur
+          (`matched_to_backend`) qui ne l'étaient pas avant le repli.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['property', 'url']
       - name: mission_score
         description: >
           Score de la mission cliquée = moyenne de ses `taxonomyScores` dans le run de matching actif au
@@ -102,7 +118,7 @@ models:
   - name: tracking_funnel_step_daily
     description: >
       Funnel quotidien : sessions atteignant chaque étape, taux de rétention étape N / N-1 et taux d'atteinte
-      global depuis `quiz.started`.
+      global depuis `quiz.started`. RUPTURE DE SÉRIE à la mise en production du suivi des visiteurs sans cookies (octobre 2026) : les tentatives sans cookies (~30 % des démarrages en septembre 2026) sont incluses.
     columns:
       - name: kpi_date
         tests:
@@ -111,7 +127,8 @@ models:
   - name: tracking_engagement_kpi_daily
     description: >
       Rollup quotidien des KPIs de succès et d'activité (complétion, conversion quiz → clic, accès annonceurs,
-      raccourci, changement de résultats, taux de démarrage depuis la home).
+      raccourci, changement de résultats, taux de démarrage depuis la home). RUPTURE DE SÉRIE à la mise en production du suivi des visiteurs sans cookies (octobre 2026) : les tentatives sans cookies (~30 % des démarrages en septembre 2026) sont incluses, au numérateur comme au
+      dénominateur (tentatives, sessions résultats, clics) : les taux restent cohérents, les volumes augmentent.
     columns:
       - name: kpi_date
         tests:
@@ -135,6 +152,9 @@ models:
       score moyens du top 5, répartition des clics par rang et part des clics via la carte. Clics des résultats
       classés : sections `pinned` / `other` avant la refonte du 17/09/2026, `list` / `map` après (`rank` =
       rang absolu). Les taux sont rapportés à `results_viewed_count` (sessions ayant vu la page de résultats).
+      RUPTURE DE SÉRIE à la mise en production du repli par l'URL des résultats (octobre 2026) : les visiteurs sans cookies sont inclus (leurs `results.viewed` et clics portent l'id du
+      scoring lu dans l'URL), d'où une hausse de `results_viewed_count` et des volumes de clics sans
+      changement de comportement.
     columns:
       - name: kpi_date
         tests:
@@ -299,9 +319,10 @@ models:
                 values: ['campaign', 'direct', 'email', 'ai_assistant', 'search', 'social', 'website']
       - name: is_cookieless
         description: >
-          Vrai si toute la session est sans consentement cookies. Aucune conversion backend
-          (`backend_click_count`, `apply_count`) n'y est rattachable : le rattachement passe par la super
-          property `quiz_session_id`, que le front ne pose pas en mode cookieless.
+          Vrai si toute la session est sans consentement cookies. Avant le repli par l'URL des résultats
+          (octobre 2026), aucune conversion backend n'y était rattachable (super property `quiz_session_id`
+          absente en cookieless). Depuis, les conversions du parcours quiz le sont via l'id lu dans l'URL
+          `/results/<id>` ; les redirections hors quiz (/missions, fiche directe) restent non rattachables.
         tests:
           - not_null
       - name: campaign_key
@@ -427,17 +448,20 @@ models:
           compte pour une visite chaque jour.
       - name: sessions_with_consent
         description: >
-          Sessions avec consentement cookies (`not is_cookieless`). DÉNOMINATEUR à utiliser pour tout taux
-          sur `sessions_backend_click` ou `sessions_apply` : les conversions backend ne sont rattachables
-          qu'à ces sessions, un taux sur `sessions` serait sous-estimé d'un facteur 2 à 3.
+          Sessions avec consentement cookies (`not is_cookieless`). RUPTURE DE SÉRIE à la mise en production du repli par l'URL des résultats (octobre 2026) : AVANT, dénominateur des taux
+          sur `sessions_backend_click` / `sessions_apply` (seules sessions rattachables) ; APRÈS, les
+          conversions du parcours quiz sont aussi rattachées aux sessions sans cookies, les taux se
+          calculent sur `visits`. Ne pas comparer un taux « sur consentants » d'avant à un taux « sur visites »
+          d'après.
       - name: sessions_backend_click
         description: >
-          Sessions avec au moins un clic API de sortie vers l'annonceur. Rattachées uniquement pour les
-          sessions avec consentement (dénominateur : `sessions_with_consent`).
+          Sessions avec au moins un clic API de sortie vers l'annonceur. Avant le repli par l'URL des résultats
+          (octobre 2026), rattachées aux seules sessions avec consentement ; depuis, aussi aux sessions sans
+          cookies passées par les résultats du quiz (rupture de série, voir `sessions_with_consent`).
       - name: sessions_apply
         description: >
-          Sessions avec au moins une candidature (via clic backend, parcours quiz uniquement). Rattachées
-          uniquement pour les sessions avec consentement (dénominateur : `sessions_with_consent`).
+          Sessions avec au moins une candidature (via clic backend, parcours quiz uniquement). Même rupture
+          de série que `sessions_backend_click`.
       - name: backend_clicks
         description: Somme des `backend_click_count` des sessions du jour.
       - name: applies

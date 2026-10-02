@@ -12,6 +12,7 @@ import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
+import { pageMeta } from "~/utils/seo";
 import type { Route } from "./+types/_layout";
 
 // Le bandeau bêta n'apparaît qu'à partir de cette étape : assez avancé dans le parcours pour
@@ -39,8 +40,8 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
       .flat()
       .find((s) => s.route === location.pathname);
   const stepTitle = location.pathname === "/quiz/email" ? "Reçois tes prochaines missions" : step?.title;
-  const title = stepTitle ? `${stepTitle} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
-  return [{ title }, { name: "robots", content: "noindex, nofollow" }];
+  const title = step ? `${stepTitle} | Quiz Engagement | Trouve ta mission` : "Quiz Engagement | Trouve ta mission";
+  return pageMeta(location, { title, robots: "noindex, nofollow" });
 }
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
