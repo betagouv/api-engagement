@@ -6,6 +6,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "src"),
       "@engagement/taxonomy": path.resolve(__dirname, "../packages/taxonomy/src/index.ts"),
+      "@engagement/dto": path.resolve(__dirname, "../packages/dto/src/index.ts"),
     },
   },
   test: {
