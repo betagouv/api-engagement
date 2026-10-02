@@ -1,8 +1,9 @@
 import { Link } from "react-router";
 import type { Route } from "./+types/plan-du-site";
+import { pageMeta } from "~/utils/seo";
 
-export function meta(): Route.MetaDescriptors {
-  return [{ title: "Plan du site — Trouve ta mission" }];
+export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  return pageMeta(location, { title: "Plan du site | Trouve ta mission" });
 }
 
 export default function PlanDuSite() {

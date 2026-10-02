@@ -13,6 +13,7 @@ import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
 import type { Route } from "./+types/_layout";
+import { pageMeta } from "~/utils/seo";
 
 // Le bandeau bêta n'apparaît qu'à partir de cette étape : assez avancé dans le parcours pour
 // que l'utilisateur ait un avis, sans polluer les premiers écrans.
@@ -36,8 +37,8 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     Object.values(QUIZ_FLOW_REGISTRY)
       .flat()
       .find((s) => s.route === location.pathname);
-  const title = step ? `${step.title} — Quiz Engagement — Trouve ta mission` : "Quiz Engagement — Trouve ta mission";
-  return [{ title }, { name: "robots", content: "noindex, nofollow" }];
+  const title = step ? `${step.title} | Quiz Engagement | Trouve ta mission` : "Quiz Engagement | Trouve ta mission";
+  return pageMeta(location, { title, robots: "noindex, nofollow" });
 }
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.

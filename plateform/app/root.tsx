@@ -1,8 +1,4 @@
 import "@gouvfr/dsfr/dist/dsfr.min.css";
-import appleTouchIcon from "@gouvfr/dsfr/dist/favicon/apple-touch-icon.png?url";
-import faviconIco from "@gouvfr/dsfr/dist/favicon/favicon.ico?url";
-import faviconSvg from "@gouvfr/dsfr/dist/favicon/favicon.svg?url";
-import webmanifest from "@gouvfr/dsfr/dist/favicon/manifest.webmanifest?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import { type ReactNode, useEffect } from "react";
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useNavigation } from "react-router";
@@ -27,7 +23,7 @@ const apiEngagementTag = PUBLISHER_ID
 export function meta({ error }: Route.MetaArgs): Route.MetaDescriptors {
   if (!error) return [{ title: "Trouve ta mission" }];
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
-  return [{ title: isNotFound ? "Page introuvable — Trouve ta mission" : "Une erreur est survenue — Trouve ta mission" }];
+  return [{ title: isNotFound ? "Page introuvable | Trouve ta mission" : "Une erreur est survenue | Trouve ta mission" }];
 }
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -37,10 +33,11 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta charSet="utf-8" />
         {apiEngagementTag && <script dangerouslySetInnerHTML={{ __html: apiEngagementTag }} />}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="apple-touch-icon" href={appleTouchIcon} />
-        <link rel="icon" href={faviconSvg} type="image/svg+xml" />
-        <link rel="shortcut icon" href={faviconIco} type="image/x-icon" />
-        <link rel="manifest" href={webmanifest} crossOrigin="use-credentials" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="/favicon-16x16.png" type="image/png" sizes="16x16" />
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+        <link rel="manifest" href="/site.webmanifest" crossOrigin="use-credentials" />
         <Meta />
         <Links />
       </head>
