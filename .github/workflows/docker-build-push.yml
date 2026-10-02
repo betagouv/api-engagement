@@ -168,7 +168,7 @@ jobs:
           done
 
           if [[ -n "$MISSING" ]]; then
-            echo "::error::Missing GitHub variables for $SERVICE in environment $ENVIRONMENT:$MISSING"
+            echo "::error::Missing GitHub variables for $SERVICE ($ENVIRONMENT build), to define in the repository variables:$MISSING"
             exit 1
           fi
 

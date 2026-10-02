@@ -345,7 +345,7 @@ variable "typesense_load_balancer_type" {
 }
 
 # Sentry DSN : configuration publique (présente dans les bundles), fournie par les variables
-# GitHub de l'environnement (vars.SENTRY_DSN_*) via TF_VAR_*. Jamais dans le secret Scaleway.
+# GitHub du repo (vars.SENTRY_DSN_*) via TF_VAR_*. Jamais dans le secret Scaleway.
 
 variable "sentry_dsn_api" {
   type        = string

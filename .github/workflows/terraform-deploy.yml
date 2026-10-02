@@ -92,7 +92,7 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
           echo "TF_VAR_project_id=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
 
-      # Public configuration from the GitHub environment variables (checked by terraform/checks.tf)
+      # Public configuration from the GitHub repository variables (checked by terraform/checks.tf)
       - name: Export public configuration
         run: |
           echo "TF_VAR_sentry_dsn_api=${{ vars.SENTRY_DSN_API }}" >> $GITHUB_ENV
