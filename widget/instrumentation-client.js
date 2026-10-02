@@ -3,9 +3,12 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
-import { ENV, SENTRY_DSN } from "./config";
 
-if (ENV !== "development") {
+// Seules les variables NEXT_PUBLIC_* sont injectées dans le bundle navigateur (au build).
+const ENV = process.env.NEXT_PUBLIC_ENV || "development";
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN?.trim();
+
+if (ENV !== "development" && SENTRY_DSN) {
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: ENV,
