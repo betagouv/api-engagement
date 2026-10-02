@@ -11,6 +11,7 @@ import MissionController from "@/controllers/mission";
 import MissionBrowseController from "@/controllers/mission-browse";
 import MissionMatchController from "@/controllers/mission-match";
 import ModerationController from "@/controllers/moderation";
+import NewsletterController from "@/controllers/newsletter";
 import OrganizationController from "@/controllers/organization";
 import PublisherController from "@/controllers/publisher";
 import RedirectController from "@/controllers/redirect";
@@ -81,6 +82,7 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder, syncMissionD
   app.use("/missions", MissionBrowseController);
   app.use("/missions", MissionMatchController);
   app.use("/email", EmailController);
+  app.use("/newsletter", NewsletterController);
   app.use("/moderation", ModerationController);
   app.use("/user-scoring", UserScoringController);
   app.use("/organization", OrganizationController);

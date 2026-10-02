@@ -1,9 +1,14 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import { DebugButton } from "~/components/results/matching-debug-modal";
+import MissionAlertBanner from "~/components/results/mission-alert-banner";
 import Pagination, { type PaginationTrigger } from "~/components/ui/pagination";
 import Spinner from "~/components/ui/spinner";
 import { RESULTS_PAGE_SIZE } from "~/services/matching";
+
+// Le bandeau d'alerte s'insère après les 4 premières missions de la page (2 rangées en desktop).
+const MISSION_ALERT_BANNER_POSITION = 4;
+const MISSIONS_LIST_CLASS_NAME = "grid grid-cols-1 gap-6 list-none! p-0! m-0! lg:grid-cols-2";
 
 interface ResultsMissionsProps {
   items: MissionMatchItem[];
@@ -38,6 +43,27 @@ export default function ResultsMissions({
   onEmailClick,
   onPageChange,
 }: ResultsMissionsProps) {
+  const renderMission = (item: MissionMatchItem, index: number) => (
+    <li
+      key={item.mission.id}
+      id={`mission-${item.mission.id}`}
+      className={`relative w-full transition-shadow p-0! m-0! ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun hover:ring-0" : ""}`}
+      onMouseEnter={() => onMissionHover?.(item.mission.id)}
+      onMouseLeave={() => onMissionHover?.(null)}
+    >
+      <MatchMissionCard
+        item={item}
+        section="list"
+        rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
+        pageNumber={page}
+        userScoringId={userScoringId}
+        userValueKeys={userValueKeys}
+        onEmailClick={onEmailClick}
+      />
+      {showDebug && <DebugButton missionId={item.mission.id} />}
+    </li>
+  );
+
   return (
     <div className="relative w-full px-6" aria-busy={loading || pageLoading}>
       {loading && <Spinner label="Chargement des missions…" className="justify-center py-12" />}
@@ -55,28 +81,17 @@ export default function ResultsMissions({
           {pageLoading ? (
             <Spinner label="Chargement des missions…" className="justify-center py-12" />
           ) : (
-            <ul role="list" className="grid grid-cols-1 gap-6 list-none! p-0! m-0! lg:grid-cols-2">
-              {items.map((item, index) => (
-                <li
-                  key={item.mission.id}
-                  id={`mission-${item.mission.id}`}
-                  className={`relative w-full transition-shadow p-0! m-0! ${item.mission.id === highlightedMissionId ? "shadow-card ring-2 ring-blue-france-sun hover:ring-0" : ""}`}
-                  onMouseEnter={() => onMissionHover?.(item.mission.id)}
-                  onMouseLeave={() => onMissionHover?.(null)}
-                >
-                  <MatchMissionCard
-                    item={item}
-                    section="list"
-                    rank={(page - 1) * RESULTS_PAGE_SIZE + index + 1}
-                    pageNumber={page}
-                    userScoringId={userScoringId}
-                    userValueKeys={userValueKeys}
-                    onEmailClick={onEmailClick}
-                  />
-                  {showDebug && <DebugButton missionId={item.mission.id} />}
-                </li>
-              ))}
-            </ul>
+            <>
+              <ul role="list" className={MISSIONS_LIST_CLASS_NAME}>
+                {items.slice(0, MISSION_ALERT_BANNER_POSITION).map(renderMission)}
+              </ul>
+              <MissionAlertBanner userScoringId={userScoringId} />
+              {items.length > MISSION_ALERT_BANNER_POSITION && (
+                <ul role="list" className={MISSIONS_LIST_CLASS_NAME}>
+                  {items.slice(MISSION_ALERT_BANNER_POSITION).map((item, index) => renderMission(item, index + MISSION_ALERT_BANNER_POSITION))}
+                </ul>
+              )}
+            </>
           )}
 
           <div className="fr-mt-3w pb-8">

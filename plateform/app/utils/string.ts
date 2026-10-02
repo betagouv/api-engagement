@@ -16,3 +16,12 @@ export function hashString(value: string): number {
 export function serializeForInlineScript(value: unknown): string {
   return JSON.stringify(value).replace(/</g, "\\u003c");
 }
+
+// Format attendu : nom@domaine.extension (pas de vérification de l'existence de la boîte).
+const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+export const INVALID_EMAIL_FORMAT_ERROR = "Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr";
+
+export function isValidEmail(value: string): boolean {
+  return EMAIL_FORMAT.test(value);
+}

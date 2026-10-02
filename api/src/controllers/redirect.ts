@@ -16,6 +16,7 @@ import { widgetService } from "@/services/widget";
 import { MissionRecord, StatEventRecord } from "@/types";
 import { cleanIdParam, identify, slugify } from "@/utils";
 import { buildTrackingUrl, createClickRedirect, isValidTrackingToken, updateBotFlagAfterRedirect } from "@/utils/redirect";
+import { SIGNUP_SOURCES } from "@engagement/dto";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -522,6 +523,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
     const query = zod
       .object({
         user_scoring_id: zod.uuid().optional(),
+        email_source: zod.enum(SIGNUP_SOURCES).optional(),
       })
       .safeParse(req.query);
 
@@ -530,6 +532,7 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
     }
 
     const userScoringId = query.data.user_scoring_id;
+    const emailSource = query.data.email_source;
 
     const mission = await missionService.findOneMission(params.data.missionId);
     if (!mission) {
@@ -565,8 +568,8 @@ router.get("/email/:missionId/:publisherId", cors({ origin: "*" }), async (req, 
       sourceId: "",
       sourceName: "email",
       customAttributes: {
-        email_type: userScoringId ? "user_scoring" : "mission_email",
         ...(userScoringId ? { user_scoring_id: userScoringId } : {}),
+        ...(emailSource ? { email_source: emailSource } : {}),
       },
       createdAt: new Date(),
       missionId: mission.id,

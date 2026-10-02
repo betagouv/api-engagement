@@ -1,15 +1,15 @@
 import { API_URL, PLATEFORM_URL } from "@/config";
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
 import { userScoringRepository } from "@/repositories/user-scoring";
-import type { MissionContent } from "@/services/brevo";
-import { buildMissionContentHtml, sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
+import { sendTemplate, subscribeToNewsletter, TEMPLATE_IDS } from "@/services/brevo";
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
-import { subscribeToNewsletter } from "@/services/newsletter";
-import type { MissionEmailSkipReason, SendMissionEmailRequest } from "@engagement/dto";
+import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
 
-const USER_SCORING_EMAIL_MISSION_LIMIT = 5;
+import { buildMissionContentHtml, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
+
+const USER_SCORING_EMAIL_MISSION_LIMIT = 6;
 
 export const MISSION_EMAIL_SKIP_REASONS = {
   NO_MATCHING_RESULT: "NO_MATCHING_RESULT",
@@ -19,17 +19,16 @@ export const MISSION_EMAIL_SKIP_REASONS = {
 type EmailMission = {
   id: string;
   title: string;
-  duration?: number | null;
-  startAt?: Date | null;
-  endAt?: Date | null;
   compensationAmount?: number | null;
   compensationAmountMax?: number | null;
   compensationUnit?: string | null;
+  remote?: string | null;
+  schedule?: string | null;
+  domain?: string | null;
   domainLogo?: string | null;
+  organizationLogo?: string | null;
   publisherLogo?: string | null;
   publisherName?: string | null;
-  publisherOrganizationName?: string | null;
-  organizationName?: string | null;
   city?: string | null;
 };
 
@@ -56,67 +55,72 @@ const extractMissionMatchingResultItems = (results: unknown): MissionMatchingRes
     .slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionEmailUrl = (missionId: string, publisherId: string, userScoringId?: string) => {
+const buildMissionEmailUrl = (missionId: string, publisherId: string, userScoringId?: string, signupSource?: SignupSource) => {
   const url = new URL(`/r/email/${encodeURIComponent(missionId)}/${encodeURIComponent(publisherId)}`, API_URL);
   if (userScoringId) {
     url.searchParams.set("user_scoring_id", userScoringId);
   }
+  if (signupSource) {
+    url.searchParams.set("email_source", signupSource);
+  }
   return url.toString();
 };
 
-const formatFrenchDayMonth = (date: Date) => new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" }).format(date);
-
-const formatDurationLabel = (duration?: number | null) => {
-  if (!duration) {
-    return "";
+// Lien « voir mes résultats » : les UTM sont repris par le tracking de la plateforme (PostHog), ce qui mesure les clics depuis l'email.
+// Sans scoring (envoi d'une mission depuis une landing), on renvoie vers la liste des missions.
+const buildResultsUrl = (userScoringId: string | undefined, signupSource?: SignupSource) => {
+  const url = new URL(userScoringId ? `/results/${userScoringId}` : "/missions", PLATEFORM_URL);
+  if (signupSource) {
+    url.searchParams.set("utm_source", "brevo");
+    url.searchParams.set("utm_medium", "email");
+    url.searchParams.set("utm_campaign", `${signupSource}_missions`);
   }
-  return `${duration} mois`;
+  return url.toString();
 };
 
-const formatStartAtLabel = (startAt?: Date | null) => {
-  if (!startAt) {
-    return "";
-  }
-  return `à partir du ${formatFrenchDayMonth(startAt)}`;
+const COMPENSATION_UNIT_LABELS: Record<string, string> = {
+  hour: "heure",
+  day: "jour",
+  week: "semaine",
+  month: "mois",
+  year: "an",
 };
 
-const formatCompensationAmount = (amount: number) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(amount)}€`;
-
+// Même libellé que la plateforme (formatCompensation dans plateform/app/utils/mission.ts).
 const formatCompensationLabel = (mission: EmailMission) => {
-  if (typeof mission.compensationAmount !== "number" || !mission.compensationUnit) {
-    return "";
+  if (typeof mission.compensationAmount !== "number") {
+    return null;
   }
-
-  const unitLabels: Record<string, string> = {
-    hour: "heure",
-    day: "jour",
-    month: "mois",
-    year: "an",
-  };
-  const unitLabel = unitLabels[mission.compensationUnit] ?? mission.compensationUnit;
-  const amountLabel =
-    typeof mission.compensationAmountMax === "number" && mission.compensationAmountMax > mission.compensationAmount
-      ? `${formatCompensationAmount(mission.compensationAmount)} à ${formatCompensationAmount(mission.compensationAmountMax)}`
-      : formatCompensationAmount(mission.compensationAmount);
-
-  return `${amountLabel} par ${unitLabel}`;
+  const amount =
+    typeof mission.compensationAmountMax === "number"
+      ? mission.compensationAmount === 0
+        ? `Jusqu'à ${mission.compensationAmountMax}€`
+        : `Entre ${mission.compensationAmount} et ${mission.compensationAmountMax}€`
+      : `${mission.compensationAmount}€`;
+  if (!mission.compensationUnit) {
+    return amount;
+  }
+  return `${amount} par ${COMPENSATION_UNIT_LABELS[mission.compensationUnit] ?? mission.compensationUnit}`;
 };
 
-const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string): MissionContent => ({
+// Mêmes tags que les cartes de la plateforme hors matching (buildMissionBrowseTags) : lieu, rythme et indemnité.
+const buildMissionTags = (mission: EmailMission) => {
+  const location = mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city;
+  return [location, mission.schedule, formatCompensationLabel(mission)].filter((tag): tag is string => Boolean(tag));
+};
+
+const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => ({
   id: mission.id,
   title: mission.title,
-  imageUrl: mission.domainLogo || mission.publisherLogo || "",
-  durationLabel: formatDurationLabel(mission.duration),
-  startAtLabel: formatStartAtLabel(mission.startAt),
-  compensationLabel: formatCompensationLabel(mission),
+  imageUrl: mission.domainLogo || mission.organizationLogo || mission.publisherLogo || "",
+  domainLabel: getDomainLabel(mission.domain ?? null) ?? "",
+  tags: buildMissionTags(mission),
   publisherLogo: mission.publisherLogo ?? "",
   publisherName: mission.publisherName ?? "",
-  publisherOrganizationName: mission.publisherOrganizationName ?? mission.organizationName ?? "",
-  city: mission.city ?? "",
-  url: buildMissionEmailUrl(mission.id, publisherId, userScoringId),
+  url: buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource),
 });
 
-const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string): Promise<MissionContent[] | null> => {
+const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string, signupSource?: SignupSource): Promise<MissionContent[] | null> => {
   // Même version figée que la page résultats : un ancien scoring n'a que son ancien snapshot (ex. m1),
   // pas celui de la version courante. Lire CURRENT renverrait null → email jamais envoyé.
   const version = (await missionMatchingResultRepository.findEarliestVersion(userScoringId)) ?? CURRENT_MATCHING_ENGINE_VERSION;
@@ -140,14 +144,14 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
     return null;
   }
 
-  return orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId));
+  return orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId, signupSource));
 };
 
 const normalizeMissionIds = (missionIds: string[]) => {
   return Array.from(new Set(missionIds)).slice(0, USER_SCORING_EMAIL_MISSION_LIMIT);
 };
 
-const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string): Promise<MissionContent[] | null> => {
+const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: string, userScoringId?: string, signupSource?: SignupSource): Promise<MissionContent[] | null> => {
   const uniqueMissionIds = normalizeMissionIds(missionIds);
   const missions = await missionService.findMissionsByIds(uniqueMissionIds);
   const missionsById = new Map(missions.map((mission) => [mission.id, mission]));
@@ -157,18 +161,23 @@ const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: str
     return null;
   }
 
-  return orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId));
+  return orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId, signupSource));
 };
 
-export const buildMissionEmailParams = async (params: { publisherId: string; userScoringId?: string; missionIds?: string[] }): Promise<MissionContent[] | null> => {
+export const buildMissionEmailParams = async (params: {
+  publisherId: string;
+  userScoringId?: string;
+  missionIds?: string[];
+  signupSource?: SignupSource;
+}): Promise<MissionContent[] | null> => {
   if (params.missionIds?.length) {
-    return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId);
+    return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId, params.signupSource);
   }
 
   if (!params.userScoringId) {
     return null;
   }
-  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId);
+  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId, params.signupSource);
 };
 
 export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSkipReason => {
@@ -176,6 +185,7 @@ export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSk
 };
 
 export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<SendMissionEmailResult> => {
+  let missionAlertEnabled = false;
   if (input.userScoringId) {
     const userScoring = await userScoringRepository.findById(input.userScoringId);
     if (!userScoring) {
@@ -185,13 +195,19 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     if (!input.distinctId || !userScoring.distinctId || userScoring.distinctId !== input.distinctId) {
       return { status: "forbidden" };
     }
+    missionAlertEnabled = userScoring.missionAlertEnabled;
+  }
 
+  // Inscription Brevo depuis le quiz (scoring) ou depuis un point d'entrée identifié, même sans scoring
+  // (ex. cœur d'une carte sur une landing).
+  if (input.userScoringId || input.signupSource) {
     const contactResult = await subscribeToNewsletter({
       email: input.email,
       publisherId: input.publisherId,
       distinctId: input.distinctId,
       userScoringId: input.userScoringId,
-      missionAlertEnabled: userScoring.missionAlertEnabled,
+      missionAlertEnabled,
+      signupSource: input.signupSource,
     });
 
     if (!contactResult.ok) {
@@ -203,21 +219,33 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     publisherId: input.publisherId,
     userScoringId: input.userScoringId,
     missionIds: input.missionIds,
+    signupSource: input.signupSource,
   });
 
   if (!missions) {
     return { status: "skipped", reason: getMissionEmailSkipReason(input.missionIds) };
   }
 
-  const emailResult = await sendTemplate(TEMPLATE_IDS.MISSION_MATCHING_RESULTS, {
-    emailTo: [input.email],
-    params: {
-      descriptionMission: missions.length === 1 ? "les détails de ta mission" : "les détails de ta sélection de missions",
-      descriptionLink: `${PLATEFORM_URL}/results/${input.userScoringId}/${missions.length === 1 ? `missions/${missions[0].id}` : ``}`,
-      contentHtml: buildMissionContentHtml(missions),
-    },
-    tags: ["user-scoring", "mission-matching-results"],
-  });
+  // Une seule mission demandée (cœur d'une carte, fiche mission) : grande carte, et le CTA « Découvrir la mission »
+  // du template pointe vers la mission. Sinon : la sélection de résultats en grille.
+  const emailResult =
+    input.missionIds?.length === 1
+      ? await sendTemplate(TEMPLATE_IDS.TTM_MISSION_SAVED, {
+          emailTo: [input.email],
+          params: {
+            contentHtml: buildSavedMissionContentHtml(missions[0]),
+            missionUrl: missions[0].url,
+          },
+          tags: ["mission-saved"],
+        })
+      : await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
+          emailTo: [input.email],
+          params: {
+            contentHtml: buildMissionContentHtml(missions),
+            resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
+          },
+          tags: ["user-scoring", "mission-matching-results"],
+        });
 
   if (!emailResult.ok) {
     return { status: "failed" };

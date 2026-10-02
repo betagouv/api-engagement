@@ -14,7 +14,11 @@ export type MissionMatchingEmailMission = {
     compensationAmount: number | null;
     compensationAmountMax: number | null;
     compensationUnit: string | null;
+    remote: string | null;
+    schedule: string | null;
+    domain: string | null;
     domainLogo: string | null;
+    organizationLogo: string | null;
     publisherLogo: string | null;
     publisherName: string | null;
     publisherOrganizationName: string | null;
@@ -49,9 +53,11 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
           compensationAmount: true,
           compensationAmountMax: true,
           compensationUnit: true,
+          schedule: true,
+          domain: { select: { name: true } },
           domainLogo: true,
           publisher: { select: { logo: true, name: true } },
-          publisherOrganization: { select: { name: true } },
+          publisherOrganization: { select: { name: true, logo: true } },
           addresses: {
             select: { id: true, city: true },
             orderBy: [{ createdAt: "asc" }, { id: "asc" }],
@@ -79,7 +85,11 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
         compensationAmount: missionScoring.mission.compensationAmount,
         compensationAmountMax: missionScoring.mission.compensationAmountMax,
         compensationUnit: missionScoring.mission.compensationUnit,
+        remote: missionScoring.mission.remote ?? null,
+        schedule: missionScoring.mission.schedule ?? null,
+        domain: missionScoring.mission.domain?.name ?? null,
         domainLogo: missionScoring.mission.domainLogo ?? null,
+        organizationLogo: missionScoring.mission.publisherOrganization?.logo ?? null,
         publisherLogo: missionScoring.mission.publisher?.logo ?? null,
         publisherName: missionScoring.mission.publisher?.name ?? null,
         publisherOrganizationName: missionScoring.mission.publisherOrganization?.name ?? null,

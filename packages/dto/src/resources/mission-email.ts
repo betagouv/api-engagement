@@ -1,3 +1,5 @@
+import type { SignupSource } from "./newsletter";
+
 export type MissionEmailSkipReason = "NO_MATCHING_RESULT" | "MISSION_NOT_FOUND";
 
 export type SendMissionEmailRequest = {
@@ -6,6 +8,7 @@ export type SendMissionEmailRequest = {
   distinctId?: string;
   userScoringId?: string;
   missionIds?: string[];
+  signupSource?: SignupSource;
 };
 
 export type SendMissionEmailResponse = {
