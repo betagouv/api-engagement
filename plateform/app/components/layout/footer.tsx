@@ -133,12 +133,11 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
                 Politique de confidentialité
               </a>
             </li>
-            {/* Add statistics link when available */}
-            {/* <li className="fr-footer__bottom-item">
-              <a className="fr-footer__bottom-link" href="#">
+            <li className="fr-footer__bottom-item">
+              <a className="fr-footer__bottom-link" href="/statistiques">
                 Statistiques
               </a>
-            </li> */}
+            </li>
             {isCookieConsentEnabled() && (
               <li className="fr-footer__bottom-item">
                 <a

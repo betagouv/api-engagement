@@ -350,3 +350,9 @@
     top: auto;
   }
 }
+
+/* Carte des départements (@gouvfr/dsfr-chart) : le SVG se cale sur 314px sans largeur explicite ; la double classe l'emporte sur les styles scopés de la lib. */
+.databox .widget_container .map_container.map_container {
+  max-width: 640px;
+  width: 100%;
+}
