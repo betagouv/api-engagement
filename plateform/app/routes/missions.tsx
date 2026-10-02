@@ -71,7 +71,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
     title: "Toutes les missions d'engagement",
     description: "Parcours toutes les missions de bénévolat, de service civique et de réserve, et filtre par domaine, lieu ou rythme.",
-    // ponytail: liste rendue côté client (Google ne voit aucun contenu) ; retirer le noindex si elle passe en SSR.
+    // Liste rendue côté client (Google ne voit aucun contenu) ; retirer le noindex si elle passe en SSR.
     robots: "noindex, follow",
   });
 }
