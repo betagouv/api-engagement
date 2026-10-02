@@ -1,6 +1,9 @@
 export const ENV = process.env.ENV || "development";
 export const API_URL = process.env.API_URL || "http://localhost:4000";
 export const SENTRY_DSN = process.env.SENTRY_DSN?.trim() ?? undefined;
+// Seules les variables NEXT_PUBLIC_* sont injectées dans le bundle navigateur (au build).
+export const PUBLIC_ENV = process.env.NEXT_PUBLIC_ENV || "development";
+export const PUBLIC_SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN?.trim();
 export const SSR_API_TIMEOUT_MS = 30000;
 
 interface DomainConfig {

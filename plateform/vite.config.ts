@@ -9,8 +9,8 @@ export default defineConfig(({ mode }) => {
   if (process.env.SENTRY_AUTH_TOKEN) {
     plugins.push(
       sentryVitePlugin({
-        org: "sentry",
-        project: "plateform",
+        org: "betagouv",
+        project: "api-engagement-plateform",
         url: process.env.SENTRY_HOST,
         release: {
           name: `plateform-${mode}`,
