@@ -19,6 +19,14 @@ locals {
     (var.enable_intern_jobs || var.enable_analytics_jobs) && var.sentry_dsn_jobs == "" ? "SENTRY_DSN_JOBS" : "",
   ])
 
+  # Un DSN qui ne pointe pas vers l'instance Sentry du projet (ex. l'ancien sentry.api-engagement.beta.gouv.fr).
+  sentry_dsns = {
+    "SENTRY_DSN_API"    = var.sentry_dsn_api
+    "SENTRY_DSN_JOBS"   = var.sentry_dsn_jobs
+    "SENTRY_DSN_WIDGET" = var.sentry_dsn_widget
+  }
+  invalid_sentry_dsns = [for name, value in local.sentry_dsns : name if value != "" && !can(regex("^https://[0-9a-f]+@sentry\\.incubateur\\.net/[0-9]+$", value))]
+
   # Clés optionnelles : leur absence désactive une fonctionnalité, signalée en warning au plan.
   optional_secrets = [
     "LETUDIANT_PILOTY_TOKEN", "METABASE_URL", "METABASE_API_KEY", "METABASE_DATABASE_NAME", "COCKPIT_METRICS_OTLP_URL", "COCKPIT_METRICS_TOKEN",
@@ -36,6 +44,10 @@ resource "terraform_data" "required_configuration" {
     precondition {
       condition     = length(local.missing_github_vars) == 0
       error_message = "Missing GitHub variables in environment \"${var.workspace}\": ${join(", ", local.missing_github_vars)}"
+    }
+    precondition {
+      condition     = length(local.invalid_sentry_dsns) == 0
+      error_message = "GitHub variables in environment \"${var.workspace}\" must be sentry.incubateur.net DSNs (https://<key>@sentry.incubateur.net/<project-id>): ${join(", ", local.invalid_sentry_dsns)}"
     }
   }
 }

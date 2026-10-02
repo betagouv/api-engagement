@@ -351,28 +351,16 @@ variable "sentry_dsn_api" {
   type        = string
   default     = ""
   description = "Sentry DSN of the API container"
-  validation {
-    condition     = var.sentry_dsn_api == "" || can(regex("^https://[0-9a-f]+@sentry\\.incubateur\\.net/[0-9]+$", var.sentry_dsn_api))
-    error_message = "sentry_dsn_api must be a sentry.incubateur.net DSN (https://<key>@sentry.incubateur.net/<project-id>)."
-  }
 }
 
 variable "sentry_dsn_jobs" {
   type        = string
   default     = ""
   description = "Sentry DSN of the jobs (intern + analytics)"
-  validation {
-    condition     = var.sentry_dsn_jobs == "" || can(regex("^https://[0-9a-f]+@sentry\\.incubateur\\.net/[0-9]+$", var.sentry_dsn_jobs))
-    error_message = "sentry_dsn_jobs must be a sentry.incubateur.net DSN (https://<key>@sentry.incubateur.net/<project-id>)."
-  }
 }
 
 variable "sentry_dsn_widget" {
   type        = string
   default     = ""
   description = "Sentry DSN of the widget container (server side)"
-  validation {
-    condition     = var.sentry_dsn_widget == "" || can(regex("^https://[0-9a-f]+@sentry\\.incubateur\\.net/[0-9]+$", var.sentry_dsn_widget))
-    error_message = "sentry_dsn_widget must be a sentry.incubateur.net DSN (https://<key>@sentry.incubateur.net/<project-id>)."
-  }
 }
