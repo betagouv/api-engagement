@@ -22,6 +22,7 @@ import type { CtaSection, LandingCta, QuizEntrySection } from "~/services/tracki
 import { useQuizStore } from "~/stores/quiz";
 
 import type { Route } from "./+types/defis-engagement";
+import { pageMeta } from "~/utils/seo";
 
 // Les 4 missions mises en avant (demande des testeurs) : deux bénévolats ouverts aux mineurs (solidarité
 // et environnement), un service civique sportif et la réserve de la Gendarmerie. Un créneau sans résultat
