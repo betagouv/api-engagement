@@ -343,3 +343,24 @@ variable "typesense_load_balancer_type" {
   default     = "LB-S"
   description = "Scaleway Load Balancer type used by Typesense."
 }
+
+# Sentry DSN : configuration publique (présente dans les bundles), fournie par les variables
+# GitHub du repo (vars.SENTRY_DSN_*) via TF_VAR_*. Jamais dans le secret Scaleway.
+
+variable "sentry_dsn_api" {
+  type        = string
+  default     = ""
+  description = "Sentry DSN of the API container"
+}
+
+variable "sentry_dsn_jobs" {
+  type        = string
+  default     = ""
+  description = "Sentry DSN of the jobs (intern + analytics)"
+}
+
+variable "sentry_dsn_widget" {
+  type        = string
+  default     = ""
+  description = "Sentry DSN of the widget container (server side)"
+}

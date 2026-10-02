@@ -92,6 +92,13 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.SCW_SECRET_KEY }}" >> $GITHUB_ENV
           echo "TF_VAR_project_id=${{ secrets.SCW_PROJECT_ID }}" >> $GITHUB_ENV
 
+      # Public configuration from the GitHub repository variables (checked by terraform/checks.tf)
+      - name: Export public configuration
+        run: |
+          echo "TF_VAR_sentry_dsn_api=${{ vars.SENTRY_DSN_API }}" >> $GITHUB_ENV
+          echo "TF_VAR_sentry_dsn_jobs=${{ vars.SENTRY_DSN_JOBS }}" >> $GITHUB_ENV
+          echo "TF_VAR_sentry_dsn_widget=${{ vars.SENTRY_DSN_WIDGET }}" >> $GITHUB_ENV
+
       - name: Set image tag from branch
         id: get-tag
         run: |
@@ -119,11 +126,6 @@ jobs:
       - name: Install API dependencies
         run: npm ci --workspace api --include-workspace-root=false
 
-      - name: Run Prisma migrations (API)
-        env:
-          DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
-        run: npm --workspace api run prisma:migrate:deploy
-
       - name: Build functions bundles
         run: npm --prefix functions run build
 
@@ -143,6 +145,12 @@ jobs:
             -var="image_tag=${{ steps.get-tag.outputs.image_tag }}" \
             -var="project_id=${{ secrets.SCW_PROJECT_ID }}" \
             -out=tfplan
+
+      # After the plan: a configuration error (terraform/checks.tf) stops the deploy before migrating the database
+      - name: Run Prisma migrations (API)
+        env:
+          DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+        run: npm --workspace api run prisma:migrate:deploy
 
       - name: Terraform Apply
         working-directory: ./terraform

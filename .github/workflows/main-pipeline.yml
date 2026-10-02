@@ -52,9 +52,6 @@ jobs:
     uses: ./.github/workflows/docker-build-push.yml
     secrets:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_DSN_APP: ${{ secrets.SENTRY_DSN_APP }}
-      SENTRY_DSN_WIDGET: ${{ secrets.SENTRY_DSN_WIDGET }}
-      SENTRY_DSN_PLATEFORM: ${{ secrets.SENTRY_DSN_PLATEFORM }}
     with:
       branch: ${{ github.ref_name }}
 

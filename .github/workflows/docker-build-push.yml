@@ -24,12 +24,6 @@ on:
     secrets:
       SENTRY_AUTH_TOKEN:
         required: false
-      SENTRY_DSN_APP:
-        required: false
-      SENTRY_DSN_WIDGET:
-        required: false
-      SENTRY_DSN_PLATEFORM:
-        required: false
   workflow_dispatch:
 
 permissions:
@@ -131,9 +125,9 @@ jobs:
         run: |
           echo "ENV=${{ matrix.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
-          echo "SENTRY_DSN_APP=${{ secrets.SENTRY_DSN_APP }}" >> $GITHUB_OUTPUT
-          echo "SENTRY_DSN_PLATEFORM=${{ secrets.SENTRY_DSN_PLATEFORM }}" >> $GITHUB_OUTPUT
-          echo "SENTRY_DSN_WIDGET=${{ secrets.SENTRY_DSN_WIDGET }}" >> $GITHUB_OUTPUT
+          echo "SENTRY_DSN_APP=${{ vars.SENTRY_DSN_APP }}" >> $GITHUB_OUTPUT
+          echo "SENTRY_DSN_PLATEFORM=${{ vars.SENTRY_DSN_PLATEFORM }}" >> $GITHUB_OUTPUT
+          echo "SENTRY_DSN_WIDGET=${{ vars.SENTRY_DSN_WIDGET }}" >> $GITHUB_OUTPUT
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "VITE_API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
@@ -143,6 +137,44 @@ jobs:
           echo "VITE_TRACKING_PROVIDER=${{ vars.TRACKING_PROVIDER }}" >> $GITHUB_OUTPUT
           echo "VITE_POSTHOG_KEY=${{ vars.POSTHOG_KEY }}" >> $GITHUB_OUTPUT
           echo "VITE_POSTHOG_HOST=${{ vars.POSTHOG_HOST }}" >> $GITHUB_OUTPUT
+
+      # Fail fast when a value baked into the bundle is missing, instead of shipping a build
+      # with an empty variable (e.g. Sentry silently disabled).
+      - name: Check required build values
+        if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
+        env:
+          SERVICE: ${{ matrix.service }}
+          ENVIRONMENT: ${{ matrix.github_env || needs.set-env.outputs.environment_name }}
+          API_URL: ${{ steps.app_args.outputs.API_URL }}
+          SENTRY_HOST: ${{ steps.app_args.outputs.SENTRY_HOST }}
+          SENTRY_DSN_APP: ${{ steps.app_args.outputs.SENTRY_DSN_APP }}
+          SENTRY_DSN_WIDGET: ${{ steps.app_args.outputs.SENTRY_DSN_WIDGET }}
+          SENTRY_DSN_PLATEFORM: ${{ steps.app_args.outputs.SENTRY_DSN_PLATEFORM }}
+          PLATEFORM_PUBLISHER_ID: ${{ steps.app_args.outputs.VITE_PUBLISHER_ID }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: |
+          case "$SERVICE" in
+            app) REQUIRED="API_URL SENTRY_HOST SENTRY_DSN_APP" ;;
+            widget) REQUIRED="SENTRY_HOST SENTRY_DSN_WIDGET" ;;
+            plateform) REQUIRED="API_URL SENTRY_HOST SENTRY_DSN_PLATEFORM PLATEFORM_PUBLISHER_ID" ;;
+            *) REQUIRED="" ;;
+          esac
+
+          MISSING=""
+          for NAME in $REQUIRED; do
+            if [[ -z "${!NAME}" ]]; then
+              MISSING="$MISSING $NAME"
+            fi
+          done
+
+          if [[ -n "$MISSING" ]]; then
+            echo "::error::Missing GitHub variables for $SERVICE ($ENVIRONMENT build), to define in the repository variables:$MISSING"
+            exit 1
+          fi
+
+          if [[ -n "$REQUIRED" && -z "$SENTRY_AUTH_TOKEN" ]]; then
+            echo "::warning::SENTRY_AUTH_TOKEN is empty: sourcemaps will not be uploaded for $SERVICE"
+          fi
 
       - name: Build and push ${{ matrix.image_name }} image
         if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}

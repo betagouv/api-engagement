@@ -44,6 +44,7 @@ resource "scaleway_container" "api" {
     "TYPESENSE_HOST"                    = var.typesense_load_balancer_private_ip
     "TYPESENSE_PORT"                    = "8108"
     "MISSION_ENRICHMENT_PROMPT_VERSION" = var.mission_enrichment_prompt_version
+    "SENTRY_DSN_API"                    = var.sentry_dsn_api
 
     # Version active du moteur de matching (/match est servi par l'api).
     # Pilotée par workspace via var.matching_engine_version (m4 staging / m3 prod).
@@ -67,7 +68,6 @@ resource "scaleway_container" "api" {
   secret_environment_variables = {
     "SECRET"                      = local.secrets.SECRET
     "DATABASE_URL_CORE"           = local.secrets.DATABASE_URL_CORE
-    "SENTRY_DSN_API"              = local.secrets.SENTRY_DSN_API
     "SENDINBLUE_APIKEY"           = local.secrets.SENDINBLUE_APIKEY
     "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
     "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
@@ -217,11 +217,8 @@ resource "scaleway_container" "widget" {
   }
 
   environment_variables = {
-    "ENV"     = var.env
-    "API_URL" = "https://${var.api_hostname}"
-  }
-
-  secret_environment_variables = {
-    "SENTRY_DSN" = local.secrets.SENTRY_DSN_WIDGET
+    "ENV"        = var.env
+    "API_URL"    = "https://${var.api_hostname}"
+    "SENTRY_DSN" = var.sentry_dsn_widget
   }
 }
