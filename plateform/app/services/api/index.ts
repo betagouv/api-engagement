@@ -1,5 +1,5 @@
 import { API_URL } from "~/services/config";
-import { appendServerTiming, getOrCreateRequestId, REQUEST_ID_HEADER, type ServerTimingMetric } from "~/services/server-observability";
+import { appendServerTiming, type ServerTimingMetric } from "~/services/server-observability";
 
 type ApiEnvelope<T = unknown> = {
   ok: boolean;
@@ -25,7 +25,6 @@ const apiKey = process.env.PUBLISHER_API_KEY;
 const serverBaseUrl = process.env.SERVER_API_URL ?? API_URL;
 
 type RequestObservability = {
-  requestId: string;
   startedAt: number;
   metrics: ServerTimingMetric[];
 };
@@ -58,7 +57,6 @@ async function serverRequest<T>(
   const headers: Record<string, string> = {};
   if (apiKey) headers["x-api-key"] = apiKey;
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  headers[REQUEST_ID_HEADER] = observability.requestId;
   // Forwarde l'IP réelle du navigateur (X-Envoy-External-Address injecté par Scaleway,
   // non-spoofable) pour que le rate-limit côté API opère par utilisateur final
   // et non par container plateform.
@@ -79,6 +77,13 @@ async function serverRequest<T>(
   }
 
   recordTiming(observability, "upstream-ttfb", upstreamStartedAt);
+  const apiEnvoyHeader = response.headers.get("x-envoy-upstream-service-time");
+  if (apiEnvoyHeader !== null) {
+    const apiEnvoyDuration = Number(apiEnvoyHeader);
+    if (Number.isFinite(apiEnvoyDuration) && apiEnvoyDuration >= 0) {
+      observability.metrics.push({ name: "api-envoy", duration: apiEnvoyDuration });
+    }
+  }
   const bodyStartedAt = performance.now();
   const json = await readJsonEnvelope<T>(response);
   recordTiming(observability, "upstream-body", bodyStartedAt);
@@ -99,7 +104,6 @@ const jsonResponse = (body: unknown, init: JsonResponseInit = {}, observability?
   if (observability) {
     recordTiming(observability, "serialize", serializeStartedAt);
     appendServerTiming(headers, [...observability.metrics, { name: "proxy", duration: performance.now() - observability.startedAt }]);
-    headers.set(REQUEST_ID_HEADER, observability.requestId);
   }
 
   return new Response(serializedBody, { ...init, headers });
@@ -125,7 +129,6 @@ export const createApi = (request: Request) => {
   const clientIp = request.headers.get("x-envoy-external-address") ?? undefined;
   const { signal } = request;
   const observability: RequestObservability = {
-    requestId: getOrCreateRequestId(request),
     startedAt: performance.now(),
     metrics: [],
   };

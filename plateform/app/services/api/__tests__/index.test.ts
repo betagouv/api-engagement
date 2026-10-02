@@ -6,10 +6,11 @@ const fakeRequest = (ip?: string) =>
     headers: ip ? { "x-envoy-external-address": ip } : {},
   });
 
-const mockFetch = (status: number, body: unknown, ok = status >= 200 && status < 300) => {
+const mockFetch = (status: number, body: unknown, ok = status >= 200 && status < 300, headers?: Record<string, string>) => {
   return vi.fn().mockResolvedValue({
     ok,
     status,
+    headers: new Headers(headers),
     json: () => Promise.resolve(body),
   } as Response);
 };
@@ -42,19 +43,6 @@ describe("api.get", () => {
 
     const [, options] = fetchMock.mock.calls[0];
     expect(options.headers).toMatchObject({ "x-api-key": "test-key" });
-  });
-
-  it("propage l'identifiant de requête", async () => {
-    const fetchMock = mockFetch(200, { ok: true, data: {} });
-    vi.stubGlobal("fetch", fetchMock);
-    const request = new Request("http://localhost", {
-      headers: { "x-request-id": "platform-request-42" },
-    });
-
-    await createApi(request).get("/missions");
-
-    const [, options] = fetchMock.mock.calls[0];
-    expect(options.headers).toMatchObject({ "x-request-id": "platform-request-42" });
   });
 
   it("retourne data de l'enveloppe JSON", async () => {
@@ -95,6 +83,7 @@ describe("api.get", () => {
       vi.fn().mockResolvedValue({
         ok: false,
         status: 401,
+        headers: new Headers(),
         json: () => Promise.reject(new Error("no json")),
       } as unknown as Response),
     );
@@ -126,23 +115,25 @@ describe("api.get", () => {
     expect(options.headers?.["x-platform-client-ip"]).toBeUndefined();
   });
 
-  it("expose les timings du proxy et l'identifiant de requête sur la réponse", async () => {
-    const request = new Request("http://localhost", { headers: { "x-request-id": "platform-request-42" } });
-    const api = createApi(request);
+  it("expose les timings du proxy et de l'ingress API sur la réponse", async () => {
+    vi.stubGlobal("fetch", mockFetch(200, { ok: true, data: {} }, true, { "x-envoy-upstream-service-time": "87" }));
+    const api = createApi(fakeRequest());
 
     await api.get("/missions");
     const response = api.json({ ok: true, data: {} });
 
-    expect(response.headers.get("x-request-id")).toBe("platform-request-42");
-    expect(response.headers.get("server-timing")).toMatch(/upstream-ttfb;dur=\d+\.\d, upstream-body;dur=\d+\.\d, upstream;dur=\d+\.\d, serialize;dur=\d+\.\d, proxy;dur=\d+\.\d/);
+    expect(response.headers.get("server-timing")).toMatch(
+      /upstream-ttfb;dur=\d+\.\d, api-envoy;dur=87\.0, upstream-body;dur=\d+\.\d, upstream;dur=\d+\.\d, serialize;dur=\d+\.\d, proxy;dur=\d+\.\d/,
+    );
   });
 
-  it("génère un identifiant de requête quand l'en-tête entrant est absent", async () => {
+  it("n'ajoute pas api-envoy quand l'ingress ne fournit pas son timing", async () => {
     const api = createApi(fakeRequest());
 
-    const response = api.json({ ok: true });
+    await api.get("/missions");
+    const response = api.json({ ok: true, data: {} });
 
-    expect(response.headers.get("x-request-id")).toMatch(/^[0-9a-f-]{36}$/);
+    expect(response.headers.get("server-timing")).not.toContain("api-envoy");
   });
 });
 
@@ -199,12 +190,11 @@ describe("upstreamErrorResponse", () => {
   });
 
   it("conserve les informations d'observabilité sur une erreur de la façade", async () => {
-    const api = createApi(new Request("http://localhost", { headers: { "x-request-id": "failed-request" } }));
+    const api = createApi(fakeRequest());
 
     const response = api.error(new UpstreamApiError(504, { ok: false, code: "TIMEOUT" }));
 
     expect(response.status).toBe(504);
-    expect(response.headers.get("x-request-id")).toBe("failed-request");
     expect(response.headers.get("server-timing")).toContain("proxy;dur=");
   });
 });
