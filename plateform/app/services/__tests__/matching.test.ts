@@ -23,6 +23,15 @@ describe("matching service", () => {
     expect(clientGetMock).toHaveBeenCalledWith("/api/missions/match?userScoringId=scoring%20id", signal);
   });
 
+  it("demande les données de debug explicitement", async () => {
+    const response = { items: [], total: 0, avgDistanceKmTop5: null, engineVersion: "m6", tookMs: 1 };
+    clientGetMock.mockResolvedValue(response);
+
+    await expect(fetchMatches("scoring id", undefined, true)).resolves.toBe(response);
+
+    expect(clientGetMock).toHaveBeenCalledWith("/api/missions/match?userScoringId=scoring%20id&debug=true", undefined);
+  });
+
   it("réutilise le lot complet mis en cache pour un même scoring", async () => {
     const response = { items: [], total: 0, avgDistanceKmTop5: null, engineVersion: "m6", tookMs: 1 };
     clientGetMock.mockResolvedValue(response);
@@ -30,6 +39,15 @@ describe("matching service", () => {
     await Promise.all([fetchInitialMatches("cached-scoring"), fetchInitialMatches("cached-scoring")]);
 
     expect(clientGetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("sépare les réponses normales et debug dans le cache", async () => {
+    const response = { items: [], total: 0, avgDistanceKmTop5: null, engineVersion: "m6", tookMs: 1 };
+    clientGetMock.mockResolvedValue(response);
+
+    await Promise.all([fetchInitialMatches("cached-debug", false), fetchInitialMatches("cached-debug", true)]);
+
+    expect(clientGetMock).toHaveBeenCalledTimes(2);
   });
 });
 
