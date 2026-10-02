@@ -32,7 +32,7 @@ resource "scaleway_container" "api" {
     "IMAGE_VERSION"                     = var.image_tag
     "API_URL"                           = var.api_hostname != "" ? "https://${var.api_hostname}" : ""
     "APP_URL"                           = var.app_hostname != "" ? "https://${var.app_hostname}" : ""
-    "PLATEFORM_URL"                     = var.plateform_hostname != "" ? "https://${var.plateform_hostname}" : var.enable_plateform ? "https://${scaleway_container.plateform[0].domain_name}" : ""
+    "PLATEFORM_URL"                     = var.ttm_hostname != "" ? "https://${var.ttm_hostname}" : var.enable_plateform ? "https://${scaleway_container.plateform[0].domain_name}" : ""
     "BENEVOLAT_URL"                     = var.benevolat_hostname != "" ? "https://${var.benevolat_hostname}" : ""
     "VOLONTARIAT_URL"                   = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
     "PILOTY_BASE_URL"                   = var.piloty_hostname
@@ -182,7 +182,8 @@ resource "scaleway_container" "plateform" {
   deploy         = true
 
   environment_variables = {
-    "SERVER_API_URL" = "https://${var.api_hostname}"
+    "PLATEFORM_HOSTNAME" = var.ttm_hostname
+    "SERVER_API_URL"     = "https://${var.api_hostname}"
   }
 
   secret_environment_variables = {
