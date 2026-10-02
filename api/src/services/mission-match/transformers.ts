@@ -122,7 +122,7 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
   return index;
 };
 
-export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): Record<string, MissionMatchValue[]> => {
+export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[], debug = false): Record<string, MissionMatchValue[]> => {
   const index: Record<string, MissionMatchValue[]> = {};
   for (const row of scoringValueRows) {
     const taxonomyKey = row.taxonomyKey ?? "unknown";
@@ -133,7 +133,7 @@ export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): 
       taxonomyValueLabel: getTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ?? taxonomyValueKey,
       enrichmentConfidence: row.missionEnrichmentValue?.confidence ?? 0,
       scoringScore: row.score,
-      evidence: row.missionEnrichmentValue?.evidence,
+      evidence: debug ? (row.missionEnrichmentValue?.evidence ?? null) : undefined,
     };
 
     (index[row.missionScoringId] ??= []).push(entry);

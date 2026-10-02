@@ -55,7 +55,7 @@ export const missionMatchService = {
     ]);
 
     const missionIndex = buildMissionIndex(missionRows);
-    const valuesIndex = buildValuesIndex(scoringValueRows);
+    const valuesIndex = buildValuesIndex(scoringValueRows, input.debug === true);
     // La version active ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur)
     const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[result.version].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[result.version].remoteLocalGeoScore != null;
 
