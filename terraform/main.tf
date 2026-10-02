@@ -17,7 +17,7 @@ terraform {
     skip_requesting_account_id  = true
   }
 
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.5.0"
 }
 
 provider "scaleway" {

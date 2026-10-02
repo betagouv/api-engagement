@@ -6,7 +6,7 @@ locals {
     "METABASE_DATABASE_NAME" = lookup(local.secrets, "METABASE_DATABASE_NAME", "")
     "METABASE_URL"           = lookup(local.secrets, "METABASE_URL", "")
     "METABASE_API_KEY"       = lookup(local.secrets, "METABASE_API_KEY", "")
-    "SENTRY_DSN_JOBS"        = lookup(local.secrets, "SENTRY_DSN_JOBS", "")
+    "SENTRY_DSN_JOBS"        = var.sentry_dsn_jobs
     "SLACK_TOKEN"            = local.secrets.SLACK_TOKEN
     "SLACK_CRON_CHANNEL_ID"  = lookup(local.secrets, "SLACK_CRON_CHANNEL_ID", "")
     "POSTHOG_HOST"           = lookup(local.secrets, "POSTHOG_HOST", "")

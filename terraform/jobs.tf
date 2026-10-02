@@ -30,7 +30,8 @@ locals {
   all_env_vars = merge(
     local.common_env_vars,
     tomap(local.secrets),
-    local.async_task_env_vars
+    local.async_task_env_vars,
+    { "SENTRY_DSN_JOBS" = var.sentry_dsn_jobs }
   )
 
   image_uri = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
