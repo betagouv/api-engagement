@@ -5,8 +5,9 @@ import { client } from "~/services/client";
 export const RESULTS_PAGE_SIZE = 10;
 export const MATCHING_RESULTS_LIMIT = 100;
 
-export async function fetchMatches(userScoringId: string, signal?: AbortSignal): Promise<MissionMatchResponse> {
-  return client.get<MissionMatchResponse>(`/api/missions/match?userScoringId=${encodeURIComponent(userScoringId)}`, signal);
+export async function fetchMatches(userScoringId: string, signal?: AbortSignal, debug = false): Promise<MissionMatchResponse> {
+  const debugParam = debug ? "&debug=true" : "";
+  return client.get<MissionMatchResponse>(`/api/missions/match?userScoringId=${encodeURIComponent(userScoringId)}${debugParam}`, signal);
 }
 
 export function paginateMatchingResults<T>(items: T[], requestedPage: number) {
@@ -24,24 +25,28 @@ export function paginateMatchingResults<T>(items: T[], requestedPage: number) {
   };
 }
 
-// Cache mémoire du lot complet, indexé par userScoringId.
+// Cache mémoire du lot complet, indexé par userScoringId et par mode (normal/debug).
 // Évite un re-fetch entre deux visites de /results/:id ; invalidé quand le scoring est mis à jour.
 const initialMatchesCache = new Map<string, Promise<MissionMatchResponse>>();
 
-export function fetchInitialMatches(userScoringId: string): Promise<MissionMatchResponse> {
-  const existing = initialMatchesCache.get(userScoringId);
+const getCacheKey = (userScoringId: string, debug: boolean) => `${userScoringId}:${debug ? "debug" : "default"}`;
+
+export function fetchInitialMatches(userScoringId: string, debug = false): Promise<MissionMatchResponse> {
+  const cacheKey = getCacheKey(userScoringId, debug);
+  const existing = initialMatchesCache.get(cacheKey);
   if (existing) return existing;
 
-  const promise = fetchMatches(userScoringId).catch((err) => {
+  const promise = fetchMatches(userScoringId, undefined, debug).catch((err) => {
     // En cas d'échec, on vide l'entrée pour autoriser un nouvel essai.
-    initialMatchesCache.delete(userScoringId);
+    initialMatchesCache.delete(cacheKey);
     throw err;
   });
 
-  initialMatchesCache.set(userScoringId, promise);
+  initialMatchesCache.set(cacheKey, promise);
   return promise;
 }
 
 export function invalidateInitialMatches(userScoringId: string) {
-  initialMatchesCache.delete(userScoringId);
+  initialMatchesCache.delete(getCacheKey(userScoringId, false));
+  initialMatchesCache.delete(getCacheKey(userScoringId, true));
 }

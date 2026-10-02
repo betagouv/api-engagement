@@ -25,6 +25,7 @@ export function useMissionResults(userScoringId: string | undefined) {
 
   // Page courante stockée dans l'URL (?page=N) : survit au refresh, au partage et au retour arrière.
   const requestedPage = Math.max(1, Number.parseInt(searchParams.get("page") ?? "1", 10) || 1);
+  const debug = searchParams.get("debug") === "true";
 
   const setPage = (nextPage: number) => {
     setSearchParams(
@@ -59,8 +60,8 @@ export function useMissionResults(userScoringId: string | undefined) {
       setAllItems([]);
     }
 
-    // Résultats mis en cache par userScoringId (voir matching.ts) : pas de re-fetch au retour sur la page.
-    fetchInitialMatches(userScoringId)
+    // Résultats mis en cache par userScoringId et mode debug (voir matching.ts) : pas de re-fetch au retour sur la page.
+    fetchInitialMatches(userScoringId, debug)
       .then((res) => {
         if (!active) return;
         setAllItems(res.items);
@@ -81,7 +82,7 @@ export function useMissionResults(userScoringId: string | undefined) {
     return () => {
       active = false;
     };
-  }, [userScoringId]);
+  }, [userScoringId, debug]);
 
   const { items, page, totalPages, totalResults } = paginateMatchingResults(allItems, requestedPage);
 

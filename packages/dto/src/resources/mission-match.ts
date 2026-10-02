@@ -42,7 +42,8 @@ export type MissionMatchValue = {
   taxonomyValueLabel: string;
   enrichmentConfidence: number;
   scoringScore: number;
-  evidence: unknown;
+  // Présent uniquement lorsque GET /missions/match est appelé avec debug=true.
+  evidence?: unknown;
 };
 
 export type MissionMatchScore = {

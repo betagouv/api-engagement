@@ -38,12 +38,25 @@ export const missionMatchScoringValueSelect = {
   missionEnrichmentValue: {
     select: {
       confidence: true,
+    },
+  },
+} satisfies Prisma.MissionScoringValueSelect;
+
+export const missionMatchScoringValueDebugSelect = {
+  ...missionMatchScoringValueSelect,
+  missionEnrichmentValue: {
+    select: {
+      confidence: true,
       evidence: true,
     },
   },
 } satisfies Prisma.MissionScoringValueSelect;
 
-export type MissionScoringValueDbRow = Prisma.MissionScoringValueGetPayload<{ select: typeof missionMatchScoringValueSelect }>;
+type MissionScoringValueBaseDbRow = Prisma.MissionScoringValueGetPayload<{ select: typeof missionMatchScoringValueSelect }>;
+
+export type MissionScoringValueDbRow = Omit<MissionScoringValueBaseDbRow, "missionEnrichmentValue"> & {
+  missionEnrichmentValue: (NonNullable<MissionScoringValueBaseDbRow["missionEnrichmentValue"]> & { evidence?: unknown }) | null;
+};
 
 export const missionMatchUserValueSelect = {
   taxonomyKey: true,
@@ -109,21 +122,20 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
   return index;
 };
 
-export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[]): Record<string, MissionMatchValue[]> => {
+export const buildValuesIndex = (scoringValueRows: MissionScoringValueDbRow[], debug = false): Record<string, MissionMatchValue[]> => {
   const index: Record<string, MissionMatchValue[]> = {};
   for (const row of scoringValueRows) {
     const taxonomyKey = row.taxonomyKey ?? "unknown";
     const taxonomyValueKey = row.valueKey ?? "unknown";
-    const taxonomyValueLabel = getTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ?? taxonomyValueKey;
-
     const entry: MissionMatchValue = {
       taxonomyKey,
       taxonomyValueKey,
-      taxonomyValueLabel,
+      taxonomyValueLabel: getTaxonomyValueLabel(taxonomyKey, taxonomyValueKey) ?? taxonomyValueKey,
       enrichmentConfidence: row.missionEnrichmentValue?.confidence ?? 0,
       scoringScore: row.score,
-      evidence: row.missionEnrichmentValue?.evidence ?? null,
+      evidence: debug ? (row.missionEnrichmentValue?.evidence ?? null) : undefined,
     };
+
     (index[row.missionScoringId] ??= []).push(entry);
   }
   return index;

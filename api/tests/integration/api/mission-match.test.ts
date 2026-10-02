@@ -298,6 +298,19 @@ describe("GET /missions/match", () => {
     expect(response.body.data.userValues).toEqual([expect.objectContaining({ taxonomyKey: "domaine", taxonomyValueKey: "social_solidarite", userScore: 1 })]);
   });
 
+  it("returns value evidence only in debug mode", async () => {
+    await createRankableMission();
+    const userScoringId = await createUserScoring();
+
+    const defaultResponse = await withApiKey(request(app).get("/missions/match")).query({ userScoringId });
+    const debugResponse = await withApiKey(request(app).get("/missions/match")).query({ userScoringId, debug: "true" });
+
+    expect(defaultResponse.status).toBe(200);
+    expect(defaultResponse.body.data.items[0].match.values[0]).not.toHaveProperty("evidence");
+    expect(debugResponse.status).toBe(200);
+    expect(debugResponse.body.data.items[0].match.values[0]).toHaveProperty("evidence", null);
+  });
+
   it("returns the current engine version by default", async () => {
     await createRankableMission();
     const userScoringId = await createUserScoring();
