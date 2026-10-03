@@ -17,6 +17,24 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
 
 ## Liste des scripts
 
+- **compare-mission-v0-v2.ts**
+
+  - Exécution depuis `api/` :
+
+    ```bash
+    API_ENGAGEMENT_BASE_URL="https://api.example.fr" \
+    npx ts-node scripts/compare-mission-v0-v2.ts \
+      --publisher-id "<id de l'annonceur>" \
+      --page-size 30 \
+      --concurrency 4
+    ```
+
+  - Récupère la clé API du publisher dans PostgreSQL avec `DATABASE_URL_CORE`, puis compare les **identifiants de toutes les missions accessibles dans son contexte de diffusion**. Aucun filtre `publisher` supplémentaire n'est envoyé aux endpoints. Les réponses v0 et v2 ont des formats de champs différents : ce script ne compare pas leurs contenus champ par champ.
+  - Sans `--version`, les deux endpoints sont parcourus intégralement : la v2 par curseur puis la v0 par offsets successifs (`0`, `20`, `40`...) jusqu'au `total`. Utiliser `--version v0` ou `--version v2` pour ne parcourir qu'un endpoint. Les deux endpoints calculent le total à chaque page afin de mieux isoler le coût de la pagination. `--offset` ajoute une sonde v0 à l'offset demandé avant le parcours complet. Ce benchmark reproduit volontairement les offsets élevés ; l'exécuter de préférence hors période de charge.
+  - Chaque appel affiche son endpoint, son worker, son statut HTTP et son temps de réponse. Un résumé par endpoint donne ensuite le nombre de requêtes, le temps HTTP cumulé, la moyenne et le maximum. Le résumé de charge affiche aussi la durée réelle et le débit moyen.
+  - Options : `--version` (`v0` ou `v2`, les deux si absent), `--offset` (sonde v0 supplémentaire, incompatible avec `--version v2`), `--page-size` (entier supérieur ou égal à 1, défaut 20, appliqué aux requêtes v0 et v2), `--concurrency` (nombre de parcours complets indépendants exécutés simultanément, défaut 1), `--delay-ms` (défaut 0, pour ajouter volontairement une pause entre deux pages). Le parcours n'impose aucune limite au nombre total de missions.
+  - Codes de sortie : `0` si identiques, `1` si différents, `2` si la comparaison est impossible. Une modification des missions pendant l'exécution peut produire une différence temporaire ; relancer dans ce cas sur un jeu de données stable.
+
 - **backfill-publisher-organizations.ts**
 
   - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`

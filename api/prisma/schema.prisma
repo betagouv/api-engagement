@@ -681,6 +681,7 @@ model Mission {
   @@index([publisherId, statusCode, deletedAt, startAt(sort: Desc)], map: "mission_publisher_status_deleted_start_at_idx")
   @@index([statusCode, deletedAt, startAt(sort: Desc)], map: "mission_status_deleted_start_at_idx")
   @@index([createdAt], map: "mission_created_at_idx")
+  @@index([updatedAt], map: "mission_updated_at_idx")
   @@index([startAt], map: "mission_start_at_idx")
   @@index([remote], map: "mission_remote_idx")
   @@index([publisherId], map: "mission_publisher_id_idx")
