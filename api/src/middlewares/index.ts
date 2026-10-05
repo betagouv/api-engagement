@@ -4,6 +4,7 @@ import cors from "cors";
 import { Express } from "express";
 
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
+import responseCompression from "@/middlewares/compression";
 import { corsOptions } from "@/middlewares/cors";
 import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
@@ -13,6 +14,7 @@ import { createHttpMetricsMiddleware } from "@/services/observability/metrics";
 
 const middlewares = (app: Express) => {
   app.set("trust proxy", 1);
+  app.use(responseCompression);
   app.use(cors(corsOptions));
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParserErrorHandler);
