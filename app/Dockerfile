@@ -7,6 +7,7 @@ WORKDIR /workspace
 
 COPY package.json package-lock.json ./
 COPY app/package.json ./app/
+COPY packages/dto ./packages/dto
 
 RUN chown -R node:node /workspace
 

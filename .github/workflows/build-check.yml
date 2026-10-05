@@ -31,6 +31,7 @@ jobs:
               - 'packages/**'
             app:
               - 'app/**'
+              - 'packages/**'
             analytics:
               - 'analytics/**'
             widget:
