@@ -133,7 +133,7 @@ resource "scaleway_job_definition" "import-organizations" {
   project_id             = var.project_id
   cpu_limit              = 2000
   memory_limit           = 4096
-  local_storage_capacity = 1024
+  local_storage_capacity = 2048
   image_uri              = local.image_uri
   startup_command        = ["node"]
   args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "import-organizations"]

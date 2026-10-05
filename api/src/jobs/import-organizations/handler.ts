@@ -5,12 +5,12 @@ import { Readable } from "stream";
 import { pipeline } from "stream/promises";
 import { ReadableStream } from "stream/web";
 
+import { BaseHandler } from "@/jobs/base/handler";
+import { readZip } from "@/jobs/import-organizations/zip";
+import { JobResult } from "@/jobs/types";
 import apiDataGouv from "@/services/data-gouv/api";
 import { DataGouvResource } from "@/services/data-gouv/types";
 import { importRnaService } from "@/services/import-rna";
-import { BaseHandler } from "@/jobs/base/handler";
-import { JobResult } from "@/jobs/types";
-import { readZip } from "@/jobs/import-organizations/zip";
 import { safeFetch } from "@/utils/safe-fetch";
 
 const RNA_DATASETS_ID = "58e53811c751df03df38f42d";
@@ -61,10 +61,10 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
     }
     console.log(`[ImportOrganizations] Found new resource ${resource.id} ${resource.url}`);
 
-    const folder = path.join(__dirname, "/tmp");
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder);
-    }
+    // Hors /tmp (en mémoire sous gVisor) ; /workspace/api est inscriptible par `node`, contrairement à dist/
+    const baseFolder = path.resolve(__dirname, "../../../tmp");
+    fs.mkdirSync(baseFolder, { recursive: true });
+    const folder = fs.mkdtempSync(path.join(baseFolder, "import-organizations-"));
 
     try {
       const DOWNLOAD_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
