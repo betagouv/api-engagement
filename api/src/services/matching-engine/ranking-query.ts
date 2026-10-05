@@ -8,6 +8,10 @@ import type { MatchingEngineTaxonomyWeights, RankMissionsByUserScoringInput } fr
 // la distance de référence. Le calcul Haversine précis n'est effectué que dans cette boîte.
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
 const DEFAULT_GEO_RADIUS_KM = 20;
+// Diversifier uniquement les dispositifs dont les annonces proposent des engagements similaires.
+const PENALIZED_DISPOSITIFS = ["reserve_armees", "sapeurs_pompiers"] as const;
+const DISPOSITIF_REPEAT_PENALTY_STEP = 0.2;
+const DISPOSITIF_REPEAT_PENALTY_MAX = 0.6;
 
 const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>) =>
   Prisma.join(Object.entries(taxonomyWeights).map(([taxonomy, weight]) => Prisma.sql`(${taxonomy}, CAST(${weight} AS double precision))`));
@@ -603,7 +607,7 @@ export const buildRankingQuery = (params: {
     LEFT JOIN user_geo ug
       ON TRUE
   ),
-  scored AS (
+  raw_scored AS (
     SELECT
       r."mission_id",
       r."mission_scoring_id",
@@ -615,10 +619,50 @@ export const buildRankingQuery = (params: {
       r."closest_lon",
       r."closest_address_id",
       r."closest_city",
-      r."closest_address",
-      -- Total des missions classées pour cet utilisateur (avant pagination), borné par le pool de candidats.
-      COUNT(*) OVER () AS "total_count"
+      r."closest_address"
     FROM ranked r
+  ),
+  -- Classer les répétitions ROC/SDIS selon le score initial, quelle que soit la localisation.
+  -- Le départage par identifiant reste stable ; le premier résultat de chaque dispositif est préservé.
+  dispositif_ranks AS (
+    SELECT
+      s."mission_scoring_id",
+      ROW_NUMBER() OVER (
+        PARTITION BY msv."value_key"
+        ORDER BY s."total_score" DESC, s."mission_id" ASC
+      ) AS "dispositif_rank"
+    FROM raw_scored s
+    JOIN "mission_scoring_value" msv
+      ON msv."mission_scoring_id" = s."mission_scoring_id"
+     AND msv."taxonomy_key" = 'dispositif'
+     AND msv."value_key" IN (${Prisma.join(PENALIZED_DISPOSITIFS)})
+  ),
+  dispositif_penalties AS (
+    SELECT
+      "mission_scoring_id",
+      MAX(LEAST(
+        ("dispositif_rank" - 1) * CAST(${DISPOSITIF_REPEAT_PENALTY_STEP} AS double precision),
+        CAST(${DISPOSITIF_REPEAT_PENALTY_MAX} AS double precision)
+      )) AS "penalty"
+    FROM dispositif_ranks
+    GROUP BY "mission_scoring_id"
+  ),
+  scored AS (
+    SELECT
+      s."mission_id",
+      s."mission_scoring_id",
+      s."total_score" * (1.0 - COALESCE(dp."penalty", 0.0)) AS "total_score",
+      s."taxonomy_score",
+      s."geo_score",
+      s."distance_km",
+      s."closest_lat",
+      s."closest_lon",
+      s."closest_address_id",
+      s."closest_city",
+      s."closest_address",
+      COUNT(*) OVER () AS "total_count"
+    FROM raw_scored s
+    LEFT JOIN dispositif_penalties dp ON dp."mission_scoring_id" = s."mission_scoring_id"
   ),
   primary_results AS (
     SELECT *

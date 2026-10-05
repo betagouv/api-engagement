@@ -2,6 +2,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+import { matchingEngineService } from "@/services/matching-engine";
 
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
@@ -194,6 +195,96 @@ beforeEach(async () => {
 });
 
 describe("GET /missions/match", () => {
+  it.each([
+    { version: "m3", geolocated: true },
+    { version: "m6", geolocated: true },
+    { version: "m3", geolocated: false },
+    { version: "m6", geolocated: false },
+  ] as const)("pénalise progressivement les répétitions ROC/SDIS sans supprimer de missions ($version, géolocalisé=$geolocated)", async ({ version, geolocated }) => {
+    const createMission = async (remote: "local" | "full" | "no", dispositif?: string, score = 1, distanceKm?: number) => {
+      const mission = await createTestMission({
+        publisherId,
+        remote,
+        addresses:
+          distanceKm === undefined
+            ? []
+            : [
+                {
+                  city: "Ville proche",
+                  country: "France",
+                  location: { lat: 48.8566 + distanceKm / 111.195, lon: 2.3522 },
+                  geolocStatus: "FOUND",
+                },
+              ],
+      });
+      const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+      await createTestMissionScoring({
+        missionId: mission.id,
+        missionEnrichmentId: enrichment.id,
+        values: [{ taxonomyKey: "domaine", valueKey: "social_solidarite", score }, ...(dispositif ? [{ taxonomyKey: "dispositif" as const, valueKey: dispositif }] : [])],
+      });
+      return mission.id;
+    };
+
+    const tiedCandidates = [];
+    for (let index = 0; index < 5; index++) {
+      tiedCandidates.push(await createMission("local", "reserve_armees"));
+    }
+    tiedCandidates.sort();
+    const lessRelevant = await createMission("no", "reserve_armees", 0.1);
+    const remoteRoc = await createMission("full", "reserve_armees", 0.1);
+    const sdisCandidates = [
+      await createMission("no", "sapeurs_pompiers", 1, 1),
+      await createMission("no", "sapeurs_pompiers", 0.8, 5),
+      await createMission("no", "sapeurs_pompiers", 0.6, 10),
+    ];
+    const unaffectedIds = [
+      await createMission("local", "benevolat"),
+      await createMission("local", "benevolat"),
+      await createMission("local", "service_civique"),
+      await createMission("local", "service_civique"),
+      await createMission("no", "reserve_gendarmerie"),
+      await createMission("no", "reserve_gendarmerie"),
+      await createMission("local"),
+      await createMission("local"),
+    ];
+    const retainedIds = [...tiedCandidates, lessRelevant, remoteRoc, ...sdisCandidates, ...unaffectedIds];
+    const userScoringId = geolocated ? await createGeoUserScoring() : await createUserScoring();
+    const input = { userScoringId, publisherId, version };
+    const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, limit: 100 });
+    expect(result.total).toBe(retainedIds.length);
+    expect(result.items.map((item) => item.missionId).sort()).toEqual(retainedIds.sort());
+
+    const initialScore = (item: (typeof result.items)[number]) => (item.geoScore === null ? item.taxonomyScore : (item.taxonomyScore + item.geoScore) / 2);
+    const assertScoreFactor = (missionId: string, factor: number) => {
+      const item = result.items.find((item) => item.missionId === missionId)!;
+      expect(item.totalScore).toBeCloseTo(initialScore(item) * factor, 8);
+    };
+    tiedCandidates.forEach((id, index) => assertScoreFactor(id, [1, 0.8, 0.6, 0.4, 0.4][index]));
+    assertScoreFactor(lessRelevant, 0.4);
+    assertScoreFactor(remoteRoc, 0.4);
+    sdisCandidates.forEach((id, index) => assertScoreFactor(id, [1, 0.8, 0.6][index]));
+    unaffectedIds.forEach((id) => assertScoreFactor(id, 1));
+    expect(result.items.findIndex((item) => item.missionId === unaffectedIds[0])).toBeLessThan(result.items.findIndex((item) => item.missionId === tiedCandidates[1]));
+
+    const snapshot = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, version);
+    expect(snapshot?.results).toEqual(
+      result.items.map((item) => ({ missionScoringId: item.missionScoringId, missionAddressId: item.missionAddressId, taxonomyScores: item.taxonomyScores }))
+    );
+
+    const firstPage = await matchingEngineService.rankMissionsByUserScoring({ ...input, limit: 1 });
+    const secondPage = await matchingEngineService.rankMissionsByUserScoring({ ...input, limit: 1, offset: 1 });
+    expect(firstPage.items).toEqual(result.items.slice(0, 1));
+    expect(secondPage.items).toEqual(result.items.slice(1, 2));
+    expect(firstPage.total).toBe(retainedIds.length);
+    expect(secondPage.total).toBe(retainedIds.length);
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId, engineVersion: version });
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(retainedIds.length);
+    expect(response.body.data.items.map((item: { mission: { id: string } }) => item.mission.id)).toEqual(result.items.map((item) => item.missionId));
+  });
+
   it("retourne au plus 100 résultats sans pagination et couvre les dispositifs attendus dans le top 10 de m6", async () => {
     const userResponse = await withApiKey(request(app).post("/user-scoring")).send({
       answers: [
