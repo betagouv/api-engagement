@@ -8,7 +8,7 @@ import Partners from "~/components/layout/partners";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
-import MatchingDebugModal from "~/components/results/matching-debug-modal";
+import MatchingDebugModal, { DebugButton } from "~/components/results/matching-debug-modal";
 import ProfileModal from "~/components/results/profile-modal";
 import ResultsFilters from "~/components/results/results-filters";
 import ResultsFiltersModal from "~/components/results/results-filters-modal";
@@ -230,7 +230,7 @@ export default function ResultsPage() {
               {/* Carrousel : carte de la mission cliquée, swipe horizontal pour parcourir les autres. Fermeture en tapant la map. */}
               <div ref={carouselRef} onScroll={handleCarouselScroll} className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-6 scrollbar-none [&::-webkit-scrollbar]:hidden">
                 {items.map((item, index) => (
-                  <div key={item.mission.id} className="w-full shrink-0 snap-center">
+                  <div key={item.mission.id} className="relative w-full shrink-0 snap-center">
                     <MatchMissionCard
                       item={item}
                       section="map"
@@ -240,6 +240,7 @@ export default function ResultsPage() {
                       userValueKeys={userValueKeys}
                       onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
                     />
+                    {showDebug && <DebugButton missionId={item.mission.id} />}
                   </div>
                 ))}
               </div>
@@ -386,6 +387,7 @@ export default function ResultsPage() {
                             userScoringId={userScoringId}
                             userValueKeys={userValueKeys}
                           />
+                          {showDebug && cardIsFixed && <DebugButton missionId={displayedMission.mission.id} />}
                           {cardIsFixed && (
                             <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
                               <button
