@@ -5,13 +5,16 @@ import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-t
 import Carousel from "~/components/ui/carousel";
 import Highlight from "~/components/ui/highlight";
 
-const ETAPES = [
+export type Etape = { icon: string; title: string; description: string };
+
+// Wording par défaut (« Les défis de l'engagement ») ; une landing peut passer le sien via `etapes`.
+const ETAPES: Etape[] = [
   { icon: SelfTrainingSvg, title: "Réponds en trois minutes", description: "Le formulaire du gouv le plus court de ta vie" },
   { icon: SearchSvg, title: "Découvre les missions", description: "On te montre celles qui vont te plaire." },
   { icon: MailSendSvg, title: "Ton engagement commence ici", description: "On te met en relation avec le service public qui mobilise" },
 ];
 
-export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
+export default function Etapes({ onStartQuiz, etapes = ETAPES }: { onStartQuiz: () => void; etapes?: Etape[] }) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 text-center mb-4! md:mb-8!">
@@ -19,6 +22,7 @@ export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
       </h2>
 
       <Carousel
+        squareArrows
         label="Les 3 étapes pour passer à l'action"
         ordered
         previousLabel="Voir l'étape précédente"
@@ -32,7 +36,7 @@ export default function Etapes({ onStartQuiz }: { onStartQuiz: () => void }) {
           </button>
         }
       >
-        {ETAPES.map((etape) => (
+        {etapes.map((etape) => (
           <div key={etape.title} className="bg-background flex h-full flex-col items-center gap-4! px-6! py-9! text-center shadow-tile">
             <div className="bg-blue-france-975 flex size-24 items-center justify-center rounded-full">
               <img src={etape.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />

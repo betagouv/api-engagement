@@ -2,18 +2,20 @@ import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
+import HeroWebp from "~/assets/images/landings/defis-engagement/hero.webp";
 import AscPng from "~/assets/images/logo/asc-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
 import SpvPng from "~/assets/images/logo/spv-logo.png";
 import CadreMineurs from "~/components/landings/defis-engagement/cadre-mineurs";
-import Etapes from "~/components/landings/defis-engagement/etapes";
-import Hero from "~/components/landings/defis-engagement/hero";
 import Histoires from "~/components/landings/defis-engagement/histoires";
-import Missions from "~/components/landings/defis-engagement/missions";
 import Questions from "~/components/landings/defis-engagement/questions";
 import TerrainDeJeu from "~/components/landings/defis-engagement/terrain-de-jeu";
+import Etapes from "~/components/landings/etapes";
+import Hero from "~/components/landings/hero";
+import Missions from "~/components/landings/missions";
 import Partners from "~/components/layout/partners";
+import Highlight from "~/components/ui/highlight";
 import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -131,14 +133,36 @@ export default function DefisEngagement() {
 
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-16! md:gap-24!">
-      <Hero onStartQuiz={() => handleStartQuiz("hero")} />
-      <Missions missions={missions} cta={missionsCta("missions")} />
+      <Hero
+        kicker="Tu veux te rendre utile ?"
+        title="À chacun sa façon d'agir"
+        description="Des missions d'engagement en bénévolat, Service Civique, pompiers ou réservistes dans la gendarmerie dès 16 ans pour changer les choses (même un peu)."
+        hint="Réponds en quelques clics, on te propose une mission qui te correspond"
+        onStartQuiz={() => handleStartQuiz("hero")}
+        className="bg-beige-gris-galet-975 md:min-h-130 lg:min-h-[max(664px,46vw)]"
+      >
+        {/* Visuel calé en bas de la section : sous le texte sur mobile, à droite à partir de la tablette (le débord
+            à droite sur tablette est rogné par la section, comme dans la maquette). */}
+        <img src={HeroWebp} alt="" className="mx-auto aspect-774/662 w-[97%] md:absolute md:bottom-0 md:left-[45.3%] md:mt-0 md:w-[60.2%] lg:right-0 lg:left-auto lg:w-[53.75%]" />
+      </Hero>
+      <Missions
+        missions={missions}
+        cta={missionsCta("missions")}
+        title={
+          <>
+            Des missions à <Highlight className="bg-[#9ef9be] dark:bg-transparent">ne pas louper</Highlight> !
+          </>
+        }
+        description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !"
+        landing="landing_defis_engagement"
+        backTo="/defis-engagement"
+      />
       <Etapes onStartQuiz={() => handleStartQuiz("etapes")} />
       <TerrainDeJeu />
       <Questions cta={missionsCta("questions")} />
       <CadreMineurs />
       <Histoires cta={missionsCta("histoires")} />
-      <Partners style="compact" partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
+      <Partners style="compact" squareArrows partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
     </main>
   );
 }
