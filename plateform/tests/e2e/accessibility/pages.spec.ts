@@ -88,4 +88,10 @@ test.describe("Accessibilité RGAA", { tag: "@a11y" }, () => {
 
     await expectNoRgaaViolation(page, testInfo);
   });
+
+  test("Statistiques", async ({ page }, testInfo) => {
+    await gotoPage(page, "/statistiques");
+
+    await expectNoRgaaViolation(page, testInfo);
+  });
 });

@@ -33,6 +33,7 @@ export default defineConfig((env) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        "@engagement/dto": path.resolve(__dirname, "../packages/dto/src/index.ts"),
       },
     },
     plugins,

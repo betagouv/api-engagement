@@ -10,11 +10,13 @@ Structure :
 
 - `src/resources/` : DTO groupés par ressource métier.
 - `src/resources/index.ts` : agrégation des ressources.
-- `src/index.ts` : point d’entrée public du package.
+- `src/utils/` : petites fonctions pures partagées qui manipulent ces contrats (ex. `adaptMetabasePoints`), sans dépendance runtime.
+- `src/utils/index.ts` : agrégation des utilitaires.
+- `src/index.ts` : point d’entrée public du package (exporte `resources` et `utils`).
 
 ## Conventions DTO
 
-- Exporter uniquement des `type` depuis les fichiers de ressources, sauf besoin explicite d’une valeur runtime.
+- Exporter uniquement des `type` depuis les fichiers de ressources ; toute valeur runtime (fonction pure) va dans `src/utils/`.
 - Nommer les types par ressource et intention : `MissionBrowseResponse`, `UserScoringCreateRequest`, etc.
 - Ne pas importer de types internes depuis `api/` ou `plateform/`.
 - Garder les DTOs sérialisables en JSON : pas de `Date`, classe, fonction, `Map`, `Set` ou type dépendant d’un runtime.
@@ -28,10 +30,11 @@ Structure :
 3. Vérifier que `src/index.ts` continue d’exposer le point d’entrée public.
 4. Adapter les producteurs côté `api/`.
 5. Adapter les consommateurs côté `plateform/` ou autres clients.
-6. Lancer `npm --workspace=@engagement/dto run build`.
+6. Si la ressource a besoin d’une fonction pure associée, la placer dans `src/utils/<ressource>.ts` et l’exporter depuis `src/utils/index.ts`.
+7. Lancer `npm --workspace=@engagement/dto run build`.
 
 ## Points d’attention
 
-- Un DTO ne doit pas contenir de logique métier.
+- Un DTO ne doit pas contenir de logique métier ; les utilitaires de `src/utils/` restent de la transformation de données, sans règle métier ni I/O.
 - Si un champ représente une taxonomie, utiliser des noms cohérents avec `@engagement/taxonomy` (`taxonomyKey`, `taxonomyValueKey`, `value`, etc.).
 - Les réponses paginées doivent exposer explicitement `total`, `page` et `pageSize` quand la pagination est disponible.

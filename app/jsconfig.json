@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@engagement/dto": ["../packages/dto/src/index.ts"]
     }
   },
   "include": ["src"]

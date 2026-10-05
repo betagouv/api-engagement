@@ -24,6 +24,7 @@
     "@engagement/dto": "file:../packages/dto",
     "@engagement/taxonomy": "file:../packages/taxonomy",
     "@gouvfr/dsfr": "1.15.3",
+    "@gouvfr/dsfr-chart": "2.1.1",
     "@react-router/node": "8.4.0",
     "@react-router/serve": "8.4.0",
     "@sentry/react": "10.72.0",
