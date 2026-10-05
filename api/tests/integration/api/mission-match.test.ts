@@ -2,6 +2,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { missionMatchingResultRepository } from "@/repositories/mission-matching-result";
+import { matchingEngineService } from "@/services/matching-engine";
 
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../../fixtures";
 import { createTestApp } from "../../testApp";
@@ -194,6 +195,55 @@ beforeEach(async () => {
 });
 
 describe("GET /missions/match", () => {
+  it.each(["m3", "m6"] as const)("ne conserve que la meilleure mission locale par dispositif avant pagination (%s)", async (version) => {
+    const createMission = async (remote: "local" | "full" | "no", dispositif?: string, score = 1) => {
+      const mission = await createTestMission({ publisherId, remote, addresses: [] });
+      const enrichment = await createTestMissionEnrichment({ missionId: mission.id });
+      await createTestMissionScoring({
+        missionId: mission.id,
+        missionEnrichmentId: enrichment.id,
+        values: [{ taxonomyKey: "domaine", valueKey: "social_solidarite", score }, ...(dispositif ? [{ taxonomyKey: "dispositif" as const, valueKey: dispositif }] : [])],
+      });
+      return mission.id;
+    };
+
+    const lessRelevant = await createMission("local", "reserve_armees", 0.1);
+    const tiedCandidates = [await createMission("local", "reserve_armees"), await createMission("local", "reserve_armees")].sort();
+    const retainedIds = [
+      tiedCandidates[0],
+      await createMission("local", "sapeurs_pompiers"),
+      await createMission("local"),
+      await createMission("local"),
+      await createMission("full", "reserve_armees"),
+      await createMission("full", "reserve_armees"),
+      await createMission("no", "reserve_armees"),
+      await createMission("no", "reserve_armees"),
+    ];
+    const userScoringId = await createGeoUserScoring();
+    const input = { userScoringId, publisherId, version };
+
+    const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, limit: 100 });
+    expect(result.total).toBe(retainedIds.length);
+    expect(result.items.map((item) => item.missionId).sort()).toEqual(retainedIds.sort());
+    expect(result.items.some((item) => [lessRelevant, tiedCandidates[1]].includes(item.missionId))).toBe(false);
+    const snapshot = await missionMatchingResultRepository.findLatestForUserScoringVersion(userScoringId, version);
+    expect(snapshot?.results).toEqual(
+      result.items.map((item) => ({ missionScoringId: item.missionScoringId, missionAddressId: item.missionAddressId, taxonomyScores: item.taxonomyScores }))
+    );
+
+    const firstPage = await matchingEngineService.rankMissionsByUserScoring({ ...input, limit: 1 });
+    const secondPage = await matchingEngineService.rankMissionsByUserScoring({ ...input, limit: 1, offset: 1 });
+    expect(firstPage.items).toEqual(result.items.slice(0, 1));
+    expect(secondPage.items).toEqual(result.items.slice(1, 2));
+    expect(firstPage.total).toBe(retainedIds.length);
+    expect(secondPage.total).toBe(retainedIds.length);
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId, engineVersion: version });
+    expect(response.status).toBe(200);
+    expect(response.body.data.total).toBe(retainedIds.length);
+    expect(response.body.data.items.map((item: { mission: { id: string } }) => item.mission.id)).toEqual(result.items.map((item) => item.missionId));
+  });
+
   it("retourne au plus 100 résultats sans pagination et couvre les dispositifs attendus dans le top 10 de m6", async () => {
     const userResponse = await withApiKey(request(app).post("/user-scoring")).send({
       answers: [

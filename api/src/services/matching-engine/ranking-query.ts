@@ -603,7 +603,7 @@ export const buildRankingQuery = (params: {
     LEFT JOIN user_geo ug
       ON TRUE
   ),
-  scored AS (
+  raw_scored AS (
     SELECT
       r."mission_id",
       r."mission_scoring_id",
@@ -615,10 +615,32 @@ export const buildRankingQuery = (params: {
       r."closest_lon",
       r."closest_address_id",
       r."closest_city",
-      r."closest_address",
-      -- Total des missions classées pour cet utilisateur (avant pagination), borné par le pool de candidats.
-      COUNT(*) OVER () AS "total_count"
+      r."closest_address"
     FROM ranked r
+  ),
+  -- Une seule mission « proche de chez toi » par dispositif : conserver le meilleur score,
+  -- avec le même départage stable que le classement final. Les missions sans dispositif restent visibles.
+  local_dispositif_ranks AS (
+    SELECT
+      s."mission_scoring_id",
+      ROW_NUMBER() OVER (
+        PARTITION BY msv."value_key"
+        ORDER BY s."total_score" DESC, s."mission_id" ASC
+      ) AS "dispositif_rank"
+    FROM raw_scored s
+    JOIN "mission" m ON m."id" = s."mission_id" AND m."remote"::text = 'local'
+    JOIN "mission_scoring_value" msv
+      ON msv."mission_scoring_id" = s."mission_scoring_id"
+     AND msv."taxonomy_key" = 'dispositif'
+  ),
+  scored AS (
+    SELECT s.*, COUNT(*) OVER () AS "total_count"
+    FROM raw_scored s
+    WHERE NOT EXISTS (
+      SELECT 1 FROM local_dispositif_ranks ldr
+      WHERE ldr."mission_scoring_id" = s."mission_scoring_id"
+        AND ldr."dispositif_rank" > 1
+    )
   ),
   primary_results AS (
     SELECT *

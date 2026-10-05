@@ -671,7 +671,7 @@ describe("matchingEngineService", () => {
 
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(result.version).toBe("m2");
-      expect(rankingSql).not.toContain('m."remote"::text');
+      expect(rankingSql).not.toContain('WHEN m."remote"::text');
       expect(rankingSql).not.toContain("forced_remote_candidates");
     });
 
