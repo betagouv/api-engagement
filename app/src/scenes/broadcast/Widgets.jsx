@@ -22,6 +22,7 @@ const Widgets = () => {
     search: "",
   });
   const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -31,11 +32,13 @@ const Widgets = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const res = await api.post(`/widget/search`, filters);
+      const { page, pageSize, ...searchFilters } = filters;
+      const res = await api.post(`/widget/search`, { ...searchFilters, from: (page - 1) * pageSize, size: pageSize });
       if (!res.ok) {
         throw res;
       }
       setData(res.data || []);
+      setTotal(res.total || 0);
     } catch (error) {
       captureError(error, { extra: { filters } });
     }
@@ -79,7 +82,7 @@ const Widgets = () => {
       <div className="flex flex-col items-center justify-between lg:flex-row">
         {/* La zone de statut doit rester montée en permanence : une zone live re-insérée dans le DOM n'est pas restituée par les lecteurs d'écran (RGAA 7.5) */}
         <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
-          {loading ? "Chargement..." : data.length > 1 ? `${data.length} widgets` : `${data.length} widget`}
+          {loading ? "Chargement..." : total > 1 ? `${total} widgets` : `${total} widget`}
         </p>
         {user.role === "admin" && (
           <div className="flex items-center">
@@ -108,10 +111,10 @@ const Widgets = () => {
           page={filters.page}
           pageSize={filters.pageSize}
           onPageChange={(page) => setFilters({ ...filters, page })}
-          total={data.length}
+          total={total}
           auto
         >
-          {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
+          {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="px-4">
                 {user.role === "admin" ? (
