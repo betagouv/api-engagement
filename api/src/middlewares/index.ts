@@ -10,7 +10,6 @@ import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
 import { createHttpMetricsMiddleware } from "@/services/observability/metrics";
-// import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {
   app.set("trust proxy", 1);
@@ -24,7 +23,6 @@ const middlewares = (app: Express) => {
   app.use(requestId);
   app.use(createHttpMetricsMiddleware());
   app.use(logger);
-  // app.use(limiter); // TODO: enable with correct values
   app.use(passport.initialize());
 };
 
