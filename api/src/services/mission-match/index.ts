@@ -30,13 +30,13 @@ export const missionMatchService = {
     const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, version, limit: MATCHING_ENGINE_RESULTS_LIMIT });
 
     if (result.items.length === 0) {
-      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: 0, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [] };
+      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: 0, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [], userLocation: null };
     }
 
     const missionIds = result.items.map((item) => item.missionId);
     const missionScoringIds = result.items.map((item) => item.missionScoringId);
 
-    const [missionRows, scoringValueRows, userValueRows] = await Promise.all([
+    const [missionRows, scoringValueRows, userValueRows, userGeo] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
         select: missionMatchMissionSelect,
@@ -49,6 +49,7 @@ export const missionMatchService = {
         where: { userScoringId: input.userScoringId },
         select: missionMatchUserValueSelect,
       }),
+      prisma.userScoringGeo.findUnique({ where: { userScoringId: input.userScoringId }, select: { lat: true, lon: true } }),
     ]);
 
     const missionIndex = buildMissionIndex(missionRows);
@@ -63,6 +64,7 @@ export const missionMatchService = {
       total: result.items.length,
       avgDistanceKmTop5: result.avgDistanceKmTop5,
       userValues: buildUserValues(userValueRows),
+      userLocation: userGeo,
     };
   },
 };

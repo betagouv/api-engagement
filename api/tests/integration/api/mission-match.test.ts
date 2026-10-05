@@ -288,6 +288,18 @@ describe("GET /missions/match", () => {
     expect(response.body.data.items).toHaveLength(1);
   });
 
+  it("returns the scoring's own location, null without one", async () => {
+    await createRankableMission();
+    const geoId = await createGeoUserScoring();
+    const noGeoId = await createUserScoring();
+
+    const geo = await withApiKey(request(app).get("/missions/match")).query({ userScoringId: geoId });
+    const noGeo = await withApiKey(request(app).get("/missions/match")).query({ userScoringId: noGeoId });
+
+    expect(geo.body.data.userLocation).toEqual({ lat: 48.8566, lon: 2.3522 });
+    expect(noGeo.body.data.userLocation).toBeNull();
+  });
+
   it("returns the scoring's own user values (independent of the client store)", async () => {
     await createRankableMission();
     const userScoringId = await createUserScoring();

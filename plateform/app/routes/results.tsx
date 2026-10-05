@@ -42,8 +42,9 @@ export default function ResultsPage() {
   const { userScoringId } = useParams<{ userScoringId: string }>();
   const [searchParams] = useSearchParams();
   const isMobile = useIsMobile();
-  const answers = useQuizStore((s) => s.answers);
-  const { items, userValues, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
+  // Le store local (réponses du quiz) n'est fiable que pour le scoring que ce navigateur a créé.
+  const isOwnScoring = useQuizStore((s) => s.userScoringId === userScoringId);
+  const { items, userValues, userLocation, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
   // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
   // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
   const resultsViewedFired = useRef<string | null>(null);
@@ -122,10 +123,8 @@ export default function ResultsPage() {
     });
   }, [loading, error, userScoringId, statsUserScoringId, totalResults, totalPages, avgDistanceKmTop5]);
 
-  const locAnswer = answers["localisation"];
-  const geo = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number }) : null;
   // Mémoïsé pour garder une identité stable : sinon chaque rendu (ex. sélection d'un pin) recale la carte sur l'ensemble des pins.
-  const mapCenter = useMemo<[number, number]>(() => (geo ? [geo.lat, geo.lon] : FRANCE_CENTER), [geo]);
+  const mapCenter = useMemo<[number, number]>(() => (userLocation ? [userLocation.lat, userLocation.lon] : FRANCE_CENTER), [userLocation]);
   const userValueKeys = useMemo(() => userValueKeysFromScoring(userValues), [userValues]);
 
   const showMap = !loading && items.length > 0;
@@ -308,7 +307,7 @@ export default function ResultsPage() {
             </div>
 
             {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
-            {expanded && !error && (
+            {expanded && !error && isOwnScoring && (
               <div className="border-t border-border-default-grey bg-background p-3">
                 <ResultsFiltersModal quizHref={quizHref} />
               </div>
@@ -336,14 +335,14 @@ export default function ResultsPage() {
     <>
       {userScoringId && <BetaBanner source="results" session={userScoringId} />}
       <main id="contenu" tabIndex={-1}>
-        {!error && <ResultsFilters />}
+        {!error && isOwnScoring && <ResultsFilters />}
         <GradientBg fixed className="px-12">
           <section className="max-w-7xl mx-auto py-12">
             <div className="flex mb-6 flex-row items-center justify-between gap-4 pl-6">
               {/* RGAA 9.1 : en état d'erreur le h1 est rendu dans l'alerte de ResultsMissions. */}
               {!error && <h1 className="fr-h3 m-0!">Découvre les missions qui te correspondent le mieux</h1>}
 
-              <ProfileModal quizHref={quizHref} />
+              {isOwnScoring && <ProfileModal quizHref={quizHref} />}
             </div>
             <div className="flex flex-row">
               <div className="flex flex-col w-[60%]">
