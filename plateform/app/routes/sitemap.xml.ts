@@ -2,12 +2,11 @@ const SITE_URL = "https://trouvetamission.gouv.fr";
 
 // Source unique des pages publiques indexables : ajouter une page ici suffit à la faire apparaître
 // dans le sitemap (pas de fichier XML figé à maintenir en parallèle des routes).
-// Exclus volontairement : quiz, /results/*, fiches mission (/missions/:id, sujet SEO à part) et
+// Exclus volontairement : quiz, /results/*, /missions (noindex), fiches mission (/missions/:id, sujet SEO à part) et
 // toute URL avec filtres (?domaine_engagement=…).
 // lastmod : uniquement une vraie date connue, jamais une date bidon commune à toutes les pages.
 const PUBLIC_PAGES: { path: string; lastmod?: string }[] = [
   { path: "/" },
-  { path: "/missions" },
   { path: "/plan-du-site" },
   { path: "/accessibilite" },
   { path: "/mentions-legales" },
