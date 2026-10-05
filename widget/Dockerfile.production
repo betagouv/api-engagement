@@ -8,8 +8,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /workspace
 
 ARG SENTRY_HOST=
+ARG ENV=development
+ARG SENTRY_DSN_WIDGET=
 
 ENV SENTRY_HOST=$SENTRY_HOST
+ENV NEXT_PUBLIC_ENV=$ENV
+ENV NEXT_PUBLIC_SENTRY_DSN=$SENTRY_DSN_WIDGET
 
 COPY package.json package-lock.json ./
 COPY widget/package.json ./widget/

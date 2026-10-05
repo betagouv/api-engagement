@@ -37,8 +37,8 @@ module.exports = withSentryConfig(withPlausibleProxy()(nextConfig), {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
-  org: "sentry",
-  project: "widget",
+  org: "betagouv",
+  project: "api-engagement-widget",
   sentryUrl: process.env.SENTRY_HOST,
   environment: process.env.ENV,
 

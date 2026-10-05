@@ -24,7 +24,9 @@ on:
     secrets:
       SENTRY_AUTH_TOKEN:
         required: false
-      SENTRY_DNS_APP:
+      SENTRY_DSN_APP:
+        required: false
+      SENTRY_DSN_WIDGET:
         required: false
       SENTRY_DSN_PLATEFORM:
         required: false
@@ -131,6 +133,7 @@ jobs:
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DSN_APP=${{ secrets.SENTRY_DSN_APP }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DSN_PLATEFORM=${{ secrets.SENTRY_DSN_PLATEFORM }}" >> $GITHUB_OUTPUT
+          echo "SENTRY_DSN_WIDGET=${{ secrets.SENTRY_DSN_WIDGET }}" >> $GITHUB_OUTPUT
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "VITE_API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
@@ -163,6 +166,7 @@ jobs:
             BENEVOLAT_URL=${{ steps.app_args.outputs.BENEVOLAT_URL }}
             VOLONTARIAT_URL=${{ steps.app_args.outputs.VOLONTARIAT_URL }}
             SENTRY_DSN_APP=${{ steps.app_args.outputs.SENTRY_DSN_APP }}
+            SENTRY_DSN_WIDGET=${{ steps.app_args.outputs.SENTRY_DSN_WIDGET }}
             SENTRY_HOST=${{ steps.app_args.outputs.SENTRY_HOST }}
             VITE_MAPTILER_API_KEY=${{ steps.app_args.outputs.VITE_MAPTILER_API_KEY }}
             VITE_PUBLISHER_ID=${{ steps.app_args.outputs.VITE_PUBLISHER_ID }}

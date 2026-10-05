@@ -3,12 +3,12 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
-import { ENV, SENTRY_DSN } from "./config";
+import { PUBLIC_ENV, PUBLIC_SENTRY_DSN } from "./config";
 
-if (ENV !== "development") {
+if (PUBLIC_ENV !== "development" && PUBLIC_SENTRY_DSN) {
   Sentry.init({
-    dsn: SENTRY_DSN,
-    environment: ENV,
+    dsn: PUBLIC_SENTRY_DSN,
+    environment: PUBLIC_ENV,
     // Enable logs to be sent to Sentry
     enableLogs: true,
 
