@@ -1,6 +1,5 @@
 import { captureException } from "@sentry/node";
 import fs from "fs";
-import os from "os";
 import path from "path";
 import { Readable } from "stream";
 import { pipeline } from "stream/promises";
@@ -62,7 +61,10 @@ export class ImportOrganizationsHandler implements BaseHandler<ImportOrganizatio
     }
     console.log(`[ImportOrganizations] Found new resource ${resource.id} ${resource.url}`);
 
-    const folder = fs.mkdtempSync(path.join(os.tmpdir(), "import-organizations-"));
+    // Hors /tmp (en mémoire sous gVisor) ; /workspace/api est inscriptible par `node`, contrairement à dist/
+    const baseFolder = path.resolve(__dirname, "../../../tmp");
+    fs.mkdirSync(baseFolder, { recursive: true });
+    const folder = fs.mkdtempSync(path.join(baseFolder, "import-organizations-"));
 
     try {
       const DOWNLOAD_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes
