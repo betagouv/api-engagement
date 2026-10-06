@@ -9,6 +9,8 @@ if (PUBLIC_ENV !== "development" && PUBLIC_SENTRY_DSN) {
   Sentry.init({
     dsn: PUBLIC_SENTRY_DSN,
     environment: PUBLIC_ENV,
+    // Only report errors thrown by our own scripts (widget + jstag.js), not by browser extensions or third-party scripts
+    allowUrls: [/api-engagement\.beta\.gouv\.fr/, /api-engagement-dev\.fr/],
     // Enable logs to be sent to Sentry
     enableLogs: true,
 
