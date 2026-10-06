@@ -105,5 +105,5 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     options: ["autonomie.organisation_libre", "autonomie.accompagnement_initial", "autonomie.cadre_suivi_regulier", "autonomie.je_ne_sais_pas"],
   },
   // Étape 10 — email : reçoit le top des missions et inscrit aux listes Brevo, avant les résultats. Pas de réponse au scoring.
-  { id: "email", route: "/quiz/email", title: "Reçois tes prochaines missions" },
+  { id: "email", route: "/quiz/email", title: "Reçois tes prochaines missions basées sur tes réponses" },
 ];

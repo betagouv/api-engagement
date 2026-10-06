@@ -11,9 +11,12 @@ interface QuizStore {
   quizStartedAt: number;
   // Dernière tentative pour laquelle l'évènement quiz.started a été émis (déduplication).
   startedAttemptId?: string;
+  // Dernière tentative pour laquelle quiz.completed (parcours complet) a été émis : évite le doublon après un retour arrière.
+  completedAttemptId?: string;
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
   setUserScoringId: (id: string) => void;
   markQuizStarted: () => void;
+  markQuizCompleted: () => void;
   reset: () => void;
 }
 
@@ -35,15 +38,21 @@ export const useQuizStore = create<QuizStore>()(
       // Marque la tentative courante comme "démarrée" (quiz.started émis). reset() regénère
       // quizAttemptId → la nouvelle tentative ne correspondra plus à startedAttemptId et réémettra.
       markQuizStarted: () => set((s) => ({ startedAttemptId: s.quizAttemptId })),
+      markQuizCompleted: () => set((s) => ({ completedAttemptId: s.quizAttemptId })),
       // reset démarre une nouvelle tentative : efface réponses et scoring, conserve distinctId,
       // et regénère quizAttemptId + quizStartedAt.
       reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
     }),
     {
       name: "quiz-answers",
-      // Bumpé quand les réponses stockées ne sont plus compatibles avec le parcours : sans `migrate`,
-      // Zustand repart d'un état vide (v7 : q4 ne pose plus `equipe`).
       version: 7,
+      // v7 : q4 ne pose plus `equipe`. Purge ciblée pour conserver distinctId, scoring et autres réponses.
+      migrate: (persisted) => {
+        const state = persisted as QuizStore;
+        const answers = { ...state.answers };
+        delete answers.equipe;
+        return { ...state, answers };
+      },
     },
   ),
 );

@@ -54,7 +54,7 @@ export default function EmailStep() {
       return;
     }
     if (!isValidEmail(trimmedEmail)) {
-      console.warn("Email format invalid:", trimmedEmail);
+      console.warn("Email format invalid");
       setError(INVALID_EMAIL_FORMAT_ERROR);
       return;
     }

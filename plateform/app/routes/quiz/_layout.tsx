@@ -39,8 +39,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     Object.values(QUIZ_FLOW_REGISTRY)
       .flat()
       .find((s) => s.route === location.pathname);
-  const stepTitle = location.pathname === "/quiz/email" ? "Reçois tes prochaines missions" : step?.title;
-  const title = step ? `${stepTitle} | Quiz Engagement | Trouve ta mission` : "Quiz Engagement | Trouve ta mission";
+  const title = step ? `${step.title} | Quiz Engagement | Trouve ta mission` : "Quiz Engagement | Trouve ta mission";
   return pageMeta(location, { title, robots: "noindex, nofollow" });
 }
 
@@ -142,12 +141,17 @@ export default function QuizLayout() {
     }
 
     // `steps` et `currentIndex` reflètent la séquence visible telle que vue par l'utilisateur.
-    trackQuizStepCompleted({ stepName: currentStep.id, answers: freshAnswers, stepIndex: currentIndex + 1, totalVisibleSteps: steps.length });
+    trackQuizStepCompleted({ stepName: currentStep.id, answers: freshAnswers, stepIndex: currentIndex + 1, totalVisibleSteps: steps.filter((s) => s.id !== "email").length });
 
     const { next, steps: nextSteps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(nextSteps);
+    // `!next` : parcours sans step email (q3, rollback) ; le quiz se termine alors sur son dernier step.
     if (currentStep.completes || !next) {
-      trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
+      const { quizAttemptId: attemptId, completedAttemptId, quizStartedAt, markQuizCompleted } = useQuizStore.getState();
+      if (completedAttemptId !== attemptId) {
+        trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt });
+        markQuizCompleted();
+      }
       navigate(next?.route ?? "/quiz/email", { state: { completionType: "full" } });
     } else {
       navigate(next.route);
@@ -174,7 +178,7 @@ export default function QuizLayout() {
 
   return (
     <div className="flex min-h-svh flex-1 flex-col">
-      <QuizProgress step={loadingResults ? steps.length + 1 : isEmailPage ? steps.length : currentIndex + 1} stepCount={steps.length + 1} />
+      <QuizProgress step={loadingResults ? steps.length + 1 : isEmailPage && currentIndex < 0 ? steps.length : currentIndex + 1} stepCount={steps.length + 1} />
       {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
       <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
         <div className="fr-container flex flex-1 flex-col gap-10">
