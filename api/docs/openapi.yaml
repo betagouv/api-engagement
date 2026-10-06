@@ -902,6 +902,152 @@ paths:
   # ────────────────────────────────────────────────────────────────────────────
 
   /v2/mission:
+    get:
+      summary: Lister les missions diffusées
+      description: |
+        Retourne les missions accessibles à votre clé API au format v2.
+        L'ordre est croissant sur l'identifiant de mission.
+        Pour continuer, transmettez `nextCursor` dans le paramètre `cursor` en conservant
+        les mêmes filtres. `nextCursor` vaut null quand la liste est terminée.
+        Le nombre total de missions correspondant aux filtres est renvoyé dans `total`.
+        Les paramètres `skip` et `from` ne sont pas acceptés.
+      operationId: listMissionsV2
+      tags: [Missions]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, default: 25 }
+          description: Nombre maximal de missions par page
+        - name: cursor
+          in: query
+          schema: { type: string }
+          description: Valeur nextCursor renvoyée par la page précédente
+        - name: keywords
+          in: query
+          schema: { type: string }
+          description: Recherche dans le titre, le nom d'organisation, la ville et le domaine
+        - name: activities
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+          description: |
+            Activité(s) principale(s) de la mission. Valeurs possibles :
+            `accueil-de-public`, `aide-psychologique`, `activites-manuelles`, `alphabetisation`, `animation`, `Animation, Valorisation`, `art`, `autre`, `bricolage`, `collecte`, `communication`, `comptabilite-finance`, `conseil`, `distribution`, `documentation-traduction`, `ecoute-permanence`, `encadrement-d-equipes`, `enseignement-formation`, `gestion-de-projets`, `gestion-recherche-des-partenariats`, `informatique`, `jardinage`, `juridique`, `logistique`, `lutte-contre-isolement`, `Médiation, Information`, `mentorat-parrainage`, `mission-internationale`, `Préservation, Patrimoine`, `Prévention, Sensibilisation`, `ramassage-dechets`, `recrutement`, `responsabilites-associatives`, `sante-soins`, `Secours, Aide`, `secourisme`, `sensibilisation`, `soins-animaux`, `Soutien, Accompagnement`, `soutien-scolaire`, `sport`, `taches-administratives`, `Transmission, Pédagogie`, `visites`, `operations-militaires`, `sciences-humaines-social`, `restauration-hotellerie`, `maintenance-technique`, `gestion-ressources-humaines`, `gestion-entretien-patrimoine`.
+
+            > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
+          example: ["animation", "lutte-contre-isolement"]
+        - name: city
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: clientId
+          in: query
+          schema: { type: string }
+          description: Identifiant unique de la mission dans votre système d'information (immuable)
+          example: "mission-2024-001"
+        - name: country
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: departmentName
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+        - name: domain
+          in: query
+          schema: { type: string }
+          description: |
+            Domaine d'action de la mission. Valeurs possibles :
+            `animaux`, `autre`, `batiment-industrie-logistique`, `benevolat-competences`, `communication`, `culture-loisirs`, `education`, `emploi`, `environnement`, `gestion-finance-droit`, `humanitaire`, `memoire-et-citoyennete`, `numerique`, `prevention-protection`, `recherche`, `sante`, `service-public-defense-securite`, `sport`, `solidarite-insertion`, `vivre-ensemble`.
+
+            > Une demande d'ajout de valeur peut être faite auprès de l'équipe API Engagement.
+          example: "sante"
+        - name: publisherId
+          in: query
+          schema: { type: string }
+          description: Identifiant du partenaire annonceur
+          example: "5f5931496c7ea514150a818f"
+        - name: organizationRNA
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+          description: Numéro RNA de l'organisation. Uniquement valable pour les organisations de type association.
+          example: ["W353002476"]
+        - name: organizationStatusJuridique
+          in: query
+          schema: { type: array, items: { type: string } }
+          style: form
+          explode: true
+          description: Statut juridique de l'organisation.
+        - name: remote
+          in: query
+          schema: { type: string, enum: [no, possible, full, local] }
+          description: "Politique de télétravail. Valeurs possibles : `no` (présentiel uniquement), `possible` (distanciel possible), `full` (100% distanciel), `local` (sur site, à proximité)"
+          example: "no"
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [benevolat, volontariat_service_civique, volontariat_sapeurs_pompiers, volontariat_reserve_operationnelle]
+          description: Type de mission d'engagement
+        - name: openToMinors
+          in: query
+          schema: { type: boolean }
+          description: Mission ouverte aux mineurs.
+        - name: reducedMobilityAccessible
+          in: query
+          schema: { type: boolean }
+          description: Mission accessible aux personnes à mobilité réduite.
+        - name: startAt
+          in: query
+          schema: { type: string }
+          description: Filtre de date, par exemple gt:2026-01-01 ou lt:2027-01-01
+        - name: createdAt
+          in: query
+          schema: { type: string }
+          description: Filtre de date, par exemple gt:2026-01-01 ou lt:2027-01-01
+        - name: updatedAt
+          in: query
+          schema: { type: string, example: "gt:2026-09-01T00:00:00.000Z" }
+          description: Retourne les missions mises à jour après cette date
+        - name: lat
+          in: query
+          schema: { type: number }
+          description: Latitude, à fournir avec lon
+        - name: lon
+          in: query
+          schema: { type: number }
+          description: Longitude, à fournir avec lat
+        - name: distance
+          in: query
+          schema: { type: string }
+          description: Rayon de recherche géographique, 50km par défaut
+      responses:
+        "200":
+          description: Page de missions au format v2
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok, data, limit, nextCursor, hasMore, total]
+                properties:
+                  ok: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/MissionV2" }
+                  limit: { type: integer, example: 25 }
+                  nextCursor: { type: string, nullable: true }
+                  hasMore: { type: boolean }
+                  total: { type: integer, minimum: 0 }
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
     post:
       summary: Créer une mission
       description: |

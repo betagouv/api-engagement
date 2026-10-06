@@ -50,12 +50,12 @@ export const missionQuerySchema = zod.object({
   limit: zod.coerce.number().min(0).max(10000).default(25),
   lat: zod.coerce.number().optional(),
   lon: zod.coerce.number().optional(),
-  openToMinors: zod.string().optional(), // TODO: put enum
+  openToMinors: zod.string().optional(),
   organizationRNA: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   organizationStatusJuridique: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   publisher: zod.union([zod.string(), zod.array(zod.string())]).optional(),
   remote: zod.union([zod.string(), zod.array(zod.string())]).optional(),
-  reducedMobilityAccessible: zod.string().optional(), // TODO: put enum
+  reducedMobilityAccessible: zod.string().optional(),
   skip: zod.coerce.number().min(0).default(0),
   snu: zod
     .enum(["true", "false"])

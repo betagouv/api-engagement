@@ -1,119 +1,22 @@
 import { NextFunction, Response, Router } from "express";
 import { convert } from "html-to-text";
 import passport from "passport";
-import zod from "zod";
 
-import { INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionService } from "@/services/mission";
-import { MissionCreateInput, MissionUpdatePatch } from "@/types/mission";
+import { getCachedMissionCount } from "@/services/mission-count-cache";
+import { MissionCreateInput, MissionSearchFilters, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
-import { PublisherRecord } from "@/types/publisher";
+import { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
+import { getDistanceKm } from "@/utils";
 import { getModeration } from "@/utils/mission-moderation";
+import { parseDateFilter } from "@/v0/mission/utils";
 
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
+import { missionClientIdParamSchema, missionCreateSchema, missionListQuerySchema, missionUpdateSchema } from "./schema";
 
 const router = Router();
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Schema
-// ──────────────────────────────────────────────────────────────────────────────
-
-const addressSchema = zod.object({
-  street: zod.string().optional(),
-  postalCode: zod.string().optional(),
-  city: zod.string().optional(),
-  departmentCode: zod.string().optional(),
-  departmentName: zod.string().optional(),
-  region: zod.string().optional(),
-  country: zod.string().optional(),
-  location: zod.object({ lat: zod.number().min(-90).max(90), lon: zod.number().min(-180).max(180) }).nullish(),
-});
-
-const orgFields = {
-  organizationClientId: zod.string().optional(),
-  organizationName: zod.string().optional(),
-  organizationDescription: zod.string().optional(),
-  organizationUrl: zod.string().optional(),
-  organizationType: zod.string().optional(),
-  organizationLogo: zod.string().optional(),
-  organizationRNA: zod.string().optional(),
-  organizationSiren: zod.string().optional(),
-  organizationSiret: zod.string().optional(),
-  organizationFullAddress: zod.string().optional(),
-  organizationPostCode: zod.string().optional(),
-  organizationCity: zod.string().optional(),
-  organizationDepartment: zod.string().optional(),
-  organizationDepartmentCode: zod.string().optional(),
-  organizationDepartmentName: zod.string().optional(),
-  organizationStatusJuridique: zod.string().optional(),
-  organizationBeneficiaries: zod.array(zod.string()).optional(),
-  organizationActions: zod.array(zod.string()).optional(),
-  organizationReseaux: zod.array(zod.string()).optional(),
-};
-
-const missionBaseFields = {
-  title: zod.string().optional(),
-  description: zod.string().optional(),
-  applicationUrl: zod.string().optional(),
-  image: zod.string().optional(),
-  metadata: zod.string().optional(),
-  postedAt: zod.coerce.date().optional(),
-  domain: zod.string().optional(),
-  activities: zod.array(zod.string()).optional(),
-  tags: zod.array(zod.string()).optional(),
-  tasks: zod.array(zod.string()).optional(),
-  audience: zod.array(zod.string()).optional(),
-  requirements: zod.array(zod.string()).optional(),
-  softSkills: zod.array(zod.string()).optional(),
-  romeSkills: zod.array(zod.string()).optional(),
-  remote: zod.enum(["no", "possible", "full", "local"]).optional(),
-  schedule: zod.string().optional(),
-  startAt: zod.coerce.date().optional(),
-  endAt: zod.coerce.date().optional(),
-  priority: zod.string().optional(),
-  places: zod.number().int().positive().optional(),
-  compensationAmount: zod.number().optional(),
-  compensationAmountMax: zod.number().min(0).optional(),
-  compensationUnit: zod.enum(["hour", "day", "month", "year"]).optional(),
-  compensationType: zod.enum(["gross", "net"]).optional(),
-  openToMinors: zod.boolean().optional(),
-  reducedMobilityAccessible: zod.boolean().optional(),
-  closeToTransport: zod.boolean().optional(),
-  addresses: zod.array(addressSchema).optional(),
-  type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
-  ...orgFields,
-};
-
-const orgNameRequiredRefinement = <T extends Record<string, unknown>>(data: T, ctx: zod.RefinementCtx) => {
-  const orgFieldKeys = Object.keys(orgFields) as Array<keyof typeof orgFields>;
-  const hasOrgField = orgFieldKeys.some((key) => key !== "organizationName" && data[key] !== undefined);
-  if (hasOrgField && !data.organizationName) {
-    ctx.addIssue({
-      code: zod.ZodIssueCode.custom,
-      message: "organizationName is required when any organization field is provided",
-      path: ["organizationName"],
-    });
-  }
-};
-
-const missionCreateSchema = zod
-  .object({
-    clientId: zod.string(),
-    ...missionBaseFields,
-    title: zod.string(),
-  })
-  .superRefine(orgNameRequiredRefinement);
-
-const missionUpdateSchema = zod
-  .object({
-    ...missionBaseFields,
-  })
-  .superRefine(orgNameRequiredRefinement);
-
-const missionClientIdParamSchema = zod.object({
-  clientId: zod.string(),
-});
 
 const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
 
@@ -134,6 +37,66 @@ const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCre
     descriptionHtml: description,
   };
 };
+
+// GET /v2/mission — liste à pagination par curseur
+router.get("/", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
+  try {
+    const publisher = req.user as PublisherRecordWithRelations;
+    const parsed = missionListQuerySchema.safeParse(req.query);
+
+    if (!parsed.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, message: parsed.error });
+    }
+
+    const query = parsed.data;
+    const filters: MissionSearchFilters & { diffuseurPublisherId: string } = {
+      diffuseurPublisherId: publisher.id,
+      moderationAcceptedFor: publisher.moderator ? publisher.id : undefined,
+      publisherIds: query.publisherId ? [query.publisherId] : undefined,
+      activity: query.activities,
+      city: query.city,
+      clientId: query.clientId ? [query.clientId] : undefined,
+      country: query.country,
+      createdAt: parseDateFilter(query.createdAt),
+      departmentName: query.departmentName,
+      domain: query.domain ? [query.domain] : undefined,
+      keywords: query.keywords,
+      organizationRNA: query.organizationRNA,
+      organizationStatusJuridique: query.organizationStatusJuridique,
+      openToMinors: query.openToMinors,
+      reducedMobilityAccessible: query.reducedMobilityAccessible,
+      remote: query.remote ? [query.remote] : undefined,
+      startAt: parseDateFilter(query.startAt),
+      type: query.type ? [query.type] : undefined,
+      updatedAt: parseDateFilter(query.updatedAt),
+      limit: query.limit,
+      skip: 0,
+    };
+
+    if (query.lat !== undefined && query.lon !== undefined) {
+      const rawDistance = query.distance === "0" || query.distance === "0km" ? "10km" : query.distance || "50km";
+      filters.lat = query.lat;
+      filters.lon = query.lon;
+      filters.distanceKm = getDistanceKm(rawDistance);
+    }
+
+    const [result, total] = await Promise.all([
+      missionService.findMissionsAfterId(filters, query.cursor),
+      getCachedMissionCount(filters, () => missionService.countMissions(filters)),
+    ]);
+
+    return res.status(200).send({
+      ok: true,
+      data: result.data.map(buildData),
+      limit: query.limit,
+      nextCursor: result.nextCursor,
+      hasMore: result.hasMore,
+      total,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 // ──────────────────────────────────────────────────────────────────────────────
 // POST /v2/mission — Create

@@ -29,7 +29,7 @@ export const missionDiffusionRepository = {
 
   async findMissionIdsPageByDistributionPublisher(
     distributionPublisherId: string,
-    { afterMissionId, take }: { afterMissionId?: string; take: number },
+    { afterMissionId, take, missionWhere }: { afterMissionId?: string; take: number; missionWhere?: Prisma.MissionWhereInput },
     tx?: Prisma.TransactionClient
   ): Promise<string[]> {
     const rows = await client(tx).missionDiffusion.findMany({
@@ -37,6 +37,7 @@ export const missionDiffusionRepository = {
         distributionPublisherId,
         deletedAt: null,
         ...(afterMissionId ? { missionId: { gt: afterMissionId } } : {}),
+        ...(missionWhere ? { mission: { is: missionWhere } } : {}),
       },
       orderBy: { missionId: "asc" },
       take,

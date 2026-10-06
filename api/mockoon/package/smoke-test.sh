@@ -139,6 +139,12 @@ request_with_authorization_only GET "/v0/mission" 401
 request_with_empty_api_key GET "/v0/mission" 401
 request_with_invalid_api_key GET "/v0/mission" 401
 
+request GET "/v2/mission" 200
+assert_contains '"nextCursor"'
+assert_contains '"hasMore"'
+assert_contains 'mission-lyon-002'
+request_without_api_key GET "/v2/mission" 401
+
 request POST "/v2/mission" 201 "$SCRIPT_DIR/examples/v2-create-mission.json"
 assert_contains '"ok"'
 assert_contains 'partner-mission-001'
