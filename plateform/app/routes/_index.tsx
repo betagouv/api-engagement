@@ -9,7 +9,7 @@ import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
 import HowItWorks from "~/components/home/how-it-works";
 import MissionExamples from "~/components/home/mission-examples";
-import Partners from "~/components/home/partners";
+import Partners from "~/components/layout/partners";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import { type Partner } from "~/config/partners";
@@ -113,7 +113,7 @@ export default function Landing() {
         ctaText="Je m'inscris"
         hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
       />
-      <Partners partners={PARTNERS} title="Toutes les missions d'engagement vérifiées par l'État" />
+      <Partners style="compact" partners={PARTNERS} title="Toutes les missions d'engagement vérifiées par l'État" description={null} />
     </main>
   );
 }
