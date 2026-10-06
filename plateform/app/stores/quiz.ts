@@ -41,15 +41,9 @@ export const useQuizStore = create<QuizStore>()(
     }),
     {
       name: "quiz-answers",
+      // Bumpé quand les réponses stockées ne sont plus compatibles avec le parcours : sans `migrate`,
+      // Zustand repart d'un état vide (v7 : q4 ne pose plus `equipe`).
       version: 7,
-      // v7 : q4 ne pose plus equipe (ni interaction/imprevu, retirés avant). Sans purge, un utilisateur
-      // revenu d'une ancienne session renverrait ces réponses dans buildPayload et les ferait scorer.
-      migrate: (persisted) => {
-        const state = persisted as QuizStore;
-        const answers: Record<string, unknown> = { ...state.answers };
-        for (const key of ["equipe", "interaction", "imprevu"]) delete answers[key];
-        return { ...state, answers: answers as QuizStore["answers"] };
-      },
     },
   ),
 );
