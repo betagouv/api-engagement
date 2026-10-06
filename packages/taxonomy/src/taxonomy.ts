@@ -12,7 +12,6 @@
 //   sublabel          — aide contextuelle optionnelle pour les UIs
 //   icon              — emoji optionnel
 //   enrichable        — false pour les valeurs exclues de l'enrichissement (ex : je_ne_sais_pas)
-//   disabled          — true pour griser l'option en UI (fonctionnalité pas encore disponible)
 //   mission_card_tag  — libellé court affiché en tag sur les cartes mission quand la valeur a matché
 //   neutral           — true pour exclure la valeur du scoring utilisateur (cf. NEUTRAL_TAXONOMY_VALUE_KEYS)
 
@@ -305,9 +304,9 @@ export const TAXONOMY = {
       benevolat: { label: "Bénévolat", icon: null, enrichable: false },
       service_civique: { label: "Service civique", icon: null, enrichable: false },
       sapeurs_pompiers: { label: "Pompiers volontaires", icon: null, enrichable: false },
-      reserve_gendarmerie: { label: "Réserve Gendarmerie", icon: null, enrichable: false, disabled: true },
-      reserve_police_nationale: { label: "Réserve Police Nationale", icon: null, enrichable: false, disabled: true },
-      reserve_armees: { label: "Réserves des armées", icon: null, enrichable: false, disabled: true },
+      reserve_gendarmerie: { label: "Réserve Gendarmerie", icon: null, enrichable: false },
+      reserve_police_nationale: { label: "Réserve Police Nationale", icon: null, enrichable: false },
+      reserve_armees: { label: "Réserves des armées", icon: null, enrichable: false },
     },
   },
 
@@ -413,6 +412,7 @@ export const TAXONOMY = {
     },
   },
 
+  // Historique (q2/q3), plus posée par q4 ; à conserver pour la rétrocompatibilité (rollback q3).
   equipe: {
     label: "Cadre d’équipe",
     type: "categorical",
@@ -445,6 +445,7 @@ export const TAXONOMY = {
     },
   },
 
+  // Historique (q2), plus posée depuis q3 ; à conserver pour la rétrocompatibilité.
   interaction: {
     label: "Mode d’interaction",
     type: "categorical",
@@ -511,6 +512,7 @@ export const TAXONOMY = {
     },
   },
 
+  // Historique (q2), plus posée depuis q3 ; à conserver pour la rétrocompatibilité.
   imprevu: {
     label: "Niveau d’imprévu",
     type: "categorical",
@@ -633,6 +635,7 @@ export const TAXONOMY = {
 
   // ─── Taxonomies déclaratives côté quiz, non enrichies par LLM ─────────────
 
+  // Historique (q1), plus posée depuis q2 ; à conserver pour la rétrocompatibilité.
   statut: {
     label: "Statut utilisateur",
     type: "categorical",
@@ -705,7 +708,6 @@ export const TAXONOMY = {
         sublabel: "Participer à des missions d'intérêt général",
         icon: "🇫🇷",
         enrichable: false,
-        disabled: true,
       },
       ne_sais_pas: {
         label: "Je ne sais pas encore",
@@ -736,7 +738,6 @@ export const TAXONOMY = {
         sublabel: "Vivre une expérience d'engagement dans un autre pays",
         icon: "🌍",
         enrichable: false,
-        disabled: true,
       },
       competences_interet_general: {
         label: "Utiliser mes compétences pour l'intérêt général",

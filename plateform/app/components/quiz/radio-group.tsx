@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { DISABLED_OPTION_HINT } from "~/config/quiz-options";
 import type { StepOption } from "~/types/quiz";
 
 type Props = {
@@ -37,18 +36,10 @@ export default function RadioGroup({ title, subtitle, onChange, options, selecte
       {options.map((o) => (
         <div className="fr-fieldset__element md:max-w-sm! max-w-full!" key={o.value}>
           <div className="fr-radio-group fr-radio-rich">
-            <input
-              value={o.value}
-              type="radio"
-              id={`radio-group-${o.value}`}
-              name="radio-group"
-              onChange={() => onChange(o.value)}
-              checked={!o.disabled && selected === o.value}
-              disabled={o.disabled}
-            />
-            <label className={`fr-label ${o.disabled ? "cursor-not-allowed!" : ""}`} htmlFor={`radio-group-${o.value}`}>
+            <input value={o.value} type="radio" id={`radio-group-${o.value}`} name="radio-group" onChange={() => onChange(o.value)} checked={selected === o.value} />
+            <label className="fr-label" htmlFor={`radio-group-${o.value}`}>
               {o.label}
-              {o.disabled ? <span className="fr-hint-text">{DISABLED_OPTION_HINT}</span> : o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
+              {o.sublabel && <span className="fr-hint-text">{o.sublabel}</span>}
             </label>
           </div>
         </div>

@@ -97,13 +97,13 @@ describe("evalCondition", () => {
 
   describe("or", () => {
     it("retourne true si au moins une condition est vraie", () => {
-      const a = answers({ motivation: { type: "options", taxonomy: "motivation", option_ids: ["me_sentir_utile"] } });
-      expect(evalCondition(or(screenAnswer("motivation", "me_sentir_utile"), screenAnswer("motivation", "reprendre_confiance")), a)).toBe(true);
+      const a = answers({ rythme: { type: "options", taxonomy: "rythme", option_ids: ["me_sentir_utile"] } });
+      expect(evalCondition(or(screenAnswer("rythme", "me_sentir_utile"), screenAnswer("rythme", "reprendre_confiance")), a)).toBe(true);
     });
 
     it("retourne false si aucune condition n'est vraie", () => {
-      const a = answers({ motivation: { type: "options", taxonomy: "motivation", option_ids: ["autre"] } });
-      expect(evalCondition(or(screenAnswer("motivation", "me_sentir_utile"), screenAnswer("motivation", "reprendre_confiance")), a)).toBe(false);
+      const a = answers({ rythme: { type: "options", taxonomy: "rythme", option_ids: ["autre"] } });
+      expect(evalCondition(or(screenAnswer("rythme", "me_sentir_utile"), screenAnswer("rythme", "reprendre_confiance")), a)).toBe(false);
     });
   });
 
@@ -122,10 +122,14 @@ describe("evalCondition", () => {
     it("évalue des conditions imbriquées (and + or + not)", () => {
       const a = answers({
         age: { type: "numeric", value: 28 },
-        motivation: { type: "options", taxonomy: "motivation", option_ids: ["me_sentir_utile"] },
-        statut: { type: "options", taxonomy: "statut", option_ids: ["etudiant"] },
+        rythme: { type: "options", taxonomy: "rythme", option_ids: ["me_sentir_utile"] },
+        mobilite: { type: "options", taxonomy: "mobilite", option_ids: ["etudiant"] },
       });
-      const condition = and(numericRange("age", 18, 30), or(screenAnswer("motivation", "me_sentir_utile"), screenAnswer("motivation", "reprendre_confiance")), not(screenAnswer("statut", "retraite")));
+      const condition = and(
+        numericRange("age", 18, 30),
+        or(screenAnswer("rythme", "me_sentir_utile"), screenAnswer("rythme", "reprendre_confiance")),
+        not(screenAnswer("mobilite", "retraite")),
+      );
       expect(evalCondition(condition, a)).toBe(true);
     });
   });

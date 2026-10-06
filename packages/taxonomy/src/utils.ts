@@ -82,7 +82,7 @@ export function getTaxonomyList(): TaxonomyListItem[] {
     values: (
       Object.entries(dim.values) as [
         string,
-        { label: string; sublabel?: string; icon: string | null; enrichable: boolean; hidden?: boolean; disabled?: boolean; neutral?: boolean },
+        { label: string; sublabel?: string; icon: string | null; enrichable: boolean; hidden?: boolean; neutral?: boolean },
       ][]
     ).map(([vKey, val], i) => ({
       key: vKey,
@@ -92,7 +92,6 @@ export function getTaxonomyList(): TaxonomyListItem[] {
       order: i,
       enrichable: val.enrichable,
       hidden: val.hidden,
-      disabled: val.disabled,
       neutral: val.neutral,
     })),
   }));

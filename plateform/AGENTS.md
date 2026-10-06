@@ -21,7 +21,7 @@ Structure notable :
 - `app/services/` : clients applicatifs, appels à la façade locale et orchestration côté front.
 - `app/services/api/` : client serveur vers l’API upstream, utilisé uniquement depuis loaders/actions SSR.
 - `app/stores/quiz.ts` : store Zustand persisté en `localStorage` pour les réponses du quiz.
-- `app/config/quiz-flow/` : registre des versions du parcours (`q1`, `q2`, `q3`) — ordre, wording, réponses proposées et conditions d’affichage des steps.
+- `app/config/quiz-flow/` : registre des versions du parcours (`q3`, `q4`) — ordre, wording, réponses proposées et conditions d’affichage des steps.
 - `app/config/quiz-options.ts` : catalogue des options du quiz, généré depuis `@engagement/taxonomy`.
 - `app/utils/` : logique pure testable (conditions, navigation quiz, mapping mission, domaines).
 - `app/assets/` : images et SVG applicatifs.

@@ -9,7 +9,7 @@ const TAXONOMY_OPTIONS = Object.fromEntries(
   getTaxonomyList().flatMap((taxonomy) =>
     taxonomy.values.map((value) => {
       const key = `${taxonomy.key}.${value.key}` as TaxonomyValueKey;
-      return [key, { label: value.label, sublabel: value.sublabel, icon: value.icon, taxonomy: taxonomy.key, value: value.key, disabled: value.disabled }];
+      return [key, { label: value.label, sublabel: value.sublabel, icon: value.icon, taxonomy: taxonomy.key, value: value.key }];
     }),
   ),
 ) as Record<TaxonomyValueKey, StepOption>;
@@ -35,6 +35,3 @@ export const OPTIONS = { ...TAXONOMY_OPTIONS, ...QUIZ_ONLY_OPTIONS } as Record<Q
 // Valeur de taxonomie visée par une réponse du quiz : l'identifiant de l'option, sauf pour les
 // réponses propres au quiz qui pointent vers une valeur existante.
 export const getTaxonomyValue = (taxonomy: string, optionId: string) => OPTIONS[`${taxonomy}.${optionId}` as QuizOptionKey]?.taxonomyValue ?? optionId;
-
-// Sous-titre affiché dans les cartes d'options grisées (cf. `StepOption.disabled`).
-export const DISABLED_OPTION_HINT = "Ces options seront bientôt disponibles";

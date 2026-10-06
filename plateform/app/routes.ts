@@ -21,7 +21,7 @@ export default [
   // seule la version active (QUIZ_FLOW_VERSION) pilote la navigation.
   route("quiz", "routes/quiz/_layout.tsx", [
     index("routes/quiz/_index.tsx"),
-    // Steps des parcours v2 (q2) et v3 (q3).
+    // Steps des parcours q3 et q4.
     route("age", "routes/quiz/age.tsx"),
     route("handicap", "routes/quiz/handicap.tsx"),
     route("localisation", "routes/quiz/localisation.tsx"),
@@ -32,24 +32,8 @@ export default [
     route("activite", "routes/quiz/activite.tsx"),
     route("equipe", "routes/quiz/equipe.tsx"),
     route("autonomie", "routes/quiz/autonomie.tsx"),
-    // Page email avant les résultats (fin du parcours ou raccourci « Voir toutes les missions »), hors flow.
+    // Page email avant les résultats : dernier step de q4, aussi atteinte via le raccourci « Voir toutes les missions ».
     route("email", "routes/quiz/email.tsx"),
-    // Steps abandonnés par q3, conservés pour rollback vers q2.
-    route("interaction", "routes/quiz/interaction.tsx"),
-    route("imprevu", "routes/quiz/imprevu.tsx"),
-    // Steps du parcours v1 (q1), conservés pour rollback.
-    route("statut", "routes/quiz/statut.tsx"),
-    route("duree", "routes/quiz/duree.tsx"),
-    route("motivation", "routes/quiz/motivation.tsx"),
-    route("precision-thematique", "routes/quiz/precision-thematique.tsx"),
-    route("precision-parcoursup-formation", "routes/quiz/precision-parcoursup-formation.tsx"),
-    route("precision-parcoursup-formation-nom", "routes/quiz/precision-parcoursup-formation-nom.tsx"),
-    route("precision-domaine", "routes/quiz/precision-domaine.tsx"),
-    route("precision-formation-onisep", "routes/quiz/precision-formation-onisep.tsx"),
-    route("precision-competences", "routes/quiz/precision-competences.tsx"),
-    route("precision-reprendre-activite", "routes/quiz/precision-reprendre-activite.tsx"),
-    route("precision-servir-pays", "routes/quiz/precision-servir-pays.tsx"),
-    route("precision-international", "routes/quiz/precision-international.tsx"),
   ]),
 
   // Landings marketing, isolées dans `routes/landings` (composants dans `components/landings`) :

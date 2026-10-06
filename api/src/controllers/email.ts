@@ -53,7 +53,9 @@ router.post("/mission", async (req: Request, res: Response, next: NextFunction) 
     }
 
     if (result.status === "failed") {
-      return res.status(502).send({ ok: false, code: EMAIL_SEND_FAILED, message: "Email send failed", data: { ...data, email_sent: false } satisfies SendMissionEmailResponse });
+      return res
+        .status(502)
+        .send({ ok: false, code: EMAIL_SEND_FAILED, message: "Email send failed", data: { ...data, ...result, email_sent: false } satisfies SendMissionEmailResponse });
     }
 
     if (result.status === "skipped") {

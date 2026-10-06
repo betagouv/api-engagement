@@ -11,9 +11,12 @@ interface QuizStore {
   quizStartedAt: number;
   // Dernière tentative pour laquelle l'évènement quiz.started a été émis (déduplication).
   startedAttemptId?: string;
+  // Dernière tentative pour laquelle quiz.completed (parcours complet) a été émis : évite le doublon après un retour arrière.
+  completedAttemptId?: string;
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
   setUserScoringId: (id: string) => void;
   markQuizStarted: () => void;
+  markQuizCompleted: () => void;
   reset: () => void;
 }
 
@@ -35,20 +38,19 @@ export const useQuizStore = create<QuizStore>()(
       // Marque la tentative courante comme "démarrée" (quiz.started émis). reset() regénère
       // quizAttemptId → la nouvelle tentative ne correspondra plus à startedAttemptId et réémettra.
       markQuizStarted: () => set((s) => ({ startedAttemptId: s.quizAttemptId })),
+      markQuizCompleted: () => set((s) => ({ completedAttemptId: s.quizAttemptId })),
       // reset démarre une nouvelle tentative : efface réponses et scoring, conserve distinctId,
       // et regénère quizAttemptId + quizStartedAt.
       reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
     }),
     {
       name: "quiz-answers",
-      version: 6,
-      // v6 : q3 ne pose plus les questions interaction et imprevu. Sans purge, un utilisateur
-      // revenu d'une session q2 renverrait ces réponses dans buildPayload et les ferait scorer.
+      version: 7,
+      // v7 : q4 ne pose plus `equipe`. Purge ciblée pour conserver distinctId, scoring et autres réponses.
       migrate: (persisted) => {
         const state = persisted as QuizStore;
         const answers = { ...state.answers };
-        delete answers.interaction;
-        delete answers.imprevu;
+        delete answers.equipe;
         return { ...state, answers };
       },
     },

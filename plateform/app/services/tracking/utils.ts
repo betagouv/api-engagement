@@ -1,4 +1,4 @@
-import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
+import { QUIZ_FLOW } from "~/config/quiz-flow";
 import type { QuizAnswers, ScreenAnswer } from "~/types/quiz";
 
 import type { EmailMissionDetailEntrySource, MissionDetailEntrySource, QuizEntrySource } from "./types";
@@ -6,12 +6,6 @@ import type { EmailMissionDetailEntrySource, MissionDetailEntrySource, QuizEntry
 // ============================================================================
 // Helpers quiz (réponses / parcours)
 // ============================================================================
-
-// Première option sélectionnée pour un step de type "options" (sinon null).
-export function optionAnswer(answers: QuizAnswers, stepId: StepId): string | null {
-  const answer = answers[stepId];
-  return answer?.type === "options" ? (answer.option_ids[0] ?? null) : null;
-}
 
 // Chemin synthétique : pour chaque step répondu (dans l'ordre du flow), toutes les valeurs
 // sélectionnées concaténées par "-", les steps étant séparés par ">" (ex. "lyceen>sante-education").
