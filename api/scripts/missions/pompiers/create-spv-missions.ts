@@ -97,7 +97,7 @@ function buildMissionPayload(entry: SdisEntry, addresses: Map<string, Address[]>
     compensationAmount: 0,
     compensationAmountMax: 13,
     compensationUnit: "hour",
-    compensationType: "gross",
+    compensationType: "net",
     applicationUrl: entry.applicationUrl,
     organizationName: entry.organizationName,
     organizationUrl: entry.organizationUrl,

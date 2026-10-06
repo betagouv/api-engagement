@@ -22,6 +22,8 @@ const QUERY = `[out:json][timeout:120];
   way["amenity"="fire_station"](41.0,-5.5,51.5,10.0);
   node["amenity"="fire_station"](-21.5,55.1,-20.7,55.9);
   node["amenity"="fire_station"](14.3,-61.3,14.9,-60.8);
+  node["amenity"="fire_station"](15.8,-61.9,16.6,-60.9);
+  way["amenity"="fire_station"](15.8,-61.9,16.6,-60.9);
   node["amenity"="fire_station"](2.0,-54.7,5.9,-51.6);
   node["amenity"="fire_station"](-13.1,44.9,-12.6,45.4);
 );
@@ -203,6 +205,11 @@ async function run() {
       continue;
     }
     stations.push({ id: el.id, name: el.tags?.["name"]?.trim() ?? "", lat, lon });
+  }
+
+  if (stations.length === 0) {
+    console.error("❌ Aucune station reçue, addresses.csv non écrasé");
+    process.exit(1);
   }
 
   console.log(`📍  ${stations.length} stations avec coordonnées → géocodage inverse BAN…`);
