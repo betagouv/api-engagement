@@ -253,7 +253,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
 
     const response = await request(app)
       .get(`/r/email/${mission.id}/${emailPublisher.id}`)
-      .query({ user_scoring_id: userScoring.id })
+      .query({ user_scoring_id: userScoring.id, email_source: "quiz" })
       .set("Host", "redirect.test")
       .set("Origin", "https://email.example.com");
 
@@ -278,8 +278,8 @@ describe("RedirectController /:missionId/:publisherId", () => {
       sourceId: "",
       sourceName: "email",
       customAttributes: {
-        email_type: "user_scoring",
         user_scoring_id: userScoring.id,
+        email_source: "quiz",
       },
       missionId: mission.id,
       toPublisherId: mission.publisherId,
@@ -330,7 +330,7 @@ describe("RedirectController /:missionId/:publisherId", () => {
       source: "email",
       sourceId: "",
       sourceName: "email",
-      customAttributes: { email_type: "mission_email" },
+      customAttributes: {},
       missionId: mission.id,
       toPublisherId: mission.publisherId,
       fromPublisherId: emailPublisher.id,

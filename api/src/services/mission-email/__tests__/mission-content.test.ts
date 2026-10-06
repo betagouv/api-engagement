@@ -1,19 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { buildMissionContentHtml } from "@/services/brevo/mission-content";
-import type { MissionContent } from "@/services/brevo/mission-content";
+import { buildMissionContentHtml, type MissionContent } from "@/services/mission-email/mission-content";
 
 const mission = (overrides: Partial<MissionContent> = {}): MissionContent => ({
   id: "mission-1",
   title: "Mission de test",
   imageUrl: "",
-  durationLabel: "6 mois",
-  startAtLabel: "à partir du 1 janvier",
-  compensationLabel: "620€ par mois",
+  domainLabel: "Santé",
+  tags: ["Paris", "620€ par mois"],
   publisherLogo: "https://example.com/logo.png",
   publisherName: "Éditeur",
-  publisherOrganizationName: "Organisation",
-  city: "Paris",
   url: "https://example.com/missions/mission-1",
   ...overrides,
 });
@@ -24,8 +20,8 @@ describe("buildMissionContentHtml", () => {
       mission({
         title: "{{7*7}}",
         publisherName: "{% autoescape off %}",
-        publisherOrganizationName: "{{ contact.EMAIL }}",
-        city: "{% if contact %}Paris{% endif %}",
+        domainLabel: "{{ contact.EMAIL }}",
+        tags: ["{% if contact %}Paris{% endif %}"],
       }),
     ]);
 
@@ -41,8 +37,8 @@ describe("buildMissionContentHtml", () => {
       mission({
         title: '<img src=x onerror="alert(1)">',
         publisherName: 'Éditeur "frauduleux"',
-        publisherOrganizationName: "Aide & solidarite",
-        city: "Paris <centre>",
+        domainLabel: "Aide & solidarite",
+        tags: ["Paris <centre>"],
       }),
     ]);
 
@@ -51,5 +47,12 @@ describe("buildMissionContentHtml", () => {
     expect(html).toContain("Éditeur &quot;frauduleux&quot;");
     expect(html).toContain("Aide &amp; solidarite");
     expect(html).toContain("Paris &lt;centre&gt;");
+  });
+
+  it("affiche les missions en grille de 2 cartes par ligne", () => {
+    const html = buildMissionContentHtml([mission({ id: "1" }), mission({ id: "2" }), mission({ id: "3" })]);
+
+    expect(html.match(/<td width="50%"/g)).toHaveLength(4);
+    expect(html.match(/Détails&nbsp;&rarr;/g)).toHaveLength(3);
   });
 });

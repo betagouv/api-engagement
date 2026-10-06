@@ -83,7 +83,6 @@ export default function Missions({
             missionId={emailMissionId ?? undefined}
             open={emailMissionId !== null}
             onOpenChange={(open) => !open && setEmailMissionId(null)}
-            hideTrigger
           />
         </div>
       </div>

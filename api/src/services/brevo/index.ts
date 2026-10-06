@@ -7,8 +7,7 @@ export { downloadAttachment } from "./attachment";
 export { api, requestBrevoApi } from "./client";
 export { createOrUpdateContact } from "./contact";
 export { sendTemplate, TEMPLATE_IDS } from "./email";
-export { buildMissionContentHtml } from "./mission-content";
-export type { MissionContent } from "./mission-content";
+export { subscribeToNewsletter } from "./newsletter";
 export type { BrevoApiResponse, BrevoHttpMethod, BrevoRequestBody, CreateOrUpdateContactParams, EmailBody, EmailOptions } from "./types";
 
 export default { api, createOrUpdateContact, sendTemplate, downloadAttachment };

@@ -324,7 +324,6 @@ export default function ResultsPage() {
               onOpenChange={(open) => {
                 if (!open) setEmailMission(null);
               }}
-              hideTrigger
             />
           </div>
         </main>
@@ -346,7 +345,7 @@ export default function ResultsPage() {
               {isOwnScoring && <ProfileModal quizHref={quizHref} />}
             </div>
             <div className="flex flex-row">
-              <div className="flex flex-col w-[60%]">
+              <div className="flex flex-col w-[55%]">
                 <ResultsMissions
                   items={items}
                   page={page}
@@ -443,7 +442,6 @@ export default function ResultsPage() {
         onOpenChange={(open) => {
           if (!open) setEmailMission(null);
         }}
-        hideTrigger
       />
     </>
   );

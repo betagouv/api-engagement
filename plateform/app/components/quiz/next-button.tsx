@@ -27,7 +27,7 @@ export default function NextButton({ onClick, skip = false, ...props }: NextButt
       return;
     }
     trackQuizCompleted({ answers, completionType: "shortcut", quizStartedAt });
-    navigate(`/results/${userScoringId}`);
+    navigate("/quiz/email", { state: { completionType: "shortcut" } });
   };
 
   return (

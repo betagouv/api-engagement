@@ -5,7 +5,7 @@ import zod from "zod";
 import { EMAIL_SEND_FAILED, FORBIDDEN, INVALID_BODY, NOT_FOUND } from "@/error";
 import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { sendMissionEmail } from "@/services/mission-email";
-import type { SendMissionEmailResponse } from "@engagement/dto";
+import { SIGNUP_SOURCES, type SendMissionEmailResponse } from "@engagement/dto";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
@@ -21,6 +21,7 @@ const missionEmailBodySchema = zod
     distinctId: distinctIdSchema.optional(),
     userScoringId: zod.uuid().optional(),
     missionIds: zod.array(zod.string().trim().min(1)).min(1).max(5).optional(),
+    signupSource: zod.enum(SIGNUP_SOURCES).optional(),
   })
   .strict()
   .refine((body) => body.userScoringId !== undefined || body.missionIds !== undefined, {

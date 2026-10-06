@@ -116,8 +116,8 @@ export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | 
 // Provenance de la fiche depuis laquelle l'email d'une mission est envoyé. `results_card` : CTA email
 // d'une carte mission en page de résultats (envoi sans passer par la fiche détail).
 export type EmailMissionDetailEntrySource = "results" | "results_card" | "missions_list" | "direct";
-// Page d'où part l'envoi de la sélection complète : résultats du quiz, ou une landing (carte mission).
-export type EmailMissionsEntryPage = "results" | LandingName;
+// Page d'où part l'envoi de la sélection complète : étape email du quiz, résultats du quiz, ou une landing (carte mission).
+export type EmailMissionsEntryPage = "quiz" | "results" | LandingName;
 
 // --- results.page_changed ---
 // Contrôle de pagination utilisé : boutons Précédent/Suivant, ou clic sur un numéro (`direct`), le

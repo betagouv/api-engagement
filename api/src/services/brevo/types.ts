@@ -1,3 +1,5 @@
+import type { SignupSource } from "@engagement/dto";
+
 export type BrevoHttpMethod = "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
 
 export type BrevoRequestBody = Record<string, any>;
@@ -35,18 +37,21 @@ export type CreateOrUpdateContactParams = {
   userScoringId?: string;
   distinctId?: string;
   missionAlertEnabled: boolean;
-  listId: number;
+  listIds: number[];
+  signupSource?: SignupSource;
 };
 
 export type ContactAttributes = {
   DISTINCT_ID?: string;
   MISSION_ALERT_ENABLED: boolean;
   USER_SCORING_ID?: string;
+  SIGNUP_SOURCE?: SignupSource;
+  QUIZ_SESSION_ID?: string;
 };
 
 export type ContactBody = {
   email: string;
-  updateEnabled: true;
+  updateEnabled: boolean;
   listIds: number[];
   attributes: ContactAttributes;
 };
