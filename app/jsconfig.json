@@ -3,7 +3,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@engagement/dto": ["../packages/dto/src/index.ts"]
+      "@engagement/dto": ["../packages/dto/src/index.ts"],
+      "@engagement/taxonomy": ["../packages/taxonomy/src/index.ts"]
     }
   },
   "include": ["src"]

@@ -1,6 +1,6 @@
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
-const DEPARTMENTS = {
+export const DEPARTMENTS = {
   "01": "Ain",
   "02": "Aisne",
   "03": "Allier",

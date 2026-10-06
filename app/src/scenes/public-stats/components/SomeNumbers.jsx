@@ -143,9 +143,9 @@ const SomeNumbers = ({ filters, onFiltersChange }) => {
                 <option value="">Tous les départements</option>
                 {Object.entries(DEPARTMENT_NAMES)
                   .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
-                  .map(([code, value]) => (
-                    <option key={value[0]} value={code}>
-                      {code} - {value[0]}
+                  .map(([code, name]) => (
+                    <option key={code} value={code}>
+                      {code} - {name}
                     </option>
                   ))}
               </select>
