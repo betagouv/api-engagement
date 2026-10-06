@@ -41,15 +41,14 @@ export const useQuizStore = create<QuizStore>()(
     }),
     {
       name: "quiz-answers",
-      version: 6,
-      // v6 : q3 ne pose plus les questions interaction et imprevu. Sans purge, un utilisateur
-      // revenu d'une session q2 renverrait ces réponses dans buildPayload et les ferait scorer.
+      version: 7,
+      // v7 : q4 ne pose plus equipe (ni interaction/imprevu, retirés avant). Sans purge, un utilisateur
+      // revenu d'une ancienne session renverrait ces réponses dans buildPayload et les ferait scorer.
       migrate: (persisted) => {
         const state = persisted as QuizStore;
-        const answers = { ...state.answers };
-        delete answers.interaction;
-        delete answers.imprevu;
-        return { ...state, answers };
+        const answers: Record<string, unknown> = { ...state.answers };
+        for (const key of ["equipe", "interaction", "imprevu"]) delete answers[key];
+        return { ...state, answers: answers as QuizStore["answers"] };
       },
     },
   ),

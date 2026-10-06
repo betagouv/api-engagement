@@ -146,7 +146,7 @@ export default function QuizLayout() {
 
     const { next, steps: nextSteps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(nextSteps);
-    if (next) {
+    if (next && next.id !== "email") {
       navigate(next.route);
     } else {
       trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });

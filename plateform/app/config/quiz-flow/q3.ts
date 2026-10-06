@@ -1,16 +1,10 @@
 import { numericRange } from "~/utils/conditions";
 import type { StepDef } from "./types";
 
-// Parcours v3 (identifiant "q3") — steps nommés comme leur taxonomy.
+// Parcours v3 (identifiant "q3") — conservé tel quel pour pouvoir rollback (cf. QUIZ_FLOW_VERSION dans index.ts).
+// Steps nommés comme leur taxonomy.
 // Séquence, wording (titres/sous-titres), réponses proposées (`options`) et conditions
 // de visibilité des steps. L'ordre ici dicte l'ordre de navigation (goNext/goBack).
-//
-// Écarts avec q2, motivés par la couverture réelle du tagging des 30 028 missions proposables :
-//  - step "interaction" supprimé : 38 % de couverture et 92 % des missions sur la même valeur ;
-//  - step "imprevu" supprimé : 6,7 % de couverture, 3 notes distinctes côté moteur ;
-//  - step "autonomie" conservé (71 % de couverture, répartition 59/33/15) et placé en fin de parcours ;
-//  - réponse "motivation_recherche.horaires_flexibles" retirée ;
-//  - réponse "equipe.autonomie" retirée.
 export const QUIZ_FLOW_Q3: StepDef[] = [
   // Étape 1 — âge.
   { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?", subtitle: "Certaines missions dépendent de l'âge." },

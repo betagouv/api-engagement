@@ -25,7 +25,7 @@ import type {
   QuizEntrySource,
   ResultsPageNavigationType,
 } from "./types";
-import { buildQuizPath, countAnsweredSteps, optionAnswer, resolveAnswerValue, resolveGeoProps } from "./utils";
+import { buildQuizPath, countAnsweredSteps, resolveAnswerValue, resolveGeoProps } from "./utils";
 
 // Catalogue des évènements métier tracés côté front : nom de l'évènement + forme des propriétés
 // (spec produit, propriétés en snake_case côté PostHog). Les types vivent dans ./types, les helpers
@@ -212,8 +212,6 @@ export function trackQuizCompleted(params: { answers: QuizAnswers; completionTyp
     quiz_path: buildQuizPath(answers),
     steps_completed_count: countAnsweredSteps(answers),
     has_localisation: answers["localisation"]?.type === "params",
-    statut: optionAnswer(answers, "statut"),
-    motivation: optionAnswer(answers, "motivation"),
     age_bracket:
       trancheAge?.type === "params"
         ? resolveTrancheAgeValues({

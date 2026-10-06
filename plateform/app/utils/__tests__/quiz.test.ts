@@ -7,24 +7,24 @@ import { buildPayload, refreshSteps } from "../quiz";
 const step = (id: StepId, condition?: StepDef["condition"]): StepDef => ({ id, route: `/quiz/${id}`, title: id, condition });
 
 describe("refreshSteps", () => {
-  const flow: StepDef[] = [step("age"), step("handicap", screenAnswer("age", "26_30")), step("statut"), step("localisation")];
+  const flow: StepDef[] = [step("age"), step("handicap", screenAnswer("age", "26_30")), step("mobilite"), step("localisation")];
 
   it("inclut tous les steps sans condition ou dont la condition est vraie", () => {
     const answers: QuizAnswers = { age: { type: "options", taxonomy: "age", option_ids: ["26_30"] } };
     const { steps } = refreshSteps(flow, "age", answers);
-    expect(steps.map((s) => s.id)).toEqual(["age", "handicap", "statut", "localisation"]);
+    expect(steps.map((s) => s.id)).toEqual(["age", "handicap", "mobilite", "localisation"]);
   });
 
   it("exclut les steps dont la condition est fausse", () => {
     const answers: QuizAnswers = { age: { type: "options", taxonomy: "age", option_ids: ["18_25"] } };
     const { steps } = refreshSteps(flow, "age", answers);
-    expect(steps.map((s) => s.id)).toEqual(["age", "statut", "localisation"]);
+    expect(steps.map((s) => s.id)).toEqual(["age", "mobilite", "localisation"]);
   });
 
   it("retourne le step courant, le précédent et le suivant corrects", () => {
     const answers: QuizAnswers = {};
-    const { current, prev, next } = refreshSteps(flow, "statut", answers);
-    expect(current?.id).toBe("statut");
+    const { current, prev, next } = refreshSteps(flow, "mobilite", answers);
+    expect(current?.id).toBe("mobilite");
     expect(prev?.id).toBe("age");
     expect(next?.id).toBe("localisation");
   });
@@ -49,7 +49,7 @@ describe("refreshSteps", () => {
 describe("buildPayload", () => {
   it("convertit les réponses options en entrées taxonomy/value (une par option_id)", () => {
     const answers: QuizAnswers = {
-      motivation: { type: "options", taxonomy: "engagement_intent", option_ids: ["me_sentir_utile", "reprendre_confiance"] },
+      rythme: { type: "options", taxonomy: "engagement_intent", option_ids: ["me_sentir_utile", "reprendre_confiance"] },
     };
     expect(buildPayload(answers)).toEqual({
       answers: [
@@ -118,7 +118,7 @@ describe("buildPayload", () => {
 
   it("combine plusieurs types de réponses", () => {
     const answers: QuizAnswers = {
-      motivation: { type: "options", taxonomy: "engagement_intent", option_ids: ["me_sentir_utile"] },
+      rythme: { type: "options", taxonomy: "engagement_intent", option_ids: ["me_sentir_utile"] },
       localisation: { type: "params", taxonomy: "location", params: { lat: 1, lon: 2 } },
       age: { type: "numeric", value: 20 },
     };

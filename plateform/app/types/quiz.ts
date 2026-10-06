@@ -1,5 +1,4 @@
 import type { StepId } from "~/config/quiz-flow";
-import type { Condition } from "~/utils/conditions";
 
 // Réponse stockée pour un step — union discriminée par `type`.
 // - options  : sélection d'option_ids (single/multi)
@@ -24,7 +23,4 @@ export interface StepOption {
   // Valeur de taxonomie envoyée à l'API quand elle diffère de `value` : deux réponses du quiz
   // peuvent viser la même valeur de scoring (cf. QUIZ_ONLY_OPTIONS dans config/quiz-options).
   taxonomyValue?: string;
-  hiddenIf?: Condition;
-  // true → option grisée et non sélectionnable (fonctionnalité pas encore disponible).
-  disabled?: boolean;
 }

@@ -3,35 +3,29 @@ import { QUIZ_FLOW_REGISTRY, QUIZ_FLOW_VERSION, type StepDef, type StepId } from
 
 // Steps dont le component rend une liste d'options : sans `options` déclarées dans le flow,
 // la question s'afficherait vide sans erreur de compilation.
-const STEPS_WITH_OPTIONS: StepId[] = ["handicap", "mobilite", "motivation_recherche", "rythme", "domaine_engagement", "activite", "equipe", "interaction", "autonomie", "imprevu"];
+const STEPS_WITH_OPTIONS: StepId[] = ["handicap", "mobilite", "motivation_recherche", "rythme", "domaine_engagement", "activite", "equipe", "autonomie"];
 
 const optionsOf = (flow: StepDef[], stepId: StepId) => flow.find((step) => step.id === stepId)?.options ?? [];
 
-describe("parcours q3", () => {
-  const stepIds = QUIZ_FLOW_REGISTRY.q3.map((step) => step.id);
+describe("parcours q4", () => {
+  const stepIds = QUIZ_FLOW_REGISTRY.q4.map((step) => step.id);
 
   it("est la version active du parcours", () => {
-    expect(QUIZ_FLOW_VERSION).toBe("q3");
+    expect(QUIZ_FLOW_VERSION).toBe("q4");
   });
 
-  it("enchaîne les steps dans l'ordre attendu, sans interaction ni imprevu et autonomie en dernier", () => {
-    expect(stepIds).toEqual(["age", "handicap", "localisation", "mobilite", "motivation_recherche", "rythme", "domaine_engagement", "activite", "equipe", "autonomie"]);
+  it("enchaîne les steps dans l'ordre attendu, sans equipe et avec l'email en dernier", () => {
+    expect(stepIds).toEqual(["age", "handicap", "localisation", "mobilite", "motivation_recherche", "rythme", "domaine_engagement", "activite", "autonomie", "email"]);
   });
 
-  it("retire les réponses que q2 proposait encore, sans toucher au parcours q2", () => {
-    expect(optionsOf(QUIZ_FLOW_REGISTRY.q2, "motivation_recherche")).toContain("motivation_recherche.horaires_flexibles");
-    expect(optionsOf(QUIZ_FLOW_REGISTRY.q3, "motivation_recherche")).not.toContain("motivation_recherche.horaires_flexibles");
-    expect(optionsOf(QUIZ_FLOW_REGISTRY.q2, "equipe")).toContain("equipe.autonomie");
-    expect(optionsOf(QUIZ_FLOW_REGISTRY.q3, "equipe")).not.toContain("equipe.autonomie");
+  it("conserve equipe et n'a pas d'email dans q3 pour permettre un rollback", () => {
+    const q3Ids = QUIZ_FLOW_REGISTRY.q3.map((step) => step.id);
+    expect(q3Ids).toContain("equipe");
+    expect(q3Ids).not.toContain("email");
   });
 
-  it("propose la réponse Parcoursup, absente de q2", () => {
-    expect(optionsOf(QUIZ_FLOW_REGISTRY.q3, "motivation_recherche")).toContain("motivation_recherche.parcoursup");
-    expect(optionsOf(QUIZ_FLOW_REGISTRY.q2, "motivation_recherche")).not.toContain("motivation_recherche.parcoursup");
-  });
-
-  it("conserve interaction et imprevu dans q2 pour permettre un rollback", () => {
-    expect(QUIZ_FLOW_REGISTRY.q2.map((step) => step.id)).toEqual(expect.arrayContaining(["interaction", "imprevu"]));
+  it("propose la réponse Parcoursup", () => {
+    expect(optionsOf(QUIZ_FLOW_REGISTRY.q4, "motivation_recherche")).toContain("motivation_recherche.parcoursup");
   });
 });
 
