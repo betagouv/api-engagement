@@ -3,13 +3,19 @@ import { useChartsReady } from "./chart-library";
 
 const DATA_BOX_ID = "stats-departments";
 
+// La carte colore en violet (et n'affiche rien au survol) les départements absents des données : on les force à 0.
+const DEPARTMENT_CODES = [...Array.from({ length: 95 }, (_, i) => String(i + 1).padStart(2, "0")).filter((code) => code !== "20"), "2A", "2B", "971", "972", "973", "974", "976"];
+
 // Carte et alternative tableau regroupées dans la DataBox de la lib (contrôle graphique / tableau).
 export function DepartmentsMap({ data, name }: { data: DepartmentPoint[]; name: string }) {
   const ready = useChartsReady();
   if (!ready) return <div style={{ minHeight: 400 }} />;
 
   const departments = sortDepartments(data);
-  const valueByCode = Object.fromEntries(departments.filter((d) => d.code !== "-").map((d) => [d.code, d.value]));
+  const valueByCode = {
+    ...Object.fromEntries(DEPARTMENT_CODES.map((code) => [code, 0])),
+    ...Object.fromEntries(departments.filter((d) => d.code !== "-").map((d) => [d.code, d.value])),
+  };
 
   return (
     <>
