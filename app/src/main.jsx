@@ -10,6 +10,8 @@ import App from "@/App";
 import { ENV, SENTRY_DSN } from "@/services/config";
 import "./index.css";
 
+const NETWORK_ERROR_MESSAGES = ["Failed to fetch", "Load failed", "NetworkError when attempting to fetch resource."];
+
 // Stub Plausible (déplacé depuis index.html pour permettre une CSP sans script inline).
 window.plausible =
   window.plausible ||
@@ -36,6 +38,10 @@ if (ENV !== "development") {
       // Ignore AbortError - these are expected when requests are cancelled
       const error = hint.originalException || hint.syntheticException;
       if (error && (error.name === "AbortError" || error.message?.includes("signal is aborted"))) {
+        return null;
+      }
+      // Ignore network failures on the browser side (Chrome / Safari / Firefox) - not actionable
+      if (error instanceof TypeError && NETWORK_ERROR_MESSAGES.some((message) => error.message.startsWith(message))) {
         return null;
       }
       return event;
