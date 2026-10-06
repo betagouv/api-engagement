@@ -413,6 +413,8 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique posée par les parcours q2 et q3 du quiz, plus par q4 (q3 reste la cible de rollback). À conserver sans modifier pour la rétrocompatibilité ;
+  // candidate à une suppression lors d'une future migration.
   equipe: {
     label: "Cadre d’équipe",
     type: "categorical",
@@ -445,6 +447,8 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par le parcours q2 du quiz, plus posée depuis q3. À conserver sans modifier pour la rétrocompatibilité ;
+  // candidate à une suppression lors d'une future migration.
   interaction: {
     label: "Mode d’interaction",
     type: "categorical",
@@ -511,6 +515,8 @@ export const TAXONOMY = {
     },
   },
 
+  // Taxonomie historique utilisée par le parcours q2 du quiz, plus posée depuis q3. À conserver sans modifier pour la rétrocompatibilité ;
+  // candidate à une suppression lors d'une future migration.
   imprevu: {
     label: "Niveau d’imprévu",
     type: "categorical",
@@ -633,6 +639,8 @@ export const TAXONOMY = {
 
   // ─── Taxonomies déclaratives côté quiz, non enrichies par LLM ─────────────
 
+  // Taxonomie historique utilisée par l'ancien parcours q1 du quiz, plus posée depuis q2. À conserver sans modifier pour la rétrocompatibilité ;
+  // candidate à une suppression lors d'une future migration.
   statut: {
     label: "Statut utilisateur",
     type: "categorical",
