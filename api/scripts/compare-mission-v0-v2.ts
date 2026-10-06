@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 type Options = {
-  publisherId: string;
+  publisherIds: string[];
   baseUrl: URL;
   pageSize: number;
   delayMs: number;
@@ -11,7 +11,8 @@ type Options = {
   version?: 0 | 2;
 };
 
-type AuthenticatedOptions = Options & { apiKey: string };
+type PublisherOptions = Omit<Options, "publisherIds"> & { publisherId: string };
+type AuthenticatedOptions = PublisherOptions & { apiKey: string };
 
 type MissionIdentity = { id: string; clientId: string; publisherId: string };
 type ApiPage = { ok: true; data: MissionIdentity[]; total?: number; hasMore?: boolean; nextCursor?: string | null };
@@ -46,11 +47,19 @@ const parseInteger = (value: string | number, name: string, minimum: number, max
 
 export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options => {
   const values = new Map<string, string>();
+  const publisherIds: string[] = [];
   for (let index = 0; index < args.length; index += 2) {
     const name = args[index];
     const value = args[index + 1];
-    if (!name?.startsWith("--") || value === undefined || values.has(name)) {
+    if (!name?.startsWith("--") || value === undefined) {
       throw new Error(`Option invalide ou répétée : ${name ?? "absente"}`);
+    }
+    if (name === "--publisher-id") {
+      publisherIds.push(value);
+      continue;
+    }
+    if (values.has(name)) {
+      throw new Error(`Option invalide ou répétée : ${name}`);
     }
     values.set(name, value);
   }
@@ -62,10 +71,15 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
     }
   }
 
-  const publisherId = values.get("--publisher-id");
   const rawBaseUrl = values.get("--base-url") ?? env.API_ENGAGEMENT_BASE_URL;
-  if (!publisherId || !rawBaseUrl) {
-    throw new Error("--publisher-id et --base-url (ou API_ENGAGEMENT_BASE_URL) sont requis");
+  if (!publisherIds.length || !rawBaseUrl) {
+    throw new Error("Au moins un --publisher-id et --base-url (ou API_ENGAGEMENT_BASE_URL) sont requis");
+  }
+  if (publisherIds.some((publisherId) => !publisherId)) {
+    throw new Error("--publisher-id ne peut pas être vide");
+  }
+  if (new Set(publisherIds).size !== publisherIds.length) {
+    throw new Error("Un même --publisher-id ne peut pas être répété");
   }
 
   const baseUrl = new URL(rawBaseUrl);
@@ -85,7 +99,7 @@ export const parseOptions = (args: string[], env: NodeJS.ProcessEnv): Options =>
   }
 
   return {
-    publisherId,
+    publisherIds,
     baseUrl,
     pageSize: parseInteger(values.get("--page-size") ?? DEFAULTS.pageSize, "--page-size", 1),
     delayMs: parseInteger(values.get("--delay-ms") ?? DEFAULTS.delayMs, "--delay-ms", 0, 60000),
@@ -273,89 +287,106 @@ export const compareMissions = async (
   };
 };
 
+const benchmarkPublisher = async (options: AuthenticatedOptions) => {
+  const responseTimes: Record<0 | 2, number[]> = { 0: [], 2: [] };
+  const benchmarkStartedAt = performance.now();
+  const createLogRequestTiming =
+    (workerIndex: number): LogRequestTiming =>
+    ({ version, status, durationMs, limit, offset }) => {
+      responseTimes[version].push(durationMs);
+      const worker = options.concurrency > 1 ? `Worker ${workerIndex + 1}/${options.concurrency} — ` : "";
+      const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
+      console.log(`Publisher ${options.publisherId} — ${worker}GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
+    };
+
+  let results: ComparisonResult[] | undefined;
+  if (options.version === 0) {
+    const runs = await runConcurrently(options.concurrency, async (workerIndex) => {
+      const logRequestTiming = createLogRequestTiming(workerIndex);
+      if (options.offset !== undefined) {
+        await requestPage(options, 0, { limit: options.pageSize, skip: options.offset }, fetch, logRequestTiming);
+        await sleep(options.delayMs);
+      }
+      return collectV0(options, fetch, sleep, logRequestTiming);
+    });
+    const v0 = runs[0];
+    console.log(`Publisher ${options.publisherId} : v0=${v0.total}, ${v0.pages} page(s) par parcours, ${runs.length} parcours`);
+  } else if (options.version === 2) {
+    const runs = await runConcurrently(options.concurrency, (workerIndex) => collectV2(options, fetch, sleep, createLogRequestTiming(workerIndex)));
+    const v2 = runs[0];
+    console.log(`Publisher ${options.publisherId} : v2=${v2.total}, ${v2.pages} page(s) par parcours, ${runs.length} parcours`);
+  } else {
+    results = await runConcurrently(options.concurrency, (workerIndex) => compareMissions(options, fetch, sleep, createLogRequestTiming(workerIndex)));
+    const result = results[0];
+    console.log(
+      `Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v0Pages} page(s) v0 et ${result.v2Pages} page(s) v2 par parcours, ${results.length} parcours`
+    );
+  }
+
+  const benchmarkedVersions: Array<0 | 2> = options.version === undefined ? [0, 2] : [options.version];
+  for (const version of benchmarkedVersions) {
+    const durations = responseTimes[version];
+    const total = durations.reduce((sum, duration) => sum + duration, 0);
+    const average = durations.length ? total / durations.length : 0;
+    const maximum = durations.length ? Math.max(...durations) : 0;
+    console.log(
+      `Résumé publisher ${options.publisherId} GET /v${version}/mission — ${durations.length} requête(s) — total ${total.toFixed(0)} ms — moyenne ${average.toFixed(0)} ms — max ${maximum.toFixed(0)} ms`
+    );
+  }
+
+  const wallDurationMs = performance.now() - benchmarkStartedAt;
+  const requestCount = responseTimes[0].length + responseTimes[2].length;
+  const requestsPerSecond = wallDurationMs > 0 ? requestCount / (wallDurationMs / 1000) : 0;
+  console.log(
+    `Résumé charge publisher ${options.publisherId} — concurrence ${options.concurrency} — durée réelle ${wallDurationMs.toFixed(0)} ms — débit moyen ${requestsPerSecond.toFixed(2)} req/s`
+  );
+
+  if (results) {
+    const result = results.find((candidate) => !candidate.same) ?? results[0];
+    const identical = results.every((candidate) => candidate.same);
+    console.log(
+      `Publisher ${options.publisherId} — ${identical ? "Identiques : mêmes identifiants de missions pour tous les parcours" : "Différence : ensembles de missions distincts"}`
+    );
+    if (!identical) {
+      console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
+      console.log(`Présentes uniquement en v0 (${result.onlyV0.length}) : ${result.onlyV0.slice(0, 20).join(", ") || "aucune"}`);
+      process.exitCode = 1;
+    }
+  }
+};
+
 const main = async () => {
   const options = parseOptions(process.argv.slice(2), process.env);
   const { pgDisconnect, prisma } = await import("@/db/postgres");
-
-  try {
-    const publisher = await prisma.publisher.findFirst({
-      where: { id: options.publisherId, deletedAt: null },
-      select: { apikey: true },
-    });
-
-    if (!publisher) {
-      throw new Error(`Publisher introuvable en base : ${options.publisherId}`);
-    }
-
-    if (!publisher.apikey) {
-      throw new Error(`Le publisher ${options.publisherId} ne possède pas de clé API`);
-    }
-
-    const responseTimes: Record<0 | 2, number[]> = { 0: [], 2: [] };
-    const authenticatedOptions = { ...options, apiKey: publisher.apikey };
-    const benchmarkStartedAt = performance.now();
-    const createLogRequestTiming =
-      (workerIndex: number): LogRequestTiming =>
-      ({ version, status, durationMs, limit, offset }) => {
-        responseTimes[version].push(durationMs);
-        const worker = options.concurrency > 1 ? `Worker ${workerIndex + 1}/${options.concurrency} — ` : "";
-        const pagination = [`limit=${limit ?? "?"}`, ...(offset === undefined ? [] : [`offset=${offset}`])].join(" — ");
-        console.log(`${worker}GET /v${version}/mission — ${pagination} — HTTP ${status} — ${durationMs.toFixed(0)} ms`);
-      };
-
-    let results: ComparisonResult[] | undefined;
-    if (options.version === 0) {
-      const runs = await runConcurrently(options.concurrency, async (workerIndex) => {
-        const logRequestTiming = createLogRequestTiming(workerIndex);
-        if (options.offset !== undefined) {
-          await requestPage(authenticatedOptions, 0, { limit: options.pageSize, skip: options.offset }, fetch, logRequestTiming);
-          await sleep(options.delayMs);
-        }
-        return collectV0(authenticatedOptions, fetch, sleep, logRequestTiming);
+  const publishers = await (async () => {
+    try {
+      return await prisma.publisher.findMany({
+        where: { id: { in: options.publisherIds }, deletedAt: null },
+        select: { id: true, apikey: true },
       });
-      const v0 = runs[0];
-      console.log(`Publisher ${options.publisherId} : v0=${v0.total}, ${v0.pages} page(s) par parcours, ${runs.length} parcours`);
-    } else if (options.version === 2) {
-      const runs = await runConcurrently(options.concurrency, (workerIndex) => collectV2(authenticatedOptions, fetch, sleep, createLogRequestTiming(workerIndex)));
-      const v2 = runs[0];
-      console.log(`Publisher ${options.publisherId} : v2=${v2.total}, ${v2.pages} page(s) par parcours, ${runs.length} parcours`);
-    } else {
-      results = await runConcurrently(options.concurrency, (workerIndex) => compareMissions(authenticatedOptions, fetch, sleep, createLogRequestTiming(workerIndex)));
-      const result = results[0];
-      console.log(
-        `Publisher ${result.publisherId} : v0=${result.v0Total}, v2=${result.v2Total}, ${result.v0Pages} page(s) v0 et ${result.v2Pages} page(s) v2 par parcours, ${results.length} parcours`
-      );
+    } finally {
+      await pgDisconnect();
     }
+  })();
 
-    const benchmarkedVersions: Array<0 | 2> = options.version === undefined ? [0, 2] : [options.version];
-    for (const version of benchmarkedVersions) {
-      const durations = responseTimes[version];
-      const total = durations.reduce((sum, duration) => sum + duration, 0);
-      const average = durations.length ? total / durations.length : 0;
-      const maximum = durations.length ? Math.max(...durations) : 0;
-      console.log(
-        `Résumé GET /v${version}/mission — ${durations.length} requête(s) — total ${total.toFixed(0)} ms — moyenne ${average.toFixed(0)} ms — max ${maximum.toFixed(0)} ms`
-      );
+  const publishersById = new Map(publishers.map((publisher) => [publisher.id, publisher]));
+  for (const publisherId of options.publisherIds) {
+    const publisher = publishersById.get(publisherId);
+    if (!publisher) {
+      throw new Error(`Publisher introuvable en base : ${publisherId}`);
     }
-
-    const wallDurationMs = performance.now() - benchmarkStartedAt;
-    const requestCount = responseTimes[0].length + responseTimes[2].length;
-    const requestsPerSecond = wallDurationMs > 0 ? requestCount / (wallDurationMs / 1000) : 0;
-    console.log(`Résumé charge — concurrence ${options.concurrency} — durée réelle ${wallDurationMs.toFixed(0)} ms — débit moyen ${requestsPerSecond.toFixed(2)} req/s`);
-
-    if (results) {
-      const result = results.find((candidate) => !candidate.same) ?? results[0];
-      const identical = results.every((candidate) => candidate.same);
-      console.log(identical ? "Identiques : mêmes identifiants de missions pour tous les parcours" : "Différence : ensembles de missions distincts");
-      if (!identical) {
-        console.log(`Présentes uniquement en v2 (${result.onlyV2.length}) : ${result.onlyV2.slice(0, 20).join(", ") || "aucune"}`);
-        console.log(`Présentes uniquement en v0 (${result.onlyV0.length}) : ${result.onlyV0.slice(0, 20).join(", ") || "aucune"}`);
-        process.exitCode = 1;
-      }
+    if (!publisher.apikey) {
+      throw new Error(`Le publisher ${publisherId} ne possède pas de clé API`);
     }
-  } finally {
-    await pgDisconnect();
   }
+
+  const { publisherIds, ...benchmarkOptions } = options;
+  await Promise.all(
+    publisherIds.map((publisherId) => {
+      const publisher = publishersById.get(publisherId)!;
+      return benchmarkPublisher({ ...benchmarkOptions, publisherId, apiKey: publisher.apikey! });
+    })
+  );
 };
 
 main().catch((error) => {
