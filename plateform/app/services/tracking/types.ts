@@ -97,7 +97,7 @@ export interface MissionClickedPayload {
 // « Ce qu'on a compris de toi » (bouton « Ton profil » en page de résultats).
 export type QuizEntrySource = "homepage_cta" | "direct" | "missions_list" | "change_results_cta" | "my_profile_modal" | "external" | `${LandingName}_cta`;
 // Bloc de la landing d'où part le CTA quiz (à côté de `entrySource`), pour savoir quel CTA a été cliqué.
-export type QuizEntrySection = "hero" | "etapes";
+export type QuizEntrySection = "hero" | "etapes" | "etapes_vie";
 // Mode de complétion : "full" (parcours jusqu'au bout) ou "shortcut" (bouton "Voir mes résultats").
 export type QuizCompletionType = "full" | "shortcut";
 

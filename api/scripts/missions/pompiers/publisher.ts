@@ -21,9 +21,9 @@ export function findPublisherForDept(publishers: { id: string; name: string; api
     publishers.find((p) => {
       const nameLower = p.name.toLowerCase();
       if (overrideKeywords.some((kw) => nameLower.includes(kw))) return true;
-      if (nameLower.includes(` ${paddedDept} `) || nameLower.includes(` ${paddedDept}`) || nameLower.endsWith(paddedDept)) return true;
-      if (normalized !== paddedDept && normalized.length > 1 && (nameLower.includes(` ${normalized} `) || nameLower.includes(` ${normalized}`) || nameLower.endsWith(normalized)))
-        return true;
+      // Numéro isolé : "71" ne matche pas "971", "1" ne matche pas "DEMA1N"
+      const numbers: string[] = Array.from(nameLower.matchAll(/(?<!\d)(\d+)(?![\da-z])/g), (m) => m[1]);
+      if (numbers.includes(paddedDept) || numbers.includes(normalized)) return true;
       return false;
     }) ?? null
   );

@@ -131,9 +131,11 @@ async function runJob() {
   } catch (error) {
     console.error(`Error executing job '${jobName}':`, error);
     captureException(error, { extra: { jobName } });
+    await Sentry.flush(5000);
     process.exit(1);
   } finally {
     await pgDisconnect();
+    await Sentry.flush(5000);
     process.exit(0);
   }
 }

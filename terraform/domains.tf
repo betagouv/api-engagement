@@ -10,16 +10,16 @@ resource "scaleway_container_domain" "app" {
   hostname     = var.app_hostname
 }
 
-resource "scaleway_container_domain" "plateform" {
-  count        = var.enable_plateform && var.plateform_hostname != "" ? 1 : 0
-  container_id = scaleway_container.plateform[0].id
-  hostname     = var.plateform_hostname
-}
-
 resource "scaleway_container_domain" "ttm" {
   count        = var.enable_plateform && var.ttm_hostname != "" ? 1 : 0
   container_id = scaleway_container.plateform[0].id
   hostname     = var.ttm_hostname
+}
+
+resource "scaleway_container_domain" "ttm_www" {
+  count        = var.enable_plateform && var.ttm_www_hostname != "" ? 1 : 0
+  container_id = scaleway_container.plateform[0].id
+  hostname     = var.ttm_www_hostname
 }
 
 resource "scaleway_function_domain" "sentry_webhook" {

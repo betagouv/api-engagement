@@ -1,4 +1,5 @@
 import { COLORS as CHART_COLORS } from "@/components/Chart";
+import { adaptMetabasePoints } from "@engagement/dto";
 
 const getColumnIndex = (cols, column) => {
   if (typeof column === "number") return column;
@@ -23,21 +24,7 @@ export const adaptPieFromMetabase = (metabaseResult, { labelColumn = 0, valueCol
   }));
 };
 
-export const adaptBarFromMetabase = (metabaseResult, { labelColumn = 0, valueColumn = 1 } = {}) => {
-  const rows = metabaseResult?.data?.rows || metabaseResult?.rows || [];
-  const cols = metabaseResult?.data?.cols || metabaseResult?.cols || [];
-
-  const labelIndex = getColumnIndex(cols, labelColumn);
-  const valueIndex = getColumnIndex(cols, valueColumn);
-
-  const safeLabelIndex = labelIndex >= 0 ? labelIndex : typeof labelColumn === "number" ? labelColumn : 0;
-  const safeValueIndex = valueIndex >= 0 ? valueIndex : typeof valueColumn === "number" ? valueColumn : 1;
-
-  return rows.map((row) => ({
-    name: row[safeLabelIndex] ?? "",
-    value: Number(row[safeValueIndex]) || 0,
-  }));
-};
+export const adaptBarFromMetabase = (metabaseResult, { labelColumn = 0, valueColumn = 1 } = {}) => adaptMetabasePoints(metabaseResult, labelColumn, valueColumn);
 
 export const adaptStackedBarFromMetabase = (metabaseResult, { labelColumn = 0, valueColumns } = {}) => {
   const rows = metabaseResult?.data?.rows || metabaseResult?.rows || [];

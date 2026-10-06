@@ -42,7 +42,8 @@ export type MissionMatchValue = {
   taxonomyValueLabel: string;
   enrichmentConfidence: number;
   scoringScore: number;
-  evidence: unknown;
+  // Présent uniquement lorsque GET /missions/match est appelé avec debug=true.
+  evidence?: unknown;
 };
 
 export type MissionMatchScore = {
@@ -66,6 +67,11 @@ export type MissionMatchUserValue = {
   userScore: number;
 };
 
+export type MissionMatchUserLocation = {
+  lat: number;
+  lon: number;
+};
+
 export type MissionMatchResponse = {
   tookMs: number;
   // Version du moteur de matching effectivement utilisée ("m1" | "m2"). Optionnel pour rétro-compatibilité des clients.
@@ -73,6 +79,8 @@ export type MissionMatchResponse = {
   items: MissionMatchItem[];
   // Optionnel : une plateform récente peut interroger une API plus ancienne qui ne renvoie pas ce champ.
   userValues?: MissionMatchUserValue[];
+  // Localisation du scoring consulté (null sans localisation). Optionnel pour rétro-compatibilité.
+  userLocation?: MissionMatchUserLocation | null;
   // Nombre de missions retournées, limité à 100.
   total: number;
   // Distance moyenne (km) entre l'utilisateur et les 5 premières missions recommandées.

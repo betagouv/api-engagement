@@ -22,7 +22,7 @@ export function DebugButton({ missionId }: { missionId: string }) {
   return (
     <button
       type="button"
-      className="absolute bottom-2 left-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
+      className="absolute top-2 left-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
       onClick={handleClick}
       aria-label="Débuguer le matching"
     >

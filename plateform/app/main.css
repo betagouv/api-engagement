@@ -52,6 +52,7 @@
   --color-green-emeraude-925: var(--green-emeraude-925-125);
   --color-green-tilleul-verveine-925: var(--green-tilleul-verveine-925-125);
   --color-pink-tuile-950: var(--pink-tuile-950-100);
+  --color-blue-ecume-850: var(--blue-ecume-850-200); /* #BFCCFB */
   --color-blue-ecume-975: var(--blue-ecume-975-75);
 
   --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.05);
@@ -349,4 +350,10 @@
     bottom: 12px;
     top: auto;
   }
+}
+
+/* Carte des départements (@gouvfr/dsfr-chart) : le SVG se cale sur 314px sans largeur explicite ; la double classe l'emporte sur les styles scopés de la lib. */
+.databox .widget_container .map_container.map_container {
+  max-width: 640px;
+  width: 100%;
 }

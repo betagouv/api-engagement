@@ -1,4 +1,4 @@
-import type { MissionMatchItem, MissionMatchUserValue } from "@engagement/dto";
+import type { MissionMatchItem, MissionMatchUserLocation, MissionMatchUserValue } from "@engagement/dto";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { fetchInitialMatches, paginateMatchingResults, RESULTS_PAGE_SIZE } from "~/services/matching";
@@ -9,6 +9,7 @@ export function useMissionResults(userScoringId: string | undefined) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [allItems, setAllItems] = useState<MissionMatchItem[]>([]);
   const [userValues, setUserValues] = useState<MissionMatchUserValue[]>([]);
+  const [userLocation, setUserLocation] = useState<MissionMatchUserLocation | null>(null);
   const [avgDistanceKmTop5, setAvgDistanceKmTop5] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [pageLoading, setPageLoading] = useState(false);
@@ -25,6 +26,7 @@ export function useMissionResults(userScoringId: string | undefined) {
 
   // Page courante stockée dans l'URL (?page=N) : survit au refresh, au partage et au retour arrière.
   const requestedPage = Math.max(1, Number.parseInt(searchParams.get("page") ?? "1", 10) || 1);
+  const debug = searchParams.get("debug") === "true";
 
   const setPage = (nextPage: number) => {
     setSearchParams(
@@ -59,12 +61,13 @@ export function useMissionResults(userScoringId: string | undefined) {
       setAllItems([]);
     }
 
-    // Résultats mis en cache par userScoringId (voir matching.ts) : pas de re-fetch au retour sur la page.
-    fetchInitialMatches(userScoringId)
+    // Résultats mis en cache par userScoringId et mode debug (voir matching.ts) : pas de re-fetch au retour sur la page.
+    fetchInitialMatches(userScoringId, debug)
       .then((res) => {
         if (!active) return;
         setAllItems(res.items);
         setUserValues(res.userValues ?? []);
+        setUserLocation(res.userLocation ?? null);
         setAvgDistanceKmTop5(res.avgDistanceKmTop5);
         setStatsUserScoringId(userScoringId);
       })
@@ -81,13 +84,14 @@ export function useMissionResults(userScoringId: string | undefined) {
     return () => {
       active = false;
     };
-  }, [userScoringId]);
+  }, [userScoringId, debug]);
 
   const { items, page, totalPages, totalResults } = paginateMatchingResults(allItems, requestedPage);
 
   return {
     items,
     userValues,
+    userLocation,
     page,
     setPage,
     totalPages,

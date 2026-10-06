@@ -115,6 +115,12 @@ describe("missionToOffer — spv", () => {
     expect(offer.description).toContain("Devenez pompier"); // casse conservée
   });
 
+  it("préserve les sauts de ligne depuis descriptionHtml (description aplatie par l'API v2)", () => {
+    const mission = { ...spvMission, description: "Devenez pompier Rejoignez-nous", descriptionHtml: "<h2>Devenez pompier</h2><p>Rejoignez-nous</p>" };
+    const offer = missionToOffer(mission as MissionRecord, "spv")!;
+    expect(offer.description).toBe("Devenez pompier\n\nRejoignez-nous");
+  });
+
   it("retourne null si aucune adresse rattachée à un département connu", () => {
     const mission = { ...spvMission, addresses: [{ city: "X", departmentCode: null } as any] };
     expect(missionToOffer(mission as MissionRecord, "spv")).toBeNull();

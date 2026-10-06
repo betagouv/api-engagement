@@ -7,6 +7,7 @@ import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
+import { canonicalHostMiddleware } from "~/middlewares/canonical-host";
 import { PUBLISHER_ID } from "~/services/config";
 import { captureException } from "~/services/sentry";
 import { serializeForInlineScript } from "~/utils/string";
@@ -17,6 +18,8 @@ import "./main.css";
 const apiEngagementTag = PUBLISHER_ID
   ? `(function(i,s,o,g,r,a,m){i["ApiEngagementObject"]=r;(i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments);}),(i[r].l=1*new Date());(a=s.createElement(o)),(m=s.getElementsByTagName(o)[0]);a.async=1;a.src=g;m.parentNode.insertBefore(a,m);})(window,document,"script","https://app.api-engagement.beta.gouv.fr/jstag.js","apieng");apieng("config",${serializeForInlineScript(PUBLISHER_ID)});`
   : null;
+
+export const middleware: Route.MiddlewareFunction[] = [canonicalHostMiddleware];
 
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().

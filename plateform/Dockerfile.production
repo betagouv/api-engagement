@@ -26,7 +26,8 @@ COPY packages/taxonomy ./packages/taxonomy
 COPY packages/dto ./packages/dto
 RUN npm ci --workspace=plateform
 COPY plateform ./plateform
-RUN npm --workspace=plateform run build
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    npm --workspace=plateform run build
 
 FROM node:24-slim AS runner
 WORKDIR /workspace

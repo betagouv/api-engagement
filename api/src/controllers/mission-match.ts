@@ -15,6 +15,11 @@ router.use(plateformRateLimiter);
 const matchQuerySchema = zod.object({
   userScoringId: zod.uuid(),
   engineVersion: zod.enum(MATCHING_ENGINE_VERSION_KEYS).optional(),
+  debug: zod
+    .enum(["true", "false"])
+    .transform((value) => value === "true")
+    .optional()
+    .default(false),
 });
 
 router.get("/match", async (req: PublisherRequest, res, next) => {
@@ -27,6 +32,7 @@ router.get("/match", async (req: PublisherRequest, res, next) => {
       userScoringId: query.data.userScoringId,
       version: query.data.engineVersion,
       publisherId: req.user.id,
+      debug: query.data.debug,
     });
     return res.status(200).send({ ok: true, data });
   } catch (error) {

@@ -215,7 +215,7 @@ variable "enable_plateform" {
   description = "Enable the plateform container"
 }
 
-variable "plateform_hostname" {
+variable "ttm_www_hostname" {
   type    = string
   default = ""
 }

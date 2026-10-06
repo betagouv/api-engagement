@@ -4,16 +4,17 @@ import cors from "cors";
 import { Express } from "express";
 
 import bodyParserErrorHandler from "@/middlewares/body-parser-error-handler";
+import responseCompression from "@/middlewares/compression";
 import { corsOptions } from "@/middlewares/cors";
 import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
 import { createHttpMetricsMiddleware } from "@/services/observability/metrics";
-// import limiter from "./rate-limit";
 
 const middlewares = (app: Express) => {
   app.set("trust proxy", 1);
+  app.use(responseCompression);
   app.use(cors(corsOptions));
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParserErrorHandler);
@@ -24,7 +25,6 @@ const middlewares = (app: Express) => {
   app.use(requestId);
   app.use(createHttpMetricsMiddleware());
   app.use(logger);
-  // app.use(limiter); // TODO: enable with correct values
   app.use(passport.initialize());
 };
 

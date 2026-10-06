@@ -56,12 +56,15 @@ export default [
   // souvent éphémères, elles restent identifiables et supprimables d'un bloc.
   // « Les défis de l'engagement » : programme dédié aux 16-18 ans.
   route("defis-engagement", "routes/landings/defis-engagement.tsx"),
+  // « Chacun pour tous » : campagne d'engagement tous publics.
+  route("chacun-pour-tous", "routes/landings/chacun-pour-tous.tsx"),
 
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),
   route("accessibilite", "routes/accessibilite.tsx"),
   route("mentions-legales", "routes/mentions-legales.tsx"),
   route("politique-de-confidentialite", "routes/politique-de-confidentialite.tsx"),
+  route("statistiques", "routes/statistiques.tsx"),
 
   route("results/:userScoringId", "routes/results.tsx"),
   route("results/:userScoringId/missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-from-results" }),

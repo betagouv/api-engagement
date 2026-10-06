@@ -22,6 +22,8 @@ const TABLE_HEADER = [
 const Campaigns = () => {
   const { user, publisher } = useStore();
   const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [toPublishers, setToPublishers] = useState([]);
   const [filters, setFilters] = useState({
     fromPublisherId: publisher?.id || "",
     toPublisherId: "",
@@ -36,18 +38,41 @@ const Campaigns = () => {
     fetchData();
   }, [filters]);
 
+  useEffect(() => {
+    fetchToPublishers();
+  }, [filters.fromPublisherId, filters.active]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await api.post(`/campaign/search`, filters);
+      const { page, pageSize, ...searchFilters } = filters;
+      const res = await api.post(`/campaign/search`, { ...searchFilters, from: (page - 1) * pageSize, size: pageSize });
       if (!res.ok) {
         throw res;
       }
       setData(res.data || []);
+      setTotal(res.total || 0);
     } catch (error) {
       captureError(error, { extra: { filters } });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchToPublishers = async () => {
+    try {
+      const res = await api.post(`/campaign/search`, { fromPublisherId: filters.fromPublisherId, active: filters.active, size: 100 });
+      if (!res.ok) {
+        throw res;
+      }
+      setToPublishers(
+        res.data
+          .map((c) => ({ id: c.toPublisherId, name: c.toPublisherName }))
+          .filter((c, i, s) => s.findIndex((e) => e.id === c.id) === i)
+          .sort((a, b) => (a.name || "").localeCompare(b.name)),
+      );
+    } catch (error) {
+      captureError(error, { extra: { filters } });
     }
   };
 
@@ -63,6 +88,7 @@ const Campaigns = () => {
       }
 
       setData([res.data, ...data]);
+      setTotal(total + 1);
       toast.success("Campagne dupliquée");
     } catch (error) {
       captureError(error, { extra: { id } });
@@ -117,15 +143,11 @@ const Campaigns = () => {
             <option className="px-2" value="">
               Tous les annonceurs
             </option>
-            {data
-              .map((c) => ({ id: c.toPublisherId, name: c.toPublisherName }))
-              .filter((c, i, s) => s.findIndex((e) => e.id === c.id) === i)
-              .sort((a, b) => (a.name || "").localeCompare(b.name))
-              .map((c, i) => (
-                <option key={i} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
+            {toPublishers.map((c, i) => (
+              <option key={i} value={c.id}>
+                {c.name}
+              </option>
+            ))}
           </select>
         </div>
         <div className="flex items-center gap-4">
@@ -139,7 +161,7 @@ const Campaigns = () => {
 
       <div className="flex flex-col items-center justify-between lg:flex-row">
         <p className="text-lg font-semibold" role="status" aria-live="polite" aria-atomic="true">
-          {loading ? "Chargement..." : data.length > 1 ? `${data.length} campagnes` : `${data.length} campagne`}
+          {loading ? "Chargement..." : total > 1 ? `${total} campagnes` : `${total} campagne`}
         </p>
 
         {user.role === "admin" && (
@@ -168,10 +190,10 @@ const Campaigns = () => {
           page={filters.page}
           pageSize={filters.pageSize}
           onPageChange={(page) => setFilters({ ...filters, page })}
-          total={data.length}
+          total={total}
           auto
         >
-          {data.slice((filters.page - 1) * filters.pageSize, filters.page * filters.pageSize).map((item, i) => (
+          {data.map((item, i) => (
             <tr key={i} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="px-4 py-3">
                 {user.role === "admin" ? (

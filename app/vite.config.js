@@ -12,8 +12,8 @@ export default defineConfig((env) => {
   if (process.env.SENTRY_AUTH_TOKEN) {
     plugins.push(
       sentryVitePlugin({
-        org: "sentry",
-        project: "app",
+        org: "betagouv",
+        project: "api-engagement-app",
         url: process.env.SENTRY_HOST,
         environment: env.mode,
         release: {
@@ -33,6 +33,7 @@ export default defineConfig((env) => {
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
+        "@engagement/dto": path.resolve(__dirname, "../packages/dto/src/index.ts"),
       },
     },
     plugins,

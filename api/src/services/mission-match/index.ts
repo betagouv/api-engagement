@@ -10,6 +10,7 @@ import {
   buildUserValues,
   buildValuesIndex,
   missionMatchMissionSelect,
+  missionMatchScoringValueDebugSelect,
   missionMatchScoringValueSelect,
   missionMatchUserValueSelect,
   toMissionMatchItem,
@@ -19,6 +20,7 @@ export type MissionMatchInput = {
   userScoringId: string;
   publisherId: string;
   version?: MatchingEngineVersion;
+  debug?: boolean;
 };
 
 export const missionMatchService = {
@@ -30,29 +32,31 @@ export const missionMatchService = {
     const result = await matchingEngineService.rankMissionsByUserScoring({ ...input, version, limit: MATCHING_ENGINE_RESULTS_LIMIT });
 
     if (result.items.length === 0) {
-      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: 0, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [] };
+      return { tookMs: result.tookMs, engineVersion: result.version, items: [], total: 0, avgDistanceKmTop5: result.avgDistanceKmTop5, userValues: [], userLocation: null };
     }
 
     const missionIds = result.items.map((item) => item.missionId);
     const missionScoringIds = result.items.map((item) => item.missionScoringId);
+    const missionScoringValueSelect = input.debug === true ? missionMatchScoringValueDebugSelect : missionMatchScoringValueSelect;
 
-    const [missionRows, scoringValueRows, userValueRows] = await Promise.all([
+    const [missionRows, scoringValueRows, userValueRows, userGeo] = await Promise.all([
       prisma.mission.findMany({
         where: { id: { in: missionIds } },
         select: missionMatchMissionSelect,
       }),
       prisma.missionScoringValue.findMany({
         where: { missionScoringId: { in: missionScoringIds } },
-        select: missionMatchScoringValueSelect,
+        select: missionScoringValueSelect,
       }),
       prisma.userScoringValue.findMany({
         where: { userScoringId: input.userScoringId },
         select: missionMatchUserValueSelect,
       }),
+      prisma.userScoringGeo.findUnique({ where: { userScoringId: input.userScoringId }, select: { lat: true, lon: true } }),
     ]);
 
     const missionIndex = buildMissionIndex(missionRows);
-    const valuesIndex = buildValuesIndex(scoringValueRows);
+    const valuesIndex = buildValuesIndex(scoringValueRows, input.debug === true);
     // La version active ignore-t-elle l'adresse des missions remote=full/local ? (aligné sur le moteur)
     const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[result.version].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[result.version].remoteLocalGeoScore != null;
 
@@ -63,6 +67,7 @@ export const missionMatchService = {
       total: result.items.length,
       avgDistanceKmTop5: result.avgDistanceKmTop5,
       userValues: buildUserValues(userValueRows),
+      userLocation: userGeo,
     };
   },
 };
