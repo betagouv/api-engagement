@@ -5,6 +5,9 @@
 import * as Sentry from "@sentry/nextjs";
 import { PUBLIC_ENV, PUBLIC_SENTRY_DSN } from "./config";
 
+// Network failures on the browser side (Chrome / Safari / Firefox) - not actionable
+const NETWORK_ERROR_MESSAGES = ["Failed to fetch", "Load failed", "NetworkError when attempting to fetch resource."];
+
 if (PUBLIC_ENV !== "development" && PUBLIC_SENTRY_DSN) {
   Sentry.init({
     dsn: PUBLIC_SENTRY_DSN,
@@ -14,6 +17,13 @@ if (PUBLIC_ENV !== "development" && PUBLIC_SENTRY_DSN) {
 
     // Setting this option to true will print useful information to the console while you're setting up Sentry.
     debug: false,
+    beforeSend(event, hint) {
+      const error = hint.originalException;
+      if (error instanceof TypeError && NETWORK_ERROR_MESSAGES.some((message) => error.message.startsWith(message))) {
+        return null;
+      }
+      return event;
+    },
   });
 }
 
