@@ -190,6 +190,60 @@
       "streamingInterval": 0
     },
     {
+      "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446009",
+      "type": "http",
+      "documentation": "Liste statique de missions v2 avec pagination par curseur. Les filtres et le curseur ne modifient pas cette fixture.",
+      "method": "get",
+      "endpoint": "v2/mission",
+      "responses": [
+        {
+          "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446901",
+          "body": "{\n  \"ok\": false,\n  \"code\": \"UNAUTHORIZED\",\n  \"message\": \"Missing API key\"\n}",
+          "latency": 0,
+          "statusCode": 401,
+          "label": "Header x-api-key absent, vide ou invalide",
+          "headers": [{ "key": "Content-Type", "value": "application/json" }],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "null" },
+            { "target": "header", "modifier": "x-api-key", "value": "", "invert": false, "operator": "equals" },
+            { "target": "header", "modifier": "x-api-key", "value": "mock-api-key", "invert": true, "operator": "equals" }
+          ],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446902",
+          "body": "",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Liste de missions v2",
+          "headers": [{ "key": "Content-Type", "value": "application/json" }],
+          "bodyType": "FILE",
+          "filePath": "fixtures/v2-mission-list-response.json",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
       "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446004",
       "type": "http",
       "documentation": "Creation statique d'une mission partenaire v2. Les donnees ne sont pas persistees.",
@@ -540,6 +594,7 @@
     { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446001" },
     { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446002" },
     { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446003" },
+    { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446009" },
     { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446004" },
     { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446005" },
     { "type": "route", "uuid": "0da934af-b3e7-4f8f-a8fd-30d701446006" },

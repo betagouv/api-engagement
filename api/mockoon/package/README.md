@@ -2,7 +2,7 @@
 
 Cette archive contient un mock local de l'API publique API Engagement pour les recettes partenaires sans acces internet.
 
-Le mock est base sur Mockoon et expose un jeu de reponses stable. Il ne remplace pas l'API reelle : il ne persiste pas les donnees et les ecritures `/v2/mission` ne modifient pas les lectures `/v0/mission`.
+Le mock est base sur Mockoon et expose un jeu de reponses stable. Il ne remplace pas l'API reelle : il ne persiste pas les donnees et les ecritures `/v2/mission` ne modifient pas les lectures `/v0/mission` et `/v2/mission`.
 
 La specification detaillee de l'API est incluse dans l'archive :
 
@@ -62,5 +62,6 @@ x-api-key: mock-api-key
 - pas de base de donnees ;
 - pas de persistance entre les appels ;
 - pas de filtrage complet des listes ;
+- la pagination par curseur de `GET /v2/mission` retourne une fixture statique d'une seule page ;
 - pas de moderation automatique exhaustive ;
 - pas de coherence d'etat entre `/v2/mission` et `/v0/mission`.
