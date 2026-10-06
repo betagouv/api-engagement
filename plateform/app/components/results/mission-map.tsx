@@ -49,7 +49,8 @@ function BoundsFitter({ positions }: { positions: [number, number][] }) {
   const map = useMap();
   useEffect(() => {
     if (positions.length === 0) return;
-    map.fitBounds(L.latLngBounds(positions), { padding: [64, 64], maxZoom: 13 });
+    // Sans animation : Leaflet 1.9 termine le zoom animé via un setTimeout qui plante si la map est démontée entre-temps (_leaflet_pos).
+    map.fitBounds(L.latLngBounds(positions), { padding: [64, 64], maxZoom: 13, animate: false });
   }, [map, positions]);
   return null;
 }
