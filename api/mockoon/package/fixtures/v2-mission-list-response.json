@@ -1,0 +1,157 @@
+{
+  "ok": true,
+  "data": [
+    {
+      "id": "mission-lyon-002",
+      "clientId": "partner-source-lyon-002",
+      "publisherId": "publisher-demo-02",
+      "statusCode": "ACCEPTED",
+      "statusComment": null,
+      "createdAt": "2026-04-18T09:00:00.000Z",
+      "updatedAt": "2026-04-20T10:30:00.000Z",
+      "deletedAt": null,
+      "title": "Participer a une collecte alimentaire",
+      "description": "<p>Renforcer une equipe benevole pendant une collecte alimentaire locale.</p>",
+      "applicationUrl": "https://example.org/missions/collecte-alimentaire",
+      "metadata": "fixture-v0-lyon",
+      "domain": "humanitaire",
+      "activities": [
+        "collecte",
+        "distribution"
+      ],
+      "tags": [
+        "collecte",
+        "solidarite"
+      ],
+      "remote": "no",
+      "startAt": "2026-07-05T00:00:00.000Z",
+      "endAt": "2026-07-05T00:00:00.000Z",
+      "places": 10,
+      "addresses": [
+        {
+          "street": "25 avenue des Benevoles",
+          "city": "Lyon",
+          "postalCode": "69003",
+          "departmentCode": "69",
+          "departmentName": "Rhone",
+          "region": "Auvergne-Rhone-Alpes",
+          "country": "France",
+          "location": {
+            "lat": 45.7578,
+            "lon": 4.832
+          }
+        }
+      ],
+      "type": "benevolat",
+      "organizationName": "Banque Alimentaire Demo",
+      "organizationRNA": "W691000002",
+      "organizationStatusJuridique": "Association declaree",
+      "openToMinors": true,
+      "reducedMobilityAccessible": false
+    },
+    {
+      "id": "mission-marseille-003",
+      "clientId": "partner-source-marseille-003",
+      "publisherId": "publisher-demo-03",
+      "statusCode": "ACCEPTED",
+      "statusComment": null,
+      "createdAt": "2026-04-21T09:00:00.000Z",
+      "updatedAt": "2026-04-22T10:30:00.000Z",
+      "deletedAt": null,
+      "title": "Sensibiliser a la protection du littoral",
+      "description": "<p>Informer le public et participer a une action de ramassage de dechets.</p>",
+      "applicationUrl": "https://example.com/missions/protection-littoral",
+      "metadata": "fixture-v0-marseille",
+      "domain": "environnement",
+      "activities": [
+        "ramassage-dechets",
+        "sensibilisation"
+      ],
+      "tags": [
+        "environnement",
+        "littoral"
+      ],
+      "remote": "possible",
+      "startAt": "2026-08-01T00:00:00.000Z",
+      "endAt": "2026-10-31T00:00:00.000Z",
+      "places": 8,
+      "addresses": [
+        {
+          "street": "2 quai du Port",
+          "city": "Marseille",
+          "postalCode": "13007",
+          "departmentCode": "13",
+          "departmentName": "Bouches-du-Rhone",
+          "region": "Provence-Alpes-Cote d'Azur",
+          "country": "France",
+          "location": {
+            "lat": 43.2965,
+            "lon": 5.3698
+          }
+        }
+      ],
+      "type": "benevolat",
+      "organizationName": "Littoral Demo",
+      "organizationRNA": "W131000003",
+      "organizationStatusJuridique": "Association declaree",
+      "openToMinors": true,
+      "reducedMobilityAccessible": true
+    },
+    {
+      "id": "mission-paris-001",
+      "clientId": "partner-source-paris-001",
+      "publisherId": "publisher-demo-01",
+      "statusCode": "ACCEPTED",
+      "statusComment": null,
+      "createdAt": "2026-04-15T09:00:00.000Z",
+      "updatedAt": "2026-04-20T10:30:00.000Z",
+      "deletedAt": null,
+      "title": "Animer des ateliers numeriques pour des seniors",
+      "description": "<p>Accompagner des seniors dans la prise en main d'outils numeriques du quotidien.</p>",
+      "applicationUrl": "https://example.org/missions/ateliers-numeriques",
+      "metadata": "fixture-v0-paris",
+      "postedAt": "2026-04-15T09:00:00.000Z",
+      "domain": "solidarite-insertion",
+      "activities": [
+        "animation",
+        "enseignement-formation"
+      ],
+      "tags": [
+        "numerique",
+        "seniors"
+      ],
+      "remote": "no",
+      "schedule": "2 heures par semaine",
+      "startAt": "2026-06-01T00:00:00.000Z",
+      "endAt": "2026-12-31T00:00:00.000Z",
+      "places": 4,
+      "closeToTransport": true,
+      "addresses": [
+        {
+          "street": "10 rue de la Solidarite",
+          "city": "Paris",
+          "postalCode": "75011",
+          "departmentCode": "75",
+          "departmentName": "Paris",
+          "region": "Ile-de-France",
+          "country": "France",
+          "location": {
+            "lat": 48.8566,
+            "lon": 2.3522
+          }
+        }
+      ],
+      "type": "benevolat",
+      "organizationName": "Association Demo Paris",
+      "organizationRNA": "W751000001",
+      "organizationStatusJuridique": "Association declaree",
+      "image": "https://example.org/images/solidarite.png",
+      "openToMinors": false,
+      "reducedMobilityAccessible": true
+    }
+  ],
+  "limit": 25,
+  "nextCursor": null,
+  "hasMore": false,
+  "total": 3
+}
