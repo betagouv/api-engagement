@@ -1,4 +1,5 @@
 export { TAXONOMY } from "./taxonomy";
+export { DEPARTMENTS } from "./transformers/department-code";
 export { resolveTrancheAgeValues } from "./transformers/tranche-age";
 export type { EnrichableTaxonomyKey, GateTaxonomyKey, MissionDerivedTaxonomyKey, TaxonomyKey, TaxonomyListItem, TaxonomyValueItem, TaxonomyValueKey, ValueKey } from "./types";
 export {

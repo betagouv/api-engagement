@@ -15,7 +15,7 @@ const Distribution = ({ filters, onFiltersChange }) => {
     if (DEPARTMENT_NAMES[filters.department]) {
       return filters.department;
     }
-    const found = Object.entries(DEPARTMENT_NAMES).find(([, value]) => value[0] === filters.department);
+    const found = Object.entries(DEPARTMENT_NAMES).find(([, name]) => name === filters.department);
     return found ? found[0] : filters.department;
   }, [filters.department]);
 
@@ -86,9 +86,9 @@ const Distribution = ({ filters, onFiltersChange }) => {
                 <option value="">Tous les départements</option>
                 {Object.entries(DEPARTMENT_NAMES)
                   .sort((a, b) => a[0].localeCompare(b[0], "fr", { numeric: true }))
-                  .map(([code, value]) => (
-                    <option key={value[0]} value={code}>
-                      {code} - {value[0]}
+                  .map(([code, name]) => (
+                    <option key={code} value={code}>
+                      {code} - {name}
                     </option>
                   ))}
               </select>
@@ -97,7 +97,12 @@ const Distribution = ({ filters, onFiltersChange }) => {
               <label htmlFor="distribution-mission-type" className="text-sm">
                 Type de mission
               </label>
-              <select id="distribution-mission-type" className="input w-full pr-4 sm:w-64" value={filters.type} onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}>
+              <select
+                id="distribution-mission-type"
+                className="input w-full pr-4 sm:w-64"
+                value={filters.type}
+                onChange={(e) => onFiltersChange({ ...filters, type: e.target.value })}
+              >
                 <option value="">Tous les types</option>
                 {MISSION_TYPE_OPTIONS.map((missionType) => (
                   <option key={missionType.value} value={missionType.value}>
