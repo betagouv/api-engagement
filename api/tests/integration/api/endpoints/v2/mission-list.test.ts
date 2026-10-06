@@ -1,6 +1,7 @@
 import request from "supertest";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { missionService } from "@/services/mission";
 import { createTestMission, createTestPublisher } from "../../../../fixtures";
 import { createTestApp } from "../../../../testApp";
 
@@ -56,6 +57,16 @@ describe("GET /v2/mission", () => {
       .expect(200);
     expect(second.body.total).toBe(2);
     expect(second.body.data[0].id).toBe(visibleIds[2]);
+  });
+
+  it("réutilise le total entre les pages d'un même parcours", async () => {
+    const countMissions = vi.spyOn(missionService, "countMissions");
+
+    const first = await request(app).get("/v2/mission?limit=1").set("x-api-key", apiKey).expect(200);
+    await request(app).get(`/v2/mission?limit=2&cursor=${first.body.nextCursor}`).set("x-api-key", apiKey).expect(200);
+
+    expect(countMissions).toHaveBeenCalledTimes(1);
+    countMissions.mockRestore();
   });
 
   it("filtre les missions mises à jour après une date", async () => {

@@ -4,6 +4,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
+import { getCachedMissionCount } from "@/services/mission-count-cache";
 import { missionService } from "@/services/mission";
 import { MissionCreateInput, MissionRemote, MissionSearchFilters, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
@@ -206,7 +207,10 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), pu
       filters.distanceKm = getDistanceKm(rawDistance);
     }
 
-    const [result, total] = await Promise.all([missionService.findMissionsAfterId(filters, query.cursor), missionService.countMissions(filters)]);
+    const [result, total] = await Promise.all([
+      missionService.findMissionsAfterId(filters, query.cursor),
+      getCachedMissionCount(filters, () => missionService.countMissions(filters)),
+    ]);
 
     return res.status(200).send({
       ok: true,
