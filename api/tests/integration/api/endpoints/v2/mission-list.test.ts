@@ -8,12 +8,16 @@ import { createTestApp } from "../../../../testApp";
 describe("GET /v2/mission", () => {
   const app = createTestApp({ syncMissionDiffusion: true });
   let apiKey: string;
+  let ownerId: string;
+  let visibleClientIds: string[];
   let visibleIds: string[];
 
   beforeEach(async () => {
     const owner = await createTestPublisher();
     const diffuseur = await createTestPublisher({ publishers: [{ publisherId: owner.id }] });
     apiKey = diffuseur.apikey!;
+    ownerId = owner.id;
+    visibleClientIds = [];
     visibleIds = [];
 
     for (const [id, city] of [
@@ -21,7 +25,8 @@ describe("GET /v2/mission", () => {
       ["00000000-0000-0000-0000-000000000002", "Lyon"],
       ["00000000-0000-0000-0000-000000000003", "Paris"],
     ]) {
-      const mission = await createTestMission({ id, publisherId: owner.id, city, openToMinors: true });
+      const mission = await createTestMission({ id, clientId: `client-${id}`, publisherId: owner.id, city, openToMinors: true });
+      visibleClientIds.push(mission.clientId);
       visibleIds.push(mission.id);
     }
     await createTestMission({ publisherId: owner.id, deleted: true });
@@ -46,17 +51,27 @@ describe("GET /v2/mission", () => {
   });
 
   it("applique les filtres v0 au résultat et au total", async () => {
-    const response = await request(app).get("/v2/mission?city=Paris&openToMinors=yes&limit=1").set("x-api-key", apiKey).expect(200);
+    const response = await request(app).get("/v2/mission?city=Paris&activities=environnement&openToMinors=true&limit=1").set("x-api-key", apiKey).expect(200);
     expect(response.body.total).toBe(2);
     expect(response.body.data).toHaveLength(1);
     expect(response.body.hasMore).toBe(true);
 
     const second = await request(app)
-      .get(`/v2/mission?city=Paris&openToMinors=yes&limit=1&cursor=${response.body.nextCursor}`)
+      .get(`/v2/mission?city=Paris&activities=environnement&openToMinors=true&limit=1&cursor=${response.body.nextCursor}`)
       .set("x-api-key", apiKey)
       .expect(200);
     expect(second.body.total).toBe(2);
     expect(second.body.data[0].id).toBe(visibleIds[2]);
+  });
+
+  it("applique les filtres v2 alignés avec une mission", async () => {
+    const response = await request(app)
+      .get(`/v2/mission?publisherId=${ownerId}&clientId=${visibleClientIds[0]}&domain=bricolage&type=benevolat&remote=no&reducedMobilityAccessible=true`)
+      .set("x-api-key", apiKey)
+      .expect(200);
+
+    expect(response.body.total).toBe(1);
+    expect(response.body.data[0].id).toBe(visibleIds[0]);
   });
 
   it("réutilise le total entre les pages d'un même parcours", async () => {
@@ -74,10 +89,7 @@ describe("GET /v2/mission", () => {
     const recentMission = await createTestMission({ publisherId: (await createTestPublisher()).id, updatedAt: new Date("2031-01-01T00:00:00.000Z") });
     const diffuseur = await createTestPublisher({ publishers: [{ publisherId: recentMission.publisherId }] });
 
-    const response = await request(app)
-      .get(`/v2/mission?updatedAt=gt:${cutoff.toISOString()}`)
-      .set("x-api-key", diffuseur.apikey!)
-      .expect(200);
+    const response = await request(app).get(`/v2/mission?updatedAt=gt:${cutoff.toISOString()}`).set("x-api-key", diffuseur.apikey!).expect(200);
 
     expect(response.body.total).toBe(1);
     expect(response.body.data.map((mission: { id: string }) => mission.id)).toEqual([recentMission.id]);
@@ -88,7 +100,16 @@ describe("GET /v2/mission", () => {
     await request(app).get("/v2/mission?updatedAt=gt:not-a-date").set("x-api-key", apiKey).expect(400);
   });
 
-  it("refuse l'ancienne pagination et les limites invalides", async () => {
+  it("refuse les paramètres v0 supprimés et les limites invalides", async () => {
+    await request(app).get("/v2/mission?activity=environnement").set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?openToMinors=yes").set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?reducedMobilityAccessible=yes").set("x-api-key", apiKey).expect(400);
+    await request(app).get(`/v2/mission?publisher=${ownerId}`).set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?snu=true").set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?domain=bricolage&domain=sante").set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?type=benevolat&type=volontariat_service_civique").set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?clientId=one&clientId=two").set("x-api-key", apiKey).expect(400);
+    await request(app).get("/v2/mission?remote=no&remote=full").set("x-api-key", apiKey).expect(400);
     await request(app).get("/v2/mission?skip=1000").set("x-api-key", apiKey).expect(400);
     await request(app).get("/v2/mission?includeTotal=true").set("x-api-key", apiKey).expect(400);
     await request(app).get("/v2/mission?limit=0").set("x-api-key", apiKey).expect(400);

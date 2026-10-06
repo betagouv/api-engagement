@@ -1,148 +1,22 @@
 import { NextFunction, Response, Router } from "express";
 import { convert } from "html-to-text";
 import passport from "passport";
-import zod from "zod";
 
 import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
-import { getCachedMissionCount } from "@/services/mission-count-cache";
 import { missionService } from "@/services/mission";
-import { MissionCreateInput, MissionRemote, MissionSearchFilters, MissionUpdatePatch } from "@/types/mission";
+import { getCachedMissionCount } from "@/services/mission-count-cache";
+import { MissionCreateInput, MissionSearchFilters, MissionUpdatePatch } from "@/types/mission";
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
 import { getDistanceKm } from "@/utils";
 import { getModeration } from "@/utils/mission-moderation";
-import { missionQuerySchema } from "@/v0/mission/query";
-import { normalizeQueryArray, parseDateFilter } from "@/v0/mission/utils";
+import { parseDateFilter } from "@/v0/mission/utils";
 
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } from "./helpers";
+import { missionClientIdParamSchema, missionCreateSchema, missionListQuerySchema, missionUpdateSchema } from "./schema";
 
 const router = Router();
-
-// ──────────────────────────────────────────────────────────────────────────────
-// Schema
-// ──────────────────────────────────────────────────────────────────────────────
-
-const addressSchema = zod.object({
-  street: zod.string().optional(),
-  postalCode: zod.string().optional(),
-  city: zod.string().optional(),
-  departmentCode: zod.string().optional(),
-  departmentName: zod.string().optional(),
-  region: zod.string().optional(),
-  country: zod.string().optional(),
-  location: zod.object({ lat: zod.number().min(-90).max(90), lon: zod.number().min(-180).max(180) }).nullish(),
-});
-
-const orgFields = {
-  organizationClientId: zod.string().optional(),
-  organizationName: zod.string().optional(),
-  organizationDescription: zod.string().optional(),
-  organizationUrl: zod.string().optional(),
-  organizationType: zod.string().optional(),
-  organizationLogo: zod.string().optional(),
-  organizationRNA: zod.string().optional(),
-  organizationSiren: zod.string().optional(),
-  organizationSiret: zod.string().optional(),
-  organizationFullAddress: zod.string().optional(),
-  organizationPostCode: zod.string().optional(),
-  organizationCity: zod.string().optional(),
-  organizationDepartment: zod.string().optional(),
-  organizationDepartmentCode: zod.string().optional(),
-  organizationDepartmentName: zod.string().optional(),
-  organizationStatusJuridique: zod.string().optional(),
-  organizationBeneficiaries: zod.array(zod.string()).optional(),
-  organizationActions: zod.array(zod.string()).optional(),
-  organizationReseaux: zod.array(zod.string()).optional(),
-};
-
-const missionBaseFields = {
-  title: zod.string().optional(),
-  description: zod.string().optional(),
-  applicationUrl: zod.string().optional(),
-  image: zod.string().optional(),
-  metadata: zod.string().optional(),
-  postedAt: zod.coerce.date().optional(),
-  domain: zod.string().optional(),
-  activities: zod.array(zod.string()).optional(),
-  tags: zod.array(zod.string()).optional(),
-  tasks: zod.array(zod.string()).optional(),
-  audience: zod.array(zod.string()).optional(),
-  requirements: zod.array(zod.string()).optional(),
-  softSkills: zod.array(zod.string()).optional(),
-  romeSkills: zod.array(zod.string()).optional(),
-  remote: zod.enum(["no", "possible", "full", "local"]).optional(),
-  schedule: zod.string().optional(),
-  startAt: zod.coerce.date().optional(),
-  endAt: zod.coerce.date().optional(),
-  priority: zod.string().optional(),
-  places: zod.number().int().positive().optional(),
-  compensationAmount: zod.number().optional(),
-  compensationAmountMax: zod.number().min(0).optional(),
-  compensationUnit: zod.enum(["hour", "day", "month", "year"]).optional(),
-  compensationType: zod.enum(["gross", "net"]).optional(),
-  openToMinors: zod.boolean().optional(),
-  reducedMobilityAccessible: zod.boolean().optional(),
-  closeToTransport: zod.boolean().optional(),
-  addresses: zod.array(addressSchema).optional(),
-  type: zod.enum(["benevolat", "volontariat_service_civique", "volontariat_sapeurs_pompiers", "volontariat_reserve_operationnelle"]).optional(),
-  ...orgFields,
-};
-
-const orgNameRequiredRefinement = <T extends Record<string, unknown>>(data: T, ctx: zod.RefinementCtx) => {
-  const orgFieldKeys = Object.keys(orgFields) as Array<keyof typeof orgFields>;
-  const hasOrgField = orgFieldKeys.some((key) => key !== "organizationName" && data[key] !== undefined);
-  if (hasOrgField && !data.organizationName) {
-    ctx.addIssue({
-      code: zod.ZodIssueCode.custom,
-      message: "organizationName is required when any organization field is provided",
-      path: ["organizationName"],
-    });
-  }
-};
-
-const missionCreateSchema = zod
-  .object({
-    clientId: zod.string(),
-    ...missionBaseFields,
-    title: zod.string(),
-  })
-  .superRefine(orgNameRequiredRefinement);
-
-const missionUpdateSchema = zod
-  .object({
-    ...missionBaseFields,
-  })
-  .superRefine(orgNameRequiredRefinement);
-
-const missionClientIdParamSchema = zod.object({
-  clientId: zod.string(),
-});
-
-const missionListQuerySchema = missionQuerySchema
-  .omit({ limit: true, skip: true })
-  .extend({
-    limit: zod.coerce.number().int().min(1).default(25),
-    cursor: zod.string().min(1).max(256).optional(),
-    updatedAt: zod
-      .string()
-      .refine((value) => parseDateFilter(value)?.gt !== undefined, { message: "updatedAt doit utiliser le format gt:<date ISO>" })
-      .optional(),
-  })
-  .strict();
-
-const parseBooleanQuery = (value?: string): boolean | undefined => {
-  if (value === undefined) {
-    return undefined;
-  }
-  if (["true", "yes", "1"].includes(value.toLowerCase())) {
-    return true;
-  }
-  if (["false", "no", "0"].includes(value.toLowerCase())) {
-    return false;
-  }
-  return undefined;
-};
 
 const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
 
@@ -178,23 +52,22 @@ router.get("/", passport.authenticate(["apikey", "api"], { session: false }), pu
     const filters: MissionSearchFilters & { diffuseurPublisherId: string } = {
       diffuseurPublisherId: publisher.id,
       moderationAcceptedFor: publisher.moderator ? publisher.id : undefined,
-      publisherIds: normalizeQueryArray(query.publisher),
-      activity: normalizeQueryArray(query.activity),
-      city: normalizeQueryArray(query.city),
-      clientId: normalizeQueryArray(query.clientId),
-      country: normalizeQueryArray(query.country),
+      publisherIds: query.publisherId ? [query.publisherId] : undefined,
+      activity: query.activities,
+      city: query.city,
+      clientId: query.clientId ? [query.clientId] : undefined,
+      country: query.country,
       createdAt: parseDateFilter(query.createdAt),
-      departmentName: normalizeQueryArray(query.departmentName),
-      domain: normalizeQueryArray(query.domain),
+      departmentName: query.departmentName,
+      domain: query.domain ? [query.domain] : undefined,
       keywords: query.keywords,
-      organizationRNA: normalizeQueryArray(query.organizationRNA),
-      organizationStatusJuridique: normalizeQueryArray(query.organizationStatusJuridique),
-      openToMinors: parseBooleanQuery(query.openToMinors),
-      reducedMobilityAccessible: parseBooleanQuery(query.reducedMobilityAccessible),
-      remote: normalizeQueryArray(query.remote) as MissionRemote[] | undefined,
-      snu: query.snu,
+      organizationRNA: query.organizationRNA,
+      organizationStatusJuridique: query.organizationStatusJuridique,
+      openToMinors: query.openToMinors,
+      reducedMobilityAccessible: query.reducedMobilityAccessible,
+      remote: query.remote ? [query.remote] : undefined,
       startAt: parseDateFilter(query.startAt),
-      type: normalizeQueryArray(query.type),
+      type: query.type ? [query.type] : undefined,
       updatedAt: parseDateFilter(query.updatedAt),
       limit: query.limit,
       skip: 0,
