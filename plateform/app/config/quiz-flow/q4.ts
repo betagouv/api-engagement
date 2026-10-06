@@ -100,6 +100,7 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
   {
     id: "autonomie",
     route: "/quiz/autonomie",
+    completes: true,
     title: "Quel cadre te conviendrait le mieux ?",
     options: ["autonomie.organisation_libre", "autonomie.accompagnement_initial", "autonomie.cadre_suivi_regulier", "autonomie.je_ne_sais_pas"],
   },

@@ -30,4 +30,6 @@ export interface StepDef {
   // Absent pour les steps sans liste d'options (age, localisation).
   options?: QuizOptionKey[];
   condition?: Condition;
+  // Dernière question : y répondre termine le quiz (tracking quiz.completed) avant les steps hors questionnaire qui suivent (email).
+  completes?: boolean;
 }

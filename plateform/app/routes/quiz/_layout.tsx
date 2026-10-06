@@ -146,11 +146,11 @@ export default function QuizLayout() {
 
     const { next, steps: nextSteps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(nextSteps);
-    if (next && next.id !== "email") {
-      navigate(next.route);
-    } else {
+    if (currentStep.completes || !next) {
       trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt: useQuizStore.getState().quizStartedAt });
-      navigate("/quiz/email", { state: { completionType: "full" } });
+      navigate(next?.route ?? "/quiz/email", { state: { completionType: "full" } });
+    } else {
+      navigate(next.route);
     }
   };
 

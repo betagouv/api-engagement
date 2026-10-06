@@ -24,6 +24,10 @@ describe("parcours q4", () => {
     expect(q3Ids).not.toContain("email");
   });
 
+  it("marque autonomie, dernière question avant l'email, comme clôturant le quiz", () => {
+    expect(QUIZ_FLOW_REGISTRY.q4.filter((step) => step.completes).map((step) => step.id)).toEqual(["autonomie"]);
+  });
+
   it("propose la réponse Parcoursup", () => {
     expect(optionsOf(QUIZ_FLOW_REGISTRY.q4, "motivation_recherche")).toContain("motivation_recherche.parcoursup");
   });
