@@ -183,7 +183,7 @@ export const ROC_OFFERS = [
 <p>Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=309&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: ROC_IMAGE,
+    image: "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/65d7715cc0d3764cbed3afaf/AdobeStock%2015509515.jpeg",
     domain: "gestion-finance-droit",
     activities: ["gestion-ressources-humaines"],
     requirements: [
@@ -255,7 +255,7 @@ export const ROC_OFFERS = [
   {
     clientId: "roc-marine-semaphore",
     title: "Réserviste Sémaphore - Marine nationale",
-    image: ROC_IMAGE,
+    image: "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/65d7715cc0d3764cbed3afaf/AdobeStock%20712216732.jpeg",
     description: `<p>Protection des approches maritimes.</p>
 <p>Selon vos disponibilités, rejoignez une unité de la Marine Nationale et participez concrètement à la protection des approches maritimes au sein d'un sémaphore. Que vous soyez étudiant, salarié ou en recherche d'emploi, l'engagement s'adapte à votre rythme. C'est un engagement réel, au sein d'une unité, qui vous permettra de valoriser cette expérience. Vous serez ainsi formé et accompagné à chaque étape.</p>
 <p>En tant que réserviste, vous participerez à :</p>
@@ -317,7 +317,7 @@ export const ROC_OFFERS = [
 <p>Environ 46 jours par an. Contrat de 1 à 5 ans, renouvelable.</p>`,
     applicationUrl:
       "https://www.reservistes.defense.gouv.fr/lister-postes?filtres_liste_postes_form%5BniveauEtudesRequis%5D=&filtres_liste_postes_form%5Bgestionnaires%5D%5B%5D=302&filtres_liste_postes_form%5BdatePourvoiPoste%5D=&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue1%5D=0&filtres_liste_postes_form%5BnbJoursActivites%5D%5Bvalue2%5D=210&filtres_liste_postes_form%5Bpage%5D=1",
-    image: ROC_IMAGE,
+    image: "https://api-engagement-bucket.s3.fr-par.scw.cloud/publishers/65d7715cc0d3764cbed3afaf/reserviste-combattant.jpg",
     domain: "service-public-defense-securite",
     activities: ["operations-militaires"],
     requirements: ["17 ans et +", "Aucun diplôme requis pour la plupart des postes ; toutes situations (étudiant, salarié, demandeur d'emploi)", "Aptitude médicale requise"],
