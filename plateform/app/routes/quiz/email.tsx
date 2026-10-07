@@ -79,7 +79,7 @@ export default function EmailStep() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col">
-      <h1 className="fr-h1 mb-8!">Reçois tes prochaines missions basées sur tes réponses</h1>
+      <h1 className="fr-h1 mb-8!">Reçois les nouvelles missions qui correspondent à tes réponses</h1>
 
       <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
         <label className="fr-label" htmlFor={emailId}>
