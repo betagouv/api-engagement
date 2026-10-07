@@ -35,9 +35,14 @@ export default function MissionCard({
 
       <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
         <div className="flex items-start justify-between gap-2">
-          <div className="flex flex-col gap-2">
+          <div className="flex min-w-0 flex-col gap-2">
             {domainLabel && (
-              <span className="bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 h-4 flex items-center leading-0! text-xs uppercase w-fit!">{domainLabel}</span>
+              <span
+                title={domainLabel}
+                className="bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 h-4 block max-w-full truncate leading-4! text-xs uppercase w-fit!"
+              >
+                {domainLabel}
+              </span>
             )}
             <h3 className={`text-blue-france-sun! m-0! font-bold! ${tags ? "line-clamp-2 text-base!" : "line-clamp-3 text-xl! leading-7!"}`}>{title}</h3>
           </div>
@@ -56,7 +61,7 @@ export default function MissionCard({
         {tags && (
           <div className="flex mt-auto flex-1 max-h-14 flex-wrap content-start gap-2 overflow-hidden">
             {tags.map((tag) => (
-              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex items-center rounded-full px-2.5 py-0.5 text-xs! whitespace-nowrap">
+              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex items-center rounded-full px-2.5 py-0.5 text-xs! whitespace-nowrap truncate">
                 {tag}
               </span>
             ))}
