@@ -52,6 +52,7 @@ type CardStyle = {
   tagFontSize: number;
   publisherFontSize: number;
   withDetailsLink: boolean;
+  maxWidth?: number;
 };
 
 const GRID_CARD_STYLE: CardStyle = {
@@ -65,6 +66,7 @@ const GRID_CARD_STYLE: CardStyle = {
   tagFontSize: 12,
   publisherFontSize: 14,
   withDetailsLink: true,
+  maxWidth: 385,
 };
 
 const SAVED_CARD_STYLE: CardStyle = {
@@ -110,11 +112,12 @@ const buildTitleRow = (mission: MissionContent, style: CardStyle) => `
   </tr>`;
 
 // Tags limités à 2 rangées dans la grille (max-h-14 sur la plateforme) : hauteur fixe, le surplus est masqué.
+// Un tag trop long est tronqué à la largeur de la carte plutôt que de l'élargir.
 const buildTagsRow = (mission: MissionContent, style: CardStyle) => {
   const tags = mission.tags
     .map(
       (tag) =>
-        `<span style="display: inline-block; background: #eeeeee; color: #161616; border-radius: 999px; padding: 2px 10px; margin: 0 4px 8px 0; font-family: ${FONT_FAMILY}; font-size: ${style.tagFontSize}px; line-height: ${style.tagFontSize + 4}px; white-space: nowrap;">${escapeBrevoHtml(tag)}</span>`
+        `<span style="display: inline-block; box-sizing: border-box; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: top; background: #eeeeee; color: #161616; border-radius: 999px; padding: 2px 10px; margin: 0 4px 8px 0; font-family: ${FONT_FAMILY}; font-size: ${style.tagFontSize}px; line-height: ${style.tagFontSize + 4}px; white-space: nowrap;">${escapeBrevoHtml(tag)}</span>`
     )
     .join("");
   return `
@@ -137,7 +140,7 @@ const buildFooterRow = (mission: MissionContent, style: CardStyle) => {
         </table>`
     : "";
   const detailsLink = style.withDetailsLink
-    ? `<td align="right" style="vertical-align: middle; white-space: nowrap;">
+    ? `<td align="right" style="padding-left: 8px; vertical-align: middle; white-space: nowrap;">
             <a href="${mission.url}" style="font-family: ${FONT_FAMILY}; font-size: 16px; line-height: 24px; color: ${BLUE_FRANCE}; text-decoration: underline;">Détails&nbsp;&rarr;</a>
           </td>`
     : "";
@@ -155,7 +158,7 @@ const buildFooterRow = (mission: MissionContent, style: CardStyle) => {
 };
 
 const buildMissionCard = (mission: MissionContent, style: CardStyle, border: string) => `
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="font-family: ${FONT_FAMILY}; background: #ffffff; border: ${border};">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="${style.maxWidth ? `max-width: ${style.maxWidth}px; ` : ""}font-family: ${FONT_FAMILY}; background: #ffffff; border: ${border};">
     ${buildImageRow(mission, style)}
     ${buildDomainRow(mission, style)}
     ${buildTitleRow(mission, style)}
@@ -163,7 +166,8 @@ const buildMissionCard = (mission: MissionContent, style: CardStyle, border: str
     ${buildFooterRow(mission, style)}
   </table>`;
 
-// Grille de 2 cartes par ligne, comme la liste de résultats de la plateforme.
+// Grille de 2 cartes par ligne, comme la liste de résultats de la plateforme. `table-layout: fixed` garde les
+// deux colonnes à 50 % quel que soit le contenu des cartes.
 const buildMissionRow = (missions: MissionContent[]) => `
   <tr>
     <td width="50%" style="width: 50%; padding: 0 8px 16px 0; vertical-align: top;">${buildMissionCard(missions[0], GRID_CARD_STYLE, "1px solid #dddddd")}</td>
@@ -176,7 +180,7 @@ export const buildMissionContentHtml = (missions: MissionContent[]) => {
     rows.push(buildMissionRow(missions.slice(index, index + 2)));
   }
   return `
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="font-family: ${FONT_FAMILY};">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" role="presentation" style="table-layout: fixed; font-family: ${FONT_FAMILY};">
     ${rows.join("")}
   </table>`;
 };
