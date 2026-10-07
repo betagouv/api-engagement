@@ -42,6 +42,8 @@ export default [
   route("defis-engagement", "routes/landings/defis-engagement.tsx"),
   // « Chacun pour tous » : campagne d'engagement tous publics.
   route("chacun-pour-tous", "routes/landings/chacun-pour-tous.tsx"),
+  // « Votre engagement peut se faire autrement » : réorientation des candidats non retenus à la réserve Police.
+  route("reengagement-police", "routes/landings/reengagement-police.tsx"),
 
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),

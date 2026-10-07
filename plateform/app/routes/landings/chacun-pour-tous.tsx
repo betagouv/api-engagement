@@ -122,7 +122,7 @@ export default function ChacunPourTous() {
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
       <Hero
         title="S'engager ça fait du bien, à soi, aux autres, au pays."
-        titleClassName="lg:w-184"
+        titleClassName="lg:w-184 lg:text-[80px]! lg:leading-22!"
         description={
           <>
             On croit que s'engager, c'est rare. En fait, 3 Français sur 4 l'ont déjà fait cette année.
