@@ -445,10 +445,10 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
 
     const { domainLogo, applicationUrl, ...rest } = body.data;
     const patch: Parameters<typeof missionService.update>[1] = { ...rest };
-    if (domainLogo !== undefined) patch.domainLogo = domainLogo || null;
-    if (applicationUrl !== undefined) patch.applicationUrl = applicationUrl || null;
+    if (domainLogo !== undefined) {patch.domainLogo = domainLogo || null;}
+    if (applicationUrl !== undefined) {patch.applicationUrl = applicationUrl || null;}
     // descriptionHtml prime sur description chez les consommateurs : on l'invalide pour que l'édition soit prise en compte
-    if (rest.description !== undefined) patch.descriptionHtml = null;
+    if (rest.description !== undefined) {patch.descriptionHtml = null;}
 
     await missionService.update(missionId, patch);
     // Comme la v2 : recalcule mission_diffusion sans attendre le rebuild (index/enrichissement sont déjà déclenchés par update)
