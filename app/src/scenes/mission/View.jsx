@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { HiCheckCircle, HiClock, HiLocationMarker, HiXCircle } from "react-icons/hi";
-import { RiCursorFill, RiInformationLine } from "react-icons/ri";
-import { useParams } from "react-router-dom";
+import { RiEdit2Line, RiExternalLinkLine, RiInformationLine } from "react-icons/ri";
+import { useNavigate, useParams } from "react-router-dom";
 
 import Tabs from "@/components/Tabs";
 import Tooltip from "@/components/Tooltip";
@@ -76,7 +76,8 @@ const AddressStatus = ({ geolocStatus }) => {
 };
 
 const View = () => {
-  const { id } = useParams();
+  const { id, publisherId } = useParams();
+  const navigate = useNavigate();
   const { user } = useStore();
   const [mission, setMission] = useState(null);
   const [activeTechnicalTab, setActiveTechnicalTab] = useState("enrichment");
@@ -87,6 +88,7 @@ const View = () => {
   const [technicalTabState, setTechnicalTabState] = useState({ diffuseurs: "idle", "search-document": "idle" });
   // Garde anti-course : les callbacks des fetch d'onglets techniques comparent l'id capturé à cette
   // ref (toujours à jour) pour ignorer une réponse arrivée après navigation vers une autre mission.
+  const viewPath = `/${publisherId}/mission/${id}`;
   const currentMissionIdRef = useRef(id);
   currentMissionIdRef.current = id;
 
@@ -272,16 +274,26 @@ const View = () => {
             <p className="mt-2">Mise à jour le {new Date(mission.lastSyncAt).toLocaleString().replace(" ", " à ")}</p>
           </div>
 
-          {applicationUrl && (
-            <a className="tertiary-bis-btn flex h-fit items-center" href={applicationUrl} target="_blank" rel="noopener noreferrer">
-              <RiCursorFill className="mr-2" aria-hidden="true" />
-              <span>Lien vers la mission</span>
-            </a>
-          )}
+          <div className="flex h-fit flex-wrap justify-end gap-2 sm:shrink-0">
+            {isAdmin && (
+              <button className="secondary-btn flex items-center" type="button" onClick={() => navigate(`${viewPath}/edit`)}>
+                <RiEdit2Line className="mr-2" aria-hidden="true" />
+                <span>Modifier la mission</span>
+              </button>
+            )}
+            {applicationUrl && (
+              <a className="secondary-btn flex items-center" href={applicationUrl} target="_blank" rel="noopener noreferrer">
+                <RiExternalLinkLine className="mr-2" aria-hidden="true" />
+                <span>Voir la mission</span>
+                <span className="sr-only"> (nouvelle fenêtre)</span>
+              </a>
+            )}
+          </div>
         </div>
 
         <div className="border-grey-border grid grid-cols-1 gap-4 border p-4 lg:grid-cols-[minmax(0,2fr)_1px_minmax(280px,1fr)] lg:p-6">
           <div className="min-w-0">
+            {mission.domainLogo && <img src={mission.domainLogo} alt="" className="mb-4 max-h-64 w-full object-cover" />}
             <p className="text-xl font-semibold">Presentation de la mission</p>
             <div
               className="mt-2 max-h-96 overflow-y-scroll text-xs leading-relaxed"
