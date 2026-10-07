@@ -17,6 +17,7 @@ export default function EmailStep() {
   const { showLoadingRecap } = useOutletContext<QuizOutletContext>();
   const distinctId = useQuizStore((s) => s.distinctId);
   const userScoringId = useQuizStore((s) => s.userScoringId);
+  const markEmailSent = useQuizStore((s) => s.markEmailSent);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +67,7 @@ export default function EmailStep() {
       await fetchInitialMatches(userScoringId);
       const result = await sendMissionEmail({ email: trimmedEmail, publisherId: PUBLISHER_ID, userScoringId, distinctId, signupSource: "quiz" });
       if (result.email_sent) trackEmailMissionsSent({ hasAlertOptIn: false, entryPage: "quiz" });
+      markEmailSent(userScoringId);
       goToResults();
     } catch {
       // Le format est déjà vérifié ci-dessus : un INVALID_BODY de l'API ne vient pas de l'email saisi.
@@ -79,7 +81,7 @@ export default function EmailStep() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col">
-      <h1 className="fr-h1 mb-8!">Reçois tes prochaines missions basées sur tes réponses</h1>
+      <h1 className="fr-h1 mb-8!">Reçois les nouvelles missions qui correspondent à tes réponses</h1>
 
       <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
         <label className="fr-label" htmlFor={emailId}>
