@@ -9,6 +9,13 @@ const isAbortError = (error: unknown) => {
   return error instanceof Error && (error.name === "AbortError" || error.message.includes("signal is aborted"));
 };
 
+// Coupure réseau côté navigateur (Chrome / Safari / Firefox) : non actionnable, l'utilisateur voit déjà un message d'erreur.
+const NETWORK_ERROR_MESSAGES = ["Failed to fetch", "Load failed", "NetworkError when attempting to fetch resource."];
+
+const isNetworkError = (error: unknown) => {
+  return error instanceof TypeError && NETWORK_ERROR_MESSAGES.some((message) => error.message.startsWith(message));
+};
+
 const normalizeError = (error: unknown): Error => {
   if (error instanceof Error) return error;
   if (typeof error === "string") return new Error(error);
@@ -29,6 +36,10 @@ export const initSentry = () => {
     tracesSampleRate: ENV === "production" ? 0.1 : 1,
     beforeSend(event, hint) {
       if (isAbortError(hint.originalException) || isAbortError(hint.syntheticException)) {
+        return null;
+      }
+
+      if (isNetworkError(hint.originalException)) {
         return null;
       }
 
