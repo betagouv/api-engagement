@@ -13,11 +13,13 @@ interface QuizStore {
   startedAttemptId?: string;
   // Dernière tentative pour laquelle quiz.completed (parcours complet) a été émis : évite le doublon après un retour arrière.
   completedAttemptId?: string;
+  // Page d'où le quiz a été lancé (ex. une landing) : cible du bouton "Retour" de la première étape.
+  backTo?: string;
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
   setUserScoringId: (id: string) => void;
   markQuizStarted: () => void;
   markQuizCompleted: () => void;
-  reset: () => void;
+  reset: (backTo?: string) => void;
 }
 
 // Persisté en localStorage : en cas de refresh, les réponses sont restaurées
@@ -41,7 +43,7 @@ export const useQuizStore = create<QuizStore>()(
       markQuizCompleted: () => set((s) => ({ completedAttemptId: s.quizAttemptId })),
       // reset démarre une nouvelle tentative : efface réponses et scoring, conserve distinctId,
       // et regénère quizAttemptId + quizStartedAt.
-      reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
+      reset: (backTo) => set({ answers: {}, userScoringId: undefined, backTo, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
     }),
     {
       name: "quiz-answers",
