@@ -225,6 +225,12 @@ variable "ttm_hostname" {
   default = ""
 }
 
+variable "ttm_legacy_hostname" {
+  type        = string
+  default     = ""
+  description = "Ancien domaine de la plateforme, redirigé en 301 vers ttm_hostname"
+}
+
 variable "plateform_cpu_limit" {
   type    = number
   default = 250
