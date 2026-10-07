@@ -147,6 +147,7 @@ export default function ChacunPourTous() {
         description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !"
         landing="landing_chacun_pour_tous"
         backTo="/chacun-pour-tous"
+        examples
         className="bg-brown-cafe-creme-975"
       />
       <Etapes etapes={ETAPES} onStartQuiz={() => handleStartQuiz("etapes")} />
