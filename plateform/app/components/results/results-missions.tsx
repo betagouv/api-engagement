@@ -5,6 +5,7 @@ import MissionAlertBanner from "~/components/results/mission-alert-banner";
 import Pagination, { type PaginationTrigger } from "~/components/ui/pagination";
 import Spinner from "~/components/ui/spinner";
 import { RESULTS_PAGE_SIZE } from "~/services/matching";
+import { useQuizStore } from "~/stores/quiz";
 
 // Le bandeau d'alerte s'insère après les 4 premières missions de la page (2 rangées en desktop).
 const MISSION_ALERT_BANNER_POSITION = 4;
@@ -43,6 +44,7 @@ export default function ResultsMissions({
   onEmailClick,
   onPageChange,
 }: ResultsMissionsProps) {
+  const emailScoringId = useQuizStore((s) => s.emailScoringId);
   const renderMission = (item: MissionMatchItem, index: number) => (
     <li
       key={item.mission.id}
@@ -85,7 +87,8 @@ export default function ResultsMissions({
               <ul role="list" className={MISSIONS_LIST_CLASS_NAME}>
                 {items.slice(0, MISSION_ALERT_BANNER_POSITION).map(renderMission)}
               </ul>
-              <MissionAlertBanner userScoringId={userScoringId} />
+              {/* Email déjà laissé sur l'étape email du quiz : pas besoin de le redemander. */}
+              {userScoringId && emailScoringId === userScoringId ? <div className="h-6" /> : <MissionAlertBanner userScoringId={userScoringId} />}
               {items.length > MISSION_ALERT_BANNER_POSITION && (
                 <ul role="list" className={MISSIONS_LIST_CLASS_NAME}>
                   {items.slice(MISSION_ALERT_BANNER_POSITION).map((item, index) => renderMission(item, index + MISSION_ALERT_BANNER_POSITION))}
