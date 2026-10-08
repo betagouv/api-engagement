@@ -1,7 +1,7 @@
+import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
 import SearchSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/search.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
-import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useNavigate } from "react-router";
 
@@ -54,7 +54,7 @@ const PARTNERS: Partner[] = [
 ];
 
 // CTA "voir les missions" partagé par les blocs Missions, Étapes de vie et Histoires.
-const MISSIONS_CTA = { to: "/missions", label: "Trouver ma mission" };
+const MISSIONS_CTA = { to: "/quiz/age", label: "Trouver ma mission" };
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
@@ -101,7 +101,7 @@ export default function ChacunPourTous() {
 
   const handleStartQuiz = (section: QuizEntrySection) => {
     // reset() regénère quiz_attempt_id : on réinitialise avant de tracer, pour rattacher cta.clicked au nouveau funnel.
-    reset();
+    reset("/chacun-pour-tous");
     trackCtaClicked({ pageName: "landing_chacun_pour_tous", ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     navigate("/quiz/age", { state: { entrySource: "landing_chacun_pour_tous_cta", entrySection: section } });
   };
@@ -147,6 +147,7 @@ export default function ChacunPourTous() {
         description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !"
         landing="landing_chacun_pour_tous"
         backTo="/chacun-pour-tous"
+        examples
         className="bg-brown-cafe-creme-975"
       />
       <Etapes etapes={ETAPES} onStartQuiz={() => handleStartQuiz("etapes")} />

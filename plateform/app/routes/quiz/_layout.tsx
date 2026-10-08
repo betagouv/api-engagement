@@ -55,7 +55,7 @@ export function HydrateFallback() {
 export default function QuizLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { answers, quizAttemptId, setUserScoringId } = useQuizStore();
+  const { answers, quizAttemptId, backTo, setUserScoringId } = useQuizStore();
   const [steps, setSteps] = useState<StepDef[]>(QUIZ_FLOW.filter((s) => !s.condition || evalCondition(s.condition, answers)));
   const [loadingResultsPath, setLoadingResultsPath] = useState<string | null>(null);
   const [scoringError, setScoringError] = useState<string | null>(null);
@@ -182,7 +182,7 @@ export default function QuizLayout() {
       {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
       <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
         <div className="fr-container flex flex-1 flex-col gap-10">
-          {!loadingResults && !isEmailPage && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : "/"} onBack={handleBackNavigated} />}
+          {!loadingResults && !isEmailPage && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : (backTo ?? "/")} onBack={handleBackNavigated} />}
           {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>

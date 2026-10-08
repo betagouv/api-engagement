@@ -6,28 +6,64 @@
 --    TTM. L'annonceur déclaré n'est pas forcément TTM (ex. QR code « Défi
 --    engagement », annonceur Service Civique, URL vers `/missions` de TTM).
 --    Supprimées conservées (`deleted_at` exposé) : leurs clics passés restent
---    nommés.
+--    nommés. UTM lus dans leurs trackers (`campaign_tracker`), l'URL de la
+--    campagne en repli.
 -- 2. les triplets UTM observés dans les sessions PostHog arrivées SANS lien
 --    tracké (SEA, Meta, emailing...), découverts automatiquement, type déduit
 --    de la convention `utm_source` / `utm_medium`. Aucune liste à maintenir :
 --    une campagne Adwords apparaît dès sa première session trackée.
 -- Le triplet UTM est la clé de rapprochement des sessions, en `lower()`.
-with api_campaigns as (
+-- UTM des campagnes API : saisis dans le back-office comme trackers
+-- (clé / valeur, `campaign_tracker`), que l'API ajoute à l'URL de base au
+-- moment de la redirection. `campaign.url` n'en garde au mieux qu'une copie
+-- figée à la création, vidée à la première modification : simple repli.
+-- La copie analytics de `campaign_tracker` est un upsert incrémental qui ne
+-- répercute pas les suppressions : chaque modification de campagne y laisse
+-- les anciennes lignes, on garde la plus récente par clé.
+with latest_trackers as (
+  select distinct on (campaign_id, key)
+    campaign_id,
+    key,
+    nullif(lower(trim(value)), '') as utm_value
+  from {{ ref('stg_campaign_tracker') }}
+  where key in ('utm_source', 'utm_medium', 'utm_campaign')
+  order by
+    campaign_id asc, key asc, created_at desc, updated_at desc, id desc
+),
+
+api_trackers as (
   select
-    id as campaign_key,
+    campaign_id,
+    max(utm_value) filter (where key = 'utm_source') as utm_source,
+    max(utm_value) filter (where key = 'utm_medium') as utm_medium,
+    max(utm_value) filter (where key = 'utm_campaign') as utm_campaign
+  from latest_trackers
+  group by campaign_id
+),
+
+api_campaigns as (
+  select
+    c.id as campaign_key,
     'api' as campaign_type,
-    name as campaign_name,
-    id as api_campaign_id,
-    created_at,
-    deleted_at,
-    lower(substring(url from 'utm_source=([^&#]+)')) as utm_source,
-    lower(substring(url from 'utm_medium=([^&#]+)')) as utm_medium,
-    lower(substring(url from 'utm_campaign=([^&#]+)')) as utm_campaign
-  from {{ ref('stg_campaign') }}
+    c.name as campaign_name,
+    c.id as api_campaign_id,
+    c.created_at,
+    c.deleted_at,
+    coalesce(
+      t.utm_source, lower(substring(c.url from 'utm_source=([^&#]+)'))
+    ) as utm_source,
+    coalesce(
+      t.utm_medium, lower(substring(c.url from 'utm_medium=([^&#]+)'))
+    ) as utm_medium,
+    coalesce(
+      t.utm_campaign, lower(substring(c.url from 'utm_campaign=([^&#]+)'))
+    ) as utm_campaign
+  from {{ ref('stg_campaign') }} as c
+  left join api_trackers as t on c.id = t.campaign_id
   where
-    annonceur_id = '{{ var("PUBLISHER_TROUVE_TA_MISSION_ID") }}'
+    c.annonceur_id = '{{ var("PUBLISHER_TROUVE_TA_MISSION_ID") }}'
     {% for pattern in var("TROUVE_TA_MISSION_HOST_PATTERNS") %}
-      or substring(url from '^https?://([^/]+)') like '{{ pattern }}'
+      or substring(c.url from '^https?://([^/]+)') like '{{ pattern }}'
     {% endfor %}
 ),
 

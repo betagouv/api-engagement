@@ -76,7 +76,7 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
                 <div className="flex flex-1 flex-col gap-3 px-6 py-4">
                   <span className="bg-blue-france-950 text-blue-france-sun w-fit rounded-xl px-2 text-sm font-bold">{histoire.domain}</span>
                   <p className="text-title-grey mb-0!">{histoire.story}</p>
-                  <p className="text-mention-grey mt-auto mb-0! flex items-center gap-2 text-xs">
+                  <p className="mt-auto! text-mention-grey mb-0! flex items-center gap-2 text-xs">
                     <img src={histoire.logo} alt="" className="size-8 bg-white object-contain" />
                     {histoire.publisher}
                   </p>

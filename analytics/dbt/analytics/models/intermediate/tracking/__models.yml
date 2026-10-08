@@ -338,6 +338,6 @@ models:
         description: Id de la campagne dans l'API (jointure back-office). Null hors type `api`.
       - name: utm_source
         description: >
-          `utm_source` de référence de la campagne, en minuscules : parsé dans l'URL pour les campagnes API
-          (null si l'URL n'en porte pas ; une telle campagne ne peut pas servir de repli UTM), triplet observé
-          pour les autres. Idem `utm_medium`, `utm_campaign`.
+          Campagne API : valeur du tracker du back-office, à défaut paramètre de l'URL de la campagne.
+          Campagne découverte : valeur observée dans les sessions. En minuscules. Idem `utm_medium`,
+          `utm_campaign`.

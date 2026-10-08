@@ -66,11 +66,9 @@ export const buildRankingQuery = (params: {
   const remoteLocalGeoScoreSql =
     params.remoteLocalGeoScore == null ? Prisma.empty : Prisma.sql`WHEN m."remote"::text = 'local' THEN CAST(${params.remoteLocalGeoScore} AS double precision)`;
   const geoRadiusKmSql = Prisma.sql`COALESCE(NULLIF(ug."radius_km", 0), CAST(${DEFAULT_GEO_RADIUS_KM} AS double precision))`;
-  const distanceGeoScoreSql = Prisma.sql`
-    CASE
-      WHEN gs."distance_km" >= ${geoRadiusKmSql} THEN 0.0
-      ELSE GREATEST(0.0, 1.0 - (gs."distance_km" / ${geoRadiusKmSql}))
-    END`;
+  // Le rayon est une distance de référence (score 0,5), pas un seuil d'annulation.
+  // La décroissance reste discriminante au-delà du rayon, notamment pour départager les SDIS.
+  const distanceGeoScoreSql = Prisma.sql`1.0 / (1.0 + gs."distance_km" / ${geoRadiusKmSql})`;
 
   // Quand le boost remote est actif et que l'utilisateur est géolocalisé, les missions remote=full/local éligibles
   // doivent entrer dans le pool candidat même sans match taxonomie ni adresse proche : elles sont "partout".
