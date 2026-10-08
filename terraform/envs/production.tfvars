@@ -50,6 +50,7 @@ enable_mfa            = true
 enable_plateform = true
 ttm_hostname     = "trouvetamission.gouv.fr"
 ttm_www_hostname = "www.trouvetamission.gouv.fr"
+ttm_legacy_hostname = "plateforme.api-engagement.beta.gouv.fr"
 
 private_network_cidr = "10.40.0.0/22"
 

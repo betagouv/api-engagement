@@ -10,3 +10,16 @@ export function getCanonicalRedirectUrl(requestUrl: string, canonicalHostname?: 
 
   return url.toString();
 }
+
+export function getLegacyHostRedirectUrl(requestUrl: string, legacyHostname?: string, canonicalHostname?: string): string | null {
+  if (!legacyHostname || !canonicalHostname) return null;
+
+  const url = new URL(requestUrl);
+  if (url.hostname !== legacyHostname) return null;
+
+  url.protocol = "https:";
+  url.hostname = canonicalHostname;
+  url.port = "";
+
+  return url.toString();
+}
