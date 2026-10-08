@@ -73,7 +73,6 @@ const Edit = () => {
       const res = await api.put(`/mission/${id}`, {
         title: draft.title,
         description: draft.description,
-        domainLogo: draft.domainLogo,
         applicationUrl: draft.applicationUrl,
         activities: splitList(draft.activities),
         softSkills: splitList(draft.softSkills),

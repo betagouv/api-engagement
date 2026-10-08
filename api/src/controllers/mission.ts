@@ -394,7 +394,6 @@ const updateSchema = zod
   .object({
     title: zod.string().trim().min(1),
     description: zod.string().trim().min(1),
-    domainLogo: zod.union([zod.string().trim().url(), zod.literal("")]),
     applicationUrl: zod.union([zod.string().trim().url(), zod.literal("")]),
     softSkills: zod.array(zod.string().trim().min(1)),
     activities: zod.array(zod.string().trim().min(1)),
@@ -423,6 +422,7 @@ router.post("/:id/image", passport.authenticate("admin", { session: false }), up
       ACL: OBJECT_ACL.PUBLIC_READ,
       ContentType: req.file.mimetype,
     });
+    await missionService.update(missionId, { domainLogo: response.Location });
     return res.status(200).send({ ok: true, data: { url: response.Location } });
   } catch (error) {
     next(error);
@@ -443,12 +443,15 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const { domainLogo, applicationUrl, ...rest } = body.data;
+    const { applicationUrl, ...rest } = body.data;
     const patch: Parameters<typeof missionService.update>[1] = { ...rest };
-    if (domainLogo !== undefined) {patch.domainLogo = domainLogo || null;}
-    if (applicationUrl !== undefined) {patch.applicationUrl = applicationUrl || null;}
+    if (applicationUrl !== undefined) {
+      patch.applicationUrl = applicationUrl || null;
+    }
     // descriptionHtml prime sur description chez les consommateurs : on l'invalide pour que l'édition soit prise en compte
-    if (rest.description !== undefined) {patch.descriptionHtml = null;}
+    if (rest.description !== undefined) {
+      patch.descriptionHtml = null;
+    }
 
     await missionService.update(missionId, patch);
     // Comme la v2 : recalcule mission_diffusion sans attendre le rebuild (index/enrichissement sont déjà déclenchés par update)

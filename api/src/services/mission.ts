@@ -933,10 +933,10 @@ export const missionService = {
       data.postedAt = patch.postedAt ?? undefined;
     }
     if ("startAt" in patch) {
-      data.startAt = patch.startAt ?? undefined;
+      data.startAt = patch.startAt === undefined ? undefined : patch.startAt;
     }
     if ("endAt" in patch) {
-      data.endAt = patch.endAt ?? undefined;
+      data.endAt = patch.endAt === undefined ? undefined : patch.endAt;
     }
     if ("priority" in patch) {
       data.priority = patch.priority ?? undefined;
@@ -997,7 +997,7 @@ export const missionService = {
       data.lastSyncAt = patch.lastSyncAt ?? undefined;
     }
     if ("applicationUrl" in patch) {
-      data.applicationUrl = patch.applicationUrl ?? undefined;
+      data.applicationUrl = patch.applicationUrl === undefined ? undefined : patch.applicationUrl;
     }
     if ("statusComment" in patch) {
       data.statusComment = patch.statusComment ?? undefined;
