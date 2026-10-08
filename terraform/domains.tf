@@ -22,6 +22,12 @@ resource "scaleway_container_domain" "ttm_www" {
   hostname     = var.ttm_www_hostname
 }
 
+resource "scaleway_container_domain" "ttm_legacy" {
+  count        = var.enable_plateform && var.ttm_legacy_hostname != "" ? 1 : 0
+  container_id = scaleway_container.plateform[0].id
+  hostname     = var.ttm_legacy_hostname
+}
+
 resource "scaleway_function_domain" "sentry_webhook" {
   count       = var.enable_sentry_webhook && var.sentry_webhook_hostname != "" ? 1 : 0
   function_id = scaleway_function.sentry_webhook[0].id

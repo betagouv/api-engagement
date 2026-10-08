@@ -114,7 +114,7 @@ export default function DefisEngagement() {
   const handleStartQuiz = (section: QuizEntrySection) => {
     // reset() regénère quiz_attempt_id : le tracer avant émettrait cta.clicked avec l'ancien id et le
     // détacherait du funnel (quiz.started et la suite portent le nouvel id). On réinitialise donc d'abord.
-    reset();
+    reset("/defis-engagement");
     trackCtaClicked({ pageName: "landing_defis_engagement", ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     navigate("/quiz/age", { state: { entrySource: "landing_defis_engagement_cta", entrySection: section } });
   };

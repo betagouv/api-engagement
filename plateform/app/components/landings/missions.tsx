@@ -12,6 +12,7 @@ import { buildMissionBrowseTags } from "~/utils/mission";
 
 // Carrousel de missions (issues du loader de la landing) dans un bandeau coloré. `landing` nomme la page
 // pour le tracking, `backTo` est son chemin, pour revenir à la landing depuis la fiche mission.
+// `examples` : les cartes ne sont que des exemples, sans lien vers la fiche, ni bouton email, ni tags.
 export default function Missions({
   missions,
   cta,
@@ -19,6 +20,7 @@ export default function Missions({
   description,
   landing,
   backTo,
+  examples = false,
   className = "bg-beige-gris-galet-975",
 }: {
   missions: MissionBrowse[];
@@ -27,6 +29,7 @@ export default function Missions({
   description: string;
   landing: LandingName;
   backTo: string;
+  examples?: boolean;
   className?: string;
 }) {
   const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
@@ -65,13 +68,13 @@ export default function Missions({
                 image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
                 domainLabel={getDomainLabel(mission.domain)}
                 title={mission.title}
-                to={`/missions/${mission.id}`}
+                to={examples ? undefined : `/missions/${mission.id}`}
                 state={{ entrySource: landing, backTo } satisfies MissionDetailNavState}
                 onClick={() => trackMissionClickedFromBrowse(mission, { section: landing, entryPage: landing, opensExternal: false, rank: index + 1 })}
-                tags={buildMissionBrowseTags(mission)}
+                tags={examples ? undefined : buildMissionBrowseTags(mission)}
                 publisherName={mission.publisherName}
                 publisherLogo={mission.publisherLogo}
-                onEmailClick={() => setEmailMissionId(mission.id)}
+                onEmailClick={examples ? undefined : () => setEmailMissionId(mission.id)}
               />
             ))}
           </Carousel>

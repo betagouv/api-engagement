@@ -174,6 +174,12 @@ variable "enable_mfa" {
   description = "Enable email OTP MFA on back-office login (disabled on dev/sandbox)"
 }
 
+variable "enable_mission_v2_list" {
+  type        = bool
+  default     = true
+  description = "Activer la liste v2 des missions ; false rétablit l'alias de lecture vers v0"
+}
+
 variable "enable_intern_jobs" {
   type        = bool
   default     = true
@@ -223,6 +229,12 @@ variable "ttm_www_hostname" {
 variable "ttm_hostname" {
   type    = string
   default = ""
+}
+
+variable "ttm_legacy_hostname" {
+  type        = string
+  default     = ""
+  description = "Ancien domaine de la plateforme, redirigé en 301 vers ttm_hostname"
 }
 
 variable "plateform_cpu_limit" {
@@ -318,10 +330,11 @@ variable "enable_typesense" {
 
 variable "typesense_nodes" {
   type = map(object({
-    zone              = string
-    private_ip        = string
-    instance_type     = string
-    typesense_version = string
+    zone                   = string
+    private_ip             = string
+    instance_type          = string
+    typesense_version      = string
+    root_volume_size_in_gb = number
   }))
   default     = {}
   description = "Typesense nodes keyed by stable node name, with one private IP per node."

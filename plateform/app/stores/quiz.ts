@@ -13,11 +13,16 @@ interface QuizStore {
   startedAttemptId?: string;
   // Dernière tentative pour laquelle quiz.completed (parcours complet) a été émis : évite le doublon après un retour arrière.
   completedAttemptId?: string;
+  // Page d'où le quiz a été lancé (ex. une landing) : cible du bouton "Retour" de la première étape.
+  backTo?: string;
+  // Scoring pour lequel l'email a été laissé sur l'étape email du quiz : masque le bandeau d'alerte des résultats.
+  emailScoringId?: string;
   setAnswer: (stepId: StepId, answer: ScreenAnswer) => void;
   setUserScoringId: (id: string) => void;
   markQuizStarted: () => void;
   markQuizCompleted: () => void;
-  reset: () => void;
+  markEmailSent: (userScoringId: string) => void;
+  reset: (backTo?: string) => void;
 }
 
 // Persisté en localStorage : en cas de refresh, les réponses sont restaurées
@@ -39,9 +44,10 @@ export const useQuizStore = create<QuizStore>()(
       // quizAttemptId → la nouvelle tentative ne correspondra plus à startedAttemptId et réémettra.
       markQuizStarted: () => set((s) => ({ startedAttemptId: s.quizAttemptId })),
       markQuizCompleted: () => set((s) => ({ completedAttemptId: s.quizAttemptId })),
+      markEmailSent: (userScoringId) => set({ emailScoringId: userScoringId }),
       // reset démarre une nouvelle tentative : efface réponses et scoring, conserve distinctId,
       // et regénère quizAttemptId + quizStartedAt.
-      reset: () => set({ answers: {}, userScoringId: undefined, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
+      reset: (backTo) => set({ answers: {}, userScoringId: undefined, backTo, quizAttemptId: crypto.randomUUID(), quizStartedAt: Date.now() }),
     }),
     {
       name: "quiz-answers",

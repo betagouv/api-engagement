@@ -25,6 +25,9 @@ export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
 export const MFA_ENABLED = process.env.MFA_ENABLED !== "false";
 
+// La liste v2 est active par défaut ; false rétablit l'alias de lecture vers v0.
+export const MISSION_V2_LIST_ENABLED = process.env.MISSION_V2_LIST_ENABLED !== "false";
+
 export const APP_URL = process.env.APP_URL || "http://localhost:3000";
 export const API_URL = process.env.API_URL || "http://localhost:4000";
 export const PLATEFORM_URL = process.env.PLATEFORM_URL || "http://localhost:3005";

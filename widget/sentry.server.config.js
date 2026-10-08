@@ -17,5 +17,14 @@ if (SENTRY_DSN) {
 
     // Setting this option to true will print useful information to the console while you're setting up Sentry.
     debug: false,
+
+    beforeSend(event, hint) {
+      // Ignore requests closed by the client before the end of the response - not actionable
+      const error = hint.originalException;
+      if (error?.message === "aborted" && error?.code === "ECONNRESET") {
+        return null;
+      }
+      return event;
+    },
   });
 }

@@ -47,30 +47,36 @@ enable_typesense      = true
 enable_public_gateway = true
 enable_mfa            = true
 
+enable_mission_v2_list = false
+
 enable_plateform = true
 ttm_hostname     = "trouvetamission.gouv.fr"
 ttm_www_hostname = "www.trouvetamission.gouv.fr"
+ttm_legacy_hostname = "plateforme.api-engagement.beta.gouv.fr"
 
 private_network_cidr = "10.40.0.0/22"
 
 typesense_load_balancer_private_ip = "10.40.2.10"
 typesense_nodes = {
   node-1 = {
-    zone              = "fr-par-1"
-    private_ip        = "10.40.2.11"
-    instance_type     = "PLAY2-PICO"
-    typesense_version = "30.2"
+    zone                   = "fr-par-1"
+    private_ip             = "10.40.2.11"
+    instance_type          = "PLAY2-PICO"
+    typesense_version      = "30.2"
+    root_volume_size_in_gb = 20
   },
   node-2 = {
-    zone              = "fr-par-2"
-    private_ip        = "10.40.2.12"
-    instance_type     = "PLAY2-PICO"
-    typesense_version = "30.2"
+    zone                   = "fr-par-2"
+    private_ip             = "10.40.2.12"
+    instance_type          = "PLAY2-PICO"
+    typesense_version      = "30.2"
+    root_volume_size_in_gb = 20
   },
   node-3 = {
-    zone              = "fr-par-2"
-    private_ip        = "10.40.2.13"
-    instance_type     = "PLAY2-PICO"
-    typesense_version = "30.2"
+    zone                   = "fr-par-2"
+    private_ip             = "10.40.2.13"
+    instance_type          = "PLAY2-PICO"
+    typesense_version      = "30.2"
+    root_volume_size_in_gb = 20
   }
 }

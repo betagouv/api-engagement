@@ -1,4 +1,5 @@
 import HeroWebp from "~/assets/images/landings/chacun-pour-tous/hero.webp";
+import LogoPng from "~/assets/images/logo/chacun-pour-tous.png";
 import BadgeSvg from "~/assets/svg/chacun-pour-tous/badge.svg";
 import CarteSvg from "~/assets/svg/chacun-pour-tous/carte.svg";
 import CasqueTraitsSvg from "~/assets/svg/chacun-pour-tous/casque-traits.svg";
@@ -6,7 +7,6 @@ import CasqueSvg from "~/assets/svg/chacun-pour-tous/casque.svg";
 import CurseurTraitsSvg from "~/assets/svg/chacun-pour-tous/curseur-traits.svg";
 import CurseurSvg from "~/assets/svg/chacun-pour-tous/curseur.svg";
 import GiletSvg from "~/assets/svg/chacun-pour-tous/gilet.svg";
-import LogoSvg from "~/assets/svg/chacun-pour-tous/logo.svg";
 import SymboleSvg from "~/assets/svg/chacun-pour-tous/symbole.svg";
 
 // Visuel du hero recomposé depuis la maquette (photo détourée, logo de la campagne et pictos dessinés),
@@ -18,7 +18,7 @@ export default function HeroVisual() {
     <div aria-hidden="true" className="relative -mt-6 aspect-390/309 w-full md:absolute md:right-0 md:bottom-0 md:mt-0 md:aspect-1052/759 md:w-[64%] lg:w-[73%]">
       <img src={SymboleSvg} alt="" className="absolute top-0 left-[40.3%] w-[58%] md:top-[31.4%] md:left-[60.2%] md:w-[39%]" />
       <img src={HeroWebp} alt="" className="absolute top-[30.4%] left-[3.6%] h-[69.6%] w-[93.3%] object-cover object-top md:top-[34.9%] md:left-[14.4%] md:h-auto md:w-[79.6%]" />
-      <img src={LogoSvg} alt="" className="absolute top-[12.5%] left-[9.8%] w-[44%] md:top-[13%] md:left-[66.1%] md:w-[21.9%]" />
+      <img src={LogoPng} alt="" className="absolute top-[7.6%] left-[5.9%] w-[51.8%] md:top-[10.3%] md:left-[64.2%] md:w-[25.8%]" />
 
       {/* Pictos casque, carte, gilet et badge : groupe de 330×228 dans la maquette desktop. */}
       <div className="absolute top-[14.2%] left-[65.4%] aspect-330/228 w-[36%] md:top-[32%] md:left-[72.1%] md:w-[31.4%]">
