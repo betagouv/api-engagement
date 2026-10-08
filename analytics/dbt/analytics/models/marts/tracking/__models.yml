@@ -428,8 +428,9 @@ models:
         description: Id de la campagne API (jointure back-office). Null hors type `api`.
       - name: utm_source
         description: >
-          UTM de référence de la campagne (pas ceux des sessions). Null hors campagne ou si le lien tracké
-          n'en porte pas. Idem `utm_medium`, `utm_campaign`.
+          UTM de référence de la campagne (pas ceux des sessions) : tracker du back-office pour une
+          campagne API (URL de la campagne en repli). Null hors campagne ou si la campagne API n'en
+          déclare pas. Idem `utm_medium`, `utm_campaign`.
       - name: origin_clicks
         description: >
           Clics comptés par la plateforme d'origine, hors PostHog : redirections `/r/campaign/` pour les

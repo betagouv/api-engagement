@@ -104,9 +104,17 @@ agg as (
     min(event_at) as landing_at,
     max(event_at) as last_event_at,
     count(*) as event_count,
-    max(
-      substring(current_url from 'apiengagement_id=([0-9a-fA-F-]{36})')
-    ) as landing_click_id,
+    -- Clic de campagne du PREMIER événement qui en porte un, comme les UTM :
+    -- une session peut enchaîner deux liens trackés à moins de 30 min
+    -- d'intervalle, `max()` en prenait un au hasard.
+    (
+      array_agg(
+        substring(current_url from 'apiengagement_id=([0-9a-fA-F-]{36})')
+        order by event_at, event_uuid
+      ) filter (
+        where current_url ~ 'apiengagement_id=[0-9a-fA-F-]{36}'
+      )
+    )[1] as landing_click_id,
     max(gclid) as gclid,
     max(fbclid) as fbclid,
     bool_and(is_cookieless_mode) as is_cookieless,
