@@ -49,6 +49,13 @@ describe("buildMissionContentHtml", () => {
     expect(html).toContain("Paris &lt;centre&gt;");
   });
 
+  it("tronque les tags trop longs pour ne pas élargir la carte", () => {
+    const html = buildMissionContentHtml([mission({ tags: ["Environ 50 jours par an. Contrat de 1 à 5 ans, renouvelable.", "Mercredi après-midi. 60 jours/an."] })]);
+
+    expect(html).toContain(">Environ 50 jours par an. Contrat d…</span>");
+    expect(html).toContain(">Mercredi après-midi. 60 jours/an.</span>");
+  });
+
   it("affiche les missions en grille de 2 cartes par ligne", () => {
     const html = buildMissionContentHtml([mission({ id: "1" }), mission({ id: "2" }), mission({ id: "3" })]);
 

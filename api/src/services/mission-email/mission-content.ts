@@ -50,6 +50,7 @@ type CardStyle = {
   titleFontSize: number;
   titleLineHeight: number;
   tagFontSize: number;
+  tagMaxLength: number;
   publisherFontSize: number;
   withDetailsLink: boolean;
   maxWidth?: number;
@@ -64,6 +65,7 @@ const GRID_CARD_STYLE: CardStyle = {
   titleFontSize: 16,
   titleLineHeight: 24,
   tagFontSize: 12,
+  tagMaxLength: 35,
   publisherFontSize: 14,
   withDetailsLink: true,
   maxWidth: 385,
@@ -78,6 +80,7 @@ const SAVED_CARD_STYLE: CardStyle = {
   titleFontSize: 22,
   titleLineHeight: 30,
   tagFontSize: 14,
+  tagMaxLength: 70,
   publisherFontSize: 16,
   withDetailsLink: false,
 };
@@ -112,12 +115,15 @@ const buildTitleRow = (mission: MissionContent, style: CardStyle) => `
   </tr>`;
 
 // Tags limités à 2 rangées dans la grille (max-h-14 sur la plateforme) : hauteur fixe, le surplus est masqué.
-// Un tag trop long est tronqué à la largeur de la carte plutôt que de l'élargir.
+// Un tag trop long est tronqué en amont : les clients mail ignorent max-width / text-overflow et la carte
+// s'élargirait au texte `nowrap` du tag, débordant sur sa voisine.
+const truncateTag = (tag: string, maxLength: number) => (tag.length > maxLength ? `${tag.slice(0, maxLength - 1).trimEnd()}…` : tag);
+
 const buildTagsRow = (mission: MissionContent, style: CardStyle) => {
   const tags = mission.tags
     .map(
       (tag) =>
-        `<span style="display: inline-block; box-sizing: border-box; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: top; background: #eeeeee; color: #161616; border-radius: 999px; padding: 2px 10px; margin: 0 4px 8px 0; font-family: ${FONT_FAMILY}; font-size: ${style.tagFontSize}px; line-height: ${style.tagFontSize + 4}px; white-space: nowrap;">${escapeBrevoHtml(tag)}</span>`
+        `<span style="display: inline-block; box-sizing: border-box; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: top; background: #eeeeee; color: #161616; border-radius: 999px; padding: 2px 10px; margin: 0 4px 8px 0; font-family: ${FONT_FAMILY}; font-size: ${style.tagFontSize}px; line-height: ${style.tagFontSize + 4}px; white-space: nowrap;">${escapeBrevoHtml(truncateTag(tag, style.tagMaxLength))}</span>`
     )
     .join("");
   return `
