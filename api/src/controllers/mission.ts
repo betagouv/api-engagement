@@ -465,7 +465,9 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       patch.applicationUrl = applicationUrl || null;
     }
     if (rest.description !== undefined) {
-      Object.assign(patch, normalizeMissionDescriptionInput(rest.description));
+      const { description, descriptionHtml } = normalizeMissionDescriptionInput(rest.description);
+      patch.description = description;
+      patch.descriptionHtml = descriptionHtml;
     }
 
     // Même règle que la v2 : modération recalculée sur l'état fusionné (une mission devenue invalide ne reste pas diffusée)
