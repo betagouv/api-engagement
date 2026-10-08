@@ -390,11 +390,24 @@ router.post("/:id/scoring", passport.authenticate("admin", { session: false }), 
   }
 });
 
+// Les flux acceptent des URL sans schéma (ex. "www.example.org") : on préfixe en https avant de valider
+const applicationUrlSchema = zod.preprocess(
+  (value) => (typeof value === "string" && value.trim() && !/^[a-z][a-z\d+.-]*:/i.test(value.trim()) ? `https://${value.trim()}` : value),
+  zod.union([
+    zod
+      .string()
+      .trim()
+      .url()
+      .regex(/^https?:/i),
+    zod.literal(""),
+  ])
+);
+
 const updateSchema = zod
   .object({
     title: zod.string().trim().min(1),
     description: zod.string().trim().min(1),
-    applicationUrl: zod.union([zod.string().trim().url(), zod.literal("")]),
+    applicationUrl: applicationUrlSchema,
     softSkills: zod.array(zod.string().trim().min(1)),
     activities: zod.array(zod.string().trim().min(1)),
     startAt: zod.coerce.date().nullable(),

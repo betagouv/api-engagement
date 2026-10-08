@@ -13,7 +13,7 @@ const toDateInput = (date) => (date ? new Date(date).toISOString().slice(0, 10) 
 
 const splitList = (value) =>
   value
-    .split(",")
+    .split("\n")
     .map((item) => item.trim())
     .filter(Boolean);
 
@@ -22,8 +22,8 @@ const toDraft = (mission) => ({
   description: mission.description ?? "",
   domainLogo: mission.domainLogo ?? "",
   applicationUrl: mission.applicationUrl ?? "",
-  activities: (mission.activities ?? []).join(", "),
-  softSkills: (mission.softSkills ?? []).join(", "),
+  activities: (mission.activities ?? []).join("\n"),
+  softSkills: (mission.softSkills ?? []).join("\n"),
   startAt: toDateInput(mission.startAt),
   endAt: toDateInput(mission.endAt),
 });
@@ -125,21 +125,22 @@ const Edit = () => {
         <LabelledInput
           id="mission-application-url"
           label="Lien vers la mission"
-          type="url"
           value={draft.applicationUrl}
           onChange={(e) => setDraft({ ...draft, applicationUrl: e.target.value })}
         />
-        <LabelledInput
+        <LabelledTextarea
           id="mission-activities"
           label="Activités"
-          hint="Séparées par des virgules"
+          hint="Une par ligne"
+          rows={4}
           value={draft.activities}
           onChange={(e) => setDraft({ ...draft, activities: e.target.value })}
         />
-        <LabelledInput
+        <LabelledTextarea
           id="mission-soft-skills"
           label="Compétences"
-          hint="Séparées par des virgules"
+          hint="Une par ligne"
+          rows={4}
           value={draft.softSkills}
           onChange={(e) => setDraft({ ...draft, softSkills: e.target.value })}
         />
