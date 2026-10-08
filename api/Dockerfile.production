@@ -24,7 +24,7 @@ RUN npm run build
 # Run
 FROM node:24-bookworm-slim
 
-RUN apt-get update -y && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -y && apt-get install -y --no-install-recommends openssl openssh-client && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
@@ -44,10 +44,12 @@ COPY --from=builder /workspace/api/src/db ./dist/db
 COPY --from=builder /workspace/api/src/static ./dist/static
 COPY --from=builder /workspace/api/prisma ./prisma
 COPY api/docker-entrypoint.sh /workspace/api/docker-entrypoint.sh
-RUN chmod +x /workspace/api/docker-entrypoint.sh && chown node:node /workspace/api
+COPY tools/scripts/ssh-tunnel-entrypoint.sh /workspace/tools/scripts/ssh-tunnel-entrypoint.sh
+RUN chmod +x /workspace/api/docker-entrypoint.sh /workspace/tools/scripts/ssh-tunnel-entrypoint.sh && chown node:node /workspace/api
 
 USER node
 
 EXPOSE 8080
 
+ENTRYPOINT ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
 CMD ["/workspace/api/docker-entrypoint.sh"]

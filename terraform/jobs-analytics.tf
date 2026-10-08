@@ -1,5 +1,5 @@
 locals {
-  common_analytics_env_vars = {
+  common_analytics_env_vars = merge({
     "ENV"                    = var.env
     "DATABASE_URL_CORE"      = local.secrets.DATABASE_URL_CORE
     "DATABASE_URL_ANALYTICS" = lookup(local.secrets, "DATABASE_URL_ANALYTICS", "")
@@ -12,7 +12,7 @@ locals {
     "POSTHOG_HOST"           = lookup(local.secrets, "POSTHOG_HOST", "")
     "POSTHOG_PROJECT_ID"     = lookup(local.secrets, "POSTHOG_PROJECT_ID", "")
     "POSTHOG_API_KEY"        = lookup(local.secrets, "POSTHOG_API_KEY", "")
-  }
+  }, local.ssh_tunnel_env_vars)
 
   image_analytics_uri = "ghcr.io/${var.github_repository}/analytics:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
 }

@@ -22,7 +22,7 @@ WORKDIR /workspace
 
 ENV NODE_ENV=production
 
-RUN apk add --no-cache python3 py3-pip
+RUN apk add --no-cache python3 py3-pip openssh-client
 COPY analytics/dbt/analytics/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --break-system-packages -r ./requirements.txt
 
@@ -39,8 +39,10 @@ COPY --from=builder --chown=node:node /workspace/analytics/dbt ./dbt
 COPY --from=builder /workspace/analytics/scripts ./scripts
 
 COPY analytics/docker-entrypoint.sh ./docker-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh
+COPY tools/scripts/ssh-tunnel-entrypoint.sh /workspace/tools/scripts/ssh-tunnel-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh /workspace/tools/scripts/ssh-tunnel-entrypoint.sh
 
 USER node
 
-ENTRYPOINT ["/workspace/analytics/docker-entrypoint.sh"]
+ENTRYPOINT ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+CMD ["/workspace/analytics/docker-entrypoint.sh"]

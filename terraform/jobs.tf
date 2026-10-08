@@ -30,7 +30,8 @@ locals {
   all_env_vars = merge(
     local.common_env_vars,
     tomap(local.secrets),
-    local.async_task_env_vars
+    local.async_task_env_vars,
+    local.ssh_tunnel_env_vars
   )
 
   image_uri = "ghcr.io/${var.github_repository}/api:${var.env}${var.image_tag == "latest" ? "" : "-${var.image_tag}"}"
@@ -46,8 +47,8 @@ locals {
 #   local_storage_capacity = 1024
 #   image_uri    = local.image_uri
 #   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-#   startup_command = ["node"]
-#   args            = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "letudiant"]
+#   startup_command = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+#   args            = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "letudiant"]
 #   timeout      = "45m"
 #
 #   cron {
@@ -68,8 +69,8 @@ resource "scaleway_job_definition" "talent" {
   local_storage_capacity = 1024
   image_uri              = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  startup_command = ["node"]
-  args            = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "talent"]
+  startup_command = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args            = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "talent"]
   timeout         = "45m"
 
   cron {
@@ -90,8 +91,8 @@ resource "scaleway_job_definition" "grimpio" {
   local_storage_capacity = 1024
   image_uri              = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  startup_command = ["node"]
-  args            = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "grimpio"]
+  startup_command = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args            = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "grimpio"]
   timeout         = "45m"
 
   cron {
@@ -114,8 +115,8 @@ resource "scaleway_job_definition" "linkedin" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "linkedin"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "linkedin"]
   timeout                = "30m"
 
   cron {
@@ -135,8 +136,8 @@ resource "scaleway_job_definition" "import-organizations" {
   memory_limit           = 4096
   local_storage_capacity = 2048
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "import-organizations"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "import-organizations"]
   timeout                = "45m"
 
   cron {
@@ -156,8 +157,8 @@ resource "scaleway_job_definition" "warnings" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "warnings"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "warnings"]
   timeout                = "15m"
 
   cron {
@@ -177,8 +178,8 @@ resource "scaleway_job_definition" "linkedin-stats" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "linkedin-stats"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "linkedin-stats"]
   timeout                = "15m"
 
   cron {
@@ -198,8 +199,8 @@ resource "scaleway_job_definition" "leboncoin_alerts" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "leboncoin-alerts"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "leboncoin-alerts"]
   timeout                = "15m"
 
   cron {
@@ -219,8 +220,8 @@ resource "scaleway_job_definition" "leboncoin" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["--max-old-space-size=1800", "dist/jobs/run-job.js", "leboncoin"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "leboncoin"]
   timeout                = "45m"
 
   cron {
@@ -240,8 +241,8 @@ resource "scaleway_job_definition" "brevo" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "brevo"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "brevo"]
   timeout                = "15m"
 
   cron {
@@ -261,8 +262,8 @@ resource "scaleway_job_definition" "demarches-simplifiees-apply-import" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "demarches-simplifiees-apply-import"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "demarches-simplifiees-apply-import"]
   timeout                = "15m"
 
   cron {
@@ -282,8 +283,8 @@ resource "scaleway_job_definition" "moderation" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "moderation"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "moderation"]
   timeout                = "15m"
 
   cron {
@@ -303,8 +304,8 @@ resource "scaleway_job_definition" "enrich-missions-geoloc" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "enrich-missions-geoloc"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "enrich-missions-geoloc"]
   timeout                = "30m"
 
   cron {
@@ -324,8 +325,8 @@ resource "scaleway_job_definition" "import-missions" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "import-missions"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "import-missions"]
   timeout                = "60m"
 
   cron {
@@ -345,8 +346,8 @@ resource "scaleway_job_definition" "mission-diffusion-rebuild" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "mission-diffusion-rebuild"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "mission-diffusion-rebuild"]
   timeout                = "60m"
 
   cron {
@@ -367,8 +368,8 @@ resource "scaleway_job_definition" "update-mission-enrichment" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "update-mission-enrichment"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "update-mission-enrichment"]
   timeout                = "24h"
 
   env = local.all_env_vars
@@ -382,8 +383,8 @@ resource "scaleway_job_definition" "update-mission-scoring" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "update-mission-scoring"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "update-mission-scoring"]
   timeout                = "24h"
 
   env = local.all_env_vars
@@ -397,8 +398,8 @@ resource "scaleway_job_definition" "update-mission-index" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "update-mission-index"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "update-mission-index"]
   timeout                = "24h"
 
   env = local.all_env_vars
@@ -413,8 +414,8 @@ resource "scaleway_job_definition" "process-dead-letter-queues" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "process-dead-letter-queues"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "process-dead-letter-queues"]
   timeout                = "30m"
 
   # SQS credential overload: the job must be able to read from the DLQ (receive) AND republish (publish)
@@ -433,8 +434,8 @@ resource "scaleway_job_definition" "verify-publisher-organization" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "verify-publisher-organization"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "verify-publisher-organization"]
   timeout                = "60m"
 
   cron {
@@ -453,8 +454,8 @@ resource "scaleway_job_definition" "rdb-backup" {
   memory_limit           = 512
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "rdb-backup"]
+  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "rdb-backup"]
   timeout                = "10m"
 
   cron {
