@@ -124,8 +124,9 @@ const main = async () => {
   app.use("/v0/view", corsPublic, ViewV0Controller);
   app.use("/v0/organization", OrganizationV0Controller);
   app.use("/v0/diffusion-rule", corsPublic, DiffusionRuleV0Controller);
-  app.use("/v2/mission", corsPublic, MissionV2Controller);
+  // Conserver les lectures v0 sous /v2/mission ; remettre v2 en premier après communication aux partenaires.
   app.use("/v2/mission", corsPublic, MissionV0Controller);
+  app.use("/v2/mission", corsPublic, MissionV2Controller);
   app.use("/v2/activity", corsPublic, ActivityV2Controller);
   app.use("/v2/leboncoin", corsPublic, LeboncoinV2Controller);
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
