@@ -11,6 +11,7 @@ import useStore from "@/services/store";
 import { timeSince } from "@/utils/date";
 
 const MAX_EVENTS = 25;
+const PAGE_SIZE = 10;
 
 const RealTime = () => {
   const { publisher, flux } = useStore();
@@ -31,6 +32,7 @@ const RealTime = () => {
   );
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   const titleSuffix = useMemo(
     () => ({ apply: "des candidatures", click: "des redirections", print: "des impressions", account: "des créations de compte" })[type] || "des activités",
@@ -95,6 +97,7 @@ const RealTime = () => {
 
         if (!res.ok) throw res;
         setEvents((res.data || []).slice(0, MAX_EVENTS));
+        setPage(1);
         setSearchParams({ ...(type ? { type } : {}), ...(sourceId ? { sourceId, sourceType } : {}) });
       } catch (error) {
         captureError(error, { extra: { publisherId: publisher.id, type } });
@@ -140,10 +143,13 @@ const RealTime = () => {
           caption={`Événements en temps réel${type === "print" ? " — Impressions" : type === "click" ? " — Redirections" : type === "apply" ? " — Candidatures" : type === "account" ? " — Créations de compte" : ""}`}
           header={tableHeader}
           total={events.length}
+          page={page}
+          onPageChange={setPage}
+          pageSize={PAGE_SIZE}
           loading={loading}
           auto
         >
-          {events.map((item, i) => {
+          {events.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => {
             const entries = getCustomAttributesEntries(item.customAttributes);
             const hasClientEventId = Boolean(item.clientEventId);
             const tooltipId = entries.length || hasClientEventId ? `custom-attributes-${item.id || i}` : null;
