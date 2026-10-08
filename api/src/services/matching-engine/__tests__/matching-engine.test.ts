@@ -675,7 +675,7 @@ describe("matchingEngineService", () => {
       expect(rankingSql).not.toContain("forced_remote_candidates");
     });
 
-    it("uses the mobility radius as a linear geo score cutoff", async () => {
+    it("uses the mobility radius as a reference for continuous geo score decay", async () => {
       prismaMock.$queryRaw.mockResolvedValueOnce([]);
       missionMatchingResultRepositoryMock.createForUserScoringVersion.mockResolvedValue({
         id: "mission-matching-result-radius",
@@ -687,8 +687,8 @@ describe("matchingEngineService", () => {
 
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(rankingSql).toContain('COALESCE(NULLIF(ug."radius_km", 0), CAST(');
-      expect(rankingSql).toContain('WHEN gs."distance_km" >= COALESCE(');
-      expect(rankingSql).toContain('1.0 - (gs."distance_km" / COALESCE(');
+      expect(rankingSql).toContain('1.0 / (1.0 + gs."distance_km" / COALESCE(');
+      expect(rankingSql).not.toContain('WHEN gs."distance_km" >= COALESCE(');
     });
 
     it("returns a geo score of 1 for a remote=full mission ranked with m3", async () => {

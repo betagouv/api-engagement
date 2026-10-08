@@ -160,8 +160,9 @@ const createRankableMission = async () => {
   });
 };
 
-const createRankableMissionAtDistance = async (distanceKm: number) => {
+const createRankableMissionAtDistance = async (distanceKm: number, options: { id?: string; dispositif?: string } = {}) => {
   const mission = await createTestMission({
+    id: options.id,
     publisherId,
     title: `Mission à ${distanceKm} km`,
     domain: "solidarite",
@@ -183,7 +184,10 @@ const createRankableMissionAtDistance = async (distanceKm: number) => {
   await createTestMissionScoring({
     missionId: mission.id,
     missionEnrichmentId: enrichment.id,
-    values: [{ taxonomyKey: "domaine", valueKey: "social_solidarite", score: 1 }],
+    values: [
+      { taxonomyKey: "domaine", valueKey: "social_solidarite", score: 1 },
+      ...(options.dispositif ? [{ taxonomyKey: "dispositif" as const, valueKey: options.dispositif, score: 1 }] : []),
+    ],
   });
   return mission;
 };
@@ -258,7 +262,8 @@ describe("GET /missions/match", () => {
     const initialScore = (item: (typeof result.items)[number]) => (item.geoScore === null ? item.taxonomyScore : (item.taxonomyScore + item.geoScore) / 2);
     const assertScoreFactor = (missionId: string, factor: number) => {
       const item = result.items.find((item) => item.missionId === missionId)!;
-      expect(item.totalScore).toBeCloseTo(initialScore(item) * factor, 8);
+      // Les composantes et le score final sont arrondis séparément à six décimales.
+      expect(item.totalScore).toBeCloseTo(initialScore(item) * factor, 5);
     };
     tiedCandidates.forEach((id, index) => assertScoreFactor(id, [1, 0.8, 0.6, 0.4, 0.4][index]));
     assertScoreFactor(lessRelevant, 0.4);
@@ -478,8 +483,9 @@ describe("GET /missions/match", () => {
     expect(item.match.geoScore).toBe(1);
   });
 
-  it("sets the geo score to zero outside the mobility radius", async () => {
+  it("keeps a decreasing positive geo score inside and outside the mobility radius", async () => {
     const nearbyMission = await createRankableMissionAtDistance(5);
+    const boundaryMission = await createRankableMissionAtDistance(10);
     const outsideMission = await createRankableMissionAtDistance(15);
     const userScoringId = await createGeoUserScoring(10);
 
@@ -490,9 +496,11 @@ describe("GET /missions/match", () => {
 
     expect(response.status).toBe(200);
     const nearbyItem = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === nearbyMission.id);
+    const boundaryItem = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === boundaryMission.id);
     const outsideItem = response.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === outsideMission.id);
-    expect(nearbyItem.match.geoScore).toBeCloseTo(0.5, 2);
-    expect(outsideItem.match.geoScore).toBe(0);
+    expect(nearbyItem.match.geoScore).toBeCloseTo(2 / 3, 5);
+    expect(boundaryItem.match.geoScore).toBeCloseTo(0.5, 5);
+    expect(outsideItem.match.geoScore).toBeCloseTo(0.4, 5);
 
     const defaultRadiusUserScoringId = await createGeoUserScoring();
     const defaultRadiusResponse = await withApiKey(request(app).get("/missions/match")).query({
@@ -500,7 +508,25 @@ describe("GET /missions/match", () => {
       engineVersion: "m3",
     });
     const defaultRadiusItem = defaultRadiusResponse.body.data.items.find((entry: { mission: { id: string } }) => entry.mission.id === outsideMission.id);
-    expect(defaultRadiusItem.match.geoScore).toBeCloseTo(0.25, 2);
+    expect(defaultRadiusResponse.status).toBe(200);
+    expect(defaultRadiusItem.match.geoScore).toBeCloseTo(4 / 7, 5);
+  });
+
+  it.each(["m3", "m6"] as const)("ranks the closest SDIS first beyond the mobility radius with equal taxonomy scores (%s)", async (engineVersion) => {
+    // L'identifiant favoriserait la mission lointaine si les scores géographiques étaient nuls.
+    const farMission = await createRankableMissionAtDistance(500, { id: "a-sdis-far", dispositif: "sapeurs_pompiers" });
+    const closerMission = await createRankableMissionAtDistance(50, { id: "z-sdis-closer", dispositif: "sapeurs_pompiers" });
+    const userScoringId = await createGeoUserScoring(20);
+
+    const response = await withApiKey(request(app).get("/missions/match")).query({ userScoringId, engineVersion });
+
+    expect(response.status).toBe(200);
+    const items = response.body.data.items;
+    expect(items.map((entry: { mission: { id: string } }) => entry.mission.id)).toEqual([closerMission.id, farMission.id]);
+    expect(items[0].match.taxonomyScore).toBe(items[1].match.taxonomyScore);
+    expect(items[0].match.geoScore).toBeCloseTo(2 / 7, 5);
+    expect(items[1].match.geoScore).toBeCloseTo(1 / 26, 5);
+    expect(items[0].match.totalScore).toBeGreaterThan(items[1].match.totalScore);
   });
 
   it("does not surface the same full-remote mission under m2 (candidate pool gap it fixes)", async () => {
