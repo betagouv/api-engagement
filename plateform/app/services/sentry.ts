@@ -87,6 +87,6 @@ export const handleRouterError: ClientOnErrorFunction = (error, { pattern, error
   };
 
   // captureException journalise déjà les erreurs en développement.
-  if (ENV !== "development") console.error(reportedError, extra);
+  if (ENV !== "development") console.error("[Sentry] Router error", reportedError, extra);
   captureException(reportedError, extra);
 };
