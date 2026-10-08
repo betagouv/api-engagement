@@ -1,5 +1,5 @@
 import type { MissionMatchItem, MissionMatchUserLocation, MissionMatchUserValue } from "@engagement/dto";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { fetchInitialMatches, paginateMatchingResults, RESULTS_PAGE_SIZE } from "~/services/matching";
 
@@ -86,7 +86,8 @@ export function useMissionResults(userScoringId: string | undefined) {
     };
   }, [userScoringId, debug]);
 
-  const { items, page, totalPages, totalResults } = paginateMatchingResults(allItems, requestedPage);
+  // Mémoïsé : `items` doit garder une identité stable entre deux rendus (ex. survol d'un pin), sinon la map se recadre.
+  const { items, page, totalPages, totalResults } = useMemo(() => paginateMatchingResults(allItems, requestedPage), [allItems, requestedPage]);
 
   return {
     items,
