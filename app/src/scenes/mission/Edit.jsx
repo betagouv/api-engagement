@@ -33,6 +33,7 @@ const Edit = () => {
   const navigate = useNavigate();
   const { user } = useStore();
   const [title, setTitle] = useState("");
+  const [initialDraft, setInitialDraft] = useState(null);
   const [draft, setDraft] = useState(null);
   const [saving, setSaving] = useState(false);
   const viewPath = `/${publisherId}/mission/${id}`;
@@ -44,6 +45,7 @@ const Edit = () => {
         const res = await api.get(`/mission/${id}`);
         if (!res.ok) throw res;
         setTitle(res.data.title);
+        setInitialDraft(toDraft(res.data));
         setDraft(toDraft(res.data));
       } catch (error) {
         captureError(error, { extra: { id } });
@@ -72,7 +74,8 @@ const Edit = () => {
     try {
       const res = await api.put(`/mission/${id}`, {
         title: draft.title,
-        description: draft.description,
+        // Non envoyée si inchangée : l'API écraserait sinon le HTML d'origine par le texte aplati
+        ...(draft.description !== initialDraft.description && { description: draft.description }),
         applicationUrl: draft.applicationUrl,
         activities: splitList(draft.activities),
         softSkills: splitList(draft.softSkills),
