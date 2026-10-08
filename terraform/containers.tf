@@ -188,6 +188,7 @@ resource "scaleway_container" "plateform" {
   environment_variables = {
     "PLATEFORM_HOSTNAME" = var.ttm_hostname
     "SERVER_API_URL"     = "https://${var.api_hostname}"
+    "ENV"                = var.env
   }
 
   secret_environment_variables = {
