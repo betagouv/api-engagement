@@ -174,6 +174,12 @@ variable "enable_mfa" {
   description = "Enable email OTP MFA on back-office login (disabled on dev/sandbox)"
 }
 
+variable "enable_mission_v2_list" {
+  type        = bool
+  default     = true
+  description = "Activer la liste v2 des missions ; false rétablit l'alias de lecture vers v0"
+}
+
 variable "enable_intern_jobs" {
   type        = bool
   default     = true

@@ -56,6 +56,8 @@ resource "scaleway_container" "api" {
     # MFA OTP email sur le login back-office (désactivé sandbox, cf. envs/*.tfvars)
     "MFA_ENABLED" = var.enable_mfa ? "true" : "false"
 
+    "MISSION_V2_LIST_ENABLED" = var.enable_mission_v2_list ? "true" : "false"
+
     "SCW_QUEUE_ENDPOINT"                = var.enable_async_tasks ? "https://sqs.mnq.fr-par.scaleway.com" : ""
     "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = var.enable_async_tasks ? module.async_task_queues["mission_enrichment"].url : ""
     "SCW_QUEUE_URL_MISSION_SCORING"     = var.enable_async_tasks ? module.async_task_queues["mission_scoring"].url : ""
