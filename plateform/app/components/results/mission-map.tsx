@@ -50,7 +50,7 @@ function BoundsFitter({ positions }: { positions: [number, number][] }) {
   useEffect(() => {
     if (positions.length === 0) return;
     // Sans animation : Leaflet 1.9 termine le zoom animé via un setTimeout qui plante si la map est démontée entre-temps (_leaflet_pos).
-    map.fitBounds(L.latLngBounds(positions), { padding: [64, 64], maxZoom: 13, animate: false });
+    map.fitBounds(L.latLngBounds(positions), { padding: [64, 64], maxZoom: 15, animate: false });
   }, [map, positions]);
   return null;
 }
@@ -117,7 +117,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
   const boundsPositions = useMemo<[number, number][]>(() => (missions.length > 0 ? missions.map((mission) => mission.position) : [center]), [missions, center]);
 
   const handleRecenter = () => {
-    mapRef.current?.fitBounds(L.latLngBounds(boundsPositions), { padding: [64, 64], maxZoom: 13 });
+    mapRef.current?.fitBounds(L.latLngBounds(boundsPositions), { padding: [64, 64], maxZoom: 15 });
   };
 
   const descriptionId = useId();
