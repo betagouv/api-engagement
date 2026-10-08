@@ -47,6 +47,8 @@ enable_typesense      = true
 enable_public_gateway = true
 enable_mfa            = true
 
+enable_mission_v2_list = false
+
 enable_plateform = true
 ttm_hostname     = "trouvetamission.gouv.fr"
 ttm_www_hostname = "www.trouvetamission.gouv.fr"
