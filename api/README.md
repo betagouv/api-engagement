@@ -63,6 +63,18 @@ pg_dump "$PG_STAGING_URI" | psql "$PG_LOCAL_URI"
 
 ## Mode développement
 
+### Alias de lecture des missions sur la sandbox et en production
+
+La liste `GET /v2/mission` utilise la pagination v2 par curseur par défaut.
+Définir `MISSION_V2_LIST_ENABLED=false` et redémarrer l'API rétablit l'alias vers
+`GET /v0/mission`, avec ses filtres, sa pagination `skip`/`limit` et son format de réponse.
+Les écritures v2 restent disponibles.
+
+Terraform pilote ce flag via `enable_mission_v2_list`, activé par défaut et désactivé
+dans `terraform/envs/sandbox.tfvars` et `terraform/envs/production.tfvars`.
+Pour activer la vraie liste v2 dans l'un de ces environnements, passer cette variable
+à `true` puis redéployer.
+
 ### Lancement du service API
 
 Pour démarrer le service API en mode développement avec rechargement à chaud :

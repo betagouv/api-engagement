@@ -1,9 +1,42 @@
 import request from "supertest";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { createTestMission, createTestPublisher } from "../../../fixtures";
 import { createTestApp } from "../../../testApp";
+
+vi.mock("@/config", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/config")>()),
+  MISSION_V2_LIST_ENABLED: false,
+}));
 
 describe("Routing", () => {
   const app = createTestApp();
+
+  describe("Alias de lecture v2 → v0", () => {
+    const aliasApp = createTestApp({ syncMissionDiffusion: true });
+
+    it("conserve les filtres, l'offset et le format de réponse v0", async () => {
+      const owner = await createTestPublisher();
+      const diffuseur = await createTestPublisher({ publishers: [{ publisherId: owner.id }] });
+      await createTestMission({ publisherId: owner.id, city: "Paris" });
+      await createTestMission({ publisherId: owner.id, city: "Paris" });
+      await createTestMission({ publisherId: owner.id, city: "Lyon" });
+      const query = `publisher=${owner.id}&city=Paris&skip=1&limit=1`;
+
+      const v0 = await request(aliasApp).get(`/v0/mission?${query}`).set("x-api-key", diffuseur.apikey!).expect(200);
+      const v2 = await request(aliasApp).get(`/v2/mission?${query}`).set("x-api-key", diffuseur.apikey!).expect(200);
+
+      expect(v2.body).toEqual(v0.body);
+      expect(v2.body.total).toBe(2);
+      expect(v2.body.skip).toBe(1);
+      expect(v2.body.data).toHaveLength(1);
+      expect(v2.body.data[0]).toHaveProperty("_id");
+      expect(v2.body).not.toHaveProperty("nextCursor");
+    });
+
+    it("conserve l'authentification sur l'alias", async () => {
+      await request(app).get("/v2/mission").expect(401);
+    });
+  });
 
   describe("Unknown routes", () => {
     it("should return 404 for unknown GET route", async () => {

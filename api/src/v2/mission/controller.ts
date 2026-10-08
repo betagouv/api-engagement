@@ -2,6 +2,7 @@ import { NextFunction, Response, Router } from "express";
 import { convert } from "html-to-text";
 import passport from "passport";
 
+import { MISSION_V2_LIST_ENABLED } from "@/config";
 import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { missionService } from "@/services/mission";
 import { getCachedMissionCount } from "@/services/mission-count-cache";
@@ -17,6 +18,15 @@ import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } 
 import { missionClientIdParamSchema, missionCreateSchema, missionListQuerySchema, missionUpdateSchema } from "./schema";
 
 const router = Router();
+
+// Laisser le routeur v0 monté ensuite traiter la liste quand la v2 est désactivée.
+// Les écritures v2 restent disponibles.
+router.get("/", (_req, _res, next) => {
+  if (!MISSION_V2_LIST_ENABLED) {
+    return next("router");
+  }
+  next();
+});
 
 const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
 
