@@ -1,4 +1,5 @@
 import { API_URL } from "~/services/config";
+import { getRequestId, logServerError } from "~/services/sentry.server";
 import { appendServerTiming, type ServerTimingMetric } from "~/services/server-observability";
 
 type ApiEnvelope<T = unknown> = {
@@ -10,11 +11,17 @@ type ApiEnvelope<T = unknown> = {
 };
 
 export class UpstreamApiError extends Error {
+  public readonly code?: string;
+
   constructor(
     public readonly status: number,
     public readonly body: ApiEnvelope,
+    public readonly diagnostics?: { method: string; path: string; duration_ms: number },
+    options?: ErrorOptions,
   ) {
-    super(body.code ?? body.message ?? `API error ${status}`);
+    super(body.code ?? body.message ?? `API error ${status}`, options);
+    this.name = "UpstreamApiError";
+    this.code = typeof body.code === "string" && /^[a-zA-Z][a-zA-Z0-9_]{0,63}$/.test(body.code) ? body.code : undefined;
   }
 }
 
@@ -35,26 +42,28 @@ const recordTiming = (observability: RequestObservability, name: string, started
   observability.metrics.push({ name, duration: performance.now() - startedAt });
 };
 
+function logUpstreamError(request: Request, error: UpstreamApiError) {
+  if (error.status >= 500) logServerError(request, "upstream_error", error, { status: error.status, upstream: error.diagnostics });
+}
+
 const readJsonEnvelope = async <T>(response: Response): Promise<ApiEnvelope<T>> => {
   try {
-    return (await response.json()) as ApiEnvelope<T>;
+    const json: unknown = await response.json();
+    if (json && typeof json === "object" && "ok" in json && typeof json.ok === "boolean") return json as ApiEnvelope<T>;
   } catch {
-    if (response.status === 401) {
-      return { ok: false, code: "UNAUTHORIZED", message: "Unauthorized" };
-    }
-    return { ok: false, code: "upstream_error", message: "Invalid upstream response" };
+    // Une réponse non JSON est traitée comme une enveloppe invalide.
   }
+  if (response.status === 401) return { ok: false, code: "UNAUTHORIZED", message: "Unauthorized" };
+  return { ok: false, code: "upstream_error", message: "Invalid upstream response" };
 };
 
-async function serverRequest<T>(
-  method: string,
-  path: string,
-  observability: RequestObservability,
-  body?: unknown,
-  signal?: AbortSignal,
-  clientIp?: string,
-): Promise<T> {
+async function serverRequest<T>(request: Request, method: string, path: string, observability: RequestObservability, body?: unknown): Promise<T> {
+  const { signal } = request;
+  const clientIp = request.headers.get("x-envoy-external-address");
+  const startedAt = performance.now();
+  const diagnostics = () => ({ method, path: path.split(/[?#]/, 1)[0], duration_ms: Math.round(performance.now() - startedAt) });
   const headers: Record<string, string> = {};
+  headers["x-request-id"] = getRequestId(request);
   if (apiKey) headers["x-api-key"] = apiKey;
   if (body !== undefined) headers["Content-Type"] = "application/json";
   // Forwarde l'IP réelle du navigateur (X-Envoy-External-Address injecté par Scaleway,
@@ -71,9 +80,11 @@ async function serverRequest<T>(
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal,
     });
-  } catch {
+  } catch (cause) {
     recordTiming(observability, "upstream", upstreamStartedAt);
-    throw new UpstreamApiError(502, { ok: false, code: "upstream_error", message: "Upstream API unavailable" });
+    const error = new UpstreamApiError(502, { ok: false, code: "upstream_error", message: "Upstream API unavailable" }, diagnostics(), { cause });
+    logUpstreamError(request, error);
+    throw error;
   }
 
   recordTiming(observability, "upstream-ttfb", upstreamStartedAt);
@@ -89,17 +100,21 @@ async function serverRequest<T>(
   recordTiming(observability, "upstream-body", bodyStartedAt);
   recordTiming(observability, "upstream", upstreamStartedAt);
   if (!response.ok || !json.ok) {
-    throw new UpstreamApiError(response.status, json);
+    // Une enveloppe en échec sous HTTP 2xx est une erreur de protocole upstream.
+    const error = new UpstreamApiError(response.ok ? 502 : response.status, json, diagnostics());
+    logUpstreamError(request, error);
+    throw error;
   }
   return json.data as T;
 }
 
-const jsonResponse = (body: unknown, init: JsonResponseInit = {}, observability?: RequestObservability) => {
+const jsonResponse = (body: unknown, init: JsonResponseInit = {}, observability?: RequestObservability, request?: Request) => {
   const serializeStartedAt = performance.now();
   const serializedBody = JSON.stringify(body);
 
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json; charset=utf-8");
+  if (request) headers.set("x-request-id", getRequestId(request));
 
   if (observability) {
     recordTiming(observability, "serialize", serializeStartedAt);
@@ -109,11 +124,18 @@ const jsonResponse = (body: unknown, init: JsonResponseInit = {}, observability?
   return new Response(serializedBody, { ...init, headers });
 };
 
-export const upstreamErrorResponse = (error: unknown, observability?: RequestObservability) => {
-  if (error instanceof UpstreamApiError) {
-    return jsonResponse(error.body, { status: error.status }, observability);
+export const upstreamErrorResponse = (error: unknown, request: Request, observability?: RequestObservability) => {
+  const status = error instanceof UpstreamApiError ? error.status : 502;
+  if (status >= 500) {
+    logServerError(request, error instanceof UpstreamApiError ? "upstream_error" : "api_route_error", error, {
+      status,
+      upstream: error instanceof UpstreamApiError ? error.diagnostics : undefined,
+    });
   }
-  return jsonResponse({ ok: false, code: "upstream_error", message: "Upstream API unavailable" }, { status: 502 }, observability);
+  if (error instanceof UpstreamApiError) {
+    return jsonResponse(error.body, { status: error.status }, observability, request);
+  }
+  return jsonResponse({ ok: false, code: "upstream_error", message: "Upstream API unavailable" }, { status: 502 }, observability, request);
 };
 
 /**
@@ -126,18 +148,16 @@ export const upstreamErrorResponse = (error: unknown, observability?: RequestObs
  *   const data = await api.get<MyType>("/path");
  */
 export const createApi = (request: Request) => {
-  const clientIp = request.headers.get("x-envoy-external-address") ?? undefined;
-  const { signal } = request;
   const observability: RequestObservability = {
     startedAt: performance.now(),
     metrics: [],
   };
 
   return {
-    get: <T>(path: string) => serverRequest<T>("GET", path, observability, undefined, signal, clientIp),
-    post: <T>(path: string, body?: unknown) => serverRequest<T>("POST", path, observability, body, signal, clientIp),
-    put: <T>(path: string, body?: unknown) => serverRequest<T>("PUT", path, observability, body, signal, clientIp),
-    json: (body: unknown, init?: JsonResponseInit) => jsonResponse(body, init, observability),
-    error: (error: unknown) => upstreamErrorResponse(error, observability),
+    get: <T>(path: string) => serverRequest<T>(request, "GET", path, observability),
+    post: <T>(path: string, body?: unknown) => serverRequest<T>(request, "POST", path, observability, body),
+    put: <T>(path: string, body?: unknown) => serverRequest<T>(request, "PUT", path, observability, body),
+    json: (body: unknown, init?: JsonResponseInit) => jsonResponse(body, init, observability, request),
+    error: (error: unknown) => upstreamErrorResponse(error, request, observability),
   };
 };

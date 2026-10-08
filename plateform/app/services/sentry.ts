@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import { isRouteErrorResponse, type ClientOnErrorFunction } from "react-router";
 import { ENV, SENTRY_DSN } from "~/services/config";
 
 const isSentryEnabled = ENV !== "development" && Boolean(SENTRY_DSN);
@@ -33,6 +34,8 @@ export const initSentry = () => {
   Sentry.init({
     dsn: SENTRY_DSN,
     environment: ENV,
+    sendDefaultPii: false,
+    initialScope: { tags: { runtime: "client", service: "plateform" } },
     tracesSampleRate: ENV === "production" ? 0.1 : 1,
     beforeSend(event, hint) {
       if (isAbortError(hint.originalException) || isAbortError(hint.syntheticException)) {
@@ -43,6 +46,7 @@ export const initSentry = () => {
         return null;
       }
 
+      event.tags = { ...event.tags, runtime: "client", service: "plateform" };
       return event;
     },
   });
@@ -61,9 +65,28 @@ export const captureException = (error: unknown, extra?: Record<string, unknown>
 
   const normalizedError = normalizeError(error);
   if (extra) {
-    Sentry.captureException(normalizedError, { extra });
+    Sentry.captureException(normalizedError, { tags: { runtime: "client", service: "plateform" }, extra });
     return;
   }
 
-  Sentry.captureException(normalizedError);
+  Sentry.captureException(normalizedError, { tags: { runtime: "client", service: "plateform" } });
+};
+
+// React Router appelle ce callback indépendamment du rendu de l'ErrorBoundary.
+export const handleRouterError: ClientOnErrorFunction = (error, { pattern, errorInfo }) => {
+  if (isAbortError(error) || (isRouteErrorResponse(error) && error.status === 404)) return;
+
+  const routeError = isRouteErrorResponse(error) ? error : undefined;
+  const reportedError = routeError ? new Error(`Route error ${routeError.status} ${routeError.statusText}`) : normalizeError(error);
+  // Le pattern ne contient pas les valeurs des paramètres. Ne pas transmettre
+  // location, params ou error.data, qui peuvent contenir des données personnelles.
+  const extra = {
+    pattern,
+    componentStack: errorInfo?.componentStack,
+    ...(routeError ? { status: routeError.status, statusText: routeError.statusText } : {}),
+  };
+
+  // captureException journalise déjà les erreurs en développement.
+  if (ENV !== "development") console.error(reportedError, extra);
+  captureException(reportedError, extra);
 };

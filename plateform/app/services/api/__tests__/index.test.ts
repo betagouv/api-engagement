@@ -18,10 +18,12 @@ const mockFetch = (status: number, body: unknown, ok = status >= 200 && status <
 const mockFetchNetworkError = () => vi.fn().mockRejectedValue(new Error("Network error"));
 
 beforeEach(() => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
   vi.stubGlobal("fetch", mockFetch(200, { ok: true, data: { id: 1 } }));
 });
 
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
@@ -61,10 +63,10 @@ describe("api.get", () => {
     await expect(api.get("/missions/999")).rejects.toMatchObject({ status: 404 });
   });
 
-  it("lève UpstreamApiError si json.ok est false même avec HTTP 200", async () => {
+  it("lève UpstreamApiError(502) si json.ok est false même avec HTTP 200", async () => {
     vi.stubGlobal("fetch", mockFetch(200, { ok: false, code: "BUSINESS_ERROR" }));
 
-    await expect(createApi(fakeRequest()).get("/missions")).rejects.toThrow(UpstreamApiError);
+    await expect(createApi(fakeRequest()).get("/missions")).rejects.toMatchObject({ name: "UpstreamApiError", status: 502 });
   });
 
   it("lève UpstreamApiError(502) en cas d'erreur réseau", async () => {
@@ -174,27 +176,137 @@ describe("api.put", () => {
 });
 
 describe("upstreamErrorResponse", () => {
+  it.each([
+    ["JSON invalide", "not-json"],
+    ["enveloppe en échec", '{"ok":false,"code":"BUSINESS_ERROR"}'],
+    ["JSON null", "null"],
+    ["enveloppe sans ok", "{}"],
+    ["ok non booléen", '{"ok":"true"}'],
+  ])("journalise un HTTP 200 avec %s malgré un fallback et renvoie 502 sans doublon", async (_reason, body) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(body, { status: 200 })));
+    const api = createApi(fakeRequest());
+    let upstreamError: unknown;
+    const result = await api.get("/missions/browse").catch((error: unknown) => {
+      upstreamError = error;
+      return [];
+    });
+
+    expect(result).toEqual([]);
+    expect(upstreamError).toBeInstanceOf(UpstreamApiError);
+    expect(upstreamError).toMatchObject({ status: 502 });
+    expect(console.error).toHaveBeenCalledOnce();
+    expect(JSON.parse(vi.mocked(console.error).mock.calls[0][0] as string)).toMatchObject({ event: "upstream_error", status: 502 });
+    const response = api.error(upstreamError);
+    expect(response.status).toBe(502);
+    expect(response.headers.get("server-timing")).toContain("upstream;dur=");
+    expect(console.error).toHaveBeenCalledOnce();
+  });
+
+  it.each([401, 404, 500, 503])("conserve le statut upstream %s même pour une réponse non JSON", async (status) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("not-json", { status })));
+    const api = createApi(fakeRequest());
+    const error = await api.get("/missions/browse").catch((error: unknown) => error);
+    expect(api.error(error).status).toBe(status);
+    if (status >= 500) expect(console.error).toHaveBeenCalledOnce();
+    else expect(console.error).not.toHaveBeenCalled();
+  });
+
+  it("journalise aussi un échec backend absorbé par un fallback de loader", async () => {
+    vi.stubGlobal("fetch", mockFetch(500, { ok: false, code: "INTERNAL_ERROR" }));
+    await createApi(fakeRequest())
+      .get("/missions/browse")
+      .catch(() => []);
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(vi.mocked(console.error).mock.calls[0][0] as string)).toMatchObject({ event: "upstream_error", error: { code: "INTERNAL_ERROR" } });
+  });
+
+  it("journalise un 500 une seule fois et corrèle la réponse et l'appel upstream", async () => {
+    const request = new Request("http://localhost/api/missions/match?email=private@example.test", { headers: { "x-request-id": "trace-123" } });
+    vi.stubGlobal("fetch", mockFetch(500, { ok: false, code: "INTERNAL_ERROR", message: "private@example.test" }));
+    const error = await createApi(request)
+      .get("/missions/match?userScoringId=private-id")
+      .catch((error: unknown) => error);
+    const response = upstreamErrorResponse(error, request);
+    upstreamErrorResponse(error, request);
+
+    expect(response.status).toBe(500);
+    expect(response.headers.get("x-request-id")).toBe("trace-123");
+    expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ headers: expect.objectContaining({ "x-request-id": "trace-123" }) }));
+    expect(console.error).toHaveBeenCalledTimes(1);
+    const line = vi.mocked(console.error).mock.calls[0][0] as string;
+    expect(JSON.parse(line)).toMatchObject({
+      event: "upstream_error",
+      status: 500,
+      request_id: "trace-123",
+      path: "/api/missions/match",
+      upstream: { method: "GET", path: "/missions/match", duration_ms: expect.any(Number) },
+    });
+    expect(line).not.toContain("private@example.test");
+    expect(line).not.toContain("private-id");
+    expect(line).not.toContain("test-key");
+  });
+
+  it("conserve le code de la cause réseau sans l'exposer dans la réponse", async () => {
+    const request = fakeRequest();
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("fetch failed", { cause: Object.assign(new Error("private address"), { code: "ECONNREFUSED" }) })));
+    const error = await createApi(request)
+      .get("/missions/match")
+      .catch((error: unknown) => error);
+    const response = upstreamErrorResponse(error, request);
+
+    expect(response.status).toBe(502);
+    expect(JSON.parse(vi.mocked(console.error).mock.calls[0][0] as string).error.cause).toMatchObject({ name: "TypeError", cause: { code: "ECONNREFUSED" } });
+    expect(JSON.stringify(await response.json())).not.toContain("ECONNREFUSED");
+  });
+
+  it("ne journalise pas les 4xx attendues ni les requêtes annulées", () => {
+    upstreamErrorResponse(new UpstreamApiError(404, { ok: false }), fakeRequest());
+    const controller = new AbortController();
+    const request = new Request("http://localhost/api/user-scoring", { signal: controller.signal });
+    controller.abort();
+    upstreamErrorResponse(new UpstreamApiError(502, { ok: false }), request);
+    expect(console.error).not.toHaveBeenCalled();
+  });
+
   it("retourne une Response avec le status et le body de l'erreur upstream", async () => {
     const error = new UpstreamApiError(404, { ok: false, code: "NOT_FOUND" });
-    const response = upstreamErrorResponse(error);
+    const response = upstreamErrorResponse(error, fakeRequest());
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toMatchObject({ ok: false, code: "NOT_FOUND" });
   });
 
   it("retourne 502 pour une erreur inconnue", async () => {
-    const response = upstreamErrorResponse(new Error("unknown"));
+    const response = upstreamErrorResponse(new Error("unknown"), fakeRequest());
 
     expect(response.status).toBe(502);
     await expect(response.json()).resolves.toMatchObject({ ok: false, code: "upstream_error" });
   });
 
   it("conserve les informations d'observabilité sur une erreur de la façade", async () => {
-    const api = createApi(fakeRequest());
+    vi.stubGlobal("fetch", mockFetch(504, { ok: false, code: "TIMEOUT" }));
+    const request = new Request("http://localhost/api/missions/match", { headers: { "x-request-id": "trace-timeout" } });
+    const api = createApi(request);
+    const error = await api.get("/missions/match").catch((error: unknown) => error);
 
-    const response = api.error(new UpstreamApiError(504, { ok: false, code: "TIMEOUT" }));
+    const response = api.error(error);
 
     expect(response.status).toBe(504);
+    expect(response.headers.get("x-request-id")).toBe("trace-timeout");
+    expect(response.headers.get("server-timing")).toContain("upstream-ttfb;dur=");
     expect(response.headers.get("server-timing")).toContain("proxy;dur=");
+    expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
+  it("conserve les timings et la cause réseau dans api.error", async () => {
+    vi.stubGlobal("fetch", mockFetchNetworkError());
+    const api = createApi(fakeRequest());
+    const error = await api.get("/missions/match").catch((error: unknown) => error);
+    const response = api.error(error);
+
+    expect(response.status).toBe(502);
+    expect(response.headers.get("server-timing")).toContain("upstream;dur=");
+    expect(response.headers.get("server-timing")).toContain("proxy;dur=");
+    expect(console.error).toHaveBeenCalledTimes(1);
   });
 });
