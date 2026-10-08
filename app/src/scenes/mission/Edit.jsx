@@ -80,7 +80,11 @@ const Edit = () => {
         endAt: draft.endAt || null,
       });
       if (!res.ok) throw res;
-      toast.success("Mission mise à jour");
+      if (res.data.statusCode === "REFUSED") {
+        toast.warning(`Mission mise à jour mais refusée : ${res.data.statusComment}`);
+      } else {
+        toast.success("Mission mise à jour");
+      }
       navigate(viewPath);
     } catch (error) {
       captureError(error, { message: "Erreur lors de la mise à jour de la mission", extra: { id } });

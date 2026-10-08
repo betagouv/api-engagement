@@ -17,6 +17,8 @@ import { OBJECT_ACL, putObject } from "@/services/s3";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
+import { normalizeMissionDescriptionInput } from "@/utils/mission";
+import { getModeration } from "@/utils/mission-moderation";
 import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
 
 const IMAGE_EXTENSIONS: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
@@ -452,7 +454,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
-    if (!(await missionService.findOneMissionWithAccess(missionId))) {
+    const existing = await missionService.findOneMissionWithAccess(missionId);
+    if (!existing) {
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
@@ -461,9 +464,16 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (applicationUrl !== undefined) {
       patch.applicationUrl = applicationUrl || null;
     }
-    // descriptionHtml prime sur description chez les consommateurs : on l'invalide pour que l'édition soit prise en compte
     if (rest.description !== undefined) {
-      patch.descriptionHtml = null;
+      Object.assign(patch, normalizeMissionDescriptionInput(rest.description));
+    }
+
+    // Même règle que la v2 : modération recalculée sur l'état fusionné (une mission devenue invalide ne reste pas diffusée)
+    const moderation = getModeration({ ...existing.mission, ...patch });
+    patch.statusCode = moderation.statusCode;
+    patch.statusComment = moderation.statusComment;
+    if (rest.description !== undefined && moderation.description !== undefined) {
+      patch.description = moderation.description;
     }
 
     await missionService.update(missionId, patch);

@@ -1,5 +1,4 @@
 import { NextFunction, Response, Router } from "express";
-import { convert } from "html-to-text";
 import passport from "passport";
 
 import { INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
@@ -9,6 +8,7 @@ import { MissionCreateInput, MissionSearchFilters, MissionUpdatePatch } from "@/
 import { PublisherRequest } from "@/types/passport";
 import { PublisherRecord, PublisherRecordWithRelations } from "@/types/publisher";
 import { getDistanceKm } from "@/utils";
+import { normalizeMissionDescriptionInput } from "@/utils/mission";
 import { getModeration } from "@/utils/mission-moderation";
 import { parseDateFilter } from "@/v0/mission/utils";
 
@@ -17,26 +17,6 @@ import { buildAddresses, buildData, hasOrgFields, upsertPublisherOrganization } 
 import { missionClientIdParamSchema, missionCreateSchema, missionListQuerySchema, missionUpdateSchema } from "./schema";
 
 const router = Router();
-
-const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
-
-const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCreateInput, "description" | "descriptionHtml"> => {
-  if (description === undefined) {
-    return {};
-  }
-
-  if (!HTML_TAG_REGEX.test(description)) {
-    return { description, descriptionHtml: description };
-  }
-
-  return {
-    description: convert(description, {
-      preserveNewlines: true,
-      selectors: [{ selector: "ul", options: { itemPrefix: " • " } }],
-    }),
-    descriptionHtml: description,
-  };
-};
 
 // GET /v2/mission — liste à pagination par curseur
 router.get("/", passport.authenticate(["apikey", "api"], { session: false }), publisherRateLimiter, async (req: PublisherRequest, res: Response, next: NextFunction) => {
