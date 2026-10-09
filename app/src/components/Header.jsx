@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line, RiUserLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 
@@ -69,7 +69,6 @@ const NotificationMenu = () => {
   const [show, setShow] = useState(false);
   const ref = useRef(null);
   const buttonRef = useRef(null);
-  const panelId = useId();
   const location = useLocation();
   const { user, publisher } = useStore();
   const publisherId = publisher?.id;
@@ -147,14 +146,14 @@ const NotificationMenu = () => {
         onClick={() => setShow(!show)}
         aria-label="Menu des alertes"
         aria-expanded={show}
-        aria-controls={panelId}
+        aria-controls="menu-alertes"
       >
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-2.25 w-2.25 rounded-full border border-white" />}
       </button>
 
       <div
-        id={panelId}
+        id="menu-alertes"
         inert={!show ? true : undefined}
         className={`border-grey-border absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right border bg-white text-black shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-100 ${show ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}
       >
@@ -243,7 +242,6 @@ const AccountMenu = () => {
   const [show, setShow] = useState(false);
   const ref = useRef(null);
   const buttonRef = useRef(null);
-  const panelId = useId();
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -282,7 +280,7 @@ const AccountMenu = () => {
         onClick={() => setShow(!show)}
         aria-label="Menu du compte"
         aria-expanded={show}
-        aria-controls={panelId}
+        aria-controls="menu-compte"
       >
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" aria-hidden="true" />
@@ -295,7 +293,7 @@ const AccountMenu = () => {
       </button>
 
       <div
-        id={panelId}
+        id="menu-compte"
         inert={!show ? true : undefined}
         className={`border-grey-border absolute right-0 z-10 w-[calc(100vw-2rem)] border bg-white shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-56 ${show ? "max-h-96 opacity-100" : "pointer-events-none max-h-0 opacity-0"}`}
       >
