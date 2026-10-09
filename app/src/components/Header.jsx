@@ -150,13 +150,13 @@ const NotificationMenu = () => {
         aria-controls={panelId}
       >
         <RiDashboard3Line aria-hidden="true" />
-        {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
+        {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-2.25 w-2.25 rounded-full border border-white" />}
       </button>
 
       <div
         id={panelId}
         inert={!show ? true : undefined}
-        className={`border-grey-border absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right border bg-white text-black shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-[400px] ${show ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}
+        className={`border-grey-border absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right border bg-white text-black shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-100 ${show ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}
       >
         <div className="flex items-center justify-between p-6">
           <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
