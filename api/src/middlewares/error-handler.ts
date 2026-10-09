@@ -1,10 +1,15 @@
 import * as Sentry from "@sentry/node";
 import { NextFunction, Request, Response } from "express";
+import { MulterError } from "multer";
 import { ENV } from "@/config";
-import { SERVER_ERROR, captureException } from "@/error";
+import { INVALID_BODY, SERVER_ERROR, captureException } from "@/error";
 import { REQUEST_ID_HEADER } from "@/utils/request-id";
 
 const errorHandler = (err: any, req: Request, res: Response, _: NextFunction) => {
+  // Erreur d'upload (ex. fichier trop gros) : erreur client, pas d'alerte Sentry
+  if (err instanceof MulterError) {
+    return res.status(400).send({ ok: false, code: INVALID_BODY, message: err.message });
+  }
   try {
     console.log(`Error on request ${req.method} ${req.url}`);
     console.error(err);

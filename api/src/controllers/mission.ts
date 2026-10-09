@@ -1,4 +1,6 @@
+import { randomUUID } from "crypto";
 import { NextFunction, Response, Router } from "express";
+import multer from "multer";
 import passport from "passport";
 import zod from "zod";
 
@@ -11,10 +13,16 @@ import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { missionScoringService } from "@/services/mission-scoring";
 import publisherOrganizationService from "@/services/publisher-organization";
+import { OBJECT_ACL, putObject } from "@/services/s3";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
+import { normalizeMissionDescriptionInput } from "@/utils/mission";
+import { getModeration } from "@/utils/mission-moderation";
 import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
+
+const IMAGE_EXTENSIONS: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -380,6 +388,103 @@ router.post("/:id/scoring", passport.authenticate("admin", { session: false }), 
     await missionScoringService.enqueue(params.data.id, { force: true });
     return res.status(200).send({ ok: true });
   } catch (error: any) {
+    next(error);
+  }
+});
+
+// Les flux acceptent des URL sans schéma (ex. "www.example.org") : on préfixe en https avant de valider
+const applicationUrlSchema = zod.preprocess(
+  (value) => (typeof value === "string" && value.trim() && !/^[a-z][a-z\d+.-]*:/i.test(value.trim()) ? `https://${value.trim()}` : value),
+  zod.union([
+    zod
+      .string()
+      .trim()
+      .url()
+      .regex(/^https?:/i),
+    zod.literal(""),
+  ])
+);
+
+const updateSchema = zod
+  .object({
+    title: zod.string().trim().min(1),
+    description: zod.string().trim().min(1),
+    applicationUrl: applicationUrlSchema,
+    softSkills: zod.array(zod.string().trim().min(1)),
+    activities: zod.array(zod.string().trim().min(1)),
+    startAt: zod.coerce.date().nullable(),
+    endAt: zod.coerce.date().nullable(),
+  })
+  .partial()
+  .strict();
+
+router.post("/:id/image", passport.authenticate("admin", { session: false }), upload.single("file"), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const missionId = readRequiredParam(req, res, "id");
+    if (!missionId) {
+      return;
+    }
+    const extension = req.file && IMAGE_EXTENSIONS[req.file.mimetype];
+    if (!req.file || !extension) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Image JPEG, PNG, WebP ou GIF requise" });
+    }
+    const access = await missionService.findOneMissionWithAccess(missionId);
+    if (!access) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const response = await putObject(`publishers/${access.ownerPublisherId}/missions/${missionId}-${randomUUID()}.${extension}`, req.file.buffer, {
+      ACL: OBJECT_ACL.PUBLIC_READ,
+      ContentType: req.file.mimetype,
+    });
+    await missionService.update(missionId, { domainLogo: response.Location });
+    return res.status(200).send({ ok: true, data: { url: response.Location } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const missionId = readRequiredParam(req, res, "id");
+    if (!missionId) {
+      return;
+    }
+    const body = updateSchema.safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+    const existing = await missionService.findOneMissionWithAccess(missionId);
+    if (!existing) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+
+    const { applicationUrl, ...rest } = body.data;
+    const patch: Parameters<typeof missionService.update>[1] = { ...rest };
+    if (applicationUrl !== undefined) {
+      patch.applicationUrl = applicationUrl || null;
+    }
+    if (rest.description !== undefined) {
+      const { description, descriptionHtml } = normalizeMissionDescriptionInput(rest.description);
+      patch.description = description;
+      patch.descriptionHtml = descriptionHtml;
+    }
+
+    // Même règle que la v2 : modération recalculée sur l'état fusionné (une mission devenue invalide ne reste pas diffusée)
+    const moderation = getModeration({ ...existing.mission, ...patch });
+    patch.statusCode = moderation.statusCode;
+    patch.statusComment = moderation.statusComment;
+    if (rest.description !== undefined && moderation.description !== undefined) {
+      patch.description = moderation.description;
+    }
+
+    await missionService.update(missionId, patch);
+    // Comme la v2 : recalcule mission_diffusion sans attendre le rebuild (index/enrichissement sont déjà déclenchés par update)
+    await missionService.enqueueMissionDiffusion(missionId);
+    const access = await missionService.findOneMissionWithAccess(missionId);
+    const adminData = await missionEnrichmentService.findAdminData(missionId);
+    return res.status(200).send({ ok: true, data: { ...access!.mission, ...adminData } });
+  } catch (error) {
     next(error);
   }
 });
