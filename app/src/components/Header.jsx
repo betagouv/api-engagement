@@ -1,5 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line, RiUserLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 
@@ -67,6 +66,11 @@ const Header = () => {
 const NotificationMenu = () => {
   const [warnings, setWarnings] = useState([]);
   const [state, setState] = useState({});
+  const [show, setShow] = useState(false);
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+  const panelId = useId();
+  const location = useLocation();
   const { publisher } = useStore();
   const publisherId = publisher?.id;
   const warningPath = `/${publisherId}/warning`;
@@ -92,107 +96,137 @@ const NotificationMenu = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  useEffect(() => {
+    setShow(false);
+  }, [location]);
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setShow(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setShow(false);
+      buttonRef.current?.focus();
+    }
+  };
+
   return (
-    <Menu>
-      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Menu des alertes">
+    // eslint-disable-next-line jsx-a11y-x/no-static-element-interactions -- Le conteneur délègue Échap et la sortie du focus aux éléments interactifs du menu.
+    <div ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="hover:bg-gray-975 relative p-2 text-lg"
+        onClick={() => setShow(!show)}
+        aria-label="Menu des alertes"
+        aria-expanded={show}
+        aria-controls={panelId}
+      >
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
-      </MenuButton>
+      </button>
 
-      <MenuItems
-        transition
-        className="absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0 sm:w-[400px]"
+      <div
+        id={panelId}
+        inert={!show ? true : undefined}
+        className={`border-grey-border absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right border bg-white text-black shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-[400px] ${show ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}
       >
-        <MenuItem>
-          <div className="flex items-center justify-between p-6">
-            <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
-            <Link to={warningPath} className="text-blue-france flex items-center">
-              <span>Détails</span>
-              <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
-            </Link>
-          </div>
-        </MenuItem>
+        <div className="flex items-center justify-between p-6">
+          <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
+          <Link to={warningPath} className="text-blue-france flex items-center">
+            <span>Détails</span>
+            <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
+          </Link>
+        </div>
         {state && (
-          <MenuItem>
-            <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-              <div className="flex w-6 items-center">
-                <LogoSvg alt="" aria-hidden="true" />
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <p className="text-base font-bold text-black">
-                  {!state.up
-                    ? "L'API Engagement est rencontre quelques problèmes en ce moment"
-                    : !state.upToDate
-                      ? "Le dernier import réalisé il y a plus de 24h"
-                      : "L'API Engagement est parfaitement opérationnelle"}
-                </p>
-              </div>
-            </Link>
-          </MenuItem>
+          <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+            <div className="flex w-6 items-center">
+              <LogoSvg alt="" aria-hidden="true" />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <p className="text-base font-bold text-black">
+                {!state.up
+                  ? "L'API Engagement est rencontre quelques problèmes en ce moment"
+                  : !state.upToDate
+                    ? "Le dernier import réalisé il y a plus de 24h"
+                    : "L'API Engagement est parfaitement opérationnelle"}
+              </p>
+            </div>
+          </Link>
         )}
         {warnings.length ? (
           <>
-            <MenuItem>
-              <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-                <div className="flex w-6 items-center">
-                  <span aria-hidden="true">❌</span>
-                </div>
-                <div className="flex flex-1 flex-col gap-2">
-                  <p className="text-base font-bold text-black">Il semble y avoir un problème de paramétrage de votre côté.</p>
-                </div>
-              </Link>
-            </MenuItem>
+            <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+              <div className="flex w-6 items-center">
+                <span aria-hidden="true">❌</span>
+              </div>
+              <div className="flex flex-1 flex-col gap-2">
+                <p className="text-base font-bold text-black">Il semble y avoir un problème de paramétrage de votre côté.</p>
+              </div>
+            </Link>
             {warnings.slice(0, 2).map((w, index) => {
               const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
-                <MenuItem key={index}>
-                  <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-                    <div className="flex w-6 items-center">{label.emoji}</div>
-                    <div className="flex flex-1 flex-col gap-2">
-                      <div>
-                        <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
-                      </div>
-                      <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                      <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                <Link key={index} to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+                  <div className="flex w-6 items-center">{label.emoji}</div>
+                  <div className="flex flex-1 flex-col gap-2">
+                    <div>
+                      <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                     </div>
-                    <div className="flex w-6 items-center justify-center">
-                      <div className="bg-error h-3 w-3 rounded-full" />
-                    </div>
-                  </Link>
-                </MenuItem>
+                    <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
+                    <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                  </div>
+                  <div className="flex w-6 items-center justify-center">
+                    <div className="bg-error h-3 w-3 rounded-full" />
+                  </div>
+                </Link>
               );
             })}
             {warnings.length > 2 && (
-              <MenuItem>
-                <Link to={warningPath} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
-                  <div className="text-blue-france flex">
-                    <span>Voir toutes les alertes</span>
-                    <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
-                  </div>
-                </Link>
-              </MenuItem>
+              <Link to={warningPath} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
+                <div className="text-blue-france flex">
+                  <span>Voir toutes les alertes</span>
+                  <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
+                </div>
+              </Link>
             )}
           </>
         ) : (
-          <MenuItem>
-            <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-              <div className="flex w-6 items-center">
-                <span aria-hidden="true">✅</span>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
-              </div>
-            </Link>
-          </MenuItem>
+          <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+            <div className="flex w-6 items-center">
+              <span aria-hidden="true">✅</span>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
+            </div>
+          </Link>
         )}
-      </MenuItems>
-    </Menu>
+      </div>
+    </div>
   );
 };
 
 const AdminNotificationMenu = () => {
   const [warnings, setWarnings] = useState([]);
   const [state, setState] = useState({});
+  const [show, setShow] = useState(false);
+  const ref = useRef(null);
+  const buttonRef = useRef(null);
+  const panelId = useId();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -215,94 +249,122 @@ const AdminNotificationMenu = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  useEffect(() => {
+    setShow(false);
+  }, [location]);
+
+  const handleFocusOut = (e) => {
+    if (ref.current && !ref.current.contains(e.relatedTarget)) {
+      setShow(false);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Escape") {
+      setShow(false);
+      buttonRef.current?.focus();
+    }
+  };
+
   return (
-    <Menu>
-      <MenuButton className="data-[focus]:bg-gray-975 hover:bg-gray-975 relative p-2 text-lg" aria-label="Menu des alertes">
+    // eslint-disable-next-line jsx-a11y-x/no-static-element-interactions -- Le conteneur délègue Échap et la sortie du focus aux éléments interactifs du menu.
+    <div ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="hover:bg-gray-975 relative p-2 text-lg"
+        onClick={() => setShow(!show)}
+        aria-label="Menu des alertes"
+        aria-expanded={show}
+        aria-controls={panelId}
+      >
         <RiDashboard3Line aria-hidden="true" />
         {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-[9px] w-[9px] rounded-full border border-white" />}
-      </MenuButton>
-      <MenuItems
-        transition
-        className="absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right bg-white text-black shadow-lg transition duration-200 ease-out focus:outline-none data-closed:scale-95 data-closed:opacity-0 sm:w-[400px]"
+      </button>
+      <div
+        id={panelId}
+        inert={!show ? true : undefined}
+        className={`border-grey-border absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right border bg-white text-black shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-[400px] ${show ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}
       >
-        <MenuItem>
-          <div className="flex items-center justify-between p-6">
-            <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
-            <Link to="/admin-warning" className="text-blue-france flex items-center">
-              <span>Détails</span>
-              <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
-            </Link>
-          </div>
-        </MenuItem>
+        <div className="flex items-center justify-between p-6">
+          <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
+          <Link to="/admin-warning" className="text-blue-france flex items-center">
+            <span>Détails</span>
+            <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
+          </Link>
+        </div>
         {state && (
-          <MenuItem>
-            <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-              <div className="flex w-6 items-center">
-                <LogoSvg alt="" aria-hidden="true" />
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <p className="text-base font-bold text-black">
-                  {state.success / state.imports < 0.9
-                    ? `${Math.round(((state.imports - state.success) * 100) / state.imports)}% des imports ont généré une erreur`
-                    : new Date(state.last) < new Date(Date.now() - 1000 * 60 * 60 * 24)
-                      ? "Le dernier import réalisé il y a plus de 24h"
-                      : "L'API Engagement est parfaitement opérationnelle"}
-                </p>
-              </div>
-            </Link>
-          </MenuItem>
+          <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+            <div className="flex w-6 items-center">
+              <LogoSvg alt="" aria-hidden="true" />
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <p className="text-base font-bold text-black">
+                {state.success / state.imports < 0.9
+                  ? `${Math.round(((state.imports - state.success) * 100) / state.imports)}% des imports ont généré une erreur`
+                  : new Date(state.last) < new Date(Date.now() - 1000 * 60 * 60 * 24)
+                    ? "Le dernier import réalisé il y a plus de 24h"
+                    : "L'API Engagement est parfaitement opérationnelle"}
+              </p>
+            </div>
+          </Link>
         )}
         {warnings.length ? (
           <>
             {warnings.slice(0, 3).map((w, index) => {
               const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
               return (
-                <MenuItem key={index}>
-                  <Link
-                    to={{
-                      pathname: `/admin-warning`,
-                      hash: slugify(`${w.type}-${w.publisherName}`),
-                    }}
-                    className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950"
-                  >
-                    <div className="flex w-6 items-center">{label.emoji}</div>
-                    <div className="flex flex-1 flex-col gap-2">
-                      <p className="text-text-mention m-0 text-xs">{w.publisherName}</p>
-                      <div>
-                        <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
-                      </div>
-                      <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                      <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                <Link
+                  key={index}
+                  to={{
+                    pathname: `/admin-warning`,
+                    hash: slugify(`${w.type}-${w.publisherName}`),
+                  }}
+                  className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950"
+                >
+                  <div className="flex w-6 items-center">{label.emoji}</div>
+                  <div className="flex flex-1 flex-col gap-2">
+                    <p className="text-text-mention m-0 text-xs">{w.publisherName}</p>
+                    <div>
+                      <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
                     </div>
-                  </Link>
-                </MenuItem>
+                    <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
+                    <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
+                  </div>
+                </Link>
               );
             })}
             {warnings.length > 3 && (
-              <MenuItem>
-                <Link to={`/admin-warning`} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
-                  <div className="text-blue-france flex">
-                    <span>Voir toutes les alertes</span>
-                    <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
-                  </div>
-                </Link>
-              </MenuItem>
+              <Link to={`/admin-warning`} className={`border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950`}>
+                <div className="text-blue-france flex">
+                  <span>Voir toutes les alertes</span>
+                  <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
+                </div>
+              </Link>
             )}
           </>
         ) : (
-          <MenuItem>
-            <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-              <div className="flex w-6 items-center">
-                <span aria-hidden="true">✅</span>
-              </div>
-              <div className="flex flex-1 flex-col gap-2">
-                <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
-              </div>
-            </Link>
-          </MenuItem>
+          <Link to="/admin-warning" className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
+            <div className="flex w-6 items-center">
+              <span aria-hidden="true">✅</span>
+            </div>
+            <div className="flex flex-1 flex-col gap-2">
+              <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
+            </div>
+          </Link>
         )}
-      </MenuItems>
-    </Menu>
+      </div>
+    </div>
   );
 };
 
