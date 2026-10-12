@@ -141,7 +141,7 @@ export default function ChacunPourTous() {
         cta={missionsCta("missions")}
         title={
           <>
-            Chaque <Highlight className="bg-[#9ef9be] dark:bg-transparent">geste compte</Highlight>
+            Tu peux agir au <Highlight className="bg-[#9ef9be] dark:bg-transparent">coin de ta rue</Highlight>
           </>
         }
         description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !"
