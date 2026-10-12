@@ -78,7 +78,8 @@ export const setupUserMocks = async (page: Page, extraRoutes: Route[] = []) => {
     { publisherId: PUBLISHER_ID, token: "mock-token-initial" },
   );
 
-  const allRoutes = [...BASE_ROUTES, ...extraRoutes];
+  // extraRoutes en premier : permet de surcharger une route de base (ex. /user/refresh avec un admin)
+  const allRoutes = [...extraRoutes, ...BASE_ROUTES];
 
   await page.route(`${API_URL}/**`, async (route) => {
     const reqUrl = route.request().url();

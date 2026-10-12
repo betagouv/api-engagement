@@ -1,5 +1,7 @@
+import { convert } from "html-to-text";
+
 import { API_URL } from "@/config";
-import { MissionRecord } from "@/types/mission";
+import { MissionCreateInput, MissionRecord } from "@/types/mission";
 import { JobBoardId, MissionJobBoardSyncStatus } from "@/types/mission-job-board";
 import { parseDate } from "./parser";
 
@@ -287,3 +289,23 @@ const normalizeAddressesForComparison = (addresses: MissionRecord["addresses"]) 
   mapAddressesForChange(addresses)
     .map((address) => JSON.stringify(address))
     .sort();
+
+const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
+
+export const normalizeMissionDescriptionInput = (description?: string): Pick<MissionCreateInput, "description" | "descriptionHtml"> => {
+  if (description === undefined) {
+    return {};
+  }
+
+  if (!HTML_TAG_REGEX.test(description)) {
+    return { description, descriptionHtml: description };
+  }
+
+  return {
+    description: convert(description, {
+      preserveNewlines: true,
+      selectors: [{ selector: "ul", options: { itemPrefix: " • " } }],
+    }),
+    descriptionHtml: description,
+  };
+};
