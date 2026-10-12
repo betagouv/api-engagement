@@ -161,7 +161,7 @@ const RealTime = () => {
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <div className="inline-flex flex-wrap items-center gap-1">
-                    <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : "Impression"}</span>
+                    <span>{item.type === "apply" ? "Candidature" : item.type === "click" ? "Redirection" : item.type === "account" ? "Création de compte" : "Impression"}</span>
                     {tooltipId ? (
                       <Tooltip
                         id={tooltipId}
