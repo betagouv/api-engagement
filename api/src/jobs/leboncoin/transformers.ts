@@ -80,8 +80,8 @@ function resolveDescription(mission: MissionRecord, dispositif: Dispositif): str
   if (dispositif === "service-civique") {
     return `${SC_INTRO}\n\n${mission.description ?? ""}`.trim();
   }
-  // `description` est déjà aplati (sans \n) par l'API v2 : on repart du HTML d'origine.
-  return stripHtml(mission.descriptionHtml ?? mission.description);
+  // `description` peut être aplati (sans \n) : on repart de `descriptionHtml` (vide pour certains imports XML).
+  return stripHtml(mission.descriptionHtml || mission.description);
 }
 
 function resolveBusinessSector(mission: MissionRecord, dispositif: Dispositif): number {

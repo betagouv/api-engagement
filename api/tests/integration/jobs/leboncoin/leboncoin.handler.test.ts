@@ -13,7 +13,7 @@ import { prisma } from "@/db/postgres";
 import { LeboncoinHandler } from "@/jobs/leboncoin/handler";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
-import { putObject } from "@/services/s3";
+import { BUCKET_URL, putObject } from "@/services/s3";
 import { PublisherMissionType } from "@/types/publisher";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
@@ -48,6 +48,16 @@ const handler = new LeboncoinHandler();
 function getStoredXmlForSlug(slug: string): string | undefined {
   const call = vi.mocked(putObject).mock.calls.find(([key]) => key === `xml/${slug}.xml`);
   return call?.[1] as string | undefined;
+}
+
+/** Extrait le contenu CDATA de <description> de l'offre d'une mission dans un flux. */
+function getDescription(xml: string | undefined, missionId: string): string {
+  const offer = xml?.split("<job>").find((chunk) => chunk.includes(missionId)) ?? "";
+  const match = offer.match(/<description>\s*<!\[CDATA\[([\s\S]*?)\]\]>/);
+  if (!match) {
+    throw new Error(`description introuvable pour ${missionId}`);
+  }
+  return match[1];
 }
 
 /** Crée un publisher SPV (missionType volontariat_sapeurs_pompiers) diffusé à leboncoin. */
@@ -181,5 +191,74 @@ describe("LeboncoinHandler (integration test)", () => {
     expect(byName["LEBONCOIN_SPV"]).toBe("FAILED");
     expect(byName["LEBONCOIN_SERVICE_CIVIQUE"]).toBe("SUCCESS");
     expect(byName["LEBONCOIN_JEVEUXAIDER"]).toBe("SUCCESS");
+  });
+});
+
+describe("LeboncoinHandler — formatage des descriptions", () => {
+  async function runJva(overrides: Record<string, any>) {
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(LEBONCOIN_ID, JVA_ID);
+    const mission = await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", addresses: LYON, ...overrides });
+    await missionDiffusionService.rebuildForDistributionPublisher(LEBONCOIN_ID);
+    await handler.handle();
+    return getDescription(getStoredXmlForSlug(JVA_SLUG), mission.id);
+  }
+
+  it("HTML : blocs séparés par une ligne vide, puces sur des lignes distinctes, casse conservée, sans balise", async () => {
+    const description = await runJva({ descriptionHtml: "<h2>Et si vous veniez ?</h2><p>Premier paragraphe.</p><ul><li>Un</li><li>Deux</li></ul>" });
+    expect(description).not.toContain("<");
+    expect(description).toContain("Et si vous veniez ?\n\nPremier paragraphe.");
+    expect(description).toMatch(/\* Un\n\s*\* Deux/);
+  });
+
+  it("texte brut multi-lignes (POST v2/mission sans balise) : \\n conservés", async () => {
+    const text = "Ligne 1\nLigne 2\n\nParagraphe 2";
+    expect(await runJva({ description: text, descriptionHtml: text })).toBe(text);
+  });
+
+  it("import XML : HTML avec <br> converti en \\n", async () => {
+    expect(await runJva({ description: "Ligne 1 Ligne 2", descriptionHtml: "Ligne 1<br>Ligne 2" })).toBe("Ligne 1\nLigne 2");
+  });
+
+  it("descriptionHtml vide : repli sur description multi-lignes", async () => {
+    expect(await runJva({ description: "A\nB", descriptionHtml: "" })).toBe("A\nB");
+  });
+
+  it("SPV : description aplatie + descriptionHtml HTML → \\n dans le flux", async () => {
+    const spvPublisher = await createSpvPublisher();
+    const mission = await createTestMission({
+      publisherId: spvPublisher.id,
+      statusCode: "ACCEPTED",
+      addresses: BDR,
+      description: "Titre Paragraphe",
+      descriptionHtml: "<h3>Titre</h3><p>Paragraphe</p>",
+    });
+    await missionDiffusionService.rebuildForDistributionPublisher(LEBONCOIN_ID);
+    await handler.handle();
+    expect(getDescription(getStoredXmlForSlug(SPV_SLUG), mission.id)).toBe("Titre\n\nParagraphe");
+  });
+
+  it("Service Civique : intro puis description séparées par une ligne vide", async () => {
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(LEBONCOIN_ID, SC_ID);
+    const mission = await createTestMission({ publisherId: SC_ID, statusCode: "ACCEPTED", addresses: LYON, description: "Ma mission\nsur 2 lignes" });
+    await missionDiffusionService.rebuildForDistributionPublisher(LEBONCOIN_ID);
+    await handler.handle();
+    const description = getDescription(getStoredXmlForSlug(SC_SLUG), mission.id);
+    expect(description).toMatch(/^Le Service Civique permet[\s\S]*\n\nMa mission\nsur 2 lignes$/);
+  });
+
+  it("flux à URL stable : aucun objet horodaté", async () => {
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(LEBONCOIN_ID, JVA_ID);
+    await createTestMission({ publisherId: JVA_ID, statusCode: "ACCEPTED", addresses: LYON });
+    await missionDiffusionService.rebuildForDistributionPublisher(LEBONCOIN_ID);
+
+    const result = await handler.handle();
+
+    expect(
+      vi
+        .mocked(putObject)
+        .mock.calls.map(([key]) => key)
+        .sort()
+    ).toEqual([`xml/${SC_SLUG}.xml`, `xml/${SPV_SLUG}.xml`, `xml/${JVA_SLUG}.xml`].sort());
+    expect(result.jva?.url).toBe(`${BUCKET_URL}/xml/${JVA_SLUG}.xml`);
   });
 });

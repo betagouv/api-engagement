@@ -22,30 +22,30 @@ const CDATA_KEYS = [
   "picture",
 ];
 
+const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*>/i;
+
 /** Nettoie un texte HTML en texte brut (leboncoin refuse toute mise en forme HTML). */
 export function stripHtml(text: string | null | undefined): string {
   if (!text) {
     return "";
   }
-  const text_ = convert(text, {
-    wordwrap: false,
-    selectors: [
-      { selector: "a", options: { ignoreHref: true } },
-      { selector: "img", format: "skip" },
-      // html-to-text met les titres en MAJUSCULES par défaut : on conserve la casse d'origine.
-      ...["h1", "h2", "h3", "h4", "h5", "h6"].map((selector) => ({ selector, options: { uppercase: false } })),
-    ],
-  });
+  // Texte brut : html-to-text écraserait les \n (sémantique HTML), on les conserve tels quels.
+  const text_ = !HTML_TAG_REGEX.test(text)
+    ? text.replace(/\r\n?/g, "\n")
+    : convert(text, {
+        wordwrap: false,
+        selectors: [
+          { selector: "a", options: { ignoreHref: true } },
+          { selector: "img", format: "skip" },
+          // html-to-text met les titres en MAJUSCULES par défaut : on conserve la casse d'origine.
+          ...["h1", "h2", "h3", "h4", "h5", "h6"].map((selector) => ({ selector, options: { uppercase: false } })),
+        ],
+      });
   // Titres et paragraphes sont séparés par une ligne vide ; on normalise les sauts multiples à \n\n.
   return text_
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-}
-
-/** Formate une date au format AAAA-MM-JJ. */
-export function formatDate(date: Date): string {
-  return date.toISOString().split("T")[0];
 }
 
 /** Tronque une chaîne à `max` caractères. */
@@ -85,12 +85,9 @@ export function generateXML(offers: LeboncoinOffer[]): string {
   return buildFeedXml({ publisher: "api-engagement", publisherurl: "https://api-engagement.beta.gouv.fr/", job: offers }, CDATA_KEYS);
 }
 
-/** Publie le flux sur S3 : objet daté + objet stable. Retourne l'URL de l'objet daté. */
+/** Publie le flux sur S3 sous une URL stable (non horodatée). */
 export async function storeXML(xml: string, slug: string): Promise<string> {
-  const date = formatDate(new Date());
-
-  await putObject(`xml/${slug}-${date}.xml`, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
   await putObject(`xml/${slug}.xml`, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
 
-  return `${BUCKET_URL}/xml/${slug}-${date}.xml`;
+  return `${BUCKET_URL}/xml/${slug}.xml`;
 }

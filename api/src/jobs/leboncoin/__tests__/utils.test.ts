@@ -33,6 +33,14 @@ describe("buildScTitle", () => {
 });
 
 describe("stripHtml", () => {
+  it("conserve les \\n d'un texte brut (sans balise)", () => {
+    expect(stripHtml("Ligne 1\r\nLigne 2\n\n\n\nLigne 3 ")).toBe("Ligne 1\nLigne 2\n\nLigne 3");
+  });
+
+  it("sépare les blocs HTML par des sauts de ligne", () => {
+    expect(stripHtml("<h2>Titre</h2><p>Texte</p><ul><li>a</li><li>b</li></ul>")).toMatch(/^Titre\n\nTexte\n\n\s*\* a\n\s*\* b$/);
+  });
+
   it("retire les balises HTML", () => {
     expect(stripHtml("<h2>Titre</h2><p>Texte</p>")).toContain("Titre");
     expect(stripHtml("<h2>Titre</h2><p>Texte</p>")).not.toContain("<");
