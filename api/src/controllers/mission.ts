@@ -272,7 +272,8 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
     const canRead =
       hasAdminOrDirectPublisherAccess(req.user, access.ownerPublisherId) ||
-      access.moderatorPublisherIds.some((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId));
+      access.moderatorPublisherIds.some((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId)) ||
+      access.diffuserPublisherIds.some((publisherId) => hasAdminOrDirectPublisherAccess(req.user, publisherId));
     if (!canRead) {
       return res.status(403).send({ ok: false, code: FORBIDDEN, message: "Not allowed" });
     }

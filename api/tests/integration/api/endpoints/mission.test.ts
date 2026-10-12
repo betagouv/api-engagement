@@ -51,6 +51,16 @@ describe("Dashboard mission controller", () => {
     expect(res.status).toBe(200);
   });
 
+  it("allows GET /mission/:id for a diffuser publisher of the mission", async () => {
+    const otherPublisher = await createTestPublisher();
+    const mission = await createTestMission({ publisherId: otherPublisher.id });
+    await prisma.missionDiffusion.create({ data: { distributionPublisherId: publisherId, missionId: mission.id } });
+
+    const res = await request(app).get(`/mission/${mission.id}`).set(authHeader());
+
+    expect(res.status).toBe(200);
+  });
+
   it("rejects GET /mission/:id for another publisher mission", async () => {
     const otherPublisher = await createTestPublisher();
     const mission = await createTestMission({ publisherId: otherPublisher.id });

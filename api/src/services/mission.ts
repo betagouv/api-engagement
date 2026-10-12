@@ -635,7 +635,7 @@ export const missionService = {
     return mission ? toMissionRecord(mission as MissionWithRelations, moderatedBy) : null;
   },
 
-  async findOneMissionWithAccess(id: string): Promise<{ mission: MissionRecord; ownerPublisherId: string; moderatorPublisherIds: string[] } | null> {
+  async findOneMissionWithAccess(id: string): Promise<{ mission: MissionRecord; ownerPublisherId: string; moderatorPublisherIds: string[]; diffuserPublisherIds: string[] } | null> {
     const mission = await missionRepository.findFirst({
       where: { id },
       include: baseInclude,
@@ -644,11 +644,14 @@ export const missionService = {
       return null;
     }
 
+    const diffusers = await missionDiffusionRepository.findDistributionPublishersByMission(id);
+
     const missionWithRelations = mission as MissionWithRelations;
     return {
       mission: toMissionRecord(missionWithRelations),
       ownerPublisherId: missionWithRelations.publisherId,
       moderatorPublisherIds: Array.from(new Set(missionWithRelations.moderationStatuses?.map((moderation) => moderation.publisherId) ?? [])),
+      diffuserPublisherIds: diffusers.map((row) => row.distributionPublisher.id),
     };
   },
 

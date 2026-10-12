@@ -79,6 +79,7 @@ const View = () => {
   const { id } = useParams();
   const { user } = useStore();
   const [mission, setMission] = useState(null);
+  const [error, setError] = useState(false);
   const [activeTechnicalTab, setActiveTechnicalTab] = useState("enrichment");
   const [triggeringTask, setTriggeringTask] = useState(null);
   const [showAllAddresses, setShowAllAddresses] = useState(false);
@@ -95,6 +96,7 @@ const View = () => {
     // return) jusqu'à ce que la nouvelle mission soit chargée. Sans ça, l'en-tête/détails de l'ancienne
     // mission resteraient affichés pendant que les onglets techniques chargent déjà la nouvelle.
     setMission(null);
+    setError(false);
     setDiffuseurs(null);
     setSearchDocument(null);
     setTechnicalTabState({ diffuseurs: "idle", "search-document": "idle" });
@@ -105,6 +107,7 @@ const View = () => {
         setMission(res.data);
       } catch (error) {
         captureError(error, { extra: { id } });
+        setError(true);
       }
     };
     fetchData();
@@ -160,6 +163,7 @@ const View = () => {
     setTriggeringTask(null);
   };
 
+  if (error) return <p className="p-3">Cette mission est introuvable ou vous n'avez pas les droits pour la consulter.</p>;
   if (!mission) return <p className="p-3">Chargement...</p>;
 
   const addresses = mission.addresses ?? [];
