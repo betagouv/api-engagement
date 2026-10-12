@@ -104,9 +104,11 @@ const View = () => {
       try {
         const res = await api.get(`/mission/${id}`);
         if (!res.ok) throw res;
+        if (currentMissionIdRef.current !== id) return;
         setMission(res.data);
       } catch (error) {
         captureError(error, { extra: { id } });
+        if (currentMissionIdRef.current !== id) return;
         setError(true);
       }
     };
