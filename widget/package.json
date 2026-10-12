@@ -31,7 +31,7 @@
     "react-dom": "19.3.0",
     "react-icons": "5.7.0",
     "react-slick": "0.31.0",
-    "sharp": "0.35.4",
+    "sharp": "0.35.5",
     "slick-carousel": "1.8.1",
     "zustand": "5.0.15"
   },
