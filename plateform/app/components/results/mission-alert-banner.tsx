@@ -1,5 +1,5 @@
 import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
-import { type SubmitEvent, useEffect, useId, useRef, useState } from "react";
+import { type SubmitEvent, useEffect, useId, useState } from "react";
 import TraceSvg from "~/assets/svg/mission-alert-trace.svg";
 import { subscribeNewsletter } from "~/services/newsletter";
 import { trackEmailCaptureFailed, trackEmailCaptureSubmitted, trackEmailCaptureViewed } from "~/services/tracking/events";
@@ -19,22 +19,10 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const emailId = useId();
-  const sectionRef = useRef<HTMLElement>(null);
 
-  // `email_capture.viewed` : encart visible à 50 %, une seule fois par scoring (ré-armé après un re-scoring, comme `results.viewed`).
+  // `email_capture.viewed` : encart affiché, une fois par scoring (ré-armé après un re-scoring, comme `results.viewed`).
   useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || typeof IntersectionObserver === "undefined") return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        trackEmailCaptureViewed({ signupSource: "result_list" });
-        observer.disconnect();
-      },
-      { threshold: 0.5 },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
+    trackEmailCaptureViewed({ signupSource: "result_list" });
   }, [userScoringId]);
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
@@ -62,7 +50,7 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
   };
 
   return (
-    <section ref={sectionRef} className="relative my-6 flex flex-col gap-3 overflow-hidden bg-blue-france-975 p-6">
+    <section className="relative my-6 flex flex-col gap-3 overflow-hidden bg-blue-france-975 p-6">
       <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16" />
       <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute -top-0.5 right-4 w-12 rotate-[-11deg]" />
 
