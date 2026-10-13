@@ -147,7 +147,7 @@ describe("buildMissionMatchTags", () => {
 
     expect(buildMissionMatchTags(item, new Set(["imprevu.adaptation_rapide", "equipe.petit_groupe"]))).toEqual([
       "Une équipe de moins de 10 bénévoles",
-      "Un environnement dynamique",
+      "Ça bouge beaucoup",
     ]);
   });
 
@@ -166,7 +166,7 @@ describe("buildMissionMatchTags", () => {
   it("ajoute la ville quand le score géo est haut, ordonnée par score", () => {
     const item = buildItem([["imprevu", "cadre_previsible"]], { taxonomyScores: { imprevu: 0.5 }, geoScore: 0.98 }, "Grenoble");
 
-    expect(buildMissionMatchTags(item, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable et rassurant"]);
+    expect(buildMissionMatchTags(item, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable"]);
   });
 
   it("n'ajoute pas la ville comme tag de matching quand le score géo est bas ou que la mission n'en a pas", () => {
@@ -214,7 +214,7 @@ describe("buildMissionMatchTags", () => {
       "Idéale pour débuter",
       "Utile à une cause",
       "Une équipe de moins de 10 bénévoles",
-      "Un environnement dynamique",
+      "Ça bouge beaucoup",
     ]);
   });
 
@@ -252,7 +252,7 @@ describe("buildMissionMatchTags", () => {
       "Utile à une cause",
       "Grenoble",
       "Une équipe de moins de 10 bénévoles",
-      "Un environnement dynamique",
+      "Ça bouge beaucoup",
     ]);
   });
 });
