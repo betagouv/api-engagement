@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import type { QuizOutletContext } from "~/routes/quiz/_layout";
-import { trackQuizCompleted, trackQuizShortcutTaken } from "~/services/tracking/events";
+import { trackQuizShortcutTaken } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 
 interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -16,17 +16,17 @@ export default function NextButton({ onClick, skip = false, ...props }: NextButt
   const userScoringId = useQuizStore((s) => s.userScoringId);
   const { currentStepId, currentStepIndex } = useOutletContext<QuizOutletContext>();
   const handleSkip = () => {
-    const { answers, quizStartedAt } = useQuizStore.getState();
+    const { answers } = useQuizStore.getState();
     // Raccourci "Voir mes résultats" depuis une étape (feature_usage).
     if (currentStepId) {
       trackQuizShortcutTaken({ fromStepName: currentStepId, fromStepIndex: currentStepIndex, answers });
     }
     // Sans userScoringId, le quiz n'a produit aucun scoring : pas de complétion à tracker.
+    // `quiz.completed` part à la sortie de l'étape email.
     if (!userScoringId) {
       navigate("/");
       return;
     }
-    trackQuizCompleted({ answers, completionType: "shortcut", quizStartedAt });
     navigate("/quiz/email", { state: { completionType: "shortcut" } });
   };
 

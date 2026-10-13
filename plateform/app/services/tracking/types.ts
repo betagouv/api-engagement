@@ -119,6 +119,17 @@ export type EmailMissionDetailEntrySource = "results" | "results_card" | "missio
 // Page d'où part l'envoi de la sélection complète : étape email du quiz, résultats du quiz, ou une landing (carte mission).
 export type EmailMissionsEntryPage = "quiz" | "results" | LandingName;
 
+// --- email_capture.* ---
+// Origine d'inscription, alignée sur l'attribut Brevo SIGNUP_SOURCE (cf. SIGNUP_SOURCES dans @engagement/dto) pour croiser les outils.
+// `save_mission` : cœur sur une mission (modale des cartes).
+export type EmailCaptureSignupSource = "quiz" | "result_list" | "save_mission";
+// Cause d'un refus de soumission : champ vide ou format invalide (validation locale), ou erreur de l'API.
+export type EmailCaptureErrorType = "invalid_format" | "api_error";
+// Sortie sans email : lien « Continuer sans… » ou fermeture de la modale (croix, Échap).
+export type EmailCaptureSkipMethod = "continue_without_email" | "close";
+// Issue de l'étape email du quiz, remontée sur `quiz.completed`.
+export type QuizEmailOutcome = "submitted" | "skipped";
+
 // --- results.page_changed ---
 // Contrôle de pagination utilisé : boutons Précédent/Suivant, ou clic sur un numéro (`direct`), le
 // numéro pouvant être la 1re (`first`) ou la dernière (`last`) page.

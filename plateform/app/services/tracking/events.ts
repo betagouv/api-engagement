@@ -10,6 +10,9 @@ import type {
   CtaDestination,
   CtaPageName,
   CtaSection,
+  EmailCaptureErrorType,
+  EmailCaptureSignupSource,
+  EmailCaptureSkipMethod,
   EmailMissionDetailEntrySource,
   EmailMissionsEntryPage,
   EventCategory,
@@ -21,6 +24,7 @@ import type {
   MissionsFilterType,
   PageViewedPageName,
   QuizCompletionType,
+  QuizEmailOutcome,
   QuizEntrySection,
   QuizEntrySource,
   ResultsPageNavigationType,
@@ -52,6 +56,10 @@ export const EVENT_CATALOG = {
   "mission.clicked": "core_value",
   "mission_detail.viewed": "feature_usage",
   "missions_filter.applied": "feature_usage",
+  "email_capture.viewed": "feature_usage",
+  "email_capture.submitted": "core_value",
+  "email_capture.failed": "feature_usage",
+  "email_capture.skipped": "feature_usage",
   "email_missions.sent": "feature_usage",
   "email_mission_detail.sent": "feature_usage",
   "beta_banner.clicked": "feature_usage",
@@ -201,14 +209,16 @@ export function trackQuizStepCompleted(params: { stepName: StepId; answers: Quiz
   });
 }
 
-// `quiz.completed` (core_value) : fin du quiz, à l'arrivée sur les résultats.
-export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number }): void {
+// `quiz.completed` (core_value) : fin du quiz, à la sortie de l'étape email (arrivée sur les résultats).
+// `quiz_duration_ms` inclut donc le temps passé sur l'étape email.
+export function trackQuizCompleted(params: { answers: QuizAnswers; completionType: QuizCompletionType; quizStartedAt: number; emailOutcome: QuizEmailOutcome }): void {
   const { answers } = params;
   const trancheAge = answers["tranche_age"];
 
   track("quiz.completed", {
     quiz_version: QUIZ_FLOW_VERSION,
     completion_type: params.completionType,
+    email_outcome: params.emailOutcome,
     quiz_path: buildQuizPath(answers),
     steps_completed_count: countAnsweredSteps(answers),
     has_localisation: answers["localisation"]?.type === "params",
@@ -342,6 +352,50 @@ export function trackMissionsFilterApplied(params: { filterType: MissionsFilterT
 // ============================================================================
 // Emails
 // ============================================================================
+
+// Contexte d'un point de collecte d'email. `quiz` porte `completion_type` (recopié car `quiz_attempt_id` est retiré en
+// cookieless, impossible de joindre `quiz.shortcut_taken`) ; `save_mission` décrit la mission du cœur
+// (`publisherId` et `rank` absents hors résultats, ex. landings).
+export type EmailCaptureContext =
+  | { signupSource: "quiz"; completionType: QuizCompletionType }
+  | { signupSource: "result_list" }
+  | { signupSource: "save_mission"; missionId: string; publisherId?: string; rank?: number; entrySource?: EmailMissionDetailEntrySource };
+
+function emailCaptureProps(context: EmailCaptureContext) {
+  switch (context.signupSource) {
+    case "quiz":
+      return { signup_source: "quiz", quiz_version: QUIZ_FLOW_VERSION, completion_type: context.completionType };
+    case "result_list":
+      return { signup_source: "result_list" };
+    case "save_mission":
+      return { signup_source: "save_mission", mission_id: context.missionId, publisher_id: context.publisherId, rank: context.rank, entry_source: context.entrySource };
+  }
+}
+
+// `email_capture.viewed` (feature_usage) : un point de collecte est affiché (étape quiz, encart à 50 % visible, modale du cœur ouverte).
+export function trackEmailCaptureViewed(context: EmailCaptureContext): void {
+  track("email_capture.viewed", emailCaptureProps(context));
+}
+
+// `email_capture.submitted` (core_value) : email accepté par l'API, contact créé/mis à jour dans Brevo. Référence pour compter
+// les emails collectés : 1 inscription = 1 évènement (les `.sent` décrivent l'envoi, ne pas les additionner).
+export function trackEmailCaptureSubmitted(context: EmailCaptureContext): void {
+  track("email_capture.submitted", emailCaptureProps(context));
+}
+
+// `email_capture.failed` (feature_usage) : soumission refusée (validation locale ou erreur API).
+export function trackEmailCaptureFailed(params: { signupSource: EmailCaptureSignupSource; errorType: EmailCaptureErrorType }): void {
+  track("email_capture.failed", { signup_source: params.signupSource, error_type: params.errorType });
+}
+
+// `email_capture.skipped` (feature_usage) : sortie sans email. Pas de skip pour l'encart des résultats, qui est passif.
+export function trackEmailCaptureSkipped(context: Extract<EmailCaptureContext, { signupSource: "quiz" | "save_mission" }>, skipMethod: EmailCaptureSkipMethod): void {
+  track("email_capture.skipped", {
+    signup_source: context.signupSource,
+    skip_method: skipMethod,
+    ...(context.signupSource === "quiz" ? { quiz_version: QUIZ_FLOW_VERSION, completion_type: context.completionType } : { mission_id: context.missionId }),
+  });
+}
 
 // `email_missions.sent` (feature_usage) : envoi par email d'une sélection de missions. `entryPage` distingue
 // l'envoi depuis les résultats du quiz de celui depuis une landing.

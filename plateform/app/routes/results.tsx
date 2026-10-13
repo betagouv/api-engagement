@@ -57,7 +57,7 @@ export default function ResultsPage() {
   const [isClosingCard, setIsClosingCard] = useState(false);
   // Mission dont l'utilisateur veut recevoir la fiche par email (bouton email d'une carte) : ouvre la
   // modale en mode mission unique. On garde le publisherId pour tracer `email_mission_detail.sent`.
-  const [emailMission, setEmailMission] = useState<{ missionId: string; publisherId: string } | null>(null);
+  const [emailMission, setEmailMission] = useState<{ missionId: string; publisherId: string; rank: number } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   // Carrousel mobile de cartes mission affiché au clic sur un pin.
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -237,7 +237,7 @@ export default function ResultsPage() {
                       pageNumber={page}
                       userScoringId={userScoringId}
                       userValueKeys={userValueKeys}
-                      onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
+                      onEmailClick={(mission, rank) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "", rank })}
                     />
                     {showDebug && <DebugButton missionId={item.mission.id} />}
                   </div>
@@ -293,7 +293,7 @@ export default function ResultsPage() {
                 userValueKeys={userValueKeys}
                 showDebug={showDebug}
                 highlightedMissionId={activeMissionId}
-                onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
+                onEmailClick={(mission, rank) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "", rank })}
                 onPageChange={handlePageChange}
               />
 
@@ -320,6 +320,7 @@ export default function ResultsPage() {
               entryPage="results"
               missionId={emailMission?.missionId}
               publisherId={emailMission?.publisherId}
+              rank={emailMission?.rank}
               open={emailMission !== null}
               onOpenChange={(open) => {
                 if (!open) setEmailMission(null);
@@ -358,7 +359,7 @@ export default function ResultsPage() {
                   showDebug={showDebug}
                   highlightedMissionId={activeMissionId}
                   onMissionHover={setHoveredMissionId}
-                  onEmailClick={(mission) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "" })}
+                  onEmailClick={(mission, rank) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "", rank })}
                   onPageChange={handlePageChange}
                 />
               </div>
@@ -394,7 +395,7 @@ export default function ResultsPage() {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  setEmailMission({ missionId: displayedMission.mission.id, publisherId: displayedMission.mission.publisherId ?? "" });
+                                  setEmailMission({ missionId: displayedMission.mission.id, publisherId: displayedMission.mission.publisherId ?? "", rank: displayedMissionRank });
                                 }}
                                 aria-label="Recevoir par email"
                               >
@@ -438,6 +439,7 @@ export default function ResultsPage() {
         entryPage="results"
         missionId={emailMission?.missionId}
         publisherId={emailMission?.publisherId}
+        rank={emailMission?.rank}
         open={emailMission !== null}
         onOpenChange={(open) => {
           if (!open) setEmailMission(null);

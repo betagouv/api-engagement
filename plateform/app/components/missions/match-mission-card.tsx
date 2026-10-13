@@ -33,7 +33,7 @@ export default function MatchMissionCard({
   pageNumber?: number;
   userScoringId?: string;
   userValueKeys: ReadonlySet<string>;
-  onEmailClick?: (mission: MissionMatchItem["mission"]) => void;
+  onEmailClick?: (mission: MissionMatchItem["mission"], rank: number) => void;
 }) {
   const { mission } = item;
 
@@ -51,7 +51,7 @@ export default function MatchMissionCard({
       tags={buildMissionMatchTags(item, userValueKeys)}
       publisherName={mission.publisherName}
       publisherLogo={mission.media.publisherLogo}
-      onEmailClick={onEmailClick ? () => onEmailClick(mission) : undefined}
+      onEmailClick={onEmailClick ? () => onEmailClick(mission, rank) : undefined}
     />
   );
 }

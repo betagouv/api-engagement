@@ -1,11 +1,21 @@
-import { type SubmitEvent, useId, useState } from "react";
+import { type SubmitEvent, useEffect, useId, useState } from "react";
 import Modal from "~/components/layout/modal";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
-import { trackEmailMissionDetailSent, trackEmailMissionsSent } from "~/services/tracking/events";
-import type { EmailMissionsEntryPage } from "~/services/tracking/types";
+import {
+  type EmailCaptureContext,
+  trackEmailCaptureFailed,
+  trackEmailCaptureSkipped,
+  trackEmailCaptureSubmitted,
+  trackEmailCaptureViewed,
+  trackEmailMissionDetailSent,
+  trackEmailMissionsSent,
+} from "~/services/tracking/events";
+import type { EmailCaptureSkipMethod, EmailMissionsEntryPage } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
+
+type SaveMissionContext = Extract<EmailCaptureContext, { signupSource: "save_mission" }>;
 
 interface EmailMissionsModalProps {
   userScoringId: string | undefined;
@@ -15,13 +25,15 @@ interface EmailMissionsModalProps {
   missionId?: string;
   // Annonceur de la mission (pour `email_mission_detail.sent` depuis une carte de résultats).
   publisherId?: string;
+  // Position de la mission dans les résultats (`email_capture.*`), absente hors résultats.
+  rank?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 // Modale « Garde cette mission » (clic sur le cœur d'une carte) : envoie la mission par email et inscrit
 // l'utilisateur aux listes Brevo de la source `save_mission`.
-export default function EmailMissionsModal({ userScoringId, entryPage, missionId, publisherId, open, onOpenChange }: EmailMissionsModalProps) {
+export default function EmailMissionsModal({ userScoringId, entryPage, missionId, publisherId, rank, open, onOpenChange }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +41,19 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
   const [error, setError] = useState<string | null>(null);
   const emailId = useId();
 
-  const handleClose = () => {
+  // `entry_source` n'a de sens que sur une carte de résultats (publisherId fourni) ; absent sur les landings.
+  const captureContext: SaveMissionContext | null = missionId
+    ? { signupSource: "save_mission", missionId, publisherId: publisherId || undefined, rank, entrySource: publisherId !== undefined ? "results_card" : undefined }
+    : null;
+
+  // Ouverture de la modale = clic sur le cœur (simultanés) : un seul `viewed` par ouverture.
+  useEffect(() => {
+    if (open && captureContext) trackEmailCaptureViewed(captureContext);
+  }, [open, missionId]);
+
+  // Fermer après l'envoi n'est pas une sortie sans email.
+  const handleClose = (skipMethod: EmailCaptureSkipMethod = "close") => {
+    if (open && !success && captureContext) trackEmailCaptureSkipped(captureContext, skipMethod);
     onOpenChange(false);
     setEmail("");
     setError(null);
@@ -41,6 +65,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
     if (!missionId) return;
     const trimmedEmail = email.trim();
     if (!isValidEmail(trimmedEmail)) {
+      trackEmailCaptureFailed({ signupSource: "save_mission", errorType: "invalid_format" });
       setError(INVALID_EMAIL_FORMAT_ERROR);
       return;
     }
@@ -56,6 +81,8 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
         signupSource: "save_mission",
         ...(userScoringId ? { userScoringId, distinctId } : {}),
       });
+      // Contact accepté par l'API : `submitted` même si l'envoi échoue ensuite (`email_sent` false).
+      if (captureContext) trackEmailCaptureSubmitted(captureContext);
       if (!result.email_sent) {
         setError("Cette mission n'a pas pu être envoyée. Merci de réessayer.");
         return;
@@ -66,6 +93,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
       else trackEmailMissionsSent({ hasAlertOptIn: false, entryPage });
       setSuccess(true);
     } catch {
+      trackEmailCaptureFailed({ signupSource: "save_mission", errorType: "api_error" });
       setError("Une erreur est survenue. Merci de réessayer.");
     } finally {
       setLoading(false);
@@ -73,7 +101,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Garde cette mission" titleIcon="fr-icon-mail-send-fill" size="lg">
+    <Modal open={open} onClose={() => handleClose("close")} title="Garde cette mission" titleIcon="fr-icon-mail-send-fill" size="lg">
       <p>On t'envoie ta mission par mail tout de suite, puis des actualités ou des missions qui correspondent à ton profil régulièrement.</p>
 
       {success ? (
@@ -106,7 +134,10 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
             )}
           </div>
 
-          <div className="flex justify-end mt-8">
+          <div className="flex flex-col-reverse gap-4 mt-8 md:flex-row md:justify-end">
+            <button type="button" onClick={() => handleClose("continue_without_email")} disabled={loading} className="fr-btn fr-btn--secondary w-full! justify-center! md:w-auto!">
+              Continuer sans recevoir ma mission
+            </button>
             <button type="submit" disabled={loading} className="fr-btn w-full! justify-center! md:w-62!">
               {loading ? "Envoi en cours…" : "Recevoir ma mission"}
             </button>
