@@ -47,7 +47,7 @@ locals {
 #   local_storage_capacity = 1024
 #   image_uri    = local.image_uri
 #   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-#   startup_command = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+#   startup_command = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
 #   args            = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "letudiant"]
 #   timeout      = "45m"
 #
@@ -69,7 +69,7 @@ resource "scaleway_job_definition" "talent" {
   local_storage_capacity = 1024
   image_uri              = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  startup_command = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args            = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "talent"]
   timeout         = "45m"
 
@@ -91,7 +91,7 @@ resource "scaleway_job_definition" "grimpio" {
   local_storage_capacity = 1024
   image_uri              = local.image_uri
   # Max old space workaround: https://stackoverflow.com/questions/48387040/how-do-i-determine-the-correct-max-old-space-size-for-node-js
-  startup_command = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args            = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "grimpio"]
   timeout         = "45m"
 
@@ -115,7 +115,7 @@ resource "scaleway_job_definition" "linkedin" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "linkedin"]
   timeout                = "30m"
 
@@ -136,7 +136,7 @@ resource "scaleway_job_definition" "import-organizations" {
   memory_limit           = 4096
   local_storage_capacity = 2048
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "import-organizations"]
   timeout                = "45m"
 
@@ -157,7 +157,7 @@ resource "scaleway_job_definition" "warnings" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "warnings"]
   timeout                = "15m"
 
@@ -178,7 +178,7 @@ resource "scaleway_job_definition" "linkedin-stats" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "linkedin-stats"]
   timeout                = "15m"
 
@@ -199,7 +199,7 @@ resource "scaleway_job_definition" "leboncoin_alerts" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "leboncoin-alerts"]
   timeout                = "15m"
 
@@ -220,7 +220,7 @@ resource "scaleway_job_definition" "leboncoin" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "leboncoin"]
   timeout                = "45m"
 
@@ -241,7 +241,7 @@ resource "scaleway_job_definition" "brevo" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "brevo"]
   timeout                = "15m"
 
@@ -262,7 +262,7 @@ resource "scaleway_job_definition" "demarches-simplifiees-apply-import" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "demarches-simplifiees-apply-import"]
   timeout                = "15m"
 
@@ -283,7 +283,7 @@ resource "scaleway_job_definition" "moderation" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "moderation"]
   timeout                = "15m"
 
@@ -304,7 +304,7 @@ resource "scaleway_job_definition" "enrich-missions-geoloc" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "enrich-missions-geoloc"]
   timeout                = "30m"
 
@@ -325,7 +325,7 @@ resource "scaleway_job_definition" "import-missions" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "import-missions"]
   timeout                = "60m"
 
@@ -346,7 +346,7 @@ resource "scaleway_job_definition" "mission-diffusion-rebuild" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "mission-diffusion-rebuild"]
   timeout                = "60m"
 
@@ -368,7 +368,7 @@ resource "scaleway_job_definition" "update-mission-enrichment" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "update-mission-enrichment"]
   timeout                = "24h"
 
@@ -383,7 +383,7 @@ resource "scaleway_job_definition" "update-mission-scoring" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "update-mission-scoring"]
   timeout                = "24h"
 
@@ -398,7 +398,7 @@ resource "scaleway_job_definition" "update-mission-index" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "update-mission-index"]
   timeout                = "24h"
 
@@ -414,7 +414,7 @@ resource "scaleway_job_definition" "process-dead-letter-queues" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "process-dead-letter-queues"]
   timeout                = "30m"
 
@@ -434,7 +434,7 @@ resource "scaleway_job_definition" "verify-publisher-organization" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "verify-publisher-organization"]
   timeout                = "60m"
 
@@ -454,7 +454,7 @@ resource "scaleway_job_definition" "rdb-backup" {
   memory_limit           = 512
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
   args                   = ["node", "dist/jobs/run-job.js", "rdb-backup"]
   timeout                = "10m"
 

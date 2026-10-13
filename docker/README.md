@@ -1,6 +1,6 @@
 # Tunnel SSH pour les Serverless Jobs
 
-Les images `api` et `analytics` utilisent `ssh-tunnel-entrypoint.sh`. Sans configuration, cet entrypoint exécute immédiatement la commande de l'image. Terraform fournit `SSH_TUNNEL_ENABLED` uniquement aux Serverless Jobs : le container API rejoint donc directement PostgreSQL par le VPC sans démarrer de tunnel.
+Les images `api` et `analytics` utilisent `docker/ssh-tunnel-entrypoint.sh`, installé dans les containers sous `/workspace/docker/ssh-tunnel-entrypoint.sh`. Sans configuration, cet entrypoint exécute immédiatement la commande de l'image. Terraform fournit `SSH_TUNNEL_ENABLED` uniquement aux Serverless Jobs : le container API rejoint donc directement PostgreSQL par le VPC sans démarrer de tunnel.
 
 Terraform génère et injecte la clé privée, ainsi que l'IP et le port du bastion depuis les ressources de la Public Gateway. Pour activer le tunnel sur les jobs, compléter la configuration suivante :
 

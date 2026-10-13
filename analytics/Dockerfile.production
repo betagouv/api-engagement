@@ -39,10 +39,10 @@ COPY --from=builder --chown=node:node /workspace/analytics/dbt ./dbt
 COPY --from=builder /workspace/analytics/scripts ./scripts
 
 COPY analytics/docker-entrypoint.sh ./docker-entrypoint.sh
-COPY tools/scripts/ssh-tunnel-entrypoint.sh /workspace/tools/scripts/ssh-tunnel-entrypoint.sh
-RUN chmod +x ./docker-entrypoint.sh /workspace/tools/scripts/ssh-tunnel-entrypoint.sh
+COPY docker/ssh-tunnel-entrypoint.sh /workspace/docker/ssh-tunnel-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh /workspace/docker/ssh-tunnel-entrypoint.sh
 
 USER node
 
-ENTRYPOINT ["/workspace/tools/scripts/ssh-tunnel-entrypoint.sh"]
+ENTRYPOINT ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
 CMD ["/workspace/analytics/docker-entrypoint.sh"]
