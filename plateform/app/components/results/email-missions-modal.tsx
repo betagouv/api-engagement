@@ -38,6 +38,8 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  // Email accepté par l'API (même si l'envoi a échoué) : ni nouveau `submitted` au réessai, ni `skipped` à la fermeture.
+  const [captured, setCaptured] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const emailId = useId();
 
@@ -51,13 +53,13 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
     if (open && captureContext) trackEmailCaptureViewed(captureContext);
   }, [open, missionId]);
 
-  // Fermer après l'envoi n'est pas une sortie sans email.
   const handleClose = (skipMethod: EmailCaptureSkipMethod = "close") => {
-    if (open && !success && captureContext) trackEmailCaptureSkipped(captureContext, skipMethod);
+    if (open && !captured && captureContext) trackEmailCaptureSkipped(captureContext, skipMethod);
     onOpenChange(false);
     setEmail("");
     setError(null);
     setSuccess(false);
+    setCaptured(false);
   };
 
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
@@ -82,7 +84,8 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
         ...(userScoringId ? { userScoringId, distinctId } : {}),
       });
       // Contact accepté par l'API : `submitted` même si l'envoi échoue ensuite (`email_sent` false).
-      if (captureContext) trackEmailCaptureSubmitted(captureContext);
+      if (captureContext && !captured) trackEmailCaptureSubmitted(captureContext);
+      setCaptured(true);
       if (!result.email_sent) {
         setError("Cette mission n'a pas pu être envoyée. Merci de réessayer.");
         return;

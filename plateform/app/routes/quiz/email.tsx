@@ -56,7 +56,8 @@ export default function EmailStep() {
   // Sortie de l'étape : `quiz.step_completed` (email) puis `quiz.completed` (une fois par tentative).
   const goToResults = (emailOutcome: QuizEmailOutcome) => {
     const { answers, quizStartedAt, quizAttemptId, completedAttemptId, markQuizCompleted } = useQuizStore.getState();
-    trackQuizStepCompleted({ stepName: "email", answers, stepIndex: currentStepIndex, totalVisibleSteps: totalSteps });
+    // Rollback q3 : l'étape email n'appartient pas au flow (index 0), pas de `quiz.step_completed`.
+    if (currentStepIndex > 0) trackQuizStepCompleted({ stepName: "email", answers, stepIndex: currentStepIndex, totalVisibleSteps: totalSteps });
     if (completedAttemptId !== quizAttemptId) {
       trackQuizCompleted({ answers, completionType, quizStartedAt, emailOutcome });
       markQuizCompleted();
