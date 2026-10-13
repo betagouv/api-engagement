@@ -18,6 +18,7 @@ with base as (
     (properties ->> 'has_localisation')::boolean as has_localisation,
     (properties ->> 'quiz_duration_ms')::int as quiz_duration_ms,
     properties ->> 'completion_type' as completion_type,
+    properties ->> 'email_outcome' as email_outcome,
     properties ->> 'quiz_path' as quiz_path,
     properties ->> 'statut' as statut,
     properties ->> 'motivation' as motivation,
