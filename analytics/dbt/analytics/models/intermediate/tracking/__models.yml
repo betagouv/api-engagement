@@ -176,6 +176,10 @@ models:
   - name: int_tracking_quiz_backend
     description: >
       Réconciliation d'une session quiz avec le backend via `quiz_session_id` = `user_scoring_id`.
+      Colonne vertébrale : les scorings portés par `quiz.completed` (visiteurs avec cookies) et ceux
+      rattachés aux tentatives par `int_tracking_quiz_session` (visiteurs sans cookies : id du premier
+      `results.viewed`, lu dans l'URL). `session_date` = date du `quiz.completed`, à défaut date de
+      démarrage de la tentative.
       `score_top5` est la moyenne des `taxonomyScores` des 5 premiers résultats du dernier run de
       matching (`matching_engine_result` le plus récent par `user_scoring_id`, plusieurs runs possibles).
       Les métriques de conversion backend (clics sortants et candidatures) sont issues de
