@@ -211,8 +211,8 @@ describe("buildMissionMatchTags", () => {
 
     expect(buildMissionMatchTags(item, userValueKeys)).toEqual([
       "À distance",
-      "Idéal pour débuter",
-      "Une mission qui a du sens",
+      "Idéale pour débuter",
+      "Utile à une cause",
       "Une équipe de moins de 10 bénévoles",
       "Un environnement dynamique",
     ]);
@@ -248,8 +248,8 @@ describe("buildMissionMatchTags", () => {
 
     expect(buildMissionMatchTags(item, userValueKeys)).toEqual([
       "À distance",
-      "Idéal pour débuter",
-      "Une mission qui a du sens",
+      "Idéale pour débuter",
+      "Utile à une cause",
       "Grenoble",
       "Une équipe de moins de 10 bénévoles",
       "Un environnement dynamique",
