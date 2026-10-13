@@ -142,13 +142,21 @@ models:
   - name: tracking_engagement_kpi_daily
     description: >
       Rollup quotidien des KPIs de succès et d'activité (complétion, conversion quiz → clic, accès annonceurs,
-      raccourci, changement de résultats, taux de démarrage depuis la home). RUPTURE DE SÉRIE à la mise en production du suivi des visiteurs sans cookies (octobre 2026) : les tentatives sans cookies (~30 % des démarrages en septembre 2026) sont incluses, au numérateur comme au
+      raccourci, changement de résultats, taux de démarrage depuis la home). Une ligne par jour avec au
+      moins un quiz lancé OU une page vue : les jours sans quiz gardent leurs vues de la home, avec des
+      compteurs de quiz à 0, `quiz_start_rate` à 0 et les taux rapportés aux quiz lancés à null. RUPTURE DE SÉRIE à la mise en production du suivi des visiteurs sans cookies (octobre 2026) : les tentatives sans cookies (~30 % des démarrages en septembre 2026) sont incluses, au numérateur comme au
       dénominateur (tentatives, sessions résultats, clics) : les taux restent cohérents, les volumes augmentent.
     columns:
       - name: kpi_date
         tests:
           - not_null
           - unique
+      - name: home_quiz_started_count
+        description: Quiz lancés depuis le bouton de la home (`entry_source = 'homepage_cta'`).
+      - name: quiz_start_rate
+        description: >
+          Taux de démarrage depuis la home : `home_quiz_started_count / home_pageview_count`. Avant octobre
+          2026, le numérateur comptait tous les quiz lancés (landings comprises).
       - name: sessions_with_click_after_results
         description: >
           Nombre de sessions ayant vu les résultats ET cliqué sur au moins une mission (renommé depuis
