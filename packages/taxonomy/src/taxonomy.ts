@@ -377,37 +377,37 @@ export const TAXONOMY = {
         label: "Aider et accompagner des personnes",
         icon: "❤️",
         enrichable: true,
-        mission_card_tag: "Aide des personnes",
+        mission_card_tag: "Aide aux personnes",
       },
       transmettre_animer: {
         label: "Transmettre et animer",
         icon: "📢",
         enrichable: true,
-        mission_card_tag: "Anime et accompagne",
+        mission_card_tag: "Animation et transmission",
       },
       fabriquer_reparer_terrain: {
         label: "Fabriquer, réparer ou agir sur le terrain",
         icon: "🛠️",
         enrichable: true,
-        mission_card_tag: "Une mission concrète",
+        mission_card_tag: "Travail manuel et de terrain",
       },
       secourir_proteger: {
         label: "Secourir et protéger",
         icon: "🛟",
         enrichable: true,
-        mission_card_tag: "Agis sur le terrain",
+        mission_card_tag: "Secours et protection",
       },
       organiser_coordonner: {
         label: "Organiser et coordonner",
         icon: "🗓️",
         enrichable: true,
-        mission_card_tag: "Coordonne des projets",
+        mission_card_tag: "Organisation et coordination",
       },
       creer_communiquer: {
         label: "Créer et communiquer",
         icon: "🎨",
         enrichable: true,
-        mission_card_tag: "Mets ta créativité au service d’une cause",
+        mission_card_tag: "Ta créativité au service d’une cause",
       },
     },
   },
@@ -456,19 +456,19 @@ export const TAXONOMY = {
         label: "J’aime échanger et agir avec les autres",
         icon: "🌱",
         enrichable: true,
-        mission_card_tag: "Beaucoup d’échanges au quotidien",
+        mission_card_tag: "Beaucoup d’échanges",
       },
       equilibre_collectif_autonomie: {
         label: "J’aime alterner les moments en groupe et en autonomie",
         icon: "🌿",
         enrichable: true,
-        mission_card_tag: "Entre autonomie et échanges",
+        mission_card_tag: "Entre équipe et autonomie",
       },
       autonomie_principale: {
         label: "Je préfère avancer principalement en autonomie",
         icon: "🌳",
         enrichable: true,
-        mission_card_tag: "Une mission plus autonome",
+        mission_card_tag: "Surtout en solo",
       },
       peu_importe: {
         label: "Peu importe",
@@ -489,13 +489,13 @@ export const TAXONOMY = {
         label: "On me donne un objectif et je m’organise librement",
         icon: "🤝",
         enrichable: true,
-        mission_card_tag: "Autonome dans tes missions",
+        mission_card_tag: "Organisation libre",
       },
       accompagnement_initial: {
         label: "J’aime être accompagné(e) au début, puis gagner en autonomie",
         icon: "🧭",
         enrichable: true,
-        mission_card_tag: "Accompagné dès ton arrivée",
+        mission_card_tag: "Accompagnement au démarrage",
       },
       cadre_suivi_regulier: {
         label: "Je préfère avoir des consignes précises et un suivi régulier",
@@ -523,19 +523,19 @@ export const TAXONOMY = {
         label: "J’aime quand il faut s’adapter rapidement",
         icon: "🚀",
         enrichable: true,
-        mission_card_tag: "Un environnement dynamique",
+        mission_card_tag: "Ça bouge beaucoup",
       },
       imprevu_modere: {
         label: "Un peu d’imprévu, ça me va",
         icon: "💪",
         enrichable: true,
-        mission_card_tag: "Des journées qui se ressemblent rarement",
+        mission_card_tag: "Des journées variées",
       },
       cadre_previsible: {
         label: "Je préfère savoir à quoi m’attendre",
         icon: "🧘",
         enrichable: true,
-        mission_card_tag: "Un cadre stable et rassurant",
+        mission_card_tag: "Un cadre stable",
       },
       je_ne_sais_pas: {
         label: "Je ne sais pas encore",
@@ -577,31 +577,31 @@ export const TAXONOMY = {
         label: "J'ai besoin d'une première expérience",
         icon: "🙏",
         enrichable: true,
-        mission_card_tag: "Idéal pour débuter",
+        mission_card_tag: "Idéale pour débuter",
       },
       rencontres: {
         label: "J'aimerais rencontrer de nouvelles personnes",
         icon: "🤝",
         enrichable: true,
-        mission_card_tag: "Fais de nouvelles rencontres",
+        mission_card_tag: "De nouvelles rencontres",
       },
       decouverte_metier: {
         label: "Je veux découvrir un métier",
         icon: "🧭",
         enrichable: true,
-        mission_card_tag: "Teste avant de t’engager",
+        mission_card_tag: "Pour découvrir un métier",
       },
       indemnisation: {
         label: "Je cherche une mission indemnisée",
         icon: "💸",
         enrichable: false,
-        mission_card_tag: "Rémunéré",
+        mission_card_tag: "Indemnisée",
       },
       agir_pour_une_cause: {
         label: "Je veux aider une cause qui me tient à cœur",
         icon: "🌍",
         enrichable: true,
-        mission_card_tag: "Une mission qui a du sens",
+        mission_card_tag: "Utile à une cause",
         // Portée par 99 % des missions : la cocher avantage tout le catalogue, donc personne.
         // Exclue du scoring (poids 0) tout en restant proposée dans le quiz et enrichie côté mission.
         neutral: true,
@@ -616,7 +616,7 @@ export const TAXONOMY = {
         label: "Je veux contribuer à la sécurité de mon pays",
         icon: "🪖",
         enrichable: true,
-        mission_card_tag: "Contribue à la sécurité de tous",
+        mission_card_tag: "Au service de la sécurité de tous",
       },
       remote: {
         label: "Je veux pouvoir participer à distance",
@@ -769,38 +769,6 @@ export const TAXONOMY = {
         icon: "🧭",
         enrichable: false,
       },
-    },
-  },
-
-  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
-  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
-  // à une suppression lors d'une future migration.
-  parcoursup_formation: {
-    label: "Formation Parcoursup identifiée",
-    type: "categorical",
-    enrichable: false,
-    gate: false,
-    values: {
-      oui: { label: "Oui", icon: null, enrichable: false },
-      non: { label: "Non", icon: null, enrichable: false },
-    },
-  },
-
-  // Taxonomie historique utilisée par les anciens parcours du quiz, mais plus par le
-  // prochain parcours. À conserver sans modifier pour la rétrocompatibilité ; candidate
-  // à une suppression lors d'une future migration.
-  servir_pays: {
-    label: "Cadre de service du pays",
-    type: "categorical",
-    enrichable: false,
-    gate: false,
-    values: {
-      armee: { label: "Armée", sublabel: "Marine, Air, Santé...", icon: "🪖", enrichable: false },
-      pompiers: { label: "Pompiers", sublabel: "Aide à la personne, secours, urgences...", icon: "🚒", enrichable: false },
-      gendarmerie: { label: "Gendarmerie", sublabel: "Sécurité, territoire, enquêtes...", icon: "⚖️", enrichable: false },
-      police: { label: "Police", sublabel: "Ordre public, investigation, protection...", icon: "🚔", enrichable: false },
-      ne_sais_pas: { label: "Je ne sais pas", sublabel: "Aidez-moi à découvrir ma voie", icon: "🤔", enrichable: false },
-      aucun: { label: "Aucun de ces choix", sublabel: "Je cherche autre chose", icon: "🙅", enrichable: false },
     },
   },
 
