@@ -26,8 +26,8 @@ export default function PolitiqueDeConfidentialite() {
 
         <h2>Quelles sont les données collectées sur la plateforme ?</h2>
         <p>
-          Trouve ta mission collecte seulement l'adresse courriel, qui peut souvent contenir aussi le nom et le prénom. Le reste des données collectées ne sont pas identifiantes,
-          et sont liées à la mission.
+          L'adresse courriel est facultative : elle n'est collectée que si vous la renseignez, par exemple pour recevoir des missions par courriel. Elle peut contenir votre nom et
+          votre prénom. Les autres données collectées ne permettent pas de vous identifier directement : elles sont liées aux missions et à votre utilisation de la plateforme.
         </p>
         <p>
           Si vous utilisez le chat d'assistance, le contenu des messages que vous y saisissez (et toute donnée personnelle que vous choisissez d'y indiquer) est traité par notre
@@ -134,6 +134,16 @@ export default function PolitiqueDeConfidentialite() {
                 <td>
                   <a href="https://crisp.chat/fr/privacy/" target="_blank" rel="noopener" title="Politique de confidentialité Crisp - nouvelle fenêtre">
                     Politique de confidentialité
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>PostHog</td>
+                <td>États-Unis (données hébergées en Allemagne)</td>
+                <td>Mesure d'audience</td>
+                <td>
+                  <a href="https://posthog.com/gdpr" target="_blank" rel="noopener" title="Conformité RGPD - nouvelle fenêtre">
+                    Conformité RGPD
                   </a>
                 </td>
               </tr>
