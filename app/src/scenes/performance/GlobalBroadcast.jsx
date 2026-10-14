@@ -15,6 +15,7 @@ import useStore from "@/services/store";
 
 const KEYS = {
   api: "API",
+  email: "E-mail",
   publisher: "API",
   campaign: "Campagne",
   widget: "Widget",
