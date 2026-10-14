@@ -62,6 +62,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     description: "S'engager ça fait du bien, à soi, aux autres, au pays. Bénévolat, Service Civique, pompiers ou réservistes : trouve la mission d'engagement qui te ressemble.",
     ogTitle: "Chacun pour tous",
     ogDescription: "3 Français sur 4 se sont déjà engagés cette année. Et toi ?",
+    robots: "noindex, follow",
   });
 }
 

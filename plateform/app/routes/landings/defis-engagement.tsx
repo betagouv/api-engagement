@@ -71,6 +71,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     description: "Des missions d'engagement en bénévolat, service civique, pompiers ou réservistes dès 16 ans, dans un cadre pensé pour les mineurs.",
     ogTitle: "Les défis de l'engagement",
     ogDescription: "Dès 16 ans, trouve la mission d'engagement qui te ressemble.",
+    robots: "noindex, follow",
   });
 }
 
