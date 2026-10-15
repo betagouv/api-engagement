@@ -22,7 +22,12 @@ with base as (
     properties ->> 'publisher_id' as publisher_id,
     properties ->> 'entry_source' as entry_source
   from {{ ref('stg_tracking__event') }}
-  where event_name like 'email_capture.%'
+  where event_name in (
+    'email_capture.viewed',
+    'email_capture.submitted',
+    'email_capture.failed',
+    'email_capture.skipped'
+  )
 )
 
 select * from base

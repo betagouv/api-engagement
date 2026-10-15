@@ -21,10 +21,14 @@ steps as (
     quiz_attempt_id,
     max(distinct_id) as distinct_id,
     count(*) as step_events_count,
-    max(step_index) as last_step_index,
+    -- Dernière QUESTION validée : l'étape `email` est ignorée (elle est émise
+    -- même après le raccourci, `email_outcome` dit si elle a été passée).
+    max(step_index) filter (where step_name <> 'email') as last_step_index,
     max(total_visible_steps) as total_visible_steps,
-    (array_agg(step_name order by step_index desc nulls last))[1]
-      as last_step_name
+    (
+      array_agg(step_name order by step_index desc nulls last)
+        filter (where step_name <> 'email')
+    )[1] as last_step_name
   from {{ ref('stg_tracking__quiz_step_completed') }}
   where quiz_attempt_id is not null
   group by quiz_attempt_id

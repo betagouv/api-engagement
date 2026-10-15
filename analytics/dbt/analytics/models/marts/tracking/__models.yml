@@ -13,6 +13,9 @@ models:
       `department_name`, `region_code`, `region_name`). PIÈGE DE GRAIN : la géo n'existe qu'à partir de l'étape
       `localisation` ; les tentatives abandonnées avant ont ces colonnes à null (analyses d'abandon par géo
       valides seulement à partir de cette étape).
+      Depuis l'étape email du quiz (q4), `is_completed`, `completed_at` et `quiz_duration_ms` correspondent à la
+      sortie de cette étape (et non plus à la dernière question) : `quiz_duration_ms` inclut le temps passé dessus.
+      `last_step_name` / `last_step_index` ignorent l'étape email (dernière question validée).
     columns:
       - name: quiz_attempt_id
         tests:
@@ -45,6 +48,10 @@ models:
         description: Nom de la région INSEE 2016 (seed `department_codes`). Nullable.
       - name: quiz_version
         description: Version du quiz au démarrage de la tentative.
+      - name: email_outcome
+        description: >
+          Issue de l'étape email du quiz : `submitted` ou `skipped`. Null si la session n'a pas atteint la sortie
+          de l'étape (abandon) ou avant son déploiement.
       - name: has_click_after_results
         description: >
           Vrai si la session a vu les résultats ET a cliqué sur au moins une mission (toutes sections
