@@ -40,8 +40,9 @@ export default function MissionAlertCard() {
 
   return (
     <div className="border-border-default-grey bg-blue-france-975 relative flex h-full flex-col gap-2 overflow-hidden border p-5">
-      <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16" />
-      <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-2 right-4 w-14 rotate-[-11deg]" />
+      {/* Décor illisible sur fond sombre (traits clairs, pictogramme bleu foncé) : masqué en thème sombre. */}
+      <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16 dark:hidden" />
+      <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-2 right-4 w-14 rotate-[-11deg] dark:hidden" />
 
       <h3 className="fr-text--lg text-title-grey relative mb-0! pr-16 font-bold">
         Reçois des missions
