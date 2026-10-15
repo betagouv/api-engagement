@@ -1,4 +1,5 @@
-with sessions as (
+-- Scorings portés par `quiz.completed` (visiteurs avec cookies).
+with completed_scorings as (
   select
     quiz_session_id,
     min(event_at)::date as session_date,
@@ -6,6 +7,29 @@ with sessions as (
   from {{ ref('stg_tracking__quiz_completed') }}
   where quiz_session_id is not null
   group by quiz_session_id
+),
+
+-- Scorings rattachés aux tentatives par `int_tracking_quiz_session`, qui
+-- reprend pour les visiteurs sans cookies l'id du premier `results.viewed`
+-- (lu dans l'URL `/results/<id>`).
+attempt_scorings as (
+  select
+    quiz_session_id,
+    min(session_date) as session_date,
+    max(distinct_id) as distinct_id
+  from {{ ref('int_tracking_quiz_session') }}
+  where quiz_session_id is not null
+  group by quiz_session_id
+),
+
+sessions as (
+  select
+    coalesce(c.quiz_session_id, a.quiz_session_id) as quiz_session_id,
+    coalesce(c.session_date, a.session_date) as session_date,
+    coalesce(c.distinct_id, a.distinct_id) as distinct_id
+  from completed_scorings as c
+  full outer join attempt_scorings as a
+    on c.quiz_session_id = a.quiz_session_id
 ),
 
 latest_result as (
