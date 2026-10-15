@@ -579,3 +579,63 @@ models:
           `beta_banner.clicked` : `source`.
           À venir (spec collecte d'emails) : `email_capture.viewed`, `email_capture.submitted`,
           `email_capture.failed`, `email_capture.skipped`, avec `signup_source`.
+
+  - name: tracking_quiz_answer
+    description: >
+      Réponses au quiz (grain : tentative × étape × option, clé `answer_key`), source
+      `quiz.step_completed`, comptes internes exclus. Seule la DERNIÈRE réponse de chaque (tentative,
+      étape) est retenue : un retour arrière ré-émet l'étape. Les choix multiples sont dépliés (une ligne
+      par option cochée) : une tentative compte donc une fois par option, et pour une part de répondants
+      il faut compter les tentatives distinctes (`count(distinct quiz_attempt_id)`). Une réponse vide
+      garde une ligne avec `answer_option` null. Visiteurs sans cookies inclus (`is_cookieless_attempt`).
+      Versions du quiz mélangées : filtrer sur `quiz_version` au besoin (null avant la q2). Les
+      libellés des options ne sont pas ici (codes bruts).
+    columns:
+      - name: answer_key
+        description: Clé du grain `quiz_attempt_id|step_name|answer_option` (option vide si nulle).
+        tests:
+          - not_null
+          - unique
+      - name: quiz_attempt_id
+        tests:
+          - not_null
+      - name: quiz_attempt_id_source
+        description: >
+          Origine de la tentative : `property` ou `session` (visiteur sans cookies).
+      - name: is_cookieless_attempt
+        description: Vrai si la tentative est reconstituée depuis la session PostHog (visiteur sans cookies).
+      - name: quiz_version
+        description: Version du quiz portée par la réponse retenue (null avant la q2).
+      - name: answered_at
+        description: Horodatage de la réponse retenue (dernière validation de l'étape).
+      - name: answer_date
+        description: Date de la réponse retenue.
+      - name: step_name
+        tests:
+          - not_null
+      - name: step_index
+        description: >
+          Rang de l'étape dans le parcours affiché à la tentative. Varie avec les étapes conditionnelles
+          (`handicap` décale les suivantes) : pour ordonner les étapes, prendre le rang le plus fréquent
+          par `quiz_version`.
+      - name: answer_option
+        description: >
+          Code brut de l'option (ou valeur numérique pour `age`). Null si la réponse est vide, et
+          toujours null pour `localisation` (la réponse y est l'adresse saisie, donnée personnelle : lire
+          `geo_postcode` et le département).
+      - name: is_multiple_choice
+        description: >
+          Vrai si la réponse comporte plusieurs options cochées. Décrit la RÉPONSE, pas l'étape : sur une
+          étape à choix multiples, une seule option cochée donne `false`.
+      - name: geo_postcode
+        description: Code postal DÉCLARÉ à l'étape `localisation` (null sur les autres étapes).
+      - name: department_code
+        description: >
+          Département dérivé du code postal, même règle que `tracking_quiz_session` (Corse approximative,
+          Outre-mer géré). Null hors `localisation`.
+      - name: department_name
+        description: Nom du département (seed `department_codes`). Null hors `localisation`.
+      - name: region_code
+        description: Code région INSEE 2016 (seed `department_codes`). Null hors `localisation`.
+      - name: region_name
+        description: Nom de la région INSEE 2016 (seed `department_codes`). Null hors `localisation`.
