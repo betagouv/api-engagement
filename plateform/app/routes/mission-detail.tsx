@@ -4,8 +4,8 @@ import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import type { Route } from "./+types/mission-detail";
 
 export function meta({ params }: Route.MetaArgs): Route.MetaDescriptors {
-  // Même canonical pour /missions/:id et /results/:scoringId/missions/:id : l'identifiant de scoring ne doit pas être exposé.
-  return pageMeta({ pathname: `/missions/${params.missionId}` }, { title: "Détail de la mission | Trouve ta mission" });
+  // noindex : pas de canonical, et pathname sans identifiant de scoring pour ne pas l'exposer.
+  return pageMeta({ pathname: `/missions/${params.missionId}` }, { title: "Détail de la mission | Trouve ta mission", robots: "noindex, follow" });
 }
 
 export async function clientLoader() {
