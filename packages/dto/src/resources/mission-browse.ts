@@ -8,11 +8,24 @@ export type MissionBrowseTaxonomyKey = "domaine_engagement" | "activite" | "type
 
 export type MissionBrowseTaxonomyParams = Partial<Record<MissionBrowseTaxonomyKey, string | string[]>>;
 
+// Emplacement réservé en tête de liste : une mission qui coche tous les critères `filters` (ET entre les clés,
+// OU entre les valeurs d'une clé) et, si `anyOf` est renseigné, au moins un de ses critères (OU entre les clés).
+export type MissionBrowseSlot = {
+  filters: Partial<Record<MissionBrowseTaxonomyKey, string[]>>;
+  anyOf?: Partial<Record<MissionBrowseTaxonomyKey, string[]>>;
+};
+
 export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
   page?: number;
   pageSize?: number;
   publisherId?: string | string[];
   departmentCode?: string | string[];
+  // Valeurs de taxonomie à masquer complètement (résultats et compteurs des filtres).
+  exclude?: MissionBrowseTaxonomyParams;
+  // `recent` : missions les plus récentes d'abord.
+  sort?: "recent";
+  // Emplacements des premiers résultats, appliqués uniquement quand aucun filtre n'est coché.
+  slots?: MissionBrowseSlot[];
 };
 
 export type MissionBrowse = {

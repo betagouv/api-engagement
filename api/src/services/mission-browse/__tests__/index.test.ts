@@ -204,6 +204,87 @@ describe("missionBrowseService.browse", () => {
     expect(resultsSearch().filter_by).not.toContain("|| remote:=`local`");
   });
 
+  it("masque les valeurs exclues des résultats et des compteurs de toutes les facettes", async () => {
+    await missionBrowseService.browse({ ...baseParams, exclude: { dispositif: ["reserve_police_nationale"] } });
+
+    const expected = `${DIFFUSION} && dispositif:![\`reserve_police_nationale\`]`;
+    expect(resultsSearch().filter_by).toBe(expected);
+    for (const field of FACET_FIELDS) {
+      expect(facetSearch(field).filter_by).toBe(expected);
+    }
+  });
+
+  it("trie les missions les plus récentes d'abord", async () => {
+    await missionBrowseService.browse({ ...baseParams, sort: "recent" });
+
+    expect(resultsSearch().sort_by).toBe("createdAt:desc");
+  });
+
+  describe("emplacements", () => {
+    const hits = (...ids: string[]) => ({ hits: ids.map((id) => ({ document: { id } })), found: ids.length });
+    const ARMEES = { filters: { dispositif: ["reserve_armees"] } };
+    const BENEVOLAT = { filters: { dispositif: ["benevolat"] }, anyOf: { activite: ["secourir_proteger"], domaine_engagement: ["securite_secours"] } };
+    const SPV = { filters: { dispositif: ["sapeurs_pompiers"] } };
+
+    // 1er appel : une requête par critère distinct ; 2e appel : résultats + facettes.
+    const mockSlotsThenResults = (slotResults: ReturnType<typeof hits>[], restResult = hits()) => {
+      multiSearchMock.mockResolvedValueOnce(slotResults).mockResolvedValueOnce([restResult, ...emptyMultiSearchResult().slice(1)]);
+    };
+    const slotSearches = () => multiSearchMock.mock.calls[0][0] as Array<Record<string, unknown>>;
+
+    it("envoie une requête par critère distinct, triée par date, en un seul multi_search", async () => {
+      mockSlotsThenResults([hits(), hits()]);
+
+      await missionBrowseService.browse({ ...baseParams, pageSize: 3, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      expect(multiSearchMock).toHaveBeenCalledTimes(2);
+      expect(slotSearches()).toHaveLength(2);
+      expect(slotSearches()[0]).toMatchObject({ filter_by: `${DIFFUSION} && dispositif:=[\`reserve_armees\`]`, sort_by: "createdAt:desc", per_page: 3 });
+      expect(slotSearches()[1].filter_by).toBe(
+        `${DIFFUSION} && (dispositif:=[\`benevolat\`] && (activite:=[\`secourir_proteger\`] || domaine_engagement:=[\`securite_secours\`]))`
+      );
+    });
+
+    it("remplit chaque emplacement avec la mission suivante de son critère, puis complète avec les autres", async () => {
+      mockSlotsThenResults([hits("a1", "a2"), hits("b1")], hits("r1"));
+      findMissionsByIdsMock.mockResolvedValue([]);
+
+      const result = await missionBrowseService.browse({ ...baseParams, pageSize: 4, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a1", "b1", "a2", "r1"], null);
+      // Les autres missions excluent celles des emplacements et comblent la fin de page.
+      expect(resultsSearch()).toMatchObject({ offset: 0, limit: 1 });
+      expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && id:![\`a1\`,\`b1\`,\`a2\`]`);
+      expect(result.total).toBe(4);
+    });
+
+    it("passe au critère des emplacements suivants quand le sien est épuisé, sans doublon", async () => {
+      mockSlotsThenResults([hits("a1"), hits(), hits("s1", "s2")]);
+
+      await missionBrowseService.browse({ ...baseParams, pageSize: 4, slots: [ARMEES, BENEVOLAT, SPV, ARMEES] });
+
+      // Bénévolat vide → SPV ; 2e Armées épuisé et dernier emplacement → rien.
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a1", "s1", "s2"], null);
+    });
+
+    it("décale les pages suivantes du nombre de missions placées en tête", async () => {
+      mockSlotsThenResults([hits("a1", "a2"), hits("b1")], hits("r4"));
+
+      await missionBrowseService.browse({ ...baseParams, page: 2, pageSize: 2, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      // Liste complète : a1 b1 | a2 r1 | … → la page 2 commence par a2 puis la 1re des autres missions.
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a2", "r4"], null);
+      expect(resultsSearch()).toMatchObject({ offset: 0, limit: 1 });
+    });
+
+    it("abandonne les emplacements dès qu'un filtre est coché", async () => {
+      await missionBrowseService.browse({ ...baseParams, sort: "recent", activite: ["secourir_proteger"], slots: [ARMEES] });
+
+      expect(multiSearchMock).toHaveBeenCalledTimes(1);
+      expect(resultsSearch()).toMatchObject({ per_page: 20, page: 1, sort_by: "createdAt:desc" });
+    });
+  });
+
   it("expose une erreur métier lorsque Typesense est indisponible", async () => {
     multiSearchMock.mockRejectedValue(new Error("Typesense unavailable"));
 
