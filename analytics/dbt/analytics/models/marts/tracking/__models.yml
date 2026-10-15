@@ -639,3 +639,45 @@ models:
         description: Code région INSEE 2016 (seed `department_codes`). Null hors `localisation`.
       - name: region_name
         description: Nom de la région INSEE 2016 (seed `department_codes`). Null hors `localisation`.
+
+  - name: tracking_quiz_funnel_step
+    description: >
+      Funnel du quiz étape par étape (grain : tentative × étape atteinte, clé `step_key`), source
+      `quiz.step_completed`, comptes internes exclus. Une étape est atteinte dès qu'elle a été validée
+      une fois ; les retours arrière qui la ré-émettent sont dédoublonnés (`first_completed_at`,
+      `completion_count`). Une étape validée reste atteinte même si un retour arrière fait ensuite
+      changer de branche (parcours q1 et ses étapes `precision_*`) : le nombre d'étapes atteintes peut
+      alors dépasser `total_visible_steps`. Porte les dimensions de la tentative (`int_tracking_quiz_session`) pour
+      segmenter par version, appareil, source d'entrée ou visiteur sans cookies. Ordre des étapes : à
+      lire via `step_index` par `quiz_version` (rang le plus fréquent), pas de liste en dur. `handicap`
+      est conditionnelle (26-30 ans) et partage son index avec `localisation`, qu'elle décale. L'étape
+      email de la q4 n'émet pas encore de `quiz.step_completed` : elle apparaîtra d'elle-même
+      (`step_name = 'email'`) quand l'événement existera.
+    columns:
+      - name: step_key
+        description: Clé du grain `quiz_attempt_id|step_name`.
+        tests:
+          - not_null
+          - unique
+      - name: quiz_attempt_id
+        tests:
+          - not_null
+      - name: step_name
+        tests:
+          - not_null
+      - name: step_index
+        description: Rang de l'étape à sa première validation.
+      - name: total_visible_steps
+        description: Nombre d'étapes visibles à la première validation (varie avec les étapes conditionnelles).
+      - name: first_completed_at
+        description: Horodatage de la première validation de l'étape.
+      - name: completion_count
+        description: Nombre de validations de l'étape (plus de 1 après un retour arrière).
+      - name: session_date
+        description: Date de démarrage de la tentative.
+      - name: last_step_name
+        description: Dernière étape atteinte par la tentative (rang le plus élevé).
+      - name: is_shortcut_exit_step
+        description: >
+          Vrai si la tentative a pris le raccourci « Voir mes résultats » et que cette étape est la
+          dernière qu'elle a validée (`completion_type = 'shortcut'` et `step_name = last_step_name`).
