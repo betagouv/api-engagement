@@ -25,6 +25,7 @@ export type PublicUserRecord = Omit<UserRecord, "password" | "invitationToken" |
 export interface UserFindParams {
   email?: string;
   publisherId?: string;
+  role?: UserRole;
   ids?: string[];
   includeDeleted?: boolean;
 }

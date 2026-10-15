@@ -7,6 +7,7 @@ import TrashSvg from "@/assets/svg/trash-icon.svg?react";
 import Loader from "@/components/Loader";
 import Administration from "@/scenes/publisher/components/Administration";
 import DemarcheSimplifiee from "@/scenes/publisher/components/DemarcheSimplifiee";
+import DeploymentUser from "@/scenes/publisher/components/DeploymentUser";
 import Informations from "@/scenes/publisher/components/Informations";
 import Members from "@/scenes/publisher/components/Members";
 import api from "@/services/api";
@@ -33,6 +34,8 @@ const Edit = () => {
     documentation: "",
     name: "",
     missionType: null,
+    expectedApplications: null,
+    deploymentUserId: null,
     category: null,
     isAnnonceur: false,
     selfHostedScript: false,
@@ -133,6 +136,9 @@ const Edit = () => {
       if (values.isAnnonceur && !values.missionType) {
         errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
       }
+      if (values.isAnnonceur && (values.expectedApplications === null || values.expectedApplications === undefined)) {
+        errors.expectedApplications = "Le partenaire est “Annonceur”. Veuillez renseigner si des candidatures sont attendues.";
+      }
       if (values.isDiffuseur && !values.category) {
         errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
       }
@@ -141,7 +147,7 @@ const Edit = () => {
       }
 
       if (Object.keys(errors).length > 0) {
-        toast.error(errors.settings || errors.missionType || errors.category);
+        toast.error(errors.settings || errors.missionType || errors.expectedApplications || errors.category);
         setErrors(errors);
         return;
       }
@@ -200,6 +206,7 @@ const Edit = () => {
         <div className="flex w-full flex-col gap-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
           {errors.settings && <p className="text-error">{errors.settings}</p>}
+          <DeploymentUser value={values.deploymentUserId} onChange={(deploymentUserId) => setValues({ ...values, deploymentUserId })} />
           <div className="flex flex-col items-start gap-6 lg:flex-row">
             <Annonceur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
             <Diffuseur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />

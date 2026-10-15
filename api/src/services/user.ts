@@ -49,6 +49,9 @@ const buildWhere = (params: UserFindParams = {}): Prisma.UserWhereInput => {
   if (params.publisherId) {
     where.userPublishers = { some: { publisherId: params.publisherId } };
   }
+  if (params.role) {
+    where.role = params.role;
+  }
   if (params.ids && params.ids.length > 0) {
     where.id = { in: params.ids };
   }
@@ -112,6 +115,10 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   }
   if ("role" in patch && patch.role !== undefined) {
     data.role = patch.role;
+    // Seuls les admins peuvent être chargés de déploiement : on détache un user rétrogradé
+    if (patch.role !== "admin") {
+      data.deploymentPublishers = { set: [] };
+    }
   }
   if ("publishers" in patch && patch.publishers !== undefined) {
     const publisherIds = patch.publishers ?? [];
@@ -147,6 +154,10 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   }
   if ("deletedAt" in patch) {
     data.deletedAt = patch.deletedAt ?? null;
+    // Soft delete : onDelete SetNull ne s'applique pas, on détache le user des publishers dont il est chargé de déploiement
+    if (patch.deletedAt) {
+      data.deploymentPublishers = { set: [] };
+    }
   }
   if ("brevoContactId" in patch) {
     data.brevoContactId = patch.brevoContactId ?? null;

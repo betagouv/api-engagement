@@ -69,6 +69,8 @@ export interface PublisherRecord {
   hasCampaignRights: boolean;
   sendReport: boolean;
   sendReportTo: string[];
+  expectedApplications: boolean | null;
+  deploymentUserId: string | null;
   deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -119,6 +121,8 @@ export interface PublisherCreateInput {
   hasCampaignRights?: boolean;
   sendReport?: boolean;
   sendReportTo?: string[];
+  expectedApplications?: boolean | null;
+  deploymentUserId?: string | null;
   publishers?: PublisherDiffusionInput[];
   demarcheSimplifiees?: PublisherDemarcheSimplifieeInput[];
 }

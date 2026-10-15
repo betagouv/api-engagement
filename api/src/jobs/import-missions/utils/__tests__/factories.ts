@@ -33,6 +33,8 @@ export const buildPublisher = (overrides: Partial<PublisherRecord> = {}): Publis
   hasCampaignRights: false,
   sendReport: false,
   sendReportTo: [],
+  expectedApplications: null,
+  deploymentUserId: null,
   deletedAt: null,
   createdAt: new Date(),
   updatedAt: new Date(),
