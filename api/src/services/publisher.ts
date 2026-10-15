@@ -30,6 +30,13 @@ export class PublisherNotFoundError extends Error {
   }
 }
 
+export class PublisherExpectedApplicationsRequiredError extends Error {
+  constructor() {
+    super("Expected applications is required for an annonceur");
+    this.name = "PublisherExpectedApplicationsRequiredError";
+  }
+}
+
 export class PublisherDiffusionPartnerNotFoundError extends Error {
   constructor(readonly publisherIds: string[]) {
     super(`Publisher diffusion partner(s) not found: ${publisherIds.join(", ")}`);
@@ -404,6 +411,15 @@ export const publisherService = (() => {
     const existing = await publisherRepository.findUnique({ where: { id } });
     if (!existing) {
       throw new PublisherNotFoundError(id);
+    }
+
+    // Règle vérifiée seulement si le patch touche l'un des deux champs, pour ne pas bloquer les annonceurs historiques non qualifiés.
+    if (patch.isAnnonceur !== undefined || patch.expectedApplications !== undefined) {
+      const isAnnonceur = patch.isAnnonceur ?? existing.isAnnonceur;
+      const expectedApplications = patch.expectedApplications !== undefined ? patch.expectedApplications : existing.expectedApplications;
+      if (isAnnonceur && expectedApplications == null) {
+        throw new PublisherExpectedApplicationsRequiredError();
+      }
     }
 
     const normalizedPartnerIds = Array.isArray(patch.publishers) ? normalizeDiffusionPartnerIds(patch.publishers) : null;

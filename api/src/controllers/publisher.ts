@@ -7,7 +7,7 @@ import { DEFAULT_AVATAR, PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
 import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
-import { PublisherDiffusionPartnerNotFoundError, PublisherNotFoundError, publisherService } from "@/services/publisher";
+import { PublisherDiffusionPartnerNotFoundError, PublisherExpectedApplicationsRequiredError, PublisherNotFoundError, publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
@@ -330,9 +330,6 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.isAnnonceur && !body.data.missionType) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Mission type is required" });
     }
-    if (body.data.isAnnonceur && (body.data.expectedApplications === null || body.data.expectedApplications === undefined)) {
-      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Expected applications is required" });
-    }
     if (body.data.deploymentUserId) {
       const deploymentUser = await userService.findUserById(body.data.deploymentUserId);
       if (deploymentUser?.role !== "admin") {
@@ -389,7 +386,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       if (error instanceof PublisherNotFoundError) {
         return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
       }
-      if (error instanceof PublisherDiffusionPartnerNotFoundError) {
+      if (error instanceof PublisherDiffusionPartnerNotFoundError || error instanceof PublisherExpectedApplicationsRequiredError) {
         return res.status(400).send({ ok: false, code: INVALID_BODY, message: error.message });
       }
       throw error;

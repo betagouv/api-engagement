@@ -399,6 +399,12 @@ describe("Dashboard publisher controller", () => {
     expect((await put({})).status).toBe(400);
     expect((await put({ expectedApplications: null })).status).toBe(400);
     expect((await put({ expectedApplications: false })).status).toBe(200);
+    // PUT partiel sur un annonceur existant : ne doit pas pouvoir effacer la valeur
+    const partial = await request(app)
+      .put(`/publisher/${annonceur.id}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ expectedApplications: null });
+    expect(partial.status).toBe(400);
     expect((await publisherService.findOnePublisherById(annonceur.id))?.expectedApplications).toBe(false);
   });
 
@@ -416,6 +422,19 @@ describe("Dashboard publisher controller", () => {
     expect((await put(admin.id)).status).toBe(200);
     expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBe(admin.id);
     expect((await put(null)).status).toBe(200);
+    expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBeNull();
+  });
+
+  it("detaches a soft-deleted admin from the publishers it was deployment user of", async () => {
+    const { token: adminToken, user: admin } = await createTestUser({ role: "admin" });
+    const publisher = await createTestPublisher({ name: "Publisher soft-deleted deployment user", deploymentUserId: admin.id });
+    expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBe(admin.id);
+
+    const res = await request(app)
+      .delete(`/user/${admin.id}`)
+      .set({ Authorization: `jwt ${adminToken}` });
+
+    expect(res.status).toBe(200);
     expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBeNull();
   });
 });

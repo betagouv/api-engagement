@@ -150,6 +150,10 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   }
   if ("deletedAt" in patch) {
     data.deletedAt = patch.deletedAt ?? null;
+    // Soft delete : onDelete SetNull ne s'applique pas, on détache le user des publishers dont il est chargé de déploiement
+    if (patch.deletedAt) {
+      data.deploymentPublishers = { set: [] };
+    }
   }
   if ("brevoContactId" in patch) {
     data.brevoContactId = patch.brevoContactId ?? null;

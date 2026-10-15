@@ -29,7 +29,7 @@ const DeploymentUser = ({ value, onChange }) => {
 
   return (
     <div className="flex max-w-md flex-col gap-2">
-      <label className="text-base font-bold">Chargé de déploiement responsable</label>
+      <span className="text-base font-bold">Chargé de déploiement responsable</span>
       <Select options={options} value={value} loading={loading} placeholder="Sélectionner un chargé de déploiement" onChange={(option) => onChange(option.value || null)} />
     </div>
   );
