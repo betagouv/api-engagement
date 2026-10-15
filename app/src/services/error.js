@@ -60,5 +60,7 @@ export const captureError = (error, context = { message: "Une erreur est survenu
     return;
   }
 
-  captureWithRequestId(() => Sentry.captureException(new Error("Unknown Error"), { ...context, extra: { ...context.extra, error } }));
+  // Keep the original error (message + stack) when available, otherwise build one from the API response (`throw res`)
+  const sentryError = error instanceof Error ? error : new Error(error?.message || error?.code || "Unknown Error");
+  captureWithRequestId(() => Sentry.captureException(sentryError, { ...context, extra: { ...context.extra, error } }));
 };
