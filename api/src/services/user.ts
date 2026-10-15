@@ -115,6 +115,10 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   }
   if ("role" in patch && patch.role !== undefined) {
     data.role = patch.role;
+    // Seuls les admins peuvent être chargés de déploiement : on détache un user rétrogradé
+    if (patch.role !== "admin") {
+      data.deploymentPublishers = { set: [] };
+    }
   }
   if ("publishers" in patch && patch.publishers !== undefined) {
     const publisherIds = patch.publishers ?? [];

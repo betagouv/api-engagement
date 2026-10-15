@@ -437,4 +437,17 @@ describe("Dashboard publisher controller", () => {
     expect(res.status).toBe(200);
     expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBeNull();
   });
+
+  it("detaches an admin demoted to user from the publishers it was deployment user of", async () => {
+    const { token: adminToken, user: admin } = await createTestUser({ role: "admin" });
+    const publisher = await createTestPublisher({ name: "Publisher demoted deployment user", deploymentUserId: admin.id });
+
+    const res = await request(app)
+      .put(`/user/${admin.id}`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ role: "user" });
+
+    expect(res.status).toBe(200);
+    expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBeNull();
+  });
 });
