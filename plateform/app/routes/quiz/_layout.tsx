@@ -7,7 +7,7 @@ import QuizProgress from "~/components/quiz/progress";
 import { QUIZ_FLOW, QUIZ_FLOW_REGISTRY, type StepDef, type StepId } from "~/config/quiz-flow";
 import { invalidateInitialMatches } from "~/services/matching";
 import { captureException } from "~/services/sentry";
-import { trackQuizBackNavigated, trackQuizCompleted, trackQuizStepCompleted } from "~/services/tracking/events";
+import { trackQuizBackNavigated, trackQuizStepCompleted } from "~/services/tracking/events";
 import { createUserScoring, updateUserScoring } from "~/services/user-scoring";
 import { useQuizStore } from "~/stores/quiz";
 import { evalCondition } from "~/utils/conditions";
@@ -29,6 +29,7 @@ export type QuizOutletContext = {
   // Step courant (pour le tracking des raccourcis depuis NextButton).
   currentStepId: StepId | null;
   currentStepIndex: number;
+  totalSteps: number;
 };
 
 // Titre par step (RGAA 8.6) : les routes enfants n'exportent pas de meta(), celui-ci s'applique à toutes.
@@ -141,17 +142,13 @@ export default function QuizLayout() {
     }
 
     // `steps` et `currentIndex` reflètent la séquence visible telle que vue par l'utilisateur.
-    trackQuizStepCompleted({ stepName: currentStep.id, answers: freshAnswers, stepIndex: currentIndex + 1, totalVisibleSteps: steps.filter((s) => s.id !== "email").length });
+    trackQuizStepCompleted({ stepName: currentStep.id, answers: freshAnswers, stepIndex: currentIndex + 1, totalVisibleSteps: steps.length });
 
     const { next, steps: nextSteps } = refreshSteps(QUIZ_FLOW, currentStep.id, freshAnswers);
     setSteps(nextSteps);
     // `!next` : parcours sans step email (q3, rollback) ; le quiz se termine alors sur son dernier step.
+    // `quiz.completed` part à la sortie de l'étape email (cf. routes/quiz/email.tsx).
     if (currentStep.completes || !next) {
-      const { quizAttemptId: attemptId, completedAttemptId, quizStartedAt, markQuizCompleted } = useQuizStore.getState();
-      if (completedAttemptId !== attemptId) {
-        trackQuizCompleted({ answers: freshAnswers, completionType: "full", quizStartedAt });
-        markQuizCompleted();
-      }
       navigate(next?.route ?? "/quiz/email", { state: { completionType: "full" } });
     } else {
       navigate(next.route);
@@ -201,6 +198,7 @@ export default function QuizLayout() {
                   showLoadingRecap: () => setLoadingResultsPath(location.pathname),
                   currentStepId: currentStep?.id ?? null,
                   currentStepIndex: currentIndex + 1,
+                  totalSteps: steps.length,
                 } satisfies QuizOutletContext
               }
             />

@@ -1,10 +1,18 @@
-import { type SubmitEvent, useEffect, useId, useState } from "react";
+import { type SubmitEvent, useEffect, useId, useRef, useState } from "react";
 import { useLocation, useNavigate, useOutletContext } from "react-router";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
 import { fetchInitialMatches } from "~/services/matching";
-import { trackEmailMissionsSent } from "~/services/tracking/events";
-import type { QuizCompletionType } from "~/services/tracking/types";
+import {
+  trackEmailCaptureFailed,
+  trackEmailCaptureSkipped,
+  trackEmailCaptureSubmitted,
+  trackEmailCaptureViewed,
+  trackEmailMissionsSent,
+  trackQuizCompleted,
+  trackQuizStepCompleted,
+} from "~/services/tracking/events";
+import type { QuizCompletionType, QuizEmailOutcome } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 import type { QuizOutletContext } from "./_layout";
@@ -14,7 +22,7 @@ import type { QuizOutletContext } from "./_layout";
 export default function EmailStep() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { showLoadingRecap } = useOutletContext<QuizOutletContext>();
+  const { showLoadingRecap, currentStepIndex, totalSteps } = useOutletContext<QuizOutletContext>();
   const distinctId = useQuizStore((s) => s.distinctId);
   const userScoringId = useQuizStore((s) => s.userScoringId);
   const markEmailSent = useQuizStore((s) => s.markEmailSent);
@@ -22,6 +30,10 @@ export default function EmailStep() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const emailId = useId();
+  const viewedTracked = useRef(false);
+  // Perdu au rechargement de la page : on retombe sur « full ».
+  const { completionType = "full" } = (location.state ?? {}) as { completionType?: QuizCompletionType };
+  const captureContext = { signupSource: "quiz", completionType } as const;
 
   // Sans scoring (accès direct à l'URL), il n'y a ni résultats à charger ni missions à envoyer.
   // Sinon on charge les résultats pendant la saisie : l'email lit le matching enregistré côté API, et la
@@ -31,14 +43,25 @@ export default function EmailStep() {
       navigate("/quiz", { replace: true });
       return;
     }
+    if (!viewedTracked.current) {
+      viewedTracked.current = true;
+      trackEmailCaptureViewed(captureContext);
+    }
     fetchInitialMatches(userScoringId).catch(() => {
       // Le cache est vidé en cas d'erreur : l'envoi ou la page de résultats pourront réessayer.
     });
   }, [userScoringId]);
 
   // Parcours terminé : écran de chargement puis résultats. Raccourci : résultats directement, comme avant la page email.
-  const goToResults = () => {
-    const { completionType } = (location.state ?? {}) as { completionType?: QuizCompletionType };
+  // Sortie de l'étape : `quiz.step_completed` (email) puis `quiz.completed` (une fois par tentative).
+  const goToResults = (emailOutcome: QuizEmailOutcome) => {
+    const { answers, quizStartedAt, quizAttemptId, completedAttemptId, markQuizCompleted } = useQuizStore.getState();
+    // Rollback q3 : l'étape email n'appartient pas au flow (index 0), pas de `quiz.step_completed`.
+    if (currentStepIndex > 0) trackQuizStepCompleted({ stepName: "email", answers, stepIndex: currentStepIndex, totalVisibleSteps: totalSteps });
+    if (completedAttemptId !== quizAttemptId) {
+      trackQuizCompleted({ answers, completionType, quizStartedAt, emailOutcome });
+      markQuizCompleted();
+    }
     if (completionType === "full") {
       showLoadingRecap();
       return;
@@ -46,16 +69,23 @@ export default function EmailStep() {
     navigate(`/results/${userScoringId}`);
   };
 
+  const handleSkip = () => {
+    trackEmailCaptureSkipped(captureContext, "continue_without_email");
+    goToResults("skipped");
+  };
+
   const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!userScoringId) return;
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
+      trackEmailCaptureFailed({ signupSource: "quiz", errorType: "invalid_format" });
       setError("Renseigne ton adresse email pour recevoir tes missions, ou continue sans laisser ton email.");
       return;
     }
     if (!isValidEmail(trimmedEmail)) {
       console.warn("Email format invalid");
+      trackEmailCaptureFailed({ signupSource: "quiz", errorType: "invalid_format" });
       setError(INVALID_EMAIL_FORMAT_ERROR);
       return;
     }
@@ -66,10 +96,13 @@ export default function EmailStep() {
     try {
       await fetchInitialMatches(userScoringId);
       const result = await sendMissionEmail({ email: trimmedEmail, publisherId: PUBLISHER_ID, userScoringId, distinctId, signupSource: "quiz" });
+      // `submitted` dès que l'API a accepté l'email (contact Brevo créé), même si aucun email n'est parti (`email_sent` false).
+      trackEmailCaptureSubmitted(captureContext);
       if (result.email_sent) trackEmailMissionsSent({ hasAlertOptIn: false, entryPage: "quiz" });
       markEmailSent(userScoringId);
-      goToResults();
+      goToResults("submitted");
     } catch {
+      trackEmailCaptureFailed({ signupSource: "quiz", errorType: "api_error" });
       // Le format est déjà vérifié ci-dessus : un INVALID_BODY de l'API ne vient pas de l'email saisi.
       setError("Une erreur est survenue. Merci de réessayer.");
     } finally {
@@ -110,7 +143,7 @@ export default function EmailStep() {
         <button type="submit" disabled={loading} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!">
           {loading ? "Envoi en cours…" : "Voir mes résultats"}
         </button>
-        <button type="button" onClick={goToResults} disabled={loading} className="fr-btn fr-btn--lg fr-btn--secondary w-full! justify-center! md:w-auto!">
+        <button type="button" onClick={handleSkip} disabled={loading} className="fr-btn fr-btn--lg fr-btn--secondary w-full! justify-center! md:w-auto!">
           Continuer sans laisser mon email
         </button>
       </div>
