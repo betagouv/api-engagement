@@ -57,4 +57,10 @@ export const ACTIVITIES: Record<string, string> = {
   "maintenance-technique": "Maintenance technique",
   "gestion-ressources-humaines": "Gestion des ressources humaines",
   "gestion-entretien-patrimoine": "Gestion et entretien du patrimoine",
+  "etudes-recherche": "Études, recherche",
+  plaidoyer: "Plaidoyer",
+  "production-industrielle": "Production industrielle",
+  "chantier-transport": "Chantier, transport",
+  "administration-publique-territoriale": "Administration publique et territoriale",
+  "sciences-politiques-droit": "Sciences politiques, droit",
 };
