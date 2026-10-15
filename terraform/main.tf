@@ -2,6 +2,10 @@
 
 terraform {
   required_providers {
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
     scaleway = {
       source  = "scaleway/scaleway"
       version = "~> 2.74.0"
@@ -17,7 +21,7 @@ terraform {
     skip_requesting_account_id  = true
   }
 
-  required_version = ">= 1.0.0"
+  required_version = ">= 1.1.0"
 }
 
 provider "scaleway" {
