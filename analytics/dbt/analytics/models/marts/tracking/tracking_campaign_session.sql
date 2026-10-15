@@ -6,6 +6,8 @@
 -- candidatures). Classe aussi chaque session par canal d'acquisition
 -- (`acquisition_channel`, macro du même nom) et expose `is_cookieless` :
 -- aucune conversion backend n'est rattachable à une session sans consentement.
+-- Expose aussi l'audience de la session (appareil, géolocalisation IP des
+-- visiteurs avec consentement, pages vues).
 with sessions as (
   select * from {{ ref('int_tracking_session') }}
 ),
@@ -142,6 +144,16 @@ select
     'a.landing_referring_domain', 'a.campaign_key is not null'
   ) }} as acquisition_channel,
   a.is_cookieless,
+  a.device_type,
+  a.geo_country_code,
+  a.geo_country_name,
+  a.geo_region_code,
+  a.geo_region_name,
+  a.geo_department_code,
+  a.geo_department_name,
+  a.geo_city,
+  a.page_view_count,
+  a.unique_page_view_count,
   a.has_quiz_started,
   a.has_quiz_completed,
   a.has_results_viewed,

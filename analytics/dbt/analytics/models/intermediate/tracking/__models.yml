@@ -306,6 +306,40 @@ models:
           vus pour la première fois dans cette session. Pont vers `int_tracking_backend_conversion`.
       - name: first_quiz_session_id
         description: Premier `quiz_session_id` propriétaire rencontré dans l'ordre des événements.
+      - name: device_type
+        description: >
+          Type d'appareil PostHog (`$device_type`) du premier événement : `Desktop`, `Mobile` ou
+          `Tablet`. PostHog ne distingue pas les phablettes.
+      - name: geo_country_code
+        description: >
+          Code pays ISO de la géolocalisation IP (base MaxMind de PostHog), lu sur le premier
+          événement de la session qui en porte une. TOUTES les colonnes `geo_*` sont nulles pour
+          une session `is_cookieless` : PostHog ne géolocalise pas les événements sans
+          consentement cookies. Géolocalisation par IP : approximative (réseaux d'entreprise,
+          mobiles et VPN souvent rattachés à Paris).
+      - name: geo_country_name
+        description: Nom du pays, libellé MaxMind en anglais (`France`, `Spain`...).
+      - name: geo_region_code
+        description: >
+          Code de région ISO 3166-2 sans préfixe pays (`IDF`, `ARA`...) pour la France ; code de
+          subdivision MaxMind ailleurs.
+      - name: geo_region_name
+        description: >
+          Nom officiel de la région pour la France (macro `geo_region_name`, mêmes libellés que le
+          seed `department_codes`) ; libellé MaxMind brut hors de France.
+      - name: geo_department_code
+        description: Numéro de département (`75`, `2A`...), France uniquement.
+      - name: geo_department_name
+        description: Nom du département (jointure seed `department_codes`).
+      - name: geo_city
+        description: Ville de la géolocalisation IP, libellé MaxMind.
+      - name: page_view_count
+        description: >
+          Pages vues de la session, façon Matomo : le premier événement compte pour une page,
+          puis chaque changement de `pathname` entre deux événements successifs. Une page quittée
+          sans émettre aucun événement n'est pas comptée (sous-estimation).
+      - name: unique_page_view_count
+        description: Nombre de `pathname` distincts de la session (pages vues uniques).
 
   - name: int_tracking_campaign
     description: >
