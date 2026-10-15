@@ -40,6 +40,8 @@ const GENDARMERIE: MissionBrowseSlot = { filters: { dispositif: ["reserve_gendar
 // armées et bénévolat, la Gendarmerie n'arrivant qu'en 8e position.
 const MISSIONS_CONFIG: LandingMissionsConfig = {
   exclude: { dispositif: ["reserve_police_nationale"] },
+  // Missions à distance et réserves (sans département) toujours visibles, quelle que soit la localisation.
+  includeRemote: true,
   filters: ["departmentCode", "tranche_age", "activite", "domaine_engagement", "dispositif"],
   slots: [ARMEES, BENEVOLAT, SAPEURS_POMPIERS, ARMEES, BENEVOLAT, SERVICE_CIVIQUE, BENEVOLAT, GENDARMERIE, SERVICE_CIVIQUE, BENEVOLAT],
 };

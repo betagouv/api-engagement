@@ -8,6 +8,8 @@ export type LandingFilterKey = "departmentCode" | "tranche_age" | "activite" | "
 export type LandingMissionsConfig = {
   // Missions masquées partout : résultats, pages suivantes et compteurs des filtres.
   exclude?: MissionBrowseTaxonomyParams;
+  // Avec une localisation choisie, garde aussi les missions à distance ou sans lieu précis (ex. réserves).
+  includeRemote?: boolean;
   // Filtres affichés, dans l'ordre.
   filters: LandingFilterKey[];
   // Emplacements des premiers résultats, appliqués par l'API tant qu'aucun filtre n'est coché.
@@ -37,6 +39,7 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
     pageSize: LANDING_MISSIONS_PAGE_SIZE,
     sort: "recent",
     exclude: config.exclude,
+    includeRemote: config.includeRemote,
     slots: config.slots,
   };
   for (const key of config.filters) {

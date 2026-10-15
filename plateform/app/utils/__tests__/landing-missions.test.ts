@@ -4,6 +4,7 @@ import { buildLandingBrowseFilters, getDepartmentCodeFromPostcode, getPage, type
 
 const CONFIG: LandingMissionsConfig = {
   exclude: { dispositif: ["reserve_police_nationale"] },
+  includeRemote: true,
   filters: ["departmentCode", "tranche_age", "activite"],
   slots: [{ filters: { dispositif: ["reserve_armees"] } }],
 };
@@ -15,6 +16,7 @@ describe("buildLandingBrowseFilters", () => {
       pageSize: 10,
       sort: "recent",
       exclude: { dispositif: ["reserve_police_nationale"] },
+      includeRemote: true,
       slots: [{ filters: { dispositif: ["reserve_armees"] } }],
     });
   });
