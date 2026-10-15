@@ -77,6 +77,8 @@ export interface MissionClickedPayload {
   mission_id: string;
   publisher_id: string;
   publisher_name: string;
+  // Organisme porteur de la mission, quand il est connu (flux browse).
+  organization_name?: string | null;
   section: MissionClickedSection;
   // Position ordinale dans le scoring (1 = première, continue au-delà de 10). Null pour les listes non classées.
   rank: number | null;

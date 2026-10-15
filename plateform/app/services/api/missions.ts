@@ -12,6 +12,7 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.pageSize) params.set("pageSize", String(filters.pageSize));
+  if (filters.offset !== undefined) params.set("offset", String(filters.offset));
   appendMulti(params, "publisherId", filters.publisherId);
   appendMulti(params, "departmentCode", filters.departmentCode);
   appendMulti(params, "domaine_engagement", filters.domaine_engagement);
@@ -19,6 +20,11 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
   appendMulti(params, "dispositif", filters.dispositif);
+  // Le parser de query string de l'API est simple : exclusions à plat (`exclude_<clé>`), emplacements en JSON.
+  for (const [key, values] of Object.entries(filters.exclude ?? {})) appendMulti(params, `exclude_${key}`, values);
+  if (filters.includeRemote) params.set("includeRemote", "true");
+  if (filters.sort) params.set("sort", filters.sort);
+  if (filters.slots?.length) params.set("slots", JSON.stringify(filters.slots));
 
   return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`);
 }

@@ -8,7 +8,7 @@ import { corsPublic } from "@/middlewares/cors";
 import { ipRateLimiter, plateformRateLimiter } from "@/middlewares/rate-limit";
 import { MissionBrowseIndexUnavailableError, missionBrowseService, type MissionBrowseSearchFilters } from "@/services/mission-browse";
 import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
-import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
+import { INDEXED_TAXONOMY_KEYS, type IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { widgetService } from "@/services/widget";
 import type { MissionSearchFilters } from "@/types/mission";
 import type { PublisherRequest } from "@/types/passport";
@@ -22,13 +22,36 @@ const router = Router();
 const stringOrStringArraySchema = zod.union([zod.string(), zod.array(zod.string())]);
 
 const taxonomyQueryShape = Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, stringOrStringArraySchema.optional()]));
+// Le parser de query string est simple (pas d'objets imbriqués) : les exclusions arrivent en `exclude_<clé>`.
+const excludeQueryShape = Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [`exclude_${key}`, stringOrStringArraySchema.optional()]));
+
+const taxonomyValuesSchema = zod.partialRecord(zod.enum(INDEXED_TAXONOMY_KEYS as [IndexedTaxonomyKey, ...IndexedTaxonomyKey[]]), zod.array(zod.string()));
+const slotsSchema = zod.array(zod.object({ filters: taxonomyValuesSchema, anyOf: taxonomyValuesSchema.optional() })).max(20);
 
 const browseQuerySchema = zod.object({
   publisherId: zod.string().optional(),
   departmentCode: stringOrStringArraySchema.optional(),
   ...taxonomyQueryShape,
+  ...excludeQueryShape,
+  includeRemote: zod.stringbool().optional(),
+  sort: zod.enum(["recent"]).optional(),
+  // Emplacements des premiers résultats, sérialisés en JSON (cf. `MissionBrowseSlot`).
+  slots: zod
+    .string()
+    .transform((value, ctx) => {
+      try {
+        return JSON.parse(value);
+      } catch {
+        ctx.addIssue({ code: "custom", message: "slots must be valid JSON" });
+        return zod.NEVER;
+      }
+    })
+    .pipe(slotsSchema)
+    .optional(),
   page: zod.coerce.number().int().positive().default(1),
   pageSize: zod.coerce.number().int().positive().max(100).default(20),
+  // Position de départ explicite, pour des pages de tailles différentes (prioritaire sur `page`).
+  offset: zod.coerce.number().int().min(0).optional(),
 });
 
 const widgetBrowseQuerySchema = zod.object({
@@ -144,7 +167,12 @@ router.get("/browse", async (req: PublisherRequest, res: Response, next: NextFun
     if (!query.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, message: query.error });
     }
-    const result = await missionBrowseService.browse({ ...query.data, diffuseurPublisherId: publisher.id });
+    const exclude = Object.fromEntries(
+      Object.entries(query.data)
+        .filter(([key]) => key.startsWith("exclude_"))
+        .map(([key, value]) => [key.replace("exclude_", ""), value])
+    );
+    const result = await missionBrowseService.browse({ ...query.data, exclude, diffuseurPublisherId: publisher.id });
     return res.status(200).send({ ok: true, data: result });
   } catch (error) {
     if (error instanceof MissionBrowseIndexUnavailableError) {

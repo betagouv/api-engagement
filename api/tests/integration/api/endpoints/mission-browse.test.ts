@@ -49,6 +49,33 @@ describe("GET /missions/browse", () => {
 
     await request(app).get("/missions/browse").set("x-api-key", publisher.apikey!).expect(503);
   });
+
+  it("transmet les exclusions, le tri et les emplacements", async () => {
+    const publisher = await createTestPublisher();
+    const slots = [{ filters: { dispositif: ["benevolat"] }, anyOf: { activite: ["secourir_proteger"] } }];
+
+    await request(app)
+      .get("/missions/browse")
+      .set("x-api-key", publisher.apikey!)
+      .query({ exclude_dispositif: "reserve_police_nationale", sort: "recent", includeRemote: "true", offset: "11", slots: JSON.stringify(slots) })
+      .expect(200);
+
+    expect(browseMock).toHaveBeenCalledWith(
+      expect.objectContaining({ exclude: { dispositif: "reserve_police_nationale" }, sort: "recent", includeRemote: true, offset: 11, slots })
+    );
+  });
+
+  it("refuse des emplacements invalides", async () => {
+    const publisher = await createTestPublisher();
+
+    await request(app).get("/missions/browse").set("x-api-key", publisher.apikey!).query({ slots: "pas du json" }).expect(400);
+    await request(app)
+      .get("/missions/browse")
+      .set("x-api-key", publisher.apikey!)
+      .query({ slots: JSON.stringify([{ filters: { inconnu: ["x"] } }]) })
+      .expect(400);
+    expect(browseMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("GET /missions/browse/widget/:id", () => {
