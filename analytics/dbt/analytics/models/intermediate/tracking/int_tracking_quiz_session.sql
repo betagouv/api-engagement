@@ -27,7 +27,7 @@ steps as (
     max(total_visible_steps) as total_visible_steps,
     (
       array_agg(step_name order by step_index desc nulls last)
-        filter (where step_name <> 'email')
+      filter (where step_name <> 'email')
     )[1] as last_step_name
   from {{ ref('stg_tracking__quiz_step_completed') }}
   where quiz_attempt_id is not null
