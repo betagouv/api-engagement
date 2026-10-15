@@ -129,8 +129,10 @@ export default function LocationFilter({ id, className = "" }: { id: string; cla
   return (
     <form
       onSubmit={handleSubmit}
-      className={`bg-background flex flex-col gap-4 p-4 drop-shadow-[0_2px_3px_rgba(0,0,18,0.16)] md:flex-row md:items-start lg:flex-col lg:items-stretch lg:p-6 ${className}`}
+      className={`bg-background relative z-20 flex flex-col gap-4 p-4 drop-shadow-[0_2px_3px_rgba(0,0,18,0.16)] md:flex-row md:items-start lg:flex-col lg:items-stretch lg:p-6 ${className}`}
     >
+      {/* `relative z-20` : l'ombre (drop-shadow) crée un contexte d'empilement ; sans z-index, le bloc de filtres
+          voisin passerait par-dessus la liste de suggestions. */}
       {/* Tablette : champ et bouton sur une ligne ; mobile et colonne desktop : l'un sous l'autre. */}
       <div className={`fr-input-group mb-0! md:flex-1 ${error ? "fr-input-group--error" : ""}`}>
         {/* Libellé masqué visuellement sur mobile, comme dans la maquette (le champ est déjà dans le hero). */}
@@ -161,11 +163,13 @@ export default function LocationFilter({ id, className = "" }: { id: string; cla
           />
           <span className="fr-icon-map-pin-2-line fr-icon--sm pointer-events-none absolute top-1/2 right-4 -translate-y-1/2" aria-hidden="true" />
           {showOptions && options.length > 0 && (
+            // Tablette : le bloc est en bas du hero (qui rogne ce qui dépasse) et les missions le chevauchent juste
+            // dessous, les suggestions s'ouvrent donc vers le haut.
             <ul
               id={listboxId}
               role="listbox"
               aria-label="Suggestions d'adresses"
-              className="bg-background border-border-default-grey absolute top-full right-0 left-0 z-50 m-0! mt-1 max-h-60 list-none! overflow-auto border p-0! shadow-md"
+              className="bg-background border-border-default-grey absolute top-full right-0 left-0 z-50 m-0! mt-1 max-h-60 list-none! overflow-auto border p-0! shadow-md md:max-lg:top-auto md:max-lg:bottom-full md:max-lg:mt-0! md:max-lg:mb-1"
             >
               {/* eslint-disable jsx-a11y-x/click-events-have-key-events -- Le clavier pilote les options depuis la combobox via aria-activedescendant ; les options ne doivent pas devenir des arrêts de tabulation. */}
               {options.map((option, index) => (

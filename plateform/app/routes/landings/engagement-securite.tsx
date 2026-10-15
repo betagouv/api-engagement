@@ -109,7 +109,7 @@ export default function EngagementSecurite() {
         descriptionClassName="lg:max-w-136"
         // Mobile et tablette : la localisation est dans le hero (marge basse chevauchée par les premières missions) ;
         // à partir du desktop, elle rejoint la colonne de filtres.
-        action={<LocationFilter id="hero-localisation" className="relative z-10 mb-6 md:mb-30 lg:hidden" />}
+        action={<LocationFilter id="hero-localisation" className="mb-6 md:mb-30 lg:hidden" />}
         className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(582px,40.4vw)]"
       >
         <HeroVisual />
