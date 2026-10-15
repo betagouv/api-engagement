@@ -77,8 +77,8 @@ export default function Presentation() {
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                 <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
-                  <label className="fr-label fr-sr-only" htmlFor="presentation-newsletter-email">
-                    Votre adresse électronique (ex. : nom@domaine.fr)
+                  <label className="fr-label" htmlFor="presentation-newsletter-email">
+                    E-mail
                   </label>
                   <input
                     id="presentation-newsletter-email"
@@ -89,8 +89,7 @@ export default function Presentation() {
                     aria-required="true"
                     aria-invalid={error ? true : undefined}
                     aria-describedby={error ? "presentation-newsletter-email-messages" : undefined}
-                    className="fr-input mt-0! bg-background! shadow-[inset_0_-2px_0_0_var(--border-plain-blue-france)]!"
-                    placeholder="Votre adresse électronique"
+                    className="fr-input"
                   />
                   {error && (
                     <div className="fr-messages-group" id="presentation-newsletter-email-messages" role="alert">
@@ -98,7 +97,7 @@ export default function Presentation() {
                     </div>
                   )}
                 </div>
-                <button type="submit" disabled={loading} className="fr-btn w-full! justify-center!">
+                <button type="submit" disabled={loading} className="fr-btn fr-btn--secondary w-full! justify-center!">
                   {loading ? "Inscription en cours…" : "Je m'inscris"}
                 </button>
               </form>

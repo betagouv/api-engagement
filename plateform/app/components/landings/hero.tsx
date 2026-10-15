@@ -11,6 +11,7 @@ export default function Hero({
   descriptionClassName = "",
   hint,
   onStartQuiz,
+  action,
   className = "",
   children,
 }: {
@@ -24,6 +25,8 @@ export default function Hero({
   // Sans `onStartQuiz`, pas de CTA quiz (ni d'indication) sous la description.
   hint?: string;
   onStartQuiz?: () => void;
+  // Bloc affiché sous le texte à la place du CTA quiz (ex. recherche par localisation).
+  action?: ReactNode;
   className?: string;
   children: ReactNode;
 }) {
@@ -44,6 +47,8 @@ export default function Hero({
             </>
           )}
         </div>
+        {/* Hors de la colonne de texte : peut occuper toute la largeur du conteneur (ex. tablette). */}
+        {action}
       </div>
 
       {children}

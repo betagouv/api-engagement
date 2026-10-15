@@ -15,6 +15,7 @@ import Presentation from "~/components/landings/engagement-securite/presentation
 import Questions from "~/components/landings/engagement-securite/questions";
 import Etapes, { type Etape } from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
+import LocationFilter from "~/components/landings/location-filter";
 import MissionsBrowser from "~/components/landings/missions-browser";
 import Partners from "~/components/layout/partners";
 import { type Partner } from "~/config/partners";
@@ -104,6 +105,9 @@ export default function EngagementSecurite() {
         titleClassName="lg:w-184 lg:text-[64px]! lg:leading-18!"
         description="Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez comment votre engagement va évoluer !"
         descriptionClassName="lg:max-w-136"
+        // Mobile et tablette : la localisation est dans le hero (marge basse chevauchée par les premières missions) ;
+        // à partir du desktop, elle rejoint la colonne de filtres.
+        action={<LocationFilter id="hero-localisation" className="relative z-10 mb-6 md:mb-30 lg:hidden" />}
         className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(582px,40.4vw)]"
       >
         <HeroVisual />

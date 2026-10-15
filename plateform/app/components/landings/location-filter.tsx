@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } from "react";
+import { useSearchParams } from "react-router";
 
 import { searchAddress, type GeoSuggestion } from "~/services/geolocation";
 import { getDepartmentCodeFromPostcode } from "~/utils/landing-missions";
 
-const INPUT_ID = "missions-localisation";
-const LISTBOX_ID = "missions-localisation-listbox";
+// Libellé de la localisation choisie, gardé dans l'URL pour réafficher le champ (l'API ne reçoit que le département).
+export const LOCATION_LABEL_PARAM = "lieu";
 
 // Bloc « Localisation » de la liste de missions d'une landing : adresse ou ville en autocomplétion
 // (comme l'étape localisation du quiz), convertie en département à la validation, seul critère
 // géographique filtrable par l'API. Un champ vidé puis validé retire la localisation.
-export default function LocationFilter({ initialLabel, onSubmit }: { initialLabel: string; onSubmit: (location: { departmentCode: string; label: string } | null) => void }) {
+// Autonome (lit et écrit l'URL) pour être placé dans la colonne de filtres (desktop) ou dans le hero (mobile) ;
+// `id` distingue les deux exemplaires.
+export default function LocationFilter({ id, className = "" }: { id: string; className?: string }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialLabel = searchParams.get(LOCATION_LABEL_PARAM) ?? "";
+  const listboxId = `${id}-listbox`;
+
   const [value, setValue] = useState(initialLabel);
   const [options, setOptions] = useState<GeoSuggestion[]>([]);
   const [selected, setSelected] = useState<GeoSuggestion | null>(null);
@@ -17,6 +24,13 @@ export default function LocationFilter({ initialLabel, onSubmit }: { initialLabe
   const [activeIndex, setActiveIndex] = useState(-1);
   const [error, setError] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // La localisation change ailleurs (autre exemplaire, réinitialisation des filtres) : le champ suit l'URL.
+  useEffect(() => {
+    setValue(initialLabel);
+    setSelected(null);
+    setError(null);
+  }, [initialLabel]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,11 +91,28 @@ export default function LocationFilter({ initialLabel, onSubmit }: { initialLabe
     }
   };
 
+  const applyLocation = (location: { departmentCode: string; label: string } | null) => {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        params.delete("page");
+        params.delete("departmentCode");
+        params.delete(LOCATION_LABEL_PARAM);
+        if (location) {
+          params.set("departmentCode", location.departmentCode);
+          params.set(LOCATION_LABEL_PARAM, location.label);
+        }
+        return params;
+      },
+      { preventScrollReset: true },
+    );
+  };
+
   const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!value.trim()) {
       setError(null);
-      onSubmit(null);
+      applyLocation(null);
       return;
     }
     // Localisation déjà appliquée et inchangée : rien à refaire.
@@ -92,26 +123,31 @@ export default function LocationFilter({ initialLabel, onSubmit }: { initialLabe
       setError("Sélectionnez une adresse ou une ville dans la liste de suggestions.");
       return;
     }
-    onSubmit({ departmentCode, label: selected.label });
+    applyLocation({ departmentCode, label: selected.label });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-background flex flex-col gap-4 p-6 drop-shadow-[0_2px_3px_rgba(0,0,18,0.16)]">
-      <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
-        <label className="fr-label text-label-grey" htmlFor={INPUT_ID}>
+    <form
+      onSubmit={handleSubmit}
+      className={`bg-background flex flex-col gap-4 p-4 drop-shadow-[0_2px_3px_rgba(0,0,18,0.16)] md:flex-row md:items-start lg:flex-col lg:items-stretch lg:p-6 ${className}`}
+    >
+      {/* Tablette : champ et bouton sur une ligne ; mobile et colonne desktop : l'un sous l'autre. */}
+      <div className={`fr-input-group mb-0! md:flex-1 ${error ? "fr-input-group--error" : ""}`}>
+        {/* Libellé masqué visuellement sur mobile, comme dans la maquette (le champ est déjà dans le hero). */}
+        <label className="fr-label text-label-grey max-lg:sr-only" htmlFor={id}>
           Localisation
         </label>
-        <div className="relative mt-4" ref={wrapperRef}>
+        <div className="relative lg:mt-4" ref={wrapperRef}>
           <input
-            id={INPUT_ID}
+            id={id}
             role="combobox"
             aria-expanded={showOptions && options.length > 0}
-            aria-controls={LISTBOX_ID}
+            aria-controls={listboxId}
             aria-autocomplete="list"
-            aria-activedescendant={activeIndex >= 0 ? `${LISTBOX_ID}-option-${activeIndex}` : undefined}
+            aria-activedescendant={activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
             aria-invalid={error ? true : undefined}
-            aria-describedby={error ? `${INPUT_ID}-messages` : undefined}
-            className={`fr-input mt-0! pr-10! ${error ? "fr-input--error" : ""}`}
+            aria-describedby={error ? `${id}-messages` : undefined}
+            className={`fr-input mt-0! pr-10! max-lg:h-12 ${error ? "fr-input--error" : ""}`}
             type="text"
             placeholder="Adresse ou ville"
             autoComplete="address-level2"
@@ -126,7 +162,7 @@ export default function LocationFilter({ initialLabel, onSubmit }: { initialLabe
           <span className="fr-icon-map-pin-2-line fr-icon--sm pointer-events-none absolute top-1/2 right-4 -translate-y-1/2" aria-hidden="true" />
           {showOptions && options.length > 0 && (
             <ul
-              id={LISTBOX_ID}
+              id={listboxId}
               role="listbox"
               aria-label="Suggestions d'adresses"
               className="bg-background border-border-default-grey absolute top-full right-0 left-0 z-50 m-0! mt-1 max-h-60 list-none! overflow-auto border p-0! shadow-md"
@@ -135,7 +171,7 @@ export default function LocationFilter({ initialLabel, onSubmit }: { initialLabe
               {options.map((option, index) => (
                 <li
                   key={`${option.lat}-${option.lon}`}
-                  id={`${LISTBOX_ID}-option-${index}`}
+                  id={`${listboxId}-option-${index}`}
                   role="option"
                   aria-selected={index === activeIndex}
                   // RGAA 13.11 : preventDefault au mousedown pour garder le focus sur le champ, sélection au clic.
@@ -152,12 +188,12 @@ export default function LocationFilter({ initialLabel, onSubmit }: { initialLabe
           )}
         </div>
         {error && (
-          <div className="fr-messages-group" id={`${INPUT_ID}-messages`} role="alert">
+          <div className="fr-messages-group" id={`${id}-messages`} role="alert">
             <p className="fr-message fr-message--error">{error}</p>
           </div>
         )}
       </div>
-      <button type="submit" className="fr-btn fr-btn--lg w-full! justify-center!">
+      <button type="submit" className="fr-btn fr-btn--lg w-full! shrink-0 justify-center! md:w-auto! lg:w-full!">
         Trouver ma mission
       </button>
     </form>
