@@ -11,6 +11,11 @@
 -- d'acquisition). Une session n'est cookieless que si TOUS ses événements le
 -- sont : un consentement donné en cours de session rend les suivants
 -- rattachables.
+-- Audience : `device_type` est lu sur le premier événement ; la
+-- géolocalisation IP (`geo_*`) sur le premier événement qui en porte une
+-- (PostHog ne géolocalise pas les événements sans consentement cookies :
+-- `geo_*` nulles pour une session cookieless). Pages vues : un changement de
+-- `pathname` entre deux événements successifs compte pour une page.
 -- Personnes internes exclues au niveau du `distinct_id`.
 with events as (
   select
@@ -32,6 +37,13 @@ with events as (
     quiz_attempt_id,
     quiz_session_id,
     is_cookieless_mode,
+    device_type,
+    geo_country_code,
+    geo_country_name,
+    geo_region_code,
+    geo_region,
+    geo_department_code,
+    geo_city,
     coalesce(
       nullif(posthog_session_id, ''),
       distinct_id || ':' || event_at::date
@@ -51,6 +63,16 @@ ordered as (
       partition by tracking_session_id
       order by (utm_source is null), event_at, event_uuid
     ) as utm_rank,
+    -- Page précédente dans la session, pour compter les pages vues.
+    lag(pathname) over (
+      partition by tracking_session_id order by event_at, event_uuid
+    ) as previous_pathname,
+    -- Géolocalisation de repli : premier événement de la session portant un
+    -- pays (les événements sans consentement n'en portent jamais).
+    row_number() over (
+      partition by tracking_session_id
+      order by (geo_country_code is null), event_at, event_uuid
+    ) as geo_rank,
     -- Session « propriétaire » d'un `quiz_session_id` : celle où il est vu
     -- pour la première fois. La super property persiste entre les visites
     -- d'une même personne ; sans ce rattachement unique, les conversions
@@ -79,7 +101,8 @@ landing as (
     utm_source as landing_utm_source,
     utm_campaign as landing_utm_campaign,
     utm_medium as landing_utm_medium,
-    referring_domain as landing_referring_domain
+    referring_domain as landing_referring_domain,
+    device_type
   from ordered
   where event_rank = 1
 ),
@@ -96,6 +119,24 @@ utm as (
   where utm_rank = 1
 ),
 
+geo as (
+  select
+    tracking_session_id,
+    geo_country_code,
+    geo_country_name,
+    geo_region_code,
+    {{ geo_region_name(
+      'geo_country_code', 'geo_region_code', 'geo_region'
+    ) }} as geo_region_name,
+    -- Hors de France, la subdivision de niveau 2 n'est pas un département.
+    case
+      when geo_country_code = 'FR' then geo_department_code
+    end as geo_department_code,
+    geo_city
+  from ordered
+  where geo_rank = 1
+),
+
 agg as (
   select
     tracking_session_id,
@@ -104,6 +145,11 @@ agg as (
     min(event_at) as landing_at,
     max(event_at) as last_event_at,
     count(*) as event_count,
+    -- Pages vues façon Matomo : le premier événement, puis chaque changement
+    -- de `pathname`. Une page quittée sans aucun événement n'est pas comptée.
+    count(*) filter (where pathname is distinct from previous_pathname)
+      as page_view_count,
+    count(distinct pathname) as unique_page_view_count,
     -- Clic de campagne du PREMIER événement qui en porte un, comme les UTM :
     -- une session peut enchaîner deux liens trackés à moins de 30 min
     -- d'intervalle, `max()` en prenait un au hasard.
@@ -168,7 +214,20 @@ select
   a.front_mission_click_count > 0 as has_front_mission_click,
   a.quiz_attempt_count,
   a.quiz_session_ids,
-  a.first_quiz_session_id
+  a.first_quiz_session_id,
+  l.device_type,
+  g.geo_country_code,
+  g.geo_country_name,
+  g.geo_region_code,
+  g.geo_region_name,
+  g.geo_department_code,
+  dc.department_name as geo_department_name,
+  g.geo_city,
+  a.page_view_count,
+  a.unique_page_view_count
 from agg as a
 inner join landing as l on a.tracking_session_id = l.tracking_session_id
 inner join utm as u on a.tracking_session_id = u.tracking_session_id
+inner join geo as g on a.tracking_session_id = g.tracking_session_id
+left join {{ ref('department_codes') }} as dc
+  on g.geo_department_code = dc.department_code
