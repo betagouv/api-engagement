@@ -123,7 +123,13 @@ const buildFacetFilterParts = (params: MissionBrowseParams): Map<string, string>
     }
   };
 
-  setList("departmentCodes", "departmentCodes", params.departmentCode);
+  const departmentCodes = normalizeToArray(params.departmentCode);
+  if (departmentCodes?.length) {
+    const departmentFilter = buildSearchListFilter("departmentCodes", departmentCodes);
+    // Missions à distance (`full`) ou sans lieu précis (`local`, ex. réserves) : elles n'ont pas de département,
+    // mais restent pertinentes quel que soit celui choisi.
+    parts.set("departmentCodes", params.includeRemote ? combineSearchOr([departmentFilter, buildSearchListFilter("remote", ["full", "local"])]) : departmentFilter);
+  }
   for (const field of INDEXED_TAXONOMY_KEYS) {
     setList(field, field, params[field]);
   }

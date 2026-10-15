@@ -22,6 +22,8 @@ export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
   departmentCode?: string | string[];
   // Valeurs de taxonomie à masquer complètement (résultats et compteurs des filtres).
   exclude?: MissionBrowseTaxonomyParams;
+  // Avec un département choisi, garde aussi les missions à distance ou sans lieu précis (remote `full` / `local`).
+  includeRemote?: boolean;
   // `recent` : missions les plus récentes d'abord.
   sort?: "recent";
   // Emplacements des premiers résultats, appliqués uniquement quand aucun filtre n'est coché.

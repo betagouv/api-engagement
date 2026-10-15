@@ -214,6 +214,20 @@ describe("missionBrowseService.browse", () => {
     }
   });
 
+  it("garde les missions à distance ou sans lieu précis avec un département choisi, si demandé", async () => {
+    await missionBrowseService.browse({ ...baseParams, departmentCode: ["69"], includeRemote: true });
+
+    expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && (departmentCodes:=[\`69\`] || remote:=[\`full\`,\`local\`])`);
+    // La facette département ignore sa propre sélection : ses compteurs restent ceux de tous les départements.
+    expect(facetSearch("departmentCodes").filter_by).toBe(DIFFUSION);
+  });
+
+  it("filtre strictement sur le département sans includeRemote", async () => {
+    await missionBrowseService.browse({ ...baseParams, departmentCode: ["69"] });
+
+    expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && departmentCodes:=[\`69\`]`);
+  });
+
   it("trie les missions les plus récentes d'abord", async () => {
     await missionBrowseService.browse({ ...baseParams, sort: "recent" });
 

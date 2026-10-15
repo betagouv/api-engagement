@@ -33,6 +33,7 @@ const browseQuerySchema = zod.object({
   departmentCode: stringOrStringArraySchema.optional(),
   ...taxonomyQueryShape,
   ...excludeQueryShape,
+  includeRemote: zod.stringbool().optional(),
   sort: zod.enum(["recent"]).optional(),
   // Emplacements des premiers résultats, sérialisés en JSON (cf. `MissionBrowseSlot`).
   slots: zod

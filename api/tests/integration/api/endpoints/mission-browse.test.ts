@@ -57,10 +57,10 @@ describe("GET /missions/browse", () => {
     await request(app)
       .get("/missions/browse")
       .set("x-api-key", publisher.apikey!)
-      .query({ exclude_dispositif: "reserve_police_nationale", sort: "recent", slots: JSON.stringify(slots) })
+      .query({ exclude_dispositif: "reserve_police_nationale", sort: "recent", includeRemote: "true", slots: JSON.stringify(slots) })
       .expect(200);
 
-    expect(browseMock).toHaveBeenCalledWith(expect.objectContaining({ exclude: { dispositif: "reserve_police_nationale" }, sort: "recent", slots }));
+    expect(browseMock).toHaveBeenCalledWith(expect.objectContaining({ exclude: { dispositif: "reserve_police_nationale" }, sort: "recent", includeRemote: true, slots }));
   });
 
   it("refuse des emplacements invalides", async () => {
