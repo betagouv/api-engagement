@@ -9,7 +9,6 @@ import type { RankMissionsByUserScoringInput } from "@/services/matching-engine/
 import { createTestMission, createTestMissionEnrichment, createTestMissionScoring, createTestPublisher } from "../fixtures";
 
 const rank = (input: RankMissionsByUserScoringInput) => matchingEngineService.rankMissionsByUserScoring({ version: "m6", persistMatchingResult: false, ...input });
-const comparable = ({ tookMs: _duration, ...result }: Awaited<ReturnType<typeof rank>>) => result;
 const latitudeAtKm = (distanceKm: number) => (distanceKm / 6371) * (180 / Math.PI);
 
 const createUser = (geo: { lat: number; lon: number; radiusKm: number } | null = { lat: 0, lon: 0, radiusKm: 20 }) =>
@@ -86,10 +85,6 @@ describe("préfiltre géographique avant les correspondances", () => {
       expect(page.items).toEqual(result.items.slice(1, 3));
     }
     expect(expected).not.toContain(outsideDiffusion.mission.id);
-    const original = await rank({ ...input, useGeographicPrefilter: false });
-    expect(original.items.some((item) => item.missionId === far.mission.id)).toBe(true);
-    expect(original.items.some((item) => item.missionId === corner.mission.id)).toBe(true);
-
     const query = buildRankingQueryForInput({ ...input, version: "m6" });
     const [plan] = await prisma.$queryRaw<Array<{ "QUERY PLAN": Array<{ Plan: PlanNode }> }>>(Prisma.sql`EXPLAIN (ANALYZE, FORMAT JSON) ${query}`);
     expect(correspondenceCount(plan["QUERY PLAN"][0].Plan)).toBe(expected.length);
@@ -101,11 +96,19 @@ describe("préfiltre géographique avant les correspondances", () => {
 
   it("conserve les résultats globaux sans localisation utilisateur", async () => {
     const user = await createUser(null);
-    await createMission([{ lat: 50, lon: 50 }]);
-    await createMission([]);
+    const far = await createMission([{ lat: 50, lon: 50 }]);
+    const withoutAddress = await createMission([]);
     for (const version of ["m1", "m6"] as const) {
       const input = { userScoringId: user.id, version };
-      expect(comparable(await rank(input))).toEqual(comparable(await rank({ ...input, useGeographicPrefilter: false })));
+      const result = await rank(input);
+      expect(result.items.map((item) => item.missionId).sort()).toEqual([far.mission.id, withoutAddress.mission.id].sort());
+      expect(result.total).toBe(2);
+      for (const item of result.items) {
+        expect(item.taxonomyScore).toBe(1);
+        expect(item.totalScore).toBe(1);
+        expect(item.geoScore).toBeNull();
+        expect(item.distanceKm).toBeNull();
+      }
     }
   });
 
@@ -121,9 +124,8 @@ describe("préfiltre géographique avant les correspondances", () => {
 
   it("ne réintroduit pas une mission lointaine par le fallback géographique", async () => {
     const user = await createUser();
-    const far = await createMission([{ lat: 30, lon: 30 }], { noMatch: true });
+    await createMission([{ lat: 30, lon: 30 }], { noMatch: true });
     const input = { userScoringId: user.id };
-    expect((await rank({ ...input, useGeographicPrefilter: false })).items.map((item) => item.missionId)).toEqual([far.mission.id]);
     expect((await rank(input)).items).toEqual([]);
     const remote = await createMission([{ lat: 30, lon: 30 }], { remote: "full", noMatch: true });
     expect((await rank(input)).items.map((item) => item.missionId)).toEqual([remote.mission.id]);

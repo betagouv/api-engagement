@@ -27,8 +27,6 @@ export type MatchingEngineVersionConfig = {
 export type RankMissionsByUserScoringInput = {
   userScoringId: string;
   publisherId?: string;
-  // Préfiltre géographique avant le scoring, actif par défaut. false sert de témoin au benchmark.
-  useGeographicPrefilter?: boolean;
   version?: MatchingEngineVersion;
   limit?: number;
   offset?: number;

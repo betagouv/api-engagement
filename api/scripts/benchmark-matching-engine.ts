@@ -12,7 +12,6 @@
  *   --limits 20,50,100         Limites a tester (defaut : MATCHING_ENGINE_RESULTS_LIMIT)
  *   --publisher-id ID          Diffuseur utilise pour filtrer les missions (defaut : PLATEFORME_ENGAGEMENT)
  *   --version VERSION          Version du moteur (defaut : version active)
- *   --geo-prefilter on|off     Préfiltre avant les correspondances (défaut : on)
  *   --taxonomy-weight N        Poids taxonomie (defaut : moteur)
  *   --geo-weight N             Poids geo (defaut : moteur)
  *   --geo-half-decay-km N      Demi-vie geo en km (defaut : moteur)
@@ -45,7 +44,6 @@ type BenchmarkOptions = {
   limits: number[];
   publisherId: string;
   version: MatchingEngineVersion;
-  useGeographicPrefilter: boolean;
   taxonomyWeight?: number;
   geoWeight?: number;
   geoHalfDecayKm?: number;
@@ -81,7 +79,6 @@ type ScenarioResult = {
     taxonomyWeight?: number;
     geoWeight?: number;
     geoHalfDecayKm?: number;
-    useGeographicPrefilter: boolean;
   };
   itemCount: number;
   measuredMs: number[];
@@ -168,17 +165,6 @@ const parsePositiveIntegerList = (flag: string, defaultValue: number[]): number[
   return Array.from(new Set(parsed));
 };
 
-const parseGeoPrefilter = (): boolean => {
-  const value = getFlagValue("--geo-prefilter");
-  if (value === null && !args.includes("--geo-prefilter")) {
-    return true;
-  }
-  if (value !== "on" && value !== "off") {
-    throw new Error("--geo-prefilter doit être on ou off");
-  }
-  return value === "on";
-};
-
 const parseOptions = (): BenchmarkOptions => ({
   userScoringIds: getAllFlagValues("--user-scoring-id"),
   sampleSize: parsePositiveInteger("--sample-size", 8),
@@ -187,7 +173,6 @@ const parseOptions = (): BenchmarkOptions => ({
   limits: parsePositiveIntegerList("--limits", [MATCHING_ENGINE_RESULTS_LIMIT]),
   publisherId: getFlagValue("--publisher-id") ?? PUBLISHER_IDS.PLATEFORME_ENGAGEMENT,
   version: (getFlagValue("--version") ?? CURRENT_MATCHING_ENGINE_VERSION) as MatchingEngineVersion,
-  useGeographicPrefilter: parseGeoPrefilter(),
   taxonomyWeight: parseNumber("--taxonomy-weight"),
   geoWeight: parseNumber("--geo-weight"),
   geoHalfDecayKm: parseNumber("--geo-half-decay-km"),
@@ -333,7 +318,6 @@ const getSampledUserScorings = async (sampleSize: number): Promise<UserScoringCa
 
 const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, limit: number): RankMissionsByUserScoringInput => ({
   userScoringId,
-  useGeographicPrefilter: options.useGeographicPrefilter,
   version: options.version,
   limit,
   publisherId: options.publisherId,
@@ -374,7 +358,6 @@ const benchmarkScenario = async (params: { options: BenchmarkOptions; userScorin
       taxonomyWeight: params.options.taxonomyWeight,
       geoWeight: params.options.geoWeight,
       geoHalfDecayKm: params.options.geoHalfDecayKm,
-      useGeographicPrefilter: params.options.useGeographicPrefilter,
     },
     itemCount,
     measuredMs,
@@ -393,7 +376,7 @@ const printTable = (params: { dataset: DatasetSummary; options: BenchmarkOptions
   });
 
   console.log(
-    `[${SCRIPT_LABEL}] version=${params.options.version} publisherId=${params.options.publisherId} iterations=${params.options.iterations} warmup=${params.options.warmup} geoPrefilter=${params.options.useGeographicPrefilter ? "on" : "off"}`
+    `[${SCRIPT_LABEL}] version=${params.options.version} publisherId=${params.options.publisherId} iterations=${params.options.iterations} warmup=${params.options.warmup}`
   );
 
   console.table(

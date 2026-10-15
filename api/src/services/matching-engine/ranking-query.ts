@@ -6,7 +6,6 @@ import { resolveRankingParams } from "./ranking-params";
 import type { MatchingEngineTaxonomyWeights, RankMissionsByUserScoringInput } from "./types";
 
 // Le préfiltre sélectionne un cercle plus large que la distance de référence du score.
-// Sans préfiltre anticipé, le pool historique continue d'utiliser seulement la boîte englobante.
 const GEO_PREFILTER_RADIUS_MULTIPLIER = 6;
 const DEFAULT_GEO_RADIUS_KM = 20;
 // Diversifier uniquement les dispositifs dont les annonces proposent des engagements similaires.
@@ -29,7 +28,6 @@ const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) 
 export const buildRankingQuery = (params: {
   userScoringId: string;
   publisherDiffusionJoinSql?: Prisma.Sql;
-  useGeographicPrefilter?: boolean;
   taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>;
   taxonomyWeight: number;
   geoWeight: number;
@@ -45,9 +43,6 @@ export const buildRankingQuery = (params: {
   limit: number;
   offset: number;
 }) => {
-  const useGeographicPrefilter = params.useGeographicPrefilter !== false;
-  const eligibleMissionScoringsSql = Prisma.raw(useGeographicPrefilter ? "geographically_eligible_mission_scorings" : "eligible_mission_scorings");
-
   // Missions remote=full/local : proximité naturelle (score géo forcé), uniquement si la version l'active.
   const forcedRemoteActive = params.remoteFullGeoScore != null || params.remoteLocalGeoScore != null;
   // L'utilisateur a-t-il coché « je veux participer à distance » ? Sous-requête non corrélée (InitPlan).
@@ -84,7 +79,7 @@ export const buildRankingQuery = (params: {
     SELECT
       ems."mission_id",
       ems."mission_scoring_id"
-    FROM ${eligibleMissionScoringsSql} ems
+    FROM geographically_eligible_mission_scorings ems
     JOIN "mission" m
       ON m."id" = ems."mission_id"
      AND m."remote"::text IN ('full', 'local')
@@ -254,18 +249,7 @@ export const buildRankingQuery = (params: {
       GREATEST(
         COALESCE(NULLIF(ug."radius_km", 0)::double precision, 0.0),
         CAST(${params.geoHalfDecayKm} AS double precision) * CAST(${GEO_PREFILTER_RADIUS_MULTIPLIER} AS double precision)
-      ) AS "radius_km",
-      GREATEST(
-        COALESCE(NULLIF(ug."radius_km", 0)::double precision, 0.0),
-        CAST(${params.geoHalfDecayKm} AS double precision) * CAST(${GEO_PREFILTER_RADIUS_MULTIPLIER} AS double precision)
-      ) / 111.0 AS "lat_delta",
-      GREATEST(
-        COALESCE(NULLIF(ug."radius_km", 0)::double precision, 0.0),
-        CAST(${params.geoHalfDecayKm} AS double precision) * CAST(${GEO_PREFILTER_RADIUS_MULTIPLIER} AS double precision)
-      ) / NULLIF(
-        111.320 * GREATEST(ABS(COS(RADIANS(ug."lat"))), 0.01),
-        0.0
-      ) AS "lon_delta"
+      ) AS "radius_km"
     FROM user_geo ug
   ),
   -- Phase 2 : récupérer le scoring de la version courante, puis appliquer les taxonomies « gate ».
@@ -348,12 +332,11 @@ export const buildRankingQuery = (params: {
       )
     )
   ),
-  ${useGeographicPrefilter ? Prisma.sql`${buildGeographicPrefilterCtes()},` : Prisma.empty}
+  ${buildGeographicPrefilterCtes()},
   -- Matérialiser les correspondances depuis les quelques valeurs du profil empêche PostgreSQL
   -- de réordonner la jointure en une recherche mission par mission dans mission_scoring_value.
   -- Filtrer les scorings par gates et localisation avant le GROUP BY évite d'agréger
-  -- les correspondances qui seraient ensuite éliminées. Sans préfiltre,
-  -- le chemin historique reste disponible comme témoin.
+  -- les correspondances qui seraient ensuite éliminées.
   matching_mission_values AS MATERIALIZED (
     SELECT
       msv."mission_scoring_id",
@@ -363,14 +346,10 @@ export const buildRankingQuery = (params: {
     JOIN "mission_scoring_value" msv
       ON msv."taxonomy_key" = uv."taxonomy_key"
      AND msv."value_key" = uv."value_key"
-    ${
-      useGeographicPrefilter
-        ? Prisma.sql`WHERE EXISTS (
-      SELECT 1 FROM ${eligibleMissionScoringsSql} ems
+    WHERE EXISTS (
+      SELECT 1 FROM geographically_eligible_mission_scorings ems
       WHERE ems."mission_scoring_id" = msv."mission_scoring_id"
-    )`
-        : Prisma.empty
-    }
+    )
     GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
   ),
   -- Phase 3 : calculer la similarité taxonomique. Une taxonomie partiellement matchée reçoit le
@@ -382,7 +361,7 @@ export const buildRankingQuery = (params: {
       mmv."taxonomy_key",
       mmv."taxonomy_sum"
     FROM matching_mission_values mmv
-    JOIN ${eligibleMissionScoringsSql} ems
+    JOIN geographically_eligible_mission_scorings ems
       ON ems."mission_scoring_id" = mmv."mission_scoring_id"
   ),
   taxonomy_scores AS (
@@ -414,44 +393,13 @@ export const buildRankingQuery = (params: {
     LIMIT ${params.taxonomyCandidateLimit}
   ),
   -- Phase 4 : réutiliser les distances du préfiltre pour le pool géographique.
-  -- Sans préfiltre, garder la recherche historique par boîte englobante.
-  ${
-    useGeographicPrefilter
-      ? Prisma.sql`geo_candidates AS (
+  geo_candidates AS (
     SELECT ems."mission_id", ems."mission_scoring_id", nm."distance_km"
     FROM nearby_missions nm
-    JOIN ${eligibleMissionScoringsSql} ems ON ems."mission_id" = nm."mission_id"
+    JOIN geographically_eligible_mission_scorings ems ON ems."mission_id" = nm."mission_id"
     ORDER BY nm."distance_km" ASC, ems."mission_id" ASC
     LIMIT ${params.geoCandidateLimit}
-  ),`
-      : Prisma.sql`  geo_candidates AS (
-    SELECT
-      ems."mission_id",
-      ems."mission_scoring_id",
-      MIN(
-        6371.0 * 2.0 * ASIN(
-          SQRT(
-            POWER(SIN(RADIANS(ma."location_lat" - gps."lat") / 2.0), 2) +
-            COS(RADIANS(gps."lat")) * COS(RADIANS(ma."location_lat")) *
-            POWER(SIN(RADIANS(ma."location_lon" - gps."lon") / 2.0), 2)
-          )
-        )
-      ) AS "distance_km"
-    FROM geo_prefilter_settings gps
-    JOIN "mission_address" ma
-      ON ma."location_lat" IS NOT NULL
-     AND ma."location_lon" IS NOT NULL
-     AND ma."location_lat" BETWEEN gps."lat" - gps."lat_delta" AND gps."lat" + gps."lat_delta"
-     AND ma."location_lon" BETWEEN gps."lon" - gps."lon_delta" AND gps."lon" + gps."lon_delta"
-    JOIN ${eligibleMissionScoringsSql} ems
-      ON ems."mission_id" = ma."mission_id"
-    GROUP BY ems."mission_id", ems."mission_scoring_id"
-    ORDER BY
-      "distance_km" ASC,
-      ems."mission_id" ASC
-    LIMIT ${params.geoCandidateLimit}
-  ),`
-  }
+  ),
   fallback_geo_candidates AS (
     SELECT
       ems."mission_id",
@@ -469,7 +417,7 @@ export const buildRankingQuery = (params: {
     JOIN "mission_address" ma
       ON ma."location_lat" IS NOT NULL
      AND ma."location_lon" IS NOT NULL
-    JOIN ${eligibleMissionScoringsSql} ems
+    JOIN geographically_eligible_mission_scorings ems
       ON ems."mission_id" = ma."mission_id"
     WHERE NOT EXISTS (SELECT 1 FROM taxonomy_candidates)
       AND NOT EXISTS (SELECT 1 FROM geo_candidates)
@@ -483,7 +431,7 @@ export const buildRankingQuery = (params: {
     SELECT
       ems."mission_id",
       ems."mission_scoring_id"
-    FROM ${eligibleMissionScoringsSql} ems
+    FROM geographically_eligible_mission_scorings ems
     CROSS JOIN weighted_user_totals ut
     WHERE ut."taxonomy_total" = 0
       AND NOT EXISTS (SELECT 1 FROM user_geo)
@@ -505,39 +453,7 @@ export const buildRankingQuery = (params: {
       fgc."distance_km"
     FROM fallback_geo_candidates fgc
   ),
-  ${
-    useGeographicPrefilter
-      ? buildGeographicCandidateScoresCte()
-      : Prisma.sql`  geographic_candidate_scores AS (
-    SELECT
-      gc."mission_id",
-      gc."mission_scoring_id",
-      gc."distance_km",
-      COALESCE(SUM(
-        (
-          CAST(${params.taxonomyOrBaseScore} AS double precision) +
-          ((1.0 - CAST(${params.taxonomyOrBaseScore} AS double precision)) * LEAST(gmv."taxonomy_sum" / NULLIF(udt."taxonomy_total", 0), 1.0))
-        ) * COALESCE(dw."taxonomy_weight", 1.0)
-      ) FILTER (WHERE gmv."taxonomy_key" IS NOT NULL), 0) AS "weighted_sum"
-    FROM geographic_candidates gc
-    LEFT JOIN LATERAL (
-      SELECT
-        uv."taxonomy_key",
-        SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
-      FROM user_values uv
-      JOIN "mission_scoring_value" msv
-        ON msv."taxonomy_key" = uv."taxonomy_key"
-       AND msv."value_key" = uv."value_key"
-       AND msv."mission_scoring_id" = gc."mission_scoring_id"
-      GROUP BY uv."taxonomy_key"
-    ) gmv ON TRUE
-    LEFT JOIN user_taxonomy_totals udt
-      ON udt."taxonomy_key" = gmv."taxonomy_key"
-    LEFT JOIN taxonomy_weights dw
-      ON dw."taxonomy_key" = gmv."taxonomy_key"
-    GROUP BY gc."mission_id", gc."mission_scoring_id", gc."distance_km"
-  )`
-  },
+  ${buildGeographicCandidateScoresCte()},
   candidate_mission_rows AS (
     SELECT
       tc."mission_id",
@@ -727,7 +643,6 @@ export const buildRankingQueryForInput = (input: RankMissionsByUserScoringInput,
   return buildRankingQuery({
     userScoringId: input.userScoringId,
     publisherDiffusionJoinSql: buildPublisherDiffusionJoin(input.publisherId),
-    useGeographicPrefilter: input.useGeographicPrefilter,
     taxonomyWeights: params.taxonomyWeights,
     taxonomyWeight: params.taxonomyWeight,
     geoWeight: params.geoWeight,
