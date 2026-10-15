@@ -87,19 +87,19 @@ function FilterGroups({
         const panelId = `${idPrefix}-${key}`;
         const single = SINGLE_CHOICE_FILTERS.includes(key);
         return (
-          <div key={key} className={`mx-6 py-2 ${index > 0 ? "border-border-default-grey border-t" : ""}`}>
+          <div key={key} className={`mx-6 ${index > 0 ? "border-border-default-grey border-t" : ""}`}>
             <button
               type="button"
               aria-expanded={open}
               aria-controls={panelId}
               onClick={() => handleToggleGroup(key)}
-              className="text-label-grey -mx-6! flex w-[calc(100%+3rem)] items-center justify-between px-6 py-4 text-left"
+              className="text-label-grey -mx-6! flex w-[calc(100%+3rem)] items-center justify-between px-6 py-6 text-left"
             >
               {FILTER_LABELS[key]}
               {selectedValues.length > 0 && <span className="fr-sr-only">{`, ${selectedValues.length} sélectionné${selectedValues.length > 1 ? "s" : ""}`}</span>}
               <span aria-hidden="true" className={`text-blue-france-sun fr-icon--sm ${open ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}`} />
             </button>
-            <fieldset id={panelId} hidden={!open} className="fr-fieldset m-0! p-0! pt-2! pb-4!">
+            <fieldset id={panelId} hidden={!open} className="fr-fieldset m-0! p-0! pb-6!">
               <legend className="fr-sr-only">{FILTER_LABELS[key]}</legend>
               {getFilterOptions(key, facets).map((option) => {
                 const inputId = `${panelId}-${option.value}`;
