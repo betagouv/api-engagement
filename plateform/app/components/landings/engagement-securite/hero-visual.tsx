@@ -1,9 +1,9 @@
-import HeroWebp from "~/assets/images/landings/reengagement-police/hero.webp";
-import Benevole1Svg from "~/assets/svg/reengagement-police/benevole-1.svg";
-import Benevole2Svg from "~/assets/svg/reengagement-police/benevole-2.svg";
-import GendarmeSvg from "~/assets/svg/reengagement-police/gendarme.svg";
-import PompierSvg from "~/assets/svg/reengagement-police/pompier.svg";
-import ScratchSvg from "~/assets/svg/reengagement-police/scratch.svg";
+import HeroWebp from "~/assets/images/landings/engagement-securite/hero.webp";
+import Benevole1Svg from "~/assets/svg/engagement-securite/benevole-1.svg";
+import Benevole2Svg from "~/assets/svg/engagement-securite/benevole-2.svg";
+import GendarmeSvg from "~/assets/svg/engagement-securite/gendarme.svg";
+import PompierSvg from "~/assets/svg/engagement-securite/pompier.svg";
+import ScratchSvg from "~/assets/svg/engagement-securite/scratch.svg";
 
 // Visuel du hero recomposé depuis la maquette : trait de fond, photo détourée et uniformes dessinés par-dessus,
 // pour garder les SVG nets à toutes les tailles. Les positions sont des pourcentages de la zone 774×662 de la

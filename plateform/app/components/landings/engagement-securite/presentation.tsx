@@ -5,7 +5,7 @@ import { useQuizStore } from "~/stores/quiz";
 
 // Emojis décoratifs : masqués aux technologies d'assistance, seul le libellé est lu.
 const ATOUTS = [
-  { emoji: "🎓", label: "De l'expérience pour ton CV" },
+  { emoji: "🎓", label: "De l'expérience pour votre CV" },
   { emoji: "📍", label: "Près de chez vous ou à distance" },
   { emoji: "💼", label: "Des compétences" },
   { emoji: "💸", label: "Avec ou sans indemnité" },
@@ -66,13 +66,13 @@ export default function Presentation() {
           <div className="bg-background flex flex-col gap-6 p-6 drop-shadow-[0_4px_6px_rgba(0,0,18,0.16)] md:p-10 lg:w-112 lg:shrink-0">
             <h3 className="fr-h2 text-title-grey! mb-0!">
               Pas le bon moment ?<br />
-              On te prévient
+              On vous prévient
             </h3>
-            <p className="fr-text--lead text-title-grey! mb-0!">On t'envoie des idées de missions une fois par mois près de chez toi.</p>
+            <p className="fr-text--lead text-title-grey! mb-0!">On vous envoie des idées de missions une fois par mois près de chez vous.</p>
 
             {success ? (
               <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
-                <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
+                <p>Votre inscription est bien prise en compte. À très vite dans votre boîte mail !</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-6">
