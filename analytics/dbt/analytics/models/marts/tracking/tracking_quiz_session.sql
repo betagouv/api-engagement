@@ -52,6 +52,7 @@ select
   s.is_completed,
   s.completed_at,
   s.completion_type,
+  s.email_outcome,
   s.steps_completed_count,
   s.last_step_name,
   s.last_step_index,

@@ -101,7 +101,10 @@ models:
               values: ["homepage_cta", "direct", "missions_list", "change_results_cta", "external"]
 
   - name: stg_tracking__quiz_step_completed
-    description: Étape de quiz validée (`quiz.step_completed`), base du funnel d'abandon.
+    description: >
+      Étape de quiz validée (`quiz.step_completed`), base du funnel d'abandon. Depuis l'étape email, `step_name`
+      vaut aussi `email` (émis pour l'email soumis comme pour « Continuer sans laisser mon email »,
+      `answer_value` toujours nul) et `total_visible_steps` la compte.
     columns:
       - name: event_uuid
         tests:
@@ -154,6 +157,13 @@ models:
         tests:
           - accepted_values:
               values: ["full", "shortcut"]
+      - name: email_outcome
+        description: >
+          Issue de l'étape email du quiz. `quiz.completed` part désormais à la sortie de cette étape, et
+          `quiz_duration_ms` inclut le temps passé dessus. Null avant son déploiement.
+        tests:
+          - accepted_values:
+              values: ["submitted", "skipped"]
       - name: statut
         description: Statut déclaré par l'utilisateur.
         tests:
@@ -258,3 +268,49 @@ models:
           - not_null
           - accepted_values:
               values: ["homepage", "missions_list"]
+
+  - name: stg_tracking__email_capture
+    description: >
+      Collecte d'email (`email_capture.viewed`, `submitted`, `failed`, `skipped`). Référence pour compter les emails
+      collectés : 1 inscription = 1 `submitted`, quelle que soit la source. Ne pas additionner avec
+      `email_missions.sent` / `email_mission_detail.sent`, qui décrivent l'envoi d'un email et non la collecte.
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        tests:
+          - accepted_values:
+              values: ["email_capture.viewed", "email_capture.submitted", "email_capture.failed", "email_capture.skipped"]
+      - name: signup_source
+        description: Origine d'inscription, identique à l'attribut Brevo `SIGNUP_SOURCE`.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["quiz", "result_list", "save_mission"]
+      - name: completion_type
+        description: >
+          Source `quiz` uniquement. Recopié sur l'événement car sans cookies `quiz_attempt_id` est retiré :
+          impossible de retrouver le parcours raccourci via `quiz.shortcut_taken`.
+        tests:
+          - accepted_values:
+              values: ["full", "shortcut"]
+      - name: error_type
+        description: Cause du refus (`failed` uniquement).
+        tests:
+          - accepted_values:
+              values: ["invalid_format", "api_error"]
+      - name: skip_method
+        description: Mode de sortie sans email (`skipped` uniquement).
+        tests:
+          - accepted_values:
+              values: ["continue_without_email", "close"]
+      - name: mission_id
+        description: Source `save_mission` uniquement.
+      - name: publisher_id
+        description: Source `save_mission` uniquement, absent hors résultats (ex. landings).
+      - name: rank
+        description: Source `save_mission` uniquement, position dans les résultats. Absent si inconnue.
+      - name: entry_source
+        description: Source `save_mission` uniquement, absent sur les landings.
