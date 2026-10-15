@@ -1,20 +1,25 @@
 import type { MissionBrowse, MissionBrowseFacetCount } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
-import { useEffect, useId, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router";
 
 import LocationFilter, { LOCATION_LABEL_PARAM } from "~/components/landings/location-filter";
+import MissionAlertCard from "~/components/landings/mission-alert-card";
 import MissionCard from "~/components/missions/mission-card";
+import EmailMissionsModal from "~/components/results/email-missions-modal";
 import Pagination from "~/components/ui/pagination";
 import { useFocusTrap } from "~/hooks/useFocusTrap";
 import { PUBLISHER_ID } from "~/services/config";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackMissionsPageChanged } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
-import { LANDING_MISSIONS_PAGE_SIZE, SINGLE_CHOICE_FILTERS, getSelectedValues, type LandingFilterKey } from "~/utils/landing-missions";
+import { SINGLE_CHOICE_FILTERS, getPageWindow, getSelectedValues, getTotalPages, type LandingFilterKey } from "~/utils/landing-missions";
 import { buildMissionBrowseTags } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
+
+// Place de la carte d'inscription aux alertes dans la première page.
+const ALERT_CARD_POSITION = 6;
 
 const FILTER_LABELS: Record<LandingFilterKey, string> = {
   departmentCode: "Localisation",
@@ -167,7 +172,7 @@ function FiltersSheet({
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
-      className="fixed inset-0 z-[1750] flex items-end bg-black/50"
+      className="fixed inset-0 z-1750 flex items-end bg-black/50"
       onClick={(event) => event.target === event.currentTarget && onClose()}
     >
       <div className="bg-background flex max-h-[90vh] w-full flex-col gap-6 rounded-t-[20px] px-3.5 pt-7 pb-4 shadow-[0_6px_18px_0_rgba(0,0,18,0.16)]">
@@ -227,6 +232,8 @@ export default function MissionsBrowser({
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Mission à recevoir par email (cœur d'une carte) : ouvre la modale d'envoi, comme dans les résultats.
+  const [emailMissionId, setEmailMissionId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   // Filtres de l'affichage précédent : un filtre coché est tracé une fois la nouvelle liste chargée, avec son
   // nombre de résultats, quel que soit l'endroit où il a été coché (colonne, fenêtre mobile, localisation).
@@ -291,7 +298,10 @@ export default function MissionsBrowser({
     setSheetOpen(false);
   };
 
-  const totalPages = Math.max(1, Math.ceil(total / LANDING_MISSIONS_PAGE_SIZE));
+  const totalPages = getTotalPages(total);
+  const { offset } = getPageWindow(page);
+  // Page 1 : carte d'alertes en 6e position, ou après la dernière mission s'il y en a moins de 5.
+  const alertCardAfterIndex = Math.min(ALERT_CARD_POSITION - 1, missions.length) - 1;
   const groupFilters = filters.filter((key) => key !== "departmentCode");
 
   // Les premières cartes chevauchent le bas du hero : -160px moins l'espacement entre sections sur mobile et
@@ -325,30 +335,38 @@ export default function MissionsBrowser({
         ) : (
           <ul role="list" className="m-0! grid list-none! grid-cols-1 gap-6 p-0! md:grid-cols-2">
             {missions.map((mission, index) => (
-              <li key={mission.id} className="min-w-0 p-0!">
-                {/* Impression comptée par le jstag API Engagement (chargé dans root.tsx) quand la carte est visible,
+              <Fragment key={mission.id}>
+                <li className="min-w-0 p-0!">
+                  {/* Impression comptée par le jstag API Engagement (chargé dans root.tsx) quand la carte est visible,
                     comme dans le widget : une par mission affichée, attribuée à TrouveTaMission comme diffuseur. */}
-                <span data-name="tracker_counter" data-id={mission.id} data-publisher={PUBLISHER_ID} />
-                <MissionCard
-                  image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
-                  domainLabel={getDomainLabel(mission.domain)}
-                  title={mission.title}
-                  to={`/missions/${mission.id}`}
-                  state={{ entrySource: landing, backTo } satisfies MissionDetailNavState}
-                  onClick={() =>
-                    trackMissionClickedFromBrowse(mission, {
-                      section: landing,
-                      entryPage: landing,
-                      opensExternal: false,
-                      rank: (page - 1) * LANDING_MISSIONS_PAGE_SIZE + index + 1,
-                      pageNumber: page,
-                    })
-                  }
-                  tags={buildMissionBrowseTags(mission)}
-                  publisherName={mission.publisherName}
-                  publisherLogo={mission.publisherLogo}
-                />
-              </li>
+                  <span data-name="tracker_counter" data-id={mission.id} data-publisher={PUBLISHER_ID} />
+                  <MissionCard
+                    image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
+                    domainLabel={getDomainLabel(mission.domain)}
+                    title={mission.title}
+                    to={`/missions/${mission.id}`}
+                    state={{ entrySource: landing, backTo } satisfies MissionDetailNavState}
+                    onClick={() =>
+                      trackMissionClickedFromBrowse(mission, {
+                        section: landing,
+                        entryPage: landing,
+                        opensExternal: false,
+                        rank: offset + index + 1,
+                        pageNumber: page,
+                      })
+                    }
+                    tags={buildMissionBrowseTags(mission)}
+                    publisherName={mission.publisherName}
+                    publisherLogo={mission.publisherLogo}
+                    onEmailClick={() => setEmailMissionId(mission.id)}
+                  />
+                </li>
+                {page === 1 && index === alertCardAfterIndex && (
+                  <li className="min-w-0 p-0!">
+                    <MissionAlertCard />
+                  </li>
+                )}
+              </Fragment>
             ))}
           </ul>
         )}
@@ -366,6 +384,16 @@ export default function MissionsBrowser({
           </button>
         </div>
       </div>
+
+      {/* Pas de `userScoringId` : le visiteur n'a pas fait le quiz, l'envoi porte sur la seule mission choisie. Sans
+          `publisherId`, la modale trace `email_missions.sent` avec la landing comme page d'entrée (comme les autres landings). */}
+      <EmailMissionsModal
+        userScoringId={undefined}
+        entryPage={landing}
+        missionId={emailMissionId ?? undefined}
+        open={emailMissionId !== null}
+        onOpenChange={(open) => !open && setEmailMissionId(null)}
+      />
 
       {sheetOpen && (
         <FiltersSheet

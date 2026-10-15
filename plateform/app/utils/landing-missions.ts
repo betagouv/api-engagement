@@ -16,7 +16,19 @@ export type LandingMissionsConfig = {
   slots?: MissionBrowseSlot[];
 };
 
-export const LANDING_MISSIONS_PAGE_SIZE = 10;
+// La première page garde une place pour la carte d'inscription aux alertes : 11 missions + la carte, puis 12
+// missions par page (des rangées de 2 ou 3 cartes toujours complètes).
+export const LANDING_MISSIONS_FIRST_PAGE_SIZE = 11;
+export const LANDING_MISSIONS_PAGE_SIZE = 12;
+
+// Position de départ et nombre de missions d'une page.
+export const getPageWindow = (page: number): { offset: number; pageSize: number } =>
+  page === 1
+    ? { offset: 0, pageSize: LANDING_MISSIONS_FIRST_PAGE_SIZE }
+    : { offset: LANDING_MISSIONS_FIRST_PAGE_SIZE + (page - 2) * LANDING_MISSIONS_PAGE_SIZE, pageSize: LANDING_MISSIONS_PAGE_SIZE };
+
+export const getTotalPages = (total: number): number =>
+  total <= LANDING_MISSIONS_FIRST_PAGE_SIZE ? 1 : 1 + Math.ceil((total - LANDING_MISSIONS_FIRST_PAGE_SIZE) / LANDING_MISSIONS_PAGE_SIZE);
 
 // Filtres à choix unique : un seul param d'URL est pris en compte.
 export const SINGLE_CHOICE_FILTERS: LandingFilterKey[] = ["tranche_age"];
@@ -34,9 +46,10 @@ export const getSelectedValues = (searchParams: URLSearchParams, key: LandingFil
 // Paramètres de `/missions/browse` pour une landing : seuls les filtres affichés sont lus dans l'URL,
 // la liste est toujours triée par date (les emplacements ne s'appliquent que sans filtre, côté API).
 export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config: LandingMissionsConfig): MissionBrowseFilters => {
+  const page = getPage(searchParams);
   const filters: MissionBrowseFilters = {
-    page: getPage(searchParams),
-    pageSize: LANDING_MISSIONS_PAGE_SIZE,
+    page,
+    ...getPageWindow(page),
     sort: "recent",
     exclude: config.exclude,
     includeRemote: config.includeRemote,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLandingBrowseFilters, getDepartmentCodeFromPostcode, getPage, type LandingMissionsConfig } from "~/utils/landing-missions";
+import { buildLandingBrowseFilters, getDepartmentCodeFromPostcode, getPage, getPageWindow, getTotalPages, type LandingMissionsConfig } from "~/utils/landing-missions";
 
 const CONFIG: LandingMissionsConfig = {
   exclude: { dispositif: ["reserve_police_nationale"] },
@@ -13,7 +13,8 @@ describe("buildLandingBrowseFilters", () => {
   it("transmet toujours l'exclusion, les emplacements et le tri par date", () => {
     expect(buildLandingBrowseFilters(new URLSearchParams(), CONFIG)).toEqual({
       page: 1,
-      pageSize: 10,
+      offset: 0,
+      pageSize: 11,
       sort: "recent",
       exclude: { dispositif: ["reserve_police_nationale"] },
       includeRemote: true,
@@ -57,5 +58,21 @@ describe("getDepartmentCodeFromPostcode", () => {
   it("ignore un code postal invalide", () => {
     expect(getDepartmentCodeFromPostcode("")).toBeNull();
     expect(getDepartmentCodeFromPostcode("7501")).toBeNull();
+  });
+});
+
+describe("getPageWindow / getTotalPages", () => {
+  it("garde 11 missions en page 1 (place de la carte d'alertes), puis 12 par page", () => {
+    expect(getPageWindow(1)).toEqual({ offset: 0, pageSize: 11 });
+    expect(getPageWindow(2)).toEqual({ offset: 11, pageSize: 12 });
+    expect(getPageWindow(3)).toEqual({ offset: 23, pageSize: 12 });
+  });
+
+  it("compte les pages avec une première page plus courte", () => {
+    expect(getTotalPages(0)).toBe(1);
+    expect(getTotalPages(11)).toBe(1);
+    expect(getTotalPages(12)).toBe(2);
+    expect(getTotalPages(23)).toBe(2);
+    expect(getTotalPages(24)).toBe(3);
   });
 });

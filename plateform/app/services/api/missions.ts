@@ -12,6 +12,7 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   const params = new URLSearchParams();
   if (filters.page) params.set("page", String(filters.page));
   if (filters.pageSize) params.set("pageSize", String(filters.pageSize));
+  if (filters.offset !== undefined) params.set("offset", String(filters.offset));
   appendMulti(params, "publisherId", filters.publisherId);
   appendMulti(params, "departmentCode", filters.departmentCode);
   appendMulti(params, "domaine_engagement", filters.domaine_engagement);
