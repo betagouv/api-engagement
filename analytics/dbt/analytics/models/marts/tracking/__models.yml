@@ -495,3 +495,87 @@ models:
         description: Somme des `backend_click_count` des sessions du jour.
       - name: applies
         description: Somme des `apply_count` des sessions du jour.
+
+  - name: tracking_event
+    description: >
+      Exposition de tous les événements métier émis par le front (grain : un événement, `event_uuid`),
+      comptes internes exclus (propriété `internal_user` et référentiel `int_internal_distinct_ids`).
+      Porte d'entrée de tout besoin ad hoc avant de créer un mart dédié : compter des sessions,
+      tentatives ou visiteurs distincts par `event_name`, et lire les propriétés métier dans
+      `properties`. Visiteurs sans cookies inclus (tentative reconstituée depuis la session PostHog, voir
+      `quiz_attempt_id_source`).
+    columns:
+      - name: event_uuid
+        tests:
+          - not_null
+          - unique
+      - name: event_name
+        description: Nom de l'événement (ex. `quiz.started`, `results_filter.applied`).
+      - name: event_date
+        description: Date de l'événement (`event_at::date`).
+      - name: posthog_session_id
+        description: Session PostHog (présente aussi sans cookies).
+      - name: quiz_attempt_id
+        description: >
+          Tentative de quiz : propriété du front, sinon reconstituée depuis la session PostHog
+          (`cookieless:<session>:<n>`). Null hors tentative.
+      - name: quiz_attempt_id_source
+        description: >
+          Origine de `quiz_attempt_id` : `property` ou `session` (visiteur sans cookies).
+      - name: quiz_session_id
+        description: >
+          Scoring courant (`user_scoring_id`) : propriété du front, sinon lu dans l'URL `/results/<id>`.
+      - name: quiz_session_id_source
+        description: >
+          Origine de `quiz_session_id` : `property` ou `url` (visiteur sans cookies).
+      - name: is_cookieless_mode
+        description: Vrai si l'événement a été émis sans consentement cookies.
+      - name: device_type
+        description: Type d'appareil (`$device_type` de PostHog).
+      - name: pathname
+        description: Chemin de la page (sans domaine ni paramètres).
+      - name: properties
+        description: >
+          Propriétés MÉTIER de l'événement (jsonb). Retirées : les clés techniques PostHog (`$...` :
+          navigateur, écran, GeoIP, référent...), `token`, `distinct_id`, `internal_user`, les super
+          properties déjà en colonnes (`quiz_attempt_id`, `quiz_session_id`, `quiz_version`,
+          `utm_source`, `utm_medium`, `utm_campaign`), les identifiants de clic publicitaire (`gclid`,
+          `fbclid`...) et la localisation déclarée au quiz (`geo_lat`, `geo_lon`, et `answer_value` de
+          l'étape `localisation`, qui est l'adresse saisie : donnée personnelle). Les clés techniques
+          restent dans `analytics_raw.tracking_event` si besoin. Sur tous les événements, si présentes :
+          `landing_origin` (landing d'arrivée du visiteur), `utm_term`, `utm_content`. Par événement
+          (source : `plateform/app/services/tracking/events.ts`) :
+          `page.viewed` : `page_name`, `active_filters` (filtres actifs au chargement de /missions),
+          `filters_preselected` ;
+          `cta.clicked` : `page_name`, `cta_section`, `cta_label`, `cta_destination`, `destination_path` ;
+          `quiz.started` : `entry_source`, `entry_section` (bloc de la landing d'où part le bouton) ;
+          `quiz.step_completed` : `step_name`, `step_index`, `total_visible_steps`, `quiz_path`,
+          `answer_value` (sauf `localisation`), et pour `localisation` `geo_postcode`, `geo_country_code`
+          (préférer `tracking_quiz_answer`) ;
+          `quiz.completed` : `completion_type`, `quiz_path`, `steps_completed_count`, `has_localisation`,
+          `age_bracket`, `quiz_duration_ms`, et `statut`, `motivation` sur les anciennes versions
+          (préférer `tracking_quiz_session`) ;
+          `quiz.shortcut_taken` : `from_step_name`, `from_step_index`, `steps_completed_count` ;
+          `quiz.back_navigated` : `from_step_name`, `from_step_index` ;
+          `results.viewed` : `has_results`, `total_results_count`, `page_size`, `total_pages`,
+          `avg_distance_km_top5`, `previous_quiz_session_id` (ré-émission après un re-scoring),
+          `pinned_count` (avant le 17/09/2026) ;
+          `results_filter.applied` : `filter_step_name`, `previous_value`, `new_value` (texte ou tableau),
+          `modified_filter_count` (cumulé depuis l'affichage initial des résultats) ; un événement par
+          filtre modifié, émis AVANT le re-scoring : `quiz_session_id` porte le scoring d'origine, le
+          nouveau apparaît sur le `results.viewed` suivant (avec `previous_quiz_session_id`) ;
+          `results.page_changed` : `from_page`, `to_page`, `total_pages`, `navigation_type` ;
+          `results_map.pin_clicked` : `mission_id`, `rank`, `page_number` ;
+          `results.recap_opened` : aucune propriété (modale « Ton profil » des résultats) ;
+          `mission.clicked` : `mission_id`, `publisher_id`, `publisher_name`, `section`, `rank`,
+          `page_number`, `mission_domain`, `mission_type`, `opens_external`, `distance_km`, `entry_page`
+          (préférer `tracking_mission_click`) ;
+          `mission_detail.viewed` : `mission_id`, `publisher_id`, `publisher_name`, `entry_source`,
+          `rank` ;
+          `missions_filter.applied` : `filter_type`, `filter_value`, `active_filter_count`,
+          `results_count` ;
+          `email_missions.sent` : `has_alert_opt_in`, `entry_page` ;
+          `email_mission_detail.sent` : `mission_id`, `publisher_id`, `entry_source`, `has_alert_opt_in` ;
+          `beta_banner.clicked` : `source`.
+          À venir (spec collecte d'emails) : `email_capture.viewed`, `email_capture.submitted`,
+          `email_capture.failed`, `email_capture.skipped`, avec `signup_source`.
