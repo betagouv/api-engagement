@@ -421,9 +421,7 @@ const run = async () => {
     if (options.explain) {
       for (const userScoring of userScorings) {
         for (const limit of options.limits) {
-          console.log(
-            `\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} publisherId=${options.publisherId} version=${options.version} limit=${limit}`
-          );
+          console.log(`\n[${SCRIPT_LABEL}] EXPLAIN userScoringId=${userScoring.id} publisherId=${options.publisherId} version=${options.version} limit=${limit}`);
           const plan = await matchingEngineService.explainRanking(buildRankingInput(options, userScoring.id, limit));
           console.log(plan);
         }
