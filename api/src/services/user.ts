@@ -49,6 +49,9 @@ const buildWhere = (params: UserFindParams = {}): Prisma.UserWhereInput => {
   if (params.publisherId) {
     where.userPublishers = { some: { publisherId: params.publisherId } };
   }
+  if (params.role) {
+    where.role = params.role;
+  }
   if (params.ids && params.ids.length > 0) {
     where.id = { in: params.ids };
   }

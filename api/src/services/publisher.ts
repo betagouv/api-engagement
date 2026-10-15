@@ -96,6 +96,8 @@ export const publisherService = (() => {
     hasCampaignRights: publisher.hasCampaignRights,
     sendReport: publisher.sendReport,
     sendReportTo: publisher.sendReportTo ?? [],
+    expectedApplications: publisher.expectedApplications ?? null,
+    deploymentUserId: publisher.deploymentUserId ?? null,
     deletedAt: publisher.deletedAt ?? null,
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
@@ -273,6 +275,8 @@ export const publisherService = (() => {
       hasCampaignRights: input.hasCampaignRights ?? false,
       sendReport: input.sendReport ?? false,
       sendReportTo: input.sendReportTo ?? [],
+      expectedApplications: input.expectedApplications ?? null,
+      deploymentUser: input.deploymentUserId ? { connect: { id: input.deploymentUserId } } : undefined,
     };
 
     const normalizedDemarches = normalizeDemarches(input.demarcheSimplifiees);
@@ -480,6 +484,12 @@ export const publisherService = (() => {
     }
     if (patch.sendReportTo !== undefined) {
       data.sendReportTo = { set: patch.sendReportTo ?? [] };
+    }
+    if (patch.expectedApplications !== undefined) {
+      data.expectedApplications = patch.expectedApplications;
+    }
+    if (patch.deploymentUserId !== undefined) {
+      data.deploymentUser = patch.deploymentUserId ? { connect: { id: patch.deploymentUserId } } : { disconnect: true };
     }
     if (patch.demarcheSimplifiees !== undefined) {
       data.demarcheSimplifiees = {

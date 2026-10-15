@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import AnnonceurCreation from "@/scenes/publisher/components/AnnonceurCreation";
+import DeploymentUser from "@/scenes/publisher/components/DeploymentUser";
 import DiffuseurCreation from "@/scenes/publisher/components/DiffuseurCreation";
 import Informations from "@/scenes/publisher/components/Informations";
 import api from "@/services/api";
@@ -16,6 +17,7 @@ const canSubmit = (values) => {
   if (values.isDiffuseur && !(values.hasApiRights || values.hasWidgetRights || values.hasCampaignRights)) return false;
   if (values.isDiffuseur && !values.category) return false;
   if (values.isAnnonceur && !values.missionType) return false;
+  if (values.isAnnonceur && values.expectedApplications === null) return false;
   return true;
 };
 
@@ -35,6 +37,8 @@ const Create = () => {
     selfHostedScript: false,
     isDiffuseur: false, // No in the model
     missionType: null,
+    expectedApplications: null,
+    deploymentUserId: null,
     category: null,
     hasApiRights: false,
     hasWidgetRights: false,
@@ -71,6 +75,7 @@ const Create = () => {
         <div className="space-y-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
           {errors.settings && <p className="text-error">{errors.settings}</p>}
+          <DeploymentUser value={values.deploymentUserId} onChange={(deploymentUserId) => setValues({ ...values, deploymentUserId })} />
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             <div className="flex-1">
               <AnnonceurCreation values={values} onChange={setValues} errors={errors} setErrors={setErrors} />

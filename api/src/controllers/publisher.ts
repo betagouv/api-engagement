@@ -140,6 +140,8 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       .object({
         sendReport: zod.boolean().default(false),
         sendReportTo: zod.array(zod.string()).default([]),
+        expectedApplications: zod.boolean().nullable().default(null),
+        deploymentUserId: zod.string().nullable().default(null),
         isAnnonceur: zod.boolean().default(false),
         selfHostedScript: zod.boolean().default(false),
         missionType: zod.enum(PublisherMissionType).nullable().default(null),
@@ -167,6 +169,15 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
     if (!body.data.name) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Name is required" });
     }
+    if (body.data.isAnnonceur && body.data.expectedApplications === null) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Expected applications is required" });
+    }
+    if (body.data.deploymentUserId) {
+      const deploymentUser = await userService.findUserById(body.data.deploymentUserId);
+      if (deploymentUser?.role !== "admin") {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Deployment user must be an admin" });
+      }
+    }
 
     const exists = await publisherService.publisherExistsByName(body.data.name);
     if (exists) {
@@ -184,6 +195,8 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       isAnnonceur: body.data.isAnnonceur,
       selfHostedScript: body.data.selfHostedScript,
       missionType: body.data.missionType,
+      expectedApplications: body.data.expectedApplications,
+      deploymentUserId: body.data.deploymentUserId,
       hasApiRights: body.data.hasApiRights,
       hasWidgetRights: body.data.hasWidgetRights,
       hasCampaignRights: body.data.hasCampaignRights,
@@ -290,6 +303,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         isAnnonceur: zod.boolean().optional(),
         selfHostedScript: zod.boolean().optional(),
         missionType: zod.enum(PublisherMissionType).nullable().optional(),
+        expectedApplications: zod.boolean().nullable().optional(),
+        deploymentUserId: zod.string().nullable().optional(),
         hasApiRights: zod.boolean().optional(),
         hasWidgetRights: zod.boolean().optional(),
         hasCampaignRights: zod.boolean().optional(),
@@ -315,6 +330,15 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.isAnnonceur && !body.data.missionType) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Mission type is required" });
     }
+    if (body.data.isAnnonceur && (body.data.expectedApplications === null || body.data.expectedApplications === undefined)) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Expected applications is required" });
+    }
+    if (body.data.deploymentUserId) {
+      const deploymentUser = await userService.findUserById(body.data.deploymentUserId);
+      if (deploymentUser?.role !== "admin") {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Deployment user must be an admin" });
+      }
+    }
     if ((body.data.hasApiRights || body.data.hasWidgetRights || body.data.hasCampaignRights) && !body.data.category) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Category is required" });
     }
@@ -328,6 +352,8 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       isAnnonceur: body.data.isAnnonceur,
       selfHostedScript: body.data.selfHostedScript,
       missionType: body.data.missionType,
+      expectedApplications: body.data.expectedApplications,
+      deploymentUserId: body.data.deploymentUserId,
       hasApiRights: body.data.hasApiRights,
       hasWidgetRights: body.data.hasWidgetRights,
       hasCampaignRights: body.data.hasCampaignRights,

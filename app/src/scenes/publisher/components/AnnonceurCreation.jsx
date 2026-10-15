@@ -5,6 +5,7 @@ import RadioInput from "@/components/form/RadioInput";
 import Toggle from "@/components/Toggle";
 import Tooltip from "@/components/Tooltip";
 import { MISSION_TYPES } from "@/constants";
+import ExpectedApplications from "@/scenes/publisher/components/ExpectedApplications";
 
 const AnnonceurCreation = ({ values, onChange }) => {
   const { isAnnonceur } = values;
@@ -15,7 +16,7 @@ const AnnonceurCreation = ({ values, onChange }) => {
         <Toggle
           aria-label={isAnnonceur ? "Désactiver le mode annonceur" : "Activer le mode annonceur"}
           value={isAnnonceur}
-          onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null, selfHostedScript: false })}
+          onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null, expectedApplications: null, selfHostedScript: false })}
         />
       </div>
       {isAnnonceur && (
@@ -35,6 +36,8 @@ const AnnonceurCreation = ({ values, onChange }) => {
               />
             ))}
           </div>
+          <div className="h-px w-full bg-gray-900" />
+          <ExpectedApplications value={values.expectedApplications} onChange={(expectedApplications) => onChange({ ...values, expectedApplications })} />
           <div className="h-px w-full bg-gray-900" />
           <div className="flex items-center gap-2">
             <Checkbox

@@ -386,4 +386,36 @@ describe("Dashboard publisher controller", () => {
     expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id, combinedWithId: null })).toHaveLength(1);
     expect(await publisherDiffusionRuleService.findRules({ value: "unknown-publisher-id" })).toHaveLength(0);
   });
+
+  it("requires expectedApplications for an annonceur and accepts false", async () => {
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const annonceur = await createTestPublisher({ name: "Annonceur alerting" });
+    const put = (body: object) =>
+      request(app)
+        .put(`/publisher/${annonceur.id}`)
+        .set({ Authorization: `jwt ${adminToken}` })
+        .send({ isAnnonceur: true, missionType: PublisherMissionType.BENEVOLAT, ...body });
+
+    expect((await put({})).status).toBe(400);
+    expect((await put({ expectedApplications: null })).status).toBe(400);
+    expect((await put({ expectedApplications: false })).status).toBe(200);
+    expect((await publisherService.findOnePublisherById(annonceur.id))?.expectedApplications).toBe(false);
+  });
+
+  it("only accepts an admin as deploymentUserId", async () => {
+    const { token: adminToken, user: admin } = await createTestUser({ role: "admin" });
+    const { user: member } = await createTestUser({ role: "user" });
+    const publisher = await createTestPublisher({ name: "Publisher deployment user" });
+    const put = (deploymentUserId: string | null) =>
+      request(app)
+        .put(`/publisher/${publisher.id}`)
+        .set({ Authorization: `jwt ${adminToken}` })
+        .send({ deploymentUserId });
+
+    expect((await put(member.id)).status).toBe(400);
+    expect((await put(admin.id)).status).toBe(200);
+    expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBe(admin.id);
+    expect((await put(null)).status).toBe(200);
+    expect((await publisherService.findOnePublisherById(publisher.id))?.deploymentUserId).toBeNull();
+  });
 });

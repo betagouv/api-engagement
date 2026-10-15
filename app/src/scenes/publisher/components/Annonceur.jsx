@@ -9,6 +9,7 @@ import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
 import Tooltip from "@/components/Tooltip";
 import { MISSION_TYPES } from "@/constants";
+import ExpectedApplications from "@/scenes/publisher/components/ExpectedApplications";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { withLegacyPublishers } from "@/utils/publisher";
@@ -42,7 +43,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
           aria-label={isAnnonceur ? "Désactiver le mode annonceur" : "Activer le mode annonceur"}
           value={isAnnonceur}
           onChange={(e) => {
-            onChange({ ...values, isAnnonceur: e, missionType: null });
+            onChange({ ...values, isAnnonceur: e, missionType: null, expectedApplications: null });
             setErrors({ ...errors, settings: null });
           }}
         />
@@ -68,6 +69,15 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
               />
             ))}
           </div>
+          <div className="h-px w-full bg-gray-900" />
+          <ExpectedApplications
+            value={values.expectedApplications}
+            error={errors.expectedApplications}
+            onChange={(expectedApplications) => {
+              onChange({ ...values, expectedApplications });
+              setErrors({ ...errors, expectedApplications: null });
+            }}
+          />
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
             {data.length} diffuseurs diffusent les missions de {values.name}
