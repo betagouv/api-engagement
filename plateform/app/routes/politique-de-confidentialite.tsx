@@ -142,7 +142,7 @@ export default function PolitiqueDeConfidentialite() {
                 <td>États-Unis (données hébergées en Allemagne)</td>
                 <td>Mesure d'audience</td>
                 <td>
-                  <a href="https://posthog.com/gdpr" target="_blank" rel="noopener" title="Conformité RGPD - nouvelle fenêtre">
+                  <a href="https://posthog.com/docs/privacy/gdpr-compliance" target="_blank" rel="noopener" title="Conformité RGPD - nouvelle fenêtre">
                     Conformité RGPD
                   </a>
                 </td>
