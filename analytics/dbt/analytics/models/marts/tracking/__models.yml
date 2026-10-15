@@ -130,15 +130,6 @@ models:
         tests:
           - not_null
 
-  - name: tracking_funnel_step_daily
-    description: >
-      Funnel quotidien : sessions atteignant chaque étape, taux de rétention étape N / N-1 et taux d'atteinte
-      global depuis `quiz.started`. RUPTURE DE SÉRIE à la mise en production du suivi des visiteurs sans cookies (octobre 2026) : les tentatives sans cookies (~30 % des démarrages en septembre 2026) sont incluses.
-    columns:
-      - name: kpi_date
-        tests:
-          - not_null
-
   - name: tracking_engagement_kpi_daily
     description: >
       Rollup quotidien des KPIs de succès et d'activité (complétion, conversion quiz → clic, accès annonceurs,
