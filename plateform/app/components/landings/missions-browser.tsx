@@ -9,7 +9,7 @@ import LocationFilter, { LOCATION_LABEL_PARAM } from "~/components/landings/loca
 import MissionCard from "~/components/missions/mission-card";
 import Pagination from "~/components/ui/pagination";
 import { useFocusTrap } from "~/hooks/useFocusTrap";
-import { sendMissionImpressions } from "~/services/mission-impressions";
+import { PUBLISHER_ID } from "~/services/config";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackMissionsPageChanged } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import { LANDING_MISSIONS_PAGE_SIZE, SINGLE_CHOICE_FILTERS, getSelectedValues, type LandingFilterKey } from "~/utils/landing-missions";
@@ -233,8 +233,6 @@ export default function MissionsBrowser({
   const previousParamsRef = useRef(searchParams);
 
   useEffect(() => {
-    sendMissionImpressions(missions.map((mission) => mission.id));
-
     const previousParams = previousParamsRef.current;
     previousParamsRef.current = searchParams;
     const addedFilter = filters
@@ -328,6 +326,9 @@ export default function MissionsBrowser({
           <ul role="list" className="m-0! grid list-none! grid-cols-1 gap-6 p-0! md:grid-cols-2">
             {missions.map((mission, index) => (
               <li key={mission.id} className="min-w-0 p-0!">
+                {/* Impression comptée par le jstag API Engagement (chargé dans root.tsx) quand la carte est visible,
+                    comme dans le widget : une par mission affichée, attribuée à TrouveTaMission comme diffuseur. */}
+                <span data-name="tracker_counter" data-id={mission.id} data-publisher={PUBLISHER_ID} />
                 <MissionCard
                   image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
                   domainLabel={getDomainLabel(mission.domain)}
