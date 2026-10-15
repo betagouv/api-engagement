@@ -280,7 +280,7 @@ export const missionBrowseService = {
 
     // Liste complète = missions des emplacements puis toutes les autres. La page courante prend sa part
     // d'emplacements, et le reste est lu dans les autres missions avec un décalage d'autant.
-    const start = (params.page - 1) * params.pageSize;
+    const start = params.offset ?? (params.page - 1) * params.pageSize;
     const pageSlotIds = slotIds.slice(start, start + params.pageSize);
     const resultsParams = slotIds.length ? { ...params, offset: Math.max(0, start - slotIds.length), pageSize: params.pageSize - pageSlotIds.length } : params;
     const { searches, facets: facetSpecs } = buildBrowseSearches(resultsParams, slotIds);

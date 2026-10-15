@@ -18,6 +18,8 @@ export type MissionBrowseSlot = {
 export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
   page?: number;
   pageSize?: number;
+  // Position de départ explicite, pour des pages de tailles différentes (prioritaire sur `page`).
+  offset?: number;
   publisherId?: string | string[];
   departmentCode?: string | string[];
   // Valeurs de taxonomie à masquer complètement (résultats et compteurs des filtres).

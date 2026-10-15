@@ -291,6 +291,17 @@ describe("missionBrowseService.browse", () => {
       expect(resultsSearch()).toMatchObject({ offset: 0, limit: 1 });
     });
 
+    it("part d'un offset explicite pour des pages de tailles différentes", async () => {
+      mockSlotsThenResults([hits("a1", "a2"), hits("b1")], hits("r2"));
+
+      // Page 1 de 2 missions, puis pages de 3 : la 2e page commence à la 3e mission (a2, dernier emplacement),
+      // puis lit les autres missions depuis le début.
+      await missionBrowseService.browse({ ...baseParams, page: 2, offset: 2, pageSize: 3, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a2", "r2"], null);
+      expect(resultsSearch()).toMatchObject({ offset: 0, limit: 2 });
+    });
+
     it("abandonne les emplacements dès qu'un filtre est coché", async () => {
       await missionBrowseService.browse({ ...baseParams, sort: "recent", activite: ["secourir_proteger"], slots: [ARMEES] });
 

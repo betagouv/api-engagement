@@ -50,6 +50,8 @@ const browseQuerySchema = zod.object({
     .optional(),
   page: zod.coerce.number().int().positive().default(1),
   pageSize: zod.coerce.number().int().positive().max(100).default(20),
+  // Position de départ explicite, pour des pages de tailles différentes (prioritaire sur `page`).
+  offset: zod.coerce.number().int().min(0).optional(),
 });
 
 const widgetBrowseQuerySchema = zod.object({
