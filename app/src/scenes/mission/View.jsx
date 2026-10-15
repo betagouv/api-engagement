@@ -80,6 +80,7 @@ const View = () => {
   const navigate = useNavigate();
   const { user } = useStore();
   const [mission, setMission] = useState(null);
+  const [error, setError] = useState(null);
   const [activeTechnicalTab, setActiveTechnicalTab] = useState("enrichment");
   const [triggeringTask, setTriggeringTask] = useState(null);
   const [showAllAddresses, setShowAllAddresses] = useState(false);
@@ -97,6 +98,7 @@ const View = () => {
     // return) jusqu'à ce que la nouvelle mission soit chargée. Sans ça, l'en-tête/détails de l'ancienne
     // mission resteraient affichés pendant que les onglets techniques chargent déjà la nouvelle.
     setMission(null);
+    setError(null);
     setDiffuseurs(null);
     setSearchDocument(null);
     setTechnicalTabState({ diffuseurs: "idle", "search-document": "idle" });
@@ -104,9 +106,18 @@ const View = () => {
       try {
         const res = await api.get(`/mission/${id}`);
         if (!res.ok) throw res;
+        if (currentMissionIdRef.current !== id) return;
         setMission(res.data);
       } catch (error) {
         captureError(error, { extra: { id } });
+        if (currentMissionIdRef.current !== id) return;
+        setError(
+          error?.status === 403
+            ? "Vous n'avez pas les droits pour consulter cette mission."
+            : error?.status === 404
+              ? "Cette mission est introuvable."
+              : "Impossible de charger la mission.",
+        );
       }
     };
     fetchData();
@@ -162,6 +173,7 @@ const View = () => {
     setTriggeringTask(null);
   };
 
+  if (error) return <p className="p-3">{error}</p>;
   if (!mission) return <p className="p-3">Chargement...</p>;
 
   const addresses = mission.addresses ?? [];
