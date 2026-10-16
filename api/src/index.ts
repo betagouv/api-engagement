@@ -48,6 +48,7 @@ import middlewares from "@/middlewares";
 import { initHttpMetrics, shutdownHttpMetrics } from "@/services/observability/metrics";
 
 import AdminReportController from "@/controllers/admin-report";
+import AlertPocController from "@/controllers/alert-poc/controller";
 import BrevoWebhookController from "@/controllers/brevo-webhook/controller";
 import CampaignController from "@/controllers/campaign";
 import DemarchesSimplifieesController from "@/controllers/demarches-simplifiees";
@@ -131,6 +132,7 @@ const main = async () => {
   app.use("/v2/jobteaser", corsPublic, JobTeaserV2Controller);
   app.use("/user-scoring", corsPublic, UserScoringController);
   app.use("/brevo-webhook", corsPublic, BrevoWebhookController);
+  app.use("/alerts-poc", AlertPocController);
   app.use("/missions", MissionBrowseController);
   app.use("/missions", corsPublic, MissionMatchController);
   app.use("/email", corsPublic, EmailController);
