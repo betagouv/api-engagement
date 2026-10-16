@@ -496,6 +496,7 @@ model Warning {
   // Alerting : `fixed` reste la source de vérité des vues existantes, synchronisé avec `status` (RESOLVED <=> fixed)
   status       WarningStatus @default(TODO)
   procedureUrl String?       @map("procedure_url")
+  escalatedAt  DateTime?     @map("escalated_at")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 

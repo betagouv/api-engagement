@@ -1,4 +1,4 @@
-import { ALERTS_BREVO_TEMPLATE_ID } from "@/config";
+import { ALERTS_BREVO_TEMPLATE_ID, ALERTS_ESCALATION_HOURS } from "@/config";
 import { sendTemplate } from "@/services/brevo/email";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
@@ -18,7 +18,7 @@ export interface AlertInput {
 
 export const warningAlertService = (() => {
   // Envoie le mail d'alerte aux utilisateurs donnés. Les emails ne quittent jamais l'API.
-  const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<number> => {
+  const notifyUsers = async (warning: WarningRecord, userIds: string[], options: { reminder?: boolean } = {}): Promise<number> => {
     if (!ALERTS_BREVO_TEMPLATE_ID) {
       console.warn("[warning-alert] ALERTS_BREVO_TEMPLATE_ID is not set, no email sent");
       return 0;
@@ -31,7 +31,7 @@ export const warningAlertService = (() => {
       }
       const { ok } = await sendTemplate(ALERTS_BREVO_TEMPLATE_ID, {
         emailTo: [user.email],
-        subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type} [ALERTE:${warning.id}]`,
+        subject: `${options.reminder ? "[Relance] " : ""}[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type} [ALERTE:${warning.id}]`,
         params: {
           firstname: user.firstname,
           publisherName: warning.publisherName,
@@ -104,5 +104,23 @@ export const warningAlertService = (() => {
     return true;
   };
 
-  return { ingest, assign, notifyUsers, handleEmailReply };
+  // Relance une fois les alertes restées "à faire" au-delà du délai (les alertes en cours ou résolues sont ignorées).
+  const escalate = async (olderThanHours = ALERTS_ESCALATION_HOURS): Promise<number> => {
+    const stale = await warningService.findWarnings({
+      status: "TODO",
+      escalated: false,
+      createdAtLt: new Date(Date.now() - olderThanHours * 60 * 60 * 1000),
+    });
+    for (const warning of stale) {
+      await notifyUsers(
+        warning,
+        warning.assignees.map((assignee) => assignee.id),
+        { reminder: true }
+      );
+      await warningService.updateWarning(warning.id, { escalatedAt: new Date() });
+    }
+    return stale.length;
+  };
+
+  return { ingest, assign, notifyUsers, escalate, handleEmailReply };
 })();

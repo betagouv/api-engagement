@@ -8,6 +8,7 @@ const sendTemplate = vi.hoisted(() => {
 });
 vi.mock("@/services/brevo/email", () => ({ sendTemplate }));
 
+import { prisma } from "@/db/postgres";
 import { warningService } from "@/services/warning";
 import { warningAlertService } from "@/services/warning-alert";
 import { createTestPublisher } from "../../../fixtures";
@@ -101,5 +102,60 @@ describe("Warning alerting", () => {
     expect(await warningAlertService.handleEmailReply(subject, deploymentUser.user.email)).toBe(true);
     expect(await warningService.findWarningById(warning.id)).toMatchObject({ status: "RESOLVED", fixed: true });
     expect(await warningAlertService.handleEmailReply("Rapport LinkedIn", deploymentUser.user.email)).toBe(false);
+  });
+
+  describe("complex scenarios (S4)", () => {
+    it("deduplicates repeated alerts into a single open alert and notifies once", async () => {
+      for (let i = 0; i < 10; i++) {
+        await webhook([{ type: TYPE, publisherId }]);
+      }
+      const warnings = await warningService.findWarnings({ publisherId });
+      expect(warnings).toHaveLength(1);
+      expect(warnings[0].occurrences).toBe(10);
+      expect(sendTemplate).toHaveBeenCalledTimes(1);
+    });
+
+    it("opens a new alert and notifies again when the problem comes back after a resolution", async () => {
+      await webhook([{ type: TYPE, publisherId }]);
+      const [first] = await warningService.findWarnings({ publisherId });
+      await warningService.updateWarning(first.id, { status: "RESOLVED" });
+
+      const res = await webhook([{ type: TYPE, publisherId }]);
+      expect(res.body.data.created).toBe(1);
+      expect(await warningService.findWarnings({ publisherId })).toHaveLength(2);
+      expect(sendTemplate).toHaveBeenCalledTimes(2);
+    });
+
+    it("groups the alerts of one advertiser (several types) while keeping them separate", async () => {
+      await webhook([
+        { type: TYPE, publisherId },
+        { type: "IMPORT_WARNING", publisherId },
+      ]);
+      const res = await request(app).post("/warning/search").set("Authorization", `jwt ${deploymentUser.token}`).send({ publisherId, fixed: false });
+      expect(res.body.data.map((w: { type: string }) => w.type).sort()).toEqual(["IMPORT_WARNING", TYPE]);
+      // Pas de notion d'incident : un mail par alerte (pas de regroupement)
+      expect(sendTemplate).toHaveBeenCalledTimes(2);
+    });
+
+    it("escalates untreated alerts once, ignoring those already in progress or too recent", async () => {
+      await webhook([
+        { type: TYPE, publisherId },
+        { type: "IMPORT_WARNING", publisherId },
+        { type: "BOT_WARNING", publisherId },
+      ]);
+      const all = await warningService.findWarnings({ publisherId });
+      const byType = (type: string) => all.find((w) => w.type === type)!;
+      const old = new Date(Date.now() - 48 * 60 * 60 * 1000);
+      await prisma.warning.updateMany({ where: { id: { in: [byType(TYPE).id, byType("IMPORT_WARNING").id] } }, data: { createdAt: old } });
+      await warningService.updateWarning(byType("IMPORT_WARNING").id, { status: "IN_PROGRESS" });
+      sendTemplate.mockClear();
+
+      expect(await warningAlertService.escalate(24)).toBe(1);
+      expect(sendTemplate).toHaveBeenCalledTimes(1);
+      expect(sendTemplate.mock.calls[0][1].subject).toMatch(/^\[Relance\]/);
+      expect((await warningService.findWarningById(byType(TYPE).id))?.escalatedAt).not.toBeNull();
+
+      expect(await warningAlertService.escalate(24)).toBe(0);
+    });
   });
 });

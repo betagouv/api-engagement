@@ -1,10 +1,11 @@
 import { captureException } from "@/error";
-import { publisherService } from "@/services/publisher";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { checkBotClicks } from "@/jobs/warnings/bot";
 import { checkImports } from "@/jobs/warnings/import";
 import { checkTracking } from "@/jobs/warnings/tracking";
+import { publisherService } from "@/services/publisher";
+import { warningAlertService } from "@/services/warning-alert";
 
 export interface WarningsJobPayload {}
 
@@ -27,6 +28,10 @@ export class WarningsHandler implements BaseHandler<WarningsJobPayload, Warnings
 
       console.log("Checking bots");
       await checkBotClicks();
+
+      console.log("Escalating untreated alerts");
+      const escalated = await warningAlertService.escalate();
+      console.log(`${escalated} alert(s) escalated`);
 
       console.log(`[Warnings] Ended at ${new Date().toISOString()} in ${(Date.now() - start.getTime()) / 1000}s`);
 

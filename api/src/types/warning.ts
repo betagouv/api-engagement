@@ -20,6 +20,7 @@ export interface WarningRecord {
   occurrences: number;
   status: WarningStatus;
   procedureUrl: string | null;
+  escalatedAt: Date | null;
   assignees: WarningAssignee[];
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +28,8 @@ export interface WarningRecord {
 
 export interface WarningFindParams {
   fixed?: boolean;
+  status?: WarningStatus;
+  escalated?: boolean;
   publisherId?: string;
   type?: string;
   createdAtGte?: Date;
@@ -56,4 +59,5 @@ export interface WarningUpdatePatch {
   fixedAt?: Date | null;
   occurrences?: number;
   status?: WarningStatus;
+  escalatedAt?: Date | null;
 }

@@ -31,6 +31,7 @@ export const warningService = (() => {
     occurrences: warning.occurrences,
     status: warning.status,
     procedureUrl: warning.procedureUrl,
+    escalatedAt: warning.escalatedAt,
     assignees: "assignees" in warning && warning.assignees ? warning.assignees.map(({ user }) => user) : [],
     createdAt: warning.createdAt,
     updatedAt: warning.updatedAt,
@@ -93,6 +94,9 @@ export const warningService = (() => {
     } else if (patch.fixedAt !== undefined) {
       updateData.fixedAt = patch.fixedAt;
     }
+    if (patch.escalatedAt !== undefined) {
+      updateData.escalatedAt = patch.escalatedAt;
+    }
     if (patch.occurrences !== undefined) {
       updateData.occurrences = patch.occurrences;
     }
@@ -107,6 +111,8 @@ export const warningService = (() => {
 
   const findWarnings = async (params: {
     fixed?: boolean;
+    status?: WarningStatus;
+    escalated?: boolean;
     publisherId?: string;
     type?: string;
     createdAtGte?: Date;
@@ -117,6 +123,12 @@ export const warningService = (() => {
 
     if (params.fixed !== undefined) {
       where.fixed = params.fixed;
+    }
+    if (params.status) {
+      where.status = params.status;
+    }
+    if (params.escalated !== undefined) {
+      where.escalatedAt = params.escalated ? { not: null } : null;
     }
     if (params.publisherId) {
       where.publisherId = params.publisherId;
