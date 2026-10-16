@@ -1,0 +1,23 @@
+# S1 : alerte "arrêt de tracking" -> l'API retrouve le chargé de déploiement et envoie le mail (Brevo).
+# Prérequis (voir README) : provider webhook "api-notify" (URL + header Authorization portés par le provider).
+workflow:
+  id: tracking-alert
+  name: Alerte arrêt de tracking
+  description: Notifie le chargé de déploiement d'un annonceur dont le tracking des candidatures s'est arrêté.
+  triggers:
+    - type: alert
+      cel: name == "tracking-stopped" && status == "firing"
+      # sans ça, chaque événement "firing" répété renotifie (cf. constats S4)
+      only_on_change:
+        - status
+  actions:
+    - name: notify-deployment-user
+      provider:
+        type: webhook
+        config: "{{ providers.api-notify }}"
+        with:
+          body:
+            publisherId: "{{ alert.labels.publisher_id }}"
+            description: "{{ alert.description }}"
+            triggeredAt: "{{ alert.lastReceived }}"
+            procedureUrl: https://www.notion.so/PLACEHOLDER

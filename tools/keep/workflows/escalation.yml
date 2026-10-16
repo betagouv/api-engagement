@@ -1,0 +1,35 @@
+# ⚠️ NON VALIDÉ : le workflow s'exécute (interval 60 s) mais l'action d'escalade n'a jamais été déclenchée pendant le POC
+# (le step renvoie bien les alertes, la condition `if` du foreach ne passe pas, sans erreur dans les logs). Voir docs/keep-poc.md.
+# S4 : escalade. Toutes les minutes, relance les alertes de tracking encore "firing" (ni acquittées ni résolues)
+# depuis plus de 2 minutes (0.03 h, valeur de POC ; en réel : 24 h). Marque l'alerte "escalated" pour ne relancer qu'une fois.
+# Piège : un filtre CEL invalide (ex. !has(champ)) ne lève aucune erreur, le step renvoie simplement une liste vide.
+workflow:
+  id: tracking-escalation
+  name: Escalade des alertes tracking non traitées
+  description: Relance une fois les alertes de tracking non acquittées après un délai.
+  triggers:
+    - type: interval
+      value: 60
+  steps:
+    - name: get-untreated
+      provider:
+        type: keep
+        with:
+          version: 2
+          filter: 'name == "tracking-stopped" && status == "firing"'
+          time_delta: 1
+  actions:
+    - name: escalate
+      foreach: "{{ steps.get-untreated.results }}"
+      if: "keep.datetime_compare(keep.utcnow(), keep.to_utc(keep.parse_date('{{ foreach.value.firingStartTime }}'))) > 0.03 and '{{ foreach.value.escalated }}' != 'true'"
+      provider:
+        type: webhook
+        config: "{{ providers.api-notify }}"
+        with:
+          body:
+            publisherId: "{{ foreach.value.labels.publisher_id }}"
+            description: "ESCALADE : alerte non traitée depuis {{ foreach.value.firingStartTime }}"
+          enrich_alert:
+            - key: escalated
+              value: "true"
+              disposable: false

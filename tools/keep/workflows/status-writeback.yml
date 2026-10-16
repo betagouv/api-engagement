@@ -1,0 +1,19 @@
+# S2 : à chaque changement de statut d'une alerte, on prévient l'API (write-back).
+workflow:
+  id: status-writeback
+  name: Write-back du statut vers l'API
+  description: Appelle POST /alerts-poc/status à chaque changement de statut.
+  triggers:
+    - type: alert
+      only_on_change:
+        - status
+  actions:
+    - name: notify-api
+      provider:
+        type: webhook
+        config: "{{ providers.api-status }}"
+        with:
+          body:
+            fingerprint: "{{ alert.fingerprint }}"
+            status: "{{ alert.status }}"
+            publisherId: "{{ alert.labels.publisher_id }}"
