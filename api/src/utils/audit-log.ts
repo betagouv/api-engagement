@@ -9,7 +9,8 @@ export type AuditAction =
   | "publisher.update"
   | "widget.update"
   | "organization.update"
-  | "webhook.brevo.invalid_token";
+  | "webhook.brevo.invalid_token"
+  | "webhook.alerts.invalid_token";
 
 export type AuditOutcome = "success" | "denied";
 

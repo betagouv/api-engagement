@@ -58,6 +58,9 @@ resource "scaleway_container" "api" {
 
     "MISSION_V2_LIST_ENABLED" = var.enable_mission_v2_list ? "true" : "false"
 
+    # Alerting métier (webhook /warning/webhook) : template Brevo de la notification (vide = pas de mail)
+    "ALERTS_BREVO_TEMPLATE_ID" = var.alerts_brevo_template_id
+
     "SCW_QUEUE_ENDPOINT"                = var.enable_async_tasks ? "https://sqs.mnq.fr-par.scaleway.com" : ""
     "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = var.enable_async_tasks ? module.async_task_queues["mission_enrichment"].url : ""
     "SCW_QUEUE_URL_MISSION_SCORING"     = var.enable_async_tasks ? module.async_task_queues["mission_scoring"].url : ""
@@ -72,6 +75,7 @@ resource "scaleway_container" "api" {
     "SENTRY_DSN_API"              = local.secrets.SENTRY_DSN_API
     "SENDINBLUE_APIKEY"           = local.secrets.SENDINBLUE_APIKEY
     "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
+    "ALERTS_WEBHOOK_TOKEN"        = lookup(local.secrets, "ALERTS_WEBHOOK_TOKEN", "")
     "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
     "SCW_ACCESS_KEY"              = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"              = local.secrets.SCW_SECRET_KEY

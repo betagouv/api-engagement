@@ -2,10 +2,12 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_QUERY } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { warningAlertService } from "@/services/warning-alert";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
@@ -98,6 +100,95 @@ router.get("/admin-state", passport.authenticate("user", { session: false }), as
   try {
     const state = await importService.getLastImportSummary();
     return res.status(200).send({ ok: true, data: state });
+  } catch (error) {
+    next(error);
+  }
+});
+
+const alertSchema = zod.object({
+  type: zod.string().min(1),
+  publisherId: zod.string().min(1),
+  title: zod.string().optional(),
+  description: zod.string().optional(),
+  procedureUrl: zod.string().url().optional(),
+});
+
+// Ingestion des alertes (Metabase → webhook) : une alerte par annonceur, le chargé de déploiement est notifié à la création.
+router.post("/webhook", alertsWebhookSecurity, async (req, res, next) => {
+  try {
+    const body = zod.object({ alerts: zod.array(alertSchema).min(1).max(500) }).safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+
+    let created = 0;
+    let updated = 0;
+    const unknownPublishers: string[] = [];
+    for (const alert of body.data.alerts) {
+      const result = await warningAlertService.ingest(alert);
+      if (!result) {
+        unknownPublishers.push(alert.publisherId);
+      } else if (result.created) {
+        created++;
+      } else {
+        updated++;
+      }
+    }
+    return res.status(200).send({ ok: true, data: { created, updated, unknownPublishers } });
+  } catch (error) {
+    next(error);
+  }
+});
+
+const canManageWarning = async (user: { id: string; role: string }, warningId: string) => {
+  const warning = await warningService.findWarningById(warningId);
+  if (!warning) {
+    return { warning: null, allowed: false };
+  }
+  return { warning, allowed: user.role === "admin" || warning.assignees.some((assignee) => assignee.id === user.id) };
+};
+
+router.put("/:id/status", passport.authenticate(["user", "admin"], { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string().uuid() }).safeParse(req.params);
+    const body = zod.object({ status: zod.enum(["TODO", "IN_PROGRESS", "RESOLVED"]) }).safeParse(req.body);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+
+    const { warning, allowed } = await canManageWarning(req.user, params.data.id);
+    if (!warning) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    if (!allowed) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+    const data = await warningService.updateWarning(warning.id, { status: body.data.status });
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/:id/assignees", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string().uuid() }).safeParse(req.params);
+    const body = zod.object({ userIds: zod.array(zod.string()).max(20) }).safeParse(req.body);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+
+    const data = await warningAlertService.assign(params.data.id, body.data.userIds);
+    if (!data) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }

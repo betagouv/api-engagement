@@ -46,6 +46,9 @@ export const STATS_INDEX = "stats";
 
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 export const BREVO_WEBHOOK_TOKEN = process.env.BREVO_WEBHOOK_TOKEN;
+export const ALERTS_WEBHOOK_TOKEN = process.env.ALERTS_WEBHOOK_TOKEN;
+export const ALERTS_ESCALATION_HOURS = Number(process.env.ALERTS_ESCALATION_HOURS) || 24;
+export const ALERTS_BREVO_TEMPLATE_ID = process.env.ALERTS_BREVO_TEMPLATE_ID ? Number(process.env.ALERTS_BREVO_TEMPLATE_ID) : undefined;
 
 export const SENTRY_DSN_API = process.env.SENTRY_DSN_API;
 export const SENTRY_DSN_JOBS = process.env.SENTRY_DSN_JOBS;

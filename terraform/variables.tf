@@ -356,3 +356,11 @@ variable "typesense_load_balancer_type" {
   default     = "LB-S"
   description = "Scaleway Load Balancer type used by Typesense."
 }
+
+# Alerting
+
+variable "alerts_brevo_template_id" {
+  type        = string
+  default     = ""
+  description = "Brevo template id used to notify assignees of an alert (empty disables the email)."
+}
