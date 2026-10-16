@@ -3,6 +3,7 @@ import { INVALID_BODY } from "@/error";
 import { brevoWebhookSecurity } from "@/middlewares/brevo-webhook";
 import { publisherRateLimiter } from "@/middlewares/rate-limit";
 import { emailService } from "@/services/email";
+import { warningAlertService } from "@/services/warning-alert";
 import { EmailCreateInput } from "@/types/email";
 import { Router } from "express";
 import { z } from "zod";
@@ -57,6 +58,11 @@ router.post("/", async (req, res, next) => {
 
     for (let i = 0; i < body.data.items.length; i++) {
       const item = body.data.items[i];
+
+      // Réponse à un mail d'alerte : résout l'alerte si l'expéditeur est autorisé
+      if (await warningAlertService.handleEmailReply(item["Subject"], item["From"]["Address"])) {
+        continue;
+      }
 
       if (!item["Subject"].includes("Rapport LinkedIn")) {
         continue;
