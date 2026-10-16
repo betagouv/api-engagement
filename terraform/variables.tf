@@ -356,3 +356,57 @@ variable "typesense_load_balancer_type" {
   default     = "LB-S"
   description = "Scaleway Load Balancer type used by Typesense."
 }
+
+# Keep (POC alerting)
+
+variable "enable_keep" {
+  type        = bool
+  default     = false
+  description = "Deploy the Keep alerting stack (UI + API + managed PostgreSQL) in this workspace. A single deployment receives the alerts of every environment."
+}
+
+variable "keep_version" {
+  type        = string
+  default     = "0.54.3"
+  description = "Version of the upstream Keep images (keep-api and keep-ui)."
+}
+
+variable "keep_backend_image" {
+  type        = string
+  default     = ""
+  description = "Override of the Keep API image (e.g. custom image embedding the workflows). Empty to use the upstream image at keep_version."
+}
+
+variable "keep_hostname" {
+  type        = string
+  default     = ""
+  description = "Custom domain of the Keep UI (required when enable_keep is true)."
+}
+
+variable "keep_api_hostname" {
+  type        = string
+  default     = ""
+  description = "Custom domain of the Keep API, called by Metabase and the sentry-webhook function (required when enable_keep is true)."
+}
+
+variable "keep_db_node_type" {
+  type        = string
+  default     = "DB-DEV-S"
+  description = "Scaleway Managed Database node type used by Keep."
+}
+
+variable "keep_backend_cpu_limit" {
+  type    = number
+  default = 1000
+}
+
+variable "keep_backend_memory_limit" {
+  type    = number
+  default = 2048
+}
+
+variable "alerts_brevo_template_id" {
+  type        = string
+  default     = ""
+  description = "Brevo template id used by POST /alerts-poc/notify (empty disables the endpoint)."
+}

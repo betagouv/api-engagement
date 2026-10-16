@@ -58,3 +58,33 @@ Les providers et workflows se créent par l'API (rejouable) ; voir les commandes
 - **Secrets** : la réponse de `POST /providers/install` renvoie le header `Authorization` en clair.
 - **Droits `/state`** : le volume doit appartenir à l'utilisateur `keep` (uid 1000), sinon l'installation d'un provider échoue.
 - **Glue code** nécessaire côté API : `POST /alerts-poc/notify` (lookup + mail Brevo) et `POST /alerts-poc/status`.
+
+## Déploiement Scaleway (Terraform)
+
+Support dans [`terraform/keep.tf`](../../terraform/keep.tf), désactivé par défaut (`enable_keep = false`). Une seule instance pour tous les environnements, à activer dans un seul workspace (comme `enable_sentry_webhook`).
+
+| Ressource | Détail |
+|---|---|
+| `scaleway_rdb_instance.keep` | PostgreSQL 16 managé (`DB-DEV-S`), sur le Private Network du workspace, sauvegardes activées |
+| `scaleway_container.keep_backend` | Image upstream `keep-api` (ou image custom avec workflows). `min_scale = max_scale = 1` (le backend porte le scheduler des workflows), public (appelé par Metabase / sentry-webhook) |
+| `scaleway_container.keep_frontend` | Image upstream `keep-ui`, scale-to-zero |
+| `scaleway_container_domain.keep_{ui,api}` | Domaines custom, **obligatoires** quand `enable_keep` |
+
+Pour activer (ex. dans `envs/staging.tfvars`) :
+
+```hcl
+enable_keep       = true
+keep_hostname     = "keep.api-engagement-dev.fr"
+keep_api_hostname = "keep-api.api-engagement-dev.fr"
+alerts_brevo_template_id = "<id>"
+```
+
+Clés à ajouter au Secret Manager `<workspace>-secret` : `KEEP_DB_PASSWORD`, `KEEP_JWT_SECRET`, `KEEP_NEXTAUTH_SECRET`, `KEEP_DEFAULT_PASSWORD`, `ALERTS_WEBHOOK_TOKEN`.
+
+Choix et limites :
+- Secrets des providers en base (`SECRET_MANAGER_TYPE=DB`) : un conteneur n'a pas de disque persistant.
+- Providers `api-notify` / `api-status` provisionnés par `KEEP_PROVIDERS` (token injecté depuis le Secret Manager) ; workflows par `KEEP_WORKFLOWS_DIRECTORY` via l'image du `Dockerfile` (`keep_backend_image`). Le build/push de cette image n'est pas dans la CI.
+- Websocket Soketi non déployé (`PUSHER_DISABLED`) : l'UI Keep ne se rafraîchit pas en temps réel.
+- Les images viennent du registre public de Keep (Google Artifact Registry) : à confirmer que Scaleway Containers sait les tirer, sinon les miroiter dans GHCR.
+- Le compte `keep` de la base managée est l'utilisateur applicatif et administrateur (POC).
+- Validé par `terraform validate` ; aucun `plan` exécuté (nécessite le Secret Manager et le backend d'état).
