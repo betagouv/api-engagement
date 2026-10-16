@@ -7,6 +7,9 @@ workflow:
   triggers:
     - type: alert
       cel: name == "tracking-stopped" && status == "firing"
+      # sans ça, chaque événement "firing" répété renotifie (cf. constats S4)
+      only_on_change:
+        - status
   actions:
     - name: notify-deployment-user
       provider:
