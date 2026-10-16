@@ -38,9 +38,9 @@ Plan : voir la section « Scénarios » du plan d'origine ; le rapport final ira
 - [x] Socle : Keep + Postgres + websocket + Mailpit, auth DB, ingestion d'une alerte via l'API
 - [x] S1 : alerte générique (webhook Metabase, notification du chargé de déploiement via `POST /alerts-poc/notify` + Brevo)
 - [x] S2 : statut et write-back vers l'API (`POST /alerts-poc/status`)
-- [ ] S3 : réponse par mail, Slack interactif
-- [ ] S4 : alertes complexes (dédup, corrélation, escalade, multi-sources)
-- [ ] S5 : exploitation, montée de version, export
+- [ ] S3 : réponse par mail, Slack interactif (non testés côté Keep, voir `docs/keep-poc.md`)
+- [x] S4 : alertes complexes : dédup, re-déclenchement, corrélation et multi-sources testés ; escalade non aboutie (voir `docs/keep-poc.md`)
+- [~] S5 : provisioning et santé du projet évalués ; montée de version et export non testés
 
 ## Mise en route des workflows (API Keep)
 
