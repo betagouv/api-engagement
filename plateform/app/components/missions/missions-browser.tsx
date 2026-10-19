@@ -99,7 +99,7 @@ function FilterGroups({
               {selectedValues.length > 0 && <span className="fr-sr-only">{`, ${selectedValues.length} sélectionné${selectedValues.length > 1 ? "s" : ""}`}</span>}
               <span aria-hidden="true" className={`text-blue-france-sun fr-icon--sm ${open ? "fr-icon-arrow-up-s-line" : "fr-icon-arrow-down-s-line"}`} />
             </button>
-            <fieldset id={panelId} hidden={!open} className="fr-fieldset m-0! p-0! pb-6!">
+            <fieldset id={panelId} hidden={!open} className="fr-fieldset m-0! p-0! pt-4! pb-6!">
               <legend className="fr-sr-only">{FILTER_LABELS[key]}</legend>
               {getFilterOptions(key, facets).map((option) => {
                 const inputId = `${panelId}-${option.value}`;

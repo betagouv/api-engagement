@@ -16,7 +16,7 @@ import Questions from "~/components/landings/engagement-securite/questions";
 import Etapes, { type Etape } from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import LocationFilter from "~/components/landings/location-filter";
-import MissionsBrowser from "~/components/landings/missions-browser";
+import MissionsBrowser from "~/components/missions/missions-browser";
 import Partners from "~/components/layout/partners";
 import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
