@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import Histoire1Webp from "~/assets/images/landings/chacun-pour-tous/histoire-1.webp";
@@ -12,7 +13,9 @@ import Carousel from "~/components/ui/carousel";
 import Highlight from "~/components/ui/highlight";
 import type { LandingCta } from "~/services/tracking/types";
 
-const HISTOIRES = [
+export type Histoire = { image: string; domain: string; story: string; publisher: string; logo: string };
+
+const HISTOIRES: Histoire[] = [
   {
     image: Histoire1Webp,
     domain: "Prévention et protection",
@@ -37,21 +40,38 @@ const HISTOIRES = [
   },
 ];
 
-export default function Histoires({ cta }: { cta: LandingCta }) {
+const DEFAULT_TITLE = (
+  <>
+    Des histoires vraies qui donnent
+    <br className="hidden md:block" /> <Highlight className="bg-[#9ef9be] dark:bg-transparent">envie d'agir</Highlight>
+  </>
+);
+const DEFAULT_INTRO = (
+  <>
+    À ceux qui votent, qui laissent passer les piétons, qui sourient aux bébés, à celles qui donnent du temps à une cause, qui portent les cartons du voisin… À tous ceux qui
+    prennent part sans le savoir : MERCI
+    <span aria-hidden="true">🔥</span>
+  </>
+);
+
+export default function Histoires({
+  cta,
+  title = DEFAULT_TITLE,
+  intro = DEFAULT_INTRO,
+  histoires = HISTOIRES,
+}: {
+  cta: LandingCta;
+  title?: ReactNode;
+  intro?: ReactNode;
+  histoires?: Histoire[];
+}) {
   return (
     // `overflow-x-clip` : le carrousel dépasse jusqu'au bord de l'écran, sans créer de scroll horizontal.
     <section className="overflow-x-clip">
       <div className="fr-container">
         <div className="bg-brown-cafe-creme-975 @container mx-[calc(50%-50vw)] px-4 py-6 md:mx-0 md:px-6 md:py-14! lg:px-24">
-          <h2 className="fr-h1 mb-4!">
-            Des histoires vraies qui donnent
-            <br className="hidden md:block" /> <Highlight className="bg-[#9ef9be] dark:bg-transparent">envie d'agir</Highlight>
-          </h2>
-          <p className="fr-text--lead mb-4! md:mb-6! lg:mb-8!">
-            À ceux qui votent, qui laissent passer les piétons, qui sourient aux bébés, à celles qui donnent du temps à une cause, qui portent les cartons du voisin… À tous ceux
-            qui prennent part sans le savoir : MERCI
-            <span aria-hidden="true">🔥</span>
-          </p>
+          <h2 className="fr-h1 mb-4!">{title}</h2>
+          {intro && <p className="fr-text--lead mb-4! md:mb-6! lg:mb-8!">{intro}</p>}
 
           <Carousel
             squareArrows
@@ -70,7 +90,7 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
               </Link>
             }
           >
-            {HISTOIRES.map((histoire) => (
+            {histoires.map((histoire) => (
               <div key={histoire.story} className="border-border-default-grey bg-background shadow-card flex h-full flex-col border">
                 <img src={histoire.image} alt="" loading="lazy" className="h-59 w-full object-cover" />
                 <div className="flex flex-1 flex-col gap-3 px-6 py-4">

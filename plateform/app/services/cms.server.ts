@@ -1,0 +1,43 @@
+import type { LandingPage } from "@engagement/dto";
+
+// Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
+const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
+// Les médias sont chargés par le navigateur : URL publique du CMS (différente de CMS_URL dans Docker).
+const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
+const CMS_API_TOKEN = process.env.CMS_API_TOKEN;
+const CMS_PREVIEW_SECRET = process.env.CMS_PREVIEW_SECRET;
+
+// Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.
+const POPULATE = [
+  "populate[blocks][on][blocks.hero][populate]=*",
+  "populate[blocks][on][blocks.missions][populate][slots]=true",
+  "populate[blocks][on][blocks.etapes][populate][items]=true",
+  "populate[blocks][on][blocks.benefits][populate][benefits]=true",
+  "populate[blocks][on][blocks.cards][populate][cards]=true",
+  "populate[blocks][on][blocks.stories][populate][stories][populate]=*",
+  "populate[blocks][on][blocks.faq][populate][questions]=true",
+  "populate[blocks][on][blocks.partners][populate][partners][populate]=*",
+].join("&");
+
+// Preview : l'URL ouverte depuis le CMS porte `?preview=<secret>&status=draft`. Sans secret valide, jamais de brouillon.
+export function isCmsPreview(url: URL): boolean {
+  return !!CMS_PREVIEW_SECRET && url.searchParams.get("preview") === CMS_PREVIEW_SECRET && url.searchParams.get("status") === "draft";
+}
+
+export async function getLandingPage(slug: string, { draft }: { draft: boolean }): Promise<LandingPage | null> {
+  if (!CMS_API_TOKEN) throw new Error("CMS_API_TOKEN manquant");
+
+  const query = `filters[slug][$eq]=${encodeURIComponent(slug)}&status=${draft ? "draft" : "published"}&${POPULATE}`;
+  const response = await fetch(`${CMS_URL}/api/landing-pages?${query}`, {
+    headers: { Authorization: `Bearer ${CMS_API_TOKEN}` },
+    signal: AbortSignal.timeout(5000),
+  });
+  if (!response.ok) throw new Error(`CMS indisponible (${response.status})`);
+
+  const { data } = (await response.json()) as { data: LandingPage[] };
+  return data[0] ? absolutizeMedia(data[0]) : null;
+}
+
+// Les médias sont servis par le CMS : on rend leurs URLs absolues (seuls les `/uploads/` sont concernés).
+const absolutizeMedia = <T>(value: T): T =>
+  JSON.parse(JSON.stringify(value), (key, v) => (key === "url" && typeof v === "string" && v.startsWith("/uploads/") ? `${CMS_PUBLIC_URL}${v}` : v));

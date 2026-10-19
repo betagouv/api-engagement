@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 // Hero partagé par les landings : texte et CTA quiz à gauche, visuel (`children`) sous le texte sur mobile.
 // Le visuel se positionne lui-même à partir de la tablette (calé en bas à droite de la section) ;
@@ -13,6 +13,7 @@ export default function Hero({
   onStartQuiz,
   action,
   className = "",
+  style,
   children,
 }: {
   kicker?: string;
@@ -28,10 +29,12 @@ export default function Hero({
   // Bloc affiché sous le texte à la place du CTA quiz (ex. recherche par localisation).
   action?: ReactNode;
   className?: string;
+  // Fond dynamique (ex. variable CSS portée par une couleur éditée dans le CMS).
+  style?: CSSProperties;
   children: ReactNode;
 }) {
   return (
-    <section className={`relative overflow-hidden rounded-b-[20px] md:rounded-none ${className}`}>
+    <section style={style} className={`relative overflow-hidden rounded-b-[20px] md:rounded-none ${className}`}>
       <div className="fr-container relative z-10">
         <div className="pt-8 md:max-w-98 md:pt-11 lg:max-w-156 lg:pt-24">
           {kicker && <p className="fr-h4 text-title-grey! mb-0! md:mb-2! lg:text-[32px]! lg:leading-10!">{kicker}</p>}
