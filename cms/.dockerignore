@@ -3,3 +3,7 @@ node_modules
 .cache
 dist
 build
+.strapi
+.env
+public/uploads/*
+!public/uploads/.gitkeep
