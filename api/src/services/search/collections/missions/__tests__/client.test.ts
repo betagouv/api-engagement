@@ -41,6 +41,18 @@ describe("missionSearchClient", () => {
     expect(multiSearchMock).toHaveBeenCalledWith(expect.any(String), searches);
   });
 
+  it("renvoie les ids des missions les plus récentes pour chaque filtre, en un seul multi_search", async () => {
+    multiSearchMock.mockResolvedValue([{ hits: [{ document: { id: "a1" } }, { document: { id: "a2" } }] }, { hits: [] }]);
+
+    const ids = await missionSearchClient.findLatestIds(["dispositif:=[`reserve_armees`]", undefined], 3);
+
+    expect(ids).toEqual([["a1", "a2"], []]);
+    expect(multiSearchMock).toHaveBeenCalledWith(expect.any(String), [
+      { q: "*", query_by: "publisherId", filter_by: "dispositif:=[`reserve_armees`]", sort_by: "createdAt:desc", per_page: 3 },
+      { q: "*", query_by: "publisherId", filter_by: undefined, sort_by: "createdAt:desc", per_page: 3 },
+    ]);
+  });
+
   it("délègue l'upsert au provider avec le bon nom de collection", async () => {
     const document = { id: "mission-1", publisherId: "publisher-1", departmentCodes: ["75"] };
     upsertMock.mockResolvedValue(document);

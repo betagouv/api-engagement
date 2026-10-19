@@ -3,11 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MISSION_BROWSE_FACET_FIELDS } from "@/services/search/collections/missions/fields";
 
 const multiSearchMock = vi.hoisted(() => vi.fn());
+const findLatestIdsMock = vi.hoisted(() => vi.fn());
 const findMissionsByIdsMock = vi.hoisted(() => vi.fn());
 const findOneMissionByMock = vi.hoisted(() => vi.fn());
 
 vi.mock("@/services/search/collections/missions/client", () => ({
-  missionSearchClient: { multiSearch: multiSearchMock },
+  missionSearchClient: { multiSearch: multiSearchMock, findLatestIds: findLatestIdsMock },
 }));
 
 // Le service envoie 1 requête résultats
@@ -40,6 +41,7 @@ const DIFFUSION = "distributionPublisherIds:=`diffuseur-1`";
 describe("missionBrowseService.browse", () => {
   beforeEach(() => {
     multiSearchMock.mockReset();
+    findLatestIdsMock.mockReset();
     findMissionsByIdsMock.mockReset();
     findOneMissionByMock.mockReset();
     multiSearchMock.mockResolvedValue(emptyMultiSearchResult());
@@ -202,6 +204,114 @@ describe("missionBrowseService.browse", () => {
 
     expect(resultsSearch().filter_by).toContain("locations:(48.8566,2.3522,50 km)");
     expect(resultsSearch().filter_by).not.toContain("|| remote:=`local`");
+  });
+
+  it("masque les valeurs exclues des résultats et des compteurs de toutes les facettes", async () => {
+    await missionBrowseService.browse({ ...baseParams, exclude: { dispositif: ["reserve_police_nationale"] } });
+
+    const expected = `${DIFFUSION} && dispositif:![\`reserve_police_nationale\`]`;
+    expect(resultsSearch().filter_by).toBe(expected);
+    for (const field of FACET_FIELDS) {
+      expect(facetSearch(field).filter_by).toBe(expected);
+    }
+  });
+
+  it("garde les missions à distance ou sans lieu précis avec un département choisi, si demandé", async () => {
+    await missionBrowseService.browse({ ...baseParams, departmentCode: ["69"], includeRemote: true });
+
+    expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && (departmentCodes:=[\`69\`] || remote:=[\`full\`,\`local\`])`);
+    // La facette département ignore sa propre sélection : ses compteurs restent ceux de tous les départements.
+    expect(facetSearch("departmentCodes").filter_by).toBe(DIFFUSION);
+  });
+
+  it("filtre strictement sur le département sans includeRemote", async () => {
+    await missionBrowseService.browse({ ...baseParams, departmentCode: ["69"] });
+
+    expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && departmentCodes:=[\`69\`]`);
+  });
+
+  it("trie les missions les plus récentes d'abord", async () => {
+    await missionBrowseService.browse({ ...baseParams, sort: "recent" });
+
+    expect(resultsSearch().sort_by).toBe("createdAt:desc");
+  });
+
+  describe("emplacements", () => {
+    const hits = (...ids: string[]) => ({ hits: ids.map((id) => ({ document: { id } })), found: ids.length });
+    const ARMEES = { filters: { dispositif: ["reserve_armees"] } };
+    const BENEVOLAT = { filters: { dispositif: ["benevolat"] }, anyOf: { activite: ["secourir_proteger"], domaine_engagement: ["securite_secours"] } };
+    const SPV = { filters: { dispositif: ["sapeurs_pompiers"] } };
+
+    // Ids candidats par critère distinct, puis résultats + facettes.
+    const mockSlotsThenResults = (slotCandidates: string[][], restResult = hits()) => {
+      findLatestIdsMock.mockResolvedValueOnce(slotCandidates);
+      multiSearchMock.mockResolvedValueOnce([restResult, ...emptyMultiSearchResult().slice(1)]);
+    };
+
+    it("cherche les missions les plus récentes de chaque critère distinct", async () => {
+      mockSlotsThenResults([[], []]);
+
+      await missionBrowseService.browse({ ...baseParams, pageSize: 3, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      expect(findLatestIdsMock).toHaveBeenCalledWith(
+        [
+          `${DIFFUSION} && dispositif:=[\`reserve_armees\`]`,
+          `${DIFFUSION} && (dispositif:=[\`benevolat\`] && (activite:=[\`secourir_proteger\`] || domaine_engagement:=[\`securite_secours\`]))`,
+        ],
+        3
+      );
+      expect(multiSearchMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("remplit chaque emplacement avec la mission suivante de son critère, puis complète avec les autres", async () => {
+      mockSlotsThenResults([["a1", "a2"], ["b1"]], hits("r1"));
+      findMissionsByIdsMock.mockResolvedValue([]);
+
+      const result = await missionBrowseService.browse({ ...baseParams, pageSize: 4, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a1", "b1", "a2", "r1"], null);
+      // Les autres missions excluent celles des emplacements et comblent la fin de page.
+      expect(resultsSearch()).toMatchObject({ offset: 0, limit: 1 });
+      expect(resultsSearch().filter_by).toBe(`${DIFFUSION} && id:![\`a1\`,\`b1\`,\`a2\`]`);
+      expect(result.total).toBe(4);
+    });
+
+    it("passe au critère des emplacements suivants quand le sien est épuisé, sans doublon", async () => {
+      mockSlotsThenResults([["a1"], [], ["s1", "s2"]]);
+
+      await missionBrowseService.browse({ ...baseParams, pageSize: 4, slots: [ARMEES, BENEVOLAT, SPV, ARMEES] });
+
+      // Bénévolat vide → SPV ; 2e Armées épuisé et dernier emplacement → rien.
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a1", "s1", "s2"], null);
+    });
+
+    it("décale les pages suivantes du nombre de missions placées en tête", async () => {
+      mockSlotsThenResults([["a1", "a2"], ["b1"]], hits("r4"));
+
+      await missionBrowseService.browse({ ...baseParams, page: 2, pageSize: 2, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      // Liste complète : a1 b1 | a2 r1 | … → la page 2 commence par a2 puis la 1re des autres missions.
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a2", "r4"], null);
+      expect(resultsSearch()).toMatchObject({ offset: 0, limit: 1 });
+    });
+
+    it("part d'un offset explicite pour des pages de tailles différentes", async () => {
+      mockSlotsThenResults([["a1", "a2"], ["b1"]], hits("r2"));
+
+      // Page 1 de 2 missions, puis pages de 3 : la 2e page commence à la 3e mission (a2, dernier emplacement),
+      // puis lit les autres missions depuis le début.
+      await missionBrowseService.browse({ ...baseParams, page: 2, offset: 2, pageSize: 3, slots: [ARMEES, BENEVOLAT, ARMEES] });
+
+      expect(findMissionsByIdsMock).toHaveBeenCalledWith(["a2", "r2"], null);
+      expect(resultsSearch()).toMatchObject({ offset: 0, limit: 2 });
+    });
+
+    it("abandonne les emplacements dès qu'un filtre est coché", async () => {
+      await missionBrowseService.browse({ ...baseParams, sort: "recent", activite: ["secourir_proteger"], slots: [ARMEES] });
+
+      expect(findLatestIdsMock).not.toHaveBeenCalled();
+      expect(resultsSearch()).toMatchObject({ per_page: 20, page: 1, sort_by: "createdAt:desc" });
+    });
   });
 
   it("expose une erreur métier lorsque Typesense est indisponible", async () => {

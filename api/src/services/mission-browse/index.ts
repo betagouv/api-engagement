@@ -1,4 +1,4 @@
-import type { MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
+import type { MissionBrowseFacetCount, MissionBrowseFilters, MissionBrowseResponse, MissionBrowseSlot, MissionDetailResponse } from "@engagement/dto";
 
 import { missionService } from "@/services/mission";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
@@ -38,8 +38,9 @@ export type MissionBrowseSearchFilters = {
 };
 
 export type MissionBrowseParams = BrowseTaxonomyParams &
-  Omit<MissionBrowseFilters, "page" | "pageSize"> &
+  Omit<MissionBrowseFilters, "page" | "pageSize" | "exclude"> &
   MissionBrowseSearchFilters & {
+    exclude?: BrowseTaxonomyParams;
     diffuseurPublisherId: string;
     baseFilterBy?: string;
     widgetMode?: boolean;
@@ -85,9 +86,14 @@ const WIDGET_FACETS: FacetSpec[] = [
 ];
 
 const buildAlwaysFilterParts = (params: MissionBrowseParams): string[] => {
-  const baseFilter =
-    params.baseFilterBy === undefined ? buildSearchEqualFilter("distributionPublisherIds", params.diffuseurPublisherId) : (params.baseFilterBy ?? "");
+  const baseFilter = params.baseFilterBy === undefined ? buildSearchEqualFilter("distributionPublisherIds", params.diffuseurPublisherId) : (params.baseFilterBy ?? "");
   const parts = baseFilter ? [baseFilter] : [];
+  for (const field of INDEXED_TAXONOMY_KEYS) {
+    const excluded = normalizeToArray(params.exclude?.[field]);
+    if (excluded?.length) {
+      parts.push(buildSearchNotListFilter(field, excluded));
+    }
+  }
   const publisherIds = normalizeToArray(params.publisherId);
   if (publisherIds?.length) {
     parts.push(publisherIds.length === 1 ? buildSearchEqualFilter("publisherId", publisherIds[0]) : buildSearchListFilter("publisherId", publisherIds));
@@ -117,7 +123,13 @@ const buildFacetFilterParts = (params: MissionBrowseParams): Map<string, string>
     }
   };
 
-  setList("departmentCodes", "departmentCodes", params.departmentCode);
+  const departmentCodes = normalizeToArray(params.departmentCode);
+  if (departmentCodes?.length) {
+    const departmentFilter = buildSearchListFilter("departmentCodes", departmentCodes);
+    // Missions à distance (`full`) ou sans lieu précis (`local`, ex. réserves) : elles n'ont pas de département,
+    // mais restent pertinentes quel que soit celui choisi.
+    parts.set("departmentCodes", params.includeRemote ? combineSearchOr([departmentFilter, buildSearchListFilter("remote", ["full", "local"])]) : departmentFilter);
+  }
   for (const field of INDEXED_TAXONOMY_KEYS) {
     setList(field, field, params[field]);
   }
@@ -160,26 +172,26 @@ const buildFacetFilterParts = (params: MissionBrowseParams): Map<string, string>
   return parts;
 };
 
-const buildBrowseSearches = (params: MissionBrowseParams): { searches: SearchQueryParams<MissionIndexDocument>[]; facets: FacetSpec[] } => {
+// `excludedIds` ne s'applique qu'à la requête résultats : les missions déjà placées dans les emplacements
+// restent comptées dans les facettes.
+const buildBrowseSearches = (params: MissionBrowseParams, excludedIds: string[] = []): { searches: SearchQueryParams<MissionIndexDocument>[]; facets: FacetSpec[] } => {
   const alwaysParts = buildAlwaysFilterParts(params);
   const facetParts = buildFacetFilterParts(params);
   const filterByExcluding = (excludedGroup?: string): string | undefined => {
     const parts = [...alwaysParts, ...[...facetParts.entries()].filter(([group]) => group !== excludedGroup).map(([, part]) => part)];
     return parts.length ? parts.join(" && ") : undefined;
   };
+  const resultsFilterBy = [filterByExcluding(), ...(excludedIds.length ? [buildSearchNotListFilter("id", excludedIds)] : [])].filter(Boolean).join(" && ") || undefined;
 
   const q = params.widgetMode ? params.search?.trim() || "*" : "*";
   const queryBy = params.widgetMode ? "title,publisherOrganizationFacet,cityNames,mission_domain" : "publisherId";
   const resultsSearch: SearchQueryParams<MissionIndexDocument> = {
     q,
     query_by: queryBy,
-    filter_by: filterByExcluding(),
+    filter_by: resultsFilterBy,
     ...(params.offset === undefined ? { per_page: params.pageSize, page: params.page } : { offset: params.offset, limit: params.pageSize }),
-    ...(params.widgetMode
-      ? {
-          sort_by: "startAt:desc,createdAt:desc",
-        }
-      : {}),
+    ...(params.widgetMode ? { sort_by: "startAt:desc,createdAt:desc" } : {}),
+    ...(params.sort === "recent" ? { sort_by: "createdAt:desc" } : {}),
   };
   const facets = params.widgetMode ? WIDGET_FACETS : GENERIC_FACETS;
   const facetSearches: SearchQueryParams<MissionIndexDocument>[] = facets.map((facet) => ({
@@ -192,6 +204,43 @@ const buildBrowseSearches = (params: MissionBrowseParams): { searches: SearchQue
   }));
 
   return { searches: [resultsSearch, ...facetSearches], facets };
+};
+
+const buildSlotFilter = (slot: MissionBrowseSlot): string => {
+  const toListFilters = (values: MissionBrowseSlot["filters"]) => Object.entries(values).flatMap(([field, list]) => (list?.length ? [buildSearchListFilter(field, list)] : []));
+  const anyOfParts = toListFilters(slot.anyOf ?? {});
+  const parts = [...toListFilters(slot.filters), ...(anyOfParts.length ? [combineSearchOr(anyOfParts)] : [])];
+  return parts.length ? combineSearchAnd(parts) : "";
+};
+
+// Remplit les emplacements avec les missions les plus récentes de chaque critère distinct. Chaque emplacement prend
+// la mission suivante de son critère ; s'il est épuisé, il passe au critère des emplacements suivants, sans laisser de trou.
+const findSlotMissionIds = async (params: MissionBrowseParams, slots: MissionBrowseSlot[]): Promise<string[]> => {
+  const alwaysParts = buildAlwaysFilterParts(params);
+  const slotFilters = slots.map(buildSlotFilter);
+  const distinctFilters = [...new Set(slotFilters)];
+  let candidates: string[][];
+  try {
+    candidates = await missionSearchClient.findLatestIds(
+      distinctFilters.map((slotFilter) => [...alwaysParts, slotFilter].filter(Boolean).join(" && ") || undefined),
+      slots.length
+    );
+  } catch (error) {
+    throw new MissionBrowseIndexUnavailableError(error);
+  }
+  const candidatesByFilter = new Map(distinctFilters.map((slotFilter, index) => [slotFilter, candidates[index] ?? []]));
+
+  const slotIds: string[] = [];
+  slotFilters.forEach((_, slotIndex) => {
+    for (const slotFilter of slotFilters.slice(slotIndex)) {
+      const missionId = candidatesByFilter.get(slotFilter)?.find((id) => !slotIds.includes(id));
+      if (missionId) {
+        slotIds.push(missionId);
+        return;
+      }
+    }
+  });
+  return slotIds;
 };
 
 const mapFacetCounts = (spec: FacetSpec, result?: SearchQueryResponse<MissionIndexDocument>): MissionBrowseFacetCount[] => {
@@ -217,7 +266,16 @@ const mapFacetCounts = (spec: FacetSpec, result?: SearchQueryResponse<MissionInd
 
 export const missionBrowseService = {
   async browse(params: MissionBrowseParams): Promise<MissionBrowseResponse> {
-    const { searches, facets: facetSpecs } = buildBrowseSearches(params);
+    // Les emplacements ne valent que pour la liste sans filtre : dès qu'un filtre est coché, simple tri.
+    const slots = !params.widgetMode && buildFacetFilterParts(params).size === 0 ? (params.slots ?? []) : [];
+    const slotIds = slots.length ? await findSlotMissionIds(params, slots) : [];
+
+    // Liste complète = missions des emplacements puis toutes les autres. La page courante prend sa part
+    // d'emplacements, et le reste est lu dans les autres missions avec un décalage d'autant.
+    const start = params.offset ?? (params.page - 1) * params.pageSize;
+    const pageSlotIds = slotIds.slice(start, start + params.pageSize);
+    const resultsParams = slotIds.length ? { ...params, offset: Math.max(0, start - slotIds.length), pageSize: params.pageSize - pageSlotIds.length } : params;
+    const { searches, facets: facetSpecs } = buildBrowseSearches(resultsParams, slotIds);
     let searchResults: SearchQueryResponse<MissionIndexDocument>[];
     try {
       searchResults = await missionSearchClient.multiSearch(searches);
@@ -226,7 +284,8 @@ export const missionBrowseService = {
     }
 
     const [resultsResult, ...facetResults] = searchResults;
-    const ids = (resultsResult.hits ?? []).map((hit) => hit.document.id);
+
+    const ids = [...pageSlotIds, ...(resultsResult.hits ?? []).map((hit) => hit.document.id)];
     const missions = await missionService.findMissionsByIds(ids, params.moderatedBy ?? null);
     const facets: Record<string, MissionBrowseFacetCount[]> = {};
     facetSpecs.forEach((spec, index) => {
@@ -235,7 +294,7 @@ export const missionBrowseService = {
 
     return {
       data: missions.map(toMissionBrowse),
-      total: resultsResult.found ?? 0,
+      total: (resultsResult.found ?? 0) + slotIds.length,
       page: params.page,
       pageSize: params.pageSize,
       facets,

@@ -142,15 +142,18 @@ export function trackMissionClickedFromBrowse(
     opensExternal: boolean;
     // Position ordinale (1-based) quand la liste est ordonnée (ex. carrousel d'une landing) ; null sinon.
     rank?: number | null;
+    // Numéro de page quand la liste est paginée (ex. liste filtrable d'une landing) ; null sinon.
+    pageNumber?: number | null;
   },
 ): void {
   trackMissionClicked({
     mission_id: mission.id,
     publisher_id: mission.publisherId ?? "",
     publisher_name: mission.publisherName ?? "",
+    organization_name: mission.organizationName,
     section: context.section,
     rank: context.rank ?? null,
-    page_number: null,
+    page_number: context.pageNumber ?? null,
     mission_domain: mission.domain,
     // Pas de scoring sur le flux browse → type_mission indisponible ici.
     mission_type: null,
@@ -340,6 +343,16 @@ export function trackMissionDetailViewed(params: {
 
 // `missions_filter.applied` (feature_usage) : sélection d'une valeur de filtre sur /missions.
 // Émis après le retour de la recherche : results_count = nombre de missions après application du filtre.
+// `missions.page_changed` (feature_usage) : navigation dans la pagination d'une liste de missions (landing).
+export function trackMissionsPageChanged(params: { pageName: LandingName; fromPage: number; toPage: number; totalPages: number }): void {
+  track("missions.page_changed", {
+    page_name: params.pageName,
+    from_page: params.fromPage,
+    to_page: params.toPage,
+    total_pages: params.totalPages,
+  });
+}
+
 export function trackMissionsFilterApplied(params: { filterType: MissionsFilterType; filterValue: string; activeFilterCount: number; resultsCount: number }): void {
   track("missions_filter.applied", {
     filter_type: params.filterType,

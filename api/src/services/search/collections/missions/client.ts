@@ -13,6 +13,13 @@ export const missionSearchClient = {
     return searchProvider.multiSearch(TYPESENSE_MISSION_COLLECTION, searches);
   },
 
+  // Ids des `limit` missions les plus récentes pour chaque filtre, en un seul aller-retour.
+  async findLatestIds(filters: Array<string | undefined>, limit: number): Promise<string[][]> {
+    const searches = filters.map((filter) => ({ q: "*", query_by: "publisherId", filter_by: filter, sort_by: "createdAt:desc", per_page: limit }));
+    const results = await searchProvider.multiSearch<MissionIndexDocument>(TYPESENSE_MISSION_COLLECTION, searches);
+    return results.map((result) => (result.hits ?? []).map((hit) => hit.document.id));
+  },
+
   upsert(document: MissionIndexDocument): Promise<MissionIndexDocument> {
     return searchProvider.upsert(TYPESENSE_MISSION_COLLECTION, document);
   },

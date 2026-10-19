@@ -8,7 +8,7 @@ import { corsPublic } from "@/middlewares/cors";
 import { ipRateLimiter, plateformRateLimiter } from "@/middlewares/rate-limit";
 import { MissionBrowseIndexUnavailableError, missionBrowseService, type MissionBrowseSearchFilters } from "@/services/mission-browse";
 import { buildWidgetBaseFilter } from "@/services/mission-browse/widget-filters";
-import { INDEXED_TAXONOMY_KEYS } from "@/services/search/collections/missions/fields";
+import { INDEXED_TAXONOMY_KEYS, type IndexedTaxonomyKey } from "@/services/search/collections/missions/fields";
 import { widgetService } from "@/services/widget";
 import type { MissionSearchFilters } from "@/types/mission";
 import type { PublisherRequest } from "@/types/passport";
@@ -23,12 +23,37 @@ const stringOrStringArraySchema = zod.union([zod.string(), zod.array(zod.string(
 
 const taxonomyQueryShape = Object.fromEntries(INDEXED_TAXONOMY_KEYS.map((key) => [key, stringOrStringArraySchema.optional()]));
 
+const taxonomyValuesSchema = zod.partialRecord(zod.enum(INDEXED_TAXONOMY_KEYS as [IndexedTaxonomyKey, ...IndexedTaxonomyKey[]]), zod.array(zod.string()));
+const slotsSchema = zod.array(zod.object({ filters: taxonomyValuesSchema, anyOf: taxonomyValuesSchema.optional() })).max(20);
+
+// Le parser de query string est simple (pas d'objets imbriqués) : les paramètres structurés arrivent sérialisés en JSON.
+const jsonQuerySchema = <T extends zod.ZodType>(schema: T) =>
+  zod
+    .string()
+    .transform((value, ctx) => {
+      try {
+        return JSON.parse(value);
+      } catch {
+        ctx.addIssue({ code: "custom", message: "must be valid JSON" });
+        return zod.NEVER;
+      }
+    })
+    .pipe(schema);
+
 const browseQuerySchema = zod.object({
   publisherId: zod.string().optional(),
   departmentCode: stringOrStringArraySchema.optional(),
   ...taxonomyQueryShape,
+  // Valeurs de taxonomie à masquer partout, ex. `{"dispositif":["reserve_police_nationale"]}`.
+  exclude: jsonQuerySchema(taxonomyValuesSchema).optional(),
+  includeRemote: zod.stringbool().optional(),
+  sort: zod.enum(["recent"]).optional(),
+  // Emplacements des premiers résultats (cf. `MissionBrowseSlot`).
+  slots: jsonQuerySchema(slotsSchema).optional(),
   page: zod.coerce.number().int().positive().default(1),
   pageSize: zod.coerce.number().int().positive().max(100).default(20),
+  // Position de départ explicite, pour des pages de tailles différentes (prioritaire sur `page`).
+  offset: zod.coerce.number().int().min(0).optional(),
 });
 
 const widgetBrowseQuerySchema = zod.object({
