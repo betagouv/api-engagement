@@ -20,6 +20,7 @@ on:
       - "analytics/**"
       - "widget/**"
       - "plateform/**"
+      - "cms/**"
       - "packages/**"
       - "tools/chrome-extension/**"
       - "terraform/**"

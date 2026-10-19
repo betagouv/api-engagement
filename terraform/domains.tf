@@ -10,6 +10,12 @@ resource "scaleway_container_domain" "app" {
   hostname     = var.app_hostname
 }
 
+resource "scaleway_container_domain" "cms" {
+  count        = var.enable_cms && var.cms_hostname != "" ? 1 : 0
+  container_id = scaleway_container.cms[0].id
+  hostname     = var.cms_hostname
+}
+
 resource "scaleway_container_domain" "ttm" {
   count        = var.enable_plateform && var.ttm_hostname != "" ? 1 : 0
   container_id = scaleway_container.plateform[0].id
