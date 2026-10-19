@@ -206,14 +206,6 @@ const buildBrowseSearches = (params: MissionBrowseParams, excludedIds: string[] 
   return { searches: [resultsSearch, ...facetSearches], facets };
 };
 
-const searchIndex = async (searches: SearchQueryParams<MissionIndexDocument>[]): Promise<SearchQueryResponse<MissionIndexDocument>[]> => {
-  try {
-    return await missionSearchClient.multiSearch(searches);
-  } catch (error) {
-    throw new MissionBrowseIndexUnavailableError(error);
-  }
-};
-
 const buildSlotFilter = (slot: MissionBrowseSlot): string => {
   const toListFilters = (values: MissionBrowseSlot["filters"]) => Object.entries(values).flatMap(([field, list]) => (list?.length ? [buildSearchListFilter(field, list)] : []));
   const anyOfParts = toListFilters(slot.anyOf ?? {});
@@ -221,22 +213,22 @@ const buildSlotFilter = (slot: MissionBrowseSlot): string => {
   return parts.length ? combineSearchAnd(parts) : "";
 };
 
-// Remplit les emplacements en un seul multi_search : une requête par critère distinct, triée de la plus récente
-// à la plus ancienne. Chaque emplacement prend la mission suivante de son critère ; s'il est épuisé, il passe au
-// critère des emplacements suivants, sans laisser de trou.
+// Remplit les emplacements avec les missions les plus récentes de chaque critère distinct. Chaque emplacement prend
+// la mission suivante de son critère ; s'il est épuisé, il passe au critère des emplacements suivants, sans laisser de trou.
 const findSlotMissionIds = async (params: MissionBrowseParams, slots: MissionBrowseSlot[]): Promise<string[]> => {
   const alwaysParts = buildAlwaysFilterParts(params);
   const slotFilters = slots.map(buildSlotFilter);
   const distinctFilters = [...new Set(slotFilters)];
-  const searches: SearchQueryParams<MissionIndexDocument>[] = distinctFilters.map((slotFilter) => ({
-    q: "*",
-    query_by: "publisherId",
-    filter_by: [...alwaysParts, slotFilter].filter(Boolean).join(" && ") || undefined,
-    sort_by: "createdAt:desc",
-    per_page: slots.length,
-  }));
-  const results = await searchIndex(searches);
-  const candidatesByFilter = new Map(distinctFilters.map((slotFilter, index) => [slotFilter, (results[index]?.hits ?? []).map((hit) => hit.document.id)]));
+  let candidates: string[][];
+  try {
+    candidates = await missionSearchClient.findLatestIds(
+      distinctFilters.map((slotFilter) => [...alwaysParts, slotFilter].filter(Boolean).join(" && ") || undefined),
+      slots.length
+    );
+  } catch (error) {
+    throw new MissionBrowseIndexUnavailableError(error);
+  }
+  const candidatesByFilter = new Map(distinctFilters.map((slotFilter, index) => [slotFilter, candidates[index] ?? []]));
 
   const slotIds: string[] = [];
   slotFilters.forEach((_, slotIndex) => {
@@ -284,7 +276,14 @@ export const missionBrowseService = {
     const pageSlotIds = slotIds.slice(start, start + params.pageSize);
     const resultsParams = slotIds.length ? { ...params, offset: Math.max(0, start - slotIds.length), pageSize: params.pageSize - pageSlotIds.length } : params;
     const { searches, facets: facetSpecs } = buildBrowseSearches(resultsParams, slotIds);
-    const [resultsResult, ...facetResults] = await searchIndex(searches);
+    let searchResults: SearchQueryResponse<MissionIndexDocument>[];
+    try {
+      searchResults = await missionSearchClient.multiSearch(searches);
+    } catch (error) {
+      throw new MissionBrowseIndexUnavailableError(error);
+    }
+
+    const [resultsResult, ...facetResults] = searchResults;
 
     const ids = [...pageSlotIds, ...(resultsResult.hits ?? []).map((hit) => hit.document.id)];
     const missions = await missionService.findMissionsByIds(ids, params.moderatedBy ?? null);

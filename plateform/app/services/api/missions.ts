@@ -20,8 +20,8 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
   appendMulti(params, "dispositif", filters.dispositif);
-  // Le parser de query string de l'API est simple : exclusions à plat (`exclude_<clé>`), emplacements en JSON.
-  for (const [key, values] of Object.entries(filters.exclude ?? {})) appendMulti(params, `exclude_${key}`, values);
+  // Le parser de query string de l'API est simple : exclusions et emplacements sont envoyés en JSON.
+  if (filters.exclude) params.set("exclude", JSON.stringify(filters.exclude));
   if (filters.includeRemote) params.set("includeRemote", "true");
   if (filters.sort) params.set("sort", filters.sort);
   if (filters.slots?.length) params.set("slots", JSON.stringify(filters.slots));

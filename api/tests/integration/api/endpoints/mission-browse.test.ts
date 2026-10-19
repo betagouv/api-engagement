@@ -57,11 +57,11 @@ describe("GET /missions/browse", () => {
     await request(app)
       .get("/missions/browse")
       .set("x-api-key", publisher.apikey!)
-      .query({ exclude_dispositif: "reserve_police_nationale", sort: "recent", includeRemote: "true", offset: "11", slots: JSON.stringify(slots) })
+      .query({ exclude: JSON.stringify({ dispositif: ["reserve_police_nationale"] }), sort: "recent", includeRemote: "true", offset: "11", slots: JSON.stringify(slots) })
       .expect(200);
 
     expect(browseMock).toHaveBeenCalledWith(
-      expect.objectContaining({ exclude: { dispositif: "reserve_police_nationale" }, sort: "recent", includeRemote: true, offset: 11, slots })
+      expect.objectContaining({ exclude: { dispositif: ["reserve_police_nationale"] }, sort: "recent", includeRemote: true, offset: 11, slots })
     );
   });
 
@@ -73,6 +73,11 @@ describe("GET /missions/browse", () => {
       .get("/missions/browse")
       .set("x-api-key", publisher.apikey!)
       .query({ slots: JSON.stringify([{ filters: { inconnu: ["x"] } }]) })
+      .expect(400);
+    await request(app)
+      .get("/missions/browse")
+      .set("x-api-key", publisher.apikey!)
+      .query({ exclude: JSON.stringify({ dispositif: "reserve_police_nationale" }) })
       .expect(400);
     expect(browseMock).not.toHaveBeenCalled();
   });
