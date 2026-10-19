@@ -1,11 +1,16 @@
 import type { LandingPage } from "@engagement/dto";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
-const CMS_URL = process.env.CMS_URL ?? "http://localhost:1337";
+// Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.
+const CMS_URL = process.env.CMS_URL || "http://localhost:1337";
 // Les médias sont chargés par le navigateur : URL publique du CMS (différente de CMS_URL dans Docker).
 const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
 const CMS_API_TOKEN = process.env.CMS_API_TOKEN;
 const CMS_PREVIEW_SECRET = process.env.CMS_PREVIEW_SECRET;
+
+// Cache mémoire du contenu publié : évite un aller-retour CMS par visite et garde la page servie si le CMS est indisponible.
+const CACHE_TTL_MS = 60_000;
+const cache = new Map<string, { page: LandingPage | null; at: number }>();
 
 // Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.
 const POPULATE = [
@@ -25,8 +30,24 @@ export function isCmsPreview(url: URL): boolean {
 }
 
 export async function getLandingPage(slug: string, { draft }: { draft: boolean }): Promise<LandingPage | null> {
-  if (!CMS_API_TOKEN) throw new Error("CMS_API_TOKEN manquant");
+  if (!CMS_API_TOKEN) return null;
 
+  // Les brouillons (preview) ne passent jamais par le cache.
+  const cached = draft ? undefined : cache.get(slug);
+  if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.page;
+
+  try {
+    const page = await fetchLandingPage(slug, draft);
+    if (!draft) cache.set(slug, { page, at: Date.now() });
+    return page;
+  } catch (error) {
+    // CMS indisponible : on resert la dernière version connue plutôt qu'une erreur.
+    if (cached) return cached.page;
+    throw error;
+  }
+}
+
+async function fetchLandingPage(slug: string, draft: boolean): Promise<LandingPage | null> {
   const query = `filters[slug][$eq]=${encodeURIComponent(slug)}&status=${draft ? "draft" : "published"}&${POPULATE}`;
   const response = await fetch(`${CMS_URL}/api/landing-pages?${query}`, {
     headers: { Authorization: `Bearer ${CMS_API_TOKEN}` },
