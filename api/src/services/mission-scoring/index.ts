@@ -113,9 +113,10 @@ export const missionScoringService = {
     }
 
     try {
-      await missionScoringRepository.replaceForEnrichment({
+      const scoring = await missionScoringRepository.replaceForEnrichment({
         missionId: params.missionId,
         missionEnrichmentId: enrichmentId,
+        enrichmentUpdatedAt: enrichment.updatedAt,
         values: allValues.map((value) => ({
           missionEnrichmentValueId: value.missionEnrichmentValueId,
           taxonomyKey: value.taxonomyKey,
@@ -123,6 +124,10 @@ export const missionScoringService = {
           score: value.score,
         })),
       });
+      if (scoring === null) {
+        console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — enrichment changed during calculation`);
+        return;
+      }
     } catch (error) {
       if ((error as { code?: string }).code === "P2002") {
         console.log(`${LOG_PREFIX} skipping mission=${params.missionId} enrichment=${enrichmentId} — lost race to concurrent scorer`);

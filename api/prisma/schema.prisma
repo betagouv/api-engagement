@@ -1039,9 +1039,10 @@ model MissionScoring {
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  mission              Mission               @relation(fields: [missionId], references: [id], onDelete: Cascade)
-  missionEnrichment    MissionEnrichment     @relation(fields: [missionEnrichmentId], references: [id], onDelete: Cascade)
+  mission              Mission                 @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  missionEnrichment    MissionEnrichment       @relation(fields: [missionEnrichmentId], references: [id], onDelete: Cascade)
   missionScoringValues MissionScoringValue[]
+  matchingCatalog      MatchingMissionCatalog?
 
   @@unique([missionId, missionEnrichmentId], map: "mission_scoring_mission_id_mission_enrichment_id_key")
   @@index([missionId], map: "mission_scoring_mission_id_idx")
@@ -1068,6 +1069,69 @@ model MissionScoringValue {
   @@index([taxonomyKey, valueKey], map: "mission_scoring_value_taxonomy_value_idx")
   @@index([taxonomyKey, valueKey, missionScoringId, score], map: "mission_scoring_value_taxonomy_value_scoring_score_idx")
   @@map("mission_scoring_value")
+}
+
+model MatchingMissionCatalog {
+  id                  String                  @id @default(uuid())
+  missionScoringId    String                  @unique(map: "matching_catalog_scoring_key") @map("mission_scoring_id")
+  missionId           String                  @map("mission_id")
+  missionEnrichmentId String                  @map("mission_enrichment_id")
+  promptVersion       String                  @map("prompt_version")
+  enrichmentStatus    MissionEnrichmentStatus @map("enrichment_status")
+  createdAt           DateTime                @default(now()) @map("created_at")
+  updatedAt           DateTime                @updatedAt @map("updated_at")
+
+  missionScoring MissionScoring         @relation(fields: [missionScoringId], references: [id], onDelete: Cascade)
+  gates          MatchingMissionGate[]
+  values         MatchingMissionValue[]
+
+  @@index([promptVersion, enrichmentStatus, missionId, missionScoringId], map: "matching_catalog_prompt_status_mission_idx")
+  @@index([missionEnrichmentId], map: "matching_catalog_enrichment_idx")
+  @@map("matching_mission_catalog")
+}
+
+model MatchingMissionGate {
+  id               String   @id @default(uuid())
+  missionScoringId String   @map("mission_scoring_id")
+  taxonomyKey      String   @map("taxonomy_key")
+  allowedValues    String[] @map("allowed_values")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  catalog MatchingMissionCatalog @relation(fields: [missionScoringId], references: [missionScoringId], onDelete: Cascade)
+
+  @@unique([missionScoringId, taxonomyKey], map: "matching_gate_scoring_taxonomy_key")
+  @@map("matching_mission_gate")
+}
+
+model MatchingMissionValue {
+  id               String   @id @default(uuid())
+  missionScoringId String   @map("mission_scoring_id")
+  missionId        String   @map("mission_id")
+  promptVersion    String   @map("prompt_version")
+  taxonomyKey      String   @map("taxonomy_key")
+  valueKey         String   @map("value_key")
+  score            Float
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  catalog MatchingMissionCatalog @relation(fields: [missionScoringId], references: [missionScoringId], onDelete: Cascade)
+
+  @@unique([missionScoringId, taxonomyKey, valueKey], map: "matching_value_scoring_taxonomy_value_key")
+  @@index([promptVersion, taxonomyKey, valueKey, missionScoringId, score], map: "matching_value_prompt_taxonomy_value_score_idx")
+  @@map("matching_mission_value")
+}
+
+model MatchingCatalogState {
+  promptVersion  String    @id @map("prompt_version")
+  ready          Boolean   @default(false)
+  valuesReady    Boolean   @default(false) @map("values_ready")
+  buildId        String?   @map("build_id")
+  gateTaxonomies String[]  @map("gate_taxonomies")
+  builtAt        DateTime? @map("built_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  @@map("matching_catalog_state")
 }
 
 model UserScoring {

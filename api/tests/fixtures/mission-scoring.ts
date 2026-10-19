@@ -1,5 +1,6 @@
 import { MissionEnrichment, MissionEnrichmentStatus, MissionScoring } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { matchingCatalogRepository } from "@/repositories/matching-catalog";
 import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
 import type { TaxonomyKey } from "@engagement/taxonomy";
 
@@ -16,6 +17,7 @@ export const createTestMissionEnrichment = async (data: { missionId: string; sta
 export const createTestMissionScoring = async (data: {
   missionId: string;
   missionEnrichmentId: string;
+  publish?: boolean;
   values?: Array<{ taxonomyKey: TaxonomyKey; valueKey: string; score?: number }>;
 }): Promise<MissionScoring> => {
   const scoring = await prisma.missionScoring.create({
@@ -38,5 +40,8 @@ export const createTestMissionScoring = async (data: {
     }
   }
 
+  if (data.publish !== false) {
+    await matchingCatalogRepository.rebuildBatch([scoring.id]);
+  }
   return scoring;
 };

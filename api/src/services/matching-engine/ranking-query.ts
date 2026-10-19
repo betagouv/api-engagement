@@ -1,7 +1,7 @@
 import { Prisma } from "@/db/core";
-import { CURRENT_PROMPT_VERSION } from "@/services/mission-enrichment/prompts";
-import { GATE_TAXONOMIES } from "@engagement/taxonomy";
+import { buildEligibilityCtes } from "./eligibility-query";
 import { buildGeographicCandidateScoresCte, buildGeographicPrefilterCtes } from "./geographic-prefilter-query";
+import { buildMissionValuesSource } from "./mission-values-query";
 import { resolveRankingParams } from "./ranking-params";
 import type { MatchingEngineTaxonomyWeights, RankMissionsByUserScoringInput } from "./types";
 
@@ -15,8 +15,6 @@ const DISPOSITIF_REPEAT_PENALTY_MAX = 0.6;
 
 const buildTaxonomyWeightsValuesSql = (taxonomyWeights: Readonly<MatchingEngineTaxonomyWeights>) =>
   Prisma.join(Object.entries(taxonomyWeights).map(([taxonomy, weight]) => Prisma.sql`(${taxonomy}, CAST(${weight} AS double precision))`));
-
-const buildGateTaxonomiesSql = () => Prisma.join(GATE_TAXONOMIES.map((taxonomy) => Prisma.sql`${taxonomy}`));
 
 /**
  * Construit le classement en une requête SQL composée de CTE successifs.
@@ -175,7 +173,7 @@ export const buildRankingQuery = (params: {
           ORDER BY s."total_score" DESC, s."mission_id" ASC
         ) AS "coverage_rank"
       FROM scored s
-      JOIN "mission_scoring_value" msv
+      JOIN ${buildMissionValuesSource()} msv
         ON msv."mission_scoring_id" = s."mission_scoring_id"
        AND msv."taxonomy_key" = 'dispositif'
        AND msv."value_key" IN (${Prisma.join(params.coverageDispositifs)})
@@ -252,89 +250,11 @@ export const buildRankingQuery = (params: {
       ) AS "radius_km"
     FROM user_geo ug
   ),
-  -- Phase 2 : récupérer le scoring de la version courante, puis appliquer les taxonomies « gate ».
-  -- L'unicité (mission, version du prompt) garantit au plus un enrichissement courant par mission.
-  -- Une mission sans scoring terminé pour cette version est volontairement exclue : aucun fallback
-  -- vers un scoring historique n'est effectué.
-  active_mission_scorings AS (
-    SELECT
-      ms."id" AS "mission_scoring_id",
-      ms."mission_id",
-      m."remote"::text AS "remote"
-    FROM "mission_scoring" ms
-    JOIN "mission_enrichment" me
-      ON me."id" = ms."mission_enrichment_id"
-     AND me."prompt_version" = ${CURRENT_PROMPT_VERSION}
-     AND me."status" = 'completed'
-    JOIN "mission" m
-      ON m."id" = ms."mission_id"
-    ${params.publisherDiffusionJoinSql ?? Prisma.empty}
-    WHERE m."deleted_at" IS NULL
-      AND m."status_code" = 'ACCEPTED'
-  ),
-  -- Charger une seule fois les quelques valeurs utilisateur appartenant aux taxonomies gate.
-  -- Elles servent ensuite de point de départ à la recherche des scorings compatibles.
-  user_gate_values AS MATERIALIZED (
-    SELECT DISTINCT
-      usv."taxonomy_key" AS "taxonomy_key",
-      usv."value_key" AS "value_key"
-    FROM "user_scoring_value" usv
-    WHERE usv."user_scoring_id" = ${params.userScoringId}
-      AND usv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
-  ),
-  -- Agréger directement par taxonomie évite de conserver toutes les valeurs gate de chaque
-  -- mission. Ce CTE contient au plus une ligne par couple scoring/taxonomie gate.
-  mission_gate_taxonomies AS MATERIALIZED (
-    SELECT
-      ams."mission_scoring_id",
-      msv."taxonomy_key"
-    FROM active_mission_scorings ams
-    JOIN "mission_scoring_value" msv
-      ON msv."mission_scoring_id" = ams."mission_scoring_id"
-     AND msv."taxonomy_key" IN (${buildGateTaxonomiesSql()})
-    GROUP BY ams."mission_scoring_id", msv."taxonomy_key"
-  ),
-  -- Partir des quelques valeurs gate du profil utilise l'index couvrant orienté taxonomie/valeur.
-  -- La matérialisation empêche le planificateur de revenir à une recherche par mission.
-  matching_gate_values AS MATERIALIZED (
-    SELECT
-      msv."mission_scoring_id",
-      ugv."taxonomy_key"
-    FROM user_gate_values ugv
-    JOIN "mission_scoring_value" msv
-      ON msv."taxonomy_key" = ugv."taxonomy_key"
-     AND msv."value_key" = ugv."value_key"
-    GROUP BY msv."mission_scoring_id", ugv."taxonomy_key"
-  ),
-  matched_gate_taxonomies AS (
-    SELECT
-      mgv."mission_scoring_id",
-      mgv."taxonomy_key"
-    FROM matching_gate_values mgv
-    JOIN active_mission_scorings ams
-      ON ams."mission_scoring_id" = mgv."mission_scoring_id"
-  ),
-  eligible_mission_scorings AS (
-    SELECT
-      ams."mission_scoring_id",
-      ams."mission_id",
-      ams."remote"
-    FROM active_mission_scorings ams
-    WHERE NOT EXISTS (
-      SELECT 1
-      FROM mission_gate_taxonomies mgt
-      WHERE mgt."mission_scoring_id" = ams."mission_scoring_id"
-        AND NOT EXISTS (
-          SELECT 1
-          FROM matched_gate_taxonomies mgtm
-          WHERE mgtm."mission_scoring_id" = mgt."mission_scoring_id"
-            AND mgtm."taxonomy_key" = mgt."taxonomy_key"
-      )
-    )
-  ),
+  -- Phase 2 : appliquer les contraintes du dernier scoring publié.
+  ${buildEligibilityCtes(params)},
   ${buildGeographicPrefilterCtes()},
   -- Matérialiser les correspondances depuis les quelques valeurs du profil empêche PostgreSQL
-  -- de réordonner la jointure en une recherche mission par mission dans mission_scoring_value.
+  -- de réordonner la jointure en une recherche mission par mission dans les valeurs publiées.
   -- Filtrer les scorings par gates et localisation avant le GROUP BY évite d'agréger
   -- les correspondances qui seraient ensuite éliminées.
   matching_mission_values AS MATERIALIZED (
@@ -343,7 +263,7 @@ export const buildRankingQuery = (params: {
       uv."taxonomy_key",
       SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
     FROM user_values uv
-    JOIN "mission_scoring_value" msv
+    JOIN ${buildMissionValuesSource()} msv
       ON msv."taxonomy_key" = uv."taxonomy_key"
      AND msv."value_key" = uv."value_key"
     WHERE EXISTS (
@@ -580,7 +500,7 @@ export const buildRankingQuery = (params: {
         ORDER BY s."total_score" DESC, s."mission_id" ASC
       ) AS "dispositif_rank"
     FROM raw_scored s
-    JOIN "mission_scoring_value" msv
+    JOIN ${buildMissionValuesSource()} msv
       ON msv."mission_scoring_id" = s."mission_scoring_id"
      AND msv."taxonomy_key" = 'dispositif'
      AND msv."value_key" IN (${Prisma.join(PENALIZED_DISPOSITIFS)})

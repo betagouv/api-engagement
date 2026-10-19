@@ -61,6 +61,8 @@ export const missionEnrichmentRepository = {
     values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[]
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
+      // Sérialiser le remplacement avec un scoring qui vérifie cette révision.
+      await tx.$queryRaw(Prisma.sql`SELECT id FROM mission_enrichment WHERE id = ${enrichmentId} FOR NO KEY UPDATE`);
       await tx.missionEnrichmentValue.deleteMany({ where: { enrichmentId } });
 
       if (values.length > 0) {

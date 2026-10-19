@@ -64,6 +64,17 @@ describe("matchingEngineService", () => {
   });
 
   describe("rankMissionsByUserScoring", () => {
+    it("lit toujours le catalogue, les gates et les valeurs publiées", async () => {
+      prismaMock.$queryRaw.mockResolvedValueOnce([]);
+      await matchingEngineService.rankMissionsByUserScoring({ userScoringId: "profile", persistMatchingResult: false });
+      const sql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
+      expect(sql).toContain('FROM "matching_mission_catalog"');
+      expect(sql).toContain('FROM "matching_mission_gate"');
+      expect(sql).toContain('FROM "matching_mission_value"');
+      expect(sql).not.toContain('"mission_scoring_value"');
+      expect(sql).not.toContain('"mission_enrichment"');
+    });
+
     it("throws when the user scoring does not exist", async () => {
       userScoringServiceMock.exists.mockResolvedValueOnce(false);
 
@@ -134,8 +145,8 @@ describe("matchingEngineService", () => {
       expect(rankingSql).toContain("JOIN taxonomy_weights tw");
       expect(rankingValues).toContain("domaine");
       expect(rankingValues).toContain(CURRENT_PROMPT_VERSION);
-      expect(rankingSql).toContain('me."prompt_version" =');
-      expect(rankingSql).toContain('me."id" = ms."mission_enrichment_id"');
+      expect(rankingSql).toContain('mc."prompt_version" =');
+      expect(rankingSql).toContain('FROM "matching_mission_value"');
       expect(rankingSql).not.toContain("SELECT DISTINCT ON");
       expect(rankingSql).not.toContain('me."completed_at"');
       expect(rankingValues).toContain("tranche_age");
@@ -349,9 +360,9 @@ describe("matchingEngineService", () => {
       const rankingSql = getSqlText(prismaMock.$queryRaw.mock.calls[0][0]);
       expect(prismaMock.$queryRaw).toHaveBeenCalledTimes(2);
       expect(rankingSql).toContain("user_gate_values AS MATERIALIZED");
-      expect(rankingSql).toContain("matching_gate_values AS MATERIALIZED");
+      expect(rankingSql).toContain('FROM "matching_mission_gate"');
       expect(rankingSql).not.toContain("mission_gate_values AS");
-      expect(rankingSql).toContain("matched_gate_taxonomies AS");
+      expect(rankingSql).toContain("eligible_mission_scorings AS MATERIALIZED");
       expect(rankingSql).not.toContain('AND usv."taxonomy_key" NOT IN');
       expect(result.items).toEqual([
         {

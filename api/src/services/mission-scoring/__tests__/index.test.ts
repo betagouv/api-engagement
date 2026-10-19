@@ -28,6 +28,8 @@ const missionScoringRepositoryMock = missionScoringRepository as unknown as {
   replaceForEnrichment: ReturnType<typeof vi.fn>;
 };
 
+const enrichmentRevision = new Date("2026-10-19T08:00:00.000Z");
+
 const buildEnrichmentValue = (overrides: Record<string, unknown> = {}) => ({
   id: "mev-1",
   confidence: 0.76,
@@ -59,6 +61,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue()],
     });
@@ -76,6 +79,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue()],
     });
@@ -90,6 +94,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      enrichmentUpdatedAt: enrichmentRevision,
       values: [
         {
           missionEnrichmentValueId: "mev-1",
@@ -105,6 +110,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: null },
       values: [
         buildEnrichmentValue({
@@ -124,6 +130,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      enrichmentUpdatedAt: enrichmentRevision,
       values: [],
     });
   });
@@ -132,6 +139,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: null },
       values: [buildEnrichmentValue({ confidence: 0.54 })],
     });
@@ -149,6 +157,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, type: null },
       values: [],
     });
@@ -162,6 +171,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      enrichmentUpdatedAt: enrichmentRevision,
       values: [
         {
           missionEnrichmentValueId: null,
@@ -201,6 +211,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: "volontariat_sapeurs_pompiers" },
       values: [],
     });
@@ -235,6 +246,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      enrichmentUpdatedAt: enrichmentRevision,
       values: expectedKeys.map((key) => {
         const [taxonomyKey, valueKey] = key.split(".");
         return { missionEnrichmentValueId: null, taxonomyKey, valueKey, score: 1 };
@@ -246,6 +258,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: null, openToMinors: null, compensationAmount: 619.83 },
       values: [
         buildEnrichmentValue({
@@ -264,6 +277,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      enrichmentUpdatedAt: enrichmentRevision,
       values: [
         {
           missionEnrichmentValueId: "mev-1",
@@ -285,6 +299,7 @@ describe("missionScoringService.score", () => {
     missionEnrichmentRepositoryMock.findFirst.mockResolvedValue({
       id: "enrichment-1",
       missionId: "mission-1",
+      updatedAt: enrichmentRevision,
       mission: { publisherId: null, type: null, remote: "full", openToMinors: null, compensationAmount: null },
       values: [
         buildEnrichmentValue({
@@ -303,6 +318,7 @@ describe("missionScoringService.score", () => {
     expect(missionScoringRepositoryMock.replaceForEnrichment).toHaveBeenCalledWith({
       missionId: "mission-1",
       missionEnrichmentId: "enrichment-1",
+      enrichmentUpdatedAt: enrichmentRevision,
       values: [
         {
           missionEnrichmentValueId: "mev-1",
@@ -331,6 +347,7 @@ describe("missionScoringService.score — enrichment selection", () => {
   const buildEnrichment = (id: string) => ({
     id,
     missionId: "mission-1",
+    updatedAt: enrichmentRevision,
     mission: { publisherId: null, type: null },
     values: [buildEnrichmentValue()],
   });
