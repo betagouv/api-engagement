@@ -4,7 +4,7 @@ Ce fichier décrit uniquement les conventions spécifiques à `cms/`. Les règle
 
 ## Rôle
 
-CMS headless **Strapi 5 (Community)** + Postgres dédié, pour les landings et pages éditoriales de `plateform/`. Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. POC local pour l'instant (pas de Terraform ni de déploiement).
+CMS headless **Strapi 5 (Community)** + Postgres dédié, pour les landings et pages éditoriales de `plateform/`. Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
 
 ## Périmètre et fichiers à ne pas modifier
 
@@ -12,9 +12,10 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 
 ## Structure
 
-- `config/*.ts` : serveur, base, admin (dont la **preview** vers plateform), middlewares. Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
+- `config/*.ts` : serveur (proxy/URL publique), base (SSL), admin (dont la **preview** vers plateform), middlewares (CSP), plugins (médias sur Object Storage quand `CMS_MEDIA_BUCKET` est défini). Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
 - `src/api/landing-page/` : content-type `landing-page` (brouillon/publié) + routes/contrôleur/service par défaut.
 - `src/components/blocks/` : les blocs de la zone dynamique `blocks` ; `src/components/shared/` : sous-composants réutilisables.
+- `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
 - `scripts/seed-chacun-pour-tous.ts` : seed de dev (recrée la landing et le jeton de lecture de plateform). Jetable.
 
 ## Contrat avec plateform
