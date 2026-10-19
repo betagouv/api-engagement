@@ -24,6 +24,12 @@ locals {
   }
 }
 
+# La CI lit cette configuration avant les migrations, sans dupliquer les clés dans GitHub.
+output "ssh_tunnel_env_vars" {
+  value     = local.ssh_tunnel_env_vars
+  sensitive = true
+}
+
 # Conserver les clés existantes lors du renommage des ressources.
 moved {
   from = tls_private_key.core_db_jobs

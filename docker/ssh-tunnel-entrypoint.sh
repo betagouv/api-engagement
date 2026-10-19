@@ -30,6 +30,10 @@ try {
   writeFileSync(`${process.argv[2]}/target`, `${url.hostname}:${targetPort}`);
   url.hostname = "127.0.0.1";
   url.port = localPort;
+  if (process.env.GITHUB_ACTIONS === "true") {
+    const maskedUrl = url.toString().replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+    console.log(`::add-mask::${maskedUrl}`);
+  }
   writeFileSync(`${process.argv[2]}/url-env`, urlEnv);
   writeFileSync(`${process.argv[2]}/url`, url.toString());
 } catch {
@@ -43,6 +47,7 @@ url_env="$(cat "$tunnel_dir/url-env")"
 export "$url_env=$(cat "$tunnel_dir/url")"
 
 ssh -fNT \
+  -M -S "${SSH_TUNNEL_CONTROL_PATH:-none}" \
   -i "$tunnel_dir/key" \
   -p "${SSH_TUNNEL_BASTION_PORT:-61000}" \
   -o BatchMode=yes \

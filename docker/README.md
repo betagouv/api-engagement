@@ -28,3 +28,13 @@ La clé est conservée entre les déploiements. Elle est générée lors du prem
 La clé privée est stockée dans le state Terraform et dans les variables d'environnement des jobs. Le caractère `sensitive` masque son affichage Terraform mais ne chiffre pas le state : protéger l'accès au bucket `api-engagement-terraform-state`.
 
 `SSH_TUNNEL_KNOWN_HOSTS` reste à renseigner avec l'identité vérifiée du bastion ; elle est indépendante de la paire de clés générée pour les jobs.
+
+## Migrations depuis GitHub Actions
+
+Le workflow initialise Terraform et sélectionne le workspace avant les migrations. L’étape shell de migration lit la sortie sensible `ssh_tunnel_env_vars` du state existant, puis réutilise cet entrypoint pour lancer `npm --workspace api run prisma:migrate:deploy`. La clé SSH n'est pas recopiée dans les secrets GitHub. `DATABASE_URL_CORE` reste fournie par le secret GitHub de l'environnement, avec la destination PostgreSQL à joindre depuis le bastion.
+
+La CI respecte `SSH_TUNNEL_ENABLED` publié dans le state : `true` active le tunnel, `false` conserve une connexion directe. La sortie Terraform est capturée en mémoire ; la clé privée et l'URL adaptée sont masquées dans les logs GitHub Actions. Un socket de contrôle SSH permet de fermer le tunnel après les migrations, y compris si Prisma échoue. Le déploiement applicatif n'a lieu qu'après leur réussite.
+
+Avant le premier déploiement avec ce workflow, effectuer un `terraform apply` pour créer la passerelle et la clé si nécessaire, et publier la nouvelle sortie. Une sortie absente ou invalide fait échouer la migration sans tentative de connexion directe. Lors d'un changement de configuration du tunnel dans Secret Manager, appliquer Terraform avant de basculer la base ou les secrets GitHub sur l'endpoint privé : la CI lit la configuration du dernier apply, pas celle du plan à venir.
+
+Les workspaces sans passerelle doivent garder le tunnel désactivé. La création d'un environnement neuf nécessite de provisionner l'infrastructure avant le premier lancement de migrations.
