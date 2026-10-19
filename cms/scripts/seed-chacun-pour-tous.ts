@@ -1,6 +1,5 @@
 // Seed de dev : recrée la landing « Chacun pour tous » dans le CMS (contenu repris de plateform) et le jeton
 // de lecture de plateform. Idempotent : relancer remplace la landing. Usage : `npm run seed` dans le conteneur cms.
-import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -32,15 +31,14 @@ const uploadImage = async (strapi: Core.Strapi, relativePath: string, alternativ
 };
 
 // Jeton lecture seule à valeur fixe (CMS_API_TOKEN), pour ne pas avoir à le recopier dans plateform à chaque seed.
-// Même calcul que `admin::api-token` (HMAC-SHA512 salé) ; dev local uniquement.
+// Le hash est calculé par le service Strapi lui-même (`admin::api-token`) ; dev local uniquement.
 const ensureReadToken = async (strapi: Core.Strapi) => {
   const accessKey = process.env.CMS_API_TOKEN;
   if (!accessKey) {
     return console.warn("CMS_API_TOKEN absent : jeton non créé.");
   }
 
-  const { salt } = strapi.config.get("admin.apiToken") as { salt: string };
-  const hash = crypto.createHmac("sha512", salt).update(accessKey).digest("hex");
+  const { hash } = strapi.service("admin::api-token") as unknown as { hash: (accessKey: string) => string };
   const query = strapi.db.query("admin::api-token");
   await query.deleteMany({ where: { name: TOKEN_NAME } });
   await query.create({
@@ -49,7 +47,7 @@ const ensureReadToken = async (strapi: Core.Strapi) => {
       description: "Lecture du contenu publié et des brouillons (preview).",
       type: "read-only",
       kind: "content-api",
-      accessKey: hash,
+      accessKey: hash(accessKey),
       lifespan: null,
       expiresAt: null,
     },
