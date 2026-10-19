@@ -9,6 +9,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+RUN chown -R node:node /opt/app
+
+USER node
 
 EXPOSE 1337
 
