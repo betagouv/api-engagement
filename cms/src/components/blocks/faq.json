@@ -1,0 +1,9 @@
+{
+  "collectionName": "components_blocks_faqs",
+  "info": { "displayName": "Questions", "icon": "question" },
+  "attributes": {
+    "title": { "type": "string", "required": true, "description": "==mots== pour surligner." },
+    "intro": { "type": "text", "description": "[texte du lien](/chemin) pour un lien." },
+    "questions": { "type": "component", "repeatable": true, "component": "shared.question" }
+  }
+}

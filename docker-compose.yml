@@ -25,6 +25,46 @@ services:
     volumes:
       - postgres-core-data:/var/lib/postgresql/data
 
+  # CMS Strapi (POC) : landings et pages éditoriales de plateform. Admin sur http://localhost:1337/admin.
+  # Secrets ci-dessous : valeurs de dev local uniquement.
+  postgres-cms:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: strapi
+      POSTGRES_DB: strapi
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-cms-data:/var/lib/postgresql/data
+
+  cms:
+    build:
+      context: ./cms
+    depends_on:
+      - postgres-cms
+    environment:
+      NODE_ENV: development
+      DATABASE_HOST: postgres-cms
+      APP_KEYS: dev-key-1,dev-key-2,dev-key-3,dev-key-4
+      ADMIN_JWT_SECRET: dev-admin-jwt-secret
+      API_TOKEN_SALT: dev-api-token-salt
+      TRANSFER_TOKEN_SALT: dev-transfer-token-salt
+      ENCRYPTION_KEY: dev-encryption-key
+      JWT_SECRET: dev-jwt-secret
+      PLATEFORM_URL: http://localhost:5173
+      PREVIEW_SECRET: dev-preview-secret
+      # Jeton lecture seule de plateform, créé de façon déterministe par `npm run seed`.
+      CMS_API_TOKEN: dev-cms-read-token
+    volumes:
+      - ./cms:/opt/app
+      - /opt/app/node_modules
+      # Images des landings existantes, reprises par le script de seed.
+      - ./plateform/app/assets:/seed-assets:ro
+    ports:
+      - "1337:1337"
+
   api:
     build:
       context: .
@@ -75,6 +115,10 @@ services:
       VITE_API_URL: http://localhost:3002
       SERVER_API_URL: http://api:3002
       VITE_ENV: development
+      CMS_URL: http://cms:1337
+      CMS_PUBLIC_URL: http://localhost:1337
+      CMS_API_TOKEN: dev-cms-read-token
+      CMS_PREVIEW_SECRET: dev-preview-secret
     volumes:
       - ./plateform:/workspace/plateform
       - /workspace/plateform/node_modules
@@ -156,4 +200,5 @@ volumes:
   api-node-modules:
   postgres-analytics-data:
   postgres-core-data:
+  postgres-cms-data:
   typesense-data:
