@@ -194,10 +194,13 @@ resource "scaleway_container" "plateform" {
     "PLATEFORM_LEGACY_HOSTNAME" = var.ttm_legacy_hostname
     "SERVER_API_URL"            = "https://${var.api_hostname}"
     "ENV"                       = var.env
+    "CMS_URL"                   = local.cms_url
   }
 
   secret_environment_variables = {
-    "PUBLISHER_API_KEY" = lookup(local.secrets, "PLATEFORM_PUBLISHER_API_KEY", "")
+    "PUBLISHER_API_KEY"  = lookup(local.secrets, "PLATEFORM_PUBLISHER_API_KEY", "")
+    "CMS_API_TOKEN"      = lookup(local.secrets, "PLATEFORM_CMS_API_TOKEN", "")
+    "CMS_PREVIEW_SECRET" = lookup(local.secrets, "CMS_PREVIEW_SECRET", "")
   }
 }
 
