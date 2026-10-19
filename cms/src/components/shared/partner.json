@@ -1,0 +1,10 @@
+{
+  "collectionName": "components_shared_partners",
+  "info": { "displayName": "Partenaire", "icon": "handHeart" },
+  "attributes": {
+    "name": { "type": "string", "required": true },
+    "description": { "type": "string", "required": true },
+    "url": { "type": "string" },
+    "logo": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true }
+  }
+}

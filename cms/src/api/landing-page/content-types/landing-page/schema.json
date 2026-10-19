@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "landing_pages",
+  "info": {
+    "singularName": "landing-page",
+    "pluralName": "landing-pages",
+    "displayName": "Landing page",
+    "description": "Page composée de blocs, rendue par plateform sur /cms/:slug."
+  },
+  "options": { "draftAndPublish": true },
+  "pluginOptions": {},
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "slug": { "type": "uid", "targetField": "title", "required": true },
+    "seoTitle": { "type": "string", "required": true },
+    "seoDescription": { "type": "text" },
+    "ogTitle": { "type": "string" },
+    "ogDescription": { "type": "text" },
+    "noindex": { "type": "boolean", "default": false },
+    "blocks": {
+      "type": "dynamiczone",
+      "required": true,
+      "components": ["blocks.hero", "blocks.missions", "blocks.etapes", "blocks.benefits", "blocks.cards", "blocks.stories", "blocks.faq", "blocks.partners"]
+    }
+  }
+}

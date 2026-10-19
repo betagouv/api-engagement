@@ -1,0 +1,42 @@
+{
+  "name": "cms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CMS Strapi (POC) : landings et pages éditoriales de plateform.",
+  "scripts": {
+    "dev": "strapi develop",
+    "build": "strapi build",
+    "start": "strapi start",
+    "seed": "ts-node scripts/seed-chacun-pour-tous.ts",
+    "typecheck": "strapi ts:generate-types && tsc --noEmit",
+    "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@strapi/plugin-color-picker": "5.58.0",
+    "@strapi/plugin-users-permissions": "5.58.0",
+    "@strapi/strapi": "5.58.0",
+    "pg": "8.13.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.0.0",
+    "styled-components": "^6.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/mime-types": "3.0.1",
+    "@types/node": "24.10.1",
+    "@typescript-eslint/eslint-plugin": "8.70.1",
+    "@typescript-eslint/parser": "8.70.1",
+    "eslint": "10.11.0",
+    "eslint-plugin-import-x": "4.17.1",
+    "mime-types": "3.0.1",
+    "prettier": "3.9.9",
+    "prettier-plugin-organize-imports": "4.3.0",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20.0.0 <=24.x.x"
+  }
+}
