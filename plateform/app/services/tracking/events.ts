@@ -344,7 +344,7 @@ export function trackMissionDetailViewed(params: {
 // `missions_filter.applied` (feature_usage) : sélection d'une valeur de filtre sur /missions.
 // Émis après le retour de la recherche : results_count = nombre de missions après application du filtre.
 // `missions.page_changed` (feature_usage) : navigation dans la pagination d'une liste de missions (landing).
-export function trackMissionsPageChanged(params: { pageName: LandingName; fromPage: number; toPage: number; totalPages: number }): void {
+export function trackMissionsPageChanged(params: { pageName: "missions_list" | LandingName; fromPage: number; toPage: number; totalPages: number }): void {
   track("missions.page_changed", {
     page_name: params.pageName,
     from_page: params.fromPage,

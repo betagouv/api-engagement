@@ -1,286 +1,68 @@
-import type { MissionBrowse, MissionBrowseFacetCount, MissionBrowseFilters } from "@engagement/dto";
-import { getDomainLabel } from "@engagement/dto";
-import { TAXONOMY } from "@engagement/taxonomy";
+import { useEffect, useRef } from "react";
+import { useLoaderData, useSearchParams } from "react-router";
 
-import { useEffect, useRef, useState } from "react";
-
-import { useSearchParams } from "react-router";
+import LocationFilter from "~/components/landings/location-filter";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
-import MissionFiltersBar, { MissionFiltersTrigger, type FilterDef } from "~/components/missions/filters";
-import MissionCard from "~/components/missions/mission-card";
+import MissionsBrowser, { FILTER_TYPES } from "~/components/missions/missions-browser";
 import GradientBg from "~/components/ui/gradient-bg";
-import Pagination from "~/components/ui/pagination";
-import { browseMissions } from "~/services/mission-browse";
-import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackPageViewed } from "~/services/tracking/events";
-import type { MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
-import { buildMissionBrowseTags } from "~/utils/mission";
-import { getScrollBehavior } from "~/utils/motion";
-import type { Route } from "./+types/missions";
+import { browseMissions } from "~/services/api/missions";
+import { trackPageViewed } from "~/services/tracking/events";
+import { buildLandingBrowseFilters, getSelectedValues, type LandingMissionsConfig } from "~/utils/landing-missions";
 import { pageMeta } from "~/utils/seo";
 
-const PAGE_SIZE = 9;
+import type { Route } from "./+types/missions";
 
-// La clé d'un filtre est aussi sa clé de taxonomie, son param d'URL et sa facette API.
-const FILTER_KEYS = ["departmentCode", "dispositif", "tranche_age", "type_mission", "activite", "domaine_engagement"] as const satisfies readonly (keyof MissionBrowseFilters)[];
-const SINGLE_FILTER_KEYS = new Set<FilterKey>(["tranche_age"]);
-
-type FilterKey = (typeof FILTER_KEYS)[number];
-
-// Mappe la clé interne du filtre vers le filter_type de la spec tracking (departmentCode → departement).
-const FILTER_TYPE_BY_KEY: Record<FilterKey, MissionsFilterType> = {
-  departmentCode: "departement",
-  dispositif: "dispositif",
-  tranche_age: "tranche_age",
-  type_mission: "type_mission",
-  activite: "activite",
-  domaine_engagement: "domaine_engagement",
+const MISSIONS_CONFIG: LandingMissionsConfig = {
+  filters: ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"],
 };
-type BrowseParams = MissionBrowseFilters;
-type TaxonomyFilterValue = { label: string; hidden?: boolean };
-
-// Les options suivent l'ordre de déclaration des valeurs dans TAXONOMY (pas le nombre de résultats).
-const buildTaxonomyFilterOptions = (key: FilterKey, facets: MissionBrowseFacetCount[] | undefined) => {
-  const taxonomyValues = TAXONOMY[key].values as Record<string, TaxonomyFilterValue>;
-  const countByKey = new Map((facets ?? []).map((facet) => [facet.key, facet.count]));
-
-  return Object.entries(taxonomyValues).flatMap(([value, taxonomyValue]) => {
-    const count = countByKey.get(value) ?? 0;
-    if (taxonomyValue.hidden === true || count === 0) return [];
-    return [{ value, label: taxonomyValue.label, count }];
-  });
-};
-
-const getFilterValues = (searchParams: URLSearchParams): Record<FilterKey, string[]> =>
-  Object.fromEntries(
-    FILTER_KEYS.map((key) => {
-      const values = searchParams.getAll(key);
-      return [key, SINGLE_FILTER_KEYS.has(key) ? values.slice(0, 1) : values];
-    }),
-  ) as Record<FilterKey, string[]>;
-
-export async function clientLoader() {
-  return null;
-}
-
-export function HydrateFallback() {
-  return null;
-}
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
     title: "Toutes les missions d'engagement",
     description: "Parcours toutes les missions de bénévolat, de service civique et de réserve, et filtre par domaine, lieu ou rythme.",
-    // Liste rendue côté client (Google ne voit aucun contenu) ; retirer le noindex si elle passe en SSR.
     robots: "noindex, follow",
   });
 }
 
+export async function loader({ request }: Route.LoaderArgs) {
+  const { searchParams } = new URL(request.url);
+  const filters = buildLandingBrowseFilters(searchParams, MISSIONS_CONFIG);
+  const page = filters.page ?? 1;
+
+  try {
+    const res = await browseMissions(filters, request);
+    return { missions: res.data, total: res.total, facets: res.facets, page };
+  } catch {
+    return { missions: [], total: 0, facets: {}, page };
+  }
+}
+
 export default function MissionsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
-  const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
-  const filterValues = getFilterValues(searchParams);
-
-  const [items, setItems] = useState<MissionBrowse[]>([]);
-  const [total, setTotal] = useState(0);
-  const [facets, setFacets] = useState<Record<string, MissionBrowseFacetCount[]>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
+  const { missions, total, facets, page } = useLoaderData<typeof loader>();
+  const [searchParams] = useSearchParams();
   const pageViewedFired = useRef(false);
-  // Filtre appliqué en attente de tracking : results_count n'est connu qu'au retour de la recherche.
-  const pendingFilterTrackRef = useRef<{ filterType: MissionsFilterType; filterValue: string; activeFilterCount: number } | null>(null);
 
   useEffect(() => {
     if (pageViewedFired.current) return;
     pageViewedFired.current = true;
     // Filtres actifs au chargement (issus de l'URL, ex. arrivée depuis une landing pré-filtrée sur les mineurs).
-    const activeFilters = FILTER_KEYS.flatMap((key) => filterValues[key].map((value) => `${FILTER_TYPE_BY_KEY[key]}:${value}`));
+    const activeFilters = MISSIONS_CONFIG.filters.flatMap((key) => getSelectedValues(searchParams, key).map((value) => `${FILTER_TYPES[key]}:${value}`));
     trackPageViewed({ pageName: "missions_list", activeFilters, filtersPreselected: activeFilters.length > 0 });
   }, []);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    setLoading(true);
-    setError(null);
-
-    // Consommé par cette requête : si elle est abortée ou échoue, l'event de filtre est abandonné.
-    const pendingFilterTrack = pendingFilterTrackRef.current;
-    pendingFilterTrackRef.current = null;
-
-    const browseInput: BrowseParams = { page, pageSize: PAGE_SIZE };
-    if (filterValues.departmentCode.length) browseInput.departmentCode = filterValues.departmentCode;
-    if (filterValues.dispositif.length) browseInput.dispositif = filterValues.dispositif;
-    if (filterValues.tranche_age.length) browseInput.tranche_age = filterValues.tranche_age;
-    if (filterValues.type_mission.length) browseInput.type_mission = filterValues.type_mission;
-    if (filterValues.activite.length) browseInput.activite = filterValues.activite;
-    if (filterValues.domaine_engagement.length) browseInput.domaine_engagement = filterValues.domaine_engagement;
-
-    browseMissions(browseInput, controller.signal)
-      .then((res) => {
-        setItems(res.data);
-        setTotal(res.total);
-        setFacets(res.facets);
-
-        if (pendingFilterTrack) {
-          trackMissionsFilterApplied({ ...pendingFilterTrack, resultsCount: res.total });
-        }
-      })
-      .catch((err) => {
-        if (controller.signal.aborted) return;
-        setError(err instanceof Error ? err.message : "Erreur inconnue");
-      })
-      .finally(() => {
-        if (controller.signal.aborted) return;
-        setLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [searchParams]);
-
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-
-  const filterDefs: FilterDef[] = [
-    {
-      key: "departmentCode",
-      label: "Département",
-      placeholder: "Sélectionner un département",
-      selected: filterValues.departmentCode,
-      options: buildTaxonomyFilterOptions("departmentCode", facets.departmentCodes),
-    },
-    {
-      key: "tranche_age",
-      label: "Tranche d'âge",
-      placeholder: "Toutes",
-      selected: filterValues.tranche_age,
-      single: true,
-      options: buildTaxonomyFilterOptions("tranche_age", facets.tranche_age),
-    },
-    {
-      key: "type_mission",
-      label: "Rythme",
-      placeholder: "Toutes",
-      selected: filterValues.type_mission,
-      options: buildTaxonomyFilterOptions("type_mission", facets.type_mission),
-    },
-    {
-      key: "activite",
-      label: "Activité",
-      placeholder: "Toutes",
-      selected: filterValues.activite,
-      options: buildTaxonomyFilterOptions("activite", facets.activite),
-    },
-    {
-      key: "domaine_engagement",
-      label: "Domaine",
-      placeholder: "Tous",
-      selected: filterValues.domaine_engagement,
-      options: buildTaxonomyFilterOptions("domaine_engagement", facets.domaine_engagement),
-    },
-    {
-      key: "dispositif",
-      label: "Type de mission",
-      placeholder: "Toutes",
-      selected: filterValues.dispositif,
-      options: buildTaxonomyFilterOptions("dispositif", facets.dispositif),
-    },
-  ];
-
-  const handleFilterChange = (key: string, next: string[]) => {
-    if (!FILTER_KEYS.includes(key as FilterKey)) return;
-    const filterKey = key as FilterKey;
-
-    // missions_filter.applied : émis uniquement lors d'une sélection (pas la désélection),
-    // au retour de la recherche pour porter results_count.
-    const addedValue = next.find((value) => !filterValues[filterKey].includes(value));
-    if (addedValue) {
-      const activeFilterCount = FILTER_KEYS.reduce((sum, k) => sum + (k === filterKey ? next.length : filterValues[k].length), 0);
-      pendingFilterTrackRef.current = { filterType: FILTER_TYPE_BY_KEY[filterKey], filterValue: addedValue, activeFilterCount };
-    }
-
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.delete(key);
-      params.delete("page");
-      for (const val of next) params.append(key, val);
-      return params;
-    });
-  };
-
-  const handlePageChange = (newPage: number) => {
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      if (newPage === 1) params.delete("page");
-      else params.set("page", String(newPage));
-      return params;
-    });
-    window.scrollTo({ top: 0, behavior: getScrollBehavior() });
-  };
-
   return (
-    <main id="contenu" tabIndex={-1}>
-      <GradientBg>
-        <div className="fr-container pt-4 md:pt-16">
-          <div className="flex items-center justify-between gap-4">
-            <h1 className="fr-h1 m-0!">Trouve ta mission</h1>
-            <MissionFiltersTrigger filters={filterDefs} onChange={handleFilterChange} />
-          </div>
-          {/* RGAA 7.5 : masqué visuellement (pas retiré du DOM) sur mobile pour que le résultat du filtrage reste annoncé. */}
-          <p role="status" className="fr-text--lead sr-only md:not-sr-only">
-            {loading && total === 0 ? "Chargement…" : `${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}
-          </p>
-          <MissionFiltersBar filters={filterDefs} onChange={handleFilterChange} />
-        </div>
-
-        <div className="fr-container my-4 md:my-8">
-          {error && (
-            <div role="alert" className="fr-alert fr-alert--error fr-mb-4w">
-              <p>Erreur lors du chargement des missions : {error}</p>
-            </div>
-          )}
-
-          {loading && items.length === 0 && (
-            <p role="status" className="fr-text--sm">
-              Chargement des missions…
-            </p>
-          )}
-
-          {!loading && !error && items.length === 0 && (
-            <div role="status" className="fr-alert fr-alert--info">
-              <p>Aucune mission ne correspond à ces filtres.</p>
-            </div>
-          )}
-          {items.length > 0 && (
-            <>
-              {/* RGAA 9.1 : titre de section masqué — les cartes mission sont des <h3>, sans autre titre visible entre le h1 et la grille. */}
-              <h2 className="fr-sr-only">Liste des missions</h2>
-              <ul role="list" className="grid w-full grid-cols-1 gap-6 p-0! m-0! list-none! md:grid-cols-2 lg:grid-cols-3">
-                {items.map((mission) => (
-                  <li key={mission.id} className="min-w-0">
-                    <MissionCard
-                      image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
-                      domainLabel={getDomainLabel(mission.domain)}
-                      title={mission.title}
-                      to={`/missions/${mission.id}`}
-                      state={{ entrySource: "missions_list" } satisfies MissionDetailNavState}
-                      onClick={() => trackMissionClickedFromBrowse(mission, { section: "missions_list", entryPage: "missions_list", opensExternal: false })}
-                      tags={buildMissionBrowseTags(mission)}
-                      publisherName={mission.publisherName}
-                      publisherLogo={mission.publisherLogo}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-
-          <div className="fr-mt-6w">
-            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
-          </div>
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
+      {/* Marge basse chevauchée par les premières missions (cf. MissionsBrowser). */}
+      <GradientBg className="pb-32 lg:pb-42">
+        <div className="fr-container pt-8 md:pt-16">
+          <h1 className="fr-h1 mb-2!">Trouve ta mission</h1>
+          <p className="fr-text--lead mb-6!">{`${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}</p>
+          {/* Mobile et tablette : la localisation est ici ; à partir du desktop, elle rejoint la colonne de filtres. */}
+          <LocationFilter id="hero-localisation" className="lg:hidden" />
         </div>
       </GradientBg>
+      <MissionsBrowser missions={missions} total={total} facets={facets} page={page} filters={MISSIONS_CONFIG.filters} pageName="missions_list" backTo="/missions" />
       <Newsletter
         title="Inscris-toi à la newsletter"
         subtitle="1 e-mail par mois avec nos meilleures missions adaptées à tes critères"
