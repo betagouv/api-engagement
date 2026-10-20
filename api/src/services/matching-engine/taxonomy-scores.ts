@@ -1,6 +1,7 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
 import { MATCHING_ENGINE_TAXONOMIES } from "./config";
+import { buildMissionValuesSource } from "./mission-values-query";
 import { clampScore } from "./score-utils";
 import type { MatchingEngineTaxonomy } from "./types";
 
@@ -46,7 +47,7 @@ const buildTaxonomyScoresQuery = (params: {
       uv."taxonomy_key",
       SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
     FROM user_values uv
-    JOIN "mission_scoring_value" msv
+    JOIN ${buildMissionValuesSource()} msv
       ON msv."taxonomy_key" = uv."taxonomy_key"
      AND msv."value_key" = uv."value_key"
     WHERE msv."mission_scoring_id" IN (${Prisma.join(params.missionScoringIds)})

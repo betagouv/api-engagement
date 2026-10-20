@@ -359,6 +359,21 @@ resource "scaleway_job_definition" "mission-diffusion-rebuild" {
   env = local.all_env_vars
 }
 
+# Reconstruction du catalogue de matching, déclenchée uniquement à la demande.
+resource "scaleway_job_definition" "rebuild-matching-catalog" {
+  name                   = "${terraform.workspace}-rebuild-matching-catalog"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "rebuild-matching-catalog"]
+  timeout                = "60m"
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'update-mission-enrichment' task (on-demand only, no cron)
 resource "scaleway_job_definition" "update-mission-enrichment" {
   name                   = "${terraform.workspace}-update-mission-enrichment"

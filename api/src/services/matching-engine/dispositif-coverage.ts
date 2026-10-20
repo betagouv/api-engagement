@@ -1,5 +1,6 @@
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { buildMissionValuesSource } from "./mission-values-query";
 import type { DbRankRow } from "./ranking-types";
 
 type DbMatchedDispositifRow = {
@@ -30,7 +31,7 @@ const loadMatchedDispositifs = async (coverageDispositifs: string[], rows: DbRan
     SELECT DISTINCT
       msv."mission_scoring_id",
       msv."value_key"
-    FROM "mission_scoring_value" msv
+    FROM ${buildMissionValuesSource()} msv
     WHERE msv."taxonomy_key" = 'dispositif'
       AND msv."value_key" IN (${Prisma.join(coverageDispositifs)})
       AND msv."mission_scoring_id" IN (${Prisma.join(rows.map((row) => row.mission_scoring_id))})

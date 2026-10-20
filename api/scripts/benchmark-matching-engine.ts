@@ -31,6 +31,25 @@ import type { MatchingEngineVersion, RankMissionsByUserScoringInput } from "@/se
 import { GATE_TAXONOMIES } from "@engagement/taxonomy";
 
 const args = process.argv.slice(2);
+const allowedFlags = new Set([
+  "--user-scoring-id",
+  "--sample-size",
+  "--iterations",
+  "--warmup",
+  "--limits",
+  "--publisher-id",
+  "--version",
+  "--taxonomy-weight",
+  "--geo-weight",
+  "--geo-half-decay-km",
+  "--json",
+  "--explain",
+]);
+for (const arg of args.filter((arg) => arg.startsWith("--"))) {
+  if (!allowedFlags.has(arg)) {
+    throw new Error(`Option inconnue : ${arg}`);
+  }
+}
 const SCRIPT_LABEL = "benchmark-matching-engine";
 
 // Les taxonomies gate ne vivent plus dans une table SQL : elles proviennent de @engagement/taxonomy.

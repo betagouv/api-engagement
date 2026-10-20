@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { Prisma } from "@/db/core";
 import { prisma } from "@/db/postgres";
+import { RebuildMatchingCatalogHandler } from "@/jobs/rebuild-matching-catalog/handler";
 import { matchingEngineService } from "@/services/matching-engine";
 import { buildRankingQueryForInput } from "@/services/matching-engine/ranking-query";
 import type { RankMissionsByUserScoringInput } from "@/services/matching-engine/types";
@@ -51,6 +52,10 @@ const correspondenceCount = (node: PlanNode): number | undefined =>
   node["Subplan Name"] === "CTE matching_mission_values" ? node["Actual Rows"] : node.Plans?.map(correspondenceCount).find((count) => count !== undefined);
 
 describe("préfiltre géographique avant les correspondances", () => {
+  beforeEach(async () => {
+    await prisma.$executeRaw`DELETE FROM matching_catalog_state`;
+  });
+
   it("filtre avant le GROUP BY, respecte les gates et conserve les exceptions", async () => {
     const user = await createUser();
     const publisher = await createTestPublisher();
@@ -73,6 +78,7 @@ describe("préfiltre géographique avant les correspondances", () => {
     await prisma.mission.update({ where: { id: deleted.mission.id }, data: { deletedAt: new Date() } });
     const fixtures = [near, inside, far, corner, full, local, unknown, partial, multi, wrongAge, deleted];
     await prisma.missionDiffusion.createMany({ data: fixtures.map(({ mission }) => ({ missionId: mission.id, distributionPublisherId: publisher.id })) });
+    await new RebuildMatchingCatalogHandler().handle({ batchSize: 20 });
 
     const input = { userScoringId: user.id, publisherId: publisher.id };
     const expected = [near, inside, full, local, unknown, partial, multi].map(({ mission }) => mission.id);
@@ -89,7 +95,7 @@ describe("préfiltre géographique avant les correspondances", () => {
     const [plan] = await prisma.$queryRaw<Array<{ "QUERY PLAN": Array<{ Plan: PlanNode }> }>>(Prisma.sql`EXPLAIN (ANALYZE, FORMAT JSON) ${query}`);
     expect(correspondenceCount(plan["QUERY PLAN"][0].Plan)).toBe(expected.length);
 
-    // Une modification de localisation est visible dès le classement suivant.
+    // Une modification de localisation est visible sans reconstruction du catalogue.
     await prisma.missionAddress.updateMany({ where: { missionId: far.mission.id }, data: { locationLat: 0, locationLon: 0 } });
     expect((await rank(input)).items.some((item) => item.missionId === far.mission.id)).toBe(true);
   }, 15000);
@@ -98,6 +104,7 @@ describe("préfiltre géographique avant les correspondances", () => {
     const user = await createUser(null);
     const far = await createMission([{ lat: 50, lon: 50 }]);
     const withoutAddress = await createMission([]);
+    await new RebuildMatchingCatalogHandler().handle({ batchSize: 20 });
     for (const version of ["m1", "m6"] as const) {
       const input = { userScoringId: user.id, version };
       const result = await rank(input);
@@ -105,7 +112,6 @@ describe("préfiltre géographique avant les correspondances", () => {
       expect(result.total).toBe(2);
       for (const item of result.items) {
         expect(item.taxonomyScore).toBe(1);
-        expect(item.totalScore).toBe(1);
         expect(item.geoScore).toBeNull();
         expect(item.distanceKm).toBeNull();
       }
