@@ -39,6 +39,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       .object({
         email: zod.email().optional(),
         publisherId: zod.string().optional(),
+        role: zod.enum(["user", "admin"]).optional(),
       })
       .safeParse(req.body);
 
@@ -50,6 +51,7 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       includeDeleted: false,
       email: body.data.email,
       publisherId: body.data.publisherId,
+      role: body.data.role,
     };
 
     const users = await userService.findUsers(filters);

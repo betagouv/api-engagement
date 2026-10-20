@@ -30,6 +30,13 @@ export class PublisherNotFoundError extends Error {
   }
 }
 
+export class PublisherExpectedApplicationsRequiredError extends Error {
+  constructor() {
+    super("Expected applications is required for an annonceur");
+    this.name = "PublisherExpectedApplicationsRequiredError";
+  }
+}
+
 export class PublisherDiffusionPartnerNotFoundError extends Error {
   constructor(readonly publisherIds: string[]) {
     super(`Publisher diffusion partner(s) not found: ${publisherIds.join(", ")}`);
@@ -96,6 +103,8 @@ export const publisherService = (() => {
     hasCampaignRights: publisher.hasCampaignRights,
     sendReport: publisher.sendReport,
     sendReportTo: publisher.sendReportTo ?? [],
+    expectedApplications: publisher.expectedApplications ?? null,
+    deploymentUserId: publisher.deploymentUserId ?? null,
     deletedAt: publisher.deletedAt ?? null,
     createdAt: publisher.createdAt,
     updatedAt: publisher.updatedAt,
@@ -273,6 +282,8 @@ export const publisherService = (() => {
       hasCampaignRights: input.hasCampaignRights ?? false,
       sendReport: input.sendReport ?? false,
       sendReportTo: input.sendReportTo ?? [],
+      expectedApplications: input.expectedApplications ?? null,
+      deploymentUser: input.deploymentUserId ? { connect: { id: input.deploymentUserId } } : undefined,
     };
 
     const normalizedDemarches = normalizeDemarches(input.demarcheSimplifiees);
@@ -402,6 +413,15 @@ export const publisherService = (() => {
       throw new PublisherNotFoundError(id);
     }
 
+    // Règle vérifiée seulement si le patch touche l'un des deux champs, pour ne pas bloquer les annonceurs historiques non qualifiés.
+    if (patch.isAnnonceur !== undefined || patch.expectedApplications !== undefined) {
+      const isAnnonceur = patch.isAnnonceur ?? existing.isAnnonceur;
+      const expectedApplications = patch.expectedApplications !== undefined ? patch.expectedApplications : existing.expectedApplications;
+      if (isAnnonceur && expectedApplications == null) {
+        throw new PublisherExpectedApplicationsRequiredError();
+      }
+    }
+
     const normalizedPartnerIds = Array.isArray(patch.publishers) ? normalizeDiffusionPartnerIds(patch.publishers) : null;
     const effectiveRights = {
       hasApiRights: patch.hasApiRights ?? existing.hasApiRights,
@@ -480,6 +500,12 @@ export const publisherService = (() => {
     }
     if (patch.sendReportTo !== undefined) {
       data.sendReportTo = { set: patch.sendReportTo ?? [] };
+    }
+    if (patch.expectedApplications !== undefined) {
+      data.expectedApplications = patch.expectedApplications;
+    }
+    if (patch.deploymentUserId !== undefined) {
+      data.deploymentUser = patch.deploymentUserId ? { connect: { id: patch.deploymentUserId } } : { disconnect: true };
     }
     if (patch.demarcheSimplifiees !== undefined) {
       data.demarcheSimplifiees = {

@@ -22,6 +22,8 @@ export const buildPublisherPayload = (values) => ({
   isAnnonceur: Boolean(values.isAnnonceur),
   selfHostedScript: values.isAnnonceur ? Boolean(values.selfHostedScript) : false,
   missionType: values.isAnnonceur ? values.missionType : null,
+  expectedApplications: values.isAnnonceur ? (values.expectedApplications ?? null) : null,
+  deploymentUserId: values.deploymentUserId || null,
   hasApiRights: Boolean(values.hasApiRights),
   hasWidgetRights: Boolean(values.hasWidgetRights),
   hasCampaignRights: Boolean(values.hasCampaignRights),
