@@ -134,9 +134,15 @@ jobs:
       - name: Run Prisma migrations (API)
         env:
           DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+          SSH_TUNNEL_ENABLED: ${{ vars.SSH_TUNNEL_ENABLED || 'false' }}
         shell: bash
         run: |
           set -euo pipefail
+          if [[ "$SSH_TUNNEL_ENABLED" != "true" ]]; then
+            npm --workspace api run prisma:migrate:deploy
+            exit 0
+          fi
+
           umask 077
           tunnel_dir="$(mktemp -d)"
           export SSH_TUNNEL_CONTROL_PATH="$tunnel_dir/ssh.sock"
@@ -148,7 +154,7 @@ jobs:
           while IFS= read -r name; do
             value="$(jq -er --arg name "$name" '.[$name]' <<< "$tunnel_config")"
             export "$name=$value"
-          done < <(jq -r 'keys[]' <<< "$tunnel_config")
+          done < <(jq -r 'keys[] | select(. != "SSH_TUNNEL_ENABLED")' <<< "$tunnel_config")
           unset tunnel_config value
 
           if [[ -n "${SSH_TUNNEL_PRIVATE_KEY:-}" ]]; then
