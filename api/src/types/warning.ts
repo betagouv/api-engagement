@@ -1,3 +1,11 @@
+export type WarningStatus = "TODO" | "IN_PROGRESS" | "RESOLVED";
+
+export interface WarningAssignee {
+  id: string;
+  firstname: string;
+  lastname: string | null;
+}
+
 export interface WarningRecord {
   id: string;
   type: string;
@@ -10,6 +18,9 @@ export interface WarningRecord {
   fixed: boolean;
   fixedAt: Date | null;
   occurrences: number;
+  status: WarningStatus;
+  procedureUrl: string | null;
+  assignees: WarningAssignee[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +43,8 @@ export interface WarningCreateInput {
   fixed?: boolean;
   fixedAt?: Date | null;
   occurrences?: number;
+  procedureUrl?: string | null;
+  assigneeIds?: string[];
 }
 
 export interface WarningUpdatePatch {
@@ -43,4 +56,5 @@ export interface WarningUpdatePatch {
   fixed?: boolean;
   fixedAt?: Date | null;
   occurrences?: number;
+  status?: WarningStatus;
 }
