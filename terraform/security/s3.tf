@@ -1,6 +1,6 @@
 resource "scaleway_object_bucket" "rdb_backups" {
   name                = var.backup_bucket_name
-  project_id          = var.security_project_id
+  project_id          = var.project_id
   region              = var.region
   object_lock_enabled = true
   force_destroy       = false
@@ -53,7 +53,7 @@ resource "scaleway_object_bucket" "rdb_backups" {
 
 resource "scaleway_object_bucket_lock_configuration" "rdb_backups" {
   bucket     = scaleway_object_bucket.rdb_backups.name
-  project_id = var.security_project_id
+  project_id = var.project_id
   region     = var.region
 
   rule {

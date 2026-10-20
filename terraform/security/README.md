@@ -1,6 +1,6 @@
 # Infrastructure Terraform du projet security
 
-Cette configuration est une racine Terraform autonome pour le projet Scaleway `security`, dans l'organisation existante. Elle utilise une clé API de cette organisation et cible le projet via `security_project_id`. L'organisation n'est pas recréée ni gérée ici.
+Cette configuration est une racine Terraform autonome pour le projet Scaleway `security`, dans l'organisation existante. Elle utilise une clé API de cette organisation et cible le projet via `project_id`. L'organisation n'est pas recréée ni gérée ici.
 
 La racine est séparée de `terraform/` : elle possède son propre état et son propre déploiement. Le projet `security` peut accueillir d'autres ressources de sécurité à l'avenir ; le bucket décrit ici est dédié aux sauvegardes RDB.
 
@@ -10,29 +10,27 @@ La configuration crée un bucket Object Storage versionné, avec Object Lock en 
 
 ## Accès
 
-Créer une clé API dédiée à Terraform et lui accorder les permissions requises dans le projet `security`. La clé utilisée par l'application doit rester distincte et limitée au dépôt des objets de sauvegarde. Le provider Scaleway lit `SCW_ACCESS_KEY` et `SCW_SECRET_KEY`; le projet est fourni via la variable Terraform `security_project_id`. Le provider utilise l'organisation par défaut de ces identifiants.
+Créer une clé API dédiée à Terraform et lui accorder les permissions requises dans le projet `security`. La clé utilisée par l'application doit rester distincte et limitée au dépôt des objets de sauvegarde. Le provider Scaleway lit `SCW_ACCESS_KEY`, `SCW_SECRET_KEY` et `SCW_DEFAULT_PROJECT_ID`. Comme dans le Terraform principal, `TF_VAR_project_id` fournit aussi l'ID aux ressources qui définissent explicitement leur `project_id`. Le provider utilise l'organisation par défaut des identifiants.
 
-Le backend S3 utilise séparément `AWS_ACCESS_KEY_ID` et `AWS_SECRET_ACCESS_KEY`. Ils doivent correspondre à une clé de stockage ayant accès au bucket d'état dans le projet `security`.
+Le backend S3 réutilise la clé Scaleway du projet `security`, exportée aussi sous `AWS_ACCESS_KEY_ID` et `AWS_SECRET_ACCESS_KEY`, comme dans le workflow Terraform principal. Cette clé doit avoir accès au bucket d'état `security-terraform-state`.
+
+## Déploiement CI en production
+
+Le workflow `.github/workflows/main-pipeline.yml` appelle `.github/workflows/terraform-security-deploy.yml` comme déploiement indépendant, en parallèle de `.github/workflows/terraform-deploy.yml`, après le build. Il reprend le cycle `checkout`, `init`, `plan` et `apply`, avec son propre état et ses identifiants. Comme les autres workflows CI du dépôt, son job `changes` utilise `dorny/paths-filter` pour détecter les changements sous `terraform/security/`. Il ne s'exécute que lors d'un push sur `main` (production) et ne lance Terraform que si ce dossier a changé. Il ne peut pas être lancé manuellement, depuis `staging` ou pour `sandbox`.
+
+Configurer ces secrets dans l'environnement GitHub `production` : `SECURITY_SCW_ACCESS_KEY`, `SECURITY_SCW_SECRET_KEY` et `SECURITY_SCW_PROJECT_ID`. La clé Scaleway doit être limitée au projet `security` et avoir accès au bucket d'état Terraform, distinct du bucket de sauvegardes.
 
 ## État Terraform
 
-Le bucket d'état doit exister avant le premier `terraform init`. Le créer dans le projet `security`, activer son versioning et en limiter l'accès aux opérateurs Terraform. Il doit être distinct du bucket de sauvegardes RDB : l'état Terraform n'est pas une sauvegarde applicative et ne doit pas recevoir les objets RDB.
+Le bucket `security-terraform-state` doit exister avant le premier `terraform init`. Le créer dans le projet `security`, activer son versioning et en limiter l'accès aux opérateurs Terraform. Il doit être distinct du bucket de sauvegardes RDB : l'état Terraform n'est pas une sauvegarde applicative et ne doit pas recevoir les objets RDB.
 
-Initialiser avec les identifiants du backend et les paramètres du projet :
+Initialiser avec les identifiants du backend :
 
 ```sh
 export AWS_ACCESS_KEY_ID="<clé de stockage du projet security>"
 export AWS_SECRET_ACCESS_KEY="<secret de stockage du projet security>"
 
-terraform -chdir=terraform/security init \
-  -backend-config="bucket=<bucket-d-etat>" \
-  -backend-config="key=api-engagement/security/terraform.tfstate" \
-  -backend-config="region=fr-par" \
-  -backend-config="endpoint=https://s3.fr-par.scw.cloud" \
-  -backend-config="skip_credentials_validation=true" \
-  -backend-config="skip_region_validation=true" \
-  -backend-config="skip_requesting_account_id=true" \
-  -backend-config="use_lockfile=true"
+terraform -chdir=terraform/security init
 ```
 
 Les valeurs sensibles restent dans l'environnement et ne doivent pas être ajoutées aux fichiers `.tfvars` ni au dépôt.

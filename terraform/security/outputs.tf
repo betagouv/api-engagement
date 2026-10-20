@@ -10,5 +10,5 @@ output "backup_bucket_endpoint" {
 
 output "security_project_id" {
   description = "Projet Scaleway security contenant les ressources."
-  value       = var.security_project_id
+  value       = var.project_id
 }

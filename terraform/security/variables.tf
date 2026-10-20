@@ -1,4 +1,4 @@
-variable "security_project_id" {
+variable "project_id" {
   type        = string
   description = "ID du projet Scaleway security dans l'organisation existante."
 }

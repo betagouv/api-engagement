@@ -8,13 +8,18 @@ terraform {
     }
   }
 
-  # Configuration indépendante de terraform/main.tf.
-  # Le backend est renseigné avec terraform init -backend-config.
-  backend "s3" {}
+  backend "s3" {
+    bucket                      = "security-terraform-state"
+    key                         = "terraform.tfstate"
+    region                      = "fr-par"
+    endpoint                    = "https://s3.fr-par.scw.cloud"
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+  }
 }
 
 provider "scaleway" {
-  project_id = var.security_project_id
-  region     = var.region
-  zone       = var.zone
+  region = var.region
+  zone   = var.zone
 }
