@@ -1,11 +1,18 @@
 import zod from "zod";
 
+// Types d'alerte connus (ceux gérés par les vues `admin-warning` / `warnings`).
+export const ALERT_TYPES = ["TRACKING_WARNING", "ERROR_WARNING", "EMPTY_WARNING", "VALIDATION_WARNING"] as const;
+
 export const alertInputSchema = zod.object({
-  type: zod.string().min(1),
+  type: zod.enum(ALERT_TYPES),
   publisherId: zod.string().min(1),
   title: zod.string().optional(),
   description: zod.string().optional(),
-  procedureUrl: zod.string().url().optional(),
+  procedureUrl: zod
+    .string()
+    .url()
+    .regex(/^https:\/\//, "must be https")
+    .optional(),
 });
 export type AlertInput = zod.infer<typeof alertInputSchema>;
 

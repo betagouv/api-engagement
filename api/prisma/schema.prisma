@@ -490,18 +490,21 @@ model Warning {
   description  String?
   publisherId  String        @map("publisher_id")
   seen         Boolean       @default(false)
+  // Déprécié : utiliser `status`. Conservé pour les vues et jobs existants, synchronisé par warningService (CHECK en base : RESOLVED <=> fixed)
   fixed        Boolean       @default(false)
   fixedAt      DateTime?     @map("fixed_at")
   occurrences  Int           @default(1)
-  // Alerting : `fixed` reste la source de vérité des vues existantes, synchronisé avec `status` (RESOLVED <=> fixed)
   status       WarningStatus @default(TODO)
   procedureUrl String?       @map("procedure_url")
+  // Date du mail d'alerte aux assignés (null = pas encore notifiée)
+  notifiedAt   DateTime?     @map("notified_at")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
   publisher Publisher         @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
   assignees WarningAssignee[]
 
+  // Index unique partiel "warning_open_publisher_type_key" (publisher_id, type) WHERE status <> 'RESOLVED' : voir la migration (non exprimable en Prisma)
   @@index([publisherId], map: "warning_publisher_id_idx")
   @@index([type], map: "warning_type_idx")
   @@index([fixed], map: "warning_fixed_idx")

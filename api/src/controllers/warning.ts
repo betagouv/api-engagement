@@ -6,6 +6,7 @@ import { FORBIDDEN, INVALID_BODY, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getAlertProvider } from "@/services/alerts";
+import { ingestAlerts } from "@/services/alerts/ingest";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
 import { UserRequest } from "@/types/passport";
@@ -116,7 +117,7 @@ router.post("/webhook/:source", alertsWebhookSecurity, async (req, res, next) =>
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
-    const summary = await warningService.ingestMany(body.data.alerts);
+    const summary = await ingestAlerts(body.data.alerts);
     return res.status(200).send({ ok: true, data: { ...summary, received: body.data.received } });
   } catch (error) {
     next(error);

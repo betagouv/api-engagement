@@ -15,11 +15,14 @@ const payloadSchema = zod.object({
   }),
 });
 
+// Alerte lue telle quelle de la ligne : `type` est validé ensuite contre la liste des types connus.
+type RawAlert = Omit<AlertInput, "type"> & { type: string };
+
 const columnName = (col: unknown): string => String(typeof col === "object" && col !== null && "name" in col ? (col as { name: unknown }).name : col).toLowerCase();
 
 // Une ligne de résultat = un annonceur. Colonnes reconnues (insensibles à la casse) : publisher_id (obligatoire),
 // type, title, description, procedure_url. Les autres colonnes sont ignorées, les lignes sans publisher_id aussi.
-export const alertsFromRows = (cols: unknown[], rows: unknown[][]): AlertInput[] => {
+export const alertsFromRows = (cols: unknown[], rows: unknown[][]): RawAlert[] => {
   const index = new Map(cols.map((col, i) => [columnName(col), i]));
   const read = (row: unknown[], name: string): string | undefined => {
     const value = index.has(name) ? row[index.get(name)!] : undefined;

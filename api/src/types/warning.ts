@@ -20,6 +20,7 @@ export interface WarningRecord {
   occurrences: number;
   status: WarningStatus;
   procedureUrl: string | null;
+  notifiedAt: Date | null;
   assignees: WarningAssignee[];
   createdAt: Date;
   updatedAt: Date;
@@ -40,9 +41,11 @@ export interface WarningCreateInput {
   description?: string | null;
   publisherId: string;
   seen?: boolean;
+  /** @deprecated Utiliser `status`. */
   fixed?: boolean;
   fixedAt?: Date | null;
   occurrences?: number;
+  status?: WarningStatus;
   procedureUrl?: string | null;
   assigneeIds?: string[];
 }
@@ -53,8 +56,13 @@ export interface WarningUpdatePatch {
   description?: string | null;
   publisherId?: string;
   seen?: boolean;
+  /** @deprecated Utiliser `status`. */
   fixed?: boolean;
   fixedAt?: Date | null;
   occurrences?: number;
+  /** Incrémente atomiquement `occurrences` (prioritaire sur `occurrences`). */
+  occurrencesIncrement?: number;
   status?: WarningStatus;
+  /** Ajoute des assignés (sans doublon). */
+  assigneeIds?: string[];
 }

@@ -14,7 +14,7 @@ describe("alertsFromRows", () => {
   });
 
   it("accepts columns described as objects and an explicit type", () => {
-    expect(alertsFromRows([{ name: "publisher_id" }, { name: "type" }], [["p1", "IMPORT_WARNING"]])).toMatchObject([{ publisherId: "p1", type: "IMPORT_WARNING" }]);
+    expect(alertsFromRows([{ name: "publisher_id" }, { name: "type" }], [["p1", "ERROR_WARNING"]])).toMatchObject([{ publisherId: "p1", type: "ERROR_WARNING" }]);
   });
 
   it("skips rows without publisher_id and turns empty values into undefined", () => {

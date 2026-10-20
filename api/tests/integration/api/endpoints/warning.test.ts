@@ -8,6 +8,7 @@ const sendTemplate = vi.hoisted(() => {
 });
 vi.mock("@/services/brevo/email", () => ({ sendTemplate }));
 
+import { prisma } from "@/db/postgres";
 import { warningService } from "@/services/warning";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
@@ -88,8 +89,39 @@ describe("Warning alerting", () => {
     expect(sendTemplate).not.toHaveBeenCalled();
     expect((await warningService.findWarnings({ publisherId: orphan.id }))[0].assignees).toEqual([]);
 
-    // Rejeu : l'alerte existe déjà, plus rien à signaler
-    expect((await webhook([{ type: TYPE, publisherId: orphan.id }])).body.data).toMatchObject({ created: 0, updated: 1, unassigned: [] });
+    // Rejeu : toujours sans chargé de déploiement, donc toujours signalée
+    expect((await webhook([{ type: TYPE, publisherId: orphan.id }])).body.data).toMatchObject({ created: 0, updated: 1, unassigned: [{ publisherId: orphan.id }] });
+
+    // Un chargé de déploiement est ensuite désigné : le prochain webhook l'assigne et le notifie
+    await prisma.publisher.update({ where: { id: orphan.id }, data: { deploymentUserId: deploymentUser.user.id } });
+    const res2 = await webhook([{ type: TYPE, publisherId: orphan.id }]);
+    expect(res2.body.data).toMatchObject({ updated: 1, notified: 1, unassigned: [] });
+    expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries the notification on the next webhook when the email failed", async () => {
+    sendTemplate.mockResolvedValueOnce({ ok: false });
+    const first = await webhook([{ type: TYPE, publisherId }]);
+    expect(first.body.data).toMatchObject({ created: 1, notified: 0, notificationFailed: 1 });
+    expect((await warningService.findWarnings({ publisherId }))[0].notifiedAt).toBeNull();
+
+    const second = await webhook([{ type: TYPE, publisherId }]);
+    expect(second.body.data).toMatchObject({ created: 0, updated: 1, notified: 1, notificationFailed: 0 });
+    expect((await warningService.findWarnings({ publisherId }))[0].notifiedAt).not.toBeNull();
+    expect(sendTemplate).toHaveBeenCalledTimes(2);
+  });
+
+  it("creates a single alert and mail for concurrent webhooks", async () => {
+    await Promise.all(Array.from({ length: 5 }, () => webhook([{ type: TYPE, publisherId }])));
+    const warnings = await warningService.findWarnings({ publisherId });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].occurrences).toBe(5);
+    expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("rejects an unknown alert type and a non-https procedure_url", async () => {
+    expect((await webhook([{ type: "MADE_UP", publisherId }])).status).toBe(400);
+    expect((await webhook([{ type: TYPE, publisherId, procedureUrl: "javascript:alert(1)" }])).status).toBe(400);
   });
 
   it("reports unknown publishers", async () => {
@@ -116,7 +148,7 @@ describe("Warning alerting", () => {
     });
 
     it("accepts columns described as objects and an explicit type, and deduplicates on replay", async () => {
-      const payload = metabasePayload([{ name: "publisher_id" }, { name: "type" }], [[publisherId, "IMPORT_WARNING"]]);
+      const payload = metabasePayload([{ name: "publisher_id" }, { name: "type" }], [[publisherId, "ERROR_WARNING"]]);
       expect((await post(payload)).body.data).toMatchObject({ created: 1, updated: 0 });
       expect((await post(payload)).body.data).toMatchObject({ created: 0, updated: 1 });
       expect(sendTemplate).toHaveBeenCalledTimes(1);
@@ -158,10 +190,10 @@ describe("Warning alerting", () => {
     it("groups the alerts of one advertiser (several types) while keeping them separate", async () => {
       await webhook([
         { type: TYPE, publisherId },
-        { type: "IMPORT_WARNING", publisherId },
+        { type: "ERROR_WARNING", publisherId },
       ]);
       const res = await request(app).post("/warning/search").set("Authorization", `jwt ${deploymentUser.token}`).send({ publisherId, fixed: false });
-      expect(res.body.data.map((w: { type: string }) => w.type).sort()).toEqual(["IMPORT_WARNING", TYPE]);
+      expect(res.body.data.map((w: { type: string }) => w.type).sort()).toEqual(["ERROR_WARNING", TYPE]);
       // Pas de notion d'incident : un mail par alerte (pas de regroupement)
       expect(sendTemplate).toHaveBeenCalledTimes(2);
     });
