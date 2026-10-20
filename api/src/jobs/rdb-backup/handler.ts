@@ -1,7 +1,7 @@
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
-import { createRdbBackup } from "./client";
+import { createScheduledRdbBackup } from "./create-backup";
 
 export interface RdbBackupJobPayload {}
 
@@ -16,7 +16,7 @@ export class RdbBackupHandler implements BaseHandler<RdbBackupJobPayload, RdbBac
     try {
       console.log(`[RDB Backup] Starting at ${start.toISOString()}`);
 
-      const backup = await createRdbBackup(start);
+      const backup = await createScheduledRdbBackup(start);
 
       console.log(`[RDB Backup] Backup ${backup.id} created with status=${backup.status}, region=${backup.region}, same_region=${backup.same_region}`);
 

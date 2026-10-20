@@ -39,10 +39,14 @@ widget_max_scale    = 2
 worker_cpu_limit = 500
 worker_max_scale = 4
 
-enable_widget         = true
-enable_intern_jobs    = true
-enable_analytics_jobs = true
-enable_rdb_backup_job = true
+enable_widget                     = true
+enable_intern_jobs                = true
+enable_analytics_jobs             = true
+enable_rdb_backup_job             = true
+enable_rdb_backup_replication_job = true
+
+rdb_backup_s3_bucket = "api-engagement-rdb-backup"
+
 enable_typesense      = true
 enable_public_gateway = true
 enable_mfa            = true

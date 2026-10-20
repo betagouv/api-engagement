@@ -203,6 +203,24 @@ variable "enable_rdb_backup_job" {
   description = "Enable the daily Scaleway managed PostgreSQL backup job"
 }
 
+variable "enable_rdb_backup_replication_job" {
+  type        = bool
+  default     = false
+  description = "Active le job de réplication des backups RDB vers le bucket immuable du projet security"
+}
+
+variable "rdb_backup_s3_bucket" {
+  type        = string
+  default     = ""
+  description = "Bucket Object Storage du projet Scaleway security pour les répliques immuables des backups RDB"
+}
+
+variable "rdb_backup_s3_region" {
+  type        = string
+  default     = "fr-par"
+  description = "Région du bucket de sauvegardes RDB du projet security"
+}
+
 variable "core_database_id" {
   type        = string
   default     = ""

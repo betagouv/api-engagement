@@ -30,3 +30,14 @@ variable "immutable_retention_days" {
     error_message = "La durée de rétention immuable doit être supérieure à zéro."
   }
 }
+
+variable "backup_lifecycle_expiration_days" {
+  type        = number
+  description = "Nombre de jours avant expiration automatique des backups RDB"
+  default     = 60
+
+  validation {
+    condition     = var.backup_lifecycle_expiration_days > var.immutable_retention_days && floor(var.backup_lifecycle_expiration_days) == var.backup_lifecycle_expiration_days
+    error_message = "La durée d'expiration doit être un nombre entier de jours supérieur à la rétention Object Lock."
+  }
+}

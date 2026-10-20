@@ -41,4 +41,6 @@ Les valeurs sensibles restent dans l'environnement et ne doivent pas être ajout
 
 Copier `terraform.tfvars.example` vers `terraform.tfvars`, puis remplacer les deux valeurs d'exemple par l'ID du projet et le nom globalement unique du bucket. Le fichier réel est ignoré par Git. Ensuite, lancer `terraform -chdir=terraform/security plan` et `apply` avec les identifiants destinés au projet `security`.
 
-Cette configuration prépare le stockage immuable. Le job applicatif qui copie les backups RDB et sa clé d'écriture à privilèges limités restent à implémenter/configurer séparément.
+## Réplication depuis le projet applicatif
+
+Le job `rdb-backup-replication` est défini dans la racine Terraform principale (`terraform/`) et tourne dans le projet applicatif par défaut. Il examine le backup le plus récent de la base RDB, attend qu'il soit au statut `ready`, demande son export à l'API RDB, puis transfère le flux vers `<nom-instance>/<date>/<backup-id>.dump` dans ce bucket. Le nom d'instance vient du backup retourné par l'API et est nettoyé pour former un préfixe S3 sûr. L'objet existant est détecté avant l'envoi, ce qui évite de réécrire une sauvegarde déjà verrouillée.

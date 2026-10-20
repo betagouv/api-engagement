@@ -1,1 +1,1 @@
-backup_bucket_name  = "api-engagement-rds-backup"
+backup_bucket_name  = "api-engagement-rdb-backup"
