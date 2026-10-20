@@ -2,7 +2,7 @@ import type { MissionBrowseFilters, MissionBrowseSlot, MissionBrowseTaxonomyPara
 
 // Filtres proposables sur la liste de missions d'une landing. La clé est aussi le param d'URL et la clé
 // de taxonomie ; `departmentCode` est renvoyé par l'API sous la facette `departmentCodes`.
-export type LandingFilterKey = "departmentCode" | "tranche_age" | "activite" | "domaine_engagement" | "dispositif";
+export type LandingFilterKey = "departmentCode" | "tranche_age" | "activite" | "domaine_engagement" | "dispositif" | "type_mission";
 
 // Réglage de la liste de missions propre à chaque landing.
 export type LandingMissionsConfig = {

@@ -118,8 +118,8 @@ export type MissionsFilterType = "departement" | "dispositif" | "tranche_age" | 
 // Provenance de la fiche depuis laquelle l'email d'une mission est envoyé. `results_card` : CTA email
 // d'une carte mission en page de résultats (envoi sans passer par la fiche détail).
 export type EmailMissionDetailEntrySource = "results" | "results_card" | "missions_list" | "direct";
-// Page d'où part l'envoi de la sélection complète : étape email du quiz, résultats du quiz, ou une landing (carte mission).
-export type EmailMissionsEntryPage = "quiz" | "results" | LandingName;
+// Page d'où part l'envoi de la sélection complète : étape email du quiz, résultats du quiz, ou une carte mission (/missions ou landing).
+export type EmailMissionsEntryPage = "quiz" | "results" | "missions_list" | LandingName;
 
 // --- email_capture.* ---
 // Origine d'inscription, alignée sur l'attribut Brevo SIGNUP_SOURCE (cf. SIGNUP_SOURCES dans @engagement/dto) pour croiser les outils.

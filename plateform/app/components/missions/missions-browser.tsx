@@ -27,6 +27,7 @@ const FILTER_LABELS: Record<LandingFilterKey, string> = {
   activite: "Activités",
   domaine_engagement: "Domaines",
   dispositif: "Type de mission",
+  type_mission: "Rythme",
 };
 
 // Facette renvoyée par l'API pour chaque filtre (les départements sont agrégés sous `departmentCodes`).
@@ -36,15 +37,17 @@ const FACET_KEYS: Record<LandingFilterKey, string> = {
   activite: "activite",
   domaine_engagement: "domaine_engagement",
   dispositif: "dispositif",
+  type_mission: "type_mission",
 };
 
 // filter_type de la spec tracking (departmentCode → departement).
-const FILTER_TYPES: Record<LandingFilterKey, MissionsFilterType> = {
+export const FILTER_TYPES: Record<LandingFilterKey, MissionsFilterType> = {
   departmentCode: "departement",
   tranche_age: "tranche_age",
   activite: "activite",
   domaine_engagement: "domaine_engagement",
   dispositif: "dispositif",
+  type_mission: "type_mission",
 };
 
 // Options dans l'ordre de la taxonomie, limitées à celles qui ont au moins une mission.
@@ -209,17 +212,17 @@ function FiltersSheet({
   );
 }
 
-// Liste de missions filtrable des landings. Desktop : localisation et filtres en colonne à gauche, cartes et
-// pagination à droite. Mobile : la localisation est dans le hero (`LocationFilter` rendu par la landing) et les
+// Liste de missions filtrable des landings et de la page /missions. Desktop : localisation et filtres en colonne à gauche, cartes et
+// pagination à droite. Mobile : la localisation est dans le hero (`LocationFilter` rendu par la page) et les
 // filtres s'ouvrent dans une fenêtre depuis un bouton collé en bas de l'écran. L'état vit dans l'URL (chaque
-// changement relance le loader de la landing, qui applique le réglage `LandingMissionsConfig`).
+// changement relance le loader de la page, qui applique le réglage `LandingMissionsConfig`).
 export default function MissionsBrowser({
   missions,
   total,
   facets,
   page,
   filters,
-  landing,
+  pageName,
   backTo,
 }: {
   missions: MissionBrowse[];
@@ -227,7 +230,7 @@ export default function MissionsBrowser({
   facets: Record<string, MissionBrowseFacetCount[]>;
   page: number;
   filters: LandingFilterKey[];
-  landing: LandingName;
+  pageName: "missions_list" | LandingName;
   backTo: string;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -280,7 +283,7 @@ export default function MissionsBrowser({
   };
 
   const handlePageChange = (newPage: number) => {
-    trackMissionsPageChanged({ pageName: landing, fromPage: page, toPage: newPage, totalPages });
+    trackMissionsPageChanged({ pageName, fromPage: page, toPage: newPage, totalPages });
     setSearchParams(
       (prev) => {
         const params = new URLSearchParams(prev);
@@ -310,15 +313,20 @@ export default function MissionsBrowser({
     <section className="fr-container relative z-10 -mt-40 flex flex-col gap-6 lg:-mt-50 lg:flex-row">
       <h2 className="fr-sr-only">Missions disponibles</h2>
 
-      <div className="hidden h-fit flex-col gap-6 lg:flex lg:w-74 lg:shrink-0">
+      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section). Les groupes dépliés
+          défilent dans la colonne s'ils dépassent l'écran ; la localisation reste hors de cette zone pour que ses
+          suggestions ne soient pas rognées, et la marge interne garde l'ombre visible. */}
+      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:max-h-[calc(100vh-2rem)] lg:w-74 lg:shrink-0">
         {filters.includes("departmentCode") && <LocationFilter id="missions-localisation" />}
-        <FilterGroups
-          keys={groupFilters}
-          facets={facets}
-          selected={(key) => getSelectedValues(searchParams, key)}
-          onChange={(key, next) => updateFilters({ [key]: next })}
-          idPrefix="missions-filtre"
-        />
+        <div className="-mx-1 min-h-0 overflow-y-auto px-1 pb-2">
+          <FilterGroups
+            keys={groupFilters}
+            facets={facets}
+            selected={(key) => getSelectedValues(searchParams, key)}
+            onChange={(key, next) => updateFilters({ [key]: next })}
+            idPrefix="missions-filtre"
+          />
+        </div>
       </div>
 
       <div ref={listRef} className="flex min-w-0 flex-1 scroll-mt-4 flex-col gap-8">
@@ -345,11 +353,11 @@ export default function MissionsBrowser({
                     domainLabel={getDomainLabel(mission.domain)}
                     title={mission.title}
                     to={`/missions/${mission.id}`}
-                    state={{ entrySource: landing, backTo } satisfies MissionDetailNavState}
+                    state={{ entrySource: pageName, backTo } satisfies MissionDetailNavState}
                     onClick={() =>
                       trackMissionClickedFromBrowse(mission, {
-                        section: landing,
-                        entryPage: landing,
+                        section: pageName,
+                        entryPage: pageName,
                         opensExternal: false,
                         rank: offset + index + 1,
                         pageNumber: page,
@@ -386,10 +394,10 @@ export default function MissionsBrowser({
       </div>
 
       {/* Pas de `userScoringId` : le visiteur n'a pas fait le quiz, l'envoi porte sur la seule mission choisie. Sans
-          `publisherId`, la modale trace `email_missions.sent` avec la landing comme page d'entrée (comme les autres landings). */}
+          `publisherId`, la modale trace `email_missions.sent` avec la page courante comme page d'entrée. */}
       <EmailMissionsModal
         userScoringId={undefined}
-        entryPage={landing}
+        entryPage={pageName}
         missionId={emailMissionId ?? undefined}
         open={emailMissionId !== null}
         onOpenChange={(open) => !open && setEmailMissionId(null)}
