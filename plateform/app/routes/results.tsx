@@ -13,6 +13,7 @@ import ProfileModal from "~/components/results/profile-modal";
 import ResultsFilters from "~/components/results/results-filters";
 import ResultsFiltersModal from "~/components/results/results-filters-modal";
 import ResultsMissions from "~/components/results/results-missions";
+import BottomSheet from "~/components/ui/bottom-sheet";
 import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
 import type { PaginationTrigger } from "~/components/ui/pagination";
@@ -24,8 +25,8 @@ import { trackResultsMapPinClicked, trackResultsPageChanged, trackResultsViewed 
 import type { ResultsPageNavigationType } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import { userValueKeysFromScoring } from "~/utils/mission";
-import type { Route } from "./+types/results";
 import { pageMeta } from "~/utils/seo";
+import type { Route } from "./+types/results";
 
 // Page de résultats personnels (un lien unique par jeune) : pas d'indexation si le lien circule.
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
@@ -44,7 +45,8 @@ export default function ResultsPage() {
   const isMobile = useIsMobile();
   // Le store local (réponses du quiz) n'est fiable que pour le scoring que ce navigateur a créé.
   const isOwnScoring = useQuizStore((s) => s.userScoringId === userScoringId);
-  const { items, userValues, userLocation, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } = useMissionResults(userScoringId);
+  const { items, userValues, userLocation, page, setPage, totalPages, totalResults, avgDistanceKmTop5, loading, pageLoading, error, statsUserScoringId } =
+    useMissionResults(userScoringId);
   // Id du scoring pour lequel results.viewed a déjà été émis : changer de critères crée un nouveau
   // scoring (nouvelle URL, mêmes composants montés) et doit donc réémettre l'évènement.
   const resultsViewedFired = useRef<string | null>(null);
@@ -143,15 +145,8 @@ export default function ResultsPage() {
   const displayedMissionRank = displayedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === displayedMission.mission.id) + 1 : 0;
   const cardIsFixed = displayedMission !== null && displayedMission.mission.id === selectedMission?.mission.id;
 
-  const handleToggleSheet = () => {
-    if (expanded && scrollRef.current) scrollRef.current.scrollTop = 0;
-    setExpanded((v) => !v);
-  };
-
   const handleCollapseSheet = () => {
     if (selectedMission) setIsClosingCard(true);
-    if (!expanded) return;
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
     setExpanded(false);
   };
 
@@ -163,10 +158,7 @@ export default function ResultsPage() {
     });
     setIsClosingCard(false);
     setSelectedMission(item);
-    if (expanded) {
-      if (scrollRef.current) scrollRef.current.scrollTop = 0;
-      setExpanded(false);
-    }
+    setExpanded(false);
     // Desktop : on amène aussi la carte de la liste correspondante à l'écran (elle est surlignée via activeMissionId).
     if (!isMobile) document.getElementById(`mission-${item.mission.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
@@ -204,6 +196,7 @@ export default function ResultsPage() {
     return (
       <>
         {userScoringId && <BetaBanner source="results" session={userScoringId} />}
+
         <main id="contenu" tabIndex={-1} className="flex-1 relative overflow-hidden">
           {showMap && (
             <div className="absolute inset-0 z-0" onClickCapture={handleCollapseSheet}>
@@ -246,87 +239,83 @@ export default function ResultsPage() {
             </div>
           )}
 
-          <div
-            className={`absolute inset-x-0 bottom-0 z-1000 flex flex-col rounded-t-3xl bg-background shadow-2xl transition-[top] duration-300 ${expanded ? "top-12" : "top-[calc(100%-6rem)]"} ${selectedMission ? "hidden" : ""}`}
+          <BottomSheet
+            expanded={expanded}
+            onExpandedChange={setExpanded}
+            contentId="results-sheet-content"
+            scrollRef={scrollRef}
+            hidden={selectedMission !== null}
+            header={
+              <>
+                {!loading && error && (
+                  <p role="alert" className="fr-error-text m-0! text-center!">
+                    {error}
+                  </p>
+                )}
+                {!loading && !error && (
+                  <h1 className="fr-h5 m-0! text-center!">
+                    <button type="button" aria-expanded={expanded} aria-controls="results-sheet-content">
+                      Découvre <Highlight>les missions</Highlight>
+                      <br /> qui te correspondent le mieux
+                    </button>
+                  </h1>
+                )}
+                {expanded && (
+                  <Link to={quizHref} className="fr-link fr-link--sm shrink-0">
+                    <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
+                    Changer mes réponses
+                  </Link>
+                )}
+              </>
+            }
+            footer={
+              // Barre fixe sous la liste : ouvre la modale de modification des critères.
+              expanded &&
+              !error &&
+              isOwnScoring && (
+                <div className="border-t border-border-default-grey bg-background p-3">
+                  <ResultsFiltersModal quizHref={quizHref} />
+                </div>
+              )
+            }
           >
-            {/* eslint-disable-next-line jsx-a11y-x/click-events-have-key-events, jsx-a11y-x/no-static-element-interactions -- Le panneau est aussi commandé par le bouton adjacent, accessible au clavier et exposant aria-expanded. */}
-            <div className={`flex flex-col gap-2 p-6 items-center! justify-center! ${!expanded ? "h-full" : ""}`} onClick={handleToggleSheet}>
-              {!loading && error && (
-                <p role="alert" className="fr-error-text m-0! text-center!">
-                  {error}
-                </p>
-              )}
-              {!loading && !error && (
-                <h1 className="fr-h5 m-0! text-center!">
-                  <button
-                    type="button"
-                    aria-expanded={expanded}
-                    aria-controls="results-sheet-content"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleSheet();
-                    }}
-                  >
-                    Découvre <Highlight>les missions</Highlight>
-                    <br /> qui te correspondent le mieux
-                  </button>
-                </h1>
-              )}
-
-              {expanded && (
-                <Link to={quizHref} className="fr-link fr-link--sm shrink-0">
-                  <span className="fr-icon-arrow-left-line fr-btn--icon-left" aria-hidden="true" />
-                  Changer mes réponses
-                </Link>
-              )}
-            </div>
-
-            <div ref={scrollRef} id="results-sheet-content" className={`flex-1 overflow-y-auto overscroll-contain ${expanded ? "" : "hidden"}`}>
-              <ResultsMissions
-                items={items}
-                page={page}
-                totalPages={totalPages}
-                loading={loading}
-                pageLoading={pageLoading}
-                error={error}
-                userScoringId={userScoringId}
-                userValueKeys={userValueKeys}
-                showDebug={showDebug}
-                highlightedMissionId={activeMissionId}
-                onEmailClick={(mission, rank) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "", rank })}
-                onPageChange={handlePageChange}
-              />
-
-              <Newsletter
-                title="Reçois tes missions par email"
-                subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
-                ctaText="Recevoir mes missions"
-                hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-              />
-              <Partners style="compact" />
-              <FooterContent landmark={false} />
-            </div>
-
-            {/* Barre fixe sous la liste : ouvre la modale de modification des critères. */}
-            {expanded && !error && isOwnScoring && (
-              <div className="border-t border-border-default-grey bg-background p-3">
-                <ResultsFiltersModal quizHref={quizHref} />
-              </div>
-            )}
-
-            <MatchingDebugModal items={items} userValues={userValues} />
-            <EmailMissionsModal
+            <ResultsMissions
+              items={items}
+              page={page}
+              totalPages={totalPages}
+              loading={loading}
+              pageLoading={pageLoading}
+              error={error}
               userScoringId={userScoringId}
-              entryPage="results"
-              missionId={emailMission?.missionId}
-              publisherId={emailMission?.publisherId}
-              rank={emailMission?.rank}
-              open={emailMission !== null}
-              onOpenChange={(open) => {
-                if (!open) setEmailMission(null);
-              }}
+              userValueKeys={userValueKeys}
+              showDebug={showDebug}
+              highlightedMissionId={activeMissionId}
+              onEmailClick={(mission, rank) => setEmailMission({ missionId: mission.id, publisherId: mission.publisherId ?? "", rank })}
+              onPageChange={handlePageChange}
             />
-          </div>
+
+            <Newsletter
+              title="Reçois tes missions par email"
+              subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+              ctaText="Recevoir mes missions"
+              hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+            />
+            <Partners style="compact" />
+            <FooterContent landmark={false} />
+          </BottomSheet>
+
+          <MatchingDebugModal items={items} userValues={userValues} />
+          <EmailMissionsModal
+            userScoringId={userScoringId}
+            entryPage="results"
+            missionId={emailMission?.missionId}
+            publisherId={emailMission?.publisherId}
+            rank={emailMission?.rank}
+            open={emailMission !== null}
+            onOpenChange={(open) => {
+              if (!open) setEmailMission(null);
+            }}
+          />
         </main>
       </>
     );
