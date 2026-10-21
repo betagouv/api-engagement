@@ -32,6 +32,7 @@ const toUserRecord = (user: UserWithPublishers): UserRecord => ({
   forgotPasswordExpiresAt: user.forgotPasswordExpiresAt ?? null,
   deletedAt: user.deletedAt ?? null,
   brevoContactId: user.brevoContactId ?? null,
+  photo: user.photo ?? null,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
@@ -112,6 +113,9 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   }
   if ("email" in patch && patch.email !== undefined) {
     data.email = patch.email;
+  }
+  if ("photo" in patch) {
+    data.photo = patch.photo ?? null;
   }
   if ("role" in patch && patch.role !== undefined) {
     data.role = patch.role;

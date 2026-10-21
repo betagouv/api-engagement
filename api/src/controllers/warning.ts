@@ -2,11 +2,11 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESSOURCE_ALREADY_EXIST } from "@/error";
 import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getAlertProvider } from "@/services/alerts";
-import { ingestAlerts } from "@/services/alerts/ingest";
+import { ingestAlerts, isUniqueViolation } from "@/services/alerts/ingest";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
 import { UserRequest } from "@/types/passport";
@@ -21,8 +21,11 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
         fixed: zod.coerce.boolean().default(false),
         publisherId: zod.string().optional(),
         type: zod.string().optional(),
+        status: zod.enum(["TODO", "IN_PROGRESS", "RESOLVED"]).optional(),
         month: zod.number().optional(),
         year: zod.number().optional(),
+        page: zod.number().int().min(1).optional(),
+        size: zod.number().int().min(1).max(100).default(20),
       })
       .safeParse(req.body);
 
@@ -48,14 +51,23 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    const data = await warningService.findWarnings({
-      fixed: body.data.fixed,
+    // `status` remplace `fixed` quand il est fourni ; sans `page`, la réponse reste la liste complète (appelants historiques).
+    const params = {
+      fixed: body.data.status ? undefined : body.data.fixed,
+      status: body.data.status,
       publisherId: body.data.publisherId,
       type: body.data.type,
       createdAtGte,
       createdAtLt,
-    });
-    return res.status(200).send({ ok: true, data });
+    };
+    if (body.data.page === undefined) {
+      return res.status(200).send({ ok: true, data: await warningService.findWarnings(params) });
+    }
+    const [data, total] = await Promise.all([
+      warningService.findWarnings({ ...params, limit: body.data.size, skip: (body.data.page - 1) * body.data.size }),
+      warningService.countWarnings(params),
+    ]);
+    return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     next(error);
   }
@@ -101,6 +113,50 @@ router.get("/admin-state", passport.authenticate("user", { session: false }), as
   try {
     const state = await importService.getLastImportSummary();
     return res.status(200).send({ ok: true, data: state });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    const data = await warningService.findWarningById(params.data.id);
+    if (!data) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.put("/:id/status", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    const body = zod.object({ status: zod.enum(["TODO", "IN_PROGRESS", "RESOLVED"]) }).safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+    if (!(await warningService.findWarningById(params.data.id))) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    try {
+      const data = await warningService.updateWarning(params.data.id, { status: body.data.status });
+      return res.status(200).send({ ok: true, data });
+    } catch (error) {
+      // Index unique partiel : une seule alerte ouverte par annonceur et type.
+      if (isUniqueViolation(error)) {
+        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "Une alerte ouverte existe déjà pour cet annonceur et ce type" });
+      }
+      throw error;
+    }
   } catch (error) {
     next(error);
   }

@@ -9,7 +9,7 @@ import type { WarningRecord } from "@/types/warning";
 
 const formatDate = (date: Date) => new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }).format(date);
 
-const isUniqueViolation = (error: unknown) => typeof error === "object" && error !== null && (error as { code?: string }).code === "P2002";
+export const isUniqueViolation = (error: unknown) => typeof error === "object" && error !== null && (error as { code?: string }).code === "P2002";
 
 // Envoie le mail d'alerte aux utilisateurs donnés (les emails ne quittent jamais l'API) et renvoie le nombre d'envois réussis.
 // Template Brevo (TEMPLATE_IDS.WARNING_ALERT) géré dans Brevo ; params : firstname, publisherName, title, description,

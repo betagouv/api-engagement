@@ -16,6 +16,7 @@ export interface UserRecord {
   forgotPasswordExpiresAt: Date | null;
   deletedAt: Date | null;
   brevoContactId: number | null;
+  photo: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -46,6 +47,7 @@ export interface UserCreateInput {
   forgotPasswordExpiresAt?: Date | null;
   deletedAt?: Date | null;
   brevoContactId?: number | null;
+  photo?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

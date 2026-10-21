@@ -4,6 +4,7 @@ export interface WarningAssignee {
   id: string;
   firstname: string;
   lastname: string | null;
+  photo: string | null;
 }
 
 export interface WarningRecord {
@@ -30,9 +31,11 @@ export interface WarningFindParams {
   fixed?: boolean;
   publisherId?: string;
   type?: string;
+  status?: WarningStatus;
   createdAtGte?: Date;
   createdAtLt?: Date;
   limit?: number;
+  skip?: number;
 }
 
 export interface WarningCreateInput {

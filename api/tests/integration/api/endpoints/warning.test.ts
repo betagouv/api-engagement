@@ -246,3 +246,76 @@ describe("Dashboard warning controller", () => {
     expect(res.status).not.toBe(403);
   });
 });
+
+describe("Admin alerts screen endpoints", () => {
+  let adminAuth: { Authorization: string };
+  let publisherId: string;
+
+  beforeEach(async () => {
+    const { token } = await createTestUser({ role: "admin" });
+    adminAuth = { Authorization: `jwt ${token}` };
+    publisherId = (await createTestPublisher({ isAnnonceur: true })).id;
+  });
+
+  it("paginates POST /warning/search with a total, and keeps the full list without page", async () => {
+    for (const type of ["TRACKING_WARNING", "ERROR_WARNING", "EMPTY_WARNING"]) {
+      await warningService.createWarning({ type, publisherId });
+    }
+
+    const paged = await request(app).post("/warning/search").set(adminAuth).send({ status: "TODO", page: 2, size: 2 });
+    expect(paged.status).toBe(200);
+    expect(paged.body.total).toBe(3);
+    expect(paged.body.data).toHaveLength(1);
+
+    const legacy = await request(app).post("/warning/search").set(adminAuth).send({ fixed: false });
+    expect(legacy.body.data).toHaveLength(3);
+    expect(legacy.body.total).toBeUndefined();
+  });
+
+  it("filters by status", async () => {
+    await warningService.createWarning({ type: "TRACKING_WARNING", publisherId });
+    await warningService.createWarning({ type: "ERROR_WARNING", publisherId, status: "RESOLVED" });
+
+    const res = await request(app).post("/warning/search").set(adminAuth).send({ status: "RESOLVED", page: 1 });
+    expect(res.body.total).toBe(1);
+    expect(res.body.data[0].type).toBe("ERROR_WARNING");
+  });
+
+  it("gets an alert by id, 404 when unknown", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    const ok = await request(app).get(`/warning/${alert.id}`).set(adminAuth);
+    expect(ok.status).toBe(200);
+    expect(ok.body.data.id).toBe(alert.id);
+
+    expect((await request(app).get("/warning/unknown-id").set(adminAuth)).status).toBe(404);
+  });
+
+  it("changes the status and keeps the legacy fixed flag in sync", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+
+    const resolved = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "RESOLVED" });
+    expect(resolved.status).toBe(200);
+    expect(resolved.body.data).toMatchObject({ status: "RESOLVED", fixed: true });
+
+    const reopened = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "IN_PROGRESS" });
+    expect(reopened.body.data).toMatchObject({ status: "IN_PROGRESS", fixed: false, fixedAt: null });
+  });
+
+  it("returns 409 when reopening an alert while another one is open for the same publisher and type", async () => {
+    const resolved = await warningService.createWarning({ type: TYPE, publisherId, status: "RESOLVED" });
+    await warningService.createWarning({ type: TYPE, publisherId });
+
+    const res = await request(app).put(`/warning/${resolved.id}/status`).set(adminAuth).send({ status: "TODO" });
+    expect(res.status).toBe(409);
+  });
+
+  it("rejects non-admin users and unknown alerts", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    const { token } = await createTestUser({ role: "user", publishers: [publisherId] });
+    const userAuth = { Authorization: `jwt ${token}` };
+
+    expect((await request(app).put(`/warning/${alert.id}/status`).set(userAuth).send({ status: "RESOLVED" })).status).toBe(401);
+    expect((await request(app).get(`/warning/${alert.id}`).set(userAuth)).status).toBe(401);
+    expect((await request(app).put("/warning/unknown-id/status").set(adminAuth).send({ status: "RESOLVED" })).status).toBe(404);
+  });
+});
