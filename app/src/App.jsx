@@ -5,6 +5,7 @@ import { ToastContainer } from "react-toastify";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Loader from "@/components/Loader";
+import Accessibilite from "@/scenes/accessibilite";
 import Account from "@/scenes/account";
 import AdminAccounts from "@/scenes/admin-account";
 import AdminMissions from "@/scenes/admin-mission";
@@ -76,6 +77,7 @@ const App = () => {
           <Route element={<PublicLayout />}>
             <Route path="/public-stats" element={<PublicStats />} />
             <Route path="/cgu" element={<CGU />} />
+            <Route path="/accessibilite" element={<Accessibilite />} />
           </Route>
           <Route element={<ProtectedLayout />}>
             <Route element={<PublisherSyncLayout />}>
