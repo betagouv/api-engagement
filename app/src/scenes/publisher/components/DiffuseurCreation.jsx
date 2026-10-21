@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { RiErrorWarningFill } from "react-icons/ri";
 
-import SearchInput from "@/components/SearchInput";
 import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
 import { PUBLISHER_CATEGORIES } from "@/constants";
+import AnnonceursModal from "@/scenes/publisher/components/AnnonceursModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { withLegacyPublishers } from "@/utils/publisher";
 
 const DiffuseurCreation = ({ values, onChange, errors }) => {
-  const [data, setData] = useState([]);
-  const [search, setSearch] = useState("");
+  const [publishers, setPublishers] = useState([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,13 +21,15 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
         });
         if (!res.ok) throw res;
 
-        setData(withLegacyPublishers(res.data));
+        setPublishers(withLegacyPublishers(res.data));
       } catch (error) {
         captureError(error, { message: "Erreur lors du chargement des annonceurs", extra: { publisherId: values.id } });
       }
     };
     fetchData();
   }, []);
+
+  const selectedAnnonceurs = publishers.filter((item) => values.publishers.some((publisher) => publisher.publisherId === item.id));
 
   return (
     <div className="border-grey-border space-y-6 border p-6">
@@ -129,41 +131,34 @@ const DiffuseurCreation = ({ values, onChange, errors }) => {
             )}
           </fieldset>
           <div className="h-px w-full bg-gray-900" />
-          <p className="text-base">
-            {values.name} diffuse les missions de {data.filter((item) => values.publishers.find((p) => p.publisherId === item.id)).length} annonceurs
-          </p>
-          <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
-          <Table caption="Liste des annonceurs" header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
-            {data
-              .filter((item) => item.id !== values.id && item.name.toLowerCase().includes(search.toLowerCase()))
-              .map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <input
-                        id={item.id}
-                        type="checkbox"
-                        className="checkbox"
-                        checked={values.publishers.find((p) => p.publisherId === item.id) || false}
-                        onChange={(e) =>
-                          e.target.checked
-                            ? onChange({
-                                ...values,
-                                publishers: [
-                                  ...values.publishers,
-                                  { publisherId: item.id, publisherName: item.name, publisherLogo: item.logo, moderator: item.moderator, missionType: item.missionType },
-                                ],
-                              })
-                            : onChange({ ...values, publishers: values.publishers.filter((p) => p.publisherId !== item.id) })
-                        }
-                      />
-
-                      <label htmlFor={item.id}>{item.name}</label>
-                    </div>
-                  </td>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-base">
+              {values.name} diffuse les missions de {values.publishers.length} annonceurs
+            </p>
+            <button type="button" className="secondary-btn" onClick={() => setOpen(true)}>
+              Ajouter des partenaires
+            </button>
+          </div>
+          {selectedAnnonceurs.length > 0 && (
+            <Table caption="Annonceurs diffusés" header={[{ title: "Annonceurs" }]} className="max-h-96">
+              {selectedAnnonceurs.map((item, index) => (
+                <tr key={item.id} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
+                  <td className="p-4">{item.name}</td>
                 </tr>
               ))}
-          </Table>
+            </Table>
+          )}
+          {open && (
+            <AnnonceursModal
+              annonceurs={publishers.filter((item) => item.id !== values.id)}
+              selected={values.publishers}
+              onClose={() => setOpen(false)}
+              onSubmit={(selected) => {
+                onChange({ ...values, publishers: selected });
+                setOpen(false);
+              }}
+            />
+          )}
         </>
       )}
     </div>

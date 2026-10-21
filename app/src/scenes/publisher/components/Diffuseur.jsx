@@ -1,39 +1,18 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { RiErrorWarningFill } from "react-icons/ri";
 
 import Checkbox from "@/components/form/Checkbox";
-import SearchInput from "@/components/SearchInput";
 import Table from "@/components/Table";
 import Toggle from "@/components/Toggle";
 import { PUBLISHER_CATEGORIES } from "@/constants";
+import AnnonceursModal from "@/scenes/publisher/components/AnnonceursModal";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const resolvePublisherId = (publisher) => publisher?.publisherId ?? publisher?.id ?? null;
-
-const normalizeSelectedPublishers = (items = []) =>
-  (items || [])
-    .map((publisher) => {
-      const publisherId = resolvePublisherId(publisher);
-      if (!publisherId) {
-        return null;
-      }
-      return { ...publisher, publisherId };
-    })
-    .filter(Boolean);
-
 const Diffuseur = ({ values, onChange, errors }) => {
-  const [editing, setEditing] = useState(false);
   const [publishers, setPublishers] = useState([]);
-  const [selectedPublishers, setSelectedPublishers] = useState([]);
-  const [search, setSearch] = useState("");
-
-  useEffect(() => {
-    setSelectedPublishers(normalizeSelectedPublishers(values.publishers));
-  }, [values.publishers]);
-
-  const selectedPublisherIds = useMemo(() => new Set(selectedPublishers.map((publisher) => publisher.publisherId).filter(Boolean)), [selectedPublishers]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,6 +31,8 @@ const Diffuseur = ({ values, onChange, errors }) => {
     };
     fetchData();
   }, []);
+
+  const selectedAnnonceurs = publishers.filter((item) => values.publishers.some((publisher) => publisher.publisherId === item.id));
 
   return (
     <div className="border-grey-border flex flex-1 flex-col gap-6 border p-6">
@@ -138,87 +119,33 @@ const Diffuseur = ({ values, onChange, errors }) => {
             )}
           </fieldset>
           <div className="h-px w-full bg-gray-900" />
-          <p className="text-base">
-            {values.name} diffuse les missions de {selectedPublisherIds.size} annonceurs
-          </p>
-          <SearchInput value={search} onChange={setSearch} placeholder="Rechercher un annonceur" timeout={0} />
-          <Table caption="Liste des annonceurs" header={[{ title: "Annonceurs" }]} className="h-full max-h-96">
-            {publishers
-              .filter((item) => {
-                if (!item?.name) {
-                  return false;
-                }
-                const matchesSelection = editing ? item.id !== values.id : selectedPublisherIds.has(item.id);
-                if (!matchesSelection) {
-                  return false;
-                }
-                return item.name.toLowerCase().includes(search.toLowerCase());
-              })
-              .map((item, index) => (
-                <tr key={index} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      {editing && (
-                        <input
-                          id={item.id}
-                          type="checkbox"
-                          className="checkbox"
-                          checked={selectedPublisherIds.has(item.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedPublishers((prev) => {
-                                if (prev.some((publisher) => publisher.publisherId === item.id)) {
-                                  return prev;
-                                }
-                                return [
-                                  ...prev,
-                                  {
-                                    publisherId: item.id,
-                                    publisherName: item.name,
-                                    publisherLogo: item.logo,
-                                    moderator: item.moderator,
-                                    missionType: item.missionType,
-                                  },
-                                ];
-                              });
-                            } else {
-                              setSelectedPublishers((prev) => prev.filter((publisher) => publisher.publisherId !== item.id));
-                            }
-                          }}
-                        />
-                      )}
-                      <label htmlFor={item.id}>{item.name}</label>
-                    </div>
-                  </td>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <p className="text-base">
+              {values.name} diffuse les missions de {values.publishers.length} annonceurs
+            </p>
+            <button type="button" className="secondary-btn" onClick={() => setOpen(true)}>
+              Modifier les partenaires
+            </button>
+          </div>
+          {selectedAnnonceurs.length > 0 && (
+            <Table caption="Annonceurs diffusés" header={[{ title: "Annonceurs" }]} className="max-h-96">
+              {selectedAnnonceurs.map((item, index) => (
+                <tr key={item.id} className={`${index % 2 === 0 ? "bg-gray-100" : "bg-gray-50"} table-row`}>
+                  <td className="p-4">{item.name}</td>
                 </tr>
               ))}
-          </Table>
-
-          {editing ? (
-            <div className="flex items-center gap-2">
-              <button
-                className="secondary-btn"
-                onClick={() => {
-                  setEditing(false);
-                  setSelectedPublishers(normalizeSelectedPublishers(values.publishers));
-                }}
-              >
-                Annuler
-              </button>
-              <button
-                className="primary-btn"
-                onClick={() => {
-                  setEditing(false);
-                  onChange({ ...values, publishers: selectedPublishers });
-                }}
-              >
-                Terminer
-              </button>
-            </div>
-          ) : (
-            <button className="secondary-btn" onClick={() => setEditing(true)}>
-              Modifier les annonceurs
-            </button>
+            </Table>
+          )}
+          {open && (
+            <AnnonceursModal
+              annonceurs={publishers.filter((item) => item.id !== values.id)}
+              selected={values.publishers}
+              onClose={() => setOpen(false)}
+              onSubmit={(selected) => {
+                onChange({ ...values, publishers: selected });
+                setOpen(false);
+              }}
+            />
           )}
         </>
       )}
