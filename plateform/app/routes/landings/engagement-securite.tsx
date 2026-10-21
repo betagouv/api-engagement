@@ -16,8 +16,8 @@ import Questions from "~/components/landings/engagement-securite/questions";
 import Etapes, { type Etape } from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import LocationFilter from "~/components/landings/location-filter";
-import MissionsBrowser from "~/components/missions/missions-browser";
 import Partners from "~/components/layout/partners";
+import MissionsBrowser from "~/components/missions/missions-browser";
 import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -96,7 +96,7 @@ export default function EngagementSecurite() {
   }, []);
 
   return (
-    <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-26!">
       <Hero
         title={
           <>
@@ -110,7 +110,7 @@ export default function EngagementSecurite() {
         // Mobile et tablette : la localisation est dans le hero (marge basse chevauchée par les premières missions) ;
         // à partir du desktop, elle rejoint la colonne de filtres.
         action={<LocationFilter id="hero-localisation" className="mb-6 md:mb-30 lg:hidden" />}
-        className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(582px,40.4vw)]"
+        className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-145.5"
       >
         <HeroVisual />
       </Hero>
