@@ -10,6 +10,7 @@ import DemarcheSimplifiee from "@/scenes/publisher/components/DemarcheSimplifiee
 import DeploymentUser from "@/scenes/publisher/components/DeploymentUser";
 import Informations from "@/scenes/publisher/components/Informations";
 import Members from "@/scenes/publisher/components/Members";
+import StickyBar from "@/scenes/publisher/components/StickyBar";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
@@ -47,6 +48,25 @@ const Edit = () => {
     demarcheSimplifiees: [],
   });
   const [submitted, setSubmitted] = useState(false);
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const [saveButton, setSaveButton] = useState(null);
+
+  useEffect(() => {
+    if (!saveButton) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setStickyVisible(!entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(saveButton);
+
+    return () => observer.unobserve(saveButton);
+  }, [saveButton]);
 
   useEffect(() => {
     if (!publisher) {
@@ -165,6 +185,7 @@ const Edit = () => {
   return (
     <div className="flex flex-col gap-8">
       <title>{`API Engagement - Compte partenaire - ${values.name}`}</title>
+      <StickyBar visible={stickyVisible} title={values.name} onSubmit={handleSubmit} disabled={!isChanged(values)} />
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
         <RiArrowLeftLine aria-hidden="true" />
         Retour
@@ -182,6 +203,9 @@ const Edit = () => {
         <div className="pt-2 sm:ml-8">
           <h1 className="text-4xl font-bold">Compte partenaire de {values.name}</h1>
         </div>
+        <button className="primary-btn sm:ml-auto" disabled={!isChanged(values)} onClick={handleSubmit} ref={(node) => setSaveButton(node)}>
+          Enregistrer
+        </button>
       </div>
       <div className="flex flex-col gap-12 bg-white p-4 shadow-lg sm:p-12">
         <p className="text-text-mention text-sm">
@@ -218,10 +242,6 @@ const Edit = () => {
           <button className="red-btn flex items-center" onClick={handleDelete}>
             <TrashSvg className="mr-2" aria-hidden="true" />
             <span>Supprimer</span>
-          </button>
-
-          <button className="primary-btn" disabled={!isChanged(values)} onClick={handleSubmit}>
-            Enregistrer
           </button>
         </div>
       </div>

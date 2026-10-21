@@ -1,11 +1,12 @@
 import { toast } from "@/services/toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import AnnonceurCreation from "@/scenes/publisher/components/AnnonceurCreation";
 import DeploymentUser from "@/scenes/publisher/components/DeploymentUser";
 import DiffuseurCreation from "@/scenes/publisher/components/DiffuseurCreation";
 import Informations from "@/scenes/publisher/components/Informations";
+import StickyBar from "@/scenes/publisher/components/StickyBar";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { buildPublisherPayload, validatePublisher } from "@/utils/publisher";
@@ -36,6 +37,25 @@ const Create = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [duplicateName, setDuplicateName] = useState(null);
+  const [stickyVisible, setStickyVisible] = useState(false);
+  const [saveButton, setSaveButton] = useState(null);
+
+  useEffect(() => {
+    if (!saveButton) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setStickyVisible(!entry.isIntersecting);
+      },
+      { threshold: 0 },
+    );
+
+    observer.observe(saveButton);
+
+    return () => observer.unobserve(saveButton);
+  }, [saveButton]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,11 +90,17 @@ const Create = () => {
   return (
     <div className="flex flex-col gap-8">
       <title>API Engagement - Nouveau compte partenaire</title>
+      <StickyBar visible={stickyVisible} title="Nouveau compte partenaire" onSubmit={handleSubmit} />
       <Link to="/admin-account/publishers" className="border-blue-france text-blue-france flex w-fit items-center gap-2 border-b text-[16px]">
         <RiArrowLeftLine aria-hidden="true" />
         Retour
       </Link>
-      <h1 className="text-4xl font-bold">Nouveau compte partenaire</h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-4xl font-bold">Nouveau compte partenaire</h1>
+        <button className="primary-btn" onClick={handleSubmit} ref={(node) => setSaveButton(node)}>
+          Enregistrer
+        </button>
+      </div>
       <div className="space-y-12 bg-white p-4 shadow-lg sm:p-12">
         <p className="text-text-mention text-sm">
           <span className="text-error" aria-hidden="true">
@@ -102,12 +128,6 @@ const Create = () => {
               <DiffuseurCreation values={values} onChange={setValues} errors={errors} />
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center justify-end gap-2">
-          <button className="primary-btn" onClick={handleSubmit}>
-            Enregistrer
-          </button>
         </div>
       </div>
     </div>
