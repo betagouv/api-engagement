@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-const RadioInput = ({ id, name, value, label, checked, onChange, className, size = 16, ariaDescribedby }) => {
+const RadioInput = ({ id, name, value, label, checked, onChange, className, size = 16, ariaDescribedby, required = false }) => {
   const ref = useRef();
   const [isFocused, setIsFocused] = useState(false);
 
@@ -15,6 +15,7 @@ const RadioInput = ({ id, name, value, label, checked, onChange, className, size
         checked={checked}
         onChange={onChange}
         aria-describedby={ariaDescribedby}
+        required={required}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         className="absolute h-full w-full opacity-0"

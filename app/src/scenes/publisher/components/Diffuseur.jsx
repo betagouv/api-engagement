@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { RiErrorWarningFill } from "react-icons/ri";
 
 import Checkbox from "@/components/form/Checkbox";
 import SearchInput from "@/components/SearchInput";
@@ -22,7 +23,7 @@ const normalizeSelectedPublishers = (items = []) =>
     })
     .filter(Boolean);
 
-const Diffuseur = ({ values, onChange, errors, setErrors }) => {
+const Diffuseur = ({ values, onChange, errors }) => {
   const [editing, setEditing] = useState(false);
   const [publishers, setPublishers] = useState([]);
   const [selectedPublishers, setSelectedPublishers] = useState([]);
@@ -45,9 +46,8 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
         }
 
         setPublishers(withLegacyPublishers(res.data));
-        setErrors({});
       } catch (error) {
-        captureError(error, { extra: { publisherId: values.id } });
+        captureError(error, { message: "Erreur lors du chargement des annonceurs", extra: { publisherId: values.id } });
       }
     };
     fetchData();
@@ -66,13 +66,24 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
       {values.isDiffuseur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.category && <p className="text-error">{errors.category}</p>}
-          {errors.mode && <p className="text-error">{errors.mode}</p>}
-          <div className="space-y-2">
-            <label className="text-base" htmlFor="category">
-              Catégorie <span className="text-error ml-1">*</span>
+          <div className={`space-y-2 ${errors.category ? "before:bg-error relative before:absolute before:inset-y-0 before:-left-3 before:w-0.5" : ""}`}>
+            <label className={`text-base ${errors.category ? "text-error" : ""}`} htmlFor="category">
+              Catégorie
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
             </label>
-            <select id="category" className="select w-full" name="category" value={values.category || ""} onChange={(e) => onChange({ ...values, category: e.target.value })}>
+            <select
+              id="category"
+              className={`select w-full ${errors.category ? "border-b-error border-b-2" : "border-b-black"}`}
+              name="category"
+              required
+              aria-required="true"
+              aria-invalid={errors.category ? true : undefined}
+              aria-describedby={errors.category ? "category-error" : undefined}
+              value={values.category || ""}
+              onChange={(e) => onChange({ ...values, category: e.target.value })}
+            >
               <option value="">Sélectionner une catégorie de diffuseur</option>
               {Object.keys(PUBLISHER_CATEGORIES).map((key) => (
                 <option key={key} value={key}>
@@ -80,16 +91,52 @@ const Diffuseur = ({ values, onChange, errors, setErrors }) => {
                 </option>
               ))}
             </select>
+            {errors.category && (
+              <p id="category-error" className="text-error flex items-center text-sm" aria-live="polite">
+                <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+                {errors.category}
+              </p>
+            )}
           </div>
           <div className="h-px w-full bg-gray-900" />
-          <div className="flex flex-col gap-4">
-            <label className="text-base" htmlFor="category">
-              Moyens de diffusion <span className="text-error ml-1">*</span>
-            </label>
-            <Checkbox id="api" label="API" value={values.hasApiRights} onChange={(e) => onChange({ ...values, hasApiRights: e.target.checked })} />
-            <Checkbox id="widget" label="Widgets" value={values.hasWidgetRights} onChange={(e) => onChange({ ...values, hasWidgetRights: e.target.checked })} />
-            <Checkbox id="campagne" label="Campagnes" value={values.hasCampaignRights} onChange={(e) => onChange({ ...values, hasCampaignRights: e.target.checked })} />
-          </div>
+          <fieldset className={`flex flex-col gap-4 ${errors.mode ? "before:bg-error relative before:absolute before:inset-y-0 before:-left-3 before:w-0.5" : ""}`}>
+            <legend className={`text-base ${errors.mode ? "text-error" : ""}`}>
+              Moyens de diffusion
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
+            </legend>
+            <p id="mode-hint" className="text-text-mention text-sm">
+              Sélectionner au moins un moyen de diffusion.
+            </p>
+            <Checkbox
+              id="api"
+              aria-describedby={errors.mode ? "mode-hint mode-error" : "mode-hint"}
+              label="API"
+              value={values.hasApiRights}
+              onChange={(e) => onChange({ ...values, hasApiRights: e.target.checked })}
+            />
+            <Checkbox
+              id="widget"
+              aria-describedby={errors.mode ? "mode-hint mode-error" : "mode-hint"}
+              label="Widgets"
+              value={values.hasWidgetRights}
+              onChange={(e) => onChange({ ...values, hasWidgetRights: e.target.checked })}
+            />
+            <Checkbox
+              id="campagne"
+              aria-describedby={errors.mode ? "mode-hint mode-error" : "mode-hint"}
+              label="Campagnes"
+              value={values.hasCampaignRights}
+              onChange={(e) => onChange({ ...values, hasCampaignRights: e.target.checked })}
+            />
+            {errors.mode && (
+              <p id="mode-error" className="text-error flex items-center text-sm" aria-live="polite">
+                <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+                {errors.mode}
+              </p>
+            )}
+          </fieldset>
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">
             {values.name} diffuse les missions de {selectedPublisherIds.size} annonceurs

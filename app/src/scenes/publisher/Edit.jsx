@@ -13,8 +13,8 @@ import Members from "@/scenes/publisher/components/Members";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { buildPublisherPayload, withLegacyPublisher } from "@/utils/publisher";
-import { RiArrowLeftLine } from "react-icons/ri";
+import { buildPublisherPayload, validatePublisher, withLegacyPublisher } from "@/utils/publisher";
+import { RiArrowLeftLine, RiErrorWarningFill } from "react-icons/ri";
 import Annonceur from "./components/Annonceur";
 import Diffuseur from "./components/Diffuseur";
 
@@ -46,7 +46,7 @@ const Edit = () => {
     isDemarcheSimplifiee: false,
     demarcheSimplifiees: [],
   });
-  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     if (!publisher) {
@@ -75,7 +75,7 @@ const Edit = () => {
         const normalized = withLegacyPublisher(res.data);
         setPublisher(normalized);
       } catch (error) {
-        captureError(error, { extra: { id } });
+        captureError(error, { message: "Erreur lors du chargement du partenaire", extra: { id } });
       }
     };
     fetchData();
@@ -97,7 +97,7 @@ const Edit = () => {
         setSessionPublisher(updated);
       }
     } catch (error) {
-      captureError(error, { extra: { id } });
+      captureError(error, { message: "Erreur lors de la mise à jour de l'image", extra: { id } });
     }
   };
 
@@ -123,35 +123,17 @@ const Edit = () => {
       }
       navigate("/accounts?tab=publishers");
     } catch (error) {
-      captureError(error, { extra: { id } });
+      captureError(error, { message: "Erreur lors de la suppression du partenaire", extra: { id } });
     }
   };
 
   const handleSubmit = async () => {
+    setSubmitted(true);
+    if (Object.keys(validatePublisher(values)).length > 0) {
+      toast.error("Le formulaire contient des erreurs. Veuillez les corriger.");
+      return;
+    }
     try {
-      const errors = {};
-      if (!values.isAnnonceur && !values.isDiffuseur) {
-        errors.settings = "Le partenaire doit être “Annonceur” ou “Diffuseur”. Veuillez cocher une des options dans le formulaire";
-      }
-      if (values.isAnnonceur && !values.missionType) {
-        errors.missionType = "Le partenaire est “Annonceur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      }
-      if (values.isAnnonceur && (values.expectedApplications === null || values.expectedApplications === undefined)) {
-        errors.expectedApplications = "Le partenaire est “Annonceur”. Veuillez renseigner si des candidatures sont attendues.";
-      }
-      if (values.isDiffuseur && !values.category) {
-        errors.category = "Le partenaire est “Diffuseur”. Veuillez sélectionner la catégorie dans le formulaire.";
-      }
-      if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights) {
-        errors.mode = "Le partenaire est “Diffuseur”. Veuillez sélectionner au moins un “moyen de diffusion” dans le formulaire.";
-      }
-
-      if (Object.keys(errors).length > 0) {
-        toast.error(errors.settings || errors.missionType || errors.expectedApplications || errors.category);
-        setErrors(errors);
-        return;
-      }
-
       const payload = buildPublisherPayload(values);
 
       const res = await api.put(`/publisher/${id}`, payload);
@@ -165,11 +147,12 @@ const Edit = () => {
         setSessionPublisher(updated);
       }
     } catch (error) {
-      captureError(error, { extra: { id, values } });
+      captureError(error, { message: "Erreur lors de la mise à jour du partenaire", extra: { id, values } });
     }
   };
 
   const isChanged = (v) => !_.isEqual(v, publisher);
+  const errors = submitted ? validatePublisher(values) : {};
 
   if (!publisher || !values.id) {
     return (
@@ -201,15 +184,27 @@ const Edit = () => {
         </div>
       </div>
       <div className="flex flex-col gap-12 bg-white p-4 shadow-lg sm:p-12">
-        <Informations values={values} onChange={setValues} />
+        <p className="text-text-mention text-sm">
+          <span className="text-error" aria-hidden="true">
+            *
+          </span>{" "}
+          : champ obligatoire
+        </p>
+        <Informations values={values} onChange={setValues} errors={errors} />
         <div className="h-px w-full bg-gray-900" />
         <div className="flex w-full flex-col gap-6">
           <h2 className="text-3xl font-bold">Paramètres</h2>
-          {errors.settings && <p className="text-error">{errors.settings}</p>}
+          <p className="text-text-mention text-sm">Le partenaire doit être annonceur, diffuseur, ou les deux.</p>
+          {errors.settings && (
+            <p id="settings-error" className="text-error flex items-center text-sm" aria-live="polite">
+              <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+              {errors.settings}
+            </p>
+          )}
           <DeploymentUser value={values.deploymentUserId} onChange={(deploymentUserId) => setValues({ ...values, deploymentUserId })} />
           <div className="flex flex-col items-start gap-6 lg:flex-row">
-            <Annonceur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
-            <Diffuseur values={values} onChange={setValues} errors={errors} setErrors={setErrors} />
+            <Annonceur values={values} onChange={setValues} errors={errors} />
+            <Diffuseur values={values} onChange={setValues} errors={errors} />
           </div>
         </div>
         <div className="h-px w-full bg-gray-900" />
