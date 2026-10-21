@@ -5,6 +5,7 @@ import { RiCloseFill, RiFileCopyFill } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import Avatar from "@/components/Avatar";
 import Checkbox from "@/components/form/Checkbox";
 import LabelledInput from "@/components/form/LabelledInput";
 import LabelledSelect from "@/components/form/LabelledSelect";
@@ -92,6 +93,27 @@ const Edit = () => {
     }
   };
 
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) {
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.postFormData(`/user/${id}/image`, formData);
+      if (!res.ok) {
+        throw res;
+      }
+      setUser((u) => ({ ...u, photo: res.data.photo }));
+      setValues((v) => ({ ...v, photo: res.data.photo }));
+      toast.success("Photo mise à jour");
+    } catch (error) {
+      captureError(error, { extra: { id } });
+    }
+  };
+
   const handleInviteAgain = async () => {
     try {
       const res = await api.put(`/user/${id}/invite-again`);
@@ -142,6 +164,15 @@ const Edit = () => {
             <TiDeleteOutline className="mr-2" aria-hidden="true" />
             <span>Supprimer</span>
           </button>
+        </div>
+        <div className="flex items-center gap-4">
+          <Avatar user={user} className="h-16 w-16" />
+          <div>
+            <label htmlFor="photo" className="secondary-btn cursor-pointer">
+              {user.photo ? "Changer la photo" : "Ajouter une photo"}
+            </label>
+            <input id="photo" type="file" accept="image/*" className="sr-only" onChange={handlePhoto} />
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-x-10 gap-y-5 lg:grid-cols-2">
           <LabelledInput id="firstname" label="Prénom" error={errors.firstname} value={values.firstname} onChange={(e) => setValues({ ...values, firstname: e.target.value })} />
