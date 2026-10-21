@@ -65,7 +65,7 @@ function FilterGroups({
   onChange: (key: LandingFilterKey, next: string[]) => void;
   idPrefix: string;
 }) {
-  const [openGroups, setOpenGroups] = useState<LandingFilterKey[]>([]);
+  const [openGroups, setOpenGroups] = useState<LandingFilterKey[]>(["activite"]);
 
   const handleToggleGroup = (key: LandingFilterKey) => {
     setOpenGroups((prev) => (prev.includes(key) ? prev.filter((openKey) => openKey !== key) : [...prev, key]));
@@ -308,20 +308,16 @@ export default function MissionsBrowser({
     <section className="fr-container relative z-10 -mt-40 flex flex-col gap-6 lg:-mt-50 lg:flex-row">
       <h2 className="fr-sr-only">Missions disponibles</h2>
 
-      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section). Les groupes dépliés
-          défilent dans la colonne s'ils dépassent l'écran ; la localisation reste hors de cette zone pour que ses
-          suggestions ne soient pas rognées, et la marge interne garde l'ombre visible. */}
-      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:max-h-[calc(100vh-2rem)] lg:w-74 lg:shrink-0">
+      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section), sans défilement interne. */}
+      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:w-74 lg:shrink-0">
         {filters.includes("departmentCode") && <LocationFilter id="missions-localisation" />}
-        <div className="-mx-1 min-h-0 overflow-y-auto px-1 pb-2">
-          <FilterGroups
-            keys={groupFilters}
-            exclude={exclude}
-            selected={(key) => getSelectedValues(searchParams, key)}
-            onChange={(key, next) => updateFilters({ [key]: next })}
-            idPrefix="missions-filtre"
-          />
-        </div>
+        <FilterGroups
+          keys={groupFilters}
+          exclude={exclude}
+          selected={(key) => getSelectedValues(searchParams, key)}
+          onChange={(key, next) => updateFilters({ [key]: next })}
+          idPrefix="missions-filtre"
+        />
       </div>
 
       <div ref={listRef} className="flex min-w-0 flex-1 scroll-mt-4 flex-col gap-8">
