@@ -8,7 +8,7 @@ const OPTIONS = [
 // null = non renseigné : aucune option cochée
 const ExpectedApplications = ({ value, onChange, error }) => (
   <fieldset className="space-y-4">
-    <legend className="mb-4 text-base font-bold">Candidatures attendues</legend>
+    <legend className="mb-4 text-base font-bold">Tracking des candidatures déployé</legend>
     {error && <p className="text-error">{error}</p>}
     {OPTIONS.map((option) => (
       <RadioInput
