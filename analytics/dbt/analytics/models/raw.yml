@@ -190,7 +190,7 @@ sources:
           - name: has_campaign_rights
             description: Droit d'accès aux campagnes (Sendinblue, emailing).
           - name: expected_applications
-            description: Candidatures attendues de l'annonceur (nullable ; null = non renseigné).
+            description: Tracking des candidatures déployé chez l'annonceur (nullable ; null = non renseigné).
           - name: deployment_user_id
             description: Identifiant du user chargé de déploiement responsable (nullable).
           - name: deleted_at
