@@ -32,14 +32,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   try {
     const res = await browseMissions(filters, request);
-    return { missions: res.data, total: res.total, facets: res.facets, page };
+    return { missions: res.data, total: res.total, page };
   } catch {
-    return { missions: [], total: 0, facets: {}, page };
+    return { missions: [], total: 0, page };
   }
 }
 
 export default function MissionsPage() {
-  const { missions, total, facets, page } = useLoaderData<typeof loader>();
+  const { missions, total, page } = useLoaderData<typeof loader>();
   const [searchParams] = useSearchParams();
   const pageViewedFired = useRef(false);
 
@@ -62,7 +62,7 @@ export default function MissionsPage() {
           <LocationFilter id="hero-localisation" className="lg:hidden" />
         </div>
       </GradientBg>
-      <MissionsBrowser missions={missions} total={total} facets={facets} page={page} filters={MISSIONS_CONFIG.filters} pageName="missions_list" backTo="/missions" />
+      <MissionsBrowser missions={missions} total={total} page={page} filters={MISSIONS_CONFIG.filters} pageName="missions_list" backTo="/missions" />
       <Newsletter
         title="Inscris-toi à la newsletter"
         subtitle="1 e-mail par mois avec nos meilleures missions adaptées à tes critères"

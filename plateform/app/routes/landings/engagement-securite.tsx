@@ -77,14 +77,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   try {
     const res = await browseMissions(filters, request);
-    return { missions: res.data, total: res.total, facets: res.facets, page };
+    return { missions: res.data, total: res.total, page };
   } catch {
-    return { missions: [], total: 0, facets: {}, page };
+    return { missions: [], total: 0, page };
   }
 }
 
 export default function EngagementSecurite() {
-  const { missions, total, facets, page } = useLoaderData<typeof loader>();
+  const { missions, total, page } = useLoaderData<typeof loader>();
   const pageViewedFired = useRef(false);
 
   useEffect(() => {
@@ -117,11 +117,12 @@ export default function EngagementSecurite() {
       <MissionsBrowser
         missions={missions}
         total={total}
-        facets={facets}
         page={page}
         filters={MISSIONS_CONFIG.filters}
+        exclude={MISSIONS_CONFIG.exclude}
         pageName="landing_engagement_securite"
         backTo="/engagement-securite"
+        signupSource="landing_page_reengagement_police_nationale"
       />
       <Etapes etapes={ETAPES} />
       <Presentation />

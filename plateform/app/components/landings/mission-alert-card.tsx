@@ -1,3 +1,4 @@
+import type { SignupSource } from "@engagement/dto";
 import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
 import { type SubmitEvent, useId, useState } from "react";
 
@@ -9,7 +10,8 @@ import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 // Carte insérée parmi les premières missions d'une landing : inscrit le visiteur à la newsletter mensuelle de
 // missions. Contenu calibré pour tenir dans la hauteur fixe d'une carte mission (h-83.75) : côte à côte, les deux
 // cartes s'alignent. Pas de quiz sur ces parcours, donc pas de réponses à rattacher (contrairement au bandeau des résultats).
-export default function MissionAlertCard() {
+// `signupSource` : listes Brevo propres à la landing (ex. réengagement Police) ; sans source, liste par défaut.
+export default function MissionAlertCard({ signupSource }: { signupSource?: SignupSource }) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function MissionAlertCard() {
     setError(null);
 
     try {
-      await subscribeNewsletter({ email: trimmedEmail, distinctId });
+      await subscribeNewsletter({ email: trimmedEmail, distinctId, signupSource });
       setSuccess(true);
     } catch {
       setError("Une erreur est survenue. Merci de réessayer.");
@@ -44,12 +46,8 @@ export default function MissionAlertCard() {
       <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16 dark:hidden" />
       <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-2 right-4 w-14 rotate-[-11deg] dark:hidden" />
 
-      <h3 className="fr-text--lg text-title-grey relative mb-0! pr-16 font-bold">
-        Reçois des missions
-        <br />
-        qui match des qu'elles sont dispo
-      </h3>
-      <p className="fr-text--sm relative mb-1!">On garde tes réponses, et on t'envoie des nouvelles missions qui te correspondent.</p>
+      <h3 className="fr-text--lg text-title-grey relative mb-0! pr-16 font-bold">Recevez des nouvelles missions par e-mail</h3>
+      <p className="fr-text--sm relative mb-1!">On vous envoie des nouvelles missions qui vous correspondent</p>
 
       {success ? (
         <p role="status" className="text-blue-france-sun! relative mb-0! flex items-center gap-2 font-bold!">
@@ -79,8 +77,8 @@ export default function MissionAlertCard() {
               </div>
             )}
           </div>
-          <button type="submit" disabled={loading} className="fr-btn fr-btn--secondary bg-background! w-full! justify-center!">
-            {loading ? "Inscription en cours…" : "Recevoir mes missions"}
+          <button type="submit" disabled={loading} className="fr-btn fr-btn--secondary w-full! justify-center!">
+            {loading ? "Inscription en cours…" : "Recevoir des missions"}
           </button>
           <p id={`${emailId}-hint`} className="fr-hint-text mb-0!">
             1 email 1 fois par mois. Uniquement des missions.
