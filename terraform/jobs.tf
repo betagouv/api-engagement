@@ -368,8 +368,8 @@ resource "scaleway_job_definition" "rebuild-matching-catalog" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "rebuild-matching-catalog"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "rebuild-matching-catalog"]
   timeout                = "60m"
 
   env = local.all_env_vars
