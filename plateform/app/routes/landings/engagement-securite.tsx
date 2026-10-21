@@ -16,8 +16,8 @@ import Questions from "~/components/landings/engagement-securite/questions";
 import Etapes, { type Etape } from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import LocationFilter from "~/components/landings/location-filter";
-import MissionsBrowser from "~/components/missions/missions-browser";
 import Partners from "~/components/layout/partners";
+import MissionsBrowser from "~/components/missions/missions-browser";
 import { type Partner } from "~/config/partners";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -77,14 +77,14 @@ export async function loader({ request }: Route.LoaderArgs) {
 
   try {
     const res = await browseMissions(filters, request);
-    return { missions: res.data, total: res.total, facets: res.facets, page };
+    return { missions: res.data, total: res.total, page };
   } catch {
-    return { missions: [], total: 0, facets: {}, page };
+    return { missions: [], total: 0, page };
   }
 }
 
 export default function EngagementSecurite() {
-  const { missions, total, facets, page } = useLoaderData<typeof loader>();
+  const { missions, total, page } = useLoaderData<typeof loader>();
   const pageViewedFired = useRef(false);
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function EngagementSecurite() {
   }, []);
 
   return (
-    <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
+    <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-26!">
       <Hero
         title={
           <>
@@ -110,18 +110,19 @@ export default function EngagementSecurite() {
         // Mobile et tablette : la localisation est dans le hero (marge basse chevauchée par les premières missions) ;
         // à partir du desktop, elle rejoint la colonne de filtres.
         action={<LocationFilter id="hero-localisation" className="mb-6 md:mb-30 lg:hidden" />}
-        className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(582px,40.4vw)]"
+        className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-145.5"
       >
         <HeroVisual />
       </Hero>
       <MissionsBrowser
         missions={missions}
         total={total}
-        facets={facets}
         page={page}
         filters={MISSIONS_CONFIG.filters}
+        exclude={MISSIONS_CONFIG.exclude}
         pageName="landing_engagement_securite"
         backTo="/engagement-securite"
+        signupSource="landing_page_reengagement_police_nationale"
       />
       <Etapes etapes={ETAPES} />
       <Presentation />

@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionBrowseFacetCount } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseTaxonomyKey, MissionBrowseTaxonomyParams, SignupSource } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
@@ -30,16 +30,6 @@ const FILTER_LABELS: Record<LandingFilterKey, string> = {
   type_mission: "Rythme",
 };
 
-// Facette renvoyée par l'API pour chaque filtre (les départements sont agrégés sous `departmentCodes`).
-const FACET_KEYS: Record<LandingFilterKey, string> = {
-  departmentCode: "departmentCodes",
-  tranche_age: "tranche_age",
-  activite: "activite",
-  domaine_engagement: "domaine_engagement",
-  dispositif: "dispositif",
-  type_mission: "type_mission",
-};
-
 // filter_type de la spec tracking (departmentCode → departement).
 export const FILTER_TYPES: Record<LandingFilterKey, MissionsFilterType> = {
   departmentCode: "departement",
@@ -50,11 +40,12 @@ export const FILTER_TYPES: Record<LandingFilterKey, MissionsFilterType> = {
   type_mission: "type_mission",
 };
 
-// Options dans l'ordre de la taxonomie, limitées à celles qui ont au moins une mission.
-const getFilterOptions = (key: LandingFilterKey, facets: Record<string, MissionBrowseFacetCount[]>) => {
-  const countByValue = new Map((facets[FACET_KEYS[key]] ?? []).map((facet) => [facet.key, facet.count]));
+// Options fixes dans l'ordre de la taxonomie, quels que soient les résultats (une combinaison sans mission mène à
+// l'état vide) : seules les valeurs masquées et celles exclues par la page (ex. réserve Police) sont retirées.
+const getFilterOptions = (key: LandingFilterKey, exclude: MissionBrowseTaxonomyParams = {}) => {
+  const excludedValues = [exclude[key as MissionBrowseTaxonomyKey] ?? []].flat();
   return Object.entries(TAXONOMY[key].values as Record<string, { label: string; hidden?: boolean }>)
-    .filter(([value, { hidden }]) => !hidden && (countByValue.get(value) ?? 0) > 0)
+    .filter(([value, { hidden }]) => !hidden && !excludedValues.includes(value))
     .map(([value, { label }]) => ({ value, label }));
 };
 
@@ -63,18 +54,18 @@ const getFilterOptions = (key: LandingFilterKey, facets: Record<string, MissionB
 // identifiants en double quand les deux sont dans la page.
 function FilterGroups({
   keys,
-  facets,
+  exclude,
   selected,
   onChange,
   idPrefix,
 }: {
   keys: LandingFilterKey[];
-  facets: Record<string, MissionBrowseFacetCount[]>;
+  exclude?: MissionBrowseTaxonomyParams;
   selected: (key: LandingFilterKey) => string[];
   onChange: (key: LandingFilterKey, next: string[]) => void;
   idPrefix: string;
 }) {
-  const [openGroups, setOpenGroups] = useState<LandingFilterKey[]>([]);
+  const [openGroups, setOpenGroups] = useState<LandingFilterKey[]>(["activite"]);
 
   const handleToggleGroup = (key: LandingFilterKey) => {
     setOpenGroups((prev) => (prev.includes(key) ? prev.filter((openKey) => openKey !== key) : [...prev, key]));
@@ -104,7 +95,7 @@ function FilterGroups({
             </button>
             <fieldset id={panelId} hidden={!open} className="fr-fieldset m-0! p-0! pt-4! pb-6!">
               <legend className="fr-sr-only">{FILTER_LABELS[key]}</legend>
-              {getFilterOptions(key, facets).map((option) => {
+              {getFilterOptions(key, exclude).map((option) => {
                 const inputId = `${panelId}-${option.value}`;
                 const checked = selectedValues.includes(option.value);
                 return (
@@ -141,13 +132,13 @@ function FilterGroups({
 // sauvegarde ; Annuler, la croix, Échap ou un clic sur le fond referment sans rien changer.
 function FiltersSheet({
   keys,
-  facets,
+  exclude,
   initialValues,
   onSave,
   onClose,
 }: {
   keys: LandingFilterKey[];
-  facets: Record<string, MissionBrowseFacetCount[]>;
+  exclude?: MissionBrowseTaxonomyParams;
   initialValues: Record<string, string[]>;
   onSave: (values: Record<string, string[]>) => void;
   onClose: () => void;
@@ -191,7 +182,7 @@ function FiltersSheet({
         <div className="-mx-3.5 flex-1 overflow-y-auto px-3.5 pb-1">
           <FilterGroups
             keys={keys}
-            facets={facets}
+            exclude={exclude}
             selected={(key) => values[key] ?? []}
             onChange={(key, next) => setValues((prev) => ({ ...prev, [key]: next }))}
             idPrefix="missions-filtre-mobile"
@@ -219,19 +210,23 @@ function FiltersSheet({
 export default function MissionsBrowser({
   missions,
   total,
-  facets,
   page,
   filters,
+  exclude,
   pageName,
   backTo,
+  signupSource,
 }: {
   missions: MissionBrowse[];
   total: number;
-  facets: Record<string, MissionBrowseFacetCount[]>;
   page: number;
   filters: LandingFilterKey[];
+  // Valeurs retirées des options de filtre (`exclude` de la `LandingMissionsConfig`).
+  exclude?: MissionBrowseTaxonomyParams;
   pageName: "missions_list" | LandingName;
   backTo: string;
+  // Source Brevo de la carte d'inscription aux alertes.
+  signupSource?: SignupSource;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -313,20 +308,16 @@ export default function MissionsBrowser({
     <section className="fr-container relative z-10 -mt-40 flex flex-col gap-6 lg:-mt-50 lg:flex-row">
       <h2 className="fr-sr-only">Missions disponibles</h2>
 
-      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section). Les groupes dépliés
-          défilent dans la colonne s'ils dépassent l'écran ; la localisation reste hors de cette zone pour que ses
-          suggestions ne soient pas rognées, et la marge interne garde l'ombre visible. */}
-      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:max-h-[calc(100vh-2rem)] lg:w-74 lg:shrink-0">
+      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section), sans défilement interne. */}
+      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:w-74 lg:shrink-0">
         {filters.includes("departmentCode") && <LocationFilter id="missions-localisation" />}
-        <div className="-mx-1 min-h-0 overflow-y-auto px-1 pb-2">
-          <FilterGroups
-            keys={groupFilters}
-            facets={facets}
-            selected={(key) => getSelectedValues(searchParams, key)}
-            onChange={(key, next) => updateFilters({ [key]: next })}
-            idPrefix="missions-filtre"
-          />
-        </div>
+        <FilterGroups
+          keys={groupFilters}
+          exclude={exclude}
+          selected={(key) => getSelectedValues(searchParams, key)}
+          onChange={(key, next) => updateFilters({ [key]: next })}
+          idPrefix="missions-filtre"
+        />
       </div>
 
       <div ref={listRef} className="flex min-w-0 flex-1 scroll-mt-4 flex-col gap-8">
@@ -335,7 +326,7 @@ export default function MissionsBrowser({
 
         {missions.length === 0 ? (
           <div className="bg-background flex flex-col items-start gap-4 p-6">
-            <p className="fr-text--lg mb-0!">Aucune mission ne correspond à ces filtres</p>
+            <p className="fr-text--lg mb-0!">Aucune mission n'a été trouvée avec vos critères</p>
             <button type="button" onClick={handleReset} className="fr-btn fr-btn--secondary">
               Réinitialiser les filtres
             </button>
@@ -371,7 +362,7 @@ export default function MissionsBrowser({
                 </li>
                 {page === 1 && index === alertCardAfterIndex && (
                   <li className="min-w-0 p-0!">
-                    <MissionAlertCard />
+                    <MissionAlertCard signupSource={signupSource} />
                   </li>
                 )}
               </Fragment>
@@ -406,7 +397,7 @@ export default function MissionsBrowser({
       {sheetOpen && (
         <FiltersSheet
           keys={groupFilters}
-          facets={facets}
+          exclude={exclude}
           initialValues={Object.fromEntries(groupFilters.map((key) => [key, getSelectedValues(searchParams, key)]))}
           onSave={handleSheetSave}
           onClose={() => setSheetOpen(false)}

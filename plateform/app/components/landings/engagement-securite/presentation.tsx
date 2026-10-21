@@ -28,7 +28,7 @@ export default function Presentation() {
     setError(null);
 
     try {
-      await subscribeNewsletter({ email, distinctId });
+      await subscribeNewsletter({ email, distinctId, signupSource: "landing_page_reengagement_police_nationale" });
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {
