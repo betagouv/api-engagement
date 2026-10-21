@@ -66,6 +66,7 @@ jobs:
         uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
         with:
           terraform_version: 1.9.1
+          terraform_wrapper: false
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -119,11 +120,6 @@ jobs:
       - name: Install API dependencies
         run: npm ci --workspace api --include-workspace-root=false
 
-      - name: Run Prisma migrations (API)
-        env:
-          DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
-        run: npm --workspace api run prisma:migrate:deploy
-
       - name: Build functions bundles
         run: npm --prefix functions run build
 
@@ -134,6 +130,43 @@ jobs:
       - name: Terraform Workspace
         working-directory: ./terraform
         run: terraform workspace select "${{ needs.set-env.outputs.environment_name }}" || terraform workspace new "${{ needs.set-env.outputs.environment_name }}"
+
+      - name: Run Prisma migrations (API)
+        env:
+          DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
+          SSH_TUNNEL_ENABLED: ${{ vars.SSH_TUNNEL_ENABLED || 'false' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$SSH_TUNNEL_ENABLED" != "true" ]]; then
+            npm --workspace api run prisma:migrate:deploy
+            exit 0
+          fi
+
+          umask 077
+          tunnel_dir="$(mktemp -d)"
+          export SSH_TUNNEL_CONTROL_PATH="$tunnel_dir/ssh.sock"
+          trap 'if [[ -S "$SSH_TUNNEL_CONTROL_PATH" ]]; then ssh -S "$SSH_TUNNEL_CONTROL_PATH" -O exit "bastion@${SSH_TUNNEL_BASTION_HOST}" >/dev/null 2>&1 || true; fi; rm -rf "$tunnel_dir"' EXIT
+
+          # La sortie sensible reste en mémoire et ne doit pas être affichée.
+          tunnel_config="$(terraform -chdir=terraform output -json ssh_tunnel_env_vars)"
+          jq -e 'type == "object" and (.SSH_TUNNEL_ENABLED == "true" or .SSH_TUNNEL_ENABLED == "false") and all(to_entries[]; (.key | test("^SSH_TUNNEL_[A-Z_]+$")) and (.value | type == "string"))' <<< "$tunnel_config" > /dev/null
+          while IFS= read -r name; do
+            value="$(jq -er --arg name "$name" '.[$name]' <<< "$tunnel_config")"
+            export "$name=$value"
+          done < <(jq -r 'keys[] | select(. != "SSH_TUNNEL_ENABLED")' <<< "$tunnel_config")
+          unset tunnel_config value
+
+          if [[ -n "${SSH_TUNNEL_PRIVATE_KEY:-}" ]]; then
+            masked_key="${SSH_TUNNEL_PRIVATE_KEY//%/%25}"
+            masked_key="${masked_key//$'\r'/%0D}"
+            masked_key="${masked_key//$'\n'/%0A}"
+            printf '::add-mask::%s\n' "$masked_key"
+            unset masked_key
+          fi
+
+          export SSH_TUNNEL_URL_ENV=DATABASE_URL_CORE
+          sh docker/ssh-tunnel-entrypoint.sh npm --workspace api run prisma:migrate:deploy
 
       - name: Terraform Plan
         working-directory: ./terraform

@@ -21,15 +21,16 @@ resource "scaleway_vpc_public_gateway_ip" "main" {
 }
 
 resource "scaleway_vpc_public_gateway" "main" {
-  count           = var.enable_public_gateway ? 1 : 0
-  name            = "${var.workspace}-gateway"
-  project_id      = var.project_id
-  zone            = var.public_gateway_zone
-  type            = var.public_gateway_type
-  ip_id           = scaleway_vpc_public_gateway_ip.main[0].id
-  bastion_enabled = true
-  bastion_port    = var.public_gateway_bastion_port
-  tags            = ["${var.workspace}"]
+  count            = var.enable_public_gateway ? 1 : 0
+  name             = "${var.workspace}-gateway"
+  project_id       = var.project_id
+  zone             = var.public_gateway_zone
+  type             = var.public_gateway_type
+  ip_id            = scaleway_vpc_public_gateway_ip.main[0].id
+  bastion_enabled  = true
+  bastion_port     = var.public_gateway_bastion_port
+  refresh_ssh_keys = sha256(scaleway_iam_ssh_key.ssh_jobs[0].public_key)
+  tags             = ["${var.workspace}"]
 }
 
 resource "scaleway_vpc_gateway_network" "main" {
