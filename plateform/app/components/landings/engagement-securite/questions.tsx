@@ -31,18 +31,20 @@ export default function Questions() {
         Vous vous posez sûrement <Highlight className="bg-[#9ef9be] dark:bg-transparent">ces questions</Highlight>
       </h2>
 
-      {/* Mobile : carrousel ; à partir de la tablette, grille de 3 colonnes. */}
+      {/* Mobile : carrousel de cartes avec ombre ; à partir de la tablette, grille de 3 cartes bordées et arrondies. */}
       <Carousel
         squareArrows
         label="Les questions que vous vous posez"
         previousLabel="Voir la question précédente"
         nextLabel="Voir la question suivante"
-        // En grille plus rien ne défile : `overflow-visible` évite de rogner l'ombre des cartes sur les côtés.
-        listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 md:overflow-visible lg:gap-13"
+        listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 lg:gap-13"
         itemClassName="w-[82vw] max-w-[320px] md:w-auto md:max-w-none"
       >
         {QUESTIONS.map((item) => (
-          <div key={item.question} className="shadow-tile flex h-full bg-[#faf9fc] dark:bg-transparent flex-col gap-2 p-6!">
+          <div
+            key={item.question}
+            className="shadow-tile md:dark:border-border-default-grey flex h-full bg-[#faf9fc] dark:bg-transparent flex-col gap-2 p-6! md:rounded-2xl md:border md:border-[#e9e1f0] md:shadow-none"
+          >
             <div className="bg-background flex size-24 items-center justify-center rounded-full">
               <img src={item.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />
             </div>
