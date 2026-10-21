@@ -318,7 +318,8 @@ models:
       CANAL D'ACQUISITION : `acquisition_channel` classe toutes les sessions, campagne ou non, sur le modèle
       du rapport « Type de canal » de Matomo. CONSENTEMENT : les sessions `is_cookieless` sont bien des
       visites, mais aucune conversion backend ne peut leur être rattachée ; tout taux de conversion backend
-      se calcule sur les sessions `not is_cookieless`.
+      se calcule sur les sessions `not is_cookieless`. AUDIENCE : `device_type`, géolocalisation IP `geo_*`
+      (visiteurs avec consentement seulement) et pages vues, voir `int_tracking_session`.
     columns:
       - name: tracking_session_id
         tests:
@@ -405,6 +406,28 @@ models:
           quiz. 0 si aucune.
       - name: has_apply
         description: Vrai si `apply_count > 0` ; implique `has_backend_click`.
+      - name: device_type
+        description: Type d'appareil du premier événement (`Desktop`, `Mobile`, `Tablet`).
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['Desktop', 'Mobile', 'Tablet']
+              config:
+                severity: warn
+      - name: geo_region_name
+        description: >
+          Région de la géolocalisation IP (nom officiel pour la France). Nulle pour les sessions
+          `is_cookieless`, comme toutes les colonnes `geo_*` (voir `int_tracking_session`).
+      - name: page_view_count
+        description: >
+          Pages vues (premier événement puis chaque changement de `pathname`). Voir
+          `int_tracking_session`.
+        tests:
+          - not_null
+      - name: unique_page_view_count
+        description: Pages distinctes vues dans la session.
+        tests:
+          - not_null
 
   - name: tracking_campaign_funnel_daily
     description: >
