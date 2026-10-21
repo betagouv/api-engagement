@@ -8,13 +8,28 @@ import api from "@/services/api";
 import { captureError } from "@/services/error";
 
 const PAGE_SIZE = 20;
-const HEADER = [{ title: "Date" }, { title: "Partenaire" }, { title: "Alerte" }, { title: "Assignés" }, { title: "Statut" }];
+const HEADER = [{ title: "Partenaire" }, { title: "Alerte" }, { title: "Assignés" }, { title: "Notifiée" }, { title: "Statut" }];
 
 export const formatDateTime = (date) => new Date(date).toLocaleString("fr", { dateStyle: "long", timeStyle: "short" });
 
+const RELATIVE_UNITS = [
+  ["year", 365 * 24 * 3600],
+  ["month", 30 * 24 * 3600],
+  ["day", 24 * 3600],
+  ["hour", 3600],
+  ["minute", 60],
+];
+const rtf = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
+
+const formatRelative = (date) => {
+  const seconds = (new Date(date).getTime() - Date.now()) / 1000;
+  const [unit, size] = RELATIVE_UNITS.find(([, size]) => Math.abs(seconds) >= size) || ["minute", 60];
+  return rtf.format(Math.round(seconds / size), unit);
+};
+
 export const StatusBadge = ({ status }) => {
   const { name, className } = WARNING_STATUS[status] || WARNING_STATUS.TODO;
-  return <span className={`${className} rounded px-2 py-1 text-xs font-semibold uppercase`}>{name}</span>;
+  return <span className={`${className} rounded px-2 py-1 text-xs font-semibold whitespace-nowrap uppercase`}>{name}</span>;
 };
 
 const Alerts = () => {
@@ -66,7 +81,6 @@ const Alerts = () => {
       <Table caption="Liste des alertes" header={HEADER} pagination page={page} pageSize={PAGE_SIZE} onPageChange={setPage} total={total} loading={loading}>
         {data.map((w, i) => (
           <tr key={w.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
-            <td className="p-4 text-sm">{formatDateTime(w.createdAt)}</td>
             <td className="p-4">
               <div className="flex items-center gap-3">
                 {w.publisherLogo ? (
@@ -97,6 +111,15 @@ const Alerts = () => {
                 </ul>
               ) : (
                 <span className="text-text-mention text-sm">Non assignée</span>
+              )}
+            </td>
+            <td className="p-4 text-sm whitespace-nowrap">
+              {w.notifiedAt ? (
+                <time dateTime={w.notifiedAt} title={formatDateTime(w.notifiedAt)}>
+                  {formatRelative(w.notifiedAt)}
+                </time>
+              ) : (
+                <span className="text-text-mention">Non notifiée</span>
               )}
             </td>
             <td className="p-4">
