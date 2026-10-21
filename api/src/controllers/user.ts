@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { NextFunction, Response, Router } from "express";
 import jwt from "jsonwebtoken";
+import multer from "multer";
 import passport from "passport";
 import zod from "zod";
 
@@ -11,6 +12,7 @@ import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
 import { MFA_DEVICE_COOKIE_MAX_AGE_MS, MFA_DEVICE_COOKIE_NAME, mfaService } from "@/services/mfa";
 import { publisherService } from "@/services/publisher";
+import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import type { UserUpdatePatch } from "@/types/user";
@@ -19,6 +21,8 @@ import { appendAuditEvent } from "@/utils/audit-log";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
+
+const upload = multer();
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -486,6 +490,27 @@ router.put("/", passport.authenticate("user", { session: false }), async (req: U
     });
 
     res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/:id/image", passport.authenticate("user", { session: false }), upload.any(), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (req.user.role !== "admin" && req.user.id !== params.data.id) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
+    }
+    const file = (req.files as Express.Multer.File[] | undefined)?.[0];
+    if (!file || !file.mimetype.startsWith("image/")) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "An image file is required" });
+    }
+    const response = await putObject(`users/${params.data.id}/${file.originalname}`, file.buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
+    const updated = await userService.updateUser(params.data.id, { photo: response.Location });
+    return res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
   } catch (error) {
     next(error);
   }

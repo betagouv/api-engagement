@@ -196,6 +196,7 @@ model User {
   forgotPasswordExpiresAt DateTime? @map("forgot_password_expires_at")
   deletedAt               DateTime? @map("deleted_at")
   brevoContactId          Int?      @map("brevo_contact_id")
+  photo                   String?
   createdAt               DateTime  @default(now()) @map("created_at")
   updatedAt               DateTime  @updatedAt @map("updated_at")
 

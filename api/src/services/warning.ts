@@ -8,12 +8,12 @@ type WarningWithPublisher = PrismaWarning & {
     name: string;
     logo: string | null;
   } | null;
-  assignees?: { user: { id: string; firstname: string; lastname: string | null } }[];
+  assignees?: { user: { id: string; firstname: string; lastname: string | null; photo: string | null } }[];
 };
 
 const warningInclude = {
   publisher: { select: { id: true, name: true, logo: true } },
-  assignees: { select: { user: { select: { id: true, firstname: true, lastname: true } } } },
+  assignees: { select: { user: { select: { id: true, firstname: true, lastname: true, photo: true } } } },
 } satisfies Prisma.WarningInclude;
 
 export const warningService = (() => {
@@ -122,18 +122,14 @@ export const warningService = (() => {
     return toWarningRecord(updated);
   };
 
-  const findWarnings = async (params: {
-    fixed?: boolean;
-    publisherId?: string;
-    type?: string;
-    createdAtGte?: Date;
-    createdAtLt?: Date;
-    limit?: number;
-  }): Promise<WarningRecord[]> => {
+  const buildWhere = (params: WarningFindParams): Prisma.WarningWhereInput => {
     const where: Prisma.WarningWhereInput = {};
 
     if (params.fixed !== undefined) {
       where.fixed = params.fixed;
+    }
+    if (params.status) {
+      where.status = params.status;
     }
     if (params.publisherId) {
       where.publisherId = params.publisherId;
@@ -147,15 +143,26 @@ export const warningService = (() => {
         ...(params.createdAtLt ? { lt: params.createdAtLt } : {}),
       };
     }
+    return where;
+  };
 
+  const findWarnings = async (params: WarningFindParams): Promise<WarningRecord[]> => {
     const warnings = await warningRepository.findMany({
-      where,
+      where: buildWhere(params),
       orderBy: { createdAt: Prisma.SortOrder.desc },
       include: warningInclude,
       ...(params.limit ? { take: params.limit } : {}),
+      ...(params.skip ? { skip: params.skip } : {}),
     });
 
     return warnings.map(toWarningRecord);
+  };
+
+  const countWarnings = (params: WarningFindParams): Promise<number> => warningRepository.count({ where: buildWhere(params) });
+
+  const findWarningById = async (id: string): Promise<WarningRecord | null> => {
+    const warning = await warningRepository.findUnique({ where: { id }, include: warningInclude });
+    return warning ? toWarningRecord(warning) : null;
   };
 
   // Réserve la notification (null -> now) : un seul appelant l'obtient, même en concurrence.
@@ -174,6 +181,8 @@ export const warningService = (() => {
     createWarning,
     updateWarning,
     findWarnings,
+    countWarnings,
+    findWarningById,
     claimNotification,
     releaseNotification,
   };

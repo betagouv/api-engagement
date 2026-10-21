@@ -55,6 +55,7 @@ const user: UserRecord = {
   forgotPasswordExpiresAt: null,
   deletedAt: null,
   brevoContactId: null,
+  photo: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
