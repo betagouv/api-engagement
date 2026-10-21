@@ -1,17 +1,23 @@
 import { Prisma, Warning as PrismaWarning } from "@/db/core";
 import { warningRepository } from "@/repositories/warning";
-import { WarningCreateInput, WarningFindParams, WarningRecord, WarningUpdatePatch } from "@/types/warning";
+import { WarningCreateInput, WarningFindParams, WarningRecord, WarningStatus, WarningUpdatePatch } from "@/types/warning";
 
 type WarningWithPublisher = PrismaWarning & {
-  publisher: {
+  publisher?: {
     id: string;
     name: string;
     logo: string | null;
   } | null;
+  assignees?: { user: { id: string; firstname: string; lastname: string | null } }[];
 };
 
+const warningInclude = {
+  publisher: { select: { id: true, name: true, logo: true } },
+  assignees: { select: { user: { select: { id: true, firstname: true, lastname: true } } } },
+} satisfies Prisma.WarningInclude;
+
 export const warningService = (() => {
-  const toWarningRecord = (warning: PrismaWarning | WarningWithPublisher): WarningRecord => ({
+  const toWarningRecord = (warning: WarningWithPublisher): WarningRecord => ({
     id: warning.id,
     type: warning.type,
     title: warning.title,
@@ -23,6 +29,10 @@ export const warningService = (() => {
     fixed: warning.fixed,
     fixedAt: warning.fixedAt,
     occurrences: warning.occurrences,
+    status: warning.status,
+    procedureUrl: warning.procedureUrl,
+    notifiedAt: warning.notifiedAt,
+    assignees: "assignees" in warning && warning.assignees ? warning.assignees.map(({ user }) => user) : [],
     createdAt: warning.createdAt,
     updatedAt: warning.updatedAt,
   });
@@ -42,7 +52,12 @@ export const warningService = (() => {
     return warning ? toWarningRecord(warning) : null;
   };
 
+  // `fixed` (déprécié) est dérivé de `status` ; un appelant historique peut encore passer `fixed`.
+  const toStatus = (input: { status?: WarningStatus; fixed?: boolean }): WarningStatus | undefined =>
+    input.status ?? (input.fixed === undefined ? undefined : input.fixed ? "RESOLVED" : "TODO");
+
   const createWarning = async (input: WarningCreateInput): Promise<WarningRecord> => {
+    const status = toStatus(input) ?? "TODO";
     const created = await warningRepository.create({
       data: {
         type: input.type,
@@ -50,10 +65,14 @@ export const warningService = (() => {
         description: input.description ?? null,
         publisherId: input.publisherId,
         seen: input.seen ?? false,
-        fixed: input.fixed ?? false,
-        fixedAt: input.fixedAt ?? null,
+        status,
+        fixed: status === "RESOLVED",
+        fixedAt: status === "RESOLVED" ? (input.fixedAt ?? new Date()) : null,
         occurrences: input.occurrences ?? 1,
+        procedureUrl: input.procedureUrl ?? null,
+        assignees: { create: (input.assigneeIds ?? []).map((userId) => ({ userId })) },
       },
+      include: warningInclude,
     });
 
     return toWarningRecord(created);
@@ -71,22 +90,33 @@ export const warningService = (() => {
     if (patch.description !== undefined) {
       updateData.description = patch.description;
     }
+    if (patch.procedureUrl !== undefined) {
+      updateData.procedureUrl = patch.procedureUrl;
+    }
     if (patch.seen !== undefined) {
       updateData.seen = patch.seen;
     }
-    if (patch.fixed !== undefined) {
-      updateData.fixed = patch.fixed;
-    }
-    if (patch.fixedAt !== undefined) {
+    const status = toStatus(patch);
+    if (status !== undefined) {
+      updateData.status = status;
+      updateData.fixed = status === "RESOLVED";
+      updateData.fixedAt = status === "RESOLVED" ? (patch.fixedAt ?? new Date()) : null;
+    } else if (patch.fixedAt !== undefined) {
       updateData.fixedAt = patch.fixedAt;
     }
-    if (patch.occurrences !== undefined) {
+    if (patch.occurrencesIncrement !== undefined) {
+      updateData.occurrences = { increment: patch.occurrencesIncrement };
+    } else if (patch.occurrences !== undefined) {
       updateData.occurrences = patch.occurrences;
+    }
+    if (patch.assigneeIds?.length) {
+      updateData.assignees = { createMany: { data: patch.assigneeIds.map((userId) => ({ userId })), skipDuplicates: true } };
     }
 
     const updated = await warningRepository.update({
       where: { id },
       data: updateData,
+      include: warningInclude,
     });
 
     return toWarningRecord(updated);
@@ -121,19 +151,22 @@ export const warningService = (() => {
     const warnings = await warningRepository.findMany({
       where,
       orderBy: { createdAt: Prisma.SortOrder.desc },
-      include: {
-        publisher: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
-          },
-        },
-      },
+      include: warningInclude,
       ...(params.limit ? { take: params.limit } : {}),
     });
 
     return warnings.map(toWarningRecord);
+  };
+
+  // Réserve la notification (null -> now) : un seul appelant l'obtient, même en concurrence.
+  const claimNotification = async (id: string): Promise<boolean> => {
+    const { count } = await warningRepository.updateMany({ where: { id, notifiedAt: null }, data: { notifiedAt: new Date() } });
+    return count === 1;
+  };
+
+  // Libère la réservation (envoi échoué) pour qu'un prochain passage réessaie.
+  const releaseNotification = async (id: string): Promise<void> => {
+    await warningRepository.updateMany({ where: { id }, data: { notifiedAt: null } });
   };
 
   return {
@@ -141,5 +174,7 @@ export const warningService = (() => {
     createWarning,
     updateWarning,
     findWarnings,
+    claimNotification,
+    releaseNotification,
   };
 })();

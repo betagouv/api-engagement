@@ -2,10 +2,13 @@ import { NextFunction, Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { FORBIDDEN, INVALID_BODY, INVALID_QUERY } from "@/error";
+import { FORBIDDEN, INVALID_BODY, INVALID_QUERY, NOT_FOUND } from "@/error";
+import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
+import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { getAlertProvider } from "@/services/alerts";
+import { ingestAlerts } from "@/services/alerts/ingest";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
-import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { UserRequest } from "@/types/passport";
 
 const router = Router();
@@ -98,6 +101,24 @@ router.get("/admin-state", passport.authenticate("user", { session: false }), as
   try {
     const state = await importService.getLastImportSummary();
     return res.status(200).send({ ok: true, data: state });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Ingestion des alertes d'une source (`metabase`) : le chargé de déploiement de l'annonceur est notifié à la création.
+router.post("/webhook/:source", alertsWebhookSecurity, async (req, res, next) => {
+  try {
+    const provider = getAlertProvider(String(req.params.source));
+    if (!provider) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Unknown alert source" });
+    }
+    const body = provider.parse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+    const summary = await ingestAlerts(body.data.alerts);
+    return res.status(200).send({ ok: true, data: { ...summary, received: body.data.received } });
   } catch (error) {
     next(error);
   }
