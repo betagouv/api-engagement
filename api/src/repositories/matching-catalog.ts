@@ -137,21 +137,22 @@ export const matchingCatalogRepository = {
   },
 
   async beginBuild(promptVersion: string, buildId: string): Promise<void> {
-    const state = { ready: false, valuesReady: false, buildId, gateTaxonomies: gateKeys };
-    await prisma.$transaction(async (tx) => {
-      await tx.matchingCatalogState.upsert({
-        where: { promptVersion },
-        create: { promptVersion, gateTaxonomies: gateKeys },
-        update: {},
-      });
-      const claimed = await tx.matchingCatalogState.updateMany({
-        where: { promptVersion, buildId: null },
-        data: state,
-      });
-      if (claimed.count !== 1) {
-        throw new Error("Un rebuild du catalogue est déjà en cours pour ce prompt.");
-      }
-    });
+    // Réserver le rebuild en une requête atomique, sans transaction interactive.
+    const claimed = await prisma.$executeRaw(Prisma.sql`
+      INSERT INTO matching_catalog_state
+        (prompt_version, ready, values_ready, build_id, gate_taxonomies, updated_at)
+      VALUES (${promptVersion}, false, false, ${buildId}, ARRAY[${Prisma.join(gateKeys)}]::text[], NOW())
+      ON CONFLICT (prompt_version) DO UPDATE
+      SET ready = false,
+          values_ready = false,
+          build_id = EXCLUDED.build_id,
+          gate_taxonomies = EXCLUDED.gate_taxonomies,
+          updated_at = EXCLUDED.updated_at
+      WHERE matching_catalog_state.build_id IS NULL
+    `);
+    if (claimed !== 1) {
+      throw new Error("Un rebuild du catalogue est déjà en cours pour ce prompt.");
+    }
   },
 
   async finishBuild(promptVersion: string, buildId: string): Promise<boolean> {
