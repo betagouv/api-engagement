@@ -1,7 +1,7 @@
-import { ALERTS_BREVO_TEMPLATE_ID, APP_URL } from "@/config";
+import { APP_URL } from "@/config";
 import { captureException } from "@/error";
 import type { AlertInput } from "@/services/alerts/types";
-import { sendTemplate } from "@/services/brevo/email";
+import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
@@ -12,20 +12,16 @@ const formatDate = (date: Date) => new Intl.DateTimeFormat("fr-FR", { dateStyle:
 const isUniqueViolation = (error: unknown) => typeof error === "object" && error !== null && (error as { code?: string }).code === "P2002";
 
 // Envoie le mail d'alerte aux utilisateurs donnés (les emails ne quittent jamais l'API) et renvoie le nombre d'envois réussis.
-// Template Brevo (ALERTS_BREVO_TEMPLATE_ID) géré dans Brevo ; params : firstname, publisherName, title, description,
+// Template Brevo (TEMPLATE_IDS.WARNING_ALERT) géré dans Brevo ; params : firstname, publisherName, title, description,
 // triggeredAtLabel, procedureUrl?, occurrences, alertsUrl. L'objet est défini ici.
 const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<number> => {
-  if (!ALERTS_BREVO_TEMPLATE_ID) {
-    console.warn("[alerts] ALERTS_BREVO_TEMPLATE_ID is not set, no email sent");
-    return 0;
-  }
   let sent = 0;
   for (const userId of userIds) {
     const user = await userService.findUserById(userId);
     if (!user) {
       continue;
     }
-    const { ok } = await sendTemplate(ALERTS_BREVO_TEMPLATE_ID, {
+    const { ok } = await sendTemplate(TEMPLATE_IDS.WARNING_ALERT, {
       emailTo: [user.email],
       subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}`,
       params: {

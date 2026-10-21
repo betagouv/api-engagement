@@ -58,9 +58,6 @@ resource "scaleway_container" "api" {
 
     "MISSION_V2_LIST_ENABLED" = var.enable_mission_v2_list ? "true" : "false"
 
-    # Alerting métier (webhook /warning/webhook) : template Brevo de la notification (vide = pas de mail)
-    "ALERTS_BREVO_TEMPLATE_ID" = var.alerts_brevo_template_id
-
     "SCW_QUEUE_ENDPOINT"                = var.enable_async_tasks ? "https://sqs.mnq.fr-par.scaleway.com" : ""
     "SCW_QUEUE_URL_MISSION_ENRICHMENT"  = var.enable_async_tasks ? module.async_task_queues["mission_enrichment"].url : ""
     "SCW_QUEUE_URL_MISSION_SCORING"     = var.enable_async_tasks ? module.async_task_queues["mission_scoring"].url : ""

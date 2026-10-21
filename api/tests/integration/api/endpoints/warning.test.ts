@@ -3,12 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendTemplate = vi.hoisted(() => {
   process.env.ALERTS_WEBHOOK_TOKEN = "test-alerts-token";
-  process.env.ALERTS_BREVO_TEMPLATE_ID = "42";
   return vi.fn().mockResolvedValue({ ok: true });
 });
-vi.mock("@/services/brevo/email", () => ({ sendTemplate }));
+vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/services/brevo/email")>()), sendTemplate }));
 
 import { prisma } from "@/db/postgres";
+import { TEMPLATE_IDS } from "@/services/brevo/email";
 import { warningService } from "@/services/warning";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
@@ -73,6 +73,7 @@ describe("Warning alerting", () => {
     expect(warning).toMatchObject({ status: "TODO", fixed: false, occurrences: 1, procedureUrl: "https://notion.so/proc" });
     expect(warning.assignees.map((a) => a.id)).toEqual([deploymentUser.user.id]);
     expect(sendTemplate).toHaveBeenCalledTimes(1);
+    expect(sendTemplate.mock.calls[0][0]).toBe(TEMPLATE_IDS.WARNING_ALERT);
     expect(sendTemplate.mock.calls[0][1].subject).toBe("[Alerte] " + warning.publisherName + " : Plus de candidatures");
 
     const second = await webhook([{ type: TYPE, publisherId }]);

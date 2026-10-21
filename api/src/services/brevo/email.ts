@@ -10,6 +10,7 @@ export const TEMPLATE_IDS = {
   TTM_MISSIONS_LISTING: 27,
   TTM_MISSION_SAVED: 30,
   MFA_CODE: 28,
+  WARNING_ALERT: 32,
 };
 
 const buildEmailBody = (templateId: number, options: EmailOptions): EmailBody => {
