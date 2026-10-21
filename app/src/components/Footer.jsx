@@ -65,9 +65,9 @@ const Footer = () => {
         <nav role="navigation" aria-label="Liens de pied de page">
           <ul role="list" className="divide-text-mention border-grey-border text-text-mention mt-10 flex flex-wrap items-center divide-x border-t py-4 text-xs">
             <li>
-              <a href="https://api-engagement.beta.gouv.fr/accessibilite/" className="pr-3 hover:underline">
-                Accessibilité : non conforme
-              </a>
+              <Link to="/accessibilite" className="pr-3 hover:underline">
+                Accessibilité : totalement conforme
+              </Link>
             </li>
             <li>
               <Link to="/public-stats" className="px-3 hover:underline">
