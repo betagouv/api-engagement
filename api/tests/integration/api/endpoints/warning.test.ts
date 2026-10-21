@@ -177,6 +177,24 @@ describe("Warning alerting", () => {
       expect(sendTemplate).toHaveBeenCalledTimes(1);
     });
 
+    it("propagates a new or changed procedure URL to the open alert, and keeps it when the replay has none", async () => {
+      const procedureUrl = (url?: string) => webhook([{ type: TYPE, publisherId, procedureUrl: url }]);
+      const current = async () => (await warningService.findWarnings({ publisherId }))[0].procedureUrl;
+
+      await procedureUrl();
+      expect(await current()).toBeNull();
+
+      await procedureUrl("https://notion.so/v1");
+      expect(await current()).toBe("https://notion.so/v1");
+
+      await procedureUrl("https://notion.so/v2");
+      expect(await current()).toBe("https://notion.so/v2");
+
+      await procedureUrl();
+      expect(await current()).toBe("https://notion.so/v2");
+      expect(sendTemplate).toHaveBeenCalledTimes(1);
+    });
+
     it("opens a new alert and notifies again when the problem comes back after a resolution", async () => {
       await webhook([{ type: TYPE, publisherId }]);
       const [first] = await warningService.findWarnings({ publisherId });

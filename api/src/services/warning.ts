@@ -90,6 +90,9 @@ export const warningService = (() => {
     if (patch.description !== undefined) {
       updateData.description = patch.description;
     }
+    if (patch.procedureUrl !== undefined) {
+      updateData.procedureUrl = patch.procedureUrl;
+    }
     if (patch.seen !== undefined) {
       updateData.seen = patch.seen;
     }

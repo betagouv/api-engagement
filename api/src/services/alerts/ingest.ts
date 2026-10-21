@@ -78,6 +78,7 @@ const bump = (open: WarningRecord, input: AlertInput) =>
     occurrencesIncrement: 1,
     ...(input.title ? { title: input.title } : {}),
     ...(input.description ? { description: input.description } : {}),
+    ...(input.procedureUrl ? { procedureUrl: input.procedureUrl } : {}),
   });
 
 // Crée l'alerte (ou incrémente l'alerte ouverte du même type) puis notifie si ce n'est pas déjà fait.

@@ -63,6 +63,7 @@ export interface WarningUpdatePatch {
   /** Incrémente atomiquement `occurrences` (prioritaire sur `occurrences`). */
   occurrencesIncrement?: number;
   status?: WarningStatus;
+  procedureUrl?: string | null;
   /** Ajoute des assignés (sans doublon). */
   assigneeIds?: string[];
 }
