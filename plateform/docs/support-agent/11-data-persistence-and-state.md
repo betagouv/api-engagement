@@ -2,13 +2,13 @@
 
 ## Store du quiz
 
-Le store Zustand est persisté dans `localStorage` sous la clé `quiz-answers`, avec une version de schéma égale à 6. Il contient les réponses, l'identifiant du scoring, le `distinctId`, l'identifiant de tentative, l'heure de début et l'identifiant de la dernière tentative ayant émis l'événement de démarrage.
+Le store Zustand est persisté dans `localStorage` sous la clé `quiz-answers`, avec une version de schéma égale à 7. Il contient les réponses, l'identifiant du scoring, le `distinctId`, l'identifiant de tentative, l'heure de début et l'identifiant de la dernière tentative ayant émis l'événement de démarrage.
 
 - **`distinctId`** : Créé une fois et conservé entre les tentatives.
 - **`reset()`** : Efface les réponses et le scoring, crée un nouvel identifiant de tentative et une nouvelle heure de début, mais conserve le `distinctId`.
 - Une arrivée directe sur la première étape réinitialise le quiz, sauf lorsque la navigation du document est un rafraîchissement.
 - La persistance permet de restaurer les réponses après un refresh et de recalculer les étapes visibles.
-- La migration de la version 5 à 6 du schéma supprime les réponses aux questions `interaction` et `imprevu`.
+- La migration de la version 6 à 7 du schéma supprime les réponses à la question `equipe`.
 
 ## Cache des résultats
 

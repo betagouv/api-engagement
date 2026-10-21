@@ -2,7 +2,7 @@
 
 ## Séquence commune
 
-La version active du quiz est la version "q2". Les étapes du quiz sont organisées dans l'ordre suivant :
+La version active du quiz est la version "q4". Les étapes du quiz sont organisées dans l'ordre suivant :
 
 1. **Âge** : L'utilisateur doit indiquer son âge, compris entre 16 et 99 ans inclus. Cette information est stockée comme une valeur numérique et utilisée pour construire une réponse paramétrée pour la taxonomie `tranche_age`.
 
@@ -20,13 +20,9 @@ La version active du quiz est la version "q2". Les étapes du quiz sont organis�
 
 8. **Activités** : L'utilisateur indique ce qu'il aimerait faire concrètement.
 
-9. **Équipe** : L'utilisateur choisit le type d'équipe dans lequel il se sentirait le plus à l'aise.
+9. **Autonomie** : L'utilisateur choisit le cadre qui lui conviendrait le mieux.
 
-10. **Interaction** : L'utilisateur indique comment il préfère participer.
-
-11. **Autonomie** : L'utilisateur choisit le cadre qui lui conviendrait le mieux.
-
-12. **Imprévu** : L'utilisateur sélectionne le niveau d'imprévu qui lui conviendrait le mieux.
+10. **Email** : L'utilisateur peut fournir son adresse email pour recevoir des missions basées sur ses réponses.
 
 ## Détails des étapes
 
@@ -63,13 +59,13 @@ La version active du quiz est la version "q2". Les étapes du quiz sont organis�
 - **Type de réponse** : Choix multiple
 - **Options** :
   - Première expérience (`premiere_experience`)
+  - Parcoursup (`parcoursup`)
   - Découverte métier (`decouverte_metier`)
   - Agir pour une cause (`agir_pour_une_cause`)
   - Sécurité du pays (`securite_pays`)
   - Télétravail (`remote`)
   - Rencontres (`rencontres`)
   - Indemnisation (`indemnisation`)
-  - Horaires flexibles (`horaires_flexibles`)
   - Autre (`autre`)
 
 ### Rythme
@@ -108,24 +104,6 @@ La version active du quiz est la version "q2". Les étapes du quiz sont organis�
   - Organiser et coordonner (`organiser_coordonner`)
   - Créer et communiquer (`creer_communiquer`)
 
-### Équipe
-
-- **Type de réponse** : Choix unique
-- **Options** :
-  - Autonomie (`autonomie`)
-  - Petit groupe (`petit_groupe`)
-  - Grand collectif (`grand_collectif`)
-  - Peu importe (`peu_importe`)
-
-### Interaction
-
-- **Type de réponse** : Choix unique
-- **Options** :
-  - Interaction collective (`interaction_collective`)
-  - Équilibre collectif et autonomie (`equilibre_collectif_autonomie`)
-  - Autonomie principale (`autonomie_principale`)
-  - Peu importe (`peu_importe`)
-
 ### Autonomie
 
 - **Type de réponse** : Choix unique
@@ -135,14 +113,11 @@ La version active du quiz est la version "q2". Les étapes du quiz sont organis�
   - Cadre avec suivi régulier (`cadre_suivi_regulier`)
   - Je ne sais pas (`je_ne_sais_pas`)
 
-### Imprévu
+### Email
 
-- **Type de réponse** : Choix unique
-- **Options** :
-  - Adaptation rapide (`adaptation_rapide`)
-  - Imprévu modéré (`imprevu_modere`)
-  - Cadre prévisible (`cadre_previsible`)
-  - Je ne sais pas (`je_ne_sais_pas`)
+- **Type de réponse** : Texte
+- **Validations** : L'email doit être au format valide.
+- **Embranchement** : Permet de recevoir des missions par email et de s'inscrire aux listes Brevo.
 
 ## Validation et navigation
 
@@ -157,7 +132,7 @@ Les réponses de type `options` sont transformées en une entrée `{ taxonomy, v
 ## Sources
 
 - `plateform/app/config/quiz-flow/index.ts`
-- `plateform/app/config/quiz-flow/q2.ts`
+- `plateform/app/config/quiz-flow/q4.ts`
 - `plateform/app/routes/quiz/age.tsx`
 - `plateform/app/routes/quiz/handicap.tsx`
 - `plateform/app/routes/quiz/_layout.tsx`

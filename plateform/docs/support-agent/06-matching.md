@@ -8,9 +8,9 @@ La première page est mise en cache en mémoire par `userScoringId`. Une erreur 
 
 ## Versions du moteur
 
-Le code définit les versions `m1`, `m2`, `m3`, `m4`, et `m5`. La version active est `m5`. Une valeur de configuration inconnue provoque un signalement puis un retour à `m3`.
+Le code définit les versions `m1`, `m2`, `m3`, `m4`, `m5`, et `m6`. La version active est `m6`. Une valeur de configuration inconnue provoque un signalement puis un retour à `m3`.
 
-La version `m5` est identique à `m4`, mais le score de proximité forcé des missions entièrement à distance (`remote=full`) n'est accordé qu'aux utilisateurs ayant coché « je veux participer à distance ». Les autres reçoivent un score géographique de 0 sur ces missions.
+La version `m6` est identique à `m5`, mais introduit un signal de dispositif issu des préférences déduites du profil.
 
 ## Taxonomies et gates
 
@@ -24,13 +24,13 @@ Sur une requête de première page, le moteur calcule au moins vingt résultats 
 
 Le score total d'une mission est une combinaison pondérée des scores de taxonomie et du score géographique. La formule est la suivante :
 
-1. **Score de taxonomie** : Chaque taxonomie matchée contribue au score selon un socle de base (`taxonomyOrBaseScore`) et une part restante liée à la qualité intra-taxonomie. Pour `m5`, le socle est de `0.5`. La qualité intra-taxonomie est calculée en fonction des valeurs matchées par rapport aux valeurs possibles, pondérée par le poids de la taxonomie.
+1. **Score de taxonomie** : Chaque taxonomie matchée contribue au score selon un socle de base (`taxonomyOrBaseScore`) et une part restante liée à la qualité intra-taxonomie. Pour `m6`, le socle est de `0.5`. La qualité intra-taxonomie est calculée en fonction des valeurs matchées par rapport aux valeurs possibles, pondérée par le poids de la taxonomie.
 
-2. **Score géographique** : Le score géographique est pondéré par `geoWeight`. Pour `m5`, ce poids est de `0.3`. Les missions `remote=full` et `remote=local` reçoivent des scores géographiques fixes de `0.9` et `0.95` respectivement, mais le score `remote=full` est conditionné par l'intention de l'utilisateur de participer à distance.
+2. **Score géographique** : Le score géographique est pondéré par `geoWeight`. Pour `m6`, ce poids est de `0.3`. Les missions `remote=full` et `remote=local` reçoivent des scores géographiques fixes de `0.9` et `0.95` respectivement, mais le score `remote=full` est conditionné par l'intention de l'utilisateur de participer à distance.
 
 3. **Normalisation** : Le score total est normalisé par la somme des poids actifs des taxonomies et du poids géographique.
 
-### Pondérations `taxonomyWeights` pour `m5`
+### Pondérations `taxonomyWeights` pour `m6`
 
 - `domaine`: 1
 - `secteur_activite`: 1
@@ -47,6 +47,7 @@ Le score total d'une mission est une combinaison pondérée des scores de taxono
 - `autonomie`: 0.6
 - `imprevu`: 0.6
 - `motivation_recherche`: 1
+- `dispositif`: 1
 
 ### Cas remote
 

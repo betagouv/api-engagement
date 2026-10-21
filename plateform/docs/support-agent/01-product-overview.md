@@ -1,6 +1,6 @@
 # Vue d'ensemble du produit
 
-La plateforme aide un utilisateur à trouver une mission d'engagement de deux manières : un parcours de recommandation personnalisé et un catalogue filtrable. Elle permet ensuite de consulter une mission, de rejoindre le site de candidature et de recevoir des missions par email.
+La plateforme "Trouve Ta Mission" aide un utilisateur à trouver une mission d'engagement de deux manières : un parcours de recommandation personnalisé et un catalogue filtrable. Elle permet ensuite de consulter une mission, de rejoindre le site de candidature et de recevoir des missions par email.
 
 ## Fonctionnalités principales
 
