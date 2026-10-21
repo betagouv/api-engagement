@@ -2,6 +2,7 @@ import CalendarSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/calendar.s
 import PoliceSvg from "@gouvfr/dsfr/dist/artwork/pictograms/institutions/police.svg?url";
 import SuccessSvg from "@gouvfr/dsfr/dist/artwork/pictograms/system/success.svg?url";
 
+import Carousel from "~/components/ui/carousel";
 import Highlight from "~/components/ui/highlight";
 
 const QUESTIONS = [
@@ -25,21 +26,31 @@ const QUESTIONS = [
 export default function Questions() {
   return (
     <section className="fr-container">
-      <h2 className="fr-h1 mb-6! text-center md:mb-15!">
+      {/* Le carrousel ajoute 24px de marge interne au-dessus des cartes : mêmes écarts au titre qu'avant (24px mobile, 60px desktop). */}
+      <h2 className="fr-h1 mb-0! text-center md:mb-9!">
         Vous vous posez sûrement <Highlight className="bg-[#9ef9be] dark:bg-transparent">ces questions</Highlight>
       </h2>
 
-      <ul role="list" className="m-0! grid list-none! grid-cols-1 gap-6 p-0! md:grid-cols-3 lg:gap-13">
+      {/* Mobile : carrousel ; à partir de la tablette, grille de 3 colonnes. */}
+      <Carousel
+        squareArrows
+        label="Les questions que vous vous posez"
+        previousLabel="Voir la question précédente"
+        nextLabel="Voir la question suivante"
+        // En grille plus rien ne défile : `overflow-visible` évite de rogner l'ombre des cartes sur les côtés.
+        listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 md:overflow-visible lg:gap-13"
+        itemClassName="w-[82vw] max-w-[320px] md:w-auto md:max-w-none"
+      >
         {QUESTIONS.map((item) => (
-          <li key={item.question} className="dark:border-border-default-grey flex border-[#e9e1f0] bg-[#faf9fc] dark:bg-transparent flex-col gap-2 rounded-2xl border p-6!">
+          <div key={item.question} className="shadow-tile flex h-full bg-[#faf9fc] dark:bg-transparent flex-col gap-2 p-6!">
             <div className="bg-background flex size-24 items-center justify-center rounded-full">
               <img src={item.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />
             </div>
             <h3 className="fr-h6 mb-0!">{item.question}</h3>
             <p className="mb-0!">{item.answer}</p>
-          </li>
+          </div>
         ))}
-      </ul>
+      </Carousel>
     </section>
   );
 }
