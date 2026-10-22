@@ -27,6 +27,15 @@ export interface WarningRecord {
   updatedAt: Date;
 }
 
+export interface WarningCommentRecord {
+  id: string;
+  warningId: string;
+  body: string;
+  author: WarningAssignee | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface WarningFindParams {
   fixed?: boolean;
   publisherId?: string;

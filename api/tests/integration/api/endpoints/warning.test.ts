@@ -319,3 +319,41 @@ describe("Admin alerts screen endpoints", () => {
     expect((await request(app).put("/warning/unknown-id/status").set(adminAuth).send({ status: "RESOLVED" })).status).toBe(404);
   });
 });
+
+describe("Alert comments", () => {
+  let adminAuth: { Authorization: string };
+  let admin: Awaited<ReturnType<typeof createTestUser>>;
+  let publisherId: string;
+
+  beforeEach(async () => {
+    admin = await createTestUser({ role: "admin" });
+    adminAuth = { Authorization: `jwt ${admin.token}` };
+    publisherId = (await createTestPublisher({ isAnnonceur: true })).id;
+  });
+
+  it("exposes fixedAt once the alert is resolved", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    const resolved = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "RESOLVED" });
+    expect(resolved.body.data.fixedAt).toBeTruthy();
+  });
+
+  it("lists, adds and edits comments (author only)", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    const created = await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "  Partenaire relancé  " });
+    expect(created.body.data).toMatchObject({ body: "Partenaire relancé", author: { id: admin.user.id } });
+
+    const edited = await request(app).put(`/warning/${alert.id}/comments/${created.body.data.id}`).set(adminAuth).send({ body: "Corrigé" });
+    expect(edited.body.data.body).toBe("Corrigé");
+
+    const other = await createTestUser({ role: "admin" });
+    const forbidden = await request(app)
+      .put(`/warning/${alert.id}/comments/${created.body.data.id}`)
+      .set({ Authorization: `jwt ${other.token}` })
+      .send({ body: "x" });
+    expect(forbidden.status).toBe(403);
+
+    expect((await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "  " })).status).toBe(400);
+    const list = await request(app).get(`/warning/${alert.id}/comments`).set(adminAuth);
+    expect(list.body.data.map((c: { body: string }) => c.body)).toEqual(["Corrigé"]);
+  });
+});
