@@ -534,7 +534,7 @@ model WarningComment {
   warningId      String   @map("warning_id")
   authorId       String?  @map("author_id")
   body           String
-  emailMessageId String?  @unique @map("email_message_id")
+  emailMessageId String?  @unique(map: "warning_comment_email_message_id_key") @map("email_message_id")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
