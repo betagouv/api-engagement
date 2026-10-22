@@ -2,7 +2,7 @@ import express from "express";
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import logger from "../logger";
+import logger from "@/middlewares/logger";
 
 const logsFor = async (path: string, body: object) => {
   const write = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
