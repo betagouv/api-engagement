@@ -26,7 +26,7 @@ export const warningCommentService = {
     return c ? { ...toRecord(c), authorId: c.authorId } : null;
   },
 
-  async createComment(input: { warningId: string; authorId: string; body: string }): Promise<WarningCommentRecord> {
+  async createComment(input: { warningId: string; authorId: string; body: string; emailMessageId?: string }): Promise<WarningCommentRecord> {
     return toRecord((await warningCommentRepository.create({ data: input, include })) as WithAuthor);
   },
 

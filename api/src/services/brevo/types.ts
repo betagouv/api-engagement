@@ -14,6 +14,7 @@ export type EmailOptions = {
   emailTo: string[];
   subject?: string;
   emailBcc?: string[];
+  replyTo?: string;
   attachment?: any;
   tags?: string[];
 };
@@ -28,6 +29,7 @@ export type EmailBody = {
   params?: Record<string, any>;
   to: EmailRecipient[];
   bcc?: EmailRecipient[];
+  replyTo?: EmailRecipient;
   attachment?: any;
   tags?: string[];
 };

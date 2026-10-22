@@ -3,14 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendTemplate = vi.hoisted(() => {
   process.env.ALERTS_WEBHOOK_TOKEN = "test-alerts-token";
+  process.env.INBOUND_EMAIL_DOMAIN = "api-engagement.example.com";
   return vi.fn().mockResolvedValue({ ok: true });
 });
+const captureMessage = vi.hoisted(() => vi.fn());
+vi.mock("@/error", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/error")>()), captureMessage }));
 vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/services/brevo/email")>()), sendTemplate }));
 
 import { prisma } from "@/db/postgres";
+import { alertReplyAddress } from "@/services/alerts/reply";
 import { TEMPLATE_IDS } from "@/services/brevo/email";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
+import { warningCommentService } from "@/services/warning-comment";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
@@ -368,5 +373,93 @@ describe("Alert comments", () => {
       .get(`/warning/${alert.id}/comments`)
       .set({ Authorization: `jwt ${token}` });
     expect(list.body.data).toMatchObject([{ body: "Fait", author: null }]);
+  });
+});
+
+describe("Alert email reply", () => {
+  let assignee: Awaited<ReturnType<typeof createTestUser>>;
+  let publisherId: string;
+
+  beforeEach(async () => {
+    sendTemplate.mockClear();
+    assignee = await createTestUser({ role: "user" });
+    publisherId = (await createTestPublisher({ isAnnonceur: true, deploymentUserId: assignee.user.id })).id;
+  });
+
+  const reply = (items: object[], token = "test-alerts-token") => request(app).post("/inbound-email").set("Authorization", `Bearer ${token}`).send({ items });
+  const mail = (warningId: string, from: string, body: string, messageId = "<m1@mail>") => ({
+    MessageId: messageId,
+    From: { Address: from },
+    Recipients: [alertReplyAddress(warningId)],
+    ExtractedMarkdownMessage: body,
+  });
+
+  it("sets a reply-to address on the alert email", async () => {
+    await request(app)
+      .post("/warning/webhook/metabase")
+      .set("Authorization", "Bearer test-alerts-token")
+      .send({
+        type: "alert",
+        data: { type: "question", question_name: "q", raw_data: { cols: ["publisher_id", "type"], rows: [[publisherId, TYPE]] } },
+      });
+    const alert = await warningService.findOneWarning({ publisherId, type: TYPE });
+    expect(sendTemplate.mock.calls[0][1].replyTo).toBe(alertReplyAddress(alert!.id));
+  });
+  it("resolves the alert and stores the reply as a comment, once per message", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    const item = mail(alert.id, assignee.user.email.toUpperCase(), "Tracking rétabli côté partenaire");
+
+    expect((await reply([item])).body.data.processed).toBe(1);
+    expect((await reply([item])).body.data.processed).toBe(0);
+
+    const after = await warningService.findWarningById(alert.id);
+    expect(after).toMatchObject({ status: "RESOLVED", fixed: true });
+    const comments = await warningCommentService.findComments(alert.id);
+    expect(comments).toHaveLength(1);
+    expect(comments[0]).toMatchObject({ body: "Tracking rétabli côté partenaire", author: { id: assignee.user.id } });
+  });
+
+  it("ignores automatic replies and unknown address prefixes", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    const from = assignee.user.email;
+
+    const autoReplies = [{ "Auto-Submitted": "auto-replied" }, { "X-Autoreply": "yes" }, { Precedence: "auto_reply" }];
+    const items: object[] = autoReplies.map((Headers, i) => ({ ...mail(alert.id, from, "Je suis absent", `<auto-${i}>`), Headers }));
+    items.push({ ...mail(alert.id, from, "x", "<other>"), Recipients: [`autre-${alert.id}@api-engagement.example.com`] });
+
+    expect((await reply(items)).body.data.processed).toBe(0);
+    expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
+
+    const human = { ...mail(alert.id, from, "Réglé", "<human>"), Headers: { "Auto-Submitted": "no" } };
+    expect((await reply([human])).body.data.processed).toBe(1);
+  });
+  it("adds the comment even when the alert is already resolved", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id], status: "RESOLVED" });
+    expect((await reply([mail(alert.id, assignee.user.email, "Précision")])).body.data.processed).toBe(1);
+    expect((await warningCommentService.findComments(alert.id)).map((c) => c.body)).toEqual(["Précision"]);
+  });
+  it("rejects an address with a missing or forged signature", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    const item = (address: string, messageId: string) => ({ ...mail(alert.id, assignee.user.email, "Réglé", messageId), Recipients: [address] });
+    const domain = "api-engagement.example.com";
+
+    const forged = [`alerte-${alert.id}@${domain}`, `alerte-${alert.id}.0123456789abcdef@${domain}`];
+    expect((await reply(forged.map((a, i) => item(a, `<forged-${i}>`)))).body.data.processed).toBe(0);
+    expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
+    expect(alertReplyAddress(alert.id).split("@")[0].length).toBeLessThanOrEqual(64);
+  });
+  it("matches the sender email regardless of case", async () => {
+    const mixed = await createTestUser({ role: "user", email: `Mixed.Case-${Date.now()}@Example.com` });
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [mixed.user.id] });
+    expect((await reply([mail(alert.id, mixed.user.email.toLowerCase(), "Réglé")])).body.data.processed).toBe(1);
+  });
+  it("ignores replies from unknown senders, unknown alerts, and rejects a bad token", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    const stranger = await createTestUser({ role: "user" });
+
+    expect((await reply([mail(alert.id, stranger.user.email, "x"), mail("00000000-0000-0000-0000-000000000000", assignee.user.email, "x", "<m2>")])).body.data.processed).toBe(0);
+    expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
+    expect(captureMessage).toHaveBeenCalledWith("Alert reply rejected: sender not allowed", { extra: { warningId: alert.id } });
+    expect((await reply([], "bad")).status).toBe(401);
   });
 });

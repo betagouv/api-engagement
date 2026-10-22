@@ -5,6 +5,8 @@ api_hostname               = "api.api-engagement-dev.fr"
 app_hostname               = "app.api-engagement-dev.fr"
 benevolat_hostname         = "mission.api-engagement-dev.fr"
 volontariat_hostname       = "sc.api-engagement-dev.fr"
+# TODO: configurer reply.api-engagement-dev.fr (MX Brevo + webhook inbound) puis remplacer le domaine de production ci-dessous
+inbound_email_domain       = "reply.api-engagement.beta.gouv.fr"
 piloty_hostname            = "sandbox-api.piloty.fr"
 bucket_name                = "api-engagement-bucket-staging"
 slack_jobteaser_channel_id = ""

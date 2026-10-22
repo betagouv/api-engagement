@@ -33,6 +33,12 @@ variable "api_hostname" {
   type = string
 }
 
+variable "inbound_email_domain" {
+  type        = string
+  default     = ""
+  description = "Domaine de réception des mails entrants (Brevo inbound parsing), partagé par toutes les fonctions par réponse mail ; vide = désactivé"
+}
+
 variable "app_hostname" {
   type = string
 }

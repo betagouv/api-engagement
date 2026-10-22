@@ -47,6 +47,7 @@ export const STATS_INDEX = "stats";
 export const SENDINBLUE_APIKEY = process.env.SENDINBLUE_APIKEY;
 export const BREVO_WEBHOOK_TOKEN = process.env.BREVO_WEBHOOK_TOKEN;
 export const ALERTS_WEBHOOK_TOKEN = process.env.ALERTS_WEBHOOK_TOKEN;
+export const INBOUND_EMAIL_DOMAIN = process.env.INBOUND_EMAIL_DOMAIN;
 
 export const SENTRY_DSN_API = process.env.SENTRY_DSN_API;
 export const SENTRY_DSN_JOBS = process.env.SENTRY_DSN_JOBS;
