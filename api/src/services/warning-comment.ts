@@ -2,14 +2,15 @@ import { Prisma } from "@/db/core";
 import { warningCommentRepository } from "@/repositories/warning-comment";
 import type { WarningCommentRecord } from "@/types/warning";
 
-const include = { author: { select: { id: true, firstname: true, lastname: true, photo: true } } } satisfies Prisma.WarningCommentInclude;
+const include = { author: { select: { id: true, firstname: true, lastname: true, photo: true, deletedAt: true } } } satisfies Prisma.WarningCommentInclude;
 type WithAuthor = Prisma.WarningCommentGetPayload<{ include: typeof include }>;
 
+// Un utilisateur supprimé (soft delete, `deletedAt`) n'expose plus son identité.
 const toRecord = (c: WithAuthor): WarningCommentRecord => ({
   id: c.id,
   warningId: c.warningId,
   body: c.body,
-  author: c.author,
+  author: c.author && !c.author.deletedAt ? { id: c.author.id, firstname: c.author.firstname, lastname: c.author.lastname, photo: c.author.photo } : null,
   createdAt: c.createdAt,
   updatedAt: c.updatedAt,
 });

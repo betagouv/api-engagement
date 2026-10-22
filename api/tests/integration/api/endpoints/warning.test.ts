@@ -9,6 +9,7 @@ vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importO
 
 import { prisma } from "@/db/postgres";
 import { TEMPLATE_IDS } from "@/services/brevo/email";
+import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
@@ -355,5 +356,17 @@ describe("Alert comments", () => {
     expect((await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "  " })).status).toBe(400);
     const list = await request(app).get(`/warning/${alert.id}/comments`).set(adminAuth);
     expect(list.body.data.map((c: { body: string }) => c.body)).toEqual(["Corrigé"]);
+  });
+
+  it("hides the identity of a deleted author", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "Fait" });
+    await userService.updateUser(admin.user.id, { deletedAt: new Date() });
+
+    const { token } = await createTestUser({ role: "admin" });
+    const list = await request(app)
+      .get(`/warning/${alert.id}/comments`)
+      .set({ Authorization: `jwt ${token}` });
+    expect(list.body.data).toMatchObject([{ body: "Fait", author: null }]);
   });
 });

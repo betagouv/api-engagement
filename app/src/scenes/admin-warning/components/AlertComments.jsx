@@ -29,22 +29,39 @@ const AlertComments = ({ alertId }) => {
       });
   }, [alertId]);
 
-  const submit = async (e) => {
-    e.preventDefault();
-    const edited = editing;
-    const body = (edited ? edited.body : draft).trim();
-    if (!body) return;
+  // Envoie une requête d'écriture ; renvoie le commentaire enregistré, ou null en cas d'échec.
+  const send = async (request) => {
     setSaving(true);
     try {
-      const res = edited ? await api.put(`/warning/${alertId}/comments/${edited.id}`, { body }) : await api.post(`/warning/${alertId}/comments`, { body });
+      const res = await request();
       if (!res.ok) throw res;
-      setComments((list) => (edited ? list.map((c) => (c.id === edited.id ? res.data : c)) : [...list, res.data]));
-      if (edited) setEditing(null);
-      else setDraft("");
+      return res.data;
     } catch (error) {
       captureError(error, { message: "Impossible d'enregistrer le commentaire", extra: { alertId } });
+      return null;
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
+  };
+
+  const submitNew = async (e) => {
+    e.preventDefault();
+    const body = draft.trim();
+    if (!body) return;
+    const created = await send(() => api.post(`/warning/${alertId}/comments`, { body }));
+    if (!created) return;
+    setComments((list) => [...list, created]);
+    setDraft("");
+  };
+
+  const submitEdit = async (e) => {
+    e.preventDefault();
+    const body = editing.body.trim();
+    if (!body) return;
+    const updated = await send(() => api.put(`/warning/${alertId}/comments/${editing.id}`, { body }));
+    if (!updated) return;
+    setComments((list) => list.map((c) => (c.id === updated.id ? updated : c)));
+    setEditing(null);
   };
 
   return (
@@ -69,7 +86,7 @@ const AlertComments = ({ alertId }) => {
                 {c.updatedAt !== c.createdAt && <span className="text-text-mention"> · modifié</span>}
               </p>
               {editing?.id === c.id ? (
-                <form onSubmit={submit} className="mt-2 space-y-2">
+                <form onSubmit={submitEdit} className="mt-2 space-y-2">
                   <LabelledTextarea
                     id={`comment-${c.id}`}
                     label="Modifier le commentaire"
@@ -105,7 +122,7 @@ const AlertComments = ({ alertId }) => {
           </li>
         ))}
       </ul>
-      <form onSubmit={submit} className="space-y-2">
+      <form onSubmit={submitNew} className="space-y-2">
         <LabelledTextarea id="new-comment" label="Ajouter un commentaire" value={draft} onChange={(e) => setDraft(e.target.value)} maxLength={5000} />
         <button type="submit" className="primary-btn" disabled={saving || !draft.trim()}>
           Commenter
