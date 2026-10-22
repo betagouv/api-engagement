@@ -6,6 +6,13 @@ on:
       branch:
         required: true
         type: string
+    secrets:
+      SECURITY_SCW_ACCESS_KEY:
+        required: true
+      SECURITY_SCW_SECRET_KEY:
+        required: true
+      SECURITY_SCW_PROJECT_ID:
+        required: true
 
 permissions:
   contents: read
