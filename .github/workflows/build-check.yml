@@ -53,7 +53,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace api --include-workspace-root=false --prefer-offline --no-audit --no-fund
       - name: Build (tsc)
         run: npm --workspace api run build
 
@@ -70,7 +70,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
       - name: Build (vite)
         run: npm --workspace app run build
 
@@ -87,7 +87,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace analytics --include-workspace-root=false --prefer-offline --no-audit --no-fund
       - name: Build (tsc)
         run: npm --workspace analytics run build
 
@@ -104,7 +104,7 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace widget --include-workspace-root=false --prefer-offline --no-audit --no-fund
       - name: Build (next)
         run: npm --workspace widget run build
 
@@ -121,6 +121,6 @@ jobs:
           cache: "npm"
           cache-dependency-path: "package-lock.json"
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace plateform --include-workspace-root=false --prefer-offline --no-audit --no-fund
       - name: Build (react-router)
         run: npm --workspace plateform run build
