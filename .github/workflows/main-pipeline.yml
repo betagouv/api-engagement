@@ -14,6 +14,7 @@ on:
       - ".github/workflows/docker-build-push.yml"
       - ".github/workflows/release.yml"
       - ".github/workflows/terraform-deploy.yml"
+      - ".github/workflows/terraform-security-deploy.yml"
       - ".github/workflows/tests.yml"
       - "api/**"
       - "app/**"
@@ -68,6 +69,13 @@ jobs:
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
     with:
       branch: ${{ github.ref_name }}
+
+  deploy-security:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/terraform-security-deploy.yml
+    with:
+      branch: main
 
   deploy-sandbox:
     needs: build

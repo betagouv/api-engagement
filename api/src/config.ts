@@ -62,6 +62,11 @@ export const REGION = process.env.REGION || "fr-par";
 export const RDB_BACKUP_INSTANCE_ID = process.env.RDB_BACKUP_INSTANCE_ID || "";
 export const RDB_BACKUP_DATABASE_NAME = process.env.RDB_BACKUP_DATABASE_NAME || "";
 export const RDB_BACKUP_RETENTION_DAYS = Number.parseInt(process.env.RDB_BACKUP_RETENTION_DAYS || "7", 10);
+export const RDB_BACKUP_S3_BUCKET = process.env.RDB_BACKUP_S3_BUCKET || "";
+export const RDB_BACKUP_S3_REGION = process.env.RDB_BACKUP_S3_REGION || "fr-par";
+export const RDB_BACKUP_S3_ACCESS_KEY = process.env.RDB_BACKUP_S3_ACCESS_KEY || "";
+export const RDB_BACKUP_S3_SECRET_KEY = process.env.RDB_BACKUP_S3_SECRET_KEY || "";
+export const RDB_BACKUP_S3_ENDPOINT = process.env.RDB_BACKUP_S3_ENDPOINT || `https://s3.${RDB_BACKUP_S3_REGION}.scw.cloud`;
 
 // Worker Queue
 export const SCW_QUEUE_ENDPOINT = process.env.SCW_QUEUE_ENDPOINT || "https://sqs.mnq.fr-par.scaleway.com";
