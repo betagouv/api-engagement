@@ -62,10 +62,12 @@ jobs:
     name: Build and Push
     needs: set-env
     runs-on: ubuntu-latest
-    environment: ${{ matrix.github_env || needs.set-env.outputs.environment_name }}
+    environment: ${{ matrix.image.github_env || needs.set-env.outputs.environment_name }}
     strategy:
       matrix:
-        include:
+        production:
+          - ${{ needs.set-env.outputs.environment_name == 'production' }}
+        image:
           - service: app
             image_name: app
             context: .
@@ -90,6 +92,14 @@ jobs:
           - service: plateform
             image_name: plateform
             context: .
+        exclude:
+          - production: false
+            image:
+              service: app
+              image_name: app
+              context: .
+              variant: sandbox
+              github_env: sandbox
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -111,9 +121,9 @@ jobs:
       - name: Set environment variables for build args
         id: vars
         run: |
-          echo "tag=${{ matrix.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
+          echo "tag=${{ matrix.image.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "short_sha=$(git rev-parse --short=7 HEAD)" >> $GITHUB_OUTPUT
-          echo "Building for ${{ matrix.variant || needs.set-env.outputs.environment_name }} environment"
+          echo "Building for ${{ matrix.image.variant || needs.set-env.outputs.environment_name }} environment"
 
       - name: Compute image tag
         id: image_tag
@@ -129,7 +139,7 @@ jobs:
       - name: Set app build args
         id: app_args
         run: |
-          echo "ENV=${{ matrix.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
+          echo "ENV=${{ matrix.image.variant || needs.set-env.outputs.environment_name }}" >> $GITHUB_OUTPUT
           echo "SENTRY_HOST=${{ vars.SENTRY_HOST }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DSN_APP=${{ secrets.SENTRY_DSN_APP }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DSN_PLATEFORM=${{ secrets.SENTRY_DSN_PLATEFORM }}" >> $GITHUB_OUTPUT
@@ -144,17 +154,16 @@ jobs:
           echo "VITE_POSTHOG_KEY=${{ vars.POSTHOG_KEY }}" >> $GITHUB_OUTPUT
           echo "VITE_POSTHOG_HOST=${{ vars.POSTHOG_HOST }}" >> $GITHUB_OUTPUT
 
-      - name: Build and push ${{ matrix.image_name }} image
-        if: ${{ matrix.variant != 'sandbox' || needs.set-env.outputs.environment_name == 'production' }}
+      - name: Build and push ${{ matrix.image.image_name }} image
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
         with:
-          context: ${{ matrix.context || format('./{0}', matrix.service) }}
-          file: ${{ matrix.dockerfile || format('./{0}/Dockerfile.production', matrix.service) }}
+          context: ${{ matrix.image.context || format('./{0}', matrix.image.service) }}
+          file: ${{ matrix.image.dockerfile || format('./{0}/Dockerfile.production', matrix.image.service) }}
           push: true
           tags: |
-            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.image_name, steps.vars.outputs.tag) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.image_name, steps.vars.outputs.tag) }}
-            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.image_name, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.image.image_name, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.image.image_name, steps.vars.outputs.tag) }}
+            ${{ format('ghcr.io/{0}/{1}:{2}-{3}', github.repository, matrix.image.image_name, steps.vars.outputs.tag, steps.image_tag.outputs.image_tag) }}
           secrets: |
             "sentry_auth_token=${{ secrets.SENTRY_AUTH_TOKEN }}"
           build-args: |
