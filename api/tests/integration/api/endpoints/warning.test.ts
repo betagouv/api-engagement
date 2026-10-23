@@ -110,6 +110,23 @@ describe("Warning alerting", () => {
     expect(sendTemplate).toHaveBeenCalledTimes(1);
   });
 
+  it("escapes the fallback first name so it cannot trigger a Slack mention", async () => {
+    await userService.updateUser(deploymentUser.user.id, { firstname: "<!here>" });
+    await webhook([{ type: TYPE, publisherId }]);
+
+    const text = JSON.stringify(postMessage.mock.calls[0][0].blocks);
+    expect(text).toContain("&lt;!here&gt;");
+    expect(text).not.toContain("<!here>");
+  });
+
+  it("truncates long titles and descriptions to fit Slack section limits", async () => {
+    await webhook([{ type: TYPE, publisherId, title: "T".repeat(5000), description: "D".repeat(10000) }]);
+
+    const blocks = postMessage.mock.calls[0][0].blocks as { text: { text: string } }[];
+    expect(blocks.every((b) => b.text.text.length <= 3000)).toBe(true);
+    expect(blocks[0].text.text).toContain("…");
+  });
+
   it("reports alerts created without a deployment user and notifies nobody", async () => {
     const orphan = await createTestPublisher({ isAnnonceur: true });
     const res = await webhook([{ type: TYPE, publisherId: orphan.id }]);

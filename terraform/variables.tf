@@ -64,7 +64,23 @@ variable "bucket_name" {
   type = string
 }
 
+# Channels Slack par environnement : vides = rien n'est posté (messages journalisés).
 variable "slack_jobteaser_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_warning_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_lbc_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_cron_channel_id" {
   type    = string
   default = ""
 }

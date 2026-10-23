@@ -8,12 +8,13 @@ const logMessage = ({ title, text, author_name, color }: Message, channelId: str
   console.log(`text: ${text}`);
   console.log(`author_name: ${author_name || "none"}`);
   console.log(`color: ${color || "none"}`);
-  console.log(`channelId: ${channelId}`);
+  console.log(`channelId: ${channelId || "none"}`);
   console.log(`---- SLACK ----`);
 };
 
 export const postMessage = async ({ title, text, author_name, color, blocks }: Message & { blocks?: unknown[] }, channelId: string) => {
-  if (!SLACK_TOKEN) {
+  // Comme Brevo sans clé : sans token ou sans channel configuré pour l'environnement, on journalise au lieu d'envoyer.
+  if (!SLACK_TOKEN || !channelId) {
     logMessage({ title, text, author_name, color }, channelId);
     return { ok: true };
   }

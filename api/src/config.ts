@@ -76,10 +76,11 @@ export const SCW_QUEUE_SECRET_KEY = process.env.SCW_QUEUE_SECRET_KEY ?? SCW_SECR
 
 // Slack
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;
-export const SLACK_WARNING_CHANNEL_ID = process.env.SLACK_WARNING_CHANNEL_ID || "C052V2UF918";
-export const SLACK_LBC_CHANNEL_ID = process.env.SLACK_LBC_CHANNEL_ID || "C07SPFG724V";
-export const SLACK_CRON_CHANNEL_ID = process.env.SLACK_CRON_CHANNEL_ID || "C085S6M2K5J";
-export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID || "C080H9MH56W";
+// Channels fixés par environnement (variables terraform) : sans ID, rien n'est posté (voir services/slack.ts).
+export const SLACK_WARNING_CHANNEL_ID = process.env.SLACK_WARNING_CHANNEL_ID ?? "";
+export const SLACK_LBC_CHANNEL_ID = process.env.SLACK_LBC_CHANNEL_ID ?? "";
+export const SLACK_CRON_CHANNEL_ID = process.env.SLACK_CRON_CHANNEL_ID ?? "";
+export const SLACK_JOBTEASER_CHANNEL_ID = process.env.SLACK_JOBTEASER_CHANNEL_ID ?? "";
 
 export const DATA_SUBVENTION_TOKEN = process.env.DATA_SUBVENTION_TOKEN;
 
