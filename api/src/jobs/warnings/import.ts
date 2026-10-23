@@ -32,11 +32,13 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
       if (errorWarning) {
         await warningService.updateWarning(errorWarning.id, {
           description: lastImport.status,
+          source: "job",
           occurrences: errorWarning.occurrences + 1,
         });
         continue;
       } else {
         await warningService.createWarning({
+          source: "job",
           type: ERROR_WARNING,
           title: "Le flux XML n'est pas valable, il renvoie une erreur.",
           description: lastImport.status,
@@ -76,11 +78,13 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
         await warningService.updateWarning(importWarning.id, {
           title: "Aucune mission n'est disponible dans le flux XML.",
           description: `Dernière importation : ${lastImport.startedAt}`,
+          source: "job",
           occurrences: importWarning.occurrences + 1,
         });
         continue;
       } else {
         await warningService.createWarning({
+          source: "job",
           type: EMPTY_WARNING,
           title: "Aucune mission n'est disponible dans le flux XML.",
           description: `Nombre missions refusées : ${lastImport.refusedCount} / Nombre missions total : ${lastImport.missionCount}`,
@@ -115,11 +119,13 @@ export const checkImports = async (publishers: PublisherRecord[]) => {
         await warningService.updateWarning(validationWarning.id, {
           title: `${Math.round((lastImport.refusedCount / lastImport.missionCount) * 100)}% des missions sont refusées par l'API.`,
           description: `Nombre missions refusées : ${lastImport.refusedCount} / Nombre missions total : ${lastImport.missionCount}, dernière importation : ${lastImport.startedAt}`,
+          source: "job",
           occurrences: validationWarning.occurrences + 1,
         });
         continue;
       } else {
         await warningService.createWarning({
+          source: "job",
           type: VALIDATION_WARNING,
           title: `${Math.round((lastImport.refusedCount / lastImport.missionCount) * 100)}% des missions sont refusées par l'API.`,
           description: `Nombre missions refusées : ${lastImport.refusedCount} / Nombre missions total : ${lastImport.missionCount}, dernière importation : ${lastImport.startedAt}`,

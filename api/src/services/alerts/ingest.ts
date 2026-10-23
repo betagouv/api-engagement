@@ -76,9 +76,10 @@ const ensureNotified = async (warning: WarningRecord, deploymentUserId: string |
   return { warning, notification: "sent" };
 };
 
-const bump = (open: WarningRecord, input: AlertInput) =>
+const bump = (open: WarningRecord, input: AlertInput, source: string) =>
   warningService.updateWarning(open.id, {
     occurrencesIncrement: 1,
+    source,
     ...(input.title ? { title: input.title } : {}),
     ...(input.description ? { description: input.description } : {}),
     ...(input.procedureUrl ? { procedureUrl: input.procedureUrl } : {}),
@@ -86,7 +87,7 @@ const bump = (open: WarningRecord, input: AlertInput) =>
 
 // Crée l'alerte (ou incrémente l'alerte ouverte du même type) puis notifie si ce n'est pas déjà fait.
 // L'unicité d'une alerte ouverte par (annonceur, type) est garantie par un index unique partiel : en cas de course, on incrémente.
-const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; created: boolean; notification: Notification } | null> => {
+const ingest = async (input: AlertInput, source: string): Promise<{ warning: WarningRecord; created: boolean; notification: Notification } | null> => {
   const publisher = await publisherService.findOnePublisherById(input.publisherId);
   if (!publisher) {
     return null;
@@ -98,7 +99,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
   let created = false;
   const open = await findOpen();
   if (open) {
-    warning = await bump(open, input);
+    warning = await bump(open, input, source);
   } else {
     try {
       warning = await warningService.createWarning({
@@ -108,6 +109,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
         publisherId: input.publisherId,
         procedureUrl: input.procedureUrl,
         assigneeIds: deploymentUserId ? [deploymentUserId] : [],
+        source,
       });
       created = true;
     } catch (error) {
@@ -115,7 +117,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
       if (!raced) {
         throw error;
       }
-      warning = await bump(raced, input);
+      warning = await bump(raced, input, source);
     }
   }
 
@@ -125,7 +127,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
 
 // Ingère un lot d'alertes et résume le résultat. `unassigned` : alertes en attente faute de chargé de déploiement ;
 // `notified` / `notificationFailed` : mails envoyés / échoués (réessayés au prochain webhook).
-export const ingestAlerts = async (alerts: AlertInput[]) => {
+export const ingestAlerts = async (alerts: AlertInput[], source: string) => {
   let created = 0;
   let updated = 0;
   let notified = 0;
@@ -133,7 +135,7 @@ export const ingestAlerts = async (alerts: AlertInput[]) => {
   const unknownPublishers: string[] = [];
   const unassigned: { publisherId: string; publisherName: string | null }[] = [];
   for (const alert of alerts) {
-    const result = await ingest(alert);
+    const result = await ingest(alert, source);
     if (!result) {
       unknownPublishers.push(alert.publisherId);
       continue;

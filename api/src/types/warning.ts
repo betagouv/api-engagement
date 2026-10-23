@@ -36,6 +36,15 @@ export interface WarningCommentRecord {
   updatedAt: Date;
 }
 
+export interface WarningOccurrenceRecord {
+  id: string;
+  warningId: string;
+  source: string;
+  title: string | null;
+  description: string | null;
+  createdAt: Date;
+}
+
 export interface WarningFindParams {
   fixed?: boolean;
   publisherId?: string;
@@ -60,6 +69,8 @@ export interface WarningCreateInput {
   status?: WarningStatus;
   procedureUrl?: string | null;
   assigneeIds?: string[];
+  /** Origine de la réception (`metabase`, `job`...) : enregistre une ligne d'historique avec le titre et la description. */
+  source?: string;
 }
 
 export interface WarningUpdatePatch {
@@ -78,4 +89,6 @@ export interface WarningUpdatePatch {
   procedureUrl?: string | null;
   /** Ajoute des assignés (sans doublon). */
   assigneeIds?: string[];
+  /** Origine de la réception (`metabase`, `job`...) : avec `occurrences` / `occurrencesIncrement`, enregistre une ligne d'historique. */
+  source?: string;
 }

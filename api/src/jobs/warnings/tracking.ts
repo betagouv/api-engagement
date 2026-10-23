@@ -41,11 +41,13 @@ export const checkTracking = async (publishers: PublisherRecord[]) => {
       if (statsWarning) {
         await warningService.updateWarning(statsWarning.id, {
           title: `Aucune candidature n’a été détectée, alors que ${stats.click} redirections ont été réalisées.`,
+          source: "job",
           occurrences: statsWarning.occurrences + 1,
         });
         continue;
       } else {
         await warningService.createWarning({
+          source: "job",
           type: TRACKING_WARNING,
           title: `Aucune candidature n’a été détectée, alors que ${stats.click} redirections ont été réalisées.`,
           publisherId: publisher.id,
