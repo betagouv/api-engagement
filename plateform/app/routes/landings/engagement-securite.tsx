@@ -67,6 +67,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
       "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez les missions d'engagement pour agir, secourir ou protéger près de chez vous.",
     ogTitle: "Votre engagement peut se faire autrement",
     ogDescription: "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez comment votre engagement va évoluer !",
+    robots: "noindex, follow",
   });
 }
 
