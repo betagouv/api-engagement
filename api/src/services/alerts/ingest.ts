@@ -24,7 +24,7 @@ const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<n
     const { ok } = await sendTemplate(TEMPLATE_IDS.WARNING_ALERT, {
       emailTo: [user.email],
       // Une réponse à ce mail arrive sur /inbound-email (voir ./reply.ts) et résout l'alerte.
-      ...(INBOUND_EMAIL_DOMAIN ? { replyTo: alertReplyAddress(warning.id) } : {}),
+      ...(INBOUND_EMAIL_DOMAIN ? { replyTo: alertReplyAddress(warning.id, user.id) } : {}),
       subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}`,
       params: {
         firstname: user.firstname,
