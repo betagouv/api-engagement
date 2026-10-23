@@ -212,6 +212,11 @@ export const userService = {
     return user ? toUserRecord(user) : null;
   },
 
+  async findUserBySlackUserId(slackUserId: string): Promise<UserRecord | null> {
+    const user = (await userRepository.findFirst({ where: { slackUserId, deletedAt: null }, include: defaultInclude })) as UserWithPublishers | null;
+    return user ? toUserRecord(user) : null;
+  },
+
   async findUserByInvitationToken(token: string): Promise<UserRecord | null> {
     const user = (await userRepository.findFirst({ where: { invitationToken: token }, include: defaultInclude })) as UserWithPublishers | null;
     return user ? toUserRecord(user) : null;

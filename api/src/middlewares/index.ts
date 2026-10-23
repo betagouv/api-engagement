@@ -10,6 +10,7 @@ import helmet from "@/middlewares/helmet";
 import logger from "@/middlewares/logger";
 import passport from "@/middlewares/passport";
 import requestId from "@/middlewares/request-id";
+import { captureSlackRawBody } from "@/middlewares/slack-signature";
 import { createHttpMetricsMiddleware } from "@/services/observability/metrics";
 
 const middlewares = (app: Express) => {
@@ -19,7 +20,7 @@ const middlewares = (app: Express) => {
   app.use(bodyParser.json({ limit: "50mb" }));
   app.use(bodyParserErrorHandler);
   app.use(bodyParser.text({ type: "application/x-ndjson" }));
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(bodyParser.urlencoded({ extended: true, verify: captureSlackRawBody }));
   app.use(cookieParser());
   app.use(helmet);
   app.use(requestId);

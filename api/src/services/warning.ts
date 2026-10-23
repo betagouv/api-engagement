@@ -32,6 +32,8 @@ export const warningService = (() => {
     status: warning.status,
     procedureUrl: warning.procedureUrl,
     notifiedAt: warning.notifiedAt,
+    slackChannelId: warning.slackChannelId,
+    slackMessageTs: warning.slackMessageTs,
     assignees: "assignees" in warning && warning.assignees ? warning.assignees.map(({ user }) => user) : [],
     createdAt: warning.createdAt,
     updatedAt: warning.updatedAt,
@@ -108,6 +110,10 @@ export const warningService = (() => {
       updateData.occurrences = { increment: patch.occurrencesIncrement };
     } else if (patch.occurrences !== undefined) {
       updateData.occurrences = patch.occurrences;
+    }
+    if (patch.slackMessage) {
+      updateData.slackChannelId = patch.slackMessage.channelId;
+      updateData.slackMessageTs = patch.slackMessage.ts;
     }
     if (patch.assigneeIds?.length) {
       updateData.assignees = { createMany: { data: patch.assigneeIds.map((userId) => ({ userId })), skipDuplicates: true } };

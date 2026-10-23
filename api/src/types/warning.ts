@@ -22,6 +22,8 @@ export interface WarningRecord {
   status: WarningStatus;
   procedureUrl: string | null;
   notifiedAt: Date | null;
+  slackChannelId: string | null;
+  slackMessageTs: string | null;
   assignees: WarningAssignee[];
   createdAt: Date;
   updatedAt: Date;
@@ -78,4 +80,6 @@ export interface WarningUpdatePatch {
   procedureUrl?: string | null;
   /** Ajoute des assignés (sans doublon). */
   assigneeIds?: string[];
+  /** Message Slack de l'alerte (pour le mettre à jour quand le statut change). */
+  slackMessage?: { channelId: string; ts: string };
 }

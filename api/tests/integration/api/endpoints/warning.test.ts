@@ -9,7 +9,7 @@ const sendTemplate = vi.hoisted(() => {
 const postMessage = vi.hoisted(() => vi.fn().mockResolvedValue({ ok: true }));
 const captureMessage = vi.hoisted(() => vi.fn());
 vi.mock("@/error", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/error")>()), captureMessage }));
-vi.mock("@/services/slack", () => ({ postMessage }));
+vi.mock("@/services/slack", () => ({ postMessage, updateMessage: vi.fn().mockResolvedValue({ ok: true }), respondEphemeral: vi.fn() }));
 vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/services/brevo/email")>()), sendTemplate }));
 
 import { prisma } from "@/db/postgres";
@@ -97,8 +97,9 @@ describe("Warning alerting", () => {
     await webhook([{ type: TYPE, publisherId }]);
 
     expect(postMessage).toHaveBeenCalledTimes(1);
-    expect(postMessage.mock.calls[0][0].text).toContain("<@U123ABC>");
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain("<@U123ABC>");
     expect(postMessage.mock.calls[0][0].text).toContain("Plus de candidatures");
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain("alert_status:RESOLVED");
   });
 
   it("falls back to the first name when the deployment user has no Slack id, and keeps the mail if Slack fails", async () => {
@@ -106,7 +107,7 @@ describe("Warning alerting", () => {
     const res = await webhook([{ type: TYPE, publisherId }]);
 
     expect(res.body.data).toMatchObject({ notified: 1, notificationFailed: 0 });
-    expect(postMessage.mock.calls[0][0].text).toContain(deploymentUser.user.firstname);
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain(deploymentUser.user.firstname);
     expect(sendTemplate).toHaveBeenCalledTimes(1);
   });
 
