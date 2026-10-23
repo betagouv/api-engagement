@@ -43,6 +43,10 @@ enable_mfa            = true
 
 private_network_cidr = "10.41.0.0/22"
 
+# CMS : passer enable_cms à true une fois les prérequis en place (secrets CMS_*, base, DNS), cf. cms/README.md.
+enable_cms   = false
+cms_hostname = "cms.api-engagement-dev.fr"
+
 enable_plateform = true
 ttm_hostname     = "trouvetamission.api-engagement-dev.fr"
 ttm_www_hostname = "www.trouvetamission.api-engagement-dev.fr"
