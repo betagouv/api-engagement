@@ -1,17 +1,20 @@
-import { ENV, SLACK_TOKEN } from "@/config";
+import { SLACK_TOKEN } from "@/config";
 
-export const postMessage = async (
-  { title, text, author_name, color, blocks }: { title?: string; text: string; author_name?: string; color?: string; blocks?: unknown[] },
-  channelId: string
-) => {
-  if (ENV !== "production") {
-    console.log(`---- SLACK ----`);
-    console.log(`title: ${title}`);
-    console.log(`text: ${text}`);
-    console.log(`author_name: ${author_name || "none"}`);
-    console.log(`color: ${color || "none"}`);
-    console.log(`channelId: ${channelId}`);
-    console.log(`---- SLACK ----`);
+type Message = { title?: string; text: string; author_name?: string; color?: string };
+
+const logMessage = ({ title, text, author_name, color }: Message, channelId: string) => {
+  console.log(`---- SLACK ----`);
+  console.log(`title: ${title}`);
+  console.log(`text: ${text}`);
+  console.log(`author_name: ${author_name || "none"}`);
+  console.log(`color: ${color || "none"}`);
+  console.log(`channelId: ${channelId}`);
+  console.log(`---- SLACK ----`);
+};
+
+export const postMessage = async ({ title, text, author_name, color, blocks }: Message & { blocks?: unknown[] }, channelId: string) => {
+  if (!SLACK_TOKEN) {
+    logMessage({ title, text, author_name, color }, channelId);
     return { ok: true };
   }
 
