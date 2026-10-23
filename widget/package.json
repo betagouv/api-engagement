@@ -21,7 +21,7 @@
     "@engagement/dto": "file:../packages/dto",
     "@headlessui/react": "2.2.10",
     "@sentry/cli": "3.8.0",
-    "@sentry/nextjs": "10.72.0",
+    "@sentry/nextjs": "10.75.2",
     "@tailwindcss/postcss": "4.3.3",
     "i18n-iso-countries": "7.14.0",
     "next": "16.4.0",
