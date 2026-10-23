@@ -54,6 +54,7 @@ import DemarchesSimplifieesController from "@/controllers/demarches-simplifiees"
 import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
+import InboundEmailController from "@/controllers/inbound-email";
 import MetabaseController from "@/controllers/metabase";
 import MissionController from "@/controllers/mission";
 import MissionBrowseController from "@/controllers/mission-browse";
@@ -150,6 +151,7 @@ const main = async () => {
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
   app.use("/user", UserController);
+  app.use("/inbound-email", InboundEmailController);
   app.use("/warning", WarningController);
   app.use("/warning-bot", WarningBotController);
   app.use("/widget", WidgetController);

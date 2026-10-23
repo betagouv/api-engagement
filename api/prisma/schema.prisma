@@ -528,14 +528,15 @@ model WarningAssignee {
   @@map("warning_assignee")
 }
 
-// Fil de commentaires d'une alerte (détails de résolution)
+// Fil de commentaires d'une alerte (détails de résolution) ; `emailMessageId` dédoublonne les réponses mail rejouées par Brevo
 model WarningComment {
-  id        String   @id @default(uuid())
-  warningId String   @map("warning_id")
-  authorId  String?  @map("author_id")
-  body      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(uuid())
+  warningId      String   @map("warning_id")
+  authorId       String?  @map("author_id")
+  body           String
+  emailMessageId String?  @unique(map: "warning_comment_email_message_id_key") @map("email_message_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   warning Warning @relation(fields: [warningId], references: [id], onDelete: Cascade)
   author  User?   @relation("WarningCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)

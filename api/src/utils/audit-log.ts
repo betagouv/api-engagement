@@ -11,6 +11,8 @@ export type AuditAction =
   | "organization.update"
   | "webhook.brevo.invalid_token"
   | "webhook.alerts.invalid_token"
+  | "alert.resolve_by_email"
+  | "alert.reply.rejected"
   | "alert.comment.create"
   | "alert.comment.update";
 

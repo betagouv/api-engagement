@@ -1,19 +1,19 @@
-import { APP_URL } from "@/config";
+import { APP_URL, INBOUND_EMAIL_DOMAIN } from "@/config";
 import { captureException } from "@/error";
+import { alertReplyAddress } from "@/services/alerts/reply";
 import type { AlertInput } from "@/services/alerts/types";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
 import type { WarningRecord } from "@/types/warning";
+import { isUniqueViolation } from "@/utils/prisma";
 
 const formatDate = (date: Date) => new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }).format(date);
 
-export const isUniqueViolation = (error: unknown) => typeof error === "object" && error !== null && (error as { code?: string }).code === "P2002";
-
 // Envoie le mail d'alerte aux utilisateurs donnés (les emails ne quittent jamais l'API) et renvoie le nombre d'envois réussis.
 // Template Brevo (TEMPLATE_IDS.WARNING_ALERT) géré dans Brevo ; params : firstname, publisherName, title, description,
-// triggeredAtLabel, procedureUrl?, occurrences, alertsUrl. L'objet est défini ici.
+// triggeredAtLabel, procedureUrl?, occurrences, alertsUrl, alertUrl. L'objet est défini ici.
 const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<number> => {
   let sent = 0;
   for (const userId of userIds) {
@@ -23,6 +23,8 @@ const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<n
     }
     const { ok } = await sendTemplate(TEMPLATE_IDS.WARNING_ALERT, {
       emailTo: [user.email],
+      // Une réponse à ce mail arrive sur /inbound-email (voir ./reply.ts) et résout l'alerte.
+      ...(INBOUND_EMAIL_DOMAIN ? { replyTo: alertReplyAddress(warning.id) } : {}),
       subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}`,
       params: {
         firstname: user.firstname,
@@ -34,6 +36,7 @@ const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<n
         procedureUrl: warning.procedureUrl,
         occurrences: warning.occurrences,
         alertsUrl: `${APP_URL}/admin-warning`,
+        alertUrl: `${APP_URL}/admin-warning/alerts/${warning.id}`,
       },
     });
     if (ok) {

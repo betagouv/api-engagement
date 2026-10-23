@@ -22,6 +22,9 @@ const buildEmailBody = (templateId: number, options: EmailOptions): EmailBody =>
   if (options.emailBcc) {
     body.bcc = buildEmailRecipients(options.emailBcc);
   }
+  if (options.replyTo) {
+    body.replyTo = { email: options.replyTo };
+  }
   if (options.subject) {
     body.subject = options.subject;
   }

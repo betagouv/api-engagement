@@ -6,12 +6,13 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getAlertProvider } from "@/services/alerts";
-import { ingestAlerts, isUniqueViolation } from "@/services/alerts/ingest";
+import { ingestAlerts } from "@/services/alerts/ingest";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
 import { warningCommentService } from "@/services/warning-comment";
 import { UserRequest } from "@/types/passport";
 import { appendAuditEvent } from "@/utils/audit-log";
+import { isUniqueViolation } from "@/utils/prisma";
 
 const router = Router();
 router.use(ipRateLimiter);

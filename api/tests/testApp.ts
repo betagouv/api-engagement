@@ -7,6 +7,7 @@ import CampaignController from "@/controllers/campaign";
 import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
+import InboundEmailController from "@/controllers/inbound-email";
 import MissionController from "@/controllers/mission";
 import MissionBrowseController from "@/controllers/mission-browse";
 import MissionMatchController from "@/controllers/mission-match";
@@ -89,6 +90,7 @@ export const createTestApp = ({ auditLogs = false, metricsRecorder, syncMissionD
   app.use("/import", ImportController);
   app.use("/report", ReportController);
   app.use("/stats", StatsController);
+  app.use("/inbound-email", InboundEmailController);
   app.use("/warning", WarningController);
   app.use("/v0/myorganization", MyOrganizationV0Controller);
   app.use("/v0/mymission", MyMissionV0Controller);
