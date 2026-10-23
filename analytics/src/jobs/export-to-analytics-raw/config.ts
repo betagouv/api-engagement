@@ -775,4 +775,36 @@ export const exportDefinitions: ExportDefinition[] = [
       conflictColumns: ["id"],
     },
   },
+  {
+    key: "warning",
+    batchSize: 2000,
+    source: {
+      table: "warning",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "type", "title", "description", "publisher_id", "status", "occurrences", "procedure_url", "notified_at", "fixed_at", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "warning",
+      conflictColumns: ["id"],
+    },
+  },
+  {
+    key: "warning_occurrence",
+    batchSize: 2000,
+    source: {
+      table: "warning_occurrence",
+      cursor: {
+        field: "created_at",
+        idField: "id",
+      },
+      columns: ["id", "warning_id", "source", "title", "description", "created_at"],
+    },
+    destination: {
+      table: "warning_occurrence",
+      conflictColumns: ["id"],
+    },
+  },
 ];
