@@ -1,14 +1,21 @@
-import { ENV, SLACK_TOKEN } from "@/config";
+import { SLACK_TOKEN } from "@/config";
 
-export const postMessage = async ({ title, text, author_name, color }: { title?: string; text: string; author_name?: string; color?: string }, channelId: string) => {
-  if (ENV !== "production") {
-    console.log(`---- SLACK ----`);
-    console.log(`title: ${title}`);
-    console.log(`text: ${text}`);
-    console.log(`author_name: ${author_name || "none"}`);
-    console.log(`color: ${color || "none"}`);
-    console.log(`channelId: ${channelId}`);
-    console.log(`---- SLACK ----`);
+type Message = { title?: string; text: string; author_name?: string; color?: string };
+
+const logMessage = ({ title, text, author_name, color }: Message, channelId: string) => {
+  console.log(`---- SLACK ----`);
+  console.log(`title: ${title}`);
+  console.log(`text: ${text}`);
+  console.log(`author_name: ${author_name || "none"}`);
+  console.log(`color: ${color || "none"}`);
+  console.log(`channelId: ${channelId || "none"}`);
+  console.log(`---- SLACK ----`);
+};
+
+export const postMessage = async ({ title, text, author_name, color, blocks }: Message & { blocks?: unknown[] }, channelId: string) => {
+  // Comme Brevo sans clé : sans token ou sans channel configuré pour l'environnement, on journalise au lieu d'envoyer.
+  if (!SLACK_TOKEN || !channelId) {
+    logMessage({ title, text, author_name, color }, channelId);
     return { ok: true };
   }
 
@@ -21,14 +28,7 @@ export const postMessage = async ({ title, text, author_name, color }: { title?:
     },
     body: JSON.stringify({
       channel: channelId,
-      attachments: [
-        {
-          title,
-          text,
-          author_name,
-          color,
-        },
-      ],
+      ...(blocks ? { text, blocks } : { attachments: [{ title, text, author_name, color }] }),
     }),
   };
   const response = await fetch(url, options);

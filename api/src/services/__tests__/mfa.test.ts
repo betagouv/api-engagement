@@ -56,6 +56,7 @@ const user: UserRecord = {
   deletedAt: null,
   brevoContactId: null,
   photo: null,
+  slackUserId: null,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
