@@ -123,7 +123,7 @@ describe("Warning alerting", () => {
   it("truncates long titles and descriptions to fit Slack section limits", async () => {
     await webhook([{ type: TYPE, publisherId, title: "T".repeat(5000), description: "D".repeat(10000) }]);
 
-    const blocks = postMessage.mock.calls[0][0].blocks as { text: { text: string } }[];
+    const blocks = (postMessage.mock.calls[0][0].blocks as { type: string; text: { text: string } }[]).filter((b) => b.type === "section");
     expect(blocks.every((b) => b.text.text.length <= 3000)).toBe(true);
     expect(blocks[0].text.text).toContain("…");
   });
