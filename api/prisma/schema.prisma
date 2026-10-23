@@ -487,22 +487,24 @@ model MissionDiffusion {
 }
 
 model Warning {
-  id           String        @id @default(uuid())
-  type         String
-  title        String?
-  description  String?
-  publisherId  String        @map("publisher_id")
-  seen         Boolean       @default(false)
+  id             String        @id @default(uuid())
+  type           String
+  title          String?
+  description    String?
+  publisherId    String        @map("publisher_id")
+  seen           Boolean       @default(false)
   // Déprécié : utiliser `status`. Conservé pour les vues et jobs existants, synchronisé par warningService (CHECK en base : RESOLVED <=> fixed)
-  fixed        Boolean       @default(false)
-  fixedAt      DateTime?     @map("fixed_at")
-  occurrences  Int           @default(1)
-  status       WarningStatus @default(TODO)
-  procedureUrl String?       @map("procedure_url")
+  fixed          Boolean       @default(false)
+  fixedAt        DateTime?     @map("fixed_at")
+  occurrences    Int           @default(1)
+  status         WarningStatus @default(TODO)
+  procedureUrl   String?       @map("procedure_url")
   // Date du mail d'alerte aux assignés (null = pas encore notifiée)
-  notifiedAt   DateTime?     @map("notified_at")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  notifiedAt     DateTime?     @map("notified_at")
+  slackChannelId String?       @map("slack_channel_id")
+  slackMessageTs String?       @map("slack_message_ts")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
   publisher Publisher         @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
   assignees WarningAssignee[]

@@ -76,6 +76,7 @@ resource "scaleway_container" "api" {
     "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
     "ALERTS_WEBHOOK_TOKEN"        = local.secrets.ALERTS_WEBHOOK_TOKEN
     "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
+    "SLACK_SIGNING_SECRET"        = lookup(local.secrets, "SLACK_SIGNING_SECRET", "")
     "SCW_ACCESS_KEY"              = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"              = local.secrets.SCW_SECRET_KEY
     "SCW_QUEUE_ACCESS_KEY"        = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""

@@ -76,6 +76,7 @@ export const SCW_QUEUE_SECRET_KEY = process.env.SCW_QUEUE_SECRET_KEY ?? SCW_SECR
 
 // Slack
 export const SLACK_TOKEN = process.env.SLACK_TOKEN;
+export const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET;
 // Channels fixés par environnement (variables terraform) : sans ID, rien n'est posté (voir services/slack.ts).
 export const SLACK_WARNING_CHANNEL_ID = process.env.SLACK_WARNING_CHANNEL_ID ?? "";
 export const SLACK_LBC_CHANNEL_ID = process.env.SLACK_LBC_CHANNEL_ID ?? "";
