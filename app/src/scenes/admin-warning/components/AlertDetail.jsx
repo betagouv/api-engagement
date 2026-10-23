@@ -6,6 +6,7 @@ import Avatar from "@/components/Avatar";
 import Loader from "@/components/Loader";
 import Select from "@/components/Select";
 import { WARNING_STATUS, WARNINGS } from "@/constants";
+import AlertComments from "@/scenes/admin-warning/components/AlertComments";
 import { formatDateTime } from "@/scenes/admin-warning/components/Alerts";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -104,6 +105,12 @@ const AlertDetail = () => {
           <dt className="font-bold">Créée le</dt>
           <dd>{formatDateTime(alert.createdAt)}</dd>
         </div>
+        {alert.status === "RESOLVED" && alert.fixedAt && (
+          <div>
+            <dt className="font-bold">Résolue le</dt>
+            <dd>{formatDateTime(alert.fixedAt)}</dd>
+          </div>
+        )}
         <div>
           <dt className="font-bold">Chargés de déploiement</dt>
           <dd>
@@ -132,6 +139,7 @@ const AlertDetail = () => {
           </div>
         )}
       </dl>
+      <AlertComments alertId={id} />
     </div>
   );
 };
