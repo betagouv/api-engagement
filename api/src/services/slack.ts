@@ -36,3 +36,30 @@ export const postMessage = async ({ title, text, author_name, color, blocks }: M
   const data = await response.json();
   return data;
 };
+
+export const updateMessage = async ({ text, blocks }: { text: string; blocks: unknown[] }, channelId: string, ts: string) => {
+  if (!SLACK_TOKEN) {
+    logMessage({ text }, channelId);
+    return { ok: true };
+  }
+
+  const response = await fetch("https://slack.com/api/chat.update", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${SLACK_TOKEN}`, "Content-Type": "application/json; charset=utf-8" },
+    body: JSON.stringify({ channel: channelId, ts, text, blocks }),
+  });
+  return response.json();
+};
+
+// Réponse visible uniquement par l'auteur du clic (`response_url` d'une interaction Slack).
+export const respondEphemeral = async (responseUrl: string, text: string) => {
+  if (!SLACK_TOKEN) {
+    logMessage({ text }, "ephemeral");
+    return;
+  }
+  await fetch(responseUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ response_type: "ephemeral", replace_original: false, text }),
+  });
+};
