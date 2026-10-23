@@ -1,8 +1,8 @@
 import { APP_URL, INBOUND_EMAIL_DOMAIN } from "@/config";
-import { formatDate } from "@/services/alerts/notifiers/format";
 import type { AlertNotifier } from "@/services/alerts/notifiers/types";
 import { alertReplyAddress } from "@/services/alerts/reply";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
+import { formatDate } from "@/utils/date";
 
 // Les emails ne quittent jamais l'API. Template Brevo (TEMPLATE_IDS.WARNING_ALERT) géré dans Brevo ; params : firstname,
 // publisherName, title, description, triggeredAtLabel, procedureUrl?, occurrences, alertsUrl, alertUrl. L'objet est défini ici.

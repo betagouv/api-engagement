@@ -1,7 +1,7 @@
 import { APP_URL, SLACK_WARNING_CHANNEL_ID } from "@/config";
-import { formatDate } from "@/services/alerts/notifiers/format";
 import type { AlertNotifier } from "@/services/alerts/notifiers/types";
 import { postMessage } from "@/services/slack";
+import { formatDate } from "@/utils/date";
 
 // Échappe le mrkdwn Slack pour le contenu venant de l'extérieur (Metabase).
 const escapeMrkdwn = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
