@@ -503,9 +503,10 @@ model Warning {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 
-  publisher Publisher         @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
-  assignees WarningAssignee[]
-  comments  WarningComment[]
+  publisher  Publisher           @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+  assignees  WarningAssignee[]
+  comments   WarningComment[]
+  receptions WarningOccurrence[]
 
   // Index unique partiel "warning_open_publisher_type_key" (publisher_id, type) WHERE status <> 'RESOLVED' : voir la migration (non exprimable en Prisma)
   @@index([publisherId], map: "warning_publisher_id_idx")
@@ -543,6 +544,21 @@ model WarningComment {
 
   @@index([warningId, createdAt], map: "warning_comment_warning_id_created_at_idx")
   @@map("warning_comment")
+}
+
+// Historique des réceptions d'une alerte : une ligne par envoi de la source (Metabase), avec ce qu'elle indiquait à ce moment-là.
+// `warning.occurrences` reste le compteur ; les alertes ouvertes au déploiement ont une ligne initiale.
+model WarningOccurrence {
+  id          String   @id @default(uuid())
+  warningId   String   @map("warning_id")
+  title       String?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  warning Warning @relation(fields: [warningId], references: [id], onDelete: Cascade)
+
+  @@index([warningId, createdAt], map: "warning_occurrence_warning_id_created_at_idx")
+  @@map("warning_occurrence")
 }
 
 model WarningBot {

@@ -36,6 +36,14 @@ export interface WarningCommentRecord {
   updatedAt: Date;
 }
 
+export interface WarningOccurrenceRecord {
+  id: string;
+  warningId: string;
+  title: string | null;
+  description: string | null;
+  createdAt: Date;
+}
+
 export interface WarningFindParams {
   fixed?: boolean;
   publisherId?: string;

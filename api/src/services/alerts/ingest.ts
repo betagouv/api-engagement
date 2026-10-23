@@ -6,6 +6,7 @@ import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
+import { warningOccurrenceService } from "@/services/warning-occurrence";
 import type { WarningRecord } from "@/types/warning";
 import { isUniqueViolation } from "@/utils/prisma";
 
@@ -117,6 +118,13 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
       }
       warning = await bump(raced, input);
     }
+  }
+
+  // Historique des réceptions : ce que la source indiquait à cet envoi (n'empêche pas la notification en cas d'échec).
+  try {
+    await warningOccurrenceService.recordOccurrence(warning.id, input);
+  } catch (error) {
+    captureException(error, { extra: { warningId: warning.id } });
   }
 
   const result = await ensureNotified(warning, deploymentUserId);

@@ -183,6 +183,18 @@ describe("Warning alerting", () => {
       expect(sendTemplate).toHaveBeenCalledTimes(1);
     });
 
+    it("records one history entry per reception, newest first, with what the source sent", async () => {
+      await webhook([{ type: TYPE, publisherId, description: "Aucune candidature depuis 3 jours" }]);
+      await webhook([{ type: TYPE, publisherId, description: "Aucune candidature depuis 4 jours" }]);
+      const [alert] = await warningService.findWarnings({ publisherId });
+
+      const res = await request(app).get(`/warning/${alert.id}/occurrences`).set("Authorization", `jwt ${deploymentUser.token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.map((o: { description: string }) => o.description)).toEqual(["Aucune candidature depuis 4 jours", "Aucune candidature depuis 3 jours"]);
+      expect(alert.occurrences).toBe(2);
+      expect((await request(app).get("/warning/unknown-id/occurrences").set("Authorization", `jwt ${deploymentUser.token}`)).status).toBe(404);
+    });
+
     it("propagates a new or changed procedure URL to the open alert, and keeps it when the replay has none", async () => {
       const procedureUrl = (url?: string) => webhook([{ type: TYPE, publisherId, procedureUrl: url }]);
       const current = async () => (await warningService.findWarnings({ publisherId }))[0].procedureUrl;

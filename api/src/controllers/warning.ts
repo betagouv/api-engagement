@@ -10,6 +10,7 @@ import { ingestAlerts } from "@/services/alerts/ingest";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
 import { warningCommentService } from "@/services/warning-comment";
+import { warningOccurrenceService } from "@/services/warning-occurrence";
 import { UserRequest } from "@/types/passport";
 import { appendAuditEvent } from "@/utils/audit-log";
 import { isUniqueViolation } from "@/utils/prisma";
@@ -160,6 +161,21 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
       }
       throw error;
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id/occurrences", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!(await warningService.findWarningById(params.data.id))) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    return res.status(200).send({ ok: true, data: await warningOccurrenceService.findOccurrences(params.data.id) });
   } catch (error) {
     next(error);
   }

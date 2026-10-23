@@ -7,6 +7,7 @@ import Loader from "@/components/Loader";
 import Select from "@/components/Select";
 import { WARNING_STATUS, WARNINGS } from "@/constants";
 import AlertComments from "@/scenes/admin-warning/components/AlertComments";
+import AlertOccurrences from "@/scenes/admin-warning/components/AlertOccurrences";
 import { formatDateTime } from "@/scenes/admin-warning/components/Alerts";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -139,6 +140,7 @@ const AlertDetail = () => {
           </div>
         )}
       </dl>
+      <AlertOccurrences alertId={id} />
       <AlertComments alertId={id} />
     </div>
   );
