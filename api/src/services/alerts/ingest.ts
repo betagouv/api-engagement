@@ -1,9 +1,10 @@
-import { APP_URL, INBOUND_EMAIL_DOMAIN } from "@/config";
+import { APP_URL, INBOUND_EMAIL_DOMAIN, SLACK_WARNING_CHANNEL_ID } from "@/config";
 import { captureException } from "@/error";
 import { alertReplyAddress } from "@/services/alerts/reply";
 import type { AlertInput } from "@/services/alerts/types";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 import { publisherService } from "@/services/publisher";
+import { postMessage } from "@/services/slack";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
 import type { WarningRecord } from "@/types/warning";
@@ -46,6 +47,34 @@ const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<n
   return sent;
 };
 
+// Échappe le mrkdwn Slack pour le contenu venant de l'extérieur (Metabase).
+const escapeMrkdwn = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+// Poste l'alerte dans Slack avec le même contenu que le mail ; mentionne les assignés qui ont un `slackUserId`, sinon leur prénom.
+// Un échec Slack n'est que reporté : il ne doit pas remettre en cause l'envoi du mail.
+const notifySlack = async (warning: WarningRecord, userIds: string[]) => {
+  try {
+    const users = (await Promise.all(userIds.map((id) => userService.findUserById(id)))).filter((u) => !!u);
+    const mentions = users.map((u) => (u.slackUserId ? `<@${u.slackUserId}>` : u.firstname)).join(", ");
+    const alertUrl = `${APP_URL}/admin-warning/alerts/${warning.id}`;
+    const lines = [
+      `*[Alerte] ${escapeMrkdwn(warning.publisherName ?? "Annonceur")} : ${escapeMrkdwn(warning.title ?? warning.type)}*`,
+      ...(warning.description ? [escapeMrkdwn(warning.description)] : []),
+      `Déclenchée le ${formatDate(warning.createdAt)} · ${warning.occurrences} occurrence(s)`,
+      ...(warning.procedureUrl ? [`<${warning.procedureUrl}|Procédure>`] : []),
+      `<${alertUrl}|Ouvrir l'alerte>`,
+      ...(mentions ? [`À traiter par ${mentions}`] : []),
+    ];
+    const text = lines.join("\n");
+    const res = await postMessage({ text, blocks: [{ type: "section", text: { type: "mrkdwn", text } }] }, SLACK_WARNING_CHANNEL_ID);
+    if (!res?.ok) {
+      throw new Error(`Slack alert notification failed: ${res?.error ?? "unknown"}`);
+    }
+  } catch (error) {
+    captureException(error, { extra: { warningId: warning.id } });
+  }
+};
+
 type Notification = "sent" | "failed" | "unassigned" | "already";
 
 // Notifie les assignés d'une alerte pas encore notifiée (`notifiedAt` nul). Une alerte sans assigné reçoit le chargé de
@@ -73,6 +102,10 @@ const ensureNotified = async (warning: WarningRecord, deploymentUserId: string |
     captureException(new Error("Alert notification not sent"), { extra: { warningId: warning.id, publisherId: warning.publisherId } });
     return { warning, notification: "failed" };
   }
+  await notifySlack(
+    warning,
+    warning.assignees.map((a) => a.id)
+  );
   return { warning, notification: "sent" };
 };
 

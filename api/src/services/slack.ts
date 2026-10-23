@@ -1,6 +1,9 @@
 import { ENV, SLACK_TOKEN } from "@/config";
 
-export const postMessage = async ({ title, text, author_name, color }: { title?: string; text: string; author_name?: string; color?: string }, channelId: string) => {
+export const postMessage = async (
+  { title, text, author_name, color, blocks }: { title?: string; text: string; author_name?: string; color?: string; blocks?: unknown[] },
+  channelId: string
+) => {
   if (ENV !== "production") {
     console.log(`---- SLACK ----`);
     console.log(`title: ${title}`);
@@ -21,14 +24,7 @@ export const postMessage = async ({ title, text, author_name, color }: { title?:
     },
     body: JSON.stringify({
       channel: channelId,
-      attachments: [
-        {
-          title,
-          text,
-          author_name,
-          color,
-        },
-      ],
+      ...(blocks ? { text, blocks } : { attachments: [{ title, text, author_name, color }] }),
     }),
   };
   const response = await fetch(url, options);

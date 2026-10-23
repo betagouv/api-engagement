@@ -6,8 +6,10 @@ const sendTemplate = vi.hoisted(() => {
   process.env.INBOUND_EMAIL_DOMAIN = "api-engagement.example.com";
   return vi.fn().mockResolvedValue({ ok: true });
 });
+const postMessage = vi.hoisted(() => vi.fn().mockResolvedValue({ ok: true }));
 const captureMessage = vi.hoisted(() => vi.fn());
 vi.mock("@/error", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/error")>()), captureMessage }));
+vi.mock("@/services/slack", () => ({ postMessage }));
 vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/services/brevo/email")>()), sendTemplate }));
 
 import { prisma } from "@/db/postgres";
@@ -60,6 +62,7 @@ describe("Warning alerting", () => {
 
   beforeEach(async () => {
     sendTemplate.mockClear();
+    postMessage.mockClear();
     deploymentUser = await createTestUser({ role: "admin" });
     const publisher = await createTestPublisher({ isAnnonceur: true, deploymentUserId: deploymentUser.user.id });
     publisherId = publisher.id;
@@ -85,6 +88,25 @@ describe("Warning alerting", () => {
     const second = await webhook([{ type: TYPE, publisherId }]);
     expect(second.body.data).toMatchObject({ created: 0, updated: 1, unknownPublishers: [], unassigned: [] });
     expect((await warningService.findWarnings({ publisherId }))[0]?.occurrences).toBe(2);
+    expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("posts the alert once on Slack, mentioning the deployment user when linked", async () => {
+    await userService.updateUser(deploymentUser.user.id, { slackUserId: "U123ABC" });
+    await webhook([{ type: TYPE, publisherId, title: "Plus de candidatures" }]);
+    await webhook([{ type: TYPE, publisherId }]);
+
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage.mock.calls[0][0].text).toContain("<@U123ABC>");
+    expect(postMessage.mock.calls[0][0].text).toContain("Plus de candidatures");
+  });
+
+  it("falls back to the first name when the deployment user has no Slack id, and keeps the mail if Slack fails", async () => {
+    postMessage.mockResolvedValueOnce({ ok: false, error: "channel_not_found" });
+    const res = await webhook([{ type: TYPE, publisherId }]);
+
+    expect(res.body.data).toMatchObject({ notified: 1, notificationFailed: 0 });
+    expect(postMessage.mock.calls[0][0].text).toContain(deploymentUser.user.firstname);
     expect(sendTemplate).toHaveBeenCalledTimes(1);
   });
 

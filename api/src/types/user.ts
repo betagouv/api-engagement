@@ -17,6 +17,7 @@ export interface UserRecord {
   deletedAt: Date | null;
   brevoContactId: number | null;
   photo: string | null;
+  slackUserId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +49,7 @@ export interface UserCreateInput {
   deletedAt?: Date | null;
   brevoContactId?: number | null;
   photo?: string | null;
+  slackUserId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

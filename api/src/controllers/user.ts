@@ -665,6 +665,11 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         email: zod.email().optional(),
         publishers: zod.array(zod.string()).min(1).optional(),
         role: zod.enum(["admin", "user"]).optional(),
+        slackUserId: zod
+          .string()
+          .regex(/^[UW][A-Z0-9]{2,}$/)
+          .nullable()
+          .optional(),
       })
       .safeParse(req.body);
 
@@ -695,6 +700,9 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     }
     if (body.data.role) {
       patch.role = body.data.role;
+    }
+    if (typeof body.data.slackUserId !== "undefined") {
+      patch.slackUserId = body.data.slackUserId;
     }
 
     const updated = Object.keys(patch).length ? await userService.updateUser(user.id, patch) : user;
