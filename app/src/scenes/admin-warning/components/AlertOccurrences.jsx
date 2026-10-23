@@ -4,7 +4,7 @@ import { formatDateTime } from "@/scenes/admin-warning/components/Alerts";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 
-const SOURCES = { metabase: "Metabase", job: "Job" };
+const SOURCES = { metabase: "KPI", job: "Détection back" };
 
 // Historique des réceptions de l'alerte (une ligne par envoi de la source), des plus récentes aux plus anciennes.
 const AlertOccurrences = ({ alertId }) => {
