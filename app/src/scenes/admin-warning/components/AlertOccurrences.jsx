@@ -26,7 +26,7 @@ const AlertOccurrences = ({ alertId }) => {
 
   return (
     <section aria-labelledby="alert-occurrences" className="space-y-4">
-      <h3 id="alert-occurrences" className="text-xl font-bold">
+      <h3 id="alert-occurrences" className="sr-only">
         Historique des réceptions
       </h3>
       {loadError && (

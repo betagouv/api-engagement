@@ -5,12 +5,18 @@ import { Link, useParams } from "react-router-dom";
 import Avatar from "@/components/Avatar";
 import Loader from "@/components/Loader";
 import Select from "@/components/Select";
+import Tabs from "@/components/Tabs";
 import { WARNING_STATUS, WARNINGS } from "@/constants";
 import AlertComments from "@/scenes/admin-warning/components/AlertComments";
 import AlertOccurrences from "@/scenes/admin-warning/components/AlertOccurrences";
 import { formatDateTime } from "@/scenes/admin-warning/components/Alerts";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
+
+const DETAIL_TABS = [
+  { key: "comments", label: "Commentaires" },
+  { key: "history", label: "Historique des réceptions" },
+];
 
 const STATUS_OPTIONS = Object.entries(WARNING_STATUS).map(([value, { name }]) => ({ value, label: name }));
 
@@ -19,6 +25,7 @@ const AlertDetail = () => {
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("comments");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -140,8 +147,24 @@ const AlertDetail = () => {
           </div>
         )}
       </dl>
-      <AlertOccurrences alertId={id} />
-      <AlertComments alertId={id} />
+      <div>
+        <Tabs
+          tabs={DETAIL_TABS.map((tab) => ({ ...tab, id: `alert-tab-${tab.key}`, isActive: tab.key === activeTab, onSelect: () => setActiveTab(tab.key) }))}
+          ariaLabel="Détail de l'alerte"
+          panelId="alert-tab-panel"
+          className="flex items-center gap-6 font-semibold text-black"
+          variant="underline"
+        />
+        {/* Les deux onglets restent montés (masqués) pour conserver un commentaire en cours de saisie */}
+        <section id="alert-tab-panel" role="tabpanel" aria-labelledby={`alert-tab-${activeTab}`} className="border-grey-border border-t pt-6">
+          <div hidden={activeTab !== "comments"}>
+            <AlertComments alertId={id} />
+          </div>
+          <div hidden={activeTab !== "history"}>
+            <AlertOccurrences alertId={id} />
+          </div>
+        </section>
+      </div>
     </div>
   );
 };
