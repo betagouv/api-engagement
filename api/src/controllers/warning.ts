@@ -256,7 +256,7 @@ router.post("/webhook/:source", alertsWebhookSecurity, async (req, res, next) =>
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
-    const summary = await ingestAlerts(body.data.alerts);
+    const summary = await ingestAlerts(body.data.alerts, String(req.params.source));
     return res.status(200).send({ ok: true, data: { ...summary, received: body.data.received } });
   } catch (error) {
     next(error);

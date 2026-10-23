@@ -551,6 +551,8 @@ model WarningComment {
 model WarningOccurrence {
   id          String   @id @default(uuid())
   warningId   String   @map("warning_id")
+  // Origine de la réception : nom de la source d'alertes (`metabase`, via le webhook) ou `job` (anciens jobs de détection)
+  source      String
   title       String?
   description String?
   createdAt   DateTime @default(now()) @map("created_at")
