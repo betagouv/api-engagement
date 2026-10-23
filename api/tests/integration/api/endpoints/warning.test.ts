@@ -387,10 +387,11 @@ describe("Alert email reply", () => {
   });
 
   const reply = (items: object[], token = "test-alerts-token") => request(app).post("/inbound-email").set("Authorization", `Bearer ${token}`).send({ items });
-  const mail = (warningId: string, from: string, body: string, messageId = "<m1@mail>") => ({
+  // `user` : destinataire du mail d'alerte (son adresse de réponse) ; `from` peut être n'importe quel alias.
+  const mail = (warningId: string, user: { id: string }, body: string, messageId = "<m1@mail>", from = "alias.dsi@example.com") => ({
     MessageId: messageId,
     From: { Address: from },
-    Recipients: [alertReplyAddress(warningId)],
+    Recipients: [alertReplyAddress(warningId, user.id)],
     ExtractedMarkdownMessage: body,
   });
 
@@ -403,11 +404,12 @@ describe("Alert email reply", () => {
         data: { type: "question", question_name: "q", raw_data: { cols: ["publisher_id", "type"], rows: [[publisherId, TYPE]] } },
       });
     const alert = await warningService.findOneWarning({ publisherId, type: TYPE });
-    expect(sendTemplate.mock.calls[0][1].replyTo).toBe(alertReplyAddress(alert!.id));
+    expect(sendTemplate.mock.calls[0][1].replyTo).toBe(alertReplyAddress(alert!.id, assignee.user.id));
   });
   it("resolves the alert and stores the reply as a comment, once per message", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
-    const item = mail(alert.id, assignee.user.email.toUpperCase(), "Tracking rétabli côté partenaire");
+    // Réponse envoyée depuis un alias, différent de l'email du compte.
+    const item = mail(alert.id, assignee.user, "Tracking rétabli côté partenaire");
 
     expect((await reply([item])).body.data.processed).toBe(1);
     expect((await reply([item])).body.data.processed).toBe(0);
@@ -421,45 +423,40 @@ describe("Alert email reply", () => {
 
   it("ignores automatic replies and unknown address prefixes", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
-    const from = assignee.user.email;
 
     const autoReplies = [{ "Auto-Submitted": "auto-replied" }, { "X-Autoreply": "yes" }, { Precedence: "auto_reply" }];
-    const items: object[] = autoReplies.map((Headers, i) => ({ ...mail(alert.id, from, "Je suis absent", `<auto-${i}>`), Headers }));
-    items.push({ ...mail(alert.id, from, "x", "<other>"), Recipients: [`autre-${alert.id}@api-engagement.example.com`] });
+    const items: object[] = autoReplies.map((Headers, i) => ({ ...mail(alert.id, assignee.user, "Je suis absent", `<auto-${i}>`), Headers }));
+    items.push({ ...mail(alert.id, assignee.user, "x", "<other>"), Recipients: [`autre-${alert.id}@api-engagement.example.com`] });
 
     expect((await reply(items)).body.data.processed).toBe(0);
     expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
 
-    const human = { ...mail(alert.id, from, "Réglé", "<human>"), Headers: { "Auto-Submitted": "no" } };
+    const human = { ...mail(alert.id, assignee.user, "Réglé", "<human>"), Headers: { "Auto-Submitted": "no" } };
     expect((await reply([human])).body.data.processed).toBe(1);
   });
   it("adds the comment even when the alert is already resolved", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id], status: "RESOLVED" });
-    expect((await reply([mail(alert.id, assignee.user.email, "Précision")])).body.data.processed).toBe(1);
+    expect((await reply([mail(alert.id, assignee.user, "Précision")])).body.data.processed).toBe(1);
     expect((await warningCommentService.findComments(alert.id)).map((c) => c.body)).toEqual(["Précision"]);
   });
   it("rejects an address with a missing or forged signature", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
-    const item = (address: string, messageId: string) => ({ ...mail(alert.id, assignee.user.email, "Réglé", messageId), Recipients: [address] });
+    const item = (address: string, messageId: string) => ({ ...mail(alert.id, assignee.user, "Réglé", messageId), Recipients: [address] });
     const domain = "api-engagement.example.com";
 
     const forged = [`alerte-${alert.id}@${domain}`, `alerte-${alert.id}.0123456789abcdef@${domain}`];
     expect((await reply(forged.map((a, i) => item(a, `<forged-${i}>`)))).body.data.processed).toBe(0);
     expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
-    expect(alertReplyAddress(alert.id).split("@")[0].length).toBeLessThanOrEqual(64);
+    expect(alertReplyAddress(alert.id, assignee.user.id).split("@")[0].length).toBeLessThanOrEqual(64);
   });
-  it("matches the sender email regardless of case", async () => {
-    const mixed = await createTestUser({ role: "user", email: `Mixed.Case-${Date.now()}@Example.com` });
-    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [mixed.user.id] });
-    expect((await reply([mail(alert.id, mixed.user.email.toLowerCase(), "Réglé")])).body.data.processed).toBe(1);
-  });
-  it("ignores replies from unknown senders, unknown alerts, and rejects a bad token", async () => {
+  it("rejects the address of a non-assignee, ignores unknown alerts and rejects a bad token", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
     const stranger = await createTestUser({ role: "user" });
 
-    expect((await reply([mail(alert.id, stranger.user.email, "x"), mail("00000000-0000-0000-0000-000000000000", assignee.user.email, "x", "<m2>")])).body.data.processed).toBe(0);
+    const items = [mail(alert.id, stranger.user, "x"), mail("00000000-0000-0000-0000-000000000000", assignee.user, "x", "<m2>")];
+    expect((await reply(items)).body.data.processed).toBe(0);
     expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
-    expect(captureMessage).toHaveBeenCalledWith("Alert reply rejected: sender not allowed", { extra: { warningId: alert.id } });
+    expect(captureMessage).toHaveBeenCalledWith("Alert reply rejected: invalid reply address", { extra: { warningId: alert.id } });
     expect((await reply([], "bad")).status).toBe(401);
   });
 });

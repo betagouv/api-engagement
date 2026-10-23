@@ -203,10 +203,8 @@ export const userService = {
     return toUserRecord(user);
   },
 
-  // `ignoreCase` : pour les emails saisis hors de nos formulaires (expéditeur d'un mail entrant), les nôtres sont stockés en minuscules.
-  async findUserByEmail(email: string, options: { ignoreCase?: boolean } = {}): Promise<UserRecord | null> {
-    const where = options.ignoreCase ? { email: { equals: email, mode: "insensitive" as const } } : { email };
-    const user = (await userRepository.findFirst({ where, include: defaultInclude })) as UserWithPublishers | null;
+  async findUserByEmail(email: string): Promise<UserRecord | null> {
+    const user = (await userRepository.findFirst({ where: { email }, include: defaultInclude })) as UserWithPublishers | null;
     return user ? toUserRecord(user) : null;
   },
 
