@@ -4,7 +4,7 @@ Ce fichier décrit uniquement les conventions spécifiques à `cms/`. Les règle
 
 ## Rôle
 
-CMS headless **Strapi 5 (Community)** + Postgres dédié, pour les landings et pages éditoriales de `plateform/`. Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
+CMS headless **Strapi 5 (Community)** + Postgres dédié, pour les pages de `plateform/` (landings, pages éditoriales, à terme le blog). Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
 
 ## Périmètre et fichiers à ne pas modifier
 
@@ -13,7 +13,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 ## Structure
 
 - `config/*.ts` : serveur (proxy/URL publique), base (SSL), admin (dont la **preview** vers plateform), middlewares (CSP), plugins (médias sur Object Storage quand `CMS_MEDIA_BUCKET` est défini). Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
-- `src/api/landing-page/` : content-type `landing-page` (brouillon/publié) + routes/contrôleur/service par défaut.
+- `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Landings, pages éditoriales et futur blog partagent les mêmes blocs.
 - `src/components/blocks/` : les blocs de la zone dynamique `blocks` ; `src/components/shared/` : sous-composants réutilisables.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
 - `scripts/seed-chacun-pour-tous.ts` : seed de dev (recrée la landing et le jeton de lecture de plateform). Jetable.
@@ -21,13 +21,13 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 ## Contrat avec plateform
 
 - Les schémas JSON de `src/**` sont la **source de vérité** du contenu.
-- Les types lus par plateform vivent dans `packages/dto/src/resources/landing-page.ts` : tout changement de bloc ou de champ doit y être répercuté **dans la même PR**.
-- Rendu côté plateform : `plateform/app/components/landings/blocks/index.tsx` (registre bloc → composant) et `plateform/app/services/cms.server.ts` (requête et `POPULATE` par bloc).
+- Les types lus par plateform vivent dans `packages/dto/src/resources/page.ts` : tout changement de bloc ou de champ doit y être répercuté **dans la même PR**.
+- Rendu côté plateform : `plateform/app/components/cms/index.tsx` (registre bloc → composant) et `plateform/app/components/cms/rich-text.tsx` (texte riche) et `plateform/app/services/cms.server.ts` (requête et `POPULATE` par bloc).
 
 ## Conventions
 
 - TypeScript (TS 5.9, version embarquée par Strapi, pas la 6.0 du reste du dépôt), ESLint et Prettier alignés sur le reste du dépôt (config Prettier racine, `printWidth: 180`).
-- Ajouter un bloc : schéma JSON + entrée dans `landing-page/schema.json` → type dans `@engagement/dto` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
+- Ajouter un bloc : schéma JSON + entrée dans `page/schema.json` → type dans `@engagement/dto` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
 - Textes éditoriaux : texte brut avec micro-balisage (`==surlignage==`, `[libellé](/chemin)`), jamais de HTML.
 - Scope de commit : `cms`.
 

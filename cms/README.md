@@ -1,12 +1,12 @@
 # CMS (POC Strapi)
 
-CMS headless (Strapi 5, Community, Postgres) pour les landings et pages éditoriales de `plateform/`. Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
+CMS headless (Strapi 5, Community, Postgres) pour les pages de `plateform/` (landings, pages éditoriales, et à terme le blog). Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
 
 ## Démarrage
 
 ```bash
 docker compose up -d cms        # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
-docker compose exec cms npm run seed   # recrée la landing « chacun-pour-tous » + le jeton de lecture de plateform
+docker compose exec cms npm run seed   # recrée la landing « chacun-pour-tous », une page d'exemple + le jeton de lecture de plateform
 ```
 
 À la première visite de l'admin, créer un compte administrateur (local).
@@ -22,16 +22,18 @@ Les valeurs `dev-*` sont des secrets de dev local, définis dans `docker-compose
 
 ## Modèle de contenu
 
-- `landing-page` (brouillon / publié) : titre, slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**.
-- Blocs (`src/components/blocks/`) : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners`.
+- `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**. Une landing est simplement une page qui utilise des blocs de campagne.
+- Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images), `image` (image + légende).
+- Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners` (`src/components/blocks/`).
 - Sous-composants réutilisables : `src/components/shared/`.
-- Textes : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
+- Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
+- Texte riche (`rich-text`) : éditeur « Blocks » de Strapi (sans tableaux). « Titre 1 » donne un h2 (le h1 est le titre de la page), « Titre 2 » un h3, etc. Le texte alternatif des images se renseigne dans la médiathèque ; sans lui, l'image est décorative.
 
 ## Ajouter un bloc
 
-1. Schéma JSON dans `src/components/blocks/` + l'ajouter à `blocks` dans `landing-page/schema.json`.
-2. Type dans `packages/dto/src/resources/landing-page.ts`, et `POPULATE` dans `plateform/app/services/cms.server.ts` si le bloc a des sous-composants ou médias.
-3. Cas dans `plateform/app/components/landings/blocks/index.tsx`.
+1. Schéma JSON dans `src/components/blocks/` + l'ajouter à `blocks` dans `page/schema.json`.
+2. Type dans `packages/dto/src/resources/page.ts`, et `POPULATE` dans `plateform/app/services/cms.server.ts` si le bloc a des sous-composants ou médias.
+3. Cas dans `plateform/app/components/cms/index.tsx`.
 
 Conventions et commandes : voir `AGENTS.md`. Si les dépendances changent, recréer le conteneur avec `docker compose up -d -V --force-recreate cms` (le volume `node_modules` est anonyme).
 

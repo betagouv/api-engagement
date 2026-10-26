@@ -1,9 +1,9 @@
-import type { LandingBlock, MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseFilters, PageBlock } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
-import LandingBlocks from "~/components/landings/blocks";
-import { getLandingPage, isCmsPreview } from "~/services/cms.server";
+import PageBlocks from "~/components/cms";
+import { getPage, isCmsPreview } from "~/services/cms.server";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
@@ -11,11 +11,11 @@ import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/se
 import { useQuizStore } from "~/stores/quiz";
 import { pageMeta } from "~/utils/seo";
 
-import type { Route } from "./+types/cms";
+import type { Route } from "./+types/cms-page";
 
 const MISSIONS_CTA = { to: "/quiz/age", label: "Trouver ma mission" };
 
-// POC : landings pilotées par le CMS, servies sous /cms/:slug (noindex tant qu'on compare au rendu en code).
+// POC : pages (landings, pages éditoriales) pilotées par le CMS, servies sous /cms/:slug (noindex tant qu'on compare au rendu en code).
 export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescriptors {
   if (!loaderData) return [{ title: "Page introuvable" }];
   return pageMeta(location, {
@@ -34,7 +34,7 @@ export function headers({ loaderHeaders }: Route.HeadersArgs) {
 
 export async function loader({ request, params }: Route.LoaderArgs) {
   const preview = isCmsPreview(new URL(request.url));
-  const page = await getLandingPage(params.slug, { draft: preview });
+  const page = await getPage(params.slug, { draft: preview });
   if (!page) throw data("Page introuvable", { status: 404 });
 
   const browse = async (filters: MissionBrowseFilters) => {
@@ -49,7 +49,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   // au hasard parmi les 10 premières pour varier le carrousel. Dédoublonnage par id.
   const missionsByBlock: Record<number, MissionBrowse[]> = {};
   await Promise.all(
-    page.blocks.map(async (block: LandingBlock, index: number) => {
+    page.blocks.map(async (block: PageBlock, index: number) => {
       if (block.__component !== "blocks.missions") return;
       const slots = block.slots.map(({ dispositif, domaineEngagement }) => ({
         ...(dispositif && { dispositif }),
@@ -97,9 +97,17 @@ export default function CmsLanding() {
     onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
   });
 
+  // Un hero porte déjà le h1 ; sans hero, le titre de la page en tient lieu.
+  const hasHero = page.blocks.some((block) => block.__component === "blocks.hero");
+
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
-      <LandingBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, onStartQuiz, missionsCta }} />
+      {!hasHero && (
+        <div className="fr-container max-w-3xl pt-8 md:pt-16">
+          <h1 className="mb-0!">{page.title}</h1>
+        </div>
+      )}
+      <PageBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, onStartQuiz, missionsCta }} />
     </main>
   );
 }

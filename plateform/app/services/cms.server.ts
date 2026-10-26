@@ -1,4 +1,4 @@
-import type { LandingPage } from "@engagement/dto";
+import type { Page } from "@engagement/dto";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
 // Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.
@@ -10,11 +10,13 @@ const CMS_PREVIEW_SECRET = process.env.CMS_PREVIEW_SECRET;
 
 // Cache mémoire du contenu publié : évite un aller-retour CMS par visite et garde la page servie si le CMS est indisponible.
 const CACHE_TTL_MS = 60_000;
-const cache = new Map<string, { page: LandingPage | null; at: number }>();
+const cache = new Map<string, { page: Page | null; at: number }>();
 
 // Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.
 const POPULATE = [
   "populate[blocks][on][blocks.hero][populate]=*",
+  "populate[blocks][on][blocks.rich-text][populate]=*",
+  "populate[blocks][on][blocks.image][populate]=*",
   "populate[blocks][on][blocks.missions][populate][slots]=true",
   "populate[blocks][on][blocks.etapes][populate][items]=true",
   "populate[blocks][on][blocks.benefits][populate][benefits]=true",
@@ -29,7 +31,7 @@ export function isCmsPreview(url: URL): boolean {
   return !!CMS_PREVIEW_SECRET && url.searchParams.get("preview") === CMS_PREVIEW_SECRET && url.searchParams.get("status") === "draft";
 }
 
-export async function getLandingPage(slug: string, { draft }: { draft: boolean }): Promise<LandingPage | null> {
+export async function getPage(slug: string, { draft }: { draft: boolean }): Promise<Page | null> {
   if (!CMS_API_TOKEN) return null;
 
   // Les brouillons (preview) ne passent jamais par le cache.
@@ -37,7 +39,7 @@ export async function getLandingPage(slug: string, { draft }: { draft: boolean }
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.page;
 
   try {
-    const page = await fetchLandingPage(slug, draft);
+    const page = await fetchPage(slug, draft);
     if (!draft) cache.set(slug, { page, at: Date.now() });
     return page;
   } catch (error) {
@@ -47,15 +49,15 @@ export async function getLandingPage(slug: string, { draft }: { draft: boolean }
   }
 }
 
-async function fetchLandingPage(slug: string, draft: boolean): Promise<LandingPage | null> {
+async function fetchPage(slug: string, draft: boolean): Promise<Page | null> {
   const query = `filters[slug][$eq]=${encodeURIComponent(slug)}&status=${draft ? "draft" : "published"}&${POPULATE}`;
-  const response = await fetch(`${CMS_URL}/api/landing-pages?${query}`, {
+  const response = await fetch(`${CMS_URL}/api/pages?${query}`, {
     headers: { Authorization: `Bearer ${CMS_API_TOKEN}` },
     signal: AbortSignal.timeout(5000),
   });
   if (!response.ok) throw new Error(`CMS indisponible (${response.status})`);
 
-  const { data } = (await response.json()) as { data: LandingPage[] };
+  const { data } = (await response.json()) as { data: Page[] };
   return data[0] ? absolutizeMedia(data[0]) : null;
 }
 

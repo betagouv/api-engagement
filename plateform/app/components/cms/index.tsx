@@ -1,4 +1,4 @@
-import type { LandingBlock, MissionBrowse } from "@engagement/dto";
+import type { MissionBrowse, PageBlock } from "@engagement/dto";
 import type { CSSProperties } from "react";
 
 import BonPourToi from "~/components/landings/chacun-pour-tous/bon-pour-toi";
@@ -12,6 +12,7 @@ import HeroImage from "~/components/landings/hero-image";
 import Missions from "~/components/landings/missions";
 import Partners from "~/components/layout/partners";
 import InlineText from "~/components/ui/inline-text";
+import RichText from "./rich-text";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 
 import { PICTOGRAMS } from "./pictograms";
@@ -21,8 +22,8 @@ const HIGHLIGHT_YELLOW = "bg-yellow-tournesol-925 dark:bg-transparent";
 const BACKGROUNDS = { creme: "bg-brown-cafe-creme-975", galet: "bg-beige-gris-galet-975" } as const;
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
-// Contexte partagé par les blocs : nom de la landing (tracking), chemin de retour depuis une fiche mission, CTA.
-export type LandingBlocksContext = {
+// Contexte partagé par les blocs : nom de la page (tracking), chemin de retour depuis une fiche mission, CTA.
+export type PageBlocksContext = {
   landing: LandingName;
   path: string;
   missionsByBlock: Record<number, MissionBrowse[]>;
@@ -32,11 +33,11 @@ export type LandingBlocksContext = {
 
 // Registre des blocs du CMS (`__component`) → composants de plateform. Un bloc inconnu est ignoré :
 // un contenu publié avec un bloc pas encore déployé ne fait pas tomber la page.
-export default function LandingBlocks({ blocks, context }: { blocks: LandingBlock[]; context: LandingBlocksContext }) {
+export default function PageBlocks({ blocks, context }: { blocks: PageBlock[]; context: PageBlocksContext }) {
   return blocks.map((block, index) => <Block key={`${block.__component}-${index}`} block={block} index={index} context={context} />);
 }
 
-function Block({ block, index, context }: { block: LandingBlock; index: number; context: LandingBlocksContext }) {
+function Block({ block, index, context }: { block: PageBlock; index: number; context: PageBlocksContext }) {
   switch (block.__component) {
     case "blocks.hero": {
       const campaignVisual = !block.image && block.visual === "chacun_pour_tous";
@@ -56,6 +57,28 @@ function Block({ block, index, context }: { block: LandingBlock; index: number; 
         </Hero>
       );
     }
+    case "blocks.rich-text":
+      return (
+        <section className="fr-container max-w-3xl">
+          {block.title && <h2>{block.title}</h2>}
+          <RichText nodes={block.body} />
+        </section>
+      );
+    case "blocks.image":
+      // Sans texte alternatif renseigné dans la médiathèque, l'image est décorative.
+      return (
+        <figure className="fr-container max-w-3xl">
+          <img
+            src={block.image.url}
+            alt={block.image.alternativeText ?? ""}
+            width={block.image.width ?? undefined}
+            height={block.image.height ?? undefined}
+            loading="lazy"
+            className="h-auto max-w-full"
+          />
+          {block.caption && <figcaption className="fr-text--xs mt-2">{block.caption}</figcaption>}
+        </figure>
+      );
     case "blocks.missions":
       return (
         <Missions

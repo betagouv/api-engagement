@@ -1,5 +1,6 @@
-// Seed de dev : recrée la landing « Chacun pour tous » dans le CMS (contenu repris de plateform) et le jeton
-// de lecture de plateform. Idempotent : relancer remplace la landing. Usage : `npm run seed` dans le conteneur cms.
+// Seed de dev : recrée dans le CMS la landing « Chacun pour tous » (contenu repris de plateform), une page d'exemple
+// (texte riche, image, missions) et le jeton de lecture de plateform. Idempotent : relancer remplace les pages.
+// Usage : `npm run seed` dans le conteneur cms.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -8,8 +9,7 @@ import mime from "mime-types";
 
 const ASSETS = process.env.SEED_ASSETS_DIR ?? "/seed-assets";
 const IMAGES = path.join(ASSETS, "images");
-const SLUG = "chacun-pour-tous";
-const UID = "api::landing-page.landing-page";
+const UID = "api::page.page";
 const TOKEN_NAME = "plateform (lecture seule)";
 
 const uploadImage = async (strapi: Core.Strapi, relativePath: string, alternativeText = ""): Promise<number> => {
@@ -17,6 +17,9 @@ const uploadImage = async (strapi: Core.Strapi, relativePath: string, alternativ
   const name = path.basename(filepath);
   const existing = await strapi.db.query("plugin::upload.file").findOne({ where: { name } });
   if (existing) {
+    if (alternativeText) {
+      await strapi.db.query("plugin::upload.file").update({ where: { id: existing.id }, data: { alternativeText } });
+    }
     return existing.id;
   }
 
@@ -69,7 +72,7 @@ const buildBlocks = async (strapi: Core.Strapi) => {
     },
     {
       __component: "blocks.missions",
-      title: "Chaque ==geste compte==",
+      title: "Tu peux agir au ==coin de ta rue==",
       description:
         "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !",
       slots: [
@@ -186,33 +189,89 @@ const buildBlocks = async (strapi: Core.Strapi) => {
   ];
 };
 
+const text = (value: string, modifiers: Record<string, boolean> = {}) => ({ type: "text", text: value, ...modifiers });
+
+const buildExampleBlocks = async (strapi: Core.Strapi) => [
+  {
+    __component: "blocks.rich-text",
+    title: "Des blocs pour composer une page",
+    body: [
+      { type: "paragraph", children: [text("Une page est composée de blocs : du texte, des images et des composants tout faits, comme la liste de missions ci-dessous.")] },
+      { type: "heading", level: 2, children: [text("Un sous-titre")] },
+      {
+        type: "paragraph",
+        children: [
+          text("Du texte "),
+          text("en gras", { bold: true }),
+          text(", "),
+          text("en italique", { italic: true }),
+          text(", un "),
+          { type: "link", url: "/missions", children: [text("lien interne")] },
+          text(" ou un "),
+          { type: "link", url: "https://www.etalab.gouv.fr", children: [text("lien externe")] },
+          text("."),
+        ],
+      },
+      {
+        type: "list",
+        format: "unordered",
+        children: [
+          { type: "list-item", children: [text("Un premier point")] },
+          { type: "list-item", children: [text("Un second point")] },
+        ],
+      },
+      { type: "quote", children: [text("Une citation mise en avant.")] },
+    ],
+  },
+  {
+    __component: "blocks.image",
+    image: await uploadImage(strapi, "landings/chacun-pour-tous/histoire-3.webp", "Une sapeuse-pompière volontaire en intervention"),
+    caption: "Une légende sous l'image.",
+  },
+  {
+    __component: "blocks.missions",
+    title: "Des ==missions== à découvrir",
+    description: "Un composant tout fait, inséré dans une page éditoriale.",
+    slots: [],
+    fillWithRandom: true,
+    examples: false,
+    background: "galet",
+  },
+];
+
+const savePage = async (strapi: Core.Strapi, data: Record<string, unknown> & { slug: string }) => {
+  const documents = strapi.documents(UID);
+  for (const old of await documents.findMany({ filters: { slug: data.slug } })) {
+    await documents.delete({ documentId: old.documentId });
+  }
+  // Le typage généré des zones dynamiques est trop strict pour ce seed : Strapi valide le contenu à l'exécution.
+  await documents.create({ status: "published", data: data as never });
+  console.log(`Page « ${data.slug} » créée.`);
+};
+
 const main = async () => {
   const app = await createStrapi(await compileStrapi()).load();
   app.log.level = "error";
 
-  const documents = app.documents(UID);
-  for (const old of await documents.findMany({ filters: { slug: SLUG } })) {
-    await documents.delete({ documentId: old.documentId });
-  }
-
-  await documents.create({
-    status: "published",
-    data: {
-      title: "Chacun pour tous",
-      slug: SLUG,
-      seoTitle: "Chacun pour tous | Trouve ta mission",
-      seoDescription:
-        "S'engager ça fait du bien, à soi, aux autres, au pays. Bénévolat, Service Civique, pompiers ou réservistes : trouve la mission d'engagement qui te ressemble.",
-      ogTitle: "Chacun pour tous",
-      ogDescription: "3 Français sur 4 se sont déjà engagés cette année. Et toi ?",
-      noindex: true,
-      // Le typage généré des zones dynamiques est trop strict pour ce seed : Strapi valide le contenu à l'exécution.
-      blocks: (await buildBlocks(app)) as never,
-    },
+  await savePage(app, {
+    title: "Chacun pour tous",
+    slug: "chacun-pour-tous",
+    seoTitle: "Chacun pour tous | Trouve ta mission",
+    seoDescription: "S'engager ça fait du bien, à soi, aux autres, au pays. Bénévolat, Service Civique, pompiers ou réservistes : trouve la mission d'engagement qui te ressemble.",
+    ogTitle: "Chacun pour tous",
+    ogDescription: "3 Français sur 4 se sont déjà engagés cette année. Et toi ?",
+    noindex: true,
+    blocks: await buildBlocks(app),
+  });
+  await savePage(app, {
+    title: "Exemple de page éditoriale",
+    slug: "exemple-page",
+    seoTitle: "Exemple de page éditoriale | Trouve ta mission",
+    noindex: true,
+    blocks: await buildExampleBlocks(app),
   });
   await ensureReadToken(app);
 
-  console.log(`Landing « ${SLUG} » créée.`);
   await app.destroy();
   process.exit(0);
 };

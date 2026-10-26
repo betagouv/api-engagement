@@ -1,6 +1,6 @@
 import type { Core } from "@strapi/strapi";
 
-const LANDING_PAGE_UID = "api::landing-page.landing-page";
+const PAGE_UID = "api::page.page";
 
 export default ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Admin => {
   const plateformUrl = env("PLATEFORM_URL", "http://localhost:5173");
@@ -20,11 +20,11 @@ export default ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Admin => 
       config: {
         allowedOrigins: [plateformUrl],
         async handler(uid, { documentId, status }) {
-          if (uid !== LANDING_PAGE_UID) {
+          if (uid !== PAGE_UID) {
             return null;
           }
 
-          const page = await strapi.documents(LANDING_PAGE_UID).findOne({ documentId, fields: ["slug"] });
+          const page = await strapi.documents(PAGE_UID).findOne({ documentId, fields: ["slug"] });
           const params = new URLSearchParams({ preview: env("PREVIEW_SECRET")!, status: status ?? "draft" });
           return `${plateformUrl}/cms/${page?.slug}?${params}`;
         },
