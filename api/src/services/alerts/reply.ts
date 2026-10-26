@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { SECRET } from "@/config";
 import { captureMessage } from "@/error";
-import { refreshSlackMessage } from "@/services/alerts/slack-sync";
+import { refreshSlackMessage } from "@/services/alerts/notifiers/slack";
 import { buildInboundAddress } from "@/services/inbound-email/address";
 import type { InboundEmail, InboundOutcome } from "@/services/inbound-email/types";
 import { userService } from "@/services/user";

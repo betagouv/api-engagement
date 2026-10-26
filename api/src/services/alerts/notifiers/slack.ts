@@ -1,6 +1,8 @@
 import { APP_URL, SLACK_WARNING_CHANNEL_ID } from "@/config";
+import { captureException } from "@/error";
 import type { AlertNotifier } from "@/services/alerts/notifiers/types";
-import { postMessage } from "@/services/slack";
+import { postMessage, updateMessage } from "@/services/slack";
+import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
 import type { UserRecord } from "@/types/user";
 import type { WarningRecord, WarningStatus } from "@/types/warning";
@@ -56,7 +58,7 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
   };
 };
 
-// Poste l'alerte dans Slack et mémorise le message pour le mettre à jour ensuite (voir ../slack-sync.ts).
+// Poste l'alerte dans Slack et mémorise le message pour le mettre à jour ensuite (voir `refreshSlackMessage`).
 export const slackNotifier: AlertNotifier = {
   name: "slack",
   required: false,
@@ -72,4 +74,21 @@ export const slackNotifier: AlertNotifier = {
     }
     return true;
   },
+};
+
+// Met à jour le message Slack d'une alerte (statut, boutons) après un changement de statut, d'où qu'il vienne. Best-effort.
+export const refreshSlackMessage = async (warningId: string, handledBy?: string) => {
+  try {
+    const warning = await warningService.findWarningById(warningId);
+    if (!warning?.slackChannelId || !warning.slackMessageTs) {
+      return;
+    }
+    const users = (await Promise.all(warning.assignees.map((a) => userService.findUserById(a.id)))).filter((u) => !!u);
+    const res = await updateMessage(buildAlertMessage(warning, users, handledBy), warning.slackChannelId, warning.slackMessageTs);
+    if (!res?.ok) {
+      throw new Error(`Slack alert update failed: ${res?.error ?? "unknown"}`);
+    }
+  } catch (error) {
+    captureException(error, { extra: { warningId } });
+  }
 };

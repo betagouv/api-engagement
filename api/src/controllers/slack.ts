@@ -4,7 +4,7 @@ import zod from "zod";
 import { INVALID_BODY } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { slackSignatureSecurity } from "@/middlewares/slack-signature";
-import { dispatchInteraction } from "@/services/slack-interactions";
+import { dispatchInteraction } from "@/services/slack/interactions";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -17,7 +17,7 @@ const payloadSchema = zod.object({
   actions: zod.array(zod.object({ action_id: zod.string(), value: zod.string().optional() })).default([]),
 });
 
-// Point d'entrée unique de l'Interactivity de la Slack app : chaque action est routée vers son handler (voir services/slack-interactions).
+// Point d'entrée unique de l'Interactivity de la Slack app : chaque action est routée vers son handler (voir services/slack/interactions).
 router.post("/interactions", slackSignatureSecurity, async (req, res, next) => {
   try {
     let json: unknown;

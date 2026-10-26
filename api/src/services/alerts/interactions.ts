@@ -1,12 +1,12 @@
-import { STATUS_ACTION_PREFIX } from "@/services/alerts/notifiers/slack";
-import { refreshSlackMessage } from "@/services/alerts/slack-sync";
+import { refreshSlackMessage, STATUS_ACTION_PREFIX } from "@/services/alerts/notifiers/slack";
 import { respondEphemeral } from "@/services/slack";
-import type { SlackInteractionHandler } from "@/services/slack-interactions/types";
+import type { SlackInteractionHandler } from "@/services/slack/interactions";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
 import { WARNING_STATUSES } from "@/types/warning";
 import { isUniqueViolation } from "@/utils/prisma";
 
+// Actions des boutons du message Slack d'une alerte (pendant de ./reply.ts pour les réponses mail).
 // Boutons « En cours » / « Résolu » du message d'alerte. Réservé aux assignés et aux admins dont le compte est lié à un ID Slack.
 export const alertStatusInteraction: SlackInteractionHandler = {
   prefix: STATUS_ACTION_PREFIX,

@@ -7,7 +7,7 @@ import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getAlertProvider } from "@/services/alerts";
 import { ingestAlerts } from "@/services/alerts/ingest";
-import { refreshSlackMessage } from "@/services/alerts/slack-sync";
+import { refreshSlackMessage } from "@/services/alerts/notifiers/slack";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
 import { warningCommentService } from "@/services/warning-comment";
