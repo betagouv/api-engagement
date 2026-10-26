@@ -1,7 +1,7 @@
 import { toast } from "@/services/toast";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { RiCloseFill, RiFileCopyFill } from "react-icons/ri";
+import { RiCloseFill, RiFileCopyFill, RiLoginBoxLine } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -266,6 +266,10 @@ const Edit = () => {
         <div className="flex flex-wrap justify-end gap-4">
           <Link to="/admin-account" className="tertiary-btn">
             Retour
+          </Link>
+          <Link to={`/connect?id=${user.id}`} target="_blank" className="tertiary-btn flex items-center">
+            Se connecter en tant que
+            <RiLoginBoxLine className="ml-2" aria-hidden="true" />
           </Link>
           <ResetPasswordModal user={user} />
           <button type="button" className="primary-btn" onClick={handleInviteAgain}>

@@ -4,6 +4,7 @@ import { REQUEST_ID_HEADER } from "@/utils/request-id";
 
 export type AuditAction =
   | "access.denied"
+  | "user.login_as"
   | "publisher.api_key.regenerate"
   | "publisher.update"
   | "widget.update"
