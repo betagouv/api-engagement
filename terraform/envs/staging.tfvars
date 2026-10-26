@@ -9,6 +9,7 @@ inbound_email_domain       = "reply.api-engagement-dev.fr"
 piloty_hostname            = "sandbox-api.piloty.fr"
 bucket_name                = "api-engagement-bucket-staging"
 slack_jobteaser_channel_id = ""
+slack_warning_channel_id   = "C08QQT4702D"
 
 enable_sentry_webhook              = true
 sentry_slack_channel_id_production = "C052V2UF918"
