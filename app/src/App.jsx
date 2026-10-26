@@ -13,7 +13,6 @@ import AdminStats from "@/scenes/admin-stats";
 import AdminWarnings from "@/scenes/admin-warning";
 import ForgotPassword from "@/scenes/auth/ForgotPassword";
 import Login from "@/scenes/auth/Login";
-import LoginAs from "@/scenes/auth/LoginAs";
 import ResetPassword from "@/scenes/auth/ResetPassword";
 import Signup from "@/scenes/auth/Signup";
 import Broadcast from "@/scenes/broadcast";
@@ -71,7 +70,6 @@ const App = () => {
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/connect" element={<LoginAs />} />
           </Route>
 
           <Route element={<PublicLayout />}>

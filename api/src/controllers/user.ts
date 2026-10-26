@@ -127,45 +127,6 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-router.get("/loginas/:id", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
-  try {
-    const params = zod
-      .object({
-        id: zod.string(),
-      })
-      .safeParse(req.params);
-
-    if (!params.success) {
-      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
-    }
-
-    const user = await userService.findUserById(params.data.id, { includeDeleted: true });
-    if (!user) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: `User not found` });
-    }
-
-    const publisher = user.publishers[0] ? await publisherService.findOnePublisherById(user.publishers[0]) : null;
-    if (!publisher) {
-      return res.status(404).send({ ok: false, code: NOT_FOUND, message: `Publisher not found` });
-    }
-
-    const token = jwt.sign({ _id: user.id }, SECRET, {
-      expiresIn: AUTH_TOKEN_EXPIRATION,
-    });
-    appendAuditEvent(req, {
-      action: "user.login_as",
-      outcome: "success",
-      target: { type: "user", id: user.id },
-      metadata: {
-        publisherId: publisher.id,
-      },
-    });
-    return res.status(200).send({ ok: true, data: { user: userService.toPublicUser(user), publisher, token } });
-  } catch (error) {
-    next(error);
-  }
-});
-
 router.post("/invite", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod

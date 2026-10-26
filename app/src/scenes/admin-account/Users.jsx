@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { HiOutlinePlus } from "react-icons/hi";
-import { RiLoginBoxLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Table from "@/components/Table";
@@ -13,28 +12,32 @@ const TABLE_HEADER = [
   { title: "Email", key: "email", width: "20%" },
   { title: "Partenaires", key: "publishers", position: "center", width: "1%" },
   { title: "Rôle", key: "role", position: "center", width: "10%" },
-  { title: "Accès données", key: "createdAt", position: "center", width: "10%" },
-  { title: "Dernière activité", key: "lastActivityAt", position: "center", width: "10%" },
-  { title: "Se connecter en tant que", position: "center" },
 ];
 
 const PAGE_SIZE = 25;
 
 const Users = () => {
   const [search, setSearch] = useState("");
+  const [role, setRole] = useState("");
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const filteredUsers = users.filter((u) => {
+    if (role && u.role !== role) {
+      return false;
+    }
     if (!search) {
       return true;
     }
     return (
+      u.id === search.trim() ||
       u.firstname.toLowerCase().includes(search.toLowerCase()) || u.lastname?.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  useEffect(() => setPage(1), [search, role]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -73,9 +76,17 @@ const Users = () => {
       <div className="border-grey-border overflow-x-auto border p-4 sm:p-6">
         <div role="search" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
           <label htmlFor="user-search" className="sr-only">
-            Rechercher par nom ou par email
+            Rechercher par nom, email ou ID
           </label>
-          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
+          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom, email ou ID" onChange={(e) => setSearch(e.target.value)} />
+          <label htmlFor="user-role" className="sr-only">
+            Filtrer par type de compte
+          </label>
+          <select id="user-role" className="input sm:w-48" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">Tous les comptes</option>
+            <option value="user">Utilisateur</option>
+            <option value="admin">Admin</option>
+          </select>
           <Link to="/user/new" className="primary-btn flex shrink-0 items-center">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" aria-hidden="true" />
           </Link>
@@ -118,14 +129,6 @@ const Users = () => {
               </td>
               <td className="table-cell text-center">
                 {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
-              </td>
-              <td className="table-cell text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-              <td className="table-cell text-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</td>
-              <td className="table-cell text-center">
-                <Link to={`/connect?id=${item.id}`} target="_blank" className="text-blue-france flex items-center justify-center">
-                  Se connecter
-                  <RiLoginBoxLine className="ml-2" aria-hidden="true" />
-                </Link>
               </td>
             </tr>
           ))}

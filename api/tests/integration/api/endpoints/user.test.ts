@@ -62,31 +62,6 @@ describe("Dashboard user controller", () => {
     );
   });
 
-  it("logs an audit event when an admin uses loginas", async () => {
-    const publisher = await createTestPublisher();
-    const { token: adminToken } = await createTestUser({ role: "admin" });
-    const { user: targetUser } = await createTestUser({ publishers: [publisher.id] });
-
-    const res = await request(app)
-      .get(`/user/loginas/${targetUser.id}`)
-      .set({ Authorization: `jwt ${adminToken}` })
-      .set("x-request-id", "request-loginas");
-
-    expect(res.status).toBe(200);
-    expect(getAuditLogs(consoleInfoSpy)).toContainEqual(
-      expect.objectContaining({
-        type: "security_audit",
-        action: "user.login_as",
-        outcome: "success",
-        actor: expect.objectContaining({ type: "user", role: "admin" }),
-        target: { type: "user", id: targetUser.id },
-        request_id: "request-loginas",
-        status: 200,
-        metadata: { publisherId: publisher.id },
-      })
-    );
-  });
-
   describe("POST /user/signup", () => {
     const VALID_PASSWORD = "SuperSecret123!";
 
@@ -201,7 +176,7 @@ describe("Dashboard user controller", () => {
       expectPublicUser(refresh.body.data.user);
     });
 
-    it("strips sensitive fields from GET /user/:id and GET /user/loginas/:id", async () => {
+    it("strips sensitive fields from GET /user/:id", async () => {
       const { token: adminToken } = await createTestUser({ role: "admin" });
       const { user: targetUser } = await createTestUser({ password: "SuperSecret123!", publishers: [publisherId] });
 
@@ -211,11 +186,6 @@ describe("Dashboard user controller", () => {
       expect(getOne.status).toBe(200);
       expectPublicUser(getOne.body.data);
 
-      const loginas = await request(app)
-        .get(`/user/loginas/${targetUser.id}`)
-        .set({ Authorization: `jwt ${adminToken}` });
-      expect(loginas.status).toBe(200);
-      expectPublicUser(loginas.body.data.user);
     });
 
     it("does not echo tokens back from POST /user/verify-token", async () => {

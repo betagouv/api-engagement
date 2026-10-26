@@ -167,6 +167,16 @@ const Edit = () => {
         </div>
         <div className="flex items-center gap-4">
           <Avatar user={user} className="h-16 w-16" />
+          <dl className="text-sm">
+            <div className="flex gap-2">
+              <dt className="font-semibold">Accès données :</dt>
+              <dd>{new Date(user.createdAt).toLocaleDateString("fr")}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="font-semibold">Dernière activité :</dt>
+              <dd>{user.lastActivityAt ? new Date(user.lastActivityAt).toLocaleDateString("fr") : "-"}</dd>
+            </div>
+          </dl>
           <div>
             <label htmlFor="photo" className="secondary-btn cursor-pointer">
               {user.photo ? "Changer la photo" : "Ajouter une photo"}
