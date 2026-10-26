@@ -1,4 +1,5 @@
-export type WarningStatus = "TODO" | "IN_PROGRESS" | "RESOLVED";
+export const WARNING_STATUSES = ["TODO", "IN_PROGRESS", "RESOLVED"] as const;
+export type WarningStatus = (typeof WARNING_STATUSES)[number];
 
 export interface WarningAssignee {
   id: string;
