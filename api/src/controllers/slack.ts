@@ -1,10 +1,22 @@
 import { Router } from "express";
 import zod from "zod";
 
-import { INVALID_BODY } from "@/error";
+import { captureException, INVALID_BODY } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { slackSignatureSecurity } from "@/middlewares/slack-signature";
-import { dispatchInteraction } from "@/services/slack/interactions";
+import { respondEphemeral } from "@/services/slack";
+import { dispatchInteraction, type SlackInteractionContext } from "@/services/slack/interactions";
+
+const processActions = async (actions: { action_id: string; value?: string }[], context: SlackInteractionContext) => {
+  try {
+    for (const { action_id: actionId, value } of actions) {
+      await dispatchInteraction({ actionId, value }, context);
+    }
+  } catch (error) {
+    captureException(error, { extra: { slackUserId: context.slackUserId } });
+    await respondEphemeral(context.responseUrl, "Une erreur est survenue, réessayez dans un instant.").catch(() => undefined);
+  }
+};
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -30,16 +42,13 @@ router.post("/interactions", slackSignatureSecurity, async (req, res, next) => {
     if (!payload.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: payload.error });
     }
+    // Slack exige un acquittement sous 3 s : on répond tout de suite, le traitement et ses erreurs ne dépendent plus de la réponse HTTP.
+    res.status(200).send();
     if (payload.data.type === "block_actions") {
-      const context = {
-        slackUserId: payload.data.user.id,
-        responseUrl: payload.data.response_url,
-      };
-      for (const { action_id: actionId, value } of payload.data.actions) {
-        await dispatchInteraction({ actionId, value }, context);
-      }
+      const context = { slackUserId: payload.data.user.id, responseUrl: payload.data.response_url };
+      void processActions(payload.data.actions, context);
     }
-    return res.status(200).send();
+    return;
   } catch (error) {
     next(error);
   }

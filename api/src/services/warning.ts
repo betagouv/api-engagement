@@ -171,6 +171,15 @@ export const warningService = (() => {
     return warning ? toWarningRecord(warning) : null;
   };
 
+  // Change le statut seulement si l'alerte est encore dans l'un des statuts `from` (atomique : un clic périmé ou concurrent n'écrase rien).
+  const transitionStatus = async (id: string, from: WarningStatus[], to: WarningStatus): Promise<boolean> => {
+    const { count } = await warningRepository.updateMany({
+      where: { id, status: { in: from } },
+      data: { status: to, fixed: to === "RESOLVED", fixedAt: to === "RESOLVED" ? new Date() : null },
+    });
+    return count === 1;
+  };
+
   // Réserve la notification (null -> now) : un seul appelant l'obtient, même en concurrence.
   const claimNotification = async (id: string): Promise<boolean> => {
     const { count } = await warningRepository.updateMany({ where: { id, notifiedAt: null }, data: { notifiedAt: new Date() } });
@@ -189,6 +198,7 @@ export const warningService = (() => {
     findWarnings,
     countWarnings,
     findWarningById,
+    transitionStatus,
     claimNotification,
     releaseNotification,
   };

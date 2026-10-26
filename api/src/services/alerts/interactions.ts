@@ -3,15 +3,17 @@ import { respondEphemeral } from "@/services/slack";
 import type { SlackInteractionHandler } from "@/services/slack/interactions";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
-import { WARNING_STATUSES } from "@/types/warning";
-import { isUniqueViolation } from "@/utils/prisma";
+import type { WarningStatus } from "@/types/warning";
+
+// Statuts de départ autorisés pour chaque bouton : on ne rouvre jamais une alerte résolue (message Slack périmé).
+const ALLOWED_FROM: Partial<Record<WarningStatus, WarningStatus[]>> = { IN_PROGRESS: ["TODO"], RESOLVED: ["TODO", "IN_PROGRESS"] };
 
 // Actions des boutons du message Slack d'une alerte (pendant de ./reply.ts pour les réponses mail).
 // Boutons « En cours » / « Résolu » du message d'alerte. Réservé aux assignés et aux admins dont le compte est lié à un ID Slack.
 export const alertStatusInteraction: SlackInteractionHandler = {
   prefix: STATUS_ACTION_PREFIX,
   async handle(action, { slackUserId, responseUrl }) {
-    const status = WARNING_STATUSES.find((s) => s === action.actionId.slice(STATUS_ACTION_PREFIX.length));
+    const status = Object.keys(ALLOWED_FROM).find((s) => s === action.actionId.slice(STATUS_ACTION_PREFIX.length)) as WarningStatus | undefined;
     if (!action.value || !status) {
       return;
     }
@@ -30,17 +32,11 @@ export const alertStatusInteraction: SlackInteractionHandler = {
       return;
     }
 
-    try {
-      if (warning.status !== status) {
-        await warningService.updateWarning(warning.id, { status });
-      }
-    } catch (error) {
-      // Index unique partiel : une seule alerte ouverte par annonceur et type.
-      if (isUniqueViolation(error)) {
-        await respondEphemeral(responseUrl, "Une alerte ouverte existe déjà pour cet annonceur et ce type.");
-        return;
-      }
-      throw error;
+    // Conditionné à l'état attendu : un bouton périmé ou un clic concurrent ne change rien, le message est resynchronisé.
+    if (!(await warningService.transitionStatus(warning.id, ALLOWED_FROM[status]!, status))) {
+      await respondEphemeral(responseUrl, "Le statut de cette alerte a déjà changé : le message est mis à jour.");
+      await refreshSlackMessage(warning.id);
+      return;
     }
     await refreshSlackMessage(warning.id, user.firstname);
   },

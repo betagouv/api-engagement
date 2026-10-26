@@ -74,25 +74,48 @@ describe("POST /slack/interactions", () => {
     expect(res.status).toBe(401);
   });
 
-  it("changes the status for an assignee and updates the Slack message", async () => {
+  it("acknowledges immediately, even when Slack is slow", async () => {
+    slack.updateMessage.mockReturnValueOnce(new Promise(() => {}));
+
     const res = await click(assigneeSlackId, warningId, "IN_PROGRESS");
 
     expect(res.status).toBe(200);
+    await vi.waitFor(() => expect(slack.updateMessage).toHaveBeenCalledTimes(1));
     expect((await warningService.findWarningById(warningId))?.status).toBe("IN_PROGRESS");
-    expect(slack.updateMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("changes the status for an assignee and updates the Slack message", async () => {
+    expect((await click(assigneeSlackId, warningId, "IN_PROGRESS")).status).toBe(200);
+
+    await vi.waitFor(() => expect(slack.updateMessage).toHaveBeenCalledTimes(1));
+    expect((await warningService.findWarningById(warningId))?.status).toBe("IN_PROGRESS");
     const [message, channel, ts] = slack.updateMessage.mock.calls[0];
     expect([channel, ts]).toEqual(["C123", "1700000000.000100"]);
     expect(JSON.stringify(message.blocks)).toContain("En cours");
 
     await click(assigneeSlackId, warningId, "RESOLVED");
+    await vi.waitFor(() => expect(slack.updateMessage).toHaveBeenCalledTimes(2));
     expect((await warningService.findWarningById(warningId))?.status).toBe("RESOLVED");
     expect(JSON.stringify(slack.updateMessage.mock.calls[1][0].blocks)).not.toContain('"type":"actions"');
   });
 
-  it("tells an unlinked Slack account to ask an admin, without changing anything", async () => {
-    const res = await click("U0UNKNOWN", warningId, "RESOLVED");
+  it("never reopens a resolved alert from a stale button, and resyncs the message", async () => {
+    await warningService.updateWarning(warningId, { status: "RESOLVED" });
 
-    expect(res.status).toBe(200);
+    await click(assigneeSlackId, warningId, "IN_PROGRESS");
+
+    await vi.waitFor(() => expect(slack.updateMessage).toHaveBeenCalledTimes(1));
+    expect(slack.respondEphemeral.mock.calls[0][1]).toContain("déjà changé");
+    const warning = await warningService.findWarningById(warningId);
+    expect(warning).toMatchObject({ status: "RESOLVED", fixed: true });
+    expect(warning?.fixedAt).not.toBeNull();
+    expect(JSON.stringify(slack.updateMessage.mock.calls[0][0].blocks)).not.toContain('"type":"actions"');
+  });
+
+  it("tells an unlinked Slack account to ask an admin, without changing anything", async () => {
+    expect((await click("U0UNKNOWN", warningId, "RESOLVED")).status).toBe(200);
+
+    await vi.waitFor(() => expect(slack.respondEphemeral).toHaveBeenCalledTimes(1));
     expect((await warningService.findWarningById(warningId))?.status).toBe("TODO");
     expect(slack.respondEphemeral.mock.calls[0][1]).toContain("pas lié");
     expect(slack.updateMessage).not.toHaveBeenCalled();
@@ -104,7 +127,41 @@ describe("POST /slack/interactions", () => {
 
     await click("U0OTHER", warningId, "RESOLVED");
 
+    await vi.waitFor(() => expect(slack.respondEphemeral).toHaveBeenCalledTimes(1));
     expect((await warningService.findWarningById(warningId))?.status).toBe("TODO");
     expect(slack.respondEphemeral.mock.calls[0][1]).toContain("assignés");
+  });
+
+  it("tells the user when the processing fails after the acknowledgment", async () => {
+    vi.spyOn(warningService, "transitionStatus").mockRejectedValueOnce(new Error("boom"));
+
+    expect((await click(assigneeSlackId, warningId, "RESOLVED")).status).toBe(200);
+
+    await vi.waitFor(() => expect(slack.respondEphemeral).toHaveBeenCalledTimes(1));
+    expect(slack.respondEphemeral.mock.calls[0][1]).toContain("erreur");
+  });
+});
+
+describe("PUT /user/:id slackUserId", () => {
+  it("refuses a Slack id already linked to another active account", async () => {
+    const { user: admin, token } = await createTestUser({ role: "admin" });
+    const { user: other } = await createTestUser({ role: "user" });
+    await userService.updateUser(admin.id, { slackUserId: "U0TAKEN" });
+
+    const res = await request(app).put(`/user/${other.id}`).set("Authorization", `jwt ${token}`).send({ slackUserId: "U0TAKEN" });
+
+    expect(res.status).toBe(409);
+    expect((await userService.findUserById(other.id))?.slackUserId).toBeNull();
+  });
+
+  it("allows reusing the Slack id of a deleted account", async () => {
+    const { user: admin, token } = await createTestUser({ role: "admin" });
+    const { user: former } = await createTestUser({ role: "user" });
+    await userService.updateUser(former.id, { slackUserId: "U0FORMER" });
+    await userService.updateUser(former.id, { deletedAt: new Date() });
+
+    const res = await request(app).put(`/user/${admin.id}`).set("Authorization", `jwt ${token}`).send({ slackUserId: "U0FORMER" });
+
+    expect(res.status).toBe(200);
   });
 });
