@@ -23,26 +23,28 @@ const button = (warning: WarningRecord, status: WarningStatus, text: string, sty
   ...(style ? { style } : {}),
 });
 
-// Un bloc `section` est limité à 3000 caractères : on tronque le contenu libre (titre, description) venant de l'extérieur.
+// Mêmes libellés et emojis que le back-office (app/src/constants).
+const TYPE_LABELS: Record<string, { emoji: string; label: string }> = {
+  EMPTY_WARNING: { emoji: "🙁", label: "Flux vide" },
+  ERROR_WARNING: { emoji: "❌", label: "Erreur de flux" },
+  VALIDATION_WARNING: { emoji: "🙅", label: "Taux de validation critique" },
+  TRACKING_WARNING: { emoji: "🤔", label: "Problème de tracking" },
+};
+
+// Limites Slack (section : 3000 caractères, champ : 2000, en-tête : 150) : on tronque le contenu libre venant de l'extérieur.
 const truncate = (text: string, max: number) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 
-const section = (lines: string[]) => ({ type: "section", text: { type: "mrkdwn", text: lines.join("\n") } });
+const field = (label: string, value: string) => ({ type: "mrkdwn", text: `*${label}*\n${value}` });
 
 // Même contenu que le mail ; mentionne les assignés qui ont un `slackUserId`, sinon leur prénom (échappé : `<!here>` ne doit pas pinguer).
-// `handledBy` : prénom de la personne qui a changé le statut, affiché dans la ligne de statut.
+// `handledBy` : prénom de la personne qui a changé le statut, affiché avec le statut.
 export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], handledBy?: string) => {
+  const { emoji, label } = TYPE_LABELS[warning.type] ?? { emoji: "🚨", label: "Alerte" };
+  const publisher = escapeMrkdwn(truncate(warning.publisherName ?? "Annonceur", 200));
+  const title = escapeMrkdwn(truncate(warning.title ?? label, 300));
   const mentions = users.map((u) => (u.slackUserId ? `<@${u.slackUserId}>` : escapeMrkdwn(u.firstname))).join(", ");
-  const head = [
-    `*[Alerte] ${escapeMrkdwn(truncate(warning.publisherName ?? "Annonceur", 200))} : ${escapeMrkdwn(truncate(warning.title ?? warning.type, 300))}*`,
-    ...(warning.description ? [escapeMrkdwn(truncate(warning.description, 2000))] : []),
-  ];
-  const details = [
-    `Déclenchée le ${formatDate(warning.createdAt)} · ${warning.occurrences} occurrence(s)`,
-    ...(warning.procedureUrl ? [`<${warning.procedureUrl}|Procédure>`] : []),
-    `<${APP_URL}/admin-warning/alerts/${warning.id}|Ouvrir l'alerte>`,
-    ...(mentions ? [`À traiter par ${mentions}`] : []),
-  ];
-  const statusLine = `Statut : *${STATUS_LABELS[warning.status]}*${handledBy ? ` · par ${escapeMrkdwn(handledBy)}` : ""}`;
+  const status = `${STATUS_LABELS[warning.status]}${handledBy ? ` (par ${escapeMrkdwn(truncate(handledBy, 100))})` : ""}`;
+  const links = [`<${APP_URL}/admin-warning/alerts/${warning.id}|Ouvrir l'alerte>`, ...(warning.procedureUrl ? [`<${warning.procedureUrl}|Procédure>`] : [])];
   // Une seule Slack app pour tous les environnements : sans secret de signature, cet environnement ne sait pas traiter les clics.
   const actions =
     warning.status === "RESOLVED" || !SLACK_SIGNING_SECRET
@@ -54,8 +56,23 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
           },
         ];
   return {
-    text: head[0],
-    blocks: [section(head), section(details), { type: "context", elements: [{ type: "mrkdwn", text: statusLine }] }, ...actions],
+    text: `[Alerte] ${publisher} : ${title}`,
+    blocks: [
+      { type: "header", text: { type: "plain_text", text: truncate(`${emoji} ${label}`, 150), emoji: true } },
+      {
+        type: "section",
+        text: { type: "mrkdwn", text: [`*${title}*`, ...(warning.description ? [escapeMrkdwn(truncate(warning.description, 2000))] : [])].join("\n") },
+        fields: [
+          field("Annonceur", publisher),
+          field("Statut", status),
+          field("Déclenchée le", formatDate(warning.createdAt)),
+          field("Occurrences", String(warning.occurrences)),
+          ...(mentions ? [field("À traiter par", truncate(mentions, 1900))] : []),
+        ],
+      },
+      { type: "context", elements: [{ type: "mrkdwn", text: links.join("  ·  ") }] },
+      ...actions,
+    ],
   };
 };
 

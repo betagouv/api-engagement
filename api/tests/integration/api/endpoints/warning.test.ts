@@ -124,9 +124,12 @@ describe("Warning alerting", () => {
   it("truncates long titles and descriptions to fit Slack section limits", async () => {
     await webhook([{ type: TYPE, publisherId, title: "T".repeat(5000), description: "D".repeat(10000) }]);
 
-    const blocks = (postMessage.mock.calls[0][0].blocks as { type: string; text: { text: string } }[]).filter((b) => b.type === "section");
-    expect(blocks.every((b) => b.text.text.length <= 3000)).toBe(true);
-    expect(blocks[0].text.text).toContain("…");
+    const blocks = postMessage.mock.calls[0][0].blocks as { type: string; text?: { text: string }; fields?: { text: string }[] }[];
+    const section = blocks.find((b) => b.type === "section")!;
+    expect(section.text!.text.length).toBeLessThanOrEqual(3000);
+    expect(section.text!.text).toContain("…");
+    expect(blocks.find((b) => b.type === "header")!.text!.text.length).toBeLessThanOrEqual(150);
+    expect(section.fields!.every((f) => f.text.length <= 2000)).toBe(true);
   });
 
   it("reports alerts created without a deployment user and notifies nobody", async () => {
