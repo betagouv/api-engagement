@@ -8,7 +8,7 @@ import { QuestionsChart } from "~/components/stats/questions-chart";
 import { TAXONOMY } from "@engagement/taxonomy";
 import { STATS_REGIONS } from "~/config/public-stats";
 import { loadPublicStats } from "~/services/public-stats";
-import { parseTerritory } from "~/utils/public-stats";
+import { parseTerritory, sortDepartments } from "~/utils/public-stats";
 import type { Route } from "./+types/statistiques";
 
 export function meta(): Route.MetaDescriptors {
@@ -21,6 +21,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   const stats = await loadPublicStats(request, filter);
   return { ...stats, territory: Object.keys(filter).length ? territory : "" };
 }
+
+const REGION_OPTIONS = Object.entries(STATS_REGIONS).sort(([, a], [, b]) => a.localeCompare(b, "fr"));
+const DEPARTMENT_OPTIONS = sortDepartments(Object.entries(TAXONOMY.departmentCode.values).map(([code, { label }]) => ({ code, nom: label.replace(/ \(.+\)$/, ""), value: 0 })));
 
 const NATIONAL_NOTE = "Toute la France : ce graphique n'est pas disponible par territoire.";
 
@@ -57,16 +60,16 @@ export default function Statistiques({ loaderData }: Route.ComponentProps) {
           <select className="fr-select" id="stats-territoire" name="territoire" defaultValue={territory ?? ""} onChange={(e) => e.currentTarget.form?.requestSubmit()}>
             <option value="">Toute la France</option>
             <optgroup label="Régions">
-              {Object.entries(STATS_REGIONS).map(([code, label]) => (
+              {REGION_OPTIONS.map(([code, label]) => (
                 <option key={code} value={`region:${code}`}>
                   {label}
                 </option>
               ))}
             </optgroup>
             <optgroup label="Départements">
-              {Object.entries(TAXONOMY.departmentCode.values).map(([code, { label }]) => (
+              {DEPARTMENT_OPTIONS.map(({ code, nom }) => (
                 <option key={code} value={`department:${code}`}>
-                  {label}
+                  {code} – {nom}
                 </option>
               ))}
             </optgroup>
