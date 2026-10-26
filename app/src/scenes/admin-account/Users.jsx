@@ -47,7 +47,7 @@ const Users = () => {
         if (!resU.ok) {
           throw resU;
         }
-        setUsers(resU.data);
+        setUsers(resU.data.sort((a, b) => `${a.firstname} ${a.lastname || ""}`.localeCompare(`${b.firstname} ${b.lastname || ""}`, "fr", { sensitivity: "base" })));
 
         const resP = await api.post("/publisher/search");
         if (!resP.ok) {
