@@ -24,44 +24,57 @@ const Users = () => {
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const filteredUsers = users.filter((u) => {
-    if (role && u.role !== role) {
-      return false;
-    }
-    if (!search) {
-      return true;
-    }
-    return (
-      u.id === search.trim() ||
-      u.firstname.toLowerCase().includes(search.toLowerCase()) || u.lastname?.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
-    );
-  });
-
-  useEffect(() => setPage(1), [search, role]);
+  const [total, setTotal] = useState(0);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const timeout = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  useEffect(() => setPage(1), [debouncedSearch, role]);
+
+  useEffect(() => {
+    const fetchPublishers = async () => {
+      try {
+        const res = await api.post("/publisher/search");
+        if (!res.ok) {
+          throw res;
+        }
+        setPublishers(withLegacyPublishers(res.data));
+      } catch (error) {
+        captureError(error);
+      }
+    };
+    fetchPublishers();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchUsers = async () => {
       setLoading(true);
       try {
-        const resU = await api.post("/user/search");
-        if (!resU.ok) {
-          throw resU;
+        const res = await api.post("/user/search", { search: debouncedSearch || undefined, role: role || undefined, sort: "name", page, size: PAGE_SIZE });
+        if (!res.ok) {
+          throw res;
         }
-        setUsers(resU.data.sort((a, b) => `${a.firstname} ${a.lastname || ""}`.localeCompare(`${b.firstname} ${b.lastname || ""}`, "fr", { sensitivity: "base" })));
-
-        const resP = await api.post("/publisher/search");
-        if (!resP.ok) {
-          throw resP;
+        if (!cancelled) {
+          setUsers(res.data);
+          setTotal(res.total);
         }
-        setPublishers(withLegacyPublishers(resP.data));
       } catch (error) {
         captureError(error);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
-    fetchData();
-  }, []);
+    fetchUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, role, page]);
 
   return (
     <div className="space-y-12 p-4 sm:p-12">
@@ -92,8 +105,8 @@ const Users = () => {
           </Link>
         </div>
         <div className="min-w-[700px]">
-        <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
-          {filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
+        <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={total} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
+          {users.map((item, i) => (
             <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="table-cell max-w-0">
                 <Link to={`/user/${item.id}`} className="text-blue-france block truncate">
