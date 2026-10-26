@@ -1,11 +1,11 @@
 import type { MetabasePoint } from "@engagement/dto";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { STATS_QUESTIONS as questions } from "~/config/public-stats";
 import type { QuestionAnswerRow } from "~/utils/public-stats";
 import { BarChart } from "./bar-chart";
 import { ChartDataTable } from "./chart-data-table";
 
-export function QuestionsChart({ rows }: { rows: QuestionAnswerRow[] }) {
-  const questions = useMemo(() => [...new Set(rows.map((r) => r.question))], [rows]);
+export function QuestionsChart({ rows, filtered }: { rows: QuestionAnswerRow[]; filtered?: boolean }) {
   const [question, setQuestion] = useState(questions[0] ?? "");
   const data: MetabasePoint[] = rows.filter((r) => r.question === question).map((r) => ({ name: r.answer, value: r.value }));
 
@@ -23,8 +23,14 @@ export function QuestionsChart({ rows }: { rows: QuestionAnswerRow[] }) {
           ))}
         </select>
       </div>
-      <BarChart data={data} name={question} horizontal />
-      <ChartDataTable data={data} caption={`Réponses à la question : ${question}`} nameHeader="Réponse" />
+      {filtered && data.length === 0 ? (
+        <p className="fr-alert fr-alert--info fr-alert--sm">Pas assez de réponses pour ce territoire.</p>
+      ) : (
+        <>
+          <BarChart data={data} name={question} horizontal />
+          <ChartDataTable data={data} caption={`Réponses à la question : ${question}`} nameHeader="Réponse" />
+        </>
+      )}
     </>
   );
 }
