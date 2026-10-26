@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendTemplate = vi.hoisted(() => {
   process.env.ALERTS_WEBHOOK_TOKEN = "test-alerts-token";
+  process.env.SLACK_SIGNING_SECRET = "test-signing-secret";
   process.env.INBOUND_EMAIL_DOMAIN = "api-engagement.example.com";
   return vi.fn().mockResolvedValue({ ok: true });
 });

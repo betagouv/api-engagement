@@ -1,4 +1,4 @@
-import { APP_URL, SLACK_WARNING_CHANNEL_ID } from "@/config";
+import { APP_URL, SLACK_SIGNING_SECRET, SLACK_WARNING_CHANNEL_ID } from "@/config";
 import { captureException } from "@/error";
 import type { AlertNotifier } from "@/services/alerts/notifiers/types";
 import { postMessage, updateMessage } from "@/services/slack";
@@ -43,8 +43,9 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
     ...(mentions ? [`À traiter par ${mentions}`] : []),
   ];
   const statusLine = `Statut : *${STATUS_LABELS[warning.status]}*${handledBy ? ` · par ${escapeMrkdwn(handledBy)}` : ""}`;
+  // Une seule Slack app pour tous les environnements : sans secret de signature, cet environnement ne sait pas traiter les clics.
   const actions =
-    warning.status === "RESOLVED"
+    warning.status === "RESOLVED" || !SLACK_SIGNING_SECRET
       ? []
       : [
           {
