@@ -1,5 +1,3 @@
-import type { AuditEvent } from "@/utils/audit-log";
-
 export interface SlackAction {
   actionId: string;
   value?: string;
@@ -8,7 +6,6 @@ export interface SlackAction {
 export interface SlackInteractionContext {
   slackUserId: string;
   responseUrl: string;
-  audit: (event: AuditEvent) => void;
 }
 
 export interface SlackInteractionHandler {

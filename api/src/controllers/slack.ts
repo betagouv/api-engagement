@@ -5,7 +5,6 @@ import { INVALID_BODY } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { slackSignatureSecurity } from "@/middlewares/slack-signature";
 import { dispatchInteraction } from "@/services/slack-interactions";
-import { appendAuditEvent } from "@/utils/audit-log";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -35,7 +34,6 @@ router.post("/interactions", slackSignatureSecurity, async (req, res, next) => {
       const context = {
         slackUserId: payload.data.user.id,
         responseUrl: payload.data.response_url,
-        audit: (event: Parameters<typeof appendAuditEvent>[1]) => appendAuditEvent(req, event),
       };
       for (const { action_id: actionId, value } of payload.data.actions) {
         await dispatchInteraction({ actionId, value }, context);

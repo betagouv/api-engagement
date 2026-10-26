@@ -10,12 +10,11 @@ import { isUniqueViolation } from "@/utils/prisma";
 // Boutons « En cours » / « Résolu » du message d'alerte. Réservé aux assignés et aux admins dont le compte est lié à un ID Slack.
 export const alertStatusInteraction: SlackInteractionHandler = {
   prefix: STATUS_ACTION_PREFIX,
-  async handle(action, { slackUserId, responseUrl, audit }) {
+  async handle(action, { slackUserId, responseUrl }) {
     const status = WARNING_STATUSES.find((s) => s === action.actionId.slice(STATUS_ACTION_PREFIX.length));
     if (!action.value || !status) {
       return;
     }
-    const target = { type: "warning", id: action.value };
     const warning = await warningService.findWarningById(action.value);
     if (!warning) {
       await respondEphemeral(responseUrl, "Cette alerte n'existe plus.");
@@ -23,12 +22,10 @@ export const alertStatusInteraction: SlackInteractionHandler = {
     }
     const user = await userService.findUserBySlackUserId(slackUserId);
     if (!user) {
-      audit({ action: "alert.status.slack", outcome: "denied", target, metadata: { reason: "unlinked_account" } });
       await respondEphemeral(responseUrl, "Votre compte Slack n'est pas lié à un compte API Engagement : demandez à un admin de renseigner votre ID Slack.");
       return;
     }
     if (user.role !== "admin" && !warning.assignees.some((a) => a.id === user.id)) {
-      audit({ action: "alert.status.slack", outcome: "denied", target, metadata: { reason: "not_assignee", userId: user.id } });
       await respondEphemeral(responseUrl, "Seuls les assignés de l'alerte peuvent changer son statut.");
       return;
     }
@@ -45,7 +42,6 @@ export const alertStatusInteraction: SlackInteractionHandler = {
       }
       throw error;
     }
-    audit({ action: "alert.status.slack", outcome: "success", target, metadata: { userId: user.id, status } });
     await refreshSlackMessage(warning.id, user.firstname);
   },
 };
