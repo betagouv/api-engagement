@@ -49,6 +49,10 @@ export default [
   // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales), rendues depuis le contenu du CMS (cf. routes/cms-page.tsx).
   route("cms/:slug", "routes/cms-page.tsx"),
 
+  // Blog (CMS) : liste paginée par catégorie et article. Sans CMS configuré, ces routes répondent 404.
+  route("blog", "routes/blog/index.tsx"),
+  route("blog/:slug", "routes/blog/article.tsx"),
+
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),
   route("accessibilite", "routes/accessibilite.tsx"),
