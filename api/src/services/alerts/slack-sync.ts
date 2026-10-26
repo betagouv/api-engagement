@@ -1,5 +1,5 @@
 import { captureException } from "@/error";
-import { buildAlertMessage } from "@/services/alerts/notifiers/slack-message";
+import { buildAlertMessage } from "@/services/alerts/notifiers/slack";
 import { updateMessage } from "@/services/slack";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";

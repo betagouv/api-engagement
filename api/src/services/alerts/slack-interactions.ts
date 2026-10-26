@@ -1,4 +1,4 @@
-import { STATUS_ACTION_PREFIX } from "@/services/alerts/notifiers/slack-message";
+import { STATUS_ACTION_PREFIX } from "@/services/alerts/notifiers/slack";
 import { refreshSlackMessage } from "@/services/alerts/slack-sync";
 import { respondEphemeral } from "@/services/slack";
 import type { SlackInteractionHandler } from "@/services/slack-interactions/types";
