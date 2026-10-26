@@ -38,7 +38,7 @@ function Section({ title, data, nationalOnly, children }: { title: string; data:
 }
 
 export default function Statistiques({ loaderData }: Route.ComponentProps) {
-  const { homepageViews, quizStarted, quizCompleted, redirections, impressions, departments, answers, territory } = loaderData;
+  const { homepageViews, quizStarted, quizCompleted, redirections, impressions, departments, answers, unavailableQuestions, territory } = loaderData;
   const filtered = Boolean(territory);
   const nationalOnlyTitles = ["Visites hebdomadaires de la page d'accueil", "Redirections par semaine"];
   const weeklyCharts: [string, MetabasePoint[] | null][] = [
@@ -57,7 +57,7 @@ export default function Statistiques({ loaderData }: Route.ComponentProps) {
             Territoire
             <span className="fr-hint-text">Département ou région indiqué par le jeune dans le quiz</span>
           </label>
-          <select className="fr-select" id="stats-territoire" name="territoire" defaultValue={territory ?? ""} onChange={(e) => e.currentTarget.form?.requestSubmit()}>
+          <select className="fr-select" key={territory} id="stats-territoire" name="territoire" defaultValue={territory ?? ""} onChange={(e) => e.currentTarget.form?.requestSubmit()}>
             <option value="">Toute la France</option>
             <optgroup label="Régions">
               {REGION_OPTIONS.map(([code, label]) => (
@@ -87,7 +87,7 @@ export default function Statistiques({ loaderData }: Route.ComponentProps) {
           </Section>
         ))}
         <Section title="Réponses aux questions du quiz" data={answers}>
-          <QuestionsChart rows={answers!} filtered={filtered} />
+          <QuestionsChart rows={answers!} filtered={filtered} unavailable={unavailableQuestions} />
         </Section>
         <Section title="Impressions par annonceur" data={impressions} nationalOnly={filtered}>
           <BarChart data={impressions!} name="Impressions par annonceur" horizontal />

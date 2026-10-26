@@ -37,6 +37,7 @@ async function fetchPublicStats(request: Request, filter: TerritoryFilter) {
     impressions: impressions && adaptMetabasePoints(impressions),
     departments: departments && toDepartmentPoints(departments),
     answers: answerCards.some(([, card]) => card) ? toAnswerRows(answerCards) : null,
+    unavailableQuestions: answerCards.filter(([, card]) => !card).map(([question]) => question),
   };
   const complete = [homepageViews, quizStarted, quizCompleted, redirections, impressions, departments, ...answerCards.map(([, card]) => card)].every(Boolean);
 
