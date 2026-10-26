@@ -73,7 +73,7 @@
         "typesense": "3.0.6",
         "uuid": "14.0.2",
         "xlsx": "0.18.5",
-        "zod": "4.6.5"
+        "zod": "4.6.6"
     },
     "devDependencies": {
         "@eslint/js": "10.0.1",
