@@ -1,0 +1,72 @@
+{
+  "kind": "collectionType",
+  "collectionName": "articles",
+  "info": {
+    "singularName": "article",
+    "pluralName": "articles",
+    "displayName": "Article",
+    "description": "Article de blog, rendu par plateform sur /blog/:slug."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "excerpt": {
+      "type": "text",
+      "required": true,
+      "maxLength": 300,
+      "description": "Résumé affiché dans la liste et le partage."
+    },
+    "cover": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "description": "Image de couverture. Renseigner le texte alternatif dans la médiathèque si elle porte du sens."
+    },
+    "publicationDate": {
+      "type": "date",
+      "required": true
+    },
+    "author": {
+      "type": "string"
+    },
+    "category": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::category.category"
+    },
+    "blocks": {
+      "type": "dynamiczone",
+      "required": true,
+      "components": [
+        "blocks.rich-text",
+        "blocks.image",
+        "blocks.missions"
+      ]
+    },
+    "seoTitle": {
+      "type": "string",
+      "description": "Par défaut, le titre de l'article."
+    },
+    "seoDescription": {
+      "type": "text",
+      "description": "Par défaut, le résumé."
+    },
+    "noindex": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

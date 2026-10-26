@@ -1,12 +1,12 @@
 # CMS (POC Strapi)
 
-CMS headless (Strapi 5, Community, Postgres) pour les pages de `plateform/` (landings, pages éditoriales, et à terme le blog). Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
+CMS headless (Strapi 5, Community, Postgres) pour les pages de `plateform/` (landings, pages éditoriales, blog). Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
 
 ## Démarrage
 
 ```bash
 docker compose up -d cms        # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
-docker compose exec cms npm run seed   # recrée la landing « chacun-pour-tous », une page d'exemple + le jeton de lecture de plateform
+docker compose exec cms npm run seed   # recrée la landing « chacun-pour-tous », une page d'exemple, le blog (10 articles), la navigation du footer + le jeton de lecture de plateform
 ```
 
 À la première visite de l'admin, créer un compte administrateur (local).
@@ -23,6 +23,8 @@ Les valeurs `dev-*` sont des secrets de dev local, définis dans `docker-compose
 ## Modèle de contenu
 
 - `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**. Une landing est simplement une page qui utilise des blocs de campagne.
+- `article` (brouillon / publié) : blog. Titre, slug, résumé, couverture, date de publication, auteur, catégorie, SEO et des blocs (`rich-text`, `image`, `missions`). `category` : nom + slug. Rendu sur `/blog` (liste paginée, filtre `?categorie=`) et `/blog/:slug` (JSON-LD `Article`, image de partage = couverture).
+- `navigation` (single type, brouillon / publié) : section du pied de page (titre + liens). Chaque lien pointe vers une **page du CMS** (le lien suit son adresse et disparaît si elle est dépubliée) ou vers une URL libre (chemin interne ou adresse externe, qui s'ouvre dans un nouvel onglet). Sans navigation publiée ou sans CMS, le footer garde ses liens par défaut.
 - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images), `image` (image + légende).
 - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners` (`src/components/blocks/`).
 - Sous-composants réutilisables : `src/components/shared/`.
@@ -37,9 +39,13 @@ Les valeurs `dev-*` sont des secrets de dev local, définis dans `docker-compose
 
 Conventions et commandes : voir `AGENTS.md`. Si les dépendances changent, recréer le conteneur avec `docker compose up -d -V --force-recreate cms` (le volume `node_modules` est anonyme).
 
+## Sitemap
+
+`/sitemap.xml` fusionne les pages fixes de plateform (`routes/sitemap.xml.ts`) et, depuis le CMS, les pages et articles **publiés et non `noindex`** (`lastmod` = date de dernière modification) ; `/blog` y figure dès qu'un article est publié. Le CMS indisponible n'empêche jamais le sitemap de se générer (pages fixes seules).
+
 ## Preview
 
-Bouton « Preview » de l'admin → `plateform` `/cms/:slug?preview=<secret>&status=draft` : lit le brouillon (jeton + secret requis), `no-store`, `noindex`. Sans secret valide, seul le contenu publié est servi.
+Bouton « Preview » de l'admin → `plateform` `/cms/:slug` (pages) ou `/blog/:slug` (articles) avec `?preview=<secret>&status=draft` : lit le brouillon (jeton + secret requis), `no-store`, `noindex`. Sans secret valide, seul le contenu publié est servi.
 La preview « live » côte à côte (iframe) est une fonctionnalité payante de Strapi ; seule la preview par onglet est utilisée ici.
 
 ## Déploiement (Scaleway)
