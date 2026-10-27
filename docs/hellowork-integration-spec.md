@@ -77,7 +77,7 @@ Source : `MissionRecord` (`api/src/types/mission.ts`). Légende : ✅ direct, �
 | `DescriptionEntreprise` | 0..1 | `organizationDescription` | 🔧 HTML restreint, cf. § 3.4 |
 | `DescriptionPoste` | 0..1 | `descriptionHtml` ‖ `description` | 🔧 idem. Bloc complet de la mission |
 | `Description` | 0..1 | — | **Ne pas utiliser** : 2 champs distincts disponibles |
-| `Profil` | 0..1 | `requirements[]` (+ âge min.) | 🔧 liste `<ul><li>` ; ajouter « 18 ans minimum » si `openToMinors === false` (cf. LinkedIn). **Service Civique** : bloc fixe Hellowork en tête, cf. § 3.5 |
+| `Profil` | 0..1 | `requirements[]` (+ âge min.) | 🔧 liste `<ul><li>` . `openToMinors` ignoré en V1 : le bloc SC fixe indique déjà « 16 à 25 ans ». **Service Civique** : bloc fixe Hellowork en tête, cf. § 3.5 |
 | `Salaire` | 0..1 | — | Non renseigné : l'indemnité Service Civique figure dans `Profil` (§ 3.5) |
 | `Aveugle` | 0..1 | constante `0` | Offre non anonyme |
 | `Email` / `Url_Reponse` | 1 des 2 | `getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.HELLOWORK)` | ✅ `Url_Reponse` uniquement (tracking de la redirection) |
