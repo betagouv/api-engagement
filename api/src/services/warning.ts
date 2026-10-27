@@ -73,6 +73,7 @@ export const warningService = (() => {
         occurrences: input.occurrences ?? 1,
         procedureUrl: input.procedureUrl ?? null,
         assignees: { create: (input.assigneeIds ?? []).map((userId) => ({ userId })) },
+        ...(input.source ? { receptions: { create: { source: input.source, title: input.title ?? null, description: input.description ?? null } } } : {}),
       },
       include: warningInclude,
     });
@@ -117,6 +118,10 @@ export const warningService = (() => {
     }
     if (patch.assigneeIds?.length) {
       updateData.assignees = { createMany: { data: patch.assigneeIds.map((userId) => ({ userId })), skipDuplicates: true } };
+    }
+
+    if (patch.source && (patch.occurrencesIncrement !== undefined || patch.occurrences !== undefined)) {
+      updateData.receptions = { create: { source: patch.source, title: patch.title ?? null, description: patch.description ?? null } };
     }
 
     const updated = await warningRepository.update({

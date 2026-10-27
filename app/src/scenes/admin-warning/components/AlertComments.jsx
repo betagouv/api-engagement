@@ -66,7 +66,7 @@ const AlertComments = ({ alertId }) => {
 
   return (
     <section aria-labelledby="alert-comments" className="space-y-4">
-      <h3 id="alert-comments" className="text-xl font-bold">
+      <h3 id="alert-comments" className="sr-only">
         Commentaires
       </h3>
       {loadError && (
