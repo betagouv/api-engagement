@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HiOutlinePlus } from "react-icons/hi";
 import { RiFileDownloadLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
+import Avatar from "@/components/Avatar";
 import Loader from "@/components/Loader";
 import Table from "@/components/Table";
 import { MISSION_TYPES } from "@/constants";
@@ -17,16 +18,30 @@ const TABLE_HEADER = [
   { title: "Annonceurs", key: "publishers", position: "center" },
   { title: "Diffuseurs", key: "diffuseurs", position: "center" },
   { title: "Membres", key: "members", position: "center" },
-  { title: "Rapport d'impact", key: "sendReport", position: "center" },
+  { title: "Chargé de déploiement", key: "deploymentUser", position: "center" },
 ];
 
 const PAGE_SIZE = 25;
 
+const DeploymentUserCell = ({ user }) => {
+  if (!user) {
+    return <span className="block text-center">-</span>;
+  }
+  const name = [user.firstname, user.lastname].filter(Boolean).join(" ") || user.email;
+  return (
+    <div className="flex justify-center" title={name}>
+      <Avatar user={user} />
+      <span className="sr-only">{name}</span>
+    </div>
+  );
+};
+
 const Publishers = () => {
-  const [filters, setFilters] = useState({ name: "", role: "", sendReport: "", missionType: "" });
+  const [filters, setFilters] = useState({ name: "", role: "", missionType: "" });
   const [page, setPage] = useState(1);
   const [exporting, setExporting] = useState(false);
   const [users, setUsers] = useState([]);
+  const admins = useMemo(() => users.filter((u) => u.role === "admin"), [users]);
   const [diffuseurs, setDiffuseurs] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -59,12 +74,6 @@ const Publishers = () => {
         }
         if (filters.role) {
           query.role = filters.role;
-        }
-        if (filters.sendReport === "true") {
-          query.sendReport = true;
-        }
-        if (filters.sendReport === "false") {
-          query.sendReport = false;
         }
         if (filters.missionType) {
           query.missionType = filters.missionType;
@@ -151,13 +160,13 @@ const Publishers = () => {
         <div role="search" className="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
           <p className="font-semibold">{`${publishers.length} partenaire${publishers.length > 1 ? "s" : ""}`}</p>
           <label htmlFor="publisher-name" className="sr-only">
-            Rechercher par nom
+            Rechercher par nom ou ID
           </label>
           <input
             id="publisher-name"
             name="publisher-name"
             className="input min-w-0 flex-1"
-            placeholder="Chercher par nom"
+            placeholder="Chercher par nom ou ID"
             value={filters.name}
             onChange={(e) => setFilters({ ...filters, name: e.target.value })}
           />
@@ -172,19 +181,6 @@ const Publishers = () => {
             <option value="api">Tous les diffuseurs api</option>
             <option value="widget">Tous les diffuseurs widget</option>
             <option value="campaign">Tous les diffuseurs campagne</option>
-          </select>
-          <label htmlFor="publisher-send-report" className="sr-only">
-            Filtrer par rapport d'impact
-          </label>
-          <select
-            className="input w-full truncate sm:w-[20%]"
-            id="publisher-send-report"
-            value={filters.sendReport.toString()}
-            onChange={(e) => setFilters({ ...filters, sendReport: e.target.value })}
-          >
-            <option value="">Avec et sans rapport d'impact</option>
-            <option value="true">Avec rapport d'impact</option>
-            <option value="false">Sans rapport d'impact</option>
           </select>
           <label htmlFor="publisher-mission-type" className="sr-only">
             Filtrer par type de mission
@@ -223,7 +219,9 @@ const Publishers = () => {
               <td className="table-cell text-center">{item.publishers.length}</td>
               <td className="table-cell text-center">{diffuseurs.filter((e) => e.publishers.some((j) => j.publisherId === item.id)).length}</td>
               <td className="table-cell text-center">{users.filter((e) => e.publishers.find((j) => j === item.id)).length}</td>
-              <td className="table-cell text-center">{item.sendReport ? `Oui (${item.sendReportTo.length} receveur${item.sendReportTo.length > 1 ? "s" : ""})` : "Non"}</td>
+              <td className="table-cell">
+                <DeploymentUserCell user={admins.find((u) => u.id === item.deploymentUserId)} />
+              </td>
             </tr>
           ))}
         </Table>
