@@ -275,11 +275,15 @@ jobs:
           retention-days: 30
 
   app-tests:
-    name: App E2E Tests
+    name: App E2E Tests (${{ matrix.shard }}/2)
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     permissions:
       contents: read
       actions: write
@@ -300,14 +304,18 @@ jobs:
         run: google-chrome --version
 
       - name: Run tests
-        run: npm --workspace app run test:e2e:functional
+        run: npm --workspace app run test:e2e:functional -- --shard=${{ matrix.shard }}/2
 
   app-accessibility-tests:
-    name: App Accessibility Tests
+    name: App Accessibility Tests (${{ matrix.shard }}/2)
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     permissions:
       contents: read
     steps:
@@ -327,7 +335,7 @@ jobs:
         run: google-chrome --version
 
       - name: Run accessibility tests
-        run: npm --workspace app run test:e2e:a11y
+        run: npm --workspace app run test:e2e:a11y -- --shard=${{ matrix.shard }}/2
 
   plateform-tests:
     name: Plateform Tests
@@ -350,11 +358,15 @@ jobs:
         run: npm --workspace plateform run test
 
   plateform-accessibility-tests:
-    name: Plateform Accessibility Tests
+    name: Plateform Accessibility Tests (${{ matrix.shard }}/2)
     needs: changes
     if: needs.changes.outputs.plateform == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     permissions:
       contents: read
     steps:
@@ -374,7 +386,7 @@ jobs:
         run: google-chrome --version
 
       - name: Run accessibility tests
-        run: npm --workspace plateform run test:e2e:a11y
+        run: npm --workspace plateform run test:e2e:a11y -- --shard=${{ matrix.shard }}/2
 
   taxonomy-tests:
     name: Taxonomy Tests
