@@ -15,3 +15,25 @@ export const STATS_QUESTIONS = ["Âge", "Handicap reconnu", "Région", "Déplace
 
 export const STATS_CACHE_TTL_MS = 5 * 60 * 1000;
 export const STATS_PARTIAL_CACHE_TTL_MS = 30 * 1000;
+
+// Codes région INSEE (en texte, sans zéro initial pour l'outre-mer) attendus par la variable Metabase `region`.
+export const STATS_REGIONS: Record<string, string> = {
+  "84": "Auvergne-Rhône-Alpes",
+  "27": "Bourgogne-Franche-Comté",
+  "53": "Bretagne",
+  "24": "Centre-Val de Loire",
+  "94": "Corse",
+  "44": "Grand Est",
+  "32": "Hauts-de-France",
+  "11": "Île-de-France",
+  "28": "Normandie",
+  "75": "Nouvelle-Aquitaine",
+  "76": "Occitanie",
+  "52": "Pays de la Loire",
+  "93": "Provence-Alpes-Côte d'Azur",
+  "1": "Guadeloupe",
+  "2": "Martinique",
+  "3": "Guyane",
+  "4": "La Réunion",
+  "6": "Mayotte",
+};
