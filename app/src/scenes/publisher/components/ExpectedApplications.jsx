@@ -10,7 +10,7 @@ const OPTIONS = [
 const ExpectedApplications = ({ value, onChange, error }) => (
   <fieldset className={`space-y-4 ${error ? "before:bg-error relative before:absolute before:inset-y-0 before:-left-3 before:w-0.5" : ""}`}>
     <legend className={`mb-4 text-base font-bold ${error ? "text-error" : ""}`}>
-      Tracking des candidatures déployé
+      Candidatures attendues
       <span className="text-error ml-1" aria-hidden="true">
         *
       </span>
