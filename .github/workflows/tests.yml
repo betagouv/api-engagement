@@ -209,9 +209,7 @@ jobs:
 
   api-tests:
     name: API Tests
-    needs:
-      - changes
-      - api-migrations
+    needs: changes
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     permissions:
