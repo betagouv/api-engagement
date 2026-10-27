@@ -21,6 +21,15 @@ const router = Router();
 router.use(ipRateLimiter);
 
 const nullableString = zod.string().nullish();
+const demarcheSimplifieeSchema = zod.object({
+  number: zod.number().int().positive(),
+  name: nullableString,
+  url: nullableString,
+  annotationKey: nullableString,
+  birthDateField: nullableString,
+  countryField: nullableString,
+  postalCodeField: nullableString,
+});
 const publisherDiffusionSchema = zod.object({
   publisherId: zod.string().min(1),
   missionType: zod.enum(PublisherMissionType).nullable().optional(),
@@ -158,7 +167,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         url: nullableString,
         email: nullableString,
         feed: nullableString,
-        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), name: nullableString, url: nullableString, annotationKey: nullableString })).optional(),
+        demarcheSimplifiees: zod.array(demarcheSimplifieeSchema).optional(),
       })
       .safeParse(req.body);
 
@@ -317,7 +326,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         url: nullableString,
         email: nullableString,
         feed: nullableString,
-        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), name: nullableString, url: nullableString, annotationKey: nullableString })).optional(),
+        demarcheSimplifiees: zod.array(demarcheSimplifieeSchema).optional(),
       })
       .safeParse(req.body);
 

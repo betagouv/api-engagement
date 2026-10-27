@@ -1,5 +1,15 @@
 import { captureException } from "@/error";
-import { DEMARCHES_SIMPLIFIEES_BASE_URL, extractDemarcheSlug, isRedirectionAnnotation, REDIRECTION_ANNOTATION_LABEL } from "@/services/demarches-simplifiees/utils";
+import {
+  CandidateFields,
+  ChampDescriptor,
+  DEMARCHES_SIMPLIFIEES_BASE_URL,
+  detectCandidateFields,
+  DossierChamp,
+  DossierDemandeur,
+  extractDemarcheSlug,
+  isRedirectionAnnotation,
+  REDIRECTION_ANNOTATION_LABEL,
+} from "@/services/demarches-simplifiees/utils";
 
 import { DemarchesSimplifieesResponse, query } from "./client";
 
@@ -74,6 +84,32 @@ export const getAnnotationId = async (demarcheNumber: number): Promise<Demarches
   return { ok: true, data: `champ_${annotation.id.replace("==", "")}` };
 };
 
+// Champs du formulaire (descripteurs) de la révision active d'une démarche : libellé, type et, pour un champ date,
+// s'il s'agit d'une date de naissance. Sert à détecter / vérifier les champs à lire pour enrichir les candidatures.
+export const getChampDescriptors = async (demarcheNumber: number): Promise<DemarchesSimplifieesResponse<ChampDescriptor[]>> => {
+  const graphqlQuery = `
+    query getChampDescriptors($number: Int!) {
+      demarche(number: $number) {
+        activeRevision {
+          champDescriptors {
+            __typename
+            label
+            ... on DateChampDescriptor {
+              birthdate
+            }
+          }
+        }
+      }
+    }
+  `;
+
+  const result = await query<{ demarche: { activeRevision: { champDescriptors: ChampDescriptor[] } } }>(graphqlQuery, { number: demarcheNumber });
+  if (!result.ok) {
+    return result;
+  }
+  return { ok: true, data: result.data.demarche.activeRevision.champDescriptors };
+};
+
 interface DossierNode {
   id: string;
   number: number;
@@ -81,6 +117,8 @@ interface DossierNode {
   dateDepot: string | null;
   usager: { email: string };
   annotations: { label: string; stringValue: string | null }[];
+  champs: DossierChamp[];
+  demandeur: DossierDemandeur | null;
 }
 
 interface DossiersPage {
@@ -114,6 +152,36 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
               label
               stringValue
             }
+            demandeur {
+              ... on PersonnePhysique {
+                civilite
+                dateDeNaissance
+              }
+            }
+            champs {
+              __typename
+              label
+              stringValue
+              ... on DateChamp {
+                date
+              }
+              ... on PaysChamp {
+                pays {
+                  code
+                }
+              }
+              ... on CommuneChamp {
+                commune {
+                  postalCode
+                }
+              }
+              ... on AddressChamp {
+                address {
+                  postalCode
+                  countryCode
+                }
+              }
+            }
           }
         }
       }
@@ -145,9 +213,12 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
 };
 
 // Résout une démarche à partir de son URL publique (/commencer/<slug>) : on extrait le slug, on le
-// convertit en numéro, puis on récupère le nom (title) et la clé d'annotation. `name`/`annotationKey`
-// sont best-effort (null si indisponibles) ; seul le numéro est requis pour considérer la résolution réussie.
-export const resolveDemarcheByUrl = async (url: string): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null }>> => {
+// convertit en numéro, puis on récupère le nom (title), la clé d'annotation et les champs candidat détectés
+// dans le formulaire. Tout sauf le numéro est best-effort (null si indisponible) ; seul le numéro est requis
+// pour considérer la résolution réussie.
+export const resolveDemarcheByUrl = async (
+  url: string
+): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null } & CandidateFields>> => {
   const slug = extractDemarcheSlug(url);
   if (!slug) {
     return { ok: false, message: "URL must point to a /commencer/<slug> démarche" };
@@ -159,7 +230,7 @@ export const resolveDemarcheByUrl = async (url: string): Promise<DemarchesSimpli
   }
   const number = numberResult.data;
 
-  const [annotation, demarche] = await Promise.all([getAnnotationId(number), getDemarche(number)]);
+  const [annotation, demarche, champDescriptors] = await Promise.all([getAnnotationId(number), getDemarche(number), getChampDescriptors(number)]);
 
   return {
     ok: true,
@@ -167,6 +238,7 @@ export const resolveDemarcheByUrl = async (url: string): Promise<DemarchesSimpli
       number,
       name: demarche.ok ? demarche.data.demarche.title : null,
       annotationKey: annotation.ok ? annotation.data : null,
+      ...detectCandidateFields(champDescriptors.ok ? champDescriptors.data : []),
     },
   };
 };
