@@ -17,7 +17,8 @@ const TAB_VARIANTS = {
 
 export const Tab = ({ tab, panelId, isFocusable, onKeyDown, setRef, variant = "primary", className = "" }) => {
   const variantClasses = TAB_VARIANTS[variant] || TAB_VARIANTS.primary;
-  const tabClassName = `whitespace-nowrap ${variantClasses.base} ${tab.isActive ? variantClasses.active : variantClasses.inactive} ${className}`.trim();
+  // cursor-pointer : Tailwind 4 remet les <button> en `cursor: default` (les onglets `to` sont des liens, déjà en pointer)
+  const tabClassName = `cursor-pointer whitespace-nowrap ${variantClasses.base} ${tab.isActive ? variantClasses.active : variantClasses.inactive} ${className}`.trim();
   const sharedProps = {
     id: tab.id,
     role: "tab",

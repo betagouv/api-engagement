@@ -58,3 +58,13 @@ describe("toAnswerRows", () => {
     ]);
   });
 });
+
+describe("parseTerritory", () => {
+  it("accepte un département ou une région connus, sinon toute la France", async () => {
+    const { parseTerritory } = await import("../public-stats");
+    expect(parseTerritory("department:75")).toEqual({ department: "75" });
+    expect(parseTerritory("region:4")).toEqual({ region: "4" });
+    expect(parseTerritory("region:999")).toEqual({});
+    expect(parseTerritory(null)).toEqual({});
+  });
+});

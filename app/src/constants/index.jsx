@@ -78,6 +78,12 @@ export const WARNINGS = {
   },
 };
 
+export const WARNING_STATUS = {
+  TODO: { name: "À traiter", className: "bg-red-100 text-red-700" },
+  IN_PROGRESS: { name: "En cours", className: "bg-yellow-tournesol-950 text-yellow-tournesol-200" },
+  RESOLVED: { name: "Résolue", className: "bg-green-100 text-green-700" },
+};
+
 export const REPORT_STATUS = {
   NOT_GENERATED_ERROR_GENERATION: "Erreur lors de la génération du rapport",
   NOT_GENERATED_NO_DATA: "Données insuffisantes pour générer le rapport",

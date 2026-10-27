@@ -33,6 +33,12 @@ variable "api_hostname" {
   type = string
 }
 
+variable "inbound_email_domain" {
+  type        = string
+  default     = ""
+  description = "Domaine de réception des mails entrants (Brevo inbound parsing), partagé par toutes les fonctions par réponse mail ; vide = désactivé"
+}
+
 variable "app_hostname" {
   type = string
 }
@@ -58,7 +64,23 @@ variable "bucket_name" {
   type = string
 }
 
+# Channels Slack par environnement : vides = rien n'est posté (messages journalisés).
 variable "slack_jobteaser_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_warning_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_lbc_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_cron_channel_id" {
   type    = string
   default = ""
 }
@@ -201,6 +223,24 @@ variable "enable_rdb_backup_job" {
   type        = bool
   default     = false
   description = "Enable the daily Scaleway managed PostgreSQL backup job"
+}
+
+variable "enable_rdb_backup_replication_job" {
+  type        = bool
+  default     = false
+  description = "Active le job de réplication des backups RDB vers le bucket immuable du projet security"
+}
+
+variable "rdb_backup_s3_bucket" {
+  type        = string
+  default     = ""
+  description = "Bucket Object Storage du projet Scaleway security pour les répliques immuables des backups RDB"
+}
+
+variable "rdb_backup_s3_region" {
+  type        = string
+  default     = "fr-par"
+  description = "Région du bucket de sauvegardes RDB du projet security"
 }
 
 variable "core_database_id" {

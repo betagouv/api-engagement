@@ -52,6 +52,7 @@ if (ENV !== "development") {
 }
 
 const jobName = args[0];
+let exitCode = 0;
 if (!jobName) {
   console.error("Error: no job name provided");
   console.log('Usage: npm run job -- <job-name> \'{"key":"value"}\'');
@@ -118,6 +119,9 @@ async function runJob() {
 
     const result = await handler.handle(extraData);
     console.log(`Job '${jobName}' executed successfully:`, result);
+    if (!result.success) {
+      exitCode = 1;
+    }
 
     const time = getJobTime(start);
     await postMessage(
@@ -129,6 +133,7 @@ async function runJob() {
       SLACK_CRON_CHANNEL_ID
     );
   } catch (error) {
+    exitCode = 1;
     console.error(`Error executing job '${jobName}':`, error);
     captureException(error, { extra: { jobName } });
     await Sentry.flush(5000);
@@ -136,7 +141,7 @@ async function runJob() {
   } finally {
     await pgDisconnect();
     await Sentry.flush(5000);
-    process.exit(0);
+    process.exit(exitCode);
   }
 }
 

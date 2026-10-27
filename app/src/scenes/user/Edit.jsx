@@ -1,10 +1,11 @@
 import { toast } from "@/services/toast";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { RiCloseFill, RiFileCopyFill } from "react-icons/ri";
+import { RiCloseFill, RiFileCopyFill, RiLoginBoxLine } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
+import Avatar from "@/components/Avatar";
 import Checkbox from "@/components/form/Checkbox";
 import LabelledInput from "@/components/form/LabelledInput";
 import LabelledSelect from "@/components/form/LabelledSelect";
@@ -70,6 +71,9 @@ const Edit = () => {
     if (values.role !== "admin" && values.role !== "user") {
       errors.role = "Le rôle renseigné est invalide";
     }
+    if (values.slackUserId && !/^[UW][A-Z0-9]{2,}$/.test(values.slackUserId)) {
+      errors.slackUserId = "ID Slack invalide (ex. U01ABC23DEF)";
+    }
     if (values.publishers.length === 0) {
       errors.publishers = "Veuillez sélectionner au moins un partenaire";
     }
@@ -89,6 +93,27 @@ const Edit = () => {
       toast.success("Paramètres mis à jour");
     } catch (error) {
       captureError(error, { extra: { id, values } });
+    }
+  };
+
+  const handlePhoto = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) {
+      return;
+    }
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.postFormData(`/user/${id}/image`, formData);
+      if (!res.ok) {
+        throw res;
+      }
+      setUser((u) => ({ ...u, photo: res.data.photo }));
+      setValues((v) => ({ ...v, photo: res.data.photo }));
+      toast.success("Photo mise à jour");
+    } catch (error) {
+      captureError(error, { extra: { id } });
     }
   };
 
@@ -123,7 +148,7 @@ const Edit = () => {
   };
 
   const isChanged = () => !_.isEqual(values, user);
-  const isErrors = () => errors.firstname || errors.email || errors.role;
+  const isErrors = () => errors.firstname || errors.email || errors.role || errors.slackUserId;
 
   if (!user) {
     return <p className="text-4xl font-bold">Chargement...</p>;
@@ -143,6 +168,25 @@ const Edit = () => {
             <span>Supprimer</span>
           </button>
         </div>
+        <div className="flex items-center gap-4">
+          <Avatar user={user} className="h-16 w-16" />
+          <dl className="text-sm">
+            <div className="flex gap-2">
+              <dt className="font-semibold">Accès données :</dt>
+              <dd>{new Date(user.createdAt).toLocaleDateString("fr")}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="font-semibold">Dernière activité :</dt>
+              <dd>{user.lastActivityAt ? new Date(user.lastActivityAt).toLocaleDateString("fr") : "-"}</dd>
+            </div>
+          </dl>
+          <div>
+            <label htmlFor="photo" className="secondary-btn cursor-pointer">
+              {user.photo ? "Changer la photo" : "Ajouter une photo"}
+            </label>
+            <input id="photo" type="file" accept="image/*" className="sr-only" onChange={handlePhoto} />
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-x-10 gap-y-5 lg:grid-cols-2">
           <LabelledInput id="firstname" label="Prénom" error={errors.firstname} value={values.firstname} onChange={(e) => setValues({ ...values, firstname: e.target.value })} />
           <LabelledInput
@@ -153,6 +197,13 @@ const Edit = () => {
             onChange={(e) => setValues({ ...values, lastname: e.target.value })}
           />
           <LabelledInput id="email" label="E-mail" error={errors.email} value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} />
+          <LabelledInput
+            id="slackUserId"
+            label="ID Slack (ex. U01ABC23DEF)"
+            error={errors.slackUserId}
+            value={values.slackUserId || ""}
+            onChange={(e) => setValues({ ...values, slackUserId: e.target.value.trim() || null })}
+          />
           <LabelledSelect
             id="role"
             label="Rôle"
@@ -225,6 +276,10 @@ const Edit = () => {
         <div className="flex flex-wrap justify-end gap-4">
           <Link to="/admin-account" className="tertiary-btn">
             Retour
+          </Link>
+          <Link to={`/connect?id=${user.id}`} target="_blank" className="tertiary-btn flex items-center">
+            Se connecter en tant que
+            <RiLoginBoxLine className="ml-2" aria-hidden="true" />
           </Link>
           <ResetPasswordModal user={user} />
           <button type="button" className="primary-btn" onClick={handleInviteAgain}>

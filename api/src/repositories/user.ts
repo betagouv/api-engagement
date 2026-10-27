@@ -6,6 +6,10 @@ export const userRepository = {
     return prisma.user.findMany(params);
   },
 
+  async count(params: Prisma.UserCountArgs = {}): Promise<number> {
+    return prisma.user.count(params);
+  },
+
   async findUnique(params: Prisma.UserFindUniqueArgs): Promise<User | null> {
     return prisma.user.findUnique(params);
   },

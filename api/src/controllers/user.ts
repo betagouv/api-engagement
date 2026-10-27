@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { NextFunction, Response, Router } from "express";
 import jwt from "jsonwebtoken";
+import multer from "multer";
 import passport from "passport";
 import zod from "zod";
 
@@ -11,14 +12,18 @@ import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
 import { MFA_DEVICE_COOKIE_MAX_AGE_MS, MFA_DEVICE_COOKIE_NAME, mfaService } from "@/services/mfa";
 import { publisherService } from "@/services/publisher";
+import { OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import type { UserUpdatePatch } from "@/types/user";
 import { hasLetter, hasNumber, hasSpecialChar } from "@/utils";
 import { appendAuditEvent } from "@/utils/audit-log";
+import { isUniqueViolation } from "@/utils/prisma";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
+
+const upload = multer();
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -40,6 +45,10 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
         email: zod.email().optional(),
         publisherId: zod.string().optional(),
         role: zod.enum(["user", "admin"]).optional(),
+        search: zod.string().trim().min(1).optional(),
+        sort: zod.enum(["name"]).optional(),
+        page: zod.number().int().min(1).optional(),
+        size: zod.number().int().min(1).max(100).optional(),
       })
       .safeParse(req.body);
 
@@ -52,10 +61,15 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       email: body.data.email,
       publisherId: body.data.publisherId,
       role: body.data.role,
+      search: body.data.search,
     };
+    const { page = 1, size } = body.data;
 
-    const users = await userService.findUsers(filters);
-    return res.status(200).send({ ok: true, data: users.map((user) => userService.toPublicUser(user)) });
+    const [users, total] = await Promise.all([
+      userService.findUsers(filters, { sort: body.data.sort, skip: size ? (page - 1) * size : undefined, take: size }),
+      userService.countUsers(filters),
+    ]);
+    return res.status(200).send({ ok: true, data: users.map((user) => userService.toPublicUser(user)), total });
   } catch (error) {
     next(error);
   }
@@ -491,6 +505,27 @@ router.put("/", passport.authenticate("user", { session: false }), async (req: U
   }
 });
 
+router.post("/:id/image", passport.authenticate("user", { session: false }), upload.any(), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (req.user.role !== "admin" && req.user.id !== params.data.id) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN, message: `Not allowed` });
+    }
+    const file = (req.files as Express.Multer.File[] | undefined)?.[0];
+    if (!file || !file.mimetype.startsWith("image/")) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: "An image file is required" });
+    }
+    const response = await putObject(`users/${params.data.id}/${file.originalname}`, file.buffer, { ACL: OBJECT_ACL.PUBLIC_READ });
+    const updated = await userService.updateUser(params.data.id, { photo: response.Location });
+    return res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.put("/change-password", passport.authenticate("user", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
@@ -640,6 +675,11 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         email: zod.email().optional(),
         publishers: zod.array(zod.string()).min(1).optional(),
         role: zod.enum(["admin", "user"]).optional(),
+        slackUserId: zod
+          .string()
+          .regex(/^[UW][A-Z0-9]{2,}$/)
+          .nullable()
+          .optional(),
       })
       .safeParse(req.body);
 
@@ -671,8 +711,22 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.role) {
       patch.role = body.data.role;
     }
+    if (typeof body.data.slackUserId !== "undefined") {
+      patch.slackUserId = body.data.slackUserId;
+    }
 
-    const updated = Object.keys(patch).length ? await userService.updateUser(user.id, patch) : user;
+    let updated = user;
+    try {
+      if (Object.keys(patch).length) {
+        updated = await userService.updateUser(user.id, patch);
+      }
+    } catch (error) {
+      // Index unique partiel : un ID Slack ne peut être lié qu'à un seul compte actif.
+      if (isUniqueViolation(error)) {
+        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "Cet ID Slack ou cet email est déjà utilisé par un autre compte" });
+      }
+      throw error;
+    }
 
     res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
   } catch (error) {

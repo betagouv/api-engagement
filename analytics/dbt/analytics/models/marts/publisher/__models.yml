@@ -33,7 +33,7 @@ models:
       - name: mission_type
         description: Type de mission principal du partenaire (nullable).
       - name: expected_applications
-        description: Candidatures attendues de l'annonceur (nullable) ; true/false = qualifié, null = non renseigné. Pilote l'alerte de vérification du tracking de candidature.
+        description: Tracking des candidatures déployé chez l'annonceur (nullable) ; true/false = qualifié, null = non renseigné. Pilote l'alerte de vérification du tracking de candidature.
       - name: deployment_user_id
         description: Identifiant du user (admin) chargé de déploiement responsable du partenaire (nullable), à notifier en cas d'alerte.
       - name: created_at

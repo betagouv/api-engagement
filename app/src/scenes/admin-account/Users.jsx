@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { HiOutlinePlus } from "react-icons/hi";
-import { RiLoginBoxLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Table from "@/components/Table";
@@ -13,52 +12,69 @@ const TABLE_HEADER = [
   { title: "Email", key: "email", width: "20%" },
   { title: "Partenaires", key: "publishers", position: "center", width: "1%" },
   { title: "Rôle", key: "role", position: "center", width: "10%" },
-  { title: "Accès données", key: "createdAt", position: "center", width: "10%" },
-  { title: "Dernière activité", key: "lastActivityAt", position: "center", width: "10%" },
-  { title: "Se connecter en tant que", position: "center" },
 ];
 
 const PAGE_SIZE = 25;
 
 const Users = () => {
   const [search, setSearch] = useState("");
+  const [role, setRole] = useState("");
   const [page, setPage] = useState(1);
   const [users, setUsers] = useState([]);
   const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const filteredUsers = users.filter((u) => {
-    if (!search) {
-      return true;
-    }
-    return (
-      u.firstname.toLowerCase().includes(search.toLowerCase()) || u.lastname?.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const [total, setTotal] = useState(0);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const timeout = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  useEffect(() => setPage(1), [debouncedSearch, role]);
+
+  useEffect(() => {
+    const fetchPublishers = async () => {
+      try {
+        const res = await api.post("/publisher/search");
+        if (!res.ok) {
+          throw res;
+        }
+        setPublishers(withLegacyPublishers(res.data));
+      } catch (error) {
+        captureError(error);
+      }
+    };
+    fetchPublishers();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchUsers = async () => {
       setLoading(true);
       try {
-        const resU = await api.post("/user/search");
-        if (!resU.ok) {
-          throw resU;
+        const res = await api.post("/user/search", { search: debouncedSearch || undefined, role: role || undefined, sort: "name", page, size: PAGE_SIZE });
+        if (!res.ok) {
+          throw res;
         }
-        setUsers(resU.data);
-
-        const resP = await api.post("/publisher/search");
-        if (!resP.ok) {
-          throw resP;
+        if (!cancelled) {
+          setUsers(res.data);
+          setTotal(res.total);
         }
-        setPublishers(withLegacyPublishers(resP.data));
       } catch (error) {
         captureError(error);
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
-    fetchData();
-  }, []);
+    fetchUsers();
+    return () => {
+      cancelled = true;
+    };
+  }, [debouncedSearch, role, page]);
 
   return (
     <div className="space-y-12 p-4 sm:p-12">
@@ -73,16 +89,24 @@ const Users = () => {
       <div className="border-grey-border overflow-x-auto border p-4 sm:p-6">
         <div role="search" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
           <label htmlFor="user-search" className="sr-only">
-            Rechercher par nom ou par email
+            Rechercher par nom, email ou ID
           </label>
-          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom ou par email" onChange={(e) => setSearch(e.target.value)} />
+          <input id="user-search" name="user-search" className="input flex-1" placeholder="Chercher par nom, email ou ID" onChange={(e) => setSearch(e.target.value)} />
+          <label htmlFor="user-role" className="sr-only">
+            Filtrer par type de compte
+          </label>
+          <select id="user-role" className="input sm:w-48" value={role} onChange={(e) => setRole(e.target.value)}>
+            <option value="">Tous les comptes</option>
+            <option value="user">Utilisateur</option>
+            <option value="admin">Admin</option>
+          </select>
           <Link to="/user/new" className="primary-btn flex shrink-0 items-center">
             Nouvel utilisateur <HiOutlinePlus className="ml-2" aria-hidden="true" />
           </Link>
         </div>
         <div className="min-w-[700px]">
-        <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={filteredUsers.length} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
-          {filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item, i) => (
+        <Table caption="Liste des utilisateurs" header={TABLE_HEADER} total={total} loading={loading} page={page} pageSize={PAGE_SIZE} onPageChange={setPage} auto>
+          {users.map((item, i) => (
             <tr key={item.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
               <td className="table-cell max-w-0">
                 <Link to={`/user/${item.id}`} className="text-blue-france block truncate">
@@ -118,14 +142,6 @@ const Users = () => {
               </td>
               <td className="table-cell text-center">
                 {item.role === "admin" ? <span className="bg-red-marianne-950 rounded px-1">Admin</span> : <span className="bg-green-success-950 rounded px-1">Utilisateur</span>}
-              </td>
-              <td className="table-cell text-center">{new Date(item.createdAt).toLocaleDateString("fr")}</td>
-              <td className="table-cell text-center">{item.lastActivityAt ? new Date(item.lastActivityAt).toLocaleDateString("fr") : "-"}</td>
-              <td className="table-cell text-center">
-                <Link to={`/connect?id=${item.id}`} target="_blank" className="text-blue-france flex items-center justify-center">
-                  Se connecter
-                  <RiLoginBoxLine className="ml-2" aria-hidden="true" />
-                </Link>
               </td>
             </tr>
           ))}

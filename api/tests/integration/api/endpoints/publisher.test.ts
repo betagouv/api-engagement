@@ -80,6 +80,20 @@ describe("Dashboard publisher controller", () => {
     expect(res.body.data.map((publisher: { id: string }) => publisher.id)).toEqual([diffuseur.id]);
   });
 
+  it("matches POST /publisher/search name filter against the publisher id", async () => {
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const target = await createTestPublisher({ name: "Cible" });
+    await createTestPublisher({ name: "Autre" });
+
+    const res = await request(app)
+      .post("/publisher/search")
+      .set({ Authorization: `jwt ${adminToken}` })
+      .send({ name: target.id });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.map((publisher: { id: string }) => publisher.id)).toEqual([target.id]);
+  });
+
   it("allows GET /publisher/:id for an accessible publisher", async () => {
     const res = await request(app).get(`/publisher/${publisherId}`).set(authHeader());
 

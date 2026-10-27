@@ -187,6 +187,30 @@ describe("Dashboard user controller", () => {
       res.body.data.forEach(expectPublicUser);
     });
 
+    it("paginates, sorts by name and searches by id on POST /user/search", async () => {
+      const { user: admin, token: adminToken } = await createTestUser({ role: "admin", firstname: "Zoe", email: "zoe-admin@test.fr" });
+      const { user: anna } = await createTestUser({ firstname: "Anna", email: "anna@test.fr" });
+      await createTestUser({ firstname: "Bob", email: "bob@test.fr" });
+      const search = (body: object) =>
+        request(app)
+          .post("/user/search")
+          .set({ Authorization: `jwt ${adminToken}` })
+          .send(body);
+
+      const page1 = await search({ search: "@test.fr", sort: "name", page: 1, size: 2 });
+      expect(page1.body.total).toBe(3);
+      expect(page1.body.data.map((u: { firstname: string }) => u.firstname)).toEqual(["Anna", "Bob"]);
+
+      const page2 = await search({ search: "@test.fr", sort: "name", page: 2, size: 2 });
+      expect(page2.body.data.map((u: { id: string }) => u.id)).toEqual([admin.id]);
+
+      const byId = await search({ search: anna.id });
+      expect(byId.body.data.map((u: { id: string }) => u.id)).toEqual([anna.id]);
+
+      const admins = await search({ search: "@test.fr", role: "admin" });
+      expect(admins.body.total).toBe(1);
+    });
+
     it("strips sensitive fields from POST /user/login and GET /user/refresh", async () => {
       const { user } = await createTestUser({ password: "SuperSecret123!", publishers: [publisherId] });
 

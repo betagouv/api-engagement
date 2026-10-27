@@ -196,6 +196,8 @@ model User {
   forgotPasswordExpiresAt DateTime? @map("forgot_password_expires_at")
   deletedAt               DateTime? @map("deleted_at")
   brevoContactId          Int?      @map("brevo_contact_id")
+  photo                   String?
+  slackUserId             String?   @map("slack_user_id")
   createdAt               DateTime  @default(now()) @map("created_at")
   updatedAt               DateTime  @updatedAt @map("updated_at")
 
@@ -205,6 +207,7 @@ model User {
   mfaChallenges         MfaChallenge[]
   deploymentPublishers  Publisher[]       @relation("PublisherDeploymentUser")
   warningAssignments    WarningAssignee[] @relation("WarningAssigneeUser")
+  warningComments       WarningComment[]  @relation("WarningCommentAuthor")
 
   @@index([deletedAt], map: "user_deleted_at_idx")
   @@map("user")
@@ -484,25 +487,29 @@ model MissionDiffusion {
 }
 
 model Warning {
-  id           String        @id @default(uuid())
-  type         String
-  title        String?
-  description  String?
-  publisherId  String        @map("publisher_id")
-  seen         Boolean       @default(false)
+  id             String        @id @default(uuid())
+  type           String
+  title          String?
+  description    String?
+  publisherId    String        @map("publisher_id")
+  seen           Boolean       @default(false)
   // Déprécié : utiliser `status`. Conservé pour les vues et jobs existants, synchronisé par warningService (CHECK en base : RESOLVED <=> fixed)
-  fixed        Boolean       @default(false)
-  fixedAt      DateTime?     @map("fixed_at")
-  occurrences  Int           @default(1)
-  status       WarningStatus @default(TODO)
-  procedureUrl String?       @map("procedure_url")
+  fixed          Boolean       @default(false)
+  fixedAt        DateTime?     @map("fixed_at")
+  occurrences    Int           @default(1)
+  status         WarningStatus @default(TODO)
+  procedureUrl   String?       @map("procedure_url")
   // Date du mail d'alerte aux assignés (null = pas encore notifiée)
-  notifiedAt   DateTime?     @map("notified_at")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
+  notifiedAt     DateTime?     @map("notified_at")
+  slackChannelId String?       @map("slack_channel_id")
+  slackMessageTs String?       @map("slack_message_ts")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
 
-  publisher Publisher         @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
-  assignees WarningAssignee[]
+  publisher  Publisher           @relation("WarningPublisherRelation", fields: [publisherId], references: [id], onDelete: Cascade)
+  assignees  WarningAssignee[]
+  comments   WarningComment[]
+  receptions WarningOccurrence[]
 
   // Index unique partiel "warning_open_publisher_type_key" (publisher_id, type) WHERE status <> 'RESOLVED' : voir la migration (non exprimable en Prisma)
   @@index([publisherId], map: "warning_publisher_id_idx")
@@ -523,6 +530,40 @@ model WarningAssignee {
   @@id([warningId, userId])
   @@index([userId], map: "warning_assignee_user_id_idx")
   @@map("warning_assignee")
+}
+
+// Fil de commentaires d'une alerte (détails de résolution) ; `emailMessageId` dédoublonne les réponses mail rejouées par Brevo
+model WarningComment {
+  id             String   @id @default(uuid())
+  warningId      String   @map("warning_id")
+  authorId       String?  @map("author_id")
+  body           String
+  emailMessageId String?  @unique(map: "warning_comment_email_message_id_key") @map("email_message_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  warning Warning @relation(fields: [warningId], references: [id], onDelete: Cascade)
+  author  User?   @relation("WarningCommentAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([warningId, createdAt], map: "warning_comment_warning_id_created_at_idx")
+  @@map("warning_comment")
+}
+
+// Historique des réceptions d'une alerte : une ligne par envoi de la source (Metabase), avec ce qu'elle indiquait à ce moment-là.
+// `warning.occurrences` reste le compteur ; les alertes ouvertes au déploiement ont une ligne initiale.
+model WarningOccurrence {
+  id          String   @id @default(uuid())
+  warningId   String   @map("warning_id")
+  // Origine de la réception : nom de la source d'alertes (`metabase`, via le webhook) ou `job` (anciens jobs de détection)
+  source      String
+  title       String?
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  warning Warning @relation(fields: [warningId], references: [id], onDelete: Cascade)
+
+  @@index([warningId, createdAt], map: "warning_occurrence_warning_id_created_at_idx")
+  @@map("warning_occurrence")
 }
 
 model WarningBot {

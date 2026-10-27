@@ -4,11 +4,15 @@ env       = "production"
 api_hostname               = "api.api-engagement.beta.gouv.fr"
 app_hostname               = "app.api-engagement.beta.gouv.fr"
 benevolat_hostname         = "mission.api-engagement.beta.gouv.fr"
+inbound_email_domain       = "reply.api-engagement.beta.gouv.fr"
 volontariat_hostname       = "sc.api-engagement.beta.gouv.fr"
 piloty_hostname            = "api.piloty.fr"
 bucket_name                = "api-engagement-bucket"
 
 slack_jobteaser_channel_id = "C080H9MH56W"
+slack_warning_channel_id   = "C052V2UF918"
+slack_lbc_channel_id       = "C07SPFG724V"
+slack_cron_channel_id      = "C085S6M2K5J"
 
 core_database_id           = "9a0421d5-c618-4d88-956b-3f758ab9aa0e"
 
@@ -39,10 +43,14 @@ widget_max_scale    = 2
 worker_cpu_limit = 500
 worker_max_scale = 4
 
-enable_widget         = true
-enable_intern_jobs    = true
-enable_analytics_jobs = true
-enable_rdb_backup_job = true
+enable_widget                     = true
+enable_intern_jobs                = true
+enable_analytics_jobs             = true
+enable_rdb_backup_job             = true
+enable_rdb_backup_replication_job = true
+
+rdb_backup_s3_bucket = "api-engagement-rdb-backup"
+
 enable_typesense      = true
 enable_public_gateway = true
 enable_mfa            = true

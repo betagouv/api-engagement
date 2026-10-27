@@ -1,0 +1,75 @@
+name: Deploy security Terraform
+
+on:
+  workflow_call:
+    inputs:
+      branch:
+        required: true
+        type: string
+    secrets:
+      SECURITY_SCW_ACCESS_KEY:
+        required: true
+      SECURITY_SCW_SECRET_KEY:
+        required: true
+      SECURITY_SCW_PROJECT_ID:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect terraform/security changes
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      security: ${{ steps.filter.outputs.security }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.branch || github.ref_name }}
+          fetch-depth: 0
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            security:
+              - 'terraform/security/**'
+
+  apply:
+    name: Apply security Terraform (production)
+    needs: changes
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.security == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    defaults:
+      run:
+        working-directory: terraform/security
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.branch || github.ref_name }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.10.5
+      - name: Export Scaleway environment variables
+        env:
+          SECURITY_SCW_ACCESS_KEY: ${{ secrets.SECURITY_SCW_ACCESS_KEY }}
+          SECURITY_SCW_SECRET_KEY: ${{ secrets.SECURITY_SCW_SECRET_KEY }}
+          SECURITY_SCW_PROJECT_ID: ${{ secrets.SECURITY_SCW_PROJECT_ID }}
+        run: |
+          echo "SCW_ACCESS_KEY=${SECURITY_SCW_ACCESS_KEY}" >> "$GITHUB_ENV"
+          echo "SCW_SECRET_KEY=${SECURITY_SCW_SECRET_KEY}" >> "$GITHUB_ENV"
+          echo "SCW_DEFAULT_PROJECT_ID=${SECURITY_SCW_PROJECT_ID}" >> "$GITHUB_ENV"
+          echo "TF_VAR_project_id=${SECURITY_SCW_PROJECT_ID}" >> "$GITHUB_ENV"
+          echo "AWS_ACCESS_KEY_ID=${SECURITY_SCW_ACCESS_KEY}" >> "$GITHUB_ENV"
+          echo "AWS_SECRET_ACCESS_KEY=${SECURITY_SCW_SECRET_KEY}" >> "$GITHUB_ENV"
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan

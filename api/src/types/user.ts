@@ -16,6 +16,8 @@ export interface UserRecord {
   forgotPasswordExpiresAt: Date | null;
   deletedAt: Date | null;
   brevoContactId: number | null;
+  photo: string | null;
+  slackUserId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,7 +29,14 @@ export interface UserFindParams {
   publisherId?: string;
   role?: UserRole;
   ids?: string[];
+  search?: string;
   includeDeleted?: boolean;
+}
+
+export interface UserListOptions {
+  sort?: "name";
+  skip?: number;
+  take?: number;
 }
 
 export interface UserCreateInput {
@@ -46,6 +55,8 @@ export interface UserCreateInput {
   forgotPasswordExpiresAt?: Date | null;
   deletedAt?: Date | null;
   brevoContactId?: number | null;
+  photo?: string | null;
+  slackUserId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

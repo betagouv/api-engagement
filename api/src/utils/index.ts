@@ -1,4 +1,5 @@
 export * from "@/utils/array";
+export * from "@/utils/date";
 export * from "@/utils/geo";
 export * from "@/utils/job";
 export * from "@/utils/llm";

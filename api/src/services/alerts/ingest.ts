@@ -1,46 +1,25 @@
-import { APP_URL } from "@/config";
 import { captureException } from "@/error";
+import { mailNotifier } from "@/services/alerts/notifiers/mail";
+import { slackNotifier } from "@/services/alerts/notifiers/slack";
+import type { AlertNotifier } from "@/services/alerts/notifiers/types";
 import type { AlertInput } from "@/services/alerts/types";
-import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 import { publisherService } from "@/services/publisher";
 import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
+import type { UserRecord } from "@/types/user";
 import type { WarningRecord } from "@/types/warning";
+import { isUniqueViolation } from "@/utils/prisma";
 
-const formatDate = (date: Date) => new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short", timeZone: "Europe/Paris" }).format(date);
+// Mail en premier (il pilote le verrou), puis les canaux best-effort (Slack).
+const NOTIFIERS = [mailNotifier, slackNotifier];
 
-const isUniqueViolation = (error: unknown) => typeof error === "object" && error !== null && (error as { code?: string }).code === "P2002";
-
-// Envoie le mail d'alerte aux utilisateurs donnés (les emails ne quittent jamais l'API) et renvoie le nombre d'envois réussis.
-// Template Brevo (TEMPLATE_IDS.WARNING_ALERT) géré dans Brevo ; params : firstname, publisherName, title, description,
-// triggeredAtLabel, procedureUrl?, occurrences, alertsUrl. L'objet est défini ici.
-const notifyUsers = async (warning: WarningRecord, userIds: string[]): Promise<number> => {
-  let sent = 0;
-  for (const userId of userIds) {
-    const user = await userService.findUserById(userId);
-    if (!user) {
-      continue;
-    }
-    const { ok } = await sendTemplate(TEMPLATE_IDS.WARNING_ALERT, {
-      emailTo: [user.email],
-      subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}`,
-      params: {
-        firstname: user.firstname,
-        publisherName: warning.publisherName,
-        title: warning.title,
-        description: warning.description,
-        triggeredAt: warning.createdAt.toISOString(),
-        triggeredAtLabel: formatDate(warning.createdAt),
-        procedureUrl: warning.procedureUrl,
-        occurrences: warning.occurrences,
-        alertsUrl: `${APP_URL}/admin-warning`,
-      },
-    });
-    if (ok) {
-      sent++;
-    }
+const runNotifier = async (notifier: AlertNotifier, warning: WarningRecord, users: UserRecord[]) => {
+  try {
+    return await notifier.notify(warning, users);
+  } catch (error) {
+    captureException(error, { extra: { warningId: warning.id, notifier: notifier.name } });
+    return false;
   }
-  return sent;
 };
 
 type Notification = "sent" | "failed" | "unassigned" | "already";
@@ -61,21 +40,22 @@ const ensureNotified = async (warning: WarningRecord, deploymentUserId: string |
   if (!(await warningService.claimNotification(warning.id))) {
     return { warning, notification: "already" };
   }
-  const sent = await notifyUsers(
-    warning,
-    warning.assignees.map((a) => a.id)
-  );
+  const users = (await Promise.all(warning.assignees.map((a) => userService.findUserById(a.id)))).filter((u) => !!u);
+  const [required, optional] = [NOTIFIERS.filter((n) => n.required), NOTIFIERS.filter((n) => !n.required)];
+  const sent = (await Promise.all(required.map((n) => runNotifier(n, warning, users)))).some(Boolean);
   if (!sent) {
     await warningService.releaseNotification(warning.id);
     captureException(new Error("Alert notification not sent"), { extra: { warningId: warning.id, publisherId: warning.publisherId } });
     return { warning, notification: "failed" };
   }
+  await Promise.all(optional.map((n) => runNotifier(n, warning, users)));
   return { warning, notification: "sent" };
 };
 
-const bump = (open: WarningRecord, input: AlertInput) =>
+const bump = (open: WarningRecord, input: AlertInput, source: string) =>
   warningService.updateWarning(open.id, {
     occurrencesIncrement: 1,
+    source,
     ...(input.title ? { title: input.title } : {}),
     ...(input.description ? { description: input.description } : {}),
     ...(input.procedureUrl ? { procedureUrl: input.procedureUrl } : {}),
@@ -83,7 +63,7 @@ const bump = (open: WarningRecord, input: AlertInput) =>
 
 // Crée l'alerte (ou incrémente l'alerte ouverte du même type) puis notifie si ce n'est pas déjà fait.
 // L'unicité d'une alerte ouverte par (annonceur, type) est garantie par un index unique partiel : en cas de course, on incrémente.
-const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; created: boolean; notification: Notification } | null> => {
+const ingest = async (input: AlertInput, source: string): Promise<{ warning: WarningRecord; created: boolean; notification: Notification } | null> => {
   const publisher = await publisherService.findOnePublisherById(input.publisherId);
   if (!publisher) {
     return null;
@@ -95,7 +75,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
   let created = false;
   const open = await findOpen();
   if (open) {
-    warning = await bump(open, input);
+    warning = await bump(open, input, source);
   } else {
     try {
       warning = await warningService.createWarning({
@@ -105,6 +85,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
         publisherId: input.publisherId,
         procedureUrl: input.procedureUrl,
         assigneeIds: deploymentUserId ? [deploymentUserId] : [],
+        source,
       });
       created = true;
     } catch (error) {
@@ -112,7 +93,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
       if (!raced) {
         throw error;
       }
-      warning = await bump(raced, input);
+      warning = await bump(raced, input, source);
     }
   }
 
@@ -122,7 +103,7 @@ const ingest = async (input: AlertInput): Promise<{ warning: WarningRecord; crea
 
 // Ingère un lot d'alertes et résume le résultat. `unassigned` : alertes en attente faute de chargé de déploiement ;
 // `notified` / `notificationFailed` : mails envoyés / échoués (réessayés au prochain webhook).
-export const ingestAlerts = async (alerts: AlertInput[]) => {
+export const ingestAlerts = async (alerts: AlertInput[], source: string) => {
   let created = 0;
   let updated = 0;
   let notified = 0;
@@ -130,7 +111,7 @@ export const ingestAlerts = async (alerts: AlertInput[]) => {
   const unknownPublishers: string[] = [];
   const unassigned: { publisherId: string; publisherName: string | null }[] = [];
   for (const alert of alerts) {
-    const result = await ingest(alert);
+    const result = await ingest(alert, source);
     if (!result) {
       unknownPublishers.push(alert.publisherId);
       continue;

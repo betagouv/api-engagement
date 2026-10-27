@@ -1,9 +1,12 @@
-import { NextFunction, Request, Response } from "express";
-import morgan from "morgan";
 import { buildAuditLog, getAuditEvents } from "@/utils/audit-log";
 import { REQUEST_ID_HEADER } from "@/utils/request-id";
+import { NextFunction, Request, Response } from "express";
+import morgan from "morgan";
 
 const SENSITIVE_FIELDS = ["password", "apikey"];
+
+// Routes dont le corps (mails entrants : expéditeur, texte, en-têtes) ne doit jamais être journalisé.
+const BODY_NOT_LOGGED_PATHS = ["/inbound-email", "/slack/interactions"];
 
 const httpLogger = morgan<Request, Response>(
   (tokens, req, res) => {
@@ -29,7 +32,7 @@ const httpLogger = morgan<Request, Response>(
     }
 
     const method = tokens.method(req, res);
-    if ((method === "POST" || method === "PUT") && req.body) {
+    if ((method === "POST" || method === "PUT") && req.body && !BODY_NOT_LOGGED_PATHS.includes(log.path)) {
       const bodyToLog = { ...req.body };
 
       SENSITIVE_FIELDS.forEach((field) => {

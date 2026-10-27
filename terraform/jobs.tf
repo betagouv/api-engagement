@@ -8,6 +8,9 @@ locals {
     "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
     "BUCKET_NAME"                = var.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
+    "SLACK_WARNING_CHANNEL_ID"   = var.slack_warning_channel_id
+    "SLACK_LBC_CHANNEL_ID"       = var.slack_lbc_channel_id
+    "SLACK_CRON_CHANNEL_ID"      = var.slack_cron_channel_id
     "PRISMA_POOL_SIZE_CORE"      = "8"
     "PRISMA_POOL_TIMEOUT"        = "20"
     "PRISMA_CONNECT_TIMEOUT"     = "10"
@@ -368,8 +371,8 @@ resource "scaleway_job_definition" "rebuild-matching-catalog" {
   memory_limit           = 2048
   local_storage_capacity = 1024
   image_uri              = local.image_uri
-  startup_command        = ["node"]
-  args                   = ["dist/jobs/run-job.js", "rebuild-matching-catalog"]
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "dist/jobs/run-job.js", "rebuild-matching-catalog"]
   timeout                = "60m"
 
   env = local.all_env_vars
@@ -483,4 +486,38 @@ resource "scaleway_job_definition" "rdb-backup" {
     "RDB_BACKUP_DATABASE_NAME"  = "rdb"
     "RDB_BACKUP_RETENTION_DAYS" = 7
   })
+}
+
+resource "scaleway_job_definition" "rdb-backup-replication" {
+  count                  = var.enable_rdb_backup_replication_job ? 1 : 0
+  name                   = "${terraform.workspace}-rdb-backup-replication"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["node"]
+  args                   = ["dist/jobs/run-job.js", "rdb-backup-replication"]
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 22 * * *"
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.all_env_vars, {
+    "RDB_BACKUP_INSTANCE_ID"   = var.core_database_id
+    "RDB_BACKUP_DATABASE_NAME" = "rdb"
+    "RDB_BACKUP_S3_BUCKET"     = var.rdb_backup_s3_bucket
+    "RDB_BACKUP_S3_REGION"     = var.rdb_backup_s3_region
+    "RDB_BACKUP_S3_ACCESS_KEY" = lookup(local.secrets, "RDB_BACKUP_S3_ACCESS_KEY", "")
+    "RDB_BACKUP_S3_SECRET_KEY" = lookup(local.secrets, "RDB_BACKUP_S3_SECRET_KEY", "")
+  })
+
+  lifecycle {
+    precondition {
+      condition     = trimspace(var.rdb_backup_s3_bucket) != ""
+      error_message = "Renseigner rdb_backup_s3_bucket avec le bucket créé par terraform/security avant d'activer le job de réplication."
+    }
+  }
 }
