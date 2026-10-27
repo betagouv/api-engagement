@@ -1,6 +1,6 @@
 export const DOMAIN_LABELS: Record<string, string> = {
   animaux: "Animaux",
-  autre: "Interventions d'urgence",
+  autre: "Autre",
   "batiment-industrie-logistique": "Bâtiment, Industrie, Logistique",
   "benevolat-competences": "Bénévolat de compétences",
   communication: "Communication",
@@ -8,8 +8,8 @@ export const DOMAIN_LABELS: Record<string, string> = {
   education: "Éducation pour tous",
   emploi: "Emploi",
   environnement: "Environnement",
-  "gestion-finance-droit": "Gestion, commerce, finance, droit et services",
-  humanitaire: "International et humanitaire",
+  "gestion-finance-droit": "Gestion, finance, droit et services",
+  humanitaire: "Aide humanitaire",
   numerique: "Numérique",
   "memoire-et-citoyennete": "Mémoire et citoyenneté",
   "prevention-protection": "Prévention et protection",
