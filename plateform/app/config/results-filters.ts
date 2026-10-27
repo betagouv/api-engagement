@@ -64,13 +64,6 @@ export const FILTERS: ResultsFilterDef[] = [
     ],
   },
   {
-    stepId: "equipe",
-    label: "l’équipe",
-    placeholder: "Ton équipe",
-    single: true,
-    optionKeys: ["equipe.petit_groupe", "equipe.grand_collectif"],
-  },
-  {
     stepId: "autonomie",
     label: "l’accompagnement",
     placeholder: "Ton cadre",
