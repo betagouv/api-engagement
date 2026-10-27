@@ -279,19 +279,11 @@ jobs:
           retention-days: 30
 
   app-tests:
-    name: App E2E Tests (${{ matrix.shard }}/2)
+    name: App E2E Tests
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
-    container:
-      # Garder la version alignée sur Playwright dans package-lock.json.
-      image: mcr.microsoft.com/playwright:v1.63.0-resolute
-      options: --init --ipc=host
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
     permissions:
       contents: read
       actions: write
@@ -308,23 +300,18 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
+      - name: Check Chrome
+        run: google-chrome --version
+
       - name: Run tests
-        run: npm --workspace app run test:e2e:functional -- --shard=${{ matrix.shard }}/2
+        run: npm --workspace app run test:e2e:functional
 
   app-accessibility-tests:
-    name: App Accessibility Tests (${{ matrix.shard }}/2)
+    name: App Accessibility Tests
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
-    container:
-      # Garder la version alignée sur Playwright dans package-lock.json.
-      image: mcr.microsoft.com/playwright:v1.63.0-resolute
-      options: --init --ipc=host
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
     permissions:
       contents: read
     steps:
@@ -340,8 +327,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
+      - name: Check Chrome
+        run: google-chrome --version
+
       - name: Run accessibility tests
-        run: npm --workspace app run test:e2e:a11y -- --shard=${{ matrix.shard }}/2
+        run: npm --workspace app run test:e2e:a11y
 
   plateform-tests:
     name: Plateform Tests
@@ -364,19 +354,11 @@ jobs:
         run: npm --workspace plateform run test
 
   plateform-accessibility-tests:
-    name: Plateform Accessibility Tests (${{ matrix.shard }}/2)
+    name: Plateform Accessibility Tests
     needs: changes
     if: needs.changes.outputs.plateform == 'true'
     runs-on: ubuntu-latest
-    container:
-      # Garder la version alignée sur Playwright dans package-lock.json.
-      image: mcr.microsoft.com/playwright:v1.63.0-resolute
-      options: --init --ipc=host
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
     permissions:
       contents: read
     steps:
@@ -392,8 +374,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspace plateform --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
+      - name: Check Chrome
+        run: google-chrome --version
+
       - name: Run accessibility tests
-        run: npm --workspace plateform run test:e2e:a11y -- --shard=${{ matrix.shard }}/2
+        run: npm --workspace plateform run test:e2e:a11y
 
   taxonomy-tests:
     name: Taxonomy Tests
