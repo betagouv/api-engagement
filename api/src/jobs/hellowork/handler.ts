@@ -1,6 +1,7 @@
 import fs from "fs";
+import { z } from "zod";
 
-import { ENV, PUBLISHER_IDS } from "@/config";
+import { ENV } from "@/config";
 import { Prisma } from "@/db/core";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
@@ -12,31 +13,39 @@ import { JobResult } from "@/jobs/types";
 import { importService } from "@/services/import";
 import { getMissionsCursor } from "@/utils/mission-cursor";
 
-export interface HelloworkJobPayload {}
+const payloadSchema = z.object({ publisherId: z.string().min(1) });
+
+// `publisherId` = diffuseur du flux (Hellowork, Jobijoba…) : un lancement du job = un flux.
+export type HelloworkJobPayload = z.infer<typeof payloadSchema>;
 
 export interface HelloworkJobResult extends JobResult {
   url?: string;
   counter: { processed: number; sent: number; skipped: number };
 }
 
-// Le périmètre n'est pas restreint dans le code : seul le snapshot `mission_diffusion` de HELLOWORK
-// (paramètre `diffuseurPublisherId` de `buildWhere`) décide des missions diffusées. Le transformer
-// ne formate que les dispositifs gérés (Service Civique) et ignore les autres.
+// Le périmètre n'est pas restreint dans le code : seul le snapshot `mission_diffusion` du diffuseur
+// (paramètre `diffuseurPublisherId` de `buildWhere`) décide des missions diffusées.
 export class HelloworkHandler implements BaseHandler<HelloworkJobPayload, HelloworkJobResult> {
   name = "Génération du feed Hellowork";
 
-  public async handle(): Promise<HelloworkJobResult> {
+  public async handle(payload: HelloworkJobPayload): Promise<HelloworkJobResult> {
     const start = new Date();
+    const parsed = payloadSchema.safeParse(payload);
+    if (!parsed.success) {
+      console.error("[Hellowork] paramètres invalides : publisherId requis");
+      return { success: false, timestamp: start, url: "", counter: { processed: 0, sent: 0, skipped: 0 }, message: "Paramètre publisherId requis" };
+    }
+    const { publisherId } = parsed.data;
     const counter = { processed: 0, sent: 0, skipped: 0 };
     try {
       const offers: HelloworkOffer[] = [];
       const missions = getMissionsCursor(
-        { diffuseurPublisherId: PUBLISHER_IDS.HELLOWORK, statusCode: "ACCEPTED" },
+        { diffuseurPublisherId: publisherId, statusCode: "ACCEPTED" },
         { limit: HELLOWORK_MAX_OFFERS, orderBy: { createdAt: Prisma.SortOrder.desc } }
       );
       for await (const mission of missions) {
         counter.processed++;
-        const offer = missionToOffer(mission);
+        const offer = missionToOffer(mission, publisherId);
         if (offer) {
           offers.push(offer);
         } else {
@@ -48,13 +57,14 @@ export class HelloworkHandler implements BaseHandler<HelloworkJobPayload, Hellow
       const xml = generateXML(offers);
       let url: string;
       if (ENV === "development") {
-        fs.writeFileSync("hellowork.xml", xml);
-        url = "file://hellowork.xml";
+        const file = `hellowork-${publisherId}.xml`;
+        fs.writeFileSync(file, xml);
+        url = `file://${file}`;
       } else {
-        url = await storeXML(xml);
-        await this.recordImport("SUCCESS", offers.length, start);
+        url = await storeXML(xml, publisherId);
+        await this.recordImport(publisherId, "SUCCESS", offers.length, start);
       }
-      console.log(`[Hellowork] ${offers.length} offres (${counter.skipped} ignorées) : ${url}`);
+      console.log(`[Hellowork ${publisherId}] ${offers.length} offres (${counter.skipped} ignorées) : ${url}`);
 
       return {
         success: true,
@@ -68,7 +78,7 @@ export class HelloworkHandler implements BaseHandler<HelloworkJobPayload, Hellow
       console.error("[Hellowork] génération en échec", error);
       // La trace d'échec ne doit jamais masquer le résultat du job.
       try {
-        await this.recordImport("FAILED", 0, start);
+        await this.recordImport(publisherId, "FAILED", 0, start);
       } catch (importError) {
         captureException(importError);
       }
@@ -76,13 +86,13 @@ export class HelloworkHandler implements BaseHandler<HelloworkJobPayload, Hellow
     }
   }
 
-  private async recordImport(status: "SUCCESS" | "FAILED", createdCount: number, start: Date): Promise<void> {
+  private async recordImport(publisherId: string, status: "SUCCESS" | "FAILED", createdCount: number, start: Date): Promise<void> {
     if (ENV === "development") {
       return;
     }
     await importService.createImport({
       name: "HELLOWORK",
-      publisherId: PUBLISHER_IDS.HELLOWORK,
+      publisherId,
       createdCount,
       startedAt: start,
       finishedAt: new Date(),

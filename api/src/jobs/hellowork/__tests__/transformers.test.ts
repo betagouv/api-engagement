@@ -32,7 +32,7 @@ const scMission: Partial<MissionRecord> = {
 
 describe("missionToOffer — Service Civique", () => {
   it("mappe une mission SC valide", () => {
-    const offer = missionToOffer(scMission as MissionRecord)!;
+    const offer = missionToOffer(scMission as MissionRecord, PUBLISHER_IDS.HELLOWORK)!;
     expect(offer.Nom_Ese).toBe("Une association");
     expect(offer.Agence).toBe("Service Civique");
     expect(offer.Poste).toBe("Service Civique - Aider les personnes âgées");
@@ -51,49 +51,55 @@ describe("missionToOffer — Service Civique", () => {
   });
 
   it("échappe le HTML et sépare les paragraphes dans la description", () => {
-    const offer = missionToOffer(scMission as MissionRecord)!;
+    const offer = missionToOffer(scMission as MissionRecord, PUBLISHER_IDS.HELLOWORK)!;
     expect(offer.DescriptionPoste).toBe("<p>Première ligne.</p><p>Deuxième &amp; fin.</p>");
     expect(offer.DescriptionEntreprise).toBe("<p>Qui aide.</p>");
   });
 
   it("place le texte « Profil recherché » en tête puis les prérequis de la mission", () => {
-    const profil = missionToOffer(scMission as MissionRecord)!.Profil;
+    const profil = missionToOffer(scMission as MissionRecord, PUBLISHER_IDS.HELLOWORK)!.Profil;
     expect(profil.startsWith("<p>Pour postuler à un Service Civique, vous devez obligatoirement :</p>")).toBe(true);
     expect(profil).toContain("619,83 € nets");
     expect(profil.endsWith("<ul><li>Être motivé</li></ul>")).toBe(true);
   });
 
-  it("ignore une mission d'un autre dispositif", () => {
-    expect(missionToOffer({ ...scMission, publisherId: PUBLISHER_IDS.JEVEUXAIDER } as MissionRecord)).toBeNull();
+  it("n'applique ni préfixe ni profil Service Civique aux autres dispositifs, et trace pour le diffuseur demandé", () => {
+    const offer = missionToOffer({ ...scMission, publisherId: PUBLISHER_IDS.JEVEUXAIDER, title: "Maintenir un lien" } as MissionRecord, "jobijoba-id")!;
+    expect(offer.Poste).toBe("Maintenir un lien");
+    expect(offer.Profil).toBe("<ul><li>Être motivé</li></ul>");
+    expect(offer.Url_Reponse).toBe("https://api/r/uuid-sc-1/jobijoba-id");
   });
 
   it("ignore une mission sans organisation, non localisable ou expirée", () => {
-    expect(missionToOffer({ ...scMission, organizationName: null } as MissionRecord)).toBeNull();
-    expect(missionToOffer({ ...scMission, addresses: [{ city: "Lyon", postalCode: null } as any] } as MissionRecord)).toBeNull();
-    expect(missionToOffer({ ...scMission, endAt: new Date("2020-01-01") } as MissionRecord)).toBeNull();
+    expect(missionToOffer({ ...scMission, organizationName: null } as MissionRecord, PUBLISHER_IDS.HELLOWORK)).toBeNull();
+    expect(missionToOffer({ ...scMission, addresses: [{ city: "Lyon", postalCode: null } as any] } as MissionRecord, PUBLISHER_IDS.HELLOWORK)).toBeNull();
+    expect(missionToOffer({ ...scMission, endAt: new Date("2020-01-01") } as MissionRecord, PUBLISHER_IDS.HELLOWORK)).toBeNull();
   });
 
   it("émet toutes les adresses valides, sans plafond", () => {
     const addresses = Array.from({ length: 10 }, (_, i) => ({ city: `Ville ${i}`, postalCode: `6900${i}` }) as any);
-    expect(missionToOffer({ ...scMission, addresses } as MissionRecord)!.AdressesPostales.AdressePostale).toHaveLength(10);
+    expect(missionToOffer({ ...scMission, addresses } as MissionRecord, PUBLISHER_IDS.HELLOWORK)!.AdressesPostales.AdressePostale).toHaveLength(10);
   });
 
   it("repli Paris 75001 pour une mission 100 % à distance sans adresse", () => {
-    const offer = missionToOffer({ ...scMission, remote: "full", addresses: [] } as MissionRecord)!;
+    const offer = missionToOffer({ ...scMission, remote: "full", addresses: [] } as MissionRecord, PUBLISHER_IDS.HELLOWORK)!;
     expect(offer.Ville).toBe("Paris");
     expect(offer.AdressesPostales.AdressePostale[0]).toMatchObject({ CodePostal: "75001", Ville: "Paris", Pays: "France" });
     expect(offer.Criteres.Teletravail).toBe("Complet");
   });
 
   it("mappe télétravail partiel, secteur par défaut et rémunération", () => {
-    const offer = missionToOffer({
-      ...scMission,
-      remote: "possible",
-      domain: "inconnu",
-      compensationAmount: 620,
-      compensationAmountMax: 700,
-      compensationUnit: "month",
-    } as MissionRecord)!;
+    const offer = missionToOffer(
+      {
+        ...scMission,
+        remote: "possible",
+        domain: "inconnu",
+        compensationAmount: 620,
+        compensationAmountMax: 700,
+        compensationUnit: "month",
+      } as MissionRecord,
+      PUBLISHER_IDS.HELLOWORK
+    )!;
     expect(offer.Criteres.Teletravail).toBe("Partiel");
     expect(offer.Criteres.CritereSecteur).toBe("Santé/Social/Association");
     expect(offer.NiveauSalaire).toEqual({ "@_Devise": "EUR", "@_Periodicite": "MONTH", "@_Affichable": "true", SalaireMin: 620, SalaireMax: 700 });
@@ -129,7 +135,7 @@ describe("utils", () => {
   });
 
   it("generateXML produit <root>/<offre> avec CDATA et attributs", () => {
-    const offer = missionToOffer({ ...scMission, compensationAmount: 620, compensationUnit: "month" } as MissionRecord)!;
+    const offer = missionToOffer({ ...scMission, compensationAmount: 620, compensationUnit: "month" } as MissionRecord, PUBLISHER_IDS.HELLOWORK)!;
     const xml = generateXML([offer]);
     expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>\n<root>')).toBe(true);
     expect(xml).toContain("<offre>");

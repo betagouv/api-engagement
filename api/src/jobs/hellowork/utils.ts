@@ -76,9 +76,10 @@ export function generateXML(offers: HelloworkOffer[]): string {
   return `<?xml version="1.0" encoding="UTF-8"?>\n${buildFeedXml({ offre: offers }, CDATA_KEYS, "root")}`;
 }
 
-/** Publie le flux sur S3 sous une URL stable (non horodatée). */
-export async function storeXML(xml: string): Promise<string> {
-  await putObject("xml/hellowork.xml", xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
+/** Publie le flux d'un diffuseur sur S3 sous une URL stable (non horodatée), une par publisher. */
+export async function storeXML(xml: string, publisherId: string): Promise<string> {
+  const key = `xml/hellowork-${publisherId}.xml`;
+  await putObject(key, xml, { ContentType: "application/xml", ACL: OBJECT_ACL.PUBLIC_READ });
 
-  return `${BUCKET_URL}/xml/hellowork.xml`;
+  return `${BUCKET_URL}/${key}`;
 }

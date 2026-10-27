@@ -52,14 +52,16 @@ function resolveMission(mission: MissionRecord): HelloworkOffer["Mission"] {
 }
 
 /**
- * Transforme une mission en offre Hellowork. Seul le dispositif Service Civique est formaté en V1
- * (contrat « Stage », titre préfixé, profil fixe) ; les autres missions sont ignorées.
- * Retourne null si la mission est ignorée : autre dispositif, sans organisation, non localisable ou expirée.
+ * Transforme une mission en offre Hellowork pour le diffuseur `diffuseurPublisherId` (Hellowork, Jobijoba…).
+ * Le périmètre est décidé par les règles de diffusion ; seule la mise en forme dépend du dispositif :
+ * Service Civique = titre préfixé + profil fixe, autres = titre et prérequis de la mission tels quels.
+ * Retourne null si la mission est ignorée : sans organisation, non localisable ou expirée.
  */
-export function missionToOffer(mission: MissionRecord): HelloworkOffer | null {
-  if (mission.publisherId !== PUBLISHER_IDS.SERVICE_CIVIQUE || !mission.organizationName || !mission.title) {
+export function missionToOffer(mission: MissionRecord, diffuseurPublisherId: string): HelloworkOffer | null {
+  if (!mission.organizationName || !mission.title) {
     return null;
   }
+  const isServiceCivique = mission.publisherId === PUBLISHER_IDS.SERVICE_CIVIQUE;
   if (mission.endAt && mission.endAt.getTime() < Date.now()) {
     return null;
   }
@@ -71,17 +73,17 @@ export function missionToOffer(mission: MissionRecord): HelloworkOffer | null {
   return {
     Nom_Ese: mission.organizationName,
     Agence: mission.publisherName || undefined,
-    Poste: buildScTitle(mission.title),
+    Poste: isServiceCivique ? buildScTitle(mission.title) : mission.title.trim(),
     Reference: mission.id,
     ExternalId: mission.id,
     DescriptionEntreprise: textToHtml(mission.organizationDescription) || undefined,
     // `description` peut être aplati (sans \n) : on repart de `descriptionHtml` quand il existe.
     DescriptionPoste: textToHtml(mission.descriptionHtml || mission.description),
-    Profil: `${SC_PROFIL_HTML}${listToHtml(mission.requirements ?? [])}`,
+    Profil: `${isServiceCivique ? SC_PROFIL_HTML : ""}${listToHtml(mission.requirements ?? [])}`,
     AdressesPostales: { AdressePostale: addresses },
     Ville: addresses[0].Ville,
     NiveauSalaire: resolveSalary(mission),
-    Url_Reponse: getMissionTrackedApplicationUrl(mission, PUBLISHER_IDS.HELLOWORK),
+    Url_Reponse: getMissionTrackedApplicationUrl(mission, diffuseurPublisherId),
     Aveugle: 0,
     DateAnnonce: formatDate(mission.postedAt ?? mission.createdAt),
     DateModification: formatDate(mission.updatedAt),

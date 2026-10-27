@@ -19,9 +19,8 @@ import { createTestMission, createTestPublisher } from "../../../fixtures";
 /**
  * Hellowork job integration tests
  *
- * Hellowork est un *diffuseur* : un seul flux XML, dont le périmètre vient uniquement du snapshot
- * `mission_diffusion` de HELLOWORK. Le code ne restreint pas les publishers : il formate le Service
- * Civique et ignore les autres dispositifs. putObject (S3) est mocké globalement (tests/vitest/shared.ts).
+ * Hellowork et Jobijoba sont des *diffuseurs* : un flux XML par publisherId (paramètre du job), dont le
+ * périmètre vient uniquement de leur snapshot `mission_diffusion`. Le code ne restreint pas les publishers. putObject (S3) est mocké globalement (tests/vitest/shared.ts).
  */
 
 const HELLOWORK_ID = PUBLISHER_IDS.HELLOWORK;
@@ -35,8 +34,8 @@ const NEXT_YEAR = new Date(Date.now() + 365 * 24 * 3600 * 1000);
 
 const handler = new HelloworkHandler();
 
-function getStoredXml(): string | undefined {
-  return vi.mocked(putObject).mock.calls.find(([key]) => key === "xml/hellowork.xml")?.[1] as string | undefined;
+function getStoredXml(publisherId = HELLOWORK_ID): string | undefined {
+  return vi.mocked(putObject).mock.calls.find(([key]) => key === `xml/hellowork-${publisherId}.xml`)?.[1] as string | undefined;
 }
 
 beforeEach(async () => {
@@ -50,9 +49,8 @@ beforeEach(async () => {
 });
 
 describe("HelloworkHandler (integration test)", () => {
-  it("publie les missions Service Civique du snapshot et ignore les autres dispositifs", async () => {
+  it("publie uniquement les missions du snapshot du diffuseur", async () => {
     await publisherDiffusionRuleService.findOrCreateScopeRoot(HELLOWORK_ID, SC_ID);
-    await publisherDiffusionRuleService.findOrCreateScopeRoot(HELLOWORK_ID, JVA_ID);
 
     const sc = await createTestMission({
       publisherId: SC_ID,
@@ -72,9 +70,9 @@ describe("HelloworkHandler (integration test)", () => {
     });
     await missionDiffusionService.rebuildForDistributionPublisher(HELLOWORK_ID);
 
-    const result = await handler.handle();
+    const result = await handler.handle({ publisherId: HELLOWORK_ID });
     expect(result.success).toBe(true);
-    expect(result.counter).toEqual({ processed: 2, sent: 1, skipped: 1 });
+    expect(result.counter).toEqual({ processed: 1, sent: 1, skipped: 0 });
 
     const xml = getStoredXml();
     expect(xml).toContain(sc.id);
@@ -85,6 +83,43 @@ describe("HelloworkHandler (integration test)", () => {
     const imports = await prisma.import.findMany({ where: { publisherId: HELLOWORK_ID } });
     expect(imports).toHaveLength(1);
     expect(imports[0]).toMatchObject({ name: "HELLOWORK", status: "SUCCESS", createdCount: 1 });
+  });
+
+  it("génère un flux distinct par diffuseur, sans préfixe Service Civique hors SC", async () => {
+    const JOBIJOBA_ID = "aaaaaaaaaaaaaaaaaaaaaaaa";
+    await createTestPublisher({ id: JOBIJOBA_ID, name: "Jobijoba" });
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(HELLOWORK_ID, SC_ID);
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(JOBIJOBA_ID, JVA_ID);
+    const sc = await createTestMission({ publisherId: SC_ID, statusCode: "ACCEPTED", organizationName: "Une association", endAt: NEXT_YEAR, title: "Aider", addresses: LYON });
+    const jva = await createTestMission({
+      publisherId: JVA_ID,
+      statusCode: "ACCEPTED",
+      organizationName: "Une association",
+      endAt: NEXT_YEAR,
+      title: "Maintenir un lien",
+      addresses: LYON,
+    });
+    await missionDiffusionService.rebuildForDistributionPublisher(HELLOWORK_ID);
+    await missionDiffusionService.rebuildForDistributionPublisher(JOBIJOBA_ID);
+
+    expect((await handler.handle({ publisherId: HELLOWORK_ID })).success).toBe(true);
+    expect((await handler.handle({ publisherId: JOBIJOBA_ID })).success).toBe(true);
+
+    const hw = getStoredXml(HELLOWORK_ID)!;
+    expect(hw).toContain(sc.id);
+    expect(hw).not.toContain(jva.id);
+    const jj = getStoredXml(JOBIJOBA_ID)!;
+    expect(jj).toContain(jva.id);
+    expect(jj).not.toContain(sc.id);
+    expect(jj).toContain("Maintenir un lien");
+    expect(jj).not.toContain("Service Civique -");
+    expect(jj).toContain(`/r/${jva.id}/${JOBIJOBA_ID}`);
+    expect(await prisma.import.count({ where: { publisherId: JOBIJOBA_ID, status: "SUCCESS" } })).toBe(1);
+  });
+
+  it("refuse un lancement sans publisherId", async () => {
+    expect((await handler.handle({} as any)).success).toBe(false);
+    expect(putObject).not.toHaveBeenCalled();
   });
 
   it("n'inclut que les missions matérialisées dans le snapshot (exclusion d'organisation)", async () => {
@@ -114,7 +149,7 @@ describe("HelloworkHandler (integration test)", () => {
     });
     await missionDiffusionService.rebuildForDistributionPublisher(HELLOWORK_ID);
 
-    expect((await handler.handle()).success).toBe(true);
+    expect((await handler.handle({ publisherId: HELLOWORK_ID })).success).toBe(true);
 
     const xml = getStoredXml();
     expect(xml).toContain(kept.id);
@@ -127,7 +162,7 @@ describe("HelloworkHandler (integration test)", () => {
     await missionDiffusionService.rebuildForDistributionPublisher(HELLOWORK_ID);
     vi.mocked(putObject).mockRejectedValueOnce(new Error("S3 indisponible"));
 
-    const result = await handler.handle();
+    const result = await handler.handle({ publisherId: HELLOWORK_ID });
     expect(result.success).toBe(false);
 
     const imports = await prisma.import.findMany({ where: { publisherId: HELLOWORK_ID } });
@@ -195,7 +230,7 @@ describe("HelloworkHandler — conformité du XML", () => {
     await createTestMission({ ...common, title: "Service civique - Mission à distance", remote: "full", addresses: [], domain: "inconnu" });
     await missionDiffusionService.rebuildForDistributionPublisher(HELLOWORK_ID);
 
-    expect((await handler.handle()).success).toBe(true);
+    expect((await handler.handle({ publisherId: HELLOWORK_ID })).success).toBe(true);
     const xml = getStoredXml()!;
     expect(xml).toBeDefined();
     return xml;
