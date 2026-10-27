@@ -45,6 +45,10 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
         email: zod.email().optional(),
         publisherId: zod.string().optional(),
         role: zod.enum(["user", "admin"]).optional(),
+        search: zod.string().trim().min(1).optional(),
+        sort: zod.enum(["name"]).optional(),
+        page: zod.number().int().min(1).optional(),
+        size: zod.number().int().min(1).max(100).optional(),
       })
       .safeParse(req.body);
 
@@ -57,10 +61,15 @@ router.post("/search", passport.authenticate("admin", { session: false }), async
       email: body.data.email,
       publisherId: body.data.publisherId,
       role: body.data.role,
+      search: body.data.search,
     };
+    const { page = 1, size } = body.data;
 
-    const users = await userService.findUsers(filters);
-    return res.status(200).send({ ok: true, data: users.map((user) => userService.toPublicUser(user)) });
+    const [users, total] = await Promise.all([
+      userService.findUsers(filters, { sort: body.data.sort, skip: size ? (page - 1) * size : undefined, take: size }),
+      userService.countUsers(filters),
+    ]);
+    return res.status(200).send({ ok: true, data: users.map((user) => userService.toPublicUser(user)), total });
   } catch (error) {
     next(error);
   }

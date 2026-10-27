@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 
 import { Prisma } from "@/db/core";
 import { userRepository } from "@/repositories/user";
-import type { PublicUserRecord, UserCreateInput, UserFindParams, UserRecord, UserUpdatePatch } from "@/types/user";
+import type { PublicUserRecord, UserCreateInput, UserFindParams, UserListOptions, UserRecord, UserUpdatePatch } from "@/types/user";
 
 const SALT_ROUNDS = 10;
 
@@ -56,6 +56,10 @@ const buildWhere = (params: UserFindParams = {}): Prisma.UserWhereInput => {
   }
   if (params.ids && params.ids.length > 0) {
     where.id = { in: params.ids };
+  }
+  if (params.search) {
+    const contains = { contains: params.search, mode: Prisma.QueryMode.insensitive };
+    where.OR = [{ id: params.search }, { firstname: contains }, { lastname: contains }, { email: contains }];
   }
   return where;
 };
@@ -187,10 +191,16 @@ export const userService = {
     return publicUser;
   },
 
-  async findUsers(params: UserFindParams = {}): Promise<UserRecord[]> {
+  async countUsers(params: UserFindParams = {}): Promise<number> {
+    return userRepository.count({ where: buildWhere(params) });
+  },
+
+  async findUsers(params: UserFindParams = {}, options: UserListOptions = {}): Promise<UserRecord[]> {
     const users = (await userRepository.findMany({
       where: buildWhere(params),
-      orderBy: { createdAt: Prisma.SortOrder.desc },
+      orderBy: options.sort === "name" ? [{ firstname: Prisma.SortOrder.asc }, { lastname: Prisma.SortOrder.asc }, { id: Prisma.SortOrder.asc }] : { createdAt: Prisma.SortOrder.desc },
+      skip: options.skip,
+      take: options.take,
       include: defaultInclude,
     })) as UserWithPublishers[];
     return users.map(toUserRecord);

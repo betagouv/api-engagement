@@ -29,7 +29,14 @@ export interface UserFindParams {
   publisherId?: string;
   role?: UserRole;
   ids?: string[];
+  search?: string;
   includeDeleted?: boolean;
+}
+
+export interface UserListOptions {
+  sort?: "name";
+  skip?: number;
+  take?: number;
 }
 
 export interface UserCreateInput {

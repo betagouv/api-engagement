@@ -1,7 +1,7 @@
 import { toast } from "@/services/toast";
 import _ from "lodash";
 import { useEffect, useState } from "react";
-import { RiCloseFill, RiFileCopyFill } from "react-icons/ri";
+import { RiCloseFill, RiFileCopyFill, RiLoginBoxLine } from "react-icons/ri";
 import { TiDeleteOutline } from "react-icons/ti";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -170,6 +170,16 @@ const Edit = () => {
         </div>
         <div className="flex items-center gap-4">
           <Avatar user={user} className="h-16 w-16" />
+          <dl className="text-sm">
+            <div className="flex gap-2">
+              <dt className="font-semibold">Accès données :</dt>
+              <dd>{new Date(user.createdAt).toLocaleDateString("fr")}</dd>
+            </div>
+            <div className="flex gap-2">
+              <dt className="font-semibold">Dernière activité :</dt>
+              <dd>{user.lastActivityAt ? new Date(user.lastActivityAt).toLocaleDateString("fr") : "-"}</dd>
+            </div>
+          </dl>
           <div>
             <label htmlFor="photo" className="secondary-btn cursor-pointer">
               {user.photo ? "Changer la photo" : "Ajouter une photo"}
@@ -266,6 +276,10 @@ const Edit = () => {
         <div className="flex flex-wrap justify-end gap-4">
           <Link to="/admin-account" className="tertiary-btn">
             Retour
+          </Link>
+          <Link to={`/connect?id=${user.id}`} target="_blank" className="tertiary-btn flex items-center">
+            Se connecter en tant que
+            <RiLoginBoxLine className="ml-2" aria-hidden="true" />
           </Link>
           <ResetPasswordModal user={user} />
           <button type="button" className="primary-btn" onClick={handleInviteAgain}>
