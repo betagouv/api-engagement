@@ -49,7 +49,7 @@ export default function MissionCard({
           {domainLabel && (
             <span
               title={domainLabel}
-              className={`bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 h-4 block truncate leading-4! text-xs uppercase w-fit! ${onEmailClick ? "max-w-[calc(100%-2.5rem)]" : "max-w-full"}`}
+              className={`bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 block leading-4! text-xs uppercase w-fit! ${onEmailClick ? "max-w-[calc(100%-2.5rem)]" : "max-w-full"}`}
             >
               {domainLabel}
             </span>
@@ -63,7 +63,7 @@ export default function MissionCard({
         {tags && (
           <div className="flex mt-auto flex-1 max-h-14 flex-wrap content-start gap-2 overflow-hidden">
             {tags.map((tag) => (
-              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex items-center rounded-full px-2.5 py-0.5 text-xs! whitespace-nowrap truncate">
+              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs!">
                 {tag}
               </span>
             ))}
