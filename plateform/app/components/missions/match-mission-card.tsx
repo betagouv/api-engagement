@@ -52,6 +52,7 @@ export default function MatchMissionCard({
       publisherName={mission.publisherName}
       publisherLogo={mission.media.publisherLogo}
       onEmailClick={onEmailClick ? () => onEmailClick(mission, rank) : undefined}
+      badge={mission.type === "benevolat" ? "benevole" : mission.type ? "indemnisee" : null}
     />
   );
 }

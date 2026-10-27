@@ -16,6 +16,7 @@ export default function MissionCard({
   publisherName,
   publisherLogo,
   onEmailClick,
+  badge,
 }: {
   image: string | null;
   domainLabel: string | null;
@@ -27,11 +28,17 @@ export default function MissionCard({
   publisherName: string | null;
   publisherLogo: string | null;
   onEmailClick?: () => void;
+  // Nature de la mission affichée sur le visuel : indemnisée (volontariats, réserves) ou bénévole.
+  badge?: "indemnisee" | "benevole" | null;
 }) {
   return (
     // Sans tags (cartes d'exemple des landings) : hauteur au contenu et titre plus grand, sur 3 lignes.
     <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
-      {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
+      <div className="relative">
+        {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
+        {badge === "indemnisee" && <p className="fr-badge fr-badge--sm fr-badge--success fr-badge--no-icon absolute! top-2 left-2">Indemnisée</p>}
+        {badge === "benevole" && <p className="fr-badge fr-badge--sm fr-badge--error fr-badge--no-icon absolute! top-2 left-2">Bénévole</p>}
+      </div>
 
       <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
         {/* Cœur en absolute au-dessus du titre : le titre garde toute la largeur de la carte. */}
