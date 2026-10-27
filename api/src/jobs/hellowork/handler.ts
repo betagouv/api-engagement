@@ -5,7 +5,7 @@ import { ENV } from "@/config";
 import { Prisma } from "@/db/core";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
-import { HELLOWORK_MAX_OFFERS } from "@/jobs/hellowork/config";
+import { HELLOWORK_MAX_OFFERS_PER_ANNONCEUR } from "@/jobs/hellowork/config";
 import { missionToOffer } from "@/jobs/hellowork/transformers";
 import { HelloworkOffer } from "@/jobs/hellowork/types";
 import { generateXML, storeXML } from "@/jobs/hellowork/utils";
@@ -39,14 +39,15 @@ export class HelloworkHandler implements BaseHandler<HelloworkJobPayload, Hellow
     const counter = { processed: 0, sent: 0, skipped: 0 };
     try {
       const offers: HelloworkOffer[] = [];
-      const missions = getMissionsCursor(
-        { diffuseurPublisherId: publisherId, statusCode: "ACCEPTED" },
-        { limit: HELLOWORK_MAX_OFFERS, orderBy: { createdAt: Prisma.SortOrder.desc } }
-      );
+      const missions = getMissionsCursor({ diffuseurPublisherId: publisherId, statusCode: "ACCEPTED" }, { orderBy: { createdAt: Prisma.SortOrder.desc } });
+      const sentByAnnonceur = new Map<string, number>();
       for await (const mission of missions) {
         counter.processed++;
         const offer = missionToOffer(mission, publisherId);
-        if (offer) {
+        // Plafond par annonceur, sur les plus récentes (le curseur est trié par createdAt desc).
+        const sent = sentByAnnonceur.get(mission.publisherId) ?? 0;
+        if (offer && sent < HELLOWORK_MAX_OFFERS_PER_ANNONCEUR) {
+          sentByAnnonceur.set(mission.publisherId, sent + 1);
           offers.push(offer);
         } else {
           counter.skipped++;

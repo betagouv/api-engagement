@@ -1,5 +1,5 @@
-// Quota temporaire : flux lisible pour l'envoi de l'échantillon à Hellowork. À retirer ensuite.
-export const HELLOWORK_MAX_OFFERS = 500;
+// Quota temporaire par annonceur : flux lisible pour l'envoi de l'échantillon. À retirer ensuite.
+export const HELLOWORK_MAX_OFFERS_PER_ANNONCEUR = 500;
 
 export const CONTRACT_TYPE_STAGE = "Stage";
 export const DEFAULT_SECTOR = "Santé/Social/Association";
