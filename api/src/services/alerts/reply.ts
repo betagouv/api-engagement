@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 import { SECRET } from "@/config";
 import { captureMessage } from "@/error";
+import { refreshSlackMessage } from "@/services/alerts/notifiers/slack";
 import { buildInboundAddress } from "@/services/inbound-email/address";
 import type { InboundEmail, InboundOutcome } from "@/services/inbound-email/types";
 import { userService } from "@/services/user";
@@ -39,6 +40,7 @@ export const processReply = async (mail: InboundEmail, token: string): Promise<I
   // Résoudre d'abord (idempotent) : si le commentaire échoue, le rejeu du webhook par Brevo termine le traitement.
   if (warning.status !== "RESOLVED") {
     await warningService.updateWarning(warning.id, { status: "RESOLVED" });
+    await refreshSlackMessage(warning.id, sender.firstname);
   }
   const body = (mail.ExtractedMarkdownMessage ?? mail.RawTextBody ?? "").trim().slice(0, 5000);
   if (body) {
