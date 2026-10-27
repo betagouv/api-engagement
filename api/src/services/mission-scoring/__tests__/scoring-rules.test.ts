@@ -80,6 +80,27 @@ describe("getMissionScoringRuleKeys — openToMinors", () => {
     );
   });
 
+  it("exclut les mineurs d'une mission Service Civique quand openToMinors n'est pas renseigné", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, type: "volontariat_service_civique", openToMinors: null }));
+
+    expect(keys).toContain("tranche_age.entre_18_25_ans");
+    expect(keys).not.toContain("tranche_age.moins_18_ans");
+  });
+
+  it("exclut les mineurs d'une mission de bénévolat quand openToMinors n'est pas renseigné", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ type: "benevolat", openToMinors: null }));
+
+    expect(keys).toEqual(expect.arrayContaining(ADULT_TRANCHE_AGE_KEYS));
+    expect(keys).not.toContain("tranche_age.moins_18_ans");
+    expect(keys).not.toContain("tranche_age.entre_17_18_ans");
+  });
+
+  it("ouvre une mission de bénévolat aux mineurs quand openToMinors=true", () => {
+    const keys = getMissionScoringRuleKeys(buildMission({ type: "benevolat", openToMinors: true }));
+
+    expect(keys).toContain("tranche_age.moins_18_ans");
+  });
+
   it("déduit le dispositif Service Civique du publisher, même si le type est absent", () => {
     const keys = getMissionScoringRuleKeys(buildMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, type: null }));
 
