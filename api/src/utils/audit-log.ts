@@ -13,6 +13,7 @@ export type AuditAction =
   | "webhook.alerts.invalid_token"
   | "alert.resolve_by_email"
   | "alert.reply.rejected"
+  | "webhook.slack.invalid_signature"
   | "alert.comment.create"
   | "alert.comment.update";
 

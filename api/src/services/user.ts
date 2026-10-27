@@ -33,6 +33,7 @@ const toUserRecord = (user: UserWithPublishers): UserRecord => ({
   deletedAt: user.deletedAt ?? null,
   brevoContactId: user.brevoContactId ?? null,
   photo: user.photo ?? null,
+  slackUserId: user.slackUserId ?? null,
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
@@ -116,6 +117,9 @@ const buildUpdateData = async (patch: UserUpdatePatch): Promise<Prisma.UserUpdat
   }
   if ("photo" in patch) {
     data.photo = patch.photo ?? null;
+  }
+  if ("slackUserId" in patch) {
+    data.slackUserId = patch.slackUserId ?? null;
   }
   if ("role" in patch && patch.role !== undefined) {
     data.role = patch.role;
@@ -205,6 +209,11 @@ export const userService = {
 
   async findUserByEmail(email: string): Promise<UserRecord | null> {
     const user = (await userRepository.findFirst({ where: { email }, include: defaultInclude })) as UserWithPublishers | null;
+    return user ? toUserRecord(user) : null;
+  },
+
+  async findUserBySlackUserId(slackUserId: string): Promise<UserRecord | null> {
+    const user = (await userRepository.findFirst({ where: { slackUserId, deletedAt: null }, include: defaultInclude })) as UserWithPublishers | null;
     return user ? toUserRecord(user) : null;
   },
 

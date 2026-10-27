@@ -18,6 +18,7 @@ import { UserRequest } from "@/types/passport";
 import type { UserUpdatePatch } from "@/types/user";
 import { hasLetter, hasNumber, hasSpecialChar } from "@/utils";
 import { appendAuditEvent } from "@/utils/audit-log";
+import { isUniqueViolation } from "@/utils/prisma";
 
 const FORGET_PASSWORD_EXPIRATION = 1000 * 60 * 60 * 2; // 2 hours
 const AUTH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 day
@@ -665,6 +666,11 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         email: zod.email().optional(),
         publishers: zod.array(zod.string()).min(1).optional(),
         role: zod.enum(["admin", "user"]).optional(),
+        slackUserId: zod
+          .string()
+          .regex(/^[UW][A-Z0-9]{2,}$/)
+          .nullable()
+          .optional(),
       })
       .safeParse(req.body);
 
@@ -696,8 +702,22 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
     if (body.data.role) {
       patch.role = body.data.role;
     }
+    if (typeof body.data.slackUserId !== "undefined") {
+      patch.slackUserId = body.data.slackUserId;
+    }
 
-    const updated = Object.keys(patch).length ? await userService.updateUser(user.id, patch) : user;
+    let updated = user;
+    try {
+      if (Object.keys(patch).length) {
+        updated = await userService.updateUser(user.id, patch);
+      }
+    } catch (error) {
+      // Index unique partiel : un ID Slack ne peut être lié qu'à un seul compte actif.
+      if (isUniqueViolation(error)) {
+        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "Cet ID Slack ou cet email est déjà utilisé par un autre compte" });
+      }
+      throw error;
+    }
 
     res.status(200).send({ ok: true, data: userService.toPublicUser(updated) });
   } catch (error) {

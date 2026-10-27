@@ -7,6 +7,7 @@ import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getAlertProvider } from "@/services/alerts";
 import { ingestAlerts } from "@/services/alerts/ingest";
+import { refreshSlackMessage } from "@/services/alerts/notifiers/slack";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
 import { warningCommentService } from "@/services/warning-comment";
@@ -153,6 +154,7 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
     }
     try {
       const data = await warningService.updateWarning(params.data.id, { status: body.data.status });
+      await refreshSlackMessage(data.id, req.user?.firstname);
       return res.status(200).send({ ok: true, data });
     } catch (error) {
       // Index unique partiel : une seule alerte ouverte par annonceur et type.
