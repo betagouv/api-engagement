@@ -39,6 +39,7 @@ resource "scaleway_container" "api" {
     "PILOTY_BASE_URL"                   = var.piloty_hostname
     "BUCKET_NAME"                       = var.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID"        = var.slack_jobteaser_channel_id
+    "SLACK_WARNING_CHANNEL_ID"          = var.slack_warning_channel_id
     "PRISMA_POOL_SIZE_CORE"             = "20"
     "PRISMA_POOL_TIMEOUT"               = "20"
     "PRISMA_CONNECT_TIMEOUT"            = "10"
@@ -75,6 +76,7 @@ resource "scaleway_container" "api" {
     "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
     "ALERTS_WEBHOOK_TOKEN"        = local.secrets.ALERTS_WEBHOOK_TOKEN
     "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
+    "SLACK_SIGNING_SECRET"        = lookup(local.secrets, "SLACK_SIGNING_SECRET", "")
     "SCW_ACCESS_KEY"              = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY"              = local.secrets.SCW_SECRET_KEY
     "SCW_QUEUE_ACCESS_KEY"        = var.enable_async_tasks ? scaleway_mnq_sqs_credentials.async_task_publisher[0].access_key : ""

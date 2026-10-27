@@ -10,6 +10,9 @@ piloty_hostname            = "api.piloty.fr"
 bucket_name                = "api-engagement-bucket"
 
 slack_jobteaser_channel_id = "C080H9MH56W"
+slack_warning_channel_id   = "C052V2UF918"
+slack_lbc_channel_id       = "C07SPFG724V"
+slack_cron_channel_id      = "C085S6M2K5J"
 
 core_database_id           = "9a0421d5-c618-4d88-956b-3f758ab9aa0e"
 

@@ -8,6 +8,9 @@ locals {
     "VOLONTARIAT_URL"            = var.volontariat_hostname != "" ? "https://${var.volontariat_hostname}" : ""
     "BUCKET_NAME"                = var.bucket_name
     "SLACK_JOBTEASER_CHANNEL_ID" = var.slack_jobteaser_channel_id
+    "SLACK_WARNING_CHANNEL_ID"   = var.slack_warning_channel_id
+    "SLACK_LBC_CHANNEL_ID"       = var.slack_lbc_channel_id
+    "SLACK_CRON_CHANNEL_ID"      = var.slack_cron_channel_id
     "PRISMA_POOL_SIZE_CORE"      = "8"
     "PRISMA_POOL_TIMEOUT"        = "20"
     "PRISMA_CONNECT_TIMEOUT"     = "10"

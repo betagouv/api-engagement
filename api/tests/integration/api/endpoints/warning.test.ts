@@ -3,11 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendTemplate = vi.hoisted(() => {
   process.env.ALERTS_WEBHOOK_TOKEN = "test-alerts-token";
+  process.env.SLACK_SIGNING_SECRET = "test-signing-secret";
   process.env.INBOUND_EMAIL_DOMAIN = "api-engagement.example.com";
   return vi.fn().mockResolvedValue({ ok: true });
 });
+const postMessage = vi.hoisted(() => vi.fn().mockResolvedValue({ ok: true }));
 const captureMessage = vi.hoisted(() => vi.fn());
 vi.mock("@/error", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/error")>()), captureMessage }));
+vi.mock("@/services/slack", () => ({ postMessage, updateMessage: vi.fn().mockResolvedValue({ ok: true }), respondEphemeral: vi.fn() }));
 vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/services/brevo/email")>()), sendTemplate }));
 
 import { prisma } from "@/db/postgres";
@@ -60,6 +63,7 @@ describe("Warning alerting", () => {
 
   beforeEach(async () => {
     sendTemplate.mockClear();
+    postMessage.mockClear();
     deploymentUser = await createTestUser({ role: "admin" });
     const publisher = await createTestPublisher({ isAnnonceur: true, deploymentUserId: deploymentUser.user.id });
     publisherId = publisher.id;
@@ -86,6 +90,46 @@ describe("Warning alerting", () => {
     expect(second.body.data).toMatchObject({ created: 0, updated: 1, unknownPublishers: [], unassigned: [] });
     expect((await warningService.findWarnings({ publisherId }))[0]?.occurrences).toBe(2);
     expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("posts the alert once on Slack, mentioning the deployment user when linked", async () => {
+    await userService.updateUser(deploymentUser.user.id, { slackUserId: "U123ABC" });
+    await webhook([{ type: TYPE, publisherId, title: "Plus de candidatures" }]);
+    await webhook([{ type: TYPE, publisherId }]);
+
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain("<@U123ABC>");
+    expect(postMessage.mock.calls[0][0].text).toContain("Plus de candidatures");
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain("alert_status:RESOLVED");
+  });
+
+  it("falls back to the first name when the deployment user has no Slack id, and keeps the mail if Slack fails", async () => {
+    postMessage.mockResolvedValueOnce({ ok: false, error: "channel_not_found" });
+    const res = await webhook([{ type: TYPE, publisherId }]);
+
+    expect(res.body.data).toMatchObject({ notified: 1, notificationFailed: 0 });
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain(deploymentUser.user.firstname);
+    expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("escapes the fallback first name so it cannot trigger a Slack mention", async () => {
+    await userService.updateUser(deploymentUser.user.id, { firstname: "<!here>" });
+    await webhook([{ type: TYPE, publisherId }]);
+
+    const text = JSON.stringify(postMessage.mock.calls[0][0].blocks);
+    expect(text).toContain("&lt;!here&gt;");
+    expect(text).not.toContain("<!here>");
+  });
+
+  it("truncates long titles and descriptions to fit Slack section limits", async () => {
+    await webhook([{ type: TYPE, publisherId, title: "T".repeat(5000), description: "D".repeat(10000) }]);
+
+    const blocks = postMessage.mock.calls[0][0].blocks as { type: string; text?: { text: string }; fields?: { text: string }[] }[];
+    const section = blocks.find((b) => b.type === "section")!;
+    expect(section.text!.text.length).toBeLessThanOrEqual(3000);
+    expect(section.text!.text).toContain("…");
+    expect(blocks.find((b) => b.type === "header")!.text!.text.length).toBeLessThanOrEqual(150);
+    expect(section.fields!.every((f) => f.text.length <= 2000)).toBe(true);
   });
 
   it("reports alerts created without a deployment user and notifies nobody", async () => {

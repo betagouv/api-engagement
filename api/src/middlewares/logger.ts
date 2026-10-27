@@ -6,7 +6,7 @@ import morgan from "morgan";
 const SENSITIVE_FIELDS = ["password", "apikey"];
 
 // Routes dont le corps (mails entrants : expéditeur, texte, en-têtes) ne doit jamais être journalisé.
-const BODY_NOT_LOGGED_PATHS = ["/inbound-email"];
+const BODY_NOT_LOGGED_PATHS = ["/inbound-email", "/slack/interactions"];
 
 const httpLogger = morgan<Request, Response>(
   (tokens, req, res) => {
