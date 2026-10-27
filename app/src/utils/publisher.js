@@ -38,7 +38,15 @@ export const buildPublisherPayload = (values) => ({
   demarcheSimplifiees: values.isDemarcheSimplifiee
     ? (values.demarcheSimplifiees || [])
         .filter((demarche) => demarche.number)
-        .map((demarche) => ({ number: Number(demarche.number), name: demarche.name ?? null, url: demarche.url ?? null, annotationKey: demarche.annotationKey ?? null }))
+        .map((demarche) => ({
+          number: Number(demarche.number),
+          name: demarche.name ?? null,
+          url: demarche.url ?? null,
+          annotationKey: demarche.annotationKey ?? null,
+          birthDateField: demarche.birthDateField ?? null,
+          countryField: demarche.countryField ?? null,
+          postalCodeField: demarche.postalCodeField ?? null,
+        }))
     : [],
 });
 
