@@ -9,6 +9,7 @@ import { isAddressNeutralizedRemote } from "@/utils/mission-remote";
 export const missionMatchMissionSelect = {
   id: true,
   title: true,
+  type: true,
   remote: true,
   schedule: true,
   requirements: true,
@@ -68,6 +69,7 @@ export type UserScoringValueDbRow = Prisma.UserScoringValueGetPayload<{ select: 
 
 type MissionIndexEntry = {
   title: string;
+  type: MissionMatchDbRow["type"];
   city: string | null;
   remote: MissionMatchDbRow["remote"];
   schedule: string | null;
@@ -100,6 +102,7 @@ export const buildMissionIndex = (missionRows: MissionMatchDbRow[]): Record<stri
   for (const m of missionRows) {
     index[m.id] = {
       title: m.title,
+      type: m.type ?? null,
       city: m.addresses[0]?.city ?? null,
       remote: m.remote ?? null,
       schedule: m.schedule ?? null,
@@ -182,6 +185,7 @@ export const toMissionMatchItem = (
     mission: {
       id: item.missionId,
       title: mission?.title ?? "(unknown)",
+      type: mission?.type ?? null,
       remote: mission?.remote ?? null,
       schedule: mission?.schedule ?? null,
       requirements: mission?.requirements ?? [],
