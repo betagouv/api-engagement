@@ -283,6 +283,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
+    container:
+      # Garder la version alignée sur Playwright dans package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.63.0-resolute
+      options: --init --ipc=host
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -304,9 +308,6 @@ jobs:
       - name: Install dependencies
         run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
-      - name: Check Chrome
-        run: google-chrome --version
-
       - name: Run tests
         run: npm --workspace app run test:e2e:functional -- --shard=${{ matrix.shard }}/2
 
@@ -315,6 +316,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
+    container:
+      # Garder la version alignée sur Playwright dans package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.63.0-resolute
+      options: --init --ipc=host
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -334,9 +339,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
-
-      - name: Check Chrome
-        run: google-chrome --version
 
       - name: Run accessibility tests
         run: npm --workspace app run test:e2e:a11y -- --shard=${{ matrix.shard }}/2
@@ -366,6 +368,10 @@ jobs:
     needs: changes
     if: needs.changes.outputs.plateform == 'true'
     runs-on: ubuntu-latest
+    container:
+      # Garder la version alignée sur Playwright dans package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.63.0-resolute
+      options: --init --ipc=host
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -385,9 +391,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --workspace plateform --include-workspace-root=false --prefer-offline --no-audit --no-fund
-
-      - name: Check Chrome
-        run: google-chrome --version
 
       - name: Run accessibility tests
         run: npm --workspace plateform run test:e2e:a11y -- --shard=${{ matrix.shard }}/2
