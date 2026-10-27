@@ -71,6 +71,9 @@ const Edit = () => {
     if (values.role !== "admin" && values.role !== "user") {
       errors.role = "Le rôle renseigné est invalide";
     }
+    if (values.slackUserId && !/^[UW][A-Z0-9]{2,}$/.test(values.slackUserId)) {
+      errors.slackUserId = "ID Slack invalide (ex. U01ABC23DEF)";
+    }
     if (values.publishers.length === 0) {
       errors.publishers = "Veuillez sélectionner au moins un partenaire";
     }
@@ -145,7 +148,7 @@ const Edit = () => {
   };
 
   const isChanged = () => !_.isEqual(values, user);
-  const isErrors = () => errors.firstname || errors.email || errors.role;
+  const isErrors = () => errors.firstname || errors.email || errors.role || errors.slackUserId;
 
   if (!user) {
     return <p className="text-4xl font-bold">Chargement...</p>;
@@ -184,6 +187,13 @@ const Edit = () => {
             onChange={(e) => setValues({ ...values, lastname: e.target.value })}
           />
           <LabelledInput id="email" label="E-mail" error={errors.email} value={values.email} onChange={(e) => setValues({ ...values, email: e.target.value })} />
+          <LabelledInput
+            id="slackUserId"
+            label="ID Slack (ex. U01ABC23DEF)"
+            error={errors.slackUserId}
+            value={values.slackUserId || ""}
+            onChange={(e) => setValues({ ...values, slackUserId: e.target.value.trim() || null })}
+          />
           <LabelledSelect
             id="role"
             label="Rôle"

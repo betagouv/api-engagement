@@ -197,6 +197,7 @@ model User {
   deletedAt               DateTime? @map("deleted_at")
   brevoContactId          Int?      @map("brevo_contact_id")
   photo                   String?
+  slackUserId             String?   @map("slack_user_id")
   createdAt               DateTime  @default(now()) @map("created_at")
   updatedAt               DateTime  @updatedAt @map("updated_at")
 
