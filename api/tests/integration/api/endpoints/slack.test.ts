@@ -3,7 +3,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const slack = vi.hoisted(() => {
-  process.env.SLACK_SIGNING_SECRET = "test-signing-secret";
+  process.env.SLACK_SIGNING_SECRET = `test-${Math.random().toString(36).slice(2)}`;
   return {
     postMessage: vi.fn().mockResolvedValue({ ok: true, ts: "1700000000.000100", channel: "C123" }),
     updateMessage: vi.fn().mockResolvedValue({ ok: true }),
@@ -22,7 +22,7 @@ const app = createTestApp();
 
 const sign = (body: string, timestamp = Math.floor(Date.now() / 1000)) => ({
   "x-slack-request-timestamp": String(timestamp),
-  "x-slack-signature": `v0=${createHmac("sha256", "test-signing-secret").update(`v0:${timestamp}:${body}`).digest("hex")}`,
+  "x-slack-signature": `v0=${createHmac("sha256", process.env.SLACK_SIGNING_SECRET!).update(`v0:${timestamp}:${body}`).digest("hex")}`,
 });
 
 const click = (slackUserId: string, warningId: string, status: "IN_PROGRESS" | "RESOLVED", headers?: Record<string, string>) => {

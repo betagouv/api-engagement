@@ -1,9 +1,9 @@
-import { createHmac } from "crypto";
+import { createHmac, randomBytes } from "crypto";
 import { describe, expect, it } from "vitest";
 
 import { verifySlackSignature } from "@/services/slack/signature";
 
-const secret = "signing-secret";
+const secret = randomBytes(16).toString("hex");
 const rawBody = Buffer.from("payload=%7B%7D");
 const now = 1_700_000_000_000;
 const timestamp = String(now / 1000);
