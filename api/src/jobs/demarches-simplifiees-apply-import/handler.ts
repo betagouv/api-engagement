@@ -2,7 +2,7 @@ import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
-import { extractCandidateAttributes, isRedirectionAnnotation, resolveCandidateFields } from "@/services/demarches-simplifiees/utils";
+import { extractCandidateAttributes, extractDemarcheSlug, isRedirectionAnnotation, resolveCandidateFields } from "@/services/demarches-simplifiees/utils";
 import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
@@ -43,7 +43,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
       // Champs du formulaire à lire pour les attributs candidat : ceux configurés dans le back-office (sinon détectés).
       // Si un libellé configuré n'existe plus sur la démarche (renommé côté DN), on alerte pour corriger la config.
       const demarche = demarches.find((item) => item.number === demarcheNumber)!;
-      const descriptorsResult = await demarchesSimplifiees.getChampDescriptors(demarcheNumber);
+      const descriptorsResult = await demarchesSimplifiees.getChampDescriptors(demarcheNumber, extractDemarcheSlug(demarche.url));
       const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche, descriptorsResult.data) : { fields: demarche, missingFields: [] };
       if (missingFields.length) {
         captureException("[Démarches Simplifiées] Configured fields not found on démarche", { extra: { demarcheNumber, missingFields } });

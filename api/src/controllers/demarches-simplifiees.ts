@@ -31,4 +31,21 @@ router.get("/resolve", passport.authenticate("admin", { session: false }), async
   }
 });
 
+// Indique si notre jeton a accès à la démarche et à ses dossiers (nécessaire au job d'import des candidatures).
+// Utilisé par le back-office pour signaler les démarches dont le compte du jeton n'est pas instructeur.
+router.get("/access", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response) => {
+  try {
+    const query = zod.object({ number: zod.coerce.number().int().positive() }).safeParse(req.query);
+    if (!query.success) {
+      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
+    }
+
+    const data = await demarchesSimplifiees.getDemarcheAccess(query.data.number);
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    captureException(error);
+    return res.status(500).send({ ok: false, code: SERVER_ERROR });
+  }
+});
+
 export default router;

@@ -21,8 +21,11 @@ describe("extractDemarcheSlug", () => {
     expect(extractDemarcheSlug(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/commencer/ma-demarche#section`)).toBe("ma-demarche");
   });
 
+  it("returns the slug for a demarche on the legacy domain of the DINUM instance", () => {
+    expect(extractDemarcheSlug("https://www.demarches-simplifiees.fr/commencer/ma-demarche")).toBe("ma-demarche");
+  });
+
   it("returns null for a /commencer/ path hosted on another instance", () => {
-    expect(extractDemarcheSlug("https://www.demarches-simplifiees.fr/commencer/ma-demarche")).toBeNull();
     expect(extractDemarcheSlug("https://evil.example.com/commencer/ma-demarche")).toBeNull();
   });
 
@@ -68,6 +71,21 @@ describe("detectCandidateFields", () => {
       birthDateField: "Date de naissance",
       countryField: "Pays de résidence",
       postalCodeField: "Code postal",
+    });
+  });
+
+  it("ignores birth place and birth name champs", () => {
+    const descriptors = [
+      { __typename: "TextChampDescriptor", label: "Nom de naissance du candidat" },
+      { __typename: "DateChampDescriptor", label: "Date de naissance" },
+      { __typename: "CommuneChampDescriptor", label: "Lieu de naissance" },
+      { __typename: "PaysChampDescriptor", label: "Pays de naissance" },
+      { __typename: "CommuneChampDescriptor", label: "Ville de résidence" },
+    ];
+    expect(detectCandidateFields(descriptors)).toEqual({
+      birthDateField: "Date de naissance",
+      countryField: "Pays de naissance",
+      postalCodeField: "Ville de résidence",
     });
   });
 

@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
-import { detectCandidateFields, extractCandidateAttributes, resolveCandidateFields } from "@/services/demarches-simplifiees/utils";
+import { detectCandidateFields, extractCandidateAttributes, extractDemarcheSlug, resolveCandidateFields } from "@/services/demarches-simplifiees/utils";
 
 // Teste, sur un dossier réel, les fonctions utilisées par le job d'import des candidatures Démarches Simplifiées
 // pour enrichir les candidatures (customAttributes candidate*). Lecture seule : aucune écriture en base ni sur DN.
@@ -47,7 +47,7 @@ const main = async () => {
     print(`resolveDemarcheByUrl(${demarcheUrl})`, await demarchesSimplifiees.resolveDemarcheByUrl(demarcheUrl));
   }
 
-  const descriptors = await demarchesSimplifiees.getChampDescriptors(demarcheNumber);
+  const descriptors = await demarchesSimplifiees.getChampDescriptors(demarcheNumber, extractDemarcheSlug(demarcheUrl));
   print(`getChampDescriptors(${demarcheNumber})`, descriptors);
   if (!descriptors.ok) {
     return;

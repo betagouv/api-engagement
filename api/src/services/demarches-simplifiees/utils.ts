@@ -4,10 +4,13 @@ import { slugify } from "@/utils";
 // Instance qui héberge la démarche (par défaut demarche.numerique.gouv.fr, l'instance DINUM).
 export const DEMARCHES_SIMPLIFIEES_BASE_URL = process.env.DEMARCHES_SIMPLIFIEES_BASE_URL || "https://demarche.numerique.gouv.fr";
 
-// Host de l'instance configurée. Une démarche est toujours résolue sur cette instance (cf. `getDemarcheNumberBySlug`,
+// Hosts de l'instance configurée. Une démarche est toujours résolue sur cette instance (cf. `getDemarcheNumberBySlug`,
 // qui reconstruit l'URL en `${DEMARCHES_SIMPLIFIEES_BASE_URL}/commencer/<slug>`) : une URL hébergée ailleurs n'est donc
-// pas une démarche exploitable, même si son chemin ressemble à celui d'une démarche.
+// pas une démarche exploitable, même si son chemin ressemble à celui d'une démarche. L'instance DINUM est aussi servie
+// sur son ancien domaine (www.demarches-simplifiees.fr), encore utilisé dans les liens de candidature de certains partenaires.
 const DEMARCHES_SIMPLIFIEES_HOST = new URL(DEMARCHES_SIMPLIFIEES_BASE_URL).host;
+const DEMARCHES_SIMPLIFIEES_HOSTS =
+  DEMARCHES_SIMPLIFIEES_HOST === "demarche.numerique.gouv.fr" ? [DEMARCHES_SIMPLIFIEES_HOST, "www.demarches-simplifiees.fr"] : [DEMARCHES_SIMPLIFIEES_HOST];
 
 // Libellé de l'annotation préremplie avec l'id du clic lors de la redirection. C'est par ce libellé qu'on
 // retrouve la valeur (l'id du clic) dans les annotations d'un dossier, côté job d'import des candidatures.
@@ -25,7 +28,7 @@ export const extractDemarcheSlug = (url: string | null | undefined): string | nu
     if (!slug) {
       return null;
     }
-    if (parsed.host !== DEMARCHES_SIMPLIFIEES_HOST) {
+    if (!DEMARCHES_SIMPLIFIEES_HOSTS.includes(parsed.host)) {
       console.log(`[Démarches Simplifiées] URL /commencer/${slug} ignorée : hébergée sur ${parsed.host}, instance configurée ${DEMARCHES_SIMPLIFIEES_HOST}`);
       return null;
     }
@@ -111,18 +114,22 @@ const hasLabel = (items: { label: string }[], label: string) => items.some((item
 const labelContains = (label: string, keywords: string[]) => keywords.some((keyword) => slugify(label).includes(keyword));
 
 // Devine les champs date de naissance, pays et code postal d'un formulaire DN, sans connaître leur libellé exact :
-// on privilégie le type du champ (champ date "naissance", pays, commune/adresse), puis des mots-clés du libellé.
+// on privilégie le type du champ (champ date "naissance", pays, commune/adresse hors lieu de naissance), puis des mots-clés du libellé.
 export const detectCandidateFields = (descriptors: ChampDescriptor[]): CandidateFields => {
   const findLabel = (predicate: (descriptor: ChampDescriptor) => boolean) => descriptors.find(predicate)?.label ?? null;
 
   return {
     birthDateField:
       findLabel((descriptor) => descriptor.__typename === "DateChampDescriptor" && Boolean(descriptor.birthdate)) ??
-      findLabel((descriptor) => labelContains(descriptor.label, ["naissance"]) && !labelContains(descriptor.label, ["lieu", "pays", "commune", "ville"])),
+      findLabel((descriptor) => descriptor.__typename === "DateChampDescriptor" && labelContains(descriptor.label, ["naissance"])) ??
+      findLabel((descriptor) => labelContains(descriptor.label, ["date"]) && labelContains(descriptor.label, ["naissance"])),
     countryField: findLabel((descriptor) => descriptor.__typename === "PaysChampDescriptor") ?? findLabel((descriptor) => labelContains(descriptor.label, ["pays", "nationalite"])),
     postalCodeField:
       findLabel((descriptor) => labelContains(descriptor.label, ["code-postal"])) ??
-      findLabel((descriptor) => descriptor.__typename === "CommuneChampDescriptor" || descriptor.__typename === "AddressChampDescriptor"),
+      findLabel(
+        (descriptor) =>
+          (descriptor.__typename === "CommuneChampDescriptor" || descriptor.__typename === "AddressChampDescriptor") && !labelContains(descriptor.label, ["naissance"])
+      ),
   };
 };
 
