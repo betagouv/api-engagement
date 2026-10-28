@@ -66,15 +66,16 @@ export default function CmsLanding() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
-  const pageViewedFired = useRef(false);
+  // Dernière page tracée : le composant est réutilisé d'une page du CMS à l'autre, un booléen ignorerait la suivante.
+  const trackedOrigin = useRef<string | null>(null);
 
   // « chacun-pour-tous » → landing_chacun_pour_tous : mêmes évènements que la landing en code.
   const origin = page.slug.replaceAll("-", "_");
   const landing: LandingName = `landing_${origin}`;
 
   useEffect(() => {
-    if (pageViewedFired.current) return;
-    pageViewedFired.current = true;
+    if (trackedOrigin.current === origin) return;
+    trackedOrigin.current = origin;
     registerLandingOrigin(origin);
     trackPageViewed({ pageName: landing });
   }, [origin, landing]);
