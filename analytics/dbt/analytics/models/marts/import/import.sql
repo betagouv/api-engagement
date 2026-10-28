@@ -33,7 +33,7 @@ select
   finished_at as ended_at,
   status,
   case
-    when status <> 'FAILED' then null
+    when status <> 'FAILED' or error is null then null
     when error ilike '%No feed' then 'no_feed'
     when error ilike '%Unsafe feed URL' then 'unsafe_feed_url'
     when error ilike '%Failed to fetch XML' then 'fetch_failed'
