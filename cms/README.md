@@ -5,20 +5,24 @@ CMS headless (Strapi 5, Community, Postgres) pour construire les **landing pages
 ## Démarrage
 
 ```bash
-docker compose up -d cms   # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
+docker compose up -d cms                # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
+docker compose exec cms npm run seed    # dev uniquement : jeton de lecture + page « chacun-pour-tous »
 ```
 
-1. À la première visite de l'admin, créer un compte administrateur (local).
-2. Créer le contenu dans l'interface : _Content Manager_ → **Page**.
-3. Pour que `plateform` lise le CMS : _Settings_ → _API Tokens_ → créer un jeton de type _Read-only_, puis le fournir à plateform (`CMS_API_TOKEN`, par exemple dans `plateform/.env`).
+À la première visite de l'admin, créer un compte administrateur (local). Le contenu se crée ensuite dans l'interface : _Content Manager_ → **Page**.
+
+Le **seed** (`cms/scripts/seed.ts`) fait deux choses, et seulement en développement local (il refuse de tourner en production) :
+
+- il crée le jeton de lecture de plateform, de valeur fixe `dev-cms-read-token` (variable `CMS_API_TOKEN` du conteneur `cms`, hachée par Strapi) ;
+- il recrée la page `chacun-pour-tous` avec les blocs existants (hero, missions, étapes, bénéfices, cartes, histoires, questions, partenaires), à partir des images de `plateform/app/assets` (montées sur `/seed-assets`). Relancer le seed **écrase** cette page.
 
 Côté `plateform` (hors Docker, Node ≥ 22.22) :
 
 ```bash
-cd plateform && CMS_URL=http://localhost:1337 CMS_API_TOKEN=<jeton> npx react-router dev
+cd plateform && CMS_URL=http://localhost:1337 CMS_API_TOKEN=dev-cms-read-token npx react-router dev
 ```
 
-Une page publiée avec le slug `mon-slug` est rendue sur `/pages/mon-slug`.
+La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/chacun-pour-tous`, la version en code). Plus généralement, une page publiée avec le slug `mon-slug` est rendue sur `/pages/mon-slug`. Hors seed, un jeton se crée dans l'admin : _Settings_ → _API Tokens_ → type _Read-only_.
 
 ## Modèle de contenu
 

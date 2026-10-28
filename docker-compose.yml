@@ -59,9 +59,13 @@ services:
       TRANSFER_TOKEN_SALT: dev-transfer-token-salt
       ENCRYPTION_KEY: dev-encryption-key
       JWT_SECRET: dev-jwt-secret
+      # Jeton lecture seule de plateform, créé de façon déterministe par `npm run seed` (dev local uniquement).
+      CMS_API_TOKEN: dev-cms-read-token
     volumes:
       - ./cms:/opt/app
       - /opt/app/node_modules
+      # Images de la landing « chacun-pour-tous », reprises par le script de seed.
+      - ./plateform/app/assets:/seed-assets:ro
     ports:
       - "1337:1337"
 
@@ -117,6 +121,7 @@ services:
       VITE_ENV: development
       CMS_URL: http://cms:1337
       CMS_PUBLIC_URL: http://localhost:1337
+      CMS_API_TOKEN: dev-cms-read-token
     volumes:
       - ./plateform:/workspace/plateform
       - /workspace/plateform/node_modules

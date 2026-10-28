@@ -16,6 +16,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 - `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Une landing est une page qui utilise des blocs de campagne ; les blocs génériques (`rich-text`, `image`) servent aux pages éditoriales.
 - `src/components/blocks/` : les sections qu'un éditeur ajoute à une page (zone dynamique `blocks`) ; `src/components/items/` : les éléments répétables à l'intérieur d'un bloc (carte, étape, partenaire…), jamais ajoutés seuls à une page.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
+- `scripts/seed.ts` : seed de **dev uniquement** (jeton de lecture de plateform + page `chacun-pour-tous` avec les blocs existants ; images lues dans `plateform/app/assets` via `/seed-assets`). Refuse de tourner en production. Si ces images ou la landing en code sont déplacées, adapter le seed.
 
 ## Contrat avec plateform
 
@@ -25,9 +26,10 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 
 ## Conventions
 
+- Dépendances : versions **exactes** dans `package.json` (pas de `^` ni `~`), lockfile à jour.
 - TypeScript (TS 5.9, version embarquée par Strapi, pas la 6.0 du reste du dépôt), ESLint et Prettier alignés sur le reste du dépôt (config Prettier racine, `printWidth: 180`).
 - Ajouter un bloc : schéma JSON dans `blocks/` (+ son élément dans `items/` s'il contient une liste) et entrée dans `page/schema.json` → type dans `@engagement/dto` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
-- Pas de seed ni de preview : le contenu se crée dans l'admin, plateform ne lit que le contenu publié.
+- Pas de preview : plateform ne lit que le contenu publié. Le contenu se crée dans l'admin ; le seed ne sert qu'au développement local.
 - Textes éditoriaux : texte brut avec micro-balisage (`==surlignage==`, `[libellé](/chemin)`), jamais de HTML.
 - Scope de commit : `cms`.
 
@@ -39,5 +41,6 @@ Depuis `cms/` (ou dans le conteneur : `docker compose exec cms npm run <script>`
 - Typecheck : `npm run typecheck` (génère les types Strapi puis `tsc`)
 - Lint : `npm run lint`
 - Format : `npm run prettier`
+- Seed (dev) : `npm run seed`
 
 Strapi redémarre à chaque modification de fichier dans `cms/` (mode `develop`).
