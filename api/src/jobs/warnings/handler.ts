@@ -4,7 +4,6 @@ import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { checkBotClicks } from "@/jobs/warnings/bot";
 import { checkImports } from "@/jobs/warnings/import";
-import { checkTracking } from "@/jobs/warnings/tracking";
 
 export interface WarningsJobPayload {}
 
@@ -21,9 +20,6 @@ export class WarningsHandler implements BaseHandler<WarningsJobPayload, Warnings
 
       console.log("Checking imports");
       await checkImports(publishers);
-
-      console.log("Checking tracking");
-      await checkTracking(publishers);
 
       console.log("Checking bots");
       await checkBotClicks();
