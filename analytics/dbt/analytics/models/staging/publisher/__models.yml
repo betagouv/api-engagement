@@ -27,6 +27,8 @@ models:
         description: Tracking des candidatures déployé chez l'annonceur (nullable) ; true/false = qualifié, null = non renseigné. Pilote l'alerte de vérification du tracking de candidature.
       - name: deployment_user_id
         description: Identifiant du user (admin) chargé de déploiement responsable du partenaire (nullable), à notifier en cas d'alerte.
+      - name: feed
+        description: URL du flux XML de missions de l'annonceur (nullable).
       - name: created_at
         description: Timestamp de création initial.
         tests:
