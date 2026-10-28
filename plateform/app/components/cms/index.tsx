@@ -1,30 +1,27 @@
 import type { MissionBrowse } from "@engagement/dto";
-import type { CSSProperties } from "react";
 
 import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
-import HeroImage from "~/components/landings/hero-image";
 import Missions from "~/components/landings/missions";
 import Partners from "~/components/layout/partners";
-import InlineText from "~/components/ui/inline-text";
 import Benefits from "./benefits";
 import Cards from "./cards";
 import Faq from "./faq";
+import InlineText from "./inline-text";
 import RichText from "./rich-text";
 import Stories from "./stories";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
-import type { PageBlock } from "~/types/page";
+import type { CmsBlock } from "~/types/cms";
 
 import { PICTOGRAMS } from "./pictograms";
 
 const HIGHLIGHT_GREEN = "bg-[#9ef9be] dark:bg-transparent";
 const HIGHLIGHT_YELLOW = "bg-yellow-tournesol-925 dark:bg-transparent";
 const BACKGROUNDS = { creme: "bg-brown-cafe-creme-975", galet: "bg-beige-gris-galet-975" } as const;
-const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
 // Contexte partagé par les blocs : nom de la page (tracking), chemin de retour depuis une fiche mission, CTA.
-export type PageBlocksContext = {
+export type CmsBlocksContext = {
   landing: LandingName;
   path: string;
   missionsByBlock: Record<number, MissionBrowse[]>;
@@ -34,16 +31,14 @@ export type PageBlocksContext = {
 
 // Registre des blocs du CMS (`__component`) → composants de plateform. Un bloc inconnu est ignoré :
 // un contenu publié avec un bloc pas encore déployé ne fait pas tomber la page.
-export default function PageBlocks({ blocks, context }: { blocks: PageBlock[]; context: PageBlocksContext }) {
+export default function CmsBlocks({ blocks, context }: { blocks: CmsBlock[]; context: CmsBlocksContext }) {
   return blocks.map((block, index) => <Block key={`${block.__component}-${index}`} block={block} index={index} context={context} />);
 }
 
-function Block({ block, index, context }: { block: PageBlock; index: number; context: PageBlocksContext }) {
+function Block({ block, index, context }: { block: CmsBlock; index: number; context: CmsBlocksContext }) {
   switch (block.__component) {
     case "blocks.hero": {
-      const campaignVisual = !block.image && block.visual === "chacun_pour_tous";
-      // La couleur du CMS passe par une variable CSS ; en thème sombre, on retombe sur le fond DSFR.
-      const color = block.backgroundColor && HEX_COLOR.test(block.backgroundColor) ? block.backgroundColor : null;
+      const campaignVisual = block.visual === "chacun_pour_tous";
       return (
         <Hero
           title={block.title}
@@ -51,10 +46,9 @@ function Block({ block, index, context }: { block: PageBlock; index: number; con
           description={<InlineText text={block.description} />}
           hint={block.hint ?? undefined}
           onStartQuiz={() => context.onStartQuiz("hero")}
-          style={color ? ({ "--hero-bg": color } as CSSProperties) : undefined}
-          className={`${color ? "bg-(--hero-bg) dark:bg-background" : ""} ${block.image || campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : ""}`}
+          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : ""}`}
         >
-          {block.image ? <HeroImage image={block.image} /> : campaignVisual && <HeroVisual />}
+          {campaignVisual && <HeroVisual />}
         </Hero>
       );
     }

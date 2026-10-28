@@ -18,26 +18,15 @@
     "hint": {
       "type": "string"
     },
-    "image": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": ["images"],
-      "description": "Visuel du hero (calé en bas à droite sur grand écran, sous le texte sur mobile). Renseigner le texte alternatif dans la médiathèque si l'image porte du sens."
-    },
-    "backgroundColor": {
-      "type": "customField",
-      "customField": "plugin::color-picker.color",
-      "options": {
-        "format": "hex"
-      },
-      "description": "Fond du hero. Choisir une couleur claire : le texte est sombre (contraste 4,5:1 minimum). Ignorée en thème sombre."
-    },
     "visual": {
       "type": "enumeration",
-      "enum": ["none", "chacun_pour_tous"],
+      "enum": [
+        "none",
+        "chacun_pour_tous"
+      ],
       "default": "none",
       "required": true,
-      "description": "Habillage de campagne codé dans plateform (laisser sur none sauf cas particulier). Sans effet si une image est renseignée."
+      "description": "Habillage de campagne codé dans plateform (laisser sur none sauf cas particulier)."
     }
   }
 }

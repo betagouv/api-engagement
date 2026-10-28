@@ -1,4 +1,4 @@
-import type { Page } from "~/types/page";
+import type { CmsPage } from "~/types/cms";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
 // Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.
@@ -9,7 +9,7 @@ const CMS_API_TOKEN = process.env.CMS_API_TOKEN;
 
 // Cache mémoire du contenu publié : évite un aller-retour CMS par visite et garde la page servie si le CMS est indisponible.
 const CACHE_TTL_MS = 60_000;
-const cache = new Map<string, { page: Page | null; at: number }>();
+const cache = new Map<string, { page: CmsPage | null; at: number }>();
 
 // Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.
 const POPULATE = [
@@ -26,14 +26,14 @@ const POPULATE = [
 ].join("&");
 
 // Contenu publié uniquement (pas de brouillon côté plateform).
-export async function getPage(slug: string): Promise<Page | null> {
+export async function getCmsPage(slug: string): Promise<CmsPage | null> {
   if (!CMS_API_TOKEN) return null;
 
   const cached = cache.get(slug);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.page;
 
   try {
-    const page = await fetchPage(slug);
+    const page = await fetchCmsPage(slug);
     cache.set(slug, { page, at: Date.now() });
     return page;
   } catch (error) {
@@ -43,7 +43,7 @@ export async function getPage(slug: string): Promise<Page | null> {
   }
 }
 
-async function fetchPage(slug: string): Promise<Page | null> {
+async function fetchCmsPage(slug: string): Promise<CmsPage | null> {
   const query = `filters[slug][$eq]=${encodeURIComponent(slug)}&status=published&${POPULATE}`;
   const response = await fetch(`${CMS_URL}/api/pages?${query}`, {
     headers: { Authorization: `Bearer ${CMS_API_TOKEN}` },
@@ -51,7 +51,7 @@ async function fetchPage(slug: string): Promise<Page | null> {
   });
   if (!response.ok) throw new Error(`CMS indisponible (${response.status})`);
 
-  const { data } = (await response.json()) as { data: Page[] };
+  const { data } = (await response.json()) as { data: CmsPage[] };
   return data[0] ? absolutizeMedia(data[0]) : null;
 }
 

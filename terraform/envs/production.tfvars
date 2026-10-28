@@ -56,7 +56,7 @@ enable_mission_v2_list = false
 
 # CMS : à activer après la validation en staging, cf. cms/README.md.
 enable_cms   = false
-cms_hostname = "cms.api-engagement.beta.gouv.fr"
+cms_hostname = "cms.trouvetamission.gouv.fr"
 
 enable_plateform = true
 ttm_hostname     = "trouvetamission.gouv.fr"

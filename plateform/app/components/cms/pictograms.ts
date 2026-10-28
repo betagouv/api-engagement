@@ -6,10 +6,10 @@ import HumanCooperationSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environmen
 import CommunitySvg from "@gouvfr/dsfr/dist/artwork/pictograms/leisure/community.svg?url";
 import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
 
-import type { PagePictogram } from "~/types/page";
+import type { CmsPictogram } from "~/types/cms";
 
 // Pictogrammes DSFR proposés dans le CMS (enum `icon`). Pour en ajouter un : l'importer ici et l'ajouter à l'enum Strapi.
-export const PICTOGRAMS: Record<PagePictogram, string> = {
+export const PICTOGRAMS: Record<CmsPictogram, string> = {
   search: SearchSvg,
   self_training: SelfTrainingSvg,
   mail_send: MailSendSvg,

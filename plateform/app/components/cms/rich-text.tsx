@@ -1,4 +1,4 @@
-import type { PageInlineNode, PageListNode, PageRichTextNode, PageTextNode } from "~/types/page";
+import type { CmsInlineNode, CmsListNode, CmsRichTextNode, CmsTextNode } from "~/types/cms";
 import { Fragment, type ReactNode } from "react";
 import { Link } from "react-router";
 
@@ -8,13 +8,13 @@ const EXTERNAL_URL = /^https?:\/\//i;
 const INTERNAL_URL = /^\/(?!\/)/;
 const SAFE_URL = /^(https?:\/\/|mailto:|tel:|#|\/(?!\/))/i;
 
-const isBlank = (nodes: PageInlineNode[]) => nodes.every((node) => node.type === "text" && !node.text.trim());
+const isBlank = (nodes: CmsInlineNode[]) => nodes.every((node) => node.type === "text" && !node.text.trim());
 
-export default function RichText({ nodes }: { nodes: PageRichTextNode[] }) {
+export default function RichText({ nodes }: { nodes: CmsRichTextNode[] }) {
   return nodes.map((node, index) => <Node key={index} node={node} />);
 }
 
-function Node({ node }: { node: PageRichTextNode }) {
+function Node({ node }: { node: CmsRichTextNode }) {
   switch (node.type) {
     case "paragraph":
       // L'éditeur produit des paragraphes vides pour les sauts de ligne : ils n'ont pas leur place dans le HTML.
@@ -65,7 +65,7 @@ function Node({ node }: { node: PageRichTextNode }) {
   }
 }
 
-function List({ node }: { node: PageListNode }) {
+function List({ node }: { node: CmsListNode }) {
   const Tag = node.format === "ordered" ? "ol" : "ul";
   return (
     <Tag>
@@ -78,11 +78,11 @@ function List({ node }: { node: PageListNode }) {
   );
 }
 
-function Inline({ nodes }: { nodes: PageInlineNode[] }) {
+function Inline({ nodes }: { nodes: CmsInlineNode[] }) {
   return nodes.map((node, index) => (node.type === "link" ? <RichLink key={index} url={node.url} nodes={node.children} /> : <TextRun key={index} node={node} />));
 }
 
-function TextRun({ node }: { node: PageTextNode }) {
+function TextRun({ node }: { node: CmsTextNode }) {
   // Un retour à la ligne dans un paragraphe (Maj+Entrée) devient un <br>.
   let content: ReactNode = node.text.split("\n").map((line, index) => (
     <Fragment key={index}>
@@ -98,7 +98,7 @@ function TextRun({ node }: { node: PageTextNode }) {
   return content;
 }
 
-function RichLink({ url, nodes }: { url: string; nodes: PageTextNode[] }) {
+function RichLink({ url, nodes }: { url: string; nodes: CmsTextNode[] }) {
   const content = nodes.map((node, index) => <TextRun key={index} node={node} />);
   // URL non autorisée (ex. `javascript:`) : on garde le texte sans lien.
   if (!SAFE_URL.test(url)) return content;

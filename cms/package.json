@@ -13,7 +13,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@strapi/plugin-color-picker": "5.58.0",
     "@strapi/plugin-users-permissions": "5.58.0",
     "@strapi/provider-upload-aws-s3": "5.58.0",
     "@strapi/strapi": "5.58.0",

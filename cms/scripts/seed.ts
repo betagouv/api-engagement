@@ -68,7 +68,6 @@ const buildBlocks = async (strapi: Core.Strapi) => {
       description: "On croit que s'engager, c'est rare. En fait, 3 Français sur 4 l'ont déjà fait cette année.\nOn fait le tour des bonnes idées ?",
       hint: "En quelques questions, trouve une mission qui te correspond.",
       visual: "chacun_pour_tous",
-      backgroundColor: "#FBF6ED",
     },
     {
       __component: "blocks.missions",

@@ -1,4 +1,4 @@
-import type { PageRichTextNode } from "~/types/page";
+import type { CmsRichTextNode } from "~/types/cms";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";
@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import RichText from "../rich-text";
 
 const text = (value: string, modifiers: object = {}) => ({ type: "text" as const, text: value, ...modifiers });
-const render = (nodes: PageRichTextNode[]) => renderToStaticMarkup(createElement(MemoryRouter, null, createElement(RichText, { nodes })));
+const render = (nodes: CmsRichTextNode[]) => renderToStaticMarkup(createElement(MemoryRouter, null, createElement(RichText, { nodes })));
 
 describe("RichText", () => {
   it("décale les titres d'un niveau (le h1 est le titre de la page) jusqu'au h6", () => {

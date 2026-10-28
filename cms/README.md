@@ -29,7 +29,7 @@ La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/cha
 - `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
 - **`src/components/blocks/`** : les sections qu'un éditeur ajoute à une page (les seuls composants proposés dans la zone `blocks`).
   - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images) et `image` (image + légende).
-  - Blocs « tout faits » : `hero` (image uploadée et sélecteur de couleur ; la couleur est ignorée en thème sombre), `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners`.
+  - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners`.
 - **`src/components/items/`** : les éléments répétables **à l'intérieur d'un bloc** (une carte, une étape, un partenaire…). Ils ne s'ajoutent jamais seuls à une page.
 
   | Bloc       | Éléments             |
@@ -48,7 +48,7 @@ La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/cha
 ## Ajouter un bloc
 
 1. Schéma JSON dans `src/components/blocks/` (et, s'il contient une liste, son élément dans `src/components/items/`) + l'ajouter à `blocks` dans `src/api/page/content-types/page/schema.json`.
-2. Côté plateform : type dans `plateform/app/types/page.ts`, `POPULATE` dans `plateform/app/services/cms.server.ts` si le bloc a des éléments ou des médias, et cas dans le registre `plateform/app/components/cms/index.tsx`.
+2. Côté plateform : type dans `plateform/app/types/cms.ts`, `POPULATE` dans `plateform/app/services/cms.server.ts` si le bloc a des éléments ou des médias, et cas dans le registre `plateform/app/components/cms/index.tsx`.
 
 Conventions et commandes : voir `AGENTS.md`. Si les dépendances changent, recréer le conteneur avec `docker compose up -d -V --force-recreate cms` (le volume `node_modules` est anonyme).
 

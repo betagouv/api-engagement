@@ -2,14 +2,14 @@ import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
-import PageBlocks from "~/components/cms";
-import { getPage } from "~/services/cms.server";
+import CmsBlocks from "~/components/cms";
+import { getCmsPage } from "~/services/cms.server";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
-import type { PageBlock } from "~/types/page";
+import type { CmsBlock } from "~/types/cms";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/cms-page";
@@ -29,7 +29,7 @@ export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescri
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const page = await getPage(params.slug);
+  const page = await getCmsPage(params.slug);
   if (!page) throw data("Page introuvable", { status: 404 });
 
   const browse = async (filters: MissionBrowseFilters) => {
@@ -44,7 +44,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   // au hasard parmi les 10 premières pour varier le carrousel. Dédoublonnage par id.
   const missionsByBlock: Record<number, MissionBrowse[]> = {};
   await Promise.all(
-    page.blocks.map(async (block: PageBlock, index: number) => {
+    page.blocks.map(async (block: CmsBlock, index: number) => {
       if (block.__component !== "blocks.missions") return;
       const slots = block.slots.map(({ dispositif, domaineEngagement }) => ({
         ...(dispositif && { dispositif }),
@@ -101,7 +101,7 @@ export default function CmsLanding() {
           <h1 className="mb-0!">{page.title}</h1>
         </div>
       )}
-      <PageBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, onStartQuiz, missionsCta }} />
+      <CmsBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, onStartQuiz, missionsCta }} />
     </main>
   );
 }
