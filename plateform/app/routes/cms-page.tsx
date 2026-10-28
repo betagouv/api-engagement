@@ -15,7 +15,7 @@ import type { Route } from "./+types/cms-page";
 
 const MISSIONS_CTA = { to: "/quiz/age", label: "Trouver ma mission" };
 
-// POC : pages (landings, pages éditoriales) pilotées par le CMS, servies sous /cms/:slug (noindex tant qu'on compare au rendu en code).
+// POC : pages (landings, pages éditoriales) pilotées par le CMS, servies sous /pages/:slug.
 export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescriptors {
   if (!loaderData) return [{ title: "Page introuvable" }];
   return pageMeta(location, {

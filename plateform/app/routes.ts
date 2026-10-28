@@ -47,7 +47,7 @@ export default [
   route("engagement-securite", "routes/landings/engagement-securite.tsx"),
 
   // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales), rendues depuis le contenu du CMS (cf. routes/cms-page.tsx).
-  route("cms/:slug", "routes/cms-page.tsx"),
+  route("pages/:slug", "routes/cms-page.tsx"),
 
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),
