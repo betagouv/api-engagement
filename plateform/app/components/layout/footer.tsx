@@ -1,15 +1,13 @@
 import { TAXONOMY } from "@engagement/taxonomy";
-import { Link, useLocation, useRouteLoaderData } from "react-router";
+import { Link, useLocation } from "react-router";
 import ChacunPourTousLogo from "~/assets/images/logo/chacun-pour-tous.png";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import { COOKIE_CONSENT_MODAL_ID, isCookieConsentEnabled, openCookieConsentPanel } from "~/services/cookie-consent";
-import type { loader as rootLoader } from "~/root";
 import { hasMobileFixedBottomBar, isGlobalFooterVisible } from "~/utils/layout";
-import type { NavLink } from "~/utils/navigation";
 
 const DOMAINE_LINKS = Object.entries(TAXONOMY.domaine_engagement.values).map(([key, value]) => ({ to: `/missions?domaine_engagement=${key}`, label: value.label }));
 
-const STATIC_FOOTER_CATEGORIES = [
+const FOOTER_NAV_CATEGORIES = [
   {
     title: "Trouver une mission",
     links: [
@@ -34,47 +32,31 @@ const STATIC_FOOTER_CATEGORIES = [
   },
 ];
 
-type FooterCategory = { title: string; links: NavLink[] };
-
-// Liens par défaut : un lien `external` s'ouvre dans un nouvel onglet.
-const FOOTER_NAV_CATEGORIES: FooterCategory[] = STATIC_FOOTER_CATEGORIES.map((category) => ({
-  title: category.title,
-  links: category.links.map((link) => ({ to: link.to, label: link.label, internal: !("external" in link && link.external), newTab: "external" in link && !!link.external })),
-}));
-
 // RGAA 9.2 : sur les résultats mobile, le footer est rendu dans le panneau dépliable, à
 // l'intérieur du <main>. `landmark={false}` retire le role="contentinfo" explicite pour ne pas
 // créer un landmark imbriqué (un <footer> descendant de <main> n'est pas un landmark en HTML).
 export function FooterContent({ landmark = true }: { landmark?: boolean }) {
-  // Section éditée dans le CMS, ajoutée après les catégories par défaut (absente en erreur racine ou sans CMS).
-  const footerSection = useRouteLoaderData<typeof rootLoader>("root")?.footerSection;
-  const categories = footerSection ? [...FOOTER_NAV_CATEGORIES, footerSection] : FOOTER_NAV_CATEGORIES;
-
   return (
     <footer className="fr-footer" role={landmark ? "contentinfo" : undefined} id="footer" tabIndex={-1}>
       <div className="fr-footer__top">
         <div className="fr-container">
           <nav role="navigation" aria-label="Navigation du pied de page">
             <div className="fr-grid-row fr-grid-row--start fr-grid-row--gutters">
-              {categories.map((category) => (
+              {FOOTER_NAV_CATEGORIES.map((category) => (
                 <div key={category.title} className="fr-col-12 fr-col-sm-4 fr-col-md-3">
                   {/* RGAA 9.1 : <h2> pour éviter un saut h1 → h3 sur les pages sans <h2> (plan du site, accessibilité). */}
                   <h2 className="fr-footer__top-cat">{category.title}</h2>
                   <ul className="fr-footer__top-list">
                     {category.links.map((link) => (
                       <li key={link.to}>
-                        {link.newTab ? (
+                        {"external" in link && link.external ? (
                           <a className="fr-footer__top-link" href={link.to} target="_blank" rel="noopener external" title={`${link.label} - nouvelle fenêtre`}>
                             {link.label}
                           </a>
-                        ) : link.internal ? (
+                        ) : (
                           <Link className="fr-footer__top-link" to={link.to}>
                             {link.label}
                           </Link>
-                        ) : (
-                          <a className="fr-footer__top-link" href={link.to}>
-                            {link.label}
-                          </a>
                         )}
                       </li>
                     ))}

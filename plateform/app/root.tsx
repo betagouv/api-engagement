@@ -8,9 +8,7 @@ import Header from "~/components/layout/header";
 import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-indicator";
 import SkipLinks from "~/components/layout/skip-links";
 import { canonicalHostMiddleware } from "~/middlewares/canonical-host";
-import { getNavigation } from "~/services/cms.server";
 import { PUBLISHER_ID } from "~/services/config";
-import { resolveNavigationLinks } from "~/utils/navigation";
 import { serializeForInlineScript } from "~/utils/string";
 import type { Route } from "./+types/root";
 import "./main.css";
@@ -21,18 +19,6 @@ const apiEngagementTag = PUBLISHER_ID
   : null;
 
 export const middleware: Route.MiddlewareFunction[] = [canonicalHostMiddleware];
-
-// Section du pied de page éditée dans le CMS (navigation). Sans navigation publiée ni CMS, le footer garde ses liens par défaut.
-export async function loader() {
-  const navigation = await getNavigation();
-  const links = navigation ? resolveNavigationLinks(navigation.footerLinks) : [];
-  return { footerSection: links.length ? { title: navigation?.footerTitle?.trim() || "Pages", links } : null };
-}
-
-// Le menu ne dépend pas de la page : pas de rechargement (et d'appel au cache CMS) à chaque navigation.
-export function shouldRevalidate() {
-  return false;
-}
 
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().

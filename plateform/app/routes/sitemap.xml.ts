@@ -1,13 +1,11 @@
-import { listSitemapEntries } from "~/services/cms.server";
-import { SITE_URL } from "~/utils/seo";
-import { buildSitemapXml, type SitemapEntry } from "~/utils/sitemap";
+const SITE_URL = "https://trouvetamission.gouv.fr";
 
 // Source unique des pages publiques indexables : ajouter une page ici suffit à la faire apparaître
 // dans le sitemap (pas de fichier XML figé à maintenir en parallèle des routes).
 // Exclus volontairement : quiz, /results/*, /missions (noindex), fiches mission (/missions/:id, sujet SEO à part) et
 // toute URL avec filtres (?domaine_engagement=…).
 // lastmod : uniquement une vraie date connue, jamais une date bidon commune à toutes les pages.
-const PUBLIC_PAGES: SitemapEntry[] = [
+const PUBLIC_PAGES: { path: string; lastmod?: string }[] = [
   { path: "/" },
   { path: "/plan-du-site" },
   { path: "/accessibilite" },
@@ -15,9 +13,10 @@ const PUBLIC_PAGES: SitemapEntry[] = [
   { path: "/politique-de-confidentialite" },
 ];
 
-// Pages fixes + pages et articles du CMS publiés et indexables (cf. services/cms.server).
 export async function loader() {
-  const xml = buildSitemapXml(SITE_URL, [...PUBLIC_PAGES, ...(await listSitemapEntries())]);
+  const urls = PUBLIC_PAGES.map(({ path, lastmod }) => `  <url>\n    <loc>${SITE_URL}${path}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}\n  </url>`).join("\n");
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
 
   return new Response(xml, {
     headers: { "Content-Type": "application/xml; charset=utf-8" },

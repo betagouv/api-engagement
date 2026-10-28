@@ -1,6 +1,5 @@
 // Seed de dev : recrée dans le CMS la landing « Chacun pour tous » (contenu repris de plateform), une page d'exemple
-// (texte riche, image, missions), des articles de blog, la navigation du pied de page et le jeton de lecture de plateform.
-// Idempotent : relancer remplace ces contenus.
+// (texte riche, image, missions) et le jeton de lecture de plateform. Idempotent : relancer remplace les pages.
 // Usage : `npm run seed` dans le conteneur cms.
 import fs from "node:fs";
 import path from "node:path";
@@ -11,9 +10,6 @@ import mime from "mime-types";
 const ASSETS = process.env.SEED_ASSETS_DIR ?? "/seed-assets";
 const IMAGES = path.join(ASSETS, "images");
 const UID = "api::page.page";
-const ARTICLE_UID = "api::article.article";
-const CATEGORY_UID = "api::category.category";
-const NAVIGATION_UID = "api::navigation.navigation";
 const TOKEN_NAME = "plateform (lecture seule)";
 
 const uploadImage = async (strapi: Core.Strapi, relativePath: string, alternativeText = ""): Promise<number> => {
@@ -249,106 +245,8 @@ const savePage = async (strapi: Core.Strapi, data: Record<string, unknown> & { s
     await documents.delete({ documentId: old.documentId });
   }
   // Le typage généré des zones dynamiques est trop strict pour ce seed : Strapi valide le contenu à l'exécution.
-  const page = await documents.create({ status: "published", data: data as never });
+  await documents.create({ status: "published", data: data as never });
   console.log(`Page « ${data.slug} » créée.`);
-  return page.documentId;
-};
-
-const seedBlog = async (strapi: Core.Strapi) => {
-  const categories = strapi.documents(CATEGORY_UID);
-  for (const old of await categories.findMany({})) {
-    await categories.delete({ documentId: old.documentId });
-  }
-  const created: Record<string, string> = {};
-  for (const [name, slug] of [
-    ["Témoignages", "temoignages"],
-    ["Conseils", "conseils"],
-  ]) {
-    created[slug] = (await categories.create({ data: { name, slug } })).documentId;
-  }
-
-  const articles = strapi.documents(ARTICLE_UID);
-  for (const old of await articles.findMany({})) {
-    await articles.delete({ documentId: old.documentId });
-  }
-
-  const covers = await Promise.all([1, 2, 3, 4].map((n) => uploadImage(strapi, `landings/chacun-pour-tous/histoire-${n}.webp`)));
-  const body = (paragraph: string) => [
-    { type: "paragraph", children: [text(paragraph)] },
-    { type: "heading", level: 1, children: [text("Pour aller plus loin")] },
-    { type: "paragraph", children: [text("Un second paragraphe, avec un "), { type: "link", url: "/missions", children: [text("lien vers les missions")] }, text(".")] },
-  ];
-  const entries = [
-    { title: "Pourquoi s'engager change tout", category: "temoignages", excerpt: "Trois bénévoles racontent ce que leur engagement leur a apporté, à eux et à leur entourage." },
-    {
-      title: "Premier engagement : par où commencer ?",
-      category: "conseils",
-      excerpt: "Bénévolat, Service Civique, pompiers volontaires : comment choisir la mission qui vous correspond.",
-    },
-    { title: "Marie, pompier volontaire depuis sept mois", category: "temoignages", excerpt: "Deux fois par semaine, Marie enfile l'uniforme. Elle nous explique pourquoi." },
-    ...Array.from({ length: 7 }, (_, index) => ({
-      title: `Article de démonstration ${index + 1}`,
-      category: index % 2 ? "conseils" : "temoignages",
-      excerpt: "Un article de démonstration pour tester la pagination de la liste.",
-    })),
-  ];
-  for (const [index, entry] of entries.entries()) {
-    await articles.create({
-      status: "published",
-      data: {
-        title: entry.title,
-        slug: entry.title
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, ""),
-        excerpt: entry.excerpt,
-        publicationDate: `2026-10-${String(20 - index).padStart(2, "0")}`,
-        author: index % 3 === 0 ? "L'équipe Trouve ta mission" : null,
-        category: created[entry.category],
-        cover: covers[index % covers.length],
-        noindex: false,
-        blocks: [
-          { __component: "blocks.rich-text", title: null, body: body(entry.excerpt) },
-          ...(index === 0
-            ? [
-                {
-                  __component: "blocks.missions",
-                  title: "Des ==missions== pour passer à l'action",
-                  description: "Quelques missions à découvrir.",
-                  slots: [],
-                  fillWithRandom: true,
-                  examples: false,
-                  background: "galet",
-                },
-              ]
-            : []),
-        ] as never,
-      } as never,
-    });
-  }
-  console.log(`Blog : ${entries.length} articles créés.`);
-};
-
-const seedNavigation = async (strapi: Core.Strapi, examplePageDocumentId: string) => {
-  const navigation = strapi.documents(NAVIGATION_UID);
-  const existing = await navigation.findFirst({});
-  const data = {
-    footerTitle: "Découvrir",
-    footerLinks: [
-      { label: "Le blog", url: "/blog", newTab: false },
-      { label: "Exemple de page", page: examplePageDocumentId, newTab: false },
-      { label: "Licence ouverte Etalab", url: "https://www.etalab.gouv.fr/licence-ouverte-open-licence", newTab: false },
-    ],
-  } as never;
-  if (existing) {
-    await navigation.update({ documentId: existing.documentId, data });
-    await navigation.publish({ documentId: existing.documentId });
-  } else {
-    await navigation.create({ data, status: "published" });
-  }
-  console.log("Navigation du pied de page créée.");
 };
 
 const main = async () => {
@@ -365,15 +263,13 @@ const main = async () => {
     noindex: true,
     blocks: await buildBlocks(app),
   });
-  const examplePageId = await savePage(app, {
+  await savePage(app, {
     title: "Exemple de page éditoriale",
     slug: "exemple-page",
     seoTitle: "Exemple de page éditoriale | Trouve ta mission",
     noindex: true,
     blocks: await buildExampleBlocks(app),
   });
-  await seedBlog(app);
-  await seedNavigation(app, examplePageId);
   await ensureReadToken(app);
 
   await app.destroy();

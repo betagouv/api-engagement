@@ -13,7 +13,7 @@ interface PaginationProps {
 
 const ELLIPSIS = "…";
 
-export function buildPageItems(page: number, totalPages: number): Array<number | typeof ELLIPSIS> {
+function buildPageItems(page: number, totalPages: number): Array<number | typeof ELLIPSIS> {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
   }

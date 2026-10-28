@@ -2,10 +2,11 @@ import type { PageInlineNode, PageListNode, PageRichTextNode, PageTextNode } fro
 import { Fragment, type ReactNode } from "react";
 import { Link } from "react-router";
 
-import { EXTERNAL_URL, INTERNAL_URL, SAFE_URL } from "~/utils/links";
-
 // Rendu du texte riche de Strapi (éditeur « Blocks ») avec les balises HTML simples, mises en forme par le DSFR.
 // Aucun HTML brut du CMS n'est injecté : tout passe par React, et les URL de liens sont filtrées.
+const EXTERNAL_URL = /^https?:\/\//i;
+const INTERNAL_URL = /^\/(?!\/)/;
+const SAFE_URL = /^(https?:\/\/|mailto:|tel:|#|\/(?!\/))/i;
 
 const isBlank = (nodes: PageInlineNode[]) => nodes.every((node) => node.type === "text" && !node.text.trim());
 
