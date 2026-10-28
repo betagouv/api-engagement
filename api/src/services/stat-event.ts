@@ -5,7 +5,6 @@ import { statEventRepository } from "@/repositories/stat-event";
 import { publisherService } from "@/services/publisher";
 import {
   AggregateMissionStatsParams,
-  CountByTypeParams,
   CountClicksByPublisherForOrganizationSinceParams,
   CountEventsParams,
   CountStatEventsByClientEventIdParams,
@@ -147,30 +146,6 @@ async function findOneStatEventByMissionId(missionId: string): Promise<StatEvent
     orderBy: { createdAt: "desc" },
   })) as PrismaStatEventWithPublishers | null;
   return toStatEventRecordOrNull(result);
-}
-
-async function countStatEventsByTypeSince({ publisherId, from, types }: CountByTypeParams) {
-  const statTypes = types?.length ? types : DEFAULT_TYPES;
-  const counts: Record<StatEventType, number> = {
-    click: 0,
-    print: 0,
-    apply: 0,
-    account: 0,
-  };
-
-  await Promise.all(
-    statTypes.map(async (type) => {
-      const total = await statEventRepository.count({
-        where: {
-          toPublisherId: publisherId,
-          createdAt: { gte: from },
-          type: type as any,
-        },
-      });
-      counts[type] = total;
-    })
-  );
-  return counts;
 }
 
 async function countStatEventsByCriteria({ type, user, clickUser, from }: CountEventsParams): Promise<number> {
@@ -645,7 +620,6 @@ export const statEventService = {
   findOneStatEventByMissionId,
   findStatEvents,
   countStatEvents,
-  countStatEventsByTypeSince,
   countStatEventsByCriteria,
   countStatEventClicksByPublisherForOrganizationSince,
   aggregateStatEventsForMission,
