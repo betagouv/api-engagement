@@ -16,7 +16,7 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
   let description: string | undefined;
 
   // Les adresses font foi quand elles sont fournies (POST/PUT v2), sinon le pays dérivé de l'adresse principale.
-  const countries: string[] = mission.addresses?.length ? mission.addresses.map((a: { country?: string | null }) => a.country) : [mission.country];
+  const countries: (string | null | undefined)[] = mission.addresses?.length ? mission.addresses.map((a: { country?: string | null }) => a.country) : [mission.country];
   const invalidCountry = countries.find((c) => c && !COUNTRIES.includes(c));
 
   if (!mission.title || mission.title === " ") {
