@@ -1,18 +1,18 @@
 import type { MissionBrowse } from "@engagement/dto";
 import type { CSSProperties } from "react";
 
-import BonPourToi from "~/components/landings/chacun-pour-tous/bon-pour-toi";
-import EtapesVie from "~/components/landings/chacun-pour-tous/etapes-vie";
 import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
-import Histoires from "~/components/landings/chacun-pour-tous/histoires";
-import Questions from "~/components/landings/chacun-pour-tous/questions";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import HeroImage from "~/components/landings/hero-image";
 import Missions from "~/components/landings/missions";
 import Partners from "~/components/layout/partners";
 import InlineText from "~/components/ui/inline-text";
+import Benefits from "./benefits";
+import Cards from "./cards";
+import Faq from "./faq";
 import RichText from "./rich-text";
+import Stories from "./stories";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 import type { PageBlock } from "~/types/page";
 
@@ -97,7 +97,7 @@ function Block({ block, index, context }: { block: PageBlock; index: number; con
       return <Etapes etapes={block.items.map((item) => ({ ...item, icon: PICTOGRAMS[item.icon] }))} onStartQuiz={() => context.onStartQuiz("etapes")} />;
     case "blocks.benefits":
       return (
-        <BonPourToi
+        <Benefits
           title={<InlineText text={block.title} />}
           benefices={block.benefits}
           newsletterTitle={<InlineText text={block.newsletterTitle} />}
@@ -106,16 +106,16 @@ function Block({ block, index, context }: { block: PageBlock; index: number; con
       );
     case "blocks.cards":
       return (
-        <EtapesVie
+        <Cards
           title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_GREEN} />}
-          etapes={block.cards.map((card) => ({ icon: PICTOGRAMS[card.icon], title: card.title, points: card.points.split("\n").filter(Boolean) }))}
+          cards={block.cards.map((card) => ({ icon: PICTOGRAMS[card.icon], title: card.title, points: card.points.split("\n").filter(Boolean) }))}
           onStartQuiz={() => context.onStartQuiz("etapes_vie")}
           cta={context.missionsCta("etapes_vie")}
         />
       );
     case "blocks.stories":
       return (
-        <Histoires
+        <Stories
           title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_GREEN} breakClassName="hidden md:block" />}
           intro={block.intro && <InlineText text={block.intro} />}
           histoires={block.stories.map((story) => ({ ...story, image: story.image.url, logo: story.logo.url }))}
@@ -124,7 +124,7 @@ function Block({ block, index, context }: { block: PageBlock; index: number; con
       );
     case "blocks.faq":
       return (
-        <Questions
+        <Faq
           title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_YELLOW} />}
           intro={block.intro && <InlineText text={block.intro} linkClassName="fr-link fr-text--lg!" />}
           questions={block.questions.map((question) => ({ ...question, icon: PICTOGRAMS[question.icon] }))}
