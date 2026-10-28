@@ -65,7 +65,7 @@ export default function MissionsPage() {
       <MissionsBrowser missions={missions} total={total} page={page} filters={MISSIONS_CONFIG.filters} pageName="missions_list" backTo="/missions" />
       <Newsletter
         title="Inscris-toi à la newsletter"
-        subtitle="1 e-mail par mois avec nos meilleures missions adaptées à tes critères"
+        subtitle="Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager."
         ctaText="Je m'inscris"
         hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
       />
