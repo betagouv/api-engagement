@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiAddLine, RiCheckboxCircleFill, RiCloseCircleFill, RiDeleteBinLine } from "react-icons/ri";
+import { RiAddLine, RiCheckboxCircleFill, RiCloseCircleFill, RiDeleteBinLine, RiErrorWarningFill } from "react-icons/ri";
 
 import LabelledInput from "@/components/form/LabelledInput";
 import Toggle from "@/components/Toggle";
@@ -19,7 +19,7 @@ const EMPTY_DEMARCHE = {
 
 // Champs du formulaire DN lus par le job d'import pour enrichir les candidatures (customAttributes candidate*).
 const CANDIDATE_FIELDS = [
-  { key: "birthDateField", label: "Champ « Date de naissance »", attribute: "candidateAge" },
+  { key: "birthDateField", label: "Champ « Date de naissance » ou « Âge »", attribute: "candidateAge" },
   { key: "countryField", label: "Champ « Pays »", attribute: "candidateCountry" },
   { key: "postalCodeField", label: "Champ « Code postal »", attribute: "candidatePostalCode" },
 ];
@@ -27,6 +27,8 @@ const CANDIDATE_FIELDS = [
 const DemarcheSimplifiee = ({ values, onChange }) => {
   const [loadingIndex, setLoadingIndex] = useState(null);
   const [accessByNumber, setAccessByNumber] = useState({});
+  const [checkByIndex, setCheckByIndex] = useState({});
+  const [redirectionIdByIndex, setRedirectionIdByIndex] = useState({});
   const { isDemarcheSimplifiee } = values;
   const demarches = values.demarcheSimplifiees || [];
   const demarcheNumbers = demarches
@@ -90,6 +92,40 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       captureError(error, { message: "Erreur lors de la recherche de la démarche", extra: { url: demarche.url } });
     } finally {
       setLoadingIndex(null);
+    }
+  };
+
+  // Ouvre la démarche comme le fait la redirection d'un clic : l'annotation « Identifiant de la redirection » est préremplie
+  // via le query param `annotationKey`. Un identifiant de test est utilisé : aucun clic n'est créé en base.
+  const handleTestRedirection = (index) => {
+    const demarche = demarches[index];
+    const redirectionId = `test-${crypto.randomUUID()}`;
+    const url = new URL(demarche.url);
+    url.searchParams.set(demarche.annotationKey, redirectionId);
+    window.open(url.toString(), "_blank", "noopener,noreferrer");
+    setRedirectionIdByIndex((prev) => ({ ...prev, [index]: redirectionId }));
+  };
+
+  // Rejoue le job d'import sur un dossier réel (lecture seule), avec la config affichée (même non enregistrée).
+  const handleCheckDossier = async (index) => {
+    const demarche = demarches[index];
+    const dossierNumber = checkByIndex[index]?.dossierNumber;
+    const params = new URLSearchParams({ dossierNumber, demarcheNumber: demarche.number });
+    ["url", ...CANDIDATE_FIELDS.map((field) => field.key)].forEach((key) => {
+      if (demarche[key]) {
+        params.append(key, demarche[key]);
+      }
+    });
+    try {
+      setCheckByIndex((prev) => ({ ...prev, [index]: { dossierNumber, loading: true } }));
+      const res = await api.get(`/demarches-simplifiees/check-dossier?${params}`);
+      if (!res.ok) {
+        toast.error("Dossier introuvable sur cette démarche (ou jeton sans accès aux dossiers)");
+      }
+      setCheckByIndex((prev) => ({ ...prev, [index]: { dossierNumber, result: res.ok ? res.data : null } }));
+    } catch (error) {
+      setCheckByIndex((prev) => ({ ...prev, [index]: { dossierNumber } }));
+      captureError(error, { message: "Erreur lors du test du dossier", extra: { dossierNumber } });
     }
   };
 
@@ -196,6 +232,49 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
                   ))}
                 </div>
               </div>
+              {demarche.number && (
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold">Tester la redirection</h3>
+                    <p className="text-text-mention text-sm">
+                      Ouvre la démarche avec l'annotation « Identifiant de la redirection » préremplie, comme lors d'un clic. Déposez ensuite un dossier puis testez-le ci-dessous :
+                      l'identifiant doit y être retrouvé (le clic d'origine, lui, n'existe pas en base pour un test).
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <button type="button" className="secondary-btn" disabled={!demarche.url || !demarche.annotationKey} onClick={() => handleTestRedirection(index)}>
+                      Ouvrir la démarche
+                    </button>
+                    {redirectionIdByIndex[index] && <span className="text-sm">Identifiant prérempli : {redirectionIdByIndex[index]}</span>}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Tester un dossier</h3>
+                    <p className="text-text-mention text-sm">
+                      Rejoue l'import des candidatures sur un dossier, sans rien enregistrer : identifiant de la redirection, clic d'origine et attributs candidat lus avec les
+                      champs ci-dessus.
+                    </p>
+                  </div>
+                  <div className="flex items-end gap-4">
+                    <LabelledInput
+                      id={`demarche-simplifiees-check-dossier-${index}`}
+                      label="Numéro du dossier"
+                      type="number"
+                      value={checkByIndex[index]?.dossierNumber ?? ""}
+                      onChange={(e) => setCheckByIndex((prev) => ({ ...prev, [index]: { dossierNumber: e.target.value } }))}
+                      className="w-64"
+                    />
+                    <button
+                      type="button"
+                      className="secondary-btn"
+                      disabled={!checkByIndex[index]?.dossierNumber || checkByIndex[index]?.loading}
+                      onClick={() => handleCheckDossier(index)}
+                    >
+                      {checkByIndex[index]?.loading ? "Test..." : "Tester"}
+                    </button>
+                  </div>
+                  {checkByIndex[index]?.result && <DossierCheckResult result={checkByIndex[index].result} />}
+                </div>
+              )}
             </div>
           ))}
           <button type="button" className="text-blue-france border-blue-france flex w-fit items-center gap-2 border-b" onClick={addDemarche}>
@@ -205,6 +284,46 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
         </div>
       )}
     </div>
+  );
+};
+
+const STATUS_ICONS = {
+  success: <RiCheckboxCircleFill className="text-success shrink-0" aria-hidden="true" />,
+  warning: <RiErrorWarningFill className="text-warning shrink-0" aria-hidden="true" />,
+  error: <RiCloseCircleFill className="text-error shrink-0" aria-hidden="true" />,
+};
+
+const DossierCheckResult = ({ result }) => {
+  const attributes = Object.entries(result.candidateAttributes);
+  const rows = [
+    result.dateDepot
+      ? { status: "success", text: `Dossier déposé le ${new Date(result.dateDepot).toLocaleDateString("fr-FR")} (${result.state})` }
+      : { status: "warning", text: `Dossier non déposé (${result.state}) : il est ignoré par l'import` },
+    !result.hasRedirectionAnnotation
+      ? { status: "error", text: "Identifiant de la redirection : annotation absente du dossier" }
+      : result.redirectionId
+        ? { status: "success", text: `Identifiant de la redirection : ${result.redirectionId}` }
+        : { status: "warning", text: "Identifiant de la redirection : vide (dossier non issu d'une redirection trackée)" },
+    result.redirectionId &&
+      !result.redirectionId.startsWith("test-") && {
+        status: result.clickFound ? "success" : "error",
+        text: result.clickFound ? "Clic d'origine retrouvé en base" : "Clic d'origine introuvable en base",
+      },
+    result.missingFields.length > 0 && { status: "error", text: `Champs introuvables sur la démarche : ${result.missingFields.join(", ")}` },
+    attributes.length
+      ? { status: "success", text: `Attributs candidat : ${attributes.map(([key, value]) => `${key} = ${value}`).join(", ")}` }
+      : { status: "warning", text: "Aucun attribut candidat extrait" },
+  ].filter(Boolean);
+
+  return (
+    <ul className="flex flex-col gap-2 text-sm" aria-live="polite">
+      {rows.map((row) => (
+        <li key={row.text} className="flex items-center gap-2">
+          {STATUS_ICONS[row.status]}
+          {row.text}
+        </li>
+      ))}
+    </ul>
   );
 };
 
