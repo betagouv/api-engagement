@@ -41,7 +41,7 @@ models:
           Raison de l'échec (null si `SUCCESS`) : `no_feed` (aucune URL de flux), `unsafe_feed_url` (URL refusée par
           la protection SSRF), `fetch_failed` (flux injoignable : DNS/timeout/connexion), `http_auth` (401/403),
           `http_not_found` (404), `http_client_error` (autre 4xx), `http_server_error` (5xx), `empty_xml` (flux sans
-          mission), `parse_error` (XML invalide), `internal_error` (erreur inattendue pendant l'import).
+          mission), `parse_error` (XML invalide ou contenu non XML), `internal_error` (erreur inattendue pendant l'import).
         tests:
           - accepted_values:
               arguments:

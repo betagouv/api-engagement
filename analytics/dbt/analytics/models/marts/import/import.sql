@@ -42,7 +42,7 @@ select
     when error ~ '^4\d\d - ' then 'http_client_error'
     when error ~ '^5\d\d - ' then 'http_server_error'
     when error = 'Empty xml' then 'empty_xml'
-    when error = 'Error parsing xml' then 'parse_error'
+    when error in ('Error parsing xml', 'Not an XML') then 'parse_error'
     else 'internal_error'
   end as error_type
 from source
