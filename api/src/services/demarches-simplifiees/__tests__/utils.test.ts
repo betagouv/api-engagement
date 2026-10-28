@@ -89,6 +89,14 @@ describe("detectCandidateFields", () => {
     });
   });
 
+  it("falls back on an age champ when there is no birth date", () => {
+    const descriptors = [
+      { __typename: "DropDownListChampDescriptor", label: "Votre engagement" },
+      { __typename: "IntegerNumberChampDescriptor", label: "Âge" },
+    ];
+    expect(detectCandidateFields(descriptors).birthDateField).toBe("Âge");
+  });
+
   it("returns null when nothing matches", () => {
     expect(detectCandidateFields([{ __typename: "TextChampDescriptor", label: "Motivation" }])).toEqual({
       birthDateField: null,
@@ -153,6 +161,11 @@ describe("extractCandidateAttributes", () => {
       candidateGender: "madame",
       candidatePostalCode: "33000",
     });
+  });
+
+  it("reads the declared age from an age champ", () => {
+    const champs: DossierChamp[] = [{ __typename: "IntegerNumberChamp", label: "Âge", stringValue: "23" }];
+    expect(extractCandidateAttributes({ champs, demandeur: null }, { ...fields, birthDateField: "Âge" }, referenceDate)).toEqual({ candidateAge: "23" });
   });
 
   it("falls back on the demandeur birth date when no champ is found", () => {

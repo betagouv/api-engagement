@@ -6,9 +6,11 @@ import {
   detectCandidateFields,
   DossierChamp,
   DossierDemandeur,
+  extractCandidateAttributes,
   extractDemarcheSlug,
   isRedirectionAnnotation,
   REDIRECTION_ANNOTATION_LABEL,
+  resolveCandidateFields,
 } from "@/services/demarches-simplifiees/utils";
 
 import { DemarchesSimplifieesResponse, query } from "./client";
@@ -32,26 +34,61 @@ export const getDemarche = async (number: number) => {
   return query<{ demarche: { id: string; number: number; title: string; state: string; dateCreation: string } }>(graphqlQuery, { number });
 };
 
-// Exemple de helper : récupère un dossier par son numéro.
+// Champs d'un dossier lus par le job d'import des candidatures (annotation de redirection, champs candidat, demandeur).
+const DOSSIER_FIELDS = `
+  id
+  number
+  state
+  dateDepot
+  annotations {
+    label
+    stringValue
+  }
+  demandeur {
+    ... on PersonnePhysique {
+      civilite
+      dateDeNaissance
+    }
+  }
+  champs {
+    __typename
+    label
+    stringValue
+    ... on DateChamp {
+      date
+    }
+    ... on PaysChamp {
+      pays {
+        code
+      }
+    }
+    ... on CommuneChamp {
+      commune {
+        postalCode
+      }
+    }
+    ... on AddressChamp {
+      address {
+        postalCode
+        countryCode
+      }
+    }
+  }
+`;
+
+// Récupère un dossier par son numéro, avec le numéro de sa démarche.
 export const getDossier = async (number: number) => {
   const graphqlQuery = `
     query getDossier($number: Int!) {
       dossier(number: $number) {
-        id
-        number
-        state
-        dateDepot
-        usager {
-          email
-        }
-        annotations {
-          label
-          stringValue
+        ${DOSSIER_FIELDS}
+        demarche {
+          number
         }
       }
     }
   `;
-  return query<{ dossier: DossierNode }>(graphqlQuery, { number });
+  return query<{ dossier: DossierNode & { demarche: { number: number } } }>(graphqlQuery, { number });
 };
 
 // Récupère l'id de l'annotation "Identifiant de la redirection" d'une démarche, au format de clé de
@@ -140,7 +177,6 @@ interface DossierNode {
   number: number;
   state: string;
   dateDepot: string | null;
-  usager: { email: string };
   annotations: { label: string; stringValue: string | null }[];
   champs: DossierChamp[];
   demandeur: DossierDemandeur | null;
@@ -169,44 +205,7 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
             endCursor
           }
           nodes {
-            id
-            number
-            state
-            dateDepot
-            annotations {
-              label
-              stringValue
-            }
-            demandeur {
-              ... on PersonnePhysique {
-                civilite
-                dateDeNaissance
-              }
-            }
-            champs {
-              __typename
-              label
-              stringValue
-              ... on DateChamp {
-                date
-              }
-              ... on PaysChamp {
-                pays {
-                  code
-                }
-              }
-              ... on CommuneChamp {
-                commune {
-                  postalCode
-                }
-              }
-              ... on AddressChamp {
-                address {
-                  postalCode
-                  countryCode
-                }
-              }
-            }
+            ${DOSSIER_FIELDS}
           }
         }
       }
@@ -288,6 +287,47 @@ export const resolveDemarcheByUrl = async (
       name: demarche.ok ? demarche.data.demarche.title : null,
       annotationKey: annotation.ok ? annotation.data : null,
       ...detectCandidateFields(champDescriptors.ok ? champDescriptors.data : []),
+    },
+  };
+};
+
+// Rejoue sur un dossier ce que fait le job d'import des candidatures, sans rien écrire : lecture de l'identifiant de
+// la redirection (id du clic) et des attributs candidat avec les champs donnés. Sert à tester une config depuis le back-office.
+export const checkDossier = async (
+  dossierNumber: number,
+  demarche: { number: number; url: string | null } & CandidateFields
+): Promise<
+  DemarchesSimplifieesResponse<{
+    state: string;
+    dateDepot: string | null;
+    redirectionId: string | null;
+    hasRedirectionAnnotation: boolean;
+    missingFields: string[];
+    candidateAttributes: Record<string, string>;
+  }>
+> => {
+  const dossierResult = await getDossier(dossierNumber);
+  if (!dossierResult.ok) {
+    return dossierResult;
+  }
+  const { dossier } = dossierResult.data;
+  if (dossier.demarche.number !== demarche.number) {
+    return { ok: false, message: `Dossier belongs to démarche ${dossier.demarche.number}` };
+  }
+
+  const descriptorsResult = await getChampDescriptors(demarche.number, extractDemarcheSlug(demarche.url));
+  const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche, descriptorsResult.data) : { fields: demarche, missingFields: [] };
+  const annotation = dossier.annotations.find((item) => isRedirectionAnnotation(item.label));
+
+  return {
+    ok: true,
+    data: {
+      state: dossier.state,
+      dateDepot: dossier.dateDepot,
+      redirectionId: annotation?.stringValue || null,
+      hasRedirectionAnnotation: Boolean(annotation),
+      missingFields,
+      candidateAttributes: extractCandidateAttributes(dossier, fields, dossier.dateDepot ? new Date(dossier.dateDepot) : new Date()),
     },
   };
 };

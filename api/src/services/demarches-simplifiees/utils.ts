@@ -113,8 +113,12 @@ const hasLabel = (items: { label: string }[], label: string) => items.some((item
 
 const labelContains = (label: string, keywords: string[]) => keywords.some((keyword) => slugify(label).includes(keyword));
 
+// Mot entier du libellé, pour les mots-clés courts contenus dans d'autres mots (ex. "age" dans "engagement").
+const labelHasWord = (label: string, word: string) => slugify(label).split("-").includes(word);
+
 // Devine les champs date de naissance, pays et code postal d'un formulaire DN, sans connaître leur libellé exact :
 // on privilégie le type du champ (champ date "naissance", pays, commune/adresse hors lieu de naissance), puis des mots-clés du libellé.
+// À défaut de date de naissance, `birthDateField` peut désigner un champ « Âge » : l'âge déclaré y est lu tel quel.
 export const detectCandidateFields = (descriptors: ChampDescriptor[]): CandidateFields => {
   const findLabel = (predicate: (descriptor: ChampDescriptor) => boolean) => descriptors.find(predicate)?.label ?? null;
 
@@ -122,7 +126,8 @@ export const detectCandidateFields = (descriptors: ChampDescriptor[]): Candidate
     birthDateField:
       findLabel((descriptor) => descriptor.__typename === "DateChampDescriptor" && Boolean(descriptor.birthdate)) ??
       findLabel((descriptor) => descriptor.__typename === "DateChampDescriptor" && labelContains(descriptor.label, ["naissance"])) ??
-      findLabel((descriptor) => labelContains(descriptor.label, ["date"]) && labelContains(descriptor.label, ["naissance"])),
+      findLabel((descriptor) => labelContains(descriptor.label, ["date"]) && labelContains(descriptor.label, ["naissance"])) ??
+      findLabel((descriptor) => labelHasWord(descriptor.label, "age")),
     countryField: findLabel((descriptor) => descriptor.__typename === "PaysChampDescriptor") ?? findLabel((descriptor) => labelContains(descriptor.label, ["pays", "nationalite"])),
     postalCodeField:
       findLabel((descriptor) => labelContains(descriptor.label, ["code-postal"])) ??
@@ -175,7 +180,8 @@ export const computeAge = (birthDate: Date, referenceDate: Date): number => {
 
 // Construit les customAttributes candidate* d'une candidature à partir d'un dossier, avec la même nomenclature
 // que les autres comptes pompiers (ex. { candidateAge: "35", candidateGender: "monsieur", candidateCountry: "FR", candidatePostalCode: "59560" }).
-// L'âge est calculé à la date de dépôt du dossier, depuis le champ configuré ou à défaut l'identité du demandeur.
+// L'âge est lu tel quel si le champ configuré est un champ « Âge » (nombre), sinon calculé à la date de dépôt du dossier
+// depuis le champ date de naissance ou à défaut l'identité du demandeur.
 // La civilité vient toujours du demandeur. Seuls les attributs trouvés sont renvoyés.
 export const extractCandidateAttributes = (
   dossier: { champs: DossierChamp[]; demandeur: DossierDemandeur | null },
@@ -185,13 +191,13 @@ export const extractCandidateAttributes = (
   const findChamp = (field: string | null) => (field ? dossier.champs.find((champ) => slugify(champ.label) === slugify(field)) : undefined);
   const attributes: Record<string, string> = {};
 
+  const birthDateChamp = findChamp(fields.birthDateField);
+  const declaredAge = birthDateChamp?.stringValue?.match(/^\s*(\d{1,3})\s*(ans)?\s*$/i)?.[1];
   const birthDateString = dossier.demandeur?.dateDeNaissance;
-  const birthDate = parseBirthDate(findChamp(fields.birthDateField)) ?? (birthDateString ? new Date(birthDateString) : null);
-  if (birthDate && !Number.isNaN(birthDate.getTime())) {
-    const age = computeAge(birthDate, referenceDate);
-    if (age >= 0 && age < 120) {
-      attributes.candidateAge = String(age);
-    }
+  const birthDate = parseBirthDate(birthDateChamp) ?? (birthDateString ? new Date(birthDateString) : null);
+  const age = declaredAge ? Number(declaredAge) : birthDate && !Number.isNaN(birthDate.getTime()) ? computeAge(birthDate, referenceDate) : null;
+  if (age !== null && age >= 0 && age < 120) {
+    attributes.candidateAge = String(age);
   }
 
   const civilite = dossier.demandeur?.civilite;

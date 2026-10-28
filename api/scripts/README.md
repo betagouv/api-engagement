@@ -114,9 +114,3 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
     - `--versions m4,m5` : versions à comparer (défaut: version courante)
     - `--json` : sortie structurée pour automatiser la comparaison.
     - `--validate-only` : valide le JSON sans créer de profil ni exécuter le moteur.
-
-- **try-demarches-simplifiees.ts**
-
-  - Exécution: `npx ts-node scripts/try-demarches-simplifiees.ts <dossierNumber> [demarcheUrl]`
-  - Usage: teste sur un dossier réel les fonctions Démarches Simplifiées utilisées par le job d'import des candidatures (`getChampDescriptors`, `detectCandidateFields`, `getAllDossiers`, `resolveCandidateFields`, `extractCandidateAttributes`, et `resolveDemarcheByUrl` si une URL est fournie). Lecture seule.
-  - Prérequis: `DEMARCHES_SIMPLIFIEES_TOKEN` avec accès à la démarche ; dossier déposé et créé il y a moins de 15 jours.

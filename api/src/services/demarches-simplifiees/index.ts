@@ -1,5 +1,6 @@
 import { query } from "./client";
 import {
+  checkDossier,
   createDossier,
   getAllDossiers,
   getAnnotationId,
@@ -24,4 +25,5 @@ export default {
   getPublicChampDescriptors,
   getDemarcheAccess,
   resolveDemarcheByUrl,
+  checkDossier,
 };
