@@ -238,6 +238,7 @@ export const exportDefinitions: ExportDefinition[] = [
         "mission_type",
         "expected_applications",
         "deployment_user_id",
+        "feed",
         "deleted_at",
         "created_at",
         "updated_at",
@@ -328,7 +329,7 @@ export const exportDefinitions: ExportDefinition[] = [
         field: "started_at",
         idField: "id",
       },
-      columns: ["id", "name", "publisher_id", "mission_count", "refused_count", "created_count", "deleted_count", "updated_count", "started_at", "finished_at", "status"],
+      columns: ["id", "name", "publisher_id", "mission_count", "refused_count", "created_count", "deleted_count", "updated_count", "started_at", "finished_at", "status", "error"],
     },
     destination: {
       table: "import",

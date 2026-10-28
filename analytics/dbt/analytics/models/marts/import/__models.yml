@@ -30,3 +30,19 @@ models:
         description: Timestamp de démarrage (UTC) utilisé pour les analyses temporelles.
       - name: ended_at
         description: Timestamp de fin d'exécution (renommage de `finished_at`) servant de curseur incrémental.
+      - name: status
+        description: Statut de l'import (`SUCCESS` ou `FAILED`) ; `FAILED` identifie les flux XML en erreur.
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['SUCCESS', 'FAILED']
+      - name: error_type
+        description: >
+          Raison de l'échec (null si `SUCCESS`) : `no_feed` (aucune URL de flux), `unsafe_feed_url` (URL refusée par
+          la protection SSRF), `fetch_failed` (flux injoignable : DNS/timeout/connexion), `http_auth` (401/403),
+          `http_not_found` (404), `http_client_error` (autre 4xx), `http_server_error` (5xx), `empty_xml` (flux sans
+          mission), `parse_error` (XML invalide), `internal_error` (erreur inattendue pendant l'import).
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['no_feed', 'unsafe_feed_url', 'fetch_failed', 'http_auth', 'http_not_found', 'http_client_error', 'http_server_error', 'empty_xml', 'parse_error', 'internal_error']

@@ -193,6 +193,8 @@ sources:
             description: Tracking des candidatures déployé chez l'annonceur (nullable ; null = non renseigné).
           - name: deployment_user_id
             description: Identifiant du user chargé de déploiement responsable (nullable).
+          - name: feed
+            description: URL du flux XML de missions de l'annonceur (nullable ; les identifiants d'accès ne sont pas exportés).
           - name: deleted_at
             description: Timestamp de suppression logique dans l'app source (nullable).
           - name: created_at
@@ -674,6 +676,8 @@ sources:
             description: Horodatage de fin de l'import, utilisé comme curseur temporel pour l'incrémentalité.
           - name: status
             description: Statut global retourné par le job (`SUCCESS`, `FAILED`, etc.).
+          - name: error
+            description: Message d'erreur brut en cas d'échec de l'import (nullable ; null si `SUCCESS`).
       - name: user
         description: >-
           Comptes utilisateurs applicatifs synchronisés depuis la base `core.user`. Ces données servent de référentiel
