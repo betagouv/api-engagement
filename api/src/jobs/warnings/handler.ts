@@ -3,7 +3,6 @@ import { publisherService } from "@/services/publisher";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import { checkBotClicks } from "@/jobs/warnings/bot";
-import { checkTracking } from "@/jobs/warnings/tracking";
 
 export interface WarningsJobPayload {}
 
@@ -17,9 +16,6 @@ export class WarningsHandler implements BaseHandler<WarningsJobPayload, Warnings
     try {
       console.log(`[Warnings] Starting at ${start.toISOString()}`);
       const publishers = await publisherService.findPublishers({ role: "annonceur" });
-
-      console.log("Checking tracking");
-      await checkTracking(publishers);
 
       console.log("Checking bots");
       await checkBotClicks();

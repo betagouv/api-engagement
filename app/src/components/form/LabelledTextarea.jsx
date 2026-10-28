@@ -6,8 +6,8 @@ const LabelledTextarea = ({ id, label, error, hint, required = false, value, onC
   const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
-    <div className={`flex flex-col gap-2 ${className}`}>
-      <label className="text-sm" htmlFor={id}>
+    <div className={`flex flex-col gap-2 ${error ? "before:bg-error relative before:absolute before:inset-y-0 before:-left-3 before:w-0.5" : ""} ${className}`}>
+      <label className={`text-sm ${error ? "text-error" : ""}`} htmlFor={id}>
         {label}
         {required && (
           <span className="text-error ml-1" aria-hidden="true">
@@ -22,7 +22,7 @@ const LabelledTextarea = ({ id, label, error, hint, required = false, value, onC
       )}
       <textarea
         id={id}
-        className={`textarea ${error ? "border-b-error" : "border-b-black"} ${className}`}
+        className={`textarea ${error ? "border-b-error border-b-2" : "border-b-black"} ${className}`}
         name={id}
         value={value}
         onChange={onChange}
