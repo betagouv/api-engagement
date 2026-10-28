@@ -1,4 +1,4 @@
-import type { MissionBrowse, PageBlock } from "@engagement/dto";
+import type { MissionBrowse } from "@engagement/dto";
 import type { CSSProperties } from "react";
 
 import BonPourToi from "~/components/landings/chacun-pour-tous/bon-pour-toi";
@@ -14,6 +14,7 @@ import Partners from "~/components/layout/partners";
 import InlineText from "~/components/ui/inline-text";
 import RichText from "./rich-text";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
+import type { PageBlock } from "~/types/page";
 
 import { PICTOGRAMS } from "./pictograms";
 

@@ -1,4 +1,4 @@
-import type { PageRichTextNode } from "@engagement/dto";
+import type { PageRichTextNode } from "~/types/page";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { MemoryRouter } from "react-router";

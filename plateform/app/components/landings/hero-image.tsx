@@ -1,4 +1,4 @@
-import type { PageMedia } from "@engagement/dto";
+import type { PageMedia } from "~/types/page";
 
 // Visuel du hero fourni par le CMS : sous le texte sur mobile, calé en bas à droite à partir de la tablette
 // (même emplacement que le visuel de campagne). Sans texte alternatif renseigné, l'image est décorative.

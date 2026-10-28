@@ -1,5 +1,6 @@
 // Page composée de blocs (landing, page éditoriale…), éditée dans le CMS (Strapi, `cms/`) et lue par plateform.
-// Les schémas Strapi (`cms/src/**`) restent la source de vérité : tout changement de bloc ou de champ doit être répercuté ici.
+// Types propres à plateform (`cms/` n'en dépend pas). Les schémas Strapi (`cms/src/**`) restent la source de vérité :
+// tout changement de bloc ou de champ doit être répercuté ici.
 export type PageMedia = {
   url: string;
   alternativeText: string | null;

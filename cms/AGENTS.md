@@ -21,14 +21,14 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 ## Contrat avec plateform
 
 - Les schémas JSON de `src/**` sont la **source de vérité** du contenu.
-- Les types lus par plateform vivent dans `packages/dto/src/resources/page.ts` : tout changement de bloc ou de champ doit y être répercuté **dans la même PR**.
+- Les types lus par plateform vivent dans `plateform/app/types/page.ts` (pas dans `@engagement/dto` : `cms/` n'en dépend pas) : tout changement de bloc ou de champ doit y être répercuté **dans la même PR**.
 - Rendu côté plateform : `plateform/app/routes/cms-page.tsx` (route `/pages/:slug`), `plateform/app/components/cms/index.tsx` (registre bloc → composant), `plateform/app/components/cms/rich-text.tsx` (texte riche) et `plateform/app/services/cms.server.ts` (requête, cache 60 s et `POPULATE` par bloc).
 
 ## Conventions
 
 - Dépendances : versions **exactes** dans `package.json` (pas de `^` ni `~`), lockfile à jour.
 - TypeScript (TS 5.9, version embarquée par Strapi, pas la 6.0 du reste du dépôt), ESLint et Prettier alignés sur le reste du dépôt (config Prettier racine, `printWidth: 180`).
-- Ajouter un bloc : schéma JSON dans `blocks/` (+ son élément dans `items/` s'il contient une liste) et entrée dans `page/schema.json` → type dans `@engagement/dto` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
+- Ajouter un bloc : schéma JSON dans `blocks/` (+ son élément dans `items/` s'il contient une liste) et entrée dans `page/schema.json` → type dans `plateform/app/types/page.ts` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
 - Pas de preview : plateform ne lit que le contenu publié. Le contenu se crée dans l'admin ; le seed ne sert qu'au développement local.
 - Textes éditoriaux : texte brut avec micro-balisage (`==surlignage==`, `[libellé](/chemin)`), jamais de HTML.
 - Scope de commit : `cms`.

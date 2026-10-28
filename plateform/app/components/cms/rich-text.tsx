@@ -1,4 +1,4 @@
-import type { PageInlineNode, PageListNode, PageRichTextNode, PageTextNode } from "@engagement/dto";
+import type { PageInlineNode, PageListNode, PageRichTextNode, PageTextNode } from "~/types/page";
 import { Fragment, type ReactNode } from "react";
 import { Link } from "react-router";
 

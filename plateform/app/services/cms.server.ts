@@ -1,4 +1,4 @@
-import type { Page } from "@engagement/dto";
+import type { Page } from "~/types/page";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
 // Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.

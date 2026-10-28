@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionBrowseFilters, PageBlock } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
@@ -9,6 +9,7 @@ import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
+import type { PageBlock } from "~/types/page";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/cms-page";

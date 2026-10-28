@@ -48,8 +48,7 @@ La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/cha
 ## Ajouter un bloc
 
 1. Schéma JSON dans `src/components/blocks/` (et, s'il contient une liste, son élément dans `src/components/items/`) + l'ajouter à `blocks` dans `src/api/page/content-types/page/schema.json`.
-2. Type dans `packages/dto/src/resources/page.ts`, et `POPULATE` dans `plateform/app/services/cms.server.ts` si le bloc a des éléments ou des médias.
-3. Cas dans `plateform/app/components/cms/index.tsx`.
+2. Côté plateform : type dans `plateform/app/types/page.ts`, `POPULATE` dans `plateform/app/services/cms.server.ts` si le bloc a des éléments ou des médias, et cas dans le registre `plateform/app/components/cms/index.tsx`.
 
 Conventions et commandes : voir `AGENTS.md`. Si les dépendances changent, recréer le conteneur avec `docker compose up -d -V --force-recreate cms` (le volume `node_modules` est anonyme).
 
