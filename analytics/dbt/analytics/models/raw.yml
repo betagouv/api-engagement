@@ -678,6 +678,52 @@ sources:
             description: Statut global retourné par le job (`SUCCESS`, `FAILED`, etc.).
           - name: error
             description: Message d'erreur brut en cas d'échec de l'import (nullable ; null si `SUCCESS`).
+      - name: warning
+        description: >-
+          Alertes métier (tracking, import, validation...) levées sur les partenaires, synchronisées depuis `core.warning`.
+          Une ligne par alerte ; une alerte ouverte est mise à jour à chaque nouvelle réception de la source.
+        columns:
+          - name: id
+            description: Identifiant unique de l'alerte (UUID).
+          - name: type
+            description: Type d'alerte (`TRACKING_WARNING`, `ERROR_WARNING`, `EMPTY_WARNING`, `VALIDATION_WARNING`...).
+          - name: title
+            description: Titre de l'alerte tel que fourni par la source (nullable).
+          - name: description
+            description: Détail de la dernière réception (nullable).
+          - name: publisher_id
+            description: Identifiant du partenaire concerné.
+          - name: status
+            description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`).
+          - name: occurrences
+            description: Nombre de réceptions cumulées de l'alerte tant qu'elle est ouverte.
+          - name: procedure_url
+            description: Lien vers la procédure de traitement (nullable).
+          - name: notified_at
+            description: Date du mail d'alerte aux assignés (nullable, null = pas encore notifiée).
+          - name: fixed_at
+            description: Date de résolution (nullable).
+          - name: created_at
+            description: Date de création de l'alerte (première réception).
+          - name: updated_at
+            description: Date de dernière mise à jour, utilisée comme curseur d'export incrémental.
+      - name: warning_occurrence
+        description: >-
+          Historique des réceptions d'une alerte (`core.warning_occurrence`) : une ligne par envoi de la source, avec ce
+          qu'elle indiquait à ce moment-là. Table en ajout seul.
+        columns:
+          - name: id
+            description: Identifiant unique de la réception (UUID).
+          - name: warning_id
+            description: Identifiant de l'alerte concernée.
+          - name: source
+            description: Origine de la réception (`metabase` pour le webhook d'alertes, `job` pour les anciens jobs de détection).
+          - name: title
+            description: Titre envoyé par la source à cette réception (nullable).
+          - name: description
+            description: Description envoyée par la source à cette réception (nullable).
+          - name: created_at
+            description: Date de la réception, utilisée comme curseur d'export incrémental.
       - name: user
         description: >-
           Comptes utilisateurs applicatifs synchronisés depuis la base `core.user`. Ces données servent de référentiel
