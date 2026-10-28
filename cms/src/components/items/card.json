@@ -1,9 +1,9 @@
 {
-  "collectionName": "components_shared_etapes",
-  "info": { "displayName": "Étape", "icon": "arrowRight" },
+  "collectionName": "components_items_cards",
+  "info": { "displayName": "Carte", "icon": "layer" },
   "attributes": {
     "icon": { "type": "enumeration", "enum": ["search","self_training","mail_send","backpack","environment","human_cooperation","community"], "required": true },
     "title": { "type": "string", "required": true },
-    "description": { "type": "string", "required": true }
+    "points": { "type": "text", "required": true, "description": "Un point par ligne." }
   }
 }

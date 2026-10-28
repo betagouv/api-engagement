@@ -12,12 +12,10 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 
 ## Structure
 
-- `config/*.ts` : serveur (proxy/URL publique), base (SSL), admin (dont la **preview** vers plateform), middlewares (CSP), plugins (médias sur Object Storage quand `CMS_MEDIA_BUCKET` est défini). Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
+- `config/*.ts` : serveur (proxy/URL publique), base (SSL), admin, middlewares (CSP), plugins (médias sur Object Storage quand `CMS_MEDIA_BUCKET` est défini). Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
 - `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Une landing est une page qui utilise des blocs de campagne ; les blocs génériques (`rich-text`, `image`) servent aux pages éditoriales.
-- `src/api/article/` et `src/api/category/` : content-types du blog, **sans rendu côté plateform** pour l'instant (aucun type dans `@engagement/dto`, aucune route). Landings et pages éditoriales restent le seul usage en front.
-- `src/components/blocks/` : les blocs de la zone dynamique `blocks` ; `src/components/shared/` : sous-composants réutilisables.
+- `src/components/blocks/` : les sections qu'un éditeur ajoute à une page (zone dynamique `blocks`) ; `src/components/items/` : les éléments répétables à l'intérieur d'un bloc (carte, étape, partenaire…), jamais ajoutés seuls à une page.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
-- `scripts/seed.ts` : seed de dev (page d'exemple `exemple-page` et jeton de lecture de plateform). Jetable.
 
 ## Contrat avec plateform
 
@@ -28,7 +26,8 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 ## Conventions
 
 - TypeScript (TS 5.9, version embarquée par Strapi, pas la 6.0 du reste du dépôt), ESLint et Prettier alignés sur le reste du dépôt (config Prettier racine, `printWidth: 180`).
-- Ajouter un bloc : schéma JSON + entrée dans `page/schema.json` → type dans `@engagement/dto` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
+- Ajouter un bloc : schéma JSON dans `blocks/` (+ son élément dans `items/` s'il contient une liste) et entrée dans `page/schema.json` → type dans `@engagement/dto` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
+- Pas de seed ni de preview : le contenu se crée dans l'admin, plateform ne lit que le contenu publié.
 - Textes éditoriaux : texte brut avec micro-balisage (`==surlignage==`, `[libellé](/chemin)`), jamais de HTML.
 - Scope de commit : `cms`.
 
@@ -40,6 +39,5 @@ Depuis `cms/` (ou dans le conteneur : `docker compose exec cms npm run <script>`
 - Typecheck : `npm run typecheck` (génère les types Strapi puis `tsc`)
 - Lint : `npm run lint`
 - Format : `npm run prettier`
-- Seed : `npm run seed`
 
 Strapi redémarre à chaque modification de fichier dans `cms/` (mode `develop`).

@@ -1,5 +1,5 @@
 {
-  "collectionName": "components_shared_stories",
+  "collectionName": "components_items_stories",
   "info": { "displayName": "Histoire", "icon": "quote" },
   "attributes": {
     "image": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true },

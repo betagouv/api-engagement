@@ -1,5 +1,5 @@
 {
-  "collectionName": "components_shared_partners",
+  "collectionName": "components_items_partners",
   "info": { "displayName": "Partenaire", "icon": "handHeart" },
   "attributes": {
     "name": { "type": "string", "required": true },

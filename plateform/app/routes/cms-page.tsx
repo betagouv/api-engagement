@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
 import PageBlocks from "~/components/cms";
-import { getPage, isCmsPreview } from "~/services/cms.server";
+import { getPage } from "~/services/cms.server";
 import { browseMissions } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
@@ -23,18 +23,12 @@ export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescri
     description: loaderData.page.seoDescription ?? undefined,
     ogTitle: loaderData.page.ogTitle ?? undefined,
     ogDescription: loaderData.page.ogDescription ?? undefined,
-    robots: loaderData.page.noindex || loaderData.preview ? "noindex, follow" : undefined,
+    robots: loaderData.page.noindex ? "noindex, follow" : undefined,
   });
 }
 
-// Reprend les en-têtes du loader (no-store en preview) sur la réponse HTML.
-export function headers({ loaderHeaders }: Route.HeadersArgs) {
-  return loaderHeaders;
-}
-
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const preview = isCmsPreview(new URL(request.url));
-  const page = await getPage(params.slug, { draft: preview });
+  const page = await getPage(params.slug);
   if (!page) throw data("Page introuvable", { status: 404 });
 
   const browse = async (filters: MissionBrowseFilters) => {
@@ -63,12 +57,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }),
   );
 
-  // Un brouillon ne doit jamais être mis en cache.
-  return data({ page, missionsByBlock, preview }, preview ? { headers: { "Cache-Control": "no-store" } } : undefined);
+  return { page, missionsByBlock };
 }
 
 export default function CmsLanding() {
-  const { page, missionsByBlock, preview } = useLoaderData<typeof loader>();
+  const { page, missionsByBlock } = useLoaderData<typeof loader>();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
@@ -79,11 +72,11 @@ export default function CmsLanding() {
   const landing: LandingName = `landing_${origin}`;
 
   useEffect(() => {
-    if (pageViewedFired.current || preview) return;
+    if (pageViewedFired.current) return;
     pageViewedFired.current = true;
     registerLandingOrigin(origin);
     trackPageViewed({ pageName: landing });
-  }, [origin, landing, preview]);
+  }, [origin, landing]);
 
   const onStartQuiz = (section: QuizEntrySection) => {
     // reset() regénère quiz_attempt_id : on réinitialise avant de tracer, pour rattacher cta.clicked au nouveau funnel.

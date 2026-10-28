@@ -1,5 +1,5 @@
 {
-  "collectionName": "components_shared_mission_slots",
+  "collectionName": "components_items_mission_slots",
   "info": { "displayName": "Mission mise en avant", "icon": "target", "description": "Un créneau du carrousel : la 1re mission qui correspond aux filtres." },
   "attributes": {
     "dispositif": { "type": "enumeration", "enum": ["benevolat", "service_civique", "sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale", "reserve_armees"] },

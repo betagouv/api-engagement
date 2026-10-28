@@ -1,5 +1,5 @@
 {
-  "collectionName": "components_shared_questions",
+  "collectionName": "components_items_questions",
   "info": { "displayName": "Question", "icon": "question" },
   "attributes": {
     "icon": { "type": "enumeration", "enum": ["search","self_training","mail_send","backpack","environment","human_cooperation","community"], "required": true },

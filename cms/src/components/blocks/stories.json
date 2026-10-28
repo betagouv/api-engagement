@@ -4,6 +4,6 @@
   "attributes": {
     "title": { "type": "text", "required": true, "description": "==mots== pour surligner. Retour à la ligne = saut de ligne." },
     "intro": { "type": "text" },
-    "stories": { "type": "component", "repeatable": true, "component": "shared.story" }
+    "stories": { "type": "component", "repeatable": true, "component": "items.story" }
   }
 }

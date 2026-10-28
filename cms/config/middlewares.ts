@@ -5,7 +5,7 @@ const bucket = process.env.CMS_MEDIA_BUCKET;
 const mediaHost = bucket ? `${bucket}.s3.${process.env.CMS_MEDIA_REGION ?? "fr-par"}.scw.cloud` : null;
 const mediaSources = mediaHost ? [`https://${mediaHost}`] : [];
 
-// Liste explicite : la preview de l'admin étend la config de `strapi::security`.
+// Liste par défaut, explicite, dont `strapi::security` configurée pour autoriser les médias du bucket.
 const config: Core.Config.Middlewares = [
   "strapi::logger",
   "strapi::errors",

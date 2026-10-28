@@ -7,7 +7,6 @@
     "dev": "strapi develop",
     "build": "strapi build",
     "start": "strapi start",
-    "seed": "ts-node scripts/seed.ts",
     "typecheck": "strapi ts:generate-types && tsc --noEmit",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "lint": "eslint ."
@@ -32,7 +31,6 @@
     "eslint-plugin-import-x": "4.17.1",
     "prettier": "3.9.9",
     "prettier-plugin-organize-imports": "4.3.0",
-    "ts-node": "10.9.2",
     "typescript": "5.9.3"
   },
   "engines": {

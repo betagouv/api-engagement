@@ -17,7 +17,6 @@ locals {
     "CMS_TRANSFER_TOKEN_SALT",
     "CMS_ENCRYPTION_KEY",
     "CMS_JWT_SECRET",
-    "CMS_PREVIEW_SECRET",
     "CMS_DATABASE_HOST",
     "CMS_DATABASE_PORT",
     "CMS_DATABASE_NAME",
@@ -67,9 +66,8 @@ resource "scaleway_container" "cms" {
     "IMAGE_VERSION" = var.image_tag
 
     # Derrière le proxy TLS de Scaleway : URL publique et confiance dans X-Forwarded-* (cookies `secure` de l'admin).
-    "PUBLIC_URL"    = local.cms_public_url
-    "IS_PROXIED"    = "true"
-    "PLATEFORM_URL" = var.ttm_hostname != "" ? "https://${var.ttm_hostname}" : ""
+    "PUBLIC_URL" = local.cms_public_url
+    "IS_PROXIED" = "true"
 
     # TLS sans vérification de l'autorité (équivalent de `sslmode=require`) : base atteinte via le Private Network.
     "DATABASE_SSL"                     = "true"
@@ -86,7 +84,6 @@ resource "scaleway_container" "cms" {
     "TRANSFER_TOKEN_SALT" = lookup(local.secrets, "CMS_TRANSFER_TOKEN_SALT", "")
     "ENCRYPTION_KEY"      = lookup(local.secrets, "CMS_ENCRYPTION_KEY", "")
     "JWT_SECRET"          = lookup(local.secrets, "CMS_JWT_SECRET", "")
-    "PREVIEW_SECRET"      = lookup(local.secrets, "CMS_PREVIEW_SECRET", "")
     "DATABASE_HOST"       = lookup(local.secrets, "CMS_DATABASE_HOST", "")
     "DATABASE_PORT"       = lookup(local.secrets, "CMS_DATABASE_PORT", "")
     "DATABASE_NAME"       = lookup(local.secrets, "CMS_DATABASE_NAME", "")

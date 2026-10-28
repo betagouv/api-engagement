@@ -3,6 +3,6 @@
   "info": { "displayName": "Cartes (« étape de la vie »)", "icon": "layer" },
   "attributes": {
     "title": { "type": "string", "required": true, "description": "==mots== pour surligner." },
-    "cards": { "type": "component", "repeatable": true, "component": "shared.card" }
+    "cards": { "type": "component", "repeatable": true, "component": "items.card" }
   }
 }

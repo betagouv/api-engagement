@@ -4,7 +4,7 @@
   "attributes": {
     "title": { "type": "string", "required": true, "description": "==mots== pour surligner." },
     "description": { "type": "text", "required": true },
-    "slots": { "type": "component", "repeatable": true, "component": "shared.mission-slot" },
+    "slots": { "type": "component", "repeatable": true, "component": "items.mission-slot" },
     "fillWithRandom": { "type": "boolean", "default": true, "description": "Complète avec 10 missions tirées au hasard." },
     "examples": { "type": "boolean", "default": false, "description": "Cartes d'exemple : sans lien vers la fiche mission." },
     "background": { "type": "enumeration", "enum": ["creme", "galet"], "default": "galet", "required": true }

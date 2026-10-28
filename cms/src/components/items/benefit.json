@@ -1,5 +1,5 @@
 {
-  "collectionName": "components_shared_benefits",
+  "collectionName": "components_items_benefits",
   "info": { "displayName": "Bénéfice", "icon": "heart" },
   "attributes": {
     "emoji": { "type": "string", "required": true },

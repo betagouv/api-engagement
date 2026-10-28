@@ -59,10 +59,6 @@ services:
       TRANSFER_TOKEN_SALT: dev-transfer-token-salt
       ENCRYPTION_KEY: dev-encryption-key
       JWT_SECRET: dev-jwt-secret
-      PLATEFORM_URL: http://localhost:5173
-      PREVIEW_SECRET: dev-preview-secret
-      # Jeton lecture seule de plateform, créé de façon déterministe par `npm run seed` (dev local uniquement).
-      CMS_API_TOKEN: dev-cms-read-token
     volumes:
       - ./cms:/opt/app
       - /opt/app/node_modules
@@ -121,8 +117,6 @@ services:
       VITE_ENV: development
       CMS_URL: http://cms:1337
       CMS_PUBLIC_URL: http://localhost:1337
-      CMS_API_TOKEN: dev-cms-read-token
-      CMS_PREVIEW_SECRET: dev-preview-secret
     volumes:
       - ./plateform:/workspace/plateform
       - /workspace/plateform/node_modules
