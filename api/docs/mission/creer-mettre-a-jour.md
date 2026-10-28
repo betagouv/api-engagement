@@ -29,12 +29,11 @@ Une mission qui passe la validation du format est **toujours enregistrée** (HTT
 | Description > 20 000 caractères (tronquée) | `La description est trop longue (plus de 20000 caractères)` |
 | `applicationUrl` absente | `URL de candidature manquant` |
 | `addresses[].country` hors liste | `Pays non valide : "…"` |
-| `remote` hors valeurs autorisées | `Valeur remote non valide (no, possible, full ou local)` |
-| `places` ≤ 0 | `Nombre de places invalide (doit être supérieur à 0)` |
 | `domain` hors liste | `Domaine non valide : "…"` |
 | Nom d'organisation mal encodé | `Problème d'encodage dans le nom de l'organisation` |
-| Montants de compensation négatifs, ou max < min | `Montant … invalide` |
-| Unité ou type de compensation invalide | `Unité / Type de compensation invalide (…)` |
+| `compensationAmount` négatif, ou `compensationAmountMax` < `compensationAmount` | `Montant … invalide` |
+
+Les contraintes de format suivantes sont contrôlées **avant** la modération : une valeur invalide renvoie `400 INVALID_BODY` (voir [Erreurs](../errors.md)) et la mission n'est **pas** enregistrée : `places` (entier ≥ 1), `remote`, `type`, `compensationUnit`, `compensationType`, `compensationAmountMax` (≥ 0), types des champs.
 
 ## Valeurs de référence
 

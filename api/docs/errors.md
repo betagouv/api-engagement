@@ -68,4 +68,4 @@ Pour les erreurs `INVALID_BODY` (HTTP `400`), `message` est une erreur de valida
 | `inclusive` | `true` si la borne est autorisée, `false` si elle est exclue. Ex. `minimum: 0` + `inclusive: false` signifie « strictement supérieur à 0 » |
 | `expected` / `values` | Type ou valeurs attendus, pour `invalid_type` / `invalid_value` |
 
-Ces erreurs ne concernent que le **format** de la requête. Les règles métier (titre, pays, domaine…) ne renvoient pas d'erreur HTTP : la mission est enregistrée avec le statut `REFUSED` (voir [Créer / mettre à jour](mission/creer-mettre-a-jour.md)).
+Ces erreurs ne concernent que le **format** de la requête. Les règles métier (titre, description, pays, domaine…) ne renvoient pas d'erreur HTTP : la mission est enregistrée avec le statut `REFUSED` (voir [Créer / mettre à jour](mission/creer-mettre-a-jour.md)).
