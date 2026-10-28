@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { RiAddLine, RiDeleteBinLine } from "react-icons/ri";
+import { useEffect, useState } from "react";
+import { RiAddLine, RiCheckboxCircleFill, RiCloseCircleFill, RiDeleteBinLine } from "react-icons/ri";
 
 import LabelledInput from "@/components/form/LabelledInput";
 import Toggle from "@/components/Toggle";
@@ -26,8 +26,30 @@ const CANDIDATE_FIELDS = [
 
 const DemarcheSimplifiee = ({ values, onChange }) => {
   const [loadingIndex, setLoadingIndex] = useState(null);
+  const [accessByNumber, setAccessByNumber] = useState({});
   const { isDemarcheSimplifiee } = values;
   const demarches = values.demarcheSimplifiees || [];
+  const demarcheNumbers = demarches
+    .map((demarche) => demarche.number)
+    .filter(Boolean)
+    .join(",");
+
+  // Accès de notre jeton DN à chaque démarche et à ses dossiers : sans accès, le job ne peut pas importer les candidatures.
+  useEffect(() => {
+    if (!demarcheNumbers) {
+      return;
+    }
+    demarcheNumbers.split(",").forEach(async (number) => {
+      try {
+        const res = await api.get(`/demarches-simplifiees/access?number=${number}`);
+        if (res.ok) {
+          setAccessByNumber((prev) => ({ ...prev, [number]: res.data }));
+        }
+      } catch (error) {
+        captureError(error, { message: "Erreur lors de la vérification de l'accès à la démarche", extra: { number } });
+      }
+    });
+  }, [demarcheNumbers]);
 
   const updateDemarche = (index, patch) => {
     const next = demarches.map((demarche, i) => (i === index ? { ...demarche, ...patch } : demarche));
@@ -116,6 +138,26 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
                 readOnly
                 className="w-64"
               />
+              {accessByNumber[demarche.number] && (
+                <div className="flex flex-col gap-1">
+                  <div className="flex flex-wrap gap-6 text-sm">
+                    {[
+                      { label: "Accès à la démarche", hasAccess: accessByNumber[demarche.number].demarche },
+                      { label: "Accès aux dossiers (candidatures)", hasAccess: accessByNumber[demarche.number].dossiers },
+                    ].map((item) => (
+                      <span key={item.label} className="flex items-center gap-1">
+                        {item.hasAccess ? <RiCheckboxCircleFill className="text-success" aria-hidden="true" /> : <RiCloseCircleFill className="text-error" aria-hidden="true" />}
+                        {item.label} : {item.hasAccess ? "oui" : "non"}
+                      </span>
+                    ))}
+                  </div>
+                  {!accessByNumber[demarche.number].dossiers && (
+                    <p className="text-text-mention text-sm">
+                      Sans accès, les candidatures ne peuvent pas être importées : le compte du jeton API doit être ajouté comme instructeur de la démarche.
+                    </p>
+                  )}
+                </div>
+              )}
               <LabelledInput
                 id={`demarche-simplifiees-name-${index}`}
                 label="Nom de la démarche"
