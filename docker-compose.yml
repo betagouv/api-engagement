@@ -61,13 +61,11 @@ services:
       JWT_SECRET: dev-jwt-secret
       PLATEFORM_URL: http://localhost:5173
       PREVIEW_SECRET: dev-preview-secret
-      # Jeton lecture seule de plateform, créé de façon déterministe par `npm run seed`.
+      # Jeton lecture seule de plateform, créé de façon déterministe par `npm run seed` (dev local uniquement).
       CMS_API_TOKEN: dev-cms-read-token
     volumes:
       - ./cms:/opt/app
       - /opt/app/node_modules
-      # Images des landings existantes, reprises par le script de seed.
-      - ./plateform/app/assets:/seed-assets:ro
     ports:
       - "1337:1337"
 

@@ -1,31 +1,30 @@
 # CMS (POC Strapi)
 
-CMS headless (Strapi 5, Community, Postgres) pour les pages de `plateform/` (landings, pages éditoriales, et à terme le blog). Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
+CMS headless (Strapi 5, Community, Postgres) pour construire les **landing pages** de `plateform/` à partir de blocs, sans passer par le code. Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
 
 ## Démarrage
 
 ```bash
 docker compose up -d cms        # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
-docker compose exec cms npm run seed   # recrée la landing « chacun-pour-tous », une page d'exemple + le jeton de lecture de plateform
+docker compose exec cms npm run seed   # crée une page d'exemple (texte riche + missions) et le jeton de lecture de plateform
 ```
 
 À la première visite de l'admin, créer un compte administrateur (local).
 
-Côté `plateform` (hors Docker), lancer avec :
+Côté `plateform` (hors Docker, Node ≥ 22.22), lancer **sur le port 5173** (le bouton « Preview » de Strapi y pointe ; sinon adapter `PLATEFORM_URL` dans `docker-compose.yml`) :
 
 ```bash
-CMS_URL=http://localhost:1337 CMS_API_TOKEN=dev-cms-read-token CMS_PREVIEW_SECRET=dev-preview-secret npm --workspace=plateform run dev
+cd plateform && CMS_URL=http://localhost:1337 CMS_API_TOKEN=dev-cms-read-token CMS_PREVIEW_SECRET=dev-preview-secret npx react-router dev --port 5173
 ```
 
-Page rendue : `http://localhost:<port>/cms/chacun-pour-tous` (à comparer avec `/chacun-pour-tous`, la version en code).
-Les valeurs `dev-*` sont des secrets de dev local, définis dans `docker-compose.yml`.
+Une page publiée avec le slug `mon-slug` est rendue sur `http://localhost:5173/cms/mon-slug` (la page d'exemple : `/cms/exemple-page`). Les valeurs `dev-*` sont des secrets de dev local, définis dans `docker-compose.yml`.
 
 ## Modèle de contenu
 
 - `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**. Une landing est simplement une page qui utilise des blocs de campagne.
 - `article` et `category` : modèle de contenu du blog (couverture, date, auteur, catégorie, blocs `rich-text` / `image` / `missions`), **configuré dans Strapi seulement** : plateform ne les affiche pas encore (pas de route `/blog`, pas de preview d'article). Un article saisi dans l'admin n'est donc visible nulle part en dehors du CMS.
 - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images), `image` (image + légende).
-- Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners` (`src/components/blocks/`).
+- Blocs « tout faits » : `hero` (image uploadée et sélecteur de couleur ; la couleur est ignorée en thème sombre), `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners` (`src/components/blocks/`).
 - Sous-composants réutilisables : `src/components/shared/`.
 - Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
 - Texte riche (`rich-text`) : éditeur « Blocks » de Strapi (sans tableaux). « Titre 1 » donne un h2 (le h1 est le titre de la page), « Titre 2 » un h3, etc. Le texte alternatif des images se renseigne dans la médiathèque ; sans lui, l'image est décorative.
@@ -63,8 +62,8 @@ Le CMS est **désactivé par défaut** (`enable_cms = false` dans `terraform/env
    docker compose exec cms npx strapi transfer --to https://<cms_hostname>/admin --to-token <transfer-token> --only content,files
    ```
 
-   Les médias sont envoyés dans le bucket de l'environnement. Vérifier ensuite `https://<plateform>/cms/chacun-pour-tous` et la preview depuis l'admin.
+   Les médias sont envoyés dans le bucket de l'environnement. Vérifier ensuite le rendu sur `https://<plateform>/cms/<slug>` et la preview depuis l'admin.
 
 Production : mêmes étapes, après validation en staging.
 
-Plateform lit le contenu publié avec un cache mémoire de 60 s et reste servi avec la dernière version connue si le CMS est indisponible ; sans `CMS_API_TOKEN`, les landings CMS répondent 404.
+Plateform lit le contenu publié avec un cache mémoire de 60 s et reste servi avec la dernière version connue si le CMS est indisponible ; sans `CMS_API_TOKEN`, les pages CMS répondent 404.

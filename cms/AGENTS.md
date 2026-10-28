@@ -4,7 +4,7 @@ Ce fichier décrit uniquement les conventions spécifiques à `cms/`. Les règle
 
 ## Rôle
 
-CMS headless **Strapi 5 (Community)** + Postgres dédié, pour les pages de `plateform/` (landings, pages éditoriales, à terme le blog). Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
+CMS headless **Strapi 5 (Community)** + Postgres dédié, pour construire les landing pages de `plateform/` à partir de blocs. Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
 
 ## Périmètre et fichiers à ne pas modifier
 
@@ -13,17 +13,17 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 ## Structure
 
 - `config/*.ts` : serveur (proxy/URL publique), base (SSL), admin (dont la **preview** vers plateform), middlewares (CSP), plugins (médias sur Object Storage quand `CMS_MEDIA_BUCKET` est défini). Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
-- `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Landings, pages éditoriales et futur blog partagent les mêmes blocs.
+- `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Une landing est une page qui utilise des blocs de campagne ; les blocs génériques (`rich-text`, `image`) servent aux pages éditoriales.
 - `src/api/article/` et `src/api/category/` : content-types du blog, **sans rendu côté plateform** pour l'instant (aucun type dans `@engagement/dto`, aucune route). Landings et pages éditoriales restent le seul usage en front.
 - `src/components/blocks/` : les blocs de la zone dynamique `blocks` ; `src/components/shared/` : sous-composants réutilisables.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
-- `scripts/seed-chacun-pour-tous.ts` : seed de dev (recrée la landing et le jeton de lecture de plateform). Jetable.
+- `scripts/seed.ts` : seed de dev (page d'exemple `exemple-page` et jeton de lecture de plateform). Jetable.
 
 ## Contrat avec plateform
 
 - Les schémas JSON de `src/**` sont la **source de vérité** du contenu.
 - Les types lus par plateform vivent dans `packages/dto/src/resources/page.ts` : tout changement de bloc ou de champ doit y être répercuté **dans la même PR**.
-- Rendu côté plateform : `plateform/app/components/cms/index.tsx` (registre bloc → composant) et `plateform/app/components/cms/rich-text.tsx` (texte riche) et `plateform/app/services/cms.server.ts` (requête et `POPULATE` par bloc).
+- Rendu côté plateform : `plateform/app/routes/cms-page.tsx` (route `/cms/:slug`), `plateform/app/components/cms/index.tsx` (registre bloc → composant), `plateform/app/components/cms/rich-text.tsx` (texte riche) et `plateform/app/services/cms.server.ts` (requête, cache 60 s et `POPULATE` par bloc).
 
 ## Conventions
 
