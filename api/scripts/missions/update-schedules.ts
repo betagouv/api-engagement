@@ -60,7 +60,7 @@ const run = async () => {
         await missionIndexService.upsert(missionId);
       } catch (error) {
         indexErrors++;
-        console.error(`   ❌ Réindexation impossible pour ${missionId} :`, error);
+        console.error("   ❌ Réindexation impossible pour %s :", missionId, error);
       }
     }
     console.log(`🔎  ${missionIds.length - indexErrors} missions réindexées, ${indexErrors} erreurs`);
