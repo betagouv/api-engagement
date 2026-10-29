@@ -22,7 +22,12 @@ jobs:
     outputs:
       dbt: ${{ steps.filter.outputs.dbt }}
       api: ${{ steps.filter.outputs.api }}
-      eslint: ${{ steps.filter.outputs.eslint }}
+      app: ${{ steps.filter.outputs.app }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+      widget: ${{ steps.filter.outputs.widget }}
+      plateform: ${{ steps.filter.outputs.plateform }}
+      dto: ${{ steps.filter.outputs.dto }}
+      taxonomy: ${{ steps.filter.outputs.taxonomy }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
@@ -34,21 +39,23 @@ jobs:
               - 'analytics/dbt/**'
             api:
               - 'api/**'
-            eslint:
-              - '{api,app,analytics,widget,plateform,packages}/**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}'
-              - '**/eslint.config.*'
-              - '**/.eslintrc*'
-              - '**/.eslintignore'
-              - '**/tsconfig*.json'
-              - '**/package.json'
-              - 'package-lock.json'
-              - '**/.npmrc'
-              - '.github/workflows/lint.yml'
+            app:
+              - 'app/**'
+            analytics:
+              - 'analytics/**'
+            widget:
+              - 'widget/**'
+            plateform:
+              - 'plateform/**'
+            dto:
+              - 'packages/dto/**'
+            taxonomy:
+              - 'packages/taxonomy/**'
 
-  lint:
-    name: Run ESLint
+  lint-api:
+    name: Run ESLint (api)
     needs: changes
-    if: needs.changes.outputs.eslint == 'true'
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -62,10 +69,142 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: npm ci --prefer-offline --no-audit --no-fund
+        run: npm ci --workspace api --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
       - name: Run ESLint
-        run: npm run lint
+        run: npm run lint --workspace api
+
+  lint-app:
+    name: Run ESLint (app)
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace app
+
+  lint-widget:
+    name: Run ESLint (widget)
+    needs: changes
+    if: needs.changes.outputs.widget == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace widget --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace widget
+
+  lint-plateform:
+    name: Run ESLint (plateform)
+    needs: changes
+    if: needs.changes.outputs.plateform == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace plateform --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace plateform
+
+  lint-analytics:
+    name: Run ESLint (analytics)
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace analytics --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace analytics
+
+  lint-dto:
+    name: Run ESLint (dto)
+    needs: changes
+    if: needs.changes.outputs.dto == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace packages/dto --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace packages/dto
+
+  lint-taxonomy:
+    name: Run ESLint (taxonomy)
+    needs: changes
+    if: needs.changes.outputs.taxonomy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace packages/taxonomy --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace packages/taxonomy
 
   lint-openapi:
     name: Lint OpenAPI spec
