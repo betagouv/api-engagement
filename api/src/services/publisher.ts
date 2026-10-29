@@ -176,9 +176,10 @@ export const publisherService = (() => {
    * Valide les partenaires puis aligne les scope roots via le service des
    * diffusion rules (diff création/suppression, rules enfants préservées).
    */
-  const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<void> => {
+  const syncDiffusionScopeRoots = async (tx: Prisma.TransactionClient, publisherId: string, desiredPartnerIds: string[]): Promise<boolean> => {
     await ensureDiffusionPartnersExist(tx, desiredPartnerIds);
-    await publisherDiffusionRuleService.syncScopeRoots(publisherId, desiredPartnerIds, tx);
+
+    return publisherDiffusionRuleService.syncScopeRoots(publisherId, desiredPartnerIds, tx);
   };
 
   const buildWhereClause = (params: PublisherSearchParams): Prisma.PublisherWhereInput => {
@@ -519,20 +520,26 @@ export const publisherService = (() => {
 
     const shouldClearDiffusions = patch.publishers === null || !rightsEnabled;
 
-    const updated = await prisma.$transaction(async (tx) => {
+    const { updated, diffusionChanged } = await prisma.$transaction(async (tx) => {
       const publisher = await tx.publisher.update({
         where: { id },
         data,
       });
 
-      if (shouldClearDiffusions) {
-        await syncDiffusionScopeRoots(tx, id, []);
-      } else if (normalizedPartnerIds) {
-        await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds);
-      }
+      const diffusionChanged = shouldClearDiffusions
+        ? await syncDiffusionScopeRoots(tx, id, [])
+        : normalizedPartnerIds !== null
+          ? await syncDiffusionScopeRoots(tx, id, normalizedPartnerIds)
+          : false;
 
-      return publisher;
+      return { updated: publisher, diffusionChanged };
     });
+
+    // Seul un changement effectif du périmètre de diffusion affecte l'index des missions.
+    // Publier après le commit garantit que le worker lit les nouvelles règles.
+    if (diffusionChanged) {
+      await enqueuePublisherDiffusion(id);
+    }
 
     return toPublisherRecordWithDiffusions(updated);
   };
