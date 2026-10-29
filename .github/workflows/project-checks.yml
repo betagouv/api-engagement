@@ -14,15 +14,21 @@ jobs:
       contents: read
       pull-requests: read
     outputs:
-      dbt: ${{ steps.filter.outputs.dbt }}
-      api: ${{ steps.filter.outputs.api }}
-      app: ${{ steps.filter.outputs.app }}
-      analytics: ${{ steps.filter.outputs.analytics }}
-      widget: ${{ steps.filter.outputs.widget }}
-      plateform: ${{ steps.filter.outputs.plateform }}
-      dto: ${{ steps.filter.outputs.dto }}
-      taxonomy: ${{ steps.filter.outputs.taxonomy }}
+      dbt: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.dbt }}
+      api: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.api }}
+      app: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.app }}
+      analytics: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.analytics }}
+      widget: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.widget }}
+      plateform: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.plateform }}
+      dto: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.dto }}
+      taxonomy: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.taxonomy }}
     steps:
+      # Temporaire : retirer après les mesures de la PR #1626.
+      - name: Force all checks for CI timing
+        id: force
+        env:
+          FORCE_ALL: ${{ github.event_name == 'pull_request' && github.head_ref == 'arnaud/refaco/ci-optimization' }}
+        run: echo "all=$FORCE_ALL" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
