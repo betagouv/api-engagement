@@ -1,16 +1,10 @@
-name: Lint
+name: Project checks
 
 on:
-  pull_request:
-  push:
-    branches: [main, staging]
+  workflow_call:
 
 permissions:
   contents: read
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   changes:
@@ -88,15 +82,15 @@ jobs:
 
       - name: Generate Prisma clients
         id: prisma
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm --workspace api run prisma:generate
 
       - name: Run unit tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.prisma.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.prisma.outcome == 'success' }}
         run: npm --workspace api run test:unit
 
       - name: Run integration tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.prisma.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.prisma.outcome == 'success' }}
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: npm --workspace api run test:integration
@@ -131,15 +125,15 @@ jobs:
 
       - name: Check Chrome
         id: chrome
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: google-chrome --version
 
       - name: Run functional E2E tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
         run: npm --workspace app run test:e2e:functional
 
       - name: Run accessibility tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
         run: npm --workspace app run test:e2e:a11y
 
   widget-checks:
@@ -198,16 +192,16 @@ jobs:
         run: npm --workspace plateform run build
 
       - name: Run unit tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm --workspace plateform run test
 
       - name: Check Chrome
         id: chrome
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: google-chrome --version
 
       - name: Run accessibility tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
         run: npm --workspace plateform run test:e2e:a11y
 
   analytics-checks:
@@ -283,7 +277,7 @@ jobs:
         run: npm run lint --workspace packages/taxonomy
 
       - name: Run unit tests
-        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm --workspace @engagement/taxonomy run test
 
   lint-analytics-models:

@@ -16,6 +16,7 @@ on:
       - ".github/workflows/terraform-deploy.yml"
       - ".github/workflows/terraform-security-deploy.yml"
       - ".github/workflows/tests.yml"
+      - ".github/workflows/project-checks.yml"
       - "api/**"
       - "app/**"
       - "analytics/**"
@@ -37,6 +38,7 @@ jobs:
     permissions:
       contents: read
       actions: write
+      pull-requests: read
     with:
       branch: ${{ github.ref_name }}
 
