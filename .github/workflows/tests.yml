@@ -209,7 +209,8 @@ jobs:
   api-tests:
     name: API Tests
     needs: changes
-    if: needs.changes.outputs.api == 'true'
+    # Les tests PR sont regroupés avec lint/build dans lint.yml.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -283,7 +284,8 @@ jobs:
   app-tests:
     name: App E2E Tests
     needs: changes
-    if: needs.changes.outputs.app == 'true'
+    # Les tests PR sont regroupés avec lint/build dans lint.yml.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -311,7 +313,8 @@ jobs:
   app-accessibility-tests:
     name: App Accessibility Tests
     needs: changes
-    if: needs.changes.outputs.app == 'true'
+    # Les tests PR sont regroupés avec lint/build dans lint.yml.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -338,7 +341,8 @@ jobs:
   plateform-tests:
     name: Plateform Tests
     needs: changes
-    if: needs.changes.outputs.plateform == 'true'
+    # Les tests PR sont regroupés avec lint/build dans lint.yml.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.plateform == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -358,7 +362,8 @@ jobs:
   plateform-accessibility-tests:
     name: Plateform Accessibility Tests
     needs: changes
-    if: needs.changes.outputs.plateform == 'true'
+    # Les tests PR sont regroupés avec lint/build dans lint.yml.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.plateform == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -385,7 +390,8 @@ jobs:
   taxonomy-tests:
     name: Taxonomy Tests
     needs: changes
-    if: needs.changes.outputs.taxonomy == 'true'
+    # Les tests PR sont regroupés avec lint/build dans lint.yml.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.taxonomy == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
