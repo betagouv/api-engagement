@@ -303,6 +303,19 @@ describe("DiffusionRule API Integration Tests", () => {
         value: "org-history",
       };
       const child = await publisherDiffusionRuleService.createScopedRule(input);
+      const duplicate = {
+        publisherId: diffuseur1.id,
+        combinedWithId: root.id,
+        field: input.field,
+        fieldType: input.fieldType,
+        operator: input.operator,
+        value: input.value,
+        combinator: "or",
+      };
+      await expect(prisma.publisherDiffusionRule.create({ data: duplicate })).rejects.toMatchObject({ code: "P2002" });
+      await expect(
+        prisma.publisherDiffusionRule.create({ data: { ...duplicate, combinedWithId: null, field: "publisherId", value: publisher.id } })
+      ).rejects.toMatchObject({ code: "P2002" });
       await publisherDiffusionRuleService.deleteRule(child.id);
       expect(await publisherDiffusionRuleService.findRuleById(child.id)).toBeNull();
       const recreatedChild = await publisherDiffusionRuleService.createScopedRule(input);
