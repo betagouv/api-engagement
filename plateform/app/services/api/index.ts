@@ -70,6 +70,9 @@ async function serverRequest<T>(request: Request, method: string, path: string, 
   // non-spoofable) pour que le rate-limit côté API opère par utilisateur final
   // et non par container plateform.
   if (clientIp) headers["x-platform-client-ip"] = clientIp;
+  // L’API valide ce secret ; ne jamais le renvoyer au navigateur ni le journaliser.
+  const benchToken = request.headers.get("x-bench-token");
+  if (benchToken) headers["x-bench-token"] = benchToken;
 
   let response: Response;
   const upstreamStartedAt = performance.now();
