@@ -22,6 +22,7 @@ jobs:
     outputs:
       dbt: ${{ steps.filter.outputs.dbt }}
       api: ${{ steps.filter.outputs.api }}
+      eslint: ${{ steps.filter.outputs.eslint }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
@@ -33,9 +34,21 @@ jobs:
               - 'analytics/dbt/**'
             api:
               - 'api/**'
+            eslint:
+              - '{api,app,analytics,widget,plateform,packages}/**/*.{js,jsx,cjs,mjs,ts,tsx,cts,mts}'
+              - '**/eslint.config.*'
+              - '**/.eslintrc*'
+              - '**/.eslintignore'
+              - '**/tsconfig*.json'
+              - '**/package.json'
+              - 'package-lock.json'
+              - '**/.npmrc'
+              - '.github/workflows/lint.yml'
 
   lint:
     name: Run ESLint
+    needs: changes
+    if: needs.changes.outputs.eslint == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
