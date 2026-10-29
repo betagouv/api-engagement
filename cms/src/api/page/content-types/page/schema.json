@@ -1,0 +1,58 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pages",
+  "info": {
+    "singularName": "page",
+    "pluralName": "pages",
+    "displayName": "Page",
+    "description": "Page composée de blocs (landing, page éditoriale…), rendue par plateform sur /cms/:slug."
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "seoTitle": {
+      "type": "string",
+      "required": true
+    },
+    "seoDescription": {
+      "type": "text"
+    },
+    "ogTitle": {
+      "type": "string"
+    },
+    "ogDescription": {
+      "type": "text"
+    },
+    "noindex": {
+      "type": "boolean",
+      "default": false
+    },
+    "blocks": {
+      "type": "dynamiczone",
+      "required": true,
+      "components": [
+        "blocks.hero",
+        "blocks.rich-text",
+        "blocks.image",
+        "blocks.missions",
+        "blocks.etapes",
+        "blocks.benefits",
+        "blocks.cards",
+        "blocks.stories",
+        "blocks.faq",
+        "blocks.partners"
+      ]
+    }
+  }
+}

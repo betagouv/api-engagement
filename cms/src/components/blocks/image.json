@@ -1,0 +1,23 @@
+{
+  "collectionName": "components_blocks_images",
+  "info": {
+    "displayName": "Image",
+    "icon": "picture",
+    "description": "Image seule avec légende."
+  },
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "required": true,
+      "description": "Renseigner le texte alternatif dans la médiathèque si l'image porte du sens ; sans texte alternatif, l'image est considérée comme décorative."
+    },
+    "caption": {
+      "type": "string",
+      "description": "Légende affichée sous l'image."
+    }
+  }
+}
