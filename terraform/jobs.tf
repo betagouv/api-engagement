@@ -235,6 +235,48 @@ resource "scaleway_job_definition" "leboncoin" {
   env = local.all_env_vars
 }
 
+# Job Definition for the 'hellowork' task (feed XML Hellowork ; un job par diffuseur, publisherId en paramètre)
+resource "scaleway_job_definition" "hellowork" {
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-hellowork"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "hellowork", "{\"publisherId\":\"7ef137428fe2fd354ef806b1\"}"]
+  timeout                = "45m"
+
+  cron {
+    schedule = "0 4 * * *" # Every day at 4:00 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
+# Job Definition for the 'jobijoba' task (feed XML Jobijoba ; un job par diffuseur, publisherId en paramètre)
+resource "scaleway_job_definition" "jobijoba" {
+  count                  = var.enable_intern_jobs ? 1 : 0
+  name                   = "${terraform.workspace}-jobijoba"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "hellowork", "{\"publisherId\":\"67f3f35075ca51206375b575\"}"]
+  timeout                = "45m"
+
+  cron {
+    schedule = "30 4 * * *" # Every day at 4:30 AM
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'brevo' task
 resource "scaleway_job_definition" "brevo" {
   count                  = var.enable_intern_jobs ? 1 : 0
