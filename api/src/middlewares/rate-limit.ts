@@ -1,6 +1,8 @@
+import type { Request } from "express";
+
 import { ipKeyGenerator, rateLimit, RateLimitRequestHandler } from "express-rate-limit";
 
-import { RATE_LIMIT_IP_MAX, RATE_LIMIT_PUBLISHER_MAX } from "@/config";
+import { BENCH_RATE_LIMIT_TOKEN, RATE_LIMIT_IP_MAX, RATE_LIMIT_PUBLISHER_MAX } from "@/config";
 import { appendAuditEvent } from "@/utils/audit-log";
 
 const handler = (req: any, res: any) => {
@@ -33,6 +35,18 @@ const handler = (req: any, res: any) => {
 };
 
 const isDisabled = () => process.env.RATE_LIMIT_DISABLED === "true";
+
+// Secret facultatif réservé aux benchmarks : aucune exemption s’il n’est pas configuré.
+const isBenchRequest = (req: Request): boolean => {
+  const expected = BENCH_RATE_LIMIT_TOKEN;
+  const supplied = req.get("x-bench-token");
+
+  if (!expected || !supplied) {
+    return false;
+  }
+
+  return expected === supplied;
+};
 
 // 600 req/min par publisher — endpoints partenaires et webhooks
 // Appliqué après passport.authenticate : req.user.id est résolu.
@@ -78,7 +92,7 @@ export const createPlateformRateLimiter = (limit = RATE_LIMIT_IP_MAX): RateLimit
       return ipKeyGenerator(req.ip ?? "");
     },
     handler,
-    skip: isDisabled,
+    skip: (req) => isDisabled() || isBenchRequest(req),
   });
 
 export const publisherRateLimiter = createPublisherRateLimiter();

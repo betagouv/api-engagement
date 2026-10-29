@@ -100,6 +100,7 @@ export const MATCHING_ENGINE_VERSION = process.env.MATCHING_ENGINE_VERSION || "m
 export const RATE_LIMIT_PUBLISHER_MAX = Number(process.env.RATE_LIMIT_PUBLISHER_MAX) || 600;
 export const RATE_LIMIT_IP_MAX = Number(process.env.RATE_LIMIT_IP_MAX) || 120;
 export const RATE_LIMIT_DISABLED = process.env.RATE_LIMIT_DISABLED === "true";
+export const BENCH_RATE_LIMIT_TOKEN = process.env.BENCH_RATE_LIMIT_TOKEN;
 
 // Ids (ISO prod / staging)
 export const PUBLISHER_IDS = {
