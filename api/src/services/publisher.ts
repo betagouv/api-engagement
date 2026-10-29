@@ -193,7 +193,7 @@ export const publisherService = (() => {
     }
 
     if (params.name) {
-      and.push({ name: { contains: params.name, mode: "insensitive" } });
+      and.push({ OR: [{ id: params.name }, { name: { contains: params.name, mode: "insensitive" } }] });
     }
 
     if (params.role) {

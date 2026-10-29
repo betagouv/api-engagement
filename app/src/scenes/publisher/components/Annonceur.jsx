@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiInformationLine } from "react-icons/ri";
+import { RiErrorWarningFill, RiInformationLine } from "react-icons/ri";
 
 import ExportSvg from "@/assets/svg/export-icon.svg?react";
 import Checkbox from "@/components/form/Checkbox";
@@ -14,7 +14,7 @@ import api from "@/services/api";
 import { captureError } from "@/services/error";
 import { withLegacyPublishers } from "@/utils/publisher";
 
-const Annonceur = ({ values, onChange, errors, setErrors }) => {
+const Annonceur = ({ values, onChange, errors }) => {
   const [data, setData] = useState([]);
   const { isAnnonceur } = values;
 
@@ -29,7 +29,7 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
         }
         setData(withLegacyPublishers(res.data));
       } catch (error) {
-        captureError(error, { extra: { publisherId: values.id } });
+        captureError(error, { message: "Erreur lors du chargement des diffuseurs", extra: { publisherId: values.id } });
       }
     };
     fetchData();
@@ -42,17 +42,19 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
         <Toggle
           aria-label={isAnnonceur ? "Désactiver le mode annonceur" : "Activer le mode annonceur"}
           value={isAnnonceur}
-          onChange={(e) => {
-            onChange({ ...values, isAnnonceur: e, missionType: null, expectedApplications: null });
-            setErrors({ ...errors, settings: null });
-          }}
+          onChange={(e) => onChange({ ...values, isAnnonceur: e, missionType: null, expectedApplications: null })}
         />
       </div>
       {isAnnonceur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          {errors.missionType && <p className="text-error">{errors.missionType}</p>}
-          <div className="space-y-4">
+          <fieldset className={`space-y-4 ${errors.missionType ? "before:bg-error relative before:absolute before:inset-y-0 before:-left-3 before:w-0.5" : ""}`}>
+            <legend className={`mb-4 text-base font-bold ${errors.missionType ? "text-error" : ""}`}>
+              Type de mission
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
+            </legend>
             {Object.values(MISSION_TYPES).map((type) => (
               <RadioInput
                 key={type.slug}
@@ -62,21 +64,23 @@ const Annonceur = ({ values, onChange, errors, setErrors }) => {
                 label={type.label}
                 size={24}
                 checked={values.missionType === type.slug}
-                onChange={() => {
-                  onChange({ ...values, missionType: type.slug });
-                  setErrors({ ...errors, missionType: null });
-                }}
+                onChange={() => onChange({ ...values, missionType: type.slug })}
+                required
+                ariaDescribedby={errors.missionType ? "mission-type-error" : undefined}
               />
             ))}
-          </div>
+            {errors.missionType && (
+              <p id="mission-type-error" className="text-error flex items-center text-sm" aria-live="polite">
+                <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+                {errors.missionType}
+              </p>
+            )}
+          </fieldset>
           <div className="h-px w-full bg-gray-900" />
           <ExpectedApplications
             value={values.expectedApplications}
             error={errors.expectedApplications}
-            onChange={(expectedApplications) => {
-              onChange({ ...values, expectedApplications });
-              setErrors({ ...errors, expectedApplications: null });
-            }}
+            onChange={(expectedApplications) => onChange({ ...values, expectedApplications })}
           />
           <div className="h-px w-full bg-gray-900" />
           <p className="text-base">

@@ -33,3 +33,5 @@ models:
         description: Horodatage de fin d'exécution (UTC) servant de curseur pour les marts incrémentaux.
       - name: status
         description: Statut final retourné par le job (`SUCCESS`, `FAILED`, etc.).
+      - name: error
+        description: Message d'erreur brut en cas d'échec (nullable).

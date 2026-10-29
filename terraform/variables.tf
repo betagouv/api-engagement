@@ -33,6 +33,12 @@ variable "api_hostname" {
   type = string
 }
 
+variable "inbound_email_domain" {
+  type        = string
+  default     = ""
+  description = "Domaine de réception des mails entrants (Brevo inbound parsing), partagé par toutes les fonctions par réponse mail ; vide = désactivé"
+}
+
 variable "app_hostname" {
   type = string
 }
@@ -58,7 +64,23 @@ variable "bucket_name" {
   type = string
 }
 
+# Channels Slack par environnement : vides = rien n'est posté (messages journalisés).
 variable "slack_jobteaser_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_warning_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_lbc_channel_id" {
+  type    = string
+  default = ""
+}
+
+variable "slack_cron_channel_id" {
   type    = string
   default = ""
 }

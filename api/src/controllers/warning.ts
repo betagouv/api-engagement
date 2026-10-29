@@ -6,10 +6,15 @@ import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, RESS
 import { alertsWebhookSecurity } from "@/middlewares/alerts-webhook";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { getAlertProvider } from "@/services/alerts";
-import { ingestAlerts, isUniqueViolation } from "@/services/alerts/ingest";
+import { ingestAlerts } from "@/services/alerts/ingest";
+import { refreshSlackMessage } from "@/services/alerts/notifiers/slack";
 import { importService } from "@/services/import";
 import { warningService } from "@/services/warning";
+import { warningCommentService } from "@/services/warning-comment";
+import { warningOccurrenceService } from "@/services/warning-occurrence";
 import { UserRequest } from "@/types/passport";
+import { appendAuditEvent } from "@/utils/audit-log";
+import { isUniqueViolation } from "@/utils/prisma";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -149,6 +154,7 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
     }
     try {
       const data = await warningService.updateWarning(params.data.id, { status: body.data.status });
+      await refreshSlackMessage(data.id, req.user?.firstname);
       return res.status(200).send({ ok: true, data });
     } catch (error) {
       // Index unique partiel : une seule alerte ouverte par annonceur et type.
@@ -157,6 +163,85 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
       }
       throw error;
     }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id/occurrences", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!(await warningService.findWarningById(params.data.id))) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    return res.status(200).send({ ok: true, data: await warningOccurrenceService.findOccurrences(params.data.id) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:id/comments", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    if (!(await warningService.findWarningById(params.data.id))) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    return res.status(200).send({ ok: true, data: await warningCommentService.findComments(params.data.id) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+const commentBody = zod.object({ body: zod.string().trim().min(1).max(5000) });
+
+router.post("/:id/comments", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    const body = commentBody.safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+    if (!(await warningService.findWarningById(params.data.id))) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    const data = await warningCommentService.createComment({ warningId: params.data.id, authorId: req.user.id, body: body.data.body });
+    appendAuditEvent(req, { action: "alert.comment.create", outcome: "success", target: { type: "warning", id: params.data.id }, metadata: { commentId: data.id } });
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Un commentaire n'est modifiable que par son auteur.
+router.put("/:id/comments/:commentId", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response, next: NextFunction) => {
+  try {
+    const params = zod.object({ id: zod.string(), commentId: zod.string() }).safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
+    }
+    const body = commentBody.safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
+    }
+    const comment = await warningCommentService.findComment(params.data.commentId);
+    if (!comment || comment.warningId !== params.data.id) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND });
+    }
+    if (comment.authorId !== req.user.id) {
+      return res.status(403).send({ ok: false, code: FORBIDDEN });
+    }
+    const data = await warningCommentService.updateComment(comment.id, body.data.body);
+    appendAuditEvent(req, { action: "alert.comment.update", outcome: "success", target: { type: "warning", id: params.data.id }, metadata: { commentId: comment.id } });
+    return res.status(200).send({ ok: true, data });
   } catch (error) {
     next(error);
   }
@@ -173,7 +258,7 @@ router.post("/webhook/:source", alertsWebhookSecurity, async (req, res, next) =>
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
-    const summary = await ingestAlerts(body.data.alerts);
+    const summary = await ingestAlerts(body.data.alerts, String(req.params.source));
     return res.status(200).send({ ok: true, data: { ...summary, received: body.data.received } });
   } catch (error) {
     next(error);

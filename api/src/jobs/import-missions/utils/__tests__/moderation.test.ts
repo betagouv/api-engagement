@@ -91,6 +91,19 @@ describe("getModeration", () => {
     expect(result.statusComment).toBe('Pays non valide : "Pays Invalide"');
   });
 
+  it("should set status to REFUSED for invalid country in addresses", () => {
+    (mission as any).addresses = [{ country: "FRANCE" }];
+    const result = getModeration(mission as MissionRecord);
+    expect(result.statusCode).toBe("REFUSED");
+    expect(result.statusComment).toBe('Pays non valide : "FRANCE"');
+  });
+
+  it("should ignore a stale invalid country when addresses are valid", () => {
+    mission.country = "FRANCE";
+    (mission as any).addresses = [{ country: "FR" }];
+    expect(getModeration(mission as MissionRecord).statusCode).toBe("ACCEPTED");
+  });
+
   it("should set status to REFUSED for invalid remote value", () => {
     (mission as any).remote = "maybe";
     const result = getModeration(mission as MissionRecord);

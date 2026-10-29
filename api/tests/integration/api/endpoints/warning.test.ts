@@ -3,13 +3,22 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sendTemplate = vi.hoisted(() => {
   process.env.ALERTS_WEBHOOK_TOKEN = "test-alerts-token";
+  process.env.SLACK_SIGNING_SECRET = "test-signing-secret";
+  process.env.INBOUND_EMAIL_DOMAIN = "api-engagement.example.com";
   return vi.fn().mockResolvedValue({ ok: true });
 });
+const postMessage = vi.hoisted(() => vi.fn().mockResolvedValue({ ok: true }));
+const captureMessage = vi.hoisted(() => vi.fn());
+vi.mock("@/error", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/error")>()), captureMessage }));
+vi.mock("@/services/slack", () => ({ postMessage, updateMessage: vi.fn().mockResolvedValue({ ok: true }), respondEphemeral: vi.fn() }));
 vi.mock("@/services/brevo/email", async (importOriginal) => ({ ...(await importOriginal<typeof import("@/services/brevo/email")>()), sendTemplate }));
 
 import { prisma } from "@/db/postgres";
+import { alertReplyAddress } from "@/services/alerts/reply";
 import { TEMPLATE_IDS } from "@/services/brevo/email";
+import { userService } from "@/services/user";
 import { warningService } from "@/services/warning";
+import { warningCommentService } from "@/services/warning-comment";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
@@ -54,6 +63,7 @@ describe("Warning alerting", () => {
 
   beforeEach(async () => {
     sendTemplate.mockClear();
+    postMessage.mockClear();
     deploymentUser = await createTestUser({ role: "admin" });
     const publisher = await createTestPublisher({ isAnnonceur: true, deploymentUserId: deploymentUser.user.id });
     publisherId = publisher.id;
@@ -80,6 +90,46 @@ describe("Warning alerting", () => {
     expect(second.body.data).toMatchObject({ created: 0, updated: 1, unknownPublishers: [], unassigned: [] });
     expect((await warningService.findWarnings({ publisherId }))[0]?.occurrences).toBe(2);
     expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("posts the alert once on Slack, mentioning the deployment user when linked", async () => {
+    await userService.updateUser(deploymentUser.user.id, { slackUserId: "U123ABC" });
+    await webhook([{ type: TYPE, publisherId, title: "Plus de candidatures" }]);
+    await webhook([{ type: TYPE, publisherId }]);
+
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain("<@U123ABC>");
+    expect(postMessage.mock.calls[0][0].text).toContain("Plus de candidatures");
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain("alert_status:RESOLVED");
+  });
+
+  it("falls back to the first name when the deployment user has no Slack id, and keeps the mail if Slack fails", async () => {
+    postMessage.mockResolvedValueOnce({ ok: false, error: "channel_not_found" });
+    const res = await webhook([{ type: TYPE, publisherId }]);
+
+    expect(res.body.data).toMatchObject({ notified: 1, notificationFailed: 0 });
+    expect(JSON.stringify(postMessage.mock.calls[0][0].blocks)).toContain(deploymentUser.user.firstname);
+    expect(sendTemplate).toHaveBeenCalledTimes(1);
+  });
+
+  it("escapes the fallback first name so it cannot trigger a Slack mention", async () => {
+    await userService.updateUser(deploymentUser.user.id, { firstname: "<!here>" });
+    await webhook([{ type: TYPE, publisherId }]);
+
+    const text = JSON.stringify(postMessage.mock.calls[0][0].blocks);
+    expect(text).toContain("&lt;!here&gt;");
+    expect(text).not.toContain("<!here>");
+  });
+
+  it("truncates long titles and descriptions to fit Slack section limits", async () => {
+    await webhook([{ type: TYPE, publisherId, title: "T".repeat(5000), description: "D".repeat(10000) }]);
+
+    const blocks = postMessage.mock.calls[0][0].blocks as { type: string; text?: { text: string }; fields?: { text: string }[] }[];
+    const section = blocks.find((b) => b.type === "section")!;
+    expect(section.text!.text.length).toBeLessThanOrEqual(3000);
+    expect(section.text!.text).toContain("…");
+    expect(blocks.find((b) => b.type === "header")!.text!.text.length).toBeLessThanOrEqual(150);
+    expect(section.fields!.every((f) => f.text.length <= 2000)).toBe(true);
   });
 
   it("reports alerts created without a deployment user and notifies nobody", async () => {
@@ -175,6 +225,33 @@ describe("Warning alerting", () => {
       expect(warnings).toHaveLength(1);
       expect(warnings[0].occurrences).toBe(10);
       expect(sendTemplate).toHaveBeenCalledTimes(1);
+    });
+
+    it("records one history entry per reception, newest first, with what the source sent", async () => {
+      await webhook([{ type: TYPE, publisherId, description: "Aucune candidature depuis 3 jours" }]);
+      await webhook([{ type: TYPE, publisherId, description: "Aucune candidature depuis 4 jours" }]);
+      const [alert] = await warningService.findWarnings({ publisherId });
+
+      const res = await request(app).get(`/warning/${alert.id}/occurrences`).set("Authorization", `jwt ${deploymentUser.token}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.map((o: { description: string }) => o.description)).toEqual(["Aucune candidature depuis 4 jours", "Aucune candidature depuis 3 jours"]);
+      expect(res.body.data.map((o: { source: string }) => o.source)).toEqual(["metabase", "metabase"]);
+      expect(alert.occurrences).toBe(2);
+      expect((await request(app).get("/warning/unknown-id/occurrences").set("Authorization", `jwt ${deploymentUser.token}`)).status).toBe(404);
+    });
+
+    it("records the legacy job receptions with the job source", async () => {
+      const created = await warningService.createWarning({ type: "ERROR_WARNING", publisherId, title: "Flux invalide", source: "job" });
+      await warningService.updateWarning(created.id, { description: "FAILED", occurrences: created.occurrences + 1, source: "job" });
+      await warningService.updateWarning(created.id, { fixed: true, fixedAt: new Date() });
+      const untracked = await warningService.createWarning({ type: TYPE, publisherId });
+
+      const list = (id: string) => request(app).get(`/warning/${id}/occurrences`).set("Authorization", `jwt ${deploymentUser.token}`);
+      expect((await list(created.id)).body.data).toMatchObject([
+        { source: "job", description: "FAILED" },
+        { source: "job", title: "Flux invalide" },
+      ]);
+      expect((await list(untracked.id)).body.data).toEqual([]);
     });
 
     it("propagates a new or changed procedure URL to the open alert, and keeps it when the replay has none", async () => {
@@ -317,5 +394,140 @@ describe("Admin alerts screen endpoints", () => {
     expect((await request(app).put(`/warning/${alert.id}/status`).set(userAuth).send({ status: "RESOLVED" })).status).toBe(401);
     expect((await request(app).get(`/warning/${alert.id}`).set(userAuth)).status).toBe(401);
     expect((await request(app).put("/warning/unknown-id/status").set(adminAuth).send({ status: "RESOLVED" })).status).toBe(404);
+  });
+});
+
+describe("Alert comments", () => {
+  let adminAuth: { Authorization: string };
+  let admin: Awaited<ReturnType<typeof createTestUser>>;
+  let publisherId: string;
+
+  beforeEach(async () => {
+    admin = await createTestUser({ role: "admin" });
+    adminAuth = { Authorization: `jwt ${admin.token}` };
+    publisherId = (await createTestPublisher({ isAnnonceur: true })).id;
+  });
+
+  it("exposes fixedAt once the alert is resolved", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    const resolved = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "RESOLVED" });
+    expect(resolved.body.data.fixedAt).toBeTruthy();
+  });
+
+  it("lists, adds and edits comments (author only)", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    const created = await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "  Partenaire relancé  " });
+    expect(created.body.data).toMatchObject({ body: "Partenaire relancé", author: { id: admin.user.id } });
+
+    const edited = await request(app).put(`/warning/${alert.id}/comments/${created.body.data.id}`).set(adminAuth).send({ body: "Corrigé" });
+    expect(edited.body.data.body).toBe("Corrigé");
+
+    const other = await createTestUser({ role: "admin" });
+    const forbidden = await request(app)
+      .put(`/warning/${alert.id}/comments/${created.body.data.id}`)
+      .set({ Authorization: `jwt ${other.token}` })
+      .send({ body: "x" });
+    expect(forbidden.status).toBe(403);
+
+    expect((await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "  " })).status).toBe(400);
+    const list = await request(app).get(`/warning/${alert.id}/comments`).set(adminAuth);
+    expect(list.body.data.map((c: { body: string }) => c.body)).toEqual(["Corrigé"]);
+  });
+
+  it("hides the identity of a deleted author", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId });
+    await request(app).post(`/warning/${alert.id}/comments`).set(adminAuth).send({ body: "Fait" });
+    await userService.updateUser(admin.user.id, { deletedAt: new Date() });
+
+    const { token } = await createTestUser({ role: "admin" });
+    const list = await request(app)
+      .get(`/warning/${alert.id}/comments`)
+      .set({ Authorization: `jwt ${token}` });
+    expect(list.body.data).toMatchObject([{ body: "Fait", author: null }]);
+  });
+});
+
+describe("Alert email reply", () => {
+  let assignee: Awaited<ReturnType<typeof createTestUser>>;
+  let publisherId: string;
+
+  beforeEach(async () => {
+    sendTemplate.mockClear();
+    assignee = await createTestUser({ role: "user" });
+    publisherId = (await createTestPublisher({ isAnnonceur: true, deploymentUserId: assignee.user.id })).id;
+  });
+
+  const reply = (items: object[], token = "test-alerts-token") => request(app).post("/inbound-email").set("Authorization", `Bearer ${token}`).send({ items });
+  // `user` : destinataire du mail d'alerte (son adresse de réponse) ; `from` peut être n'importe quel alias.
+  const mail = (warningId: string, user: { id: string }, body: string, messageId = "<m1@mail>", from = "alias.dsi@example.com") => ({
+    MessageId: messageId,
+    From: { Address: from },
+    Recipients: [alertReplyAddress(warningId, user.id)],
+    ExtractedMarkdownMessage: body,
+  });
+
+  it("sets a reply-to address on the alert email", async () => {
+    await request(app)
+      .post("/warning/webhook/metabase")
+      .set("Authorization", "Bearer test-alerts-token")
+      .send({
+        type: "alert",
+        data: { type: "question", question_name: "q", raw_data: { cols: ["publisher_id", "type"], rows: [[publisherId, TYPE]] } },
+      });
+    const alert = await warningService.findOneWarning({ publisherId, type: TYPE });
+    expect(sendTemplate.mock.calls[0][1].replyTo).toBe(alertReplyAddress(alert!.id, assignee.user.id));
+  });
+  it("resolves the alert and stores the reply as a comment, once per message", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    // Réponse envoyée depuis un alias, différent de l'email du compte.
+    const item = mail(alert.id, assignee.user, "Tracking rétabli côté partenaire");
+
+    expect((await reply([item])).body.data.processed).toBe(1);
+    expect((await reply([item])).body.data.processed).toBe(0);
+
+    const after = await warningService.findWarningById(alert.id);
+    expect(after).toMatchObject({ status: "RESOLVED", fixed: true });
+    const comments = await warningCommentService.findComments(alert.id);
+    expect(comments).toHaveLength(1);
+    expect(comments[0]).toMatchObject({ body: "Tracking rétabli côté partenaire", author: { id: assignee.user.id } });
+  });
+
+  it("ignores automatic replies and unknown address prefixes", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+
+    const autoReplies = [{ "Auto-Submitted": "auto-replied" }, { "X-Autoreply": "yes" }, { Precedence: "auto_reply" }];
+    const items: object[] = autoReplies.map((Headers, i) => ({ ...mail(alert.id, assignee.user, "Je suis absent", `<auto-${i}>`), Headers }));
+    items.push({ ...mail(alert.id, assignee.user, "x", "<other>"), Recipients: [`autre-${alert.id}@api-engagement.example.com`] });
+
+    expect((await reply(items)).body.data.processed).toBe(0);
+    expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
+
+    const human = { ...mail(alert.id, assignee.user, "Réglé", "<human>"), Headers: { "Auto-Submitted": "no" } };
+    expect((await reply([human])).body.data.processed).toBe(1);
+  });
+  it("adds the comment even when the alert is already resolved", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id], status: "RESOLVED" });
+    expect((await reply([mail(alert.id, assignee.user, "Précision")])).body.data.processed).toBe(1);
+    expect((await warningCommentService.findComments(alert.id)).map((c) => c.body)).toEqual(["Précision"]);
+  });
+  it("rejects an address with a missing or forged signature", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    const item = (address: string, messageId: string) => ({ ...mail(alert.id, assignee.user, "Réglé", messageId), Recipients: [address] });
+    const domain = "api-engagement.example.com";
+
+    const forged = [`alerte-${alert.id}@${domain}`, `alerte-${alert.id}.0123456789abcdef@${domain}`];
+    expect((await reply(forged.map((a, i) => item(a, `<forged-${i}>`)))).body.data.processed).toBe(0);
+    expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
+    expect(alertReplyAddress(alert.id, assignee.user.id).split("@")[0].length).toBeLessThanOrEqual(64);
+  });
+  it("rejects the address of a non-assignee, ignores unknown alerts and rejects a bad token", async () => {
+    const alert = await warningService.createWarning({ type: TYPE, publisherId, assigneeIds: [assignee.user.id] });
+    const stranger = await createTestUser({ role: "user" });
+
+    const items = [mail(alert.id, stranger.user, "x"), mail("00000000-0000-0000-0000-000000000000", assignee.user, "x", "<m2>")];
+    expect((await reply(items)).body.data.processed).toBe(0);
+    expect((await warningService.findWarningById(alert.id))?.status).toBe("TODO");
+    expect(captureMessage).toHaveBeenCalledWith("Alert reply rejected: invalid reply address", { extra: { warningId: alert.id } });
+    expect((await reply([], "bad")).status).toBe(401);
   });
 });

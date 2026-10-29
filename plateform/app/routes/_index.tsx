@@ -75,7 +75,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return [
     ...pageMeta(location, {
       title: "S'engager et se rendre utile | Trouve Ta Mission",
-      description: "Bénévolat, service civique, réserves, pompiers : trouvez la mission qui vous ressemble, près de chez vous, à distance ou à l'étranger.",
+      description: "Bénévolat, Service Civique, réserves, sapeur-pompier volontaire : trouvez la mission qui vous ressemble, près de chez vous, à distance ou à l'étranger.",
     }),
     { "script:ld+json": STRUCTURED_DATA },
   ];

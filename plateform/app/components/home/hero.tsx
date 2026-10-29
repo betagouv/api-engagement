@@ -23,11 +23,10 @@ export default function Hero({ onStartQuiz }: HeroProps) {
     <section className="bg-brown-cafe-creme-975 lg:grid">
       <div className="fr-container relative z-10 py-8! lg:col-start-1 lg:row-start-1 lg:self-center lg:py-0!">
         <div className="w-full lg:max-w-[48%]">
-          <h1 className="text-4xl! md:text-5xl! lg:text-6xl! xl:text-7xl! text-title-grey">
-            Tous les engagements publics, réunis en un seul endroit
-          </h1>
+          <p className="fr-h1 text-4xl! md:text-5xl! lg:text-6xl! xl:text-7xl! text-title-grey">Et si une mission pouvait t'aider à avancer ?</p>
           <p className="fr-text--lead text-default-grey fr-mb-3w">
-            Service Civique, réserve militaire, pompiers volontaires, bénévolat… Réponds à quelques questions, et découvre la mission d'engagement qui te correspond !
+            TrouveTaMission.gouv.fr réunit tous les dispositifs publics d'engagement : bénévolat, Service Civique, réserves militaires, pompiers volontaires… Réponds à quelques
+            questions et découvre les missions d'engagement qui te ressemblent.
           </p>
 
           <ul role="list" className="list-none! flex flex-wrap gap-2 p-0! fr-mb-4w">

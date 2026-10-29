@@ -9,5 +9,6 @@ select
   updated_count::int as updated_count,
   started_at::timestamp as started_at,
   finished_at::timestamp as finished_at,
-  status
+  status,
+  error
 from {{ source('analytics_raw', 'import') }}

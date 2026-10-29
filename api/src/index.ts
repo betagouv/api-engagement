@@ -54,6 +54,7 @@ import DemarchesSimplifieesController from "@/controllers/demarches-simplifiees"
 import EmailController from "@/controllers/email";
 import IframeController from "@/controllers/iframe";
 import ImportController from "@/controllers/import";
+import InboundEmailController from "@/controllers/inbound-email";
 import MetabaseController from "@/controllers/metabase";
 import MissionController from "@/controllers/mission";
 import MissionBrowseController from "@/controllers/mission-browse";
@@ -66,6 +67,7 @@ import PublisherController from "@/controllers/publisher";
 import PublisherOrganizationController from "@/controllers/publisher-organization";
 import RedirectController from "@/controllers/redirect";
 import ReportController from "@/controllers/report";
+import SlackController from "@/controllers/slack";
 import StatsController from "@/controllers/stats";
 import UserController from "@/controllers/user";
 import UserScoringController from "@/controllers/user-scoring";
@@ -150,7 +152,9 @@ const main = async () => {
   app.use("/organization", OrganizationController);
   app.use("/stats", StatsController);
   app.use("/user", UserController);
+  app.use("/inbound-email", InboundEmailController);
   app.use("/warning", WarningController);
+  app.use("/slack", SlackController);
   app.use("/warning-bot", WarningBotController);
   app.use("/widget", WidgetController);
 
