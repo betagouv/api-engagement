@@ -13,24 +13,23 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   changes:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      api: ${{ steps.force.outputs.enabled || steps.filter.outputs.api }}
-      widget: ${{ steps.force.outputs.enabled || steps.filter.outputs.widget }}
-      analytics: ${{ steps.force.outputs.enabled || steps.filter.outputs.analytics }}
-      app: ${{ steps.force.outputs.enabled || steps.filter.outputs.app }}
-      api_prisma_schema: ${{ steps.force.outputs.enabled || steps.filter.outputs.api_prisma_schema }}
-      plateform: ${{ steps.force.outputs.enabled || steps.filter.outputs.plateform }}
-      taxonomy: ${{ steps.force.outputs.enabled || steps.filter.outputs.taxonomy }}
+      api: ${{ steps.filter.outputs.api }}
+      widget: ${{ steps.filter.outputs.widget }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+      app: ${{ steps.filter.outputs.app }}
+      api_prisma_schema: ${{ steps.filter.outputs.api_prisma_schema }}
+      plateform: ${{ steps.filter.outputs.plateform }}
+      taxonomy: ${{ steps.filter.outputs.taxonomy }}
     steps:
-      # Temporaire : forcer les contrôles sur cette PR pour mesurer les durées CI.
-      - name: Force all checks for CI timing
-        id: force
-        if: github.event_name == 'pull_request' && github.head_ref == 'arnaud/refaco/ci-optimization'
-        run: echo 'enabled=true' >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
@@ -208,14 +207,10 @@ jobs:
         run: npm --workspace analytics run job -- export-to-analytics-raw
 
   api-tests:
-    name: API Tests (${{ matrix.shard }}/2)
+    name: API Tests
     needs: changes
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
     permissions:
       contents: read
       actions: write
@@ -235,13 +230,12 @@ jobs:
         run: npm --workspace api run prisma:generate
 
       - name: Run unit tests
-        if: matrix.shard == 1
         run: npm --workspace api run test:unit
 
       - name: Run integration tests
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: npm --workspace api run test:integration -- --shard=${{ matrix.shard }}/2
+        run: npm --workspace api run test:integration
 
   widgets-tests:
     name: Widget Tests (${{ matrix.shard }}/2)

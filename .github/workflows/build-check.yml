@@ -15,17 +15,12 @@ jobs:
     name: Detect changes
     runs-on: ubuntu-latest
     outputs:
-      api: ${{ steps.force.outputs.enabled || steps.filter.outputs.api }}
-      app: ${{ steps.force.outputs.enabled || steps.filter.outputs.app }}
-      analytics: ${{ steps.force.outputs.enabled || steps.filter.outputs.analytics }}
-      widget: ${{ steps.force.outputs.enabled || steps.filter.outputs.widget }}
-      plateform: ${{ steps.force.outputs.enabled || steps.filter.outputs.plateform }}
+      api: ${{ steps.filter.outputs.api }}
+      app: ${{ steps.filter.outputs.app }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+      widget: ${{ steps.filter.outputs.widget }}
+      plateform: ${{ steps.filter.outputs.plateform }}
     steps:
-      # Temporaire : forcer les contrôles sur cette PR pour mesurer les durées CI.
-      - name: Force all checks for CI timing
-        id: force
-        if: github.event_name == 'pull_request' && github.head_ref == 'arnaud/refaco/ci-optimization'
-        run: echo 'enabled=true' >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
