@@ -160,6 +160,8 @@ jobs:
           context: ${{ matrix.image.context || format('./{0}', matrix.image.service) }}
           file: ${{ matrix.image.dockerfile || format('./{0}/Dockerfile.production', matrix.image.service) }}
           push: true
+          cache-from: type=gha,version=2,scope=${{ matrix.image.image_name }}-${{ steps.vars.outputs.tag }}
+          cache-to: type=gha,version=2,mode=max,scope=${{ matrix.image.image_name }}-${{ steps.vars.outputs.tag }}
           tags: |
             ${{ format('ghcr.io/{0}/{1}:{2}', github.repository, matrix.image.image_name, steps.vars.outputs.tag) }}
             ${{ format('ghcr.io/{0}/{1}:{2}-latest', github.repository, matrix.image.image_name, steps.vars.outputs.tag) }}
