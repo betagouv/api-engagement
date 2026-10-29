@@ -7,7 +7,7 @@ import type { MissionMatchingResultItem } from "@/services/matching-engine/types
 import { missionService } from "@/services/mission";
 import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
 
-import { buildMissionContentHtml, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
+import { buildListMissionCardsParams, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
 
 const USER_SCORING_EMAIL_MISSION_LIMIT = 6;
 
@@ -103,22 +103,26 @@ const formatCompensationLabel = (mission: EmailMission) => {
   return `${amount} par ${COMPENSATION_UNIT_LABELS[mission.compensationUnit] ?? mission.compensationUnit}`;
 };
 
-// Mêmes tags que les cartes de la plateforme hors matching (buildMissionBrowseTags) : lieu, rythme et indemnité.
-const buildMissionTags = (mission: EmailMission) => {
-  const location = mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city;
-  return [location, mission.schedule, formatCompensationLabel(mission)].filter((tag): tag is string => Boolean(tag));
-};
+const formatLocationLabel = (mission: EmailMission) => (mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city) ?? "";
 
-const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => ({
-  id: mission.id,
-  title: mission.title,
-  imageUrl: mission.domainLogo || mission.organizationLogo || mission.publisherLogo || "",
-  domainLabel: getDomainLabel(mission.domain ?? null) ?? "",
-  tags: buildMissionTags(mission),
-  publisherLogo: mission.publisherLogo ?? "",
-  publisherName: mission.publisherName ?? "",
-  url: buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource),
-});
+// Mêmes infos que les cartes de la plateforme hors matching (buildMissionBrowseTags) : lieu, rythme et indemnité.
+const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => {
+  const location = formatLocationLabel(mission);
+  const schedule = mission.schedule ?? "";
+  const compensation = formatCompensationLabel(mission) ?? "";
+  return {
+    id: mission.id,
+    title: mission.title,
+    imageUrl: mission.domainLogo || mission.organizationLogo || mission.publisherLogo || "",
+    domainLabel: getDomainLabel(mission.domain ?? null) ?? "",
+    location,
+    schedule,
+    compensation,
+    publisherLogo: mission.publisherLogo ?? "",
+    publisherName: mission.publisherName ?? "",
+    url: buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource),
+  };
+};
 
 const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string, signupSource?: SignupSource): Promise<MissionContent[] | null> => {
   // Même version figée que la page résultats : un ancien scoring n'a que son ancien snapshot (ex. m1),
@@ -241,7 +245,7 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
       : await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
           emailTo: [input.email],
           params: {
-            contentHtml: buildMissionContentHtml(missions),
+            ...buildListMissionCardsParams(missions),
             resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
           },
           tags: ["user-scoring", "mission-matching-results"],
