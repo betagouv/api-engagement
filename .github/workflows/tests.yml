@@ -208,10 +208,14 @@ jobs:
         run: npm --workspace analytics run job -- export-to-analytics-raw
 
   api-tests:
-    name: API Tests
+    name: API Tests (${{ matrix.shard }}/2)
     needs: changes
     if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     permissions:
       contents: read
       actions: write
@@ -230,10 +234,14 @@ jobs:
       - name: Generate Prisma clients
         run: npm --workspace api run prisma:generate
 
-      - name: Run tests
+      - name: Run unit tests
+        if: matrix.shard == 1
+        run: npm --workspace api run test:unit
+
+      - name: Run integration tests
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: npm --workspace api run test:ci
+        run: npm --workspace api run test:integration -- --shard=${{ matrix.shard }}/2
 
   widgets-tests:
     name: Widget Tests (${{ matrix.shard }}/2)
