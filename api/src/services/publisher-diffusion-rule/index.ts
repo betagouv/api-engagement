@@ -246,7 +246,7 @@ export const publisherDiffusionRuleService = {
     const rules = (await publisherDiffusionRuleRepository.findMany(
       {
         where: buildFindWhere(params),
-        include: params.includeCombinedRules ? { combinedRules: true } : undefined,
+        include: params.includeCombinedRules ? { combinedRules: { where: { deletedAt: null } } } : undefined,
         orderBy: [{ position: Prisma.SortOrder.asc }, { createdAt: Prisma.SortOrder.asc }],
       },
       tx
@@ -258,7 +258,7 @@ export const publisherDiffusionRuleService = {
   async findRuleById(id: string): Promise<PublisherDiffusionRuleRecord | null> {
     const rule = (await publisherDiffusionRuleRepository.findUnique({
       where: { id },
-      include: { combinedRules: true, combinedWith: true },
+      include: { combinedRules: { where: { deletedAt: null } }, combinedWith: true },
     })) as PublisherDiffusionRuleWithChildren | null;
 
     return rule ? toRecord(rule) : null;
@@ -276,7 +276,7 @@ export const publisherDiffusionRuleService = {
         combinator: input.combinator,
         position: input.position ?? 0,
       },
-      include: { combinedRules: true },
+      include: { combinedRules: { where: { deletedAt: null } } },
     })) as PublisherDiffusionRuleWithChildren;
 
     return toRecord(created);
@@ -285,7 +285,7 @@ export const publisherDiffusionRuleService = {
   async findOrCreateScopeRoot(diffuseurPublisherId: string, annonceurPublisherId: string, tx?: Prisma.TransactionClient): Promise<PublisherDiffusionRuleRecord> {
     const rootWhere = { publisherId: diffuseurPublisherId, ...DIFFUSION_SCOPE_ROOT_CRITERIA, value: annonceurPublisherId };
 
-    const existing = await publisherDiffusionRuleRepository.findFirst({ where: rootWhere, include: { combinedRules: true } }, tx);
+    const existing = await publisherDiffusionRuleRepository.findFirst({ where: rootWhere, include: { combinedRules: { where: { deletedAt: null } } } }, tx);
     if (existing) {
       return toRecord(existing as PublisherDiffusionRuleWithChildren);
     }
@@ -302,7 +302,7 @@ export const publisherDiffusionRuleService = {
             combinator: "or",
             position: 0,
           },
-          include: { combinedRules: true },
+          include: { combinedRules: { where: { deletedAt: null } } },
         },
         tx
       )) as PublisherDiffusionRuleWithChildren;
@@ -311,7 +311,7 @@ export const publisherDiffusionRuleService = {
     } catch (error) {
       // Course concurrente : un autre process a créé le root entre-temps (rejeté par l'index unique partiel sur les roots).
       if ((error as { code?: string }).code === "P2002") {
-        const root = await publisherDiffusionRuleRepository.findFirst({ where: rootWhere, include: { combinedRules: true } }, tx);
+        const root = await publisherDiffusionRuleRepository.findFirst({ where: rootWhere, include: { combinedRules: { where: { deletedAt: null } } } }, tx);
         if (root) {
           return toRecord(root as PublisherDiffusionRuleWithChildren);
         }
@@ -322,7 +322,7 @@ export const publisherDiffusionRuleService = {
 
   /**
    * Aligne les scope roots d'un diffuseur sur la liste d'annonceurs demandée, par
-   * diff : suppression ciblée des roots retirés (cascade DB sur leurs rules enfants)
+   * diff : archivage ciblé des roots retirés et de leurs règles enfants
    * et création des manquants. Pas de delete+recreate global, pour préserver les
    * rules enfants (ex. exclusions d'organisations) des roots conservés.
    */
@@ -355,7 +355,7 @@ export const publisherDiffusionRuleService = {
 
     const existing = await publisherDiffusionRuleRepository.findFirst({
       where: { publisherId: input.diffuseurPublisherId, combinedWithId: root.id, field: input.field, value: input.value },
-      include: { combinedRules: true },
+      include: { combinedRules: { where: { deletedAt: null } } },
     });
     if (existing) {
       // Idempotent uniquement si la règle est réellement identique. Sinon on refuse explicitement au lieu de
@@ -384,7 +384,7 @@ export const publisherDiffusionRuleService = {
         combinator: "or",
         position: 0,
       },
-      include: { combinedRules: true },
+      include: { combinedRules: { where: { deletedAt: null } } },
     })) as PublisherDiffusionRuleWithChildren;
 
     return toRecord(created);
