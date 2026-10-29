@@ -8,7 +8,7 @@ import { useQuizStore } from "~/stores/quiz";
 import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 
 // Carte insérée parmi les premières missions d'une landing : inscrit le visiteur à la newsletter mensuelle de
-// missions. Contenu calibré pour tenir dans la hauteur fixe d'une carte mission (h-83.75) : côte à côte, les deux
+// missions. Contenu calibré pour tenir dans la hauteur fixe d'une carte mission (h-89.75) : côte à côte, les deux
 // cartes s'alignent. Pas de quiz sur ces parcours, donc pas de réponses à rattacher (contrairement au bandeau des résultats).
 // `signupSource` : listes Brevo propres à la landing (ex. réengagement Police) ; sans source, liste par défaut.
 export default function MissionAlertCard({ signupSource }: { signupSource?: SignupSource }) {

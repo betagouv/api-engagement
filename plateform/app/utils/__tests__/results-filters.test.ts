@@ -14,8 +14,8 @@ describe("diffFilterAnswers", () => {
   });
 
   it("détecte un ajout (previous omis quand le filtre était vide)", () => {
-    const changes = diffFilterAnswers({}, { equipe: ["equipe.autonomie"] });
-    expect(changes).toEqual([{ stepId: "equipe", previous: undefined, new: "equipe.autonomie" }]);
+    const changes = diffFilterAnswers({}, { autonomie: ["autonomie.organisation_libre"] });
+    expect(changes).toEqual([{ stepId: "autonomie", previous: undefined, new: "autonomie.organisation_libre" }]);
   });
 
   it("remonte une chaîne pour une seule valeur, un tableau pour plusieurs", () => {
@@ -29,7 +29,7 @@ describe("diffFilterAnswers", () => {
   });
 
   it("renvoie un changement par filtre modifié", () => {
-    const changes = diffFilterAnswers({ rythme: ["r1"], equipe: ["equipe.autonomie"] }, { rythme: ["r2"], equipe: ["equipe.petit_groupe"] });
-    expect(changes.map((c) => c.stepId)).toEqual(["rythme", "equipe"]);
+    const changes = diffFilterAnswers({ rythme: ["r1"], autonomie: ["autonomie.organisation_libre"] }, { rythme: ["r2"], autonomie: ["autonomie.cadre_suivi_regulier"] });
+    expect(changes.map((c) => c.stepId)).toEqual(["rythme", "autonomie"]);
   });
 });

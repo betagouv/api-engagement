@@ -89,7 +89,7 @@ function buildMissionPayload(entry: SdisEntry, addresses: Map<string, Address[]>
     audience: ["Tous publics"],
     softSkills: ["Travail en équipe", "Communication orale", "Sang-froid"],
     requirements: ["Avoir au moins 16 ans", "Être apte médicalement", "Résider ou travailler près d'un centre de secours", "Suivre une formation initiale"],
-    schedule: "Flexible (quelques heures par semaine selon disponibilités)",
+    schedule: "Flexible selon disponibilité",
     places: 1,
     remote: "no",
     openToMinors: false,
