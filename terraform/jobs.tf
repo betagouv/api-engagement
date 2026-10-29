@@ -270,7 +270,7 @@ resource "scaleway_job_definition" "demarches-simplifiees-apply-import" {
   timeout                = "15m"
 
   cron {
-    schedule = "0 4 * * *" # Every day at 4 AM
+    schedule = "0 */6 * * *" # Every 6 hours
     timezone = "Europe/Paris"
   }
 

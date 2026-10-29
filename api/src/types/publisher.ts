@@ -34,6 +34,9 @@ export interface PublisherDemarcheSimplifieeRecord {
   name: string | null;
   url: string | null;
   annotationKey: string | null;
+  birthDateField: string | null;
+  countryField: string | null;
+  postalCodeField: string | null;
 }
 
 export interface PublisherDemarcheSimplifieeInput {
@@ -41,6 +44,9 @@ export interface PublisherDemarcheSimplifieeInput {
   name?: string | null;
   url?: string | null;
   annotationKey?: string | null;
+  birthDateField?: string | null;
+  countryField?: string | null;
+  postalCodeField?: string | null;
 }
 
 export interface PublisherRecord {

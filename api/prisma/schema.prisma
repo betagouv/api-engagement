@@ -412,14 +412,18 @@ model Publisher {
 // `number` = numéro de la démarche ; `annotationKey` = clé de l'annotation "Identifiant de la redirection"
 // préremplie avec l'id du clic lors de la redirection (cf. service demarches-simplifiees).
 model PublisherDemarcheSimplifiee {
-  id            String   @id @default(uuid())
-  publisherId   String   @map("publisher_id")
-  number        Int      @map("number")
-  name          String?  @map("name")
-  url           String?  @map("url")
-  annotationKey String?  @map("annotation_key")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(uuid())
+  publisherId     String   @map("publisher_id")
+  number          Int      @map("number")
+  name            String?  @map("name")
+  url             String?  @map("url")
+  annotationKey   String?  @map("annotation_key")
+  // Libellés des champs du formulaire DN à lire pour enrichir les candidatures (customAttributes candidate*)
+  birthDateField  String?  @map("birth_date_field")
+  countryField    String?  @map("country_field")
+  postalCodeField String?  @map("postal_code_field")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
 
   publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
 

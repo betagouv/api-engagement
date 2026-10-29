@@ -2,7 +2,7 @@ import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { JobResult } from "@/jobs/types";
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
-import { isRedirectionAnnotation } from "@/services/demarches-simplifiees/utils";
+import { extractCandidateAttributes, extractDemarcheSlug, isRedirectionAnnotation, resolveCandidateFields } from "@/services/demarches-simplifiees/utils";
 import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
@@ -27,6 +27,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     let submitted = 0;
     let created = 0;
     let alreadyExisting = 0;
+    let enriched = 0;
     let missingClick = 0;
     const failedDemarches: number[] = [];
 
@@ -37,6 +38,15 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
         captureException("[Démarches Simplifiées] Failed to fetch dossiers", { extra: { demarcheNumber, message: dossiersResult.message } });
         failedDemarches.push(demarcheNumber);
         continue;
+      }
+
+      // Champs du formulaire à lire pour les attributs candidat : ceux configurés dans le back-office (sinon détectés).
+      // Si un libellé configuré n'existe plus sur la démarche (renommé côté DN), on alerte pour corriger la config.
+      const demarche = demarches.find((item) => item.number === demarcheNumber)!;
+      const descriptorsResult = await demarchesSimplifiees.getChampDescriptors(demarcheNumber, extractDemarcheSlug(demarche.url));
+      const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche, descriptorsResult.data) : { fields: demarche, missingFields: [] };
+      if (missingFields.length) {
+        captureException("[Démarches Simplifiées] Configured fields not found on démarche", { extra: { demarcheNumber, missingFields } });
       }
 
       // Un dossier est considéré "déposé" (candidature envoyée) dès qu'il a une dateDepot.
@@ -62,10 +72,20 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
           continue;
         }
 
-        // Idempotence : ne pas recréer un apply déjà importé pour ce clic (le job tourne tous les jours sur 15 jours).
-        const alreadyImported = await statEventService.hasStatEventWithRecentClickId({ type: "apply", clickId: click._id, since: createdSince });
-        if (alreadyImported) {
-          alreadyExisting++;
+        const createdAt = dossier.dateDepot ? new Date(dossier.dateDepot) : new Date();
+        const candidateAttributes = extractCandidateAttributes(dossier, fields, createdAt);
+
+        // Idempotence : ne pas recréer un apply déjà importé pour ce clic (le job repasse sur les 15 derniers jours).
+        // On complète en revanche ses attributs candidat s'il lui en manque (import antérieur, config des champs ajoutée après coup).
+        const existingApply = await statEventService.findOneRecentStatEventByClickId({ type: "apply", clickId: click._id, since: createdSince });
+        if (existingApply) {
+          const hasMissingAttributes = Object.keys(candidateAttributes).some((key) => !existingApply.customAttributes?.[key]);
+          if (hasMissingAttributes) {
+            await statEventService.updateStatEvent(existingApply._id, { customAttributes: { ...existingApply.customAttributes, ...candidateAttributes } });
+            enriched++;
+          } else {
+            alreadyExisting++;
+          }
           continue;
         }
 
@@ -76,12 +96,12 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
           host: click.host,
           origin: click.origin,
           type: "apply",
-          createdAt: dossier.dateDepot ? new Date(dossier.dateDepot) : new Date(),
+          createdAt,
           isBot: click.isBot,
           isHuman: click.isHuman,
         } as StatEventRecord;
 
-        applyEvent.customAttributes = { demarcheNumeriqueDossierNumber: dossier.number };
+        applyEvent.customAttributes = { demarcheNumeriqueDossierNumber: dossier.number, ...candidateAttributes };
         applyEvent.clickId = click._id;
         applyEvent.clickUser = click.user;
         applyEvent.user = click.user;
@@ -103,7 +123,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     return {
       success: failedDemarches.length === 0,
       timestamp: new Date(),
-      message: `\t• Dossiers déposés: ${submitted}\n\t• Apply créés: ${created}\n\t• Déjà existants: ${alreadyExisting}\n\t• Clic introuvable: ${missingClick}\n\t• Démarches en échec: ${failedDemarches.length}`,
+      message: `\t• Dossiers déposés: ${submitted}\n\t• Apply créés: ${created}\n\t• Déjà existants: ${alreadyExisting}\n\t• Attributs candidat complétés: ${enriched}\n\t• Clic introuvable: ${missingClick}\n\t• Démarches en échec: ${failedDemarches.length}`,
     };
   }
 }

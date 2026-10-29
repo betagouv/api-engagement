@@ -9,6 +9,9 @@ export const toDemarcheSimplifieeRecord = (demarche: PublisherDemarcheSimplifiee
   name: demarche.name ?? null,
   url: demarche.url ?? null,
   annotationKey: demarche.annotationKey ?? null,
+  birthDateField: demarche.birthDateField ?? null,
+  countryField: demarche.countryField ?? null,
+  postalCodeField: demarche.postalCodeField ?? null,
 });
 
 // Garde les démarches ayant un numéro valide et dédoublonne par numéro (contrainte unique (publisherId, number)).
@@ -24,6 +27,9 @@ export const normalizeDemarches = (demarches?: PublisherDemarcheSimplifieeInput[
         name: normalizeOptionalString(demarche.name) ?? null,
         url: normalizeOptionalString(demarche.url) ?? null,
         annotationKey: normalizeOptionalString(demarche.annotationKey) ?? null,
+        birthDateField: normalizeOptionalString(demarche.birthDateField) ?? null,
+        countryField: normalizeOptionalString(demarche.countryField) ?? null,
+        postalCodeField: normalizeOptionalString(demarche.postalCodeField) ?? null,
       };
     },
     {
