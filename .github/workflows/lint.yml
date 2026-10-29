@@ -13,6 +13,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      dbt: ${{ steps.filter.outputs.dbt }}
+      api: ${{ steps.filter.outputs.api }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          base: ${{ github.ref }}
+          filters: |
+            dbt:
+              - 'analytics/dbt/**'
+            api:
+              - 'api/**'
+
   lint:
     name: Run ESLint
     runs-on: ubuntu-latest
@@ -35,6 +56,8 @@ jobs:
 
   lint-openapi:
     name: Lint OpenAPI spec
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -45,6 +68,8 @@ jobs:
 
   lint-analytics-models:
     name: Run SQLFluff on Analytics models
+    needs: changes
+    if: needs.changes.outputs.dbt == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
