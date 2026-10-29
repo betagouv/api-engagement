@@ -1,7 +1,6 @@
 name: Tests
 
 on:
-  # push:
   pull_request:
   workflow_dispatch:
   workflow_call:
@@ -13,45 +12,45 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: tests-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  project-checks:
+    uses: ./.github/workflows/project-checks.yml
+    permissions:
+      contents: read
+      pull-requests: read
+
   changes:
     name: Detect changes
+    permissions:
+      contents: read
+      pull-requests: read
     runs-on: ubuntu-latest
     outputs:
-      api: ${{ steps.filter.outputs.api }}
+      api_migrations: ${{ steps.filter.outputs.api_migrations }}
       widget: ${{ steps.filter.outputs.widget }}
-      analytics: ${{ steps.filter.outputs.analytics }}
-      app: ${{ steps.filter.outputs.app }}
       api_prisma_schema: ${{ steps.filter.outputs.api_prisma_schema }}
-      plateform: ${{ steps.filter.outputs.plateform }}
-      taxonomy: ${{ steps.filter.outputs.taxonomy }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
           filters: |
-            api:
-              - 'api/**'
-              - 'packages/**'
+            api_migrations:
+              - 'api/prisma/**'
+              - 'api/prisma.config.ts'
             widget:
               - 'widget/**'
-            analytics:
-              - 'analytics/**'
-            app:
-              - 'app/**'
             api_prisma_schema:
               - 'api/prisma/schema.prisma'
-            plateform:
-              - 'plateform/**'
-              - 'packages/**'
-            taxonomy:
-              - 'packages/taxonomy/**'
 
   api-migrations:
     name: Verify API migrations
     needs: changes
-    if: needs.changes.outputs.api == 'true'
+    if: needs.changes.outputs.api_migrations == 'true'
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -77,7 +76,7 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace api --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
       - name: Prepare temporary databases
         env:
@@ -89,63 +88,6 @@ jobs:
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
         run: npm --workspace api run prisma:migrate:deploy
-
-  analytics-migrations:
-    name: Verify Analytics migrations
-    needs: changes
-    if: needs.changes.outputs.analytics == 'true'
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install dbt
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-cache-dir -r analytics/dbt/analytics/requirements.txt
-
-      - name: Prepare temporary databases
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
-
-      - name: Check dbmate migrations
-        env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
-        run: npm --workspace analytics run db:migrate
-
-      - name: Check dbt compile
-        working-directory: analytics
-        env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
-        run: ./scripts/dbt-env.sh compile
 
   analytics-export-job:
     name: Verify analytics export job
@@ -176,7 +118,7 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --workspace api --workspace analytics --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
       - name: Prepare temporary databases
         env:
@@ -202,41 +144,19 @@ jobs:
           ENV: development
         run: npm --workspace analytics run job -- export-to-analytics-raw
 
-  api-tests:
-    name: API Tests
-    needs:
-      - changes
-      - api-migrations
-    if: needs.changes.outputs.api == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate Prisma clients
-        run: npm --workspace api run prisma:generate
-
-      - name: Run tests
-        env:
-          TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: npm --workspace api run test:ci
-
   widgets-tests:
-    name: Widget Tests
+    name: Widget Tests (${{ matrix.shard }}/2)
     needs: changes
     if: needs.changes.outputs.widget == 'true'
     runs-on: ubuntu-latest
+    container:
+      # Garder la version alignée sur Playwright dans package-lock.json.
+      image: mcr.microsoft.com/playwright:v1.63.0-resolute
+      options: --init --ipc=host
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     permissions:
       contents: read
       actions: write
@@ -251,140 +171,18 @@ jobs:
           cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers and dependencies
-        run: npm --workspace widget exec -- playwright install --with-deps
+        run: npm ci --workspace widget --include-workspace-root=false --prefer-offline --no-audit --no-fund
 
       - name: Run tests
-        run: npm --workspace widget run test:e2e
+        run: npm --workspace widget run test:e2e -- --shard=${{ matrix.shard }}/2
+        env:
+          # Firefox exige que HOME appartienne à l’utilisateur du conteneur.
+          HOME: /root
 
       - name: Upload HTML test report
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
-          name: playwright-report
+          name: playwright-report-widget-${{ matrix.shard }}
           path: widget/tests/e2e/_playwright-report
           retention-days: 30
-
-  app-tests:
-    name: App E2E Tests
-    needs: changes
-    if: needs.changes.outputs.app == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      actions: write
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Use Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check Chrome
-        run: google-chrome --version
-
-      - name: Run tests
-        run: npm --workspace app run test:e2e:functional
-
-  app-accessibility-tests:
-    name: App Accessibility Tests
-    needs: changes
-    if: needs.changes.outputs.app == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Use Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check Chrome
-        run: google-chrome --version
-
-      - name: Run accessibility tests
-        run: npm --workspace app run test:e2e:a11y
-
-  plateform-tests:
-    name: Plateform Tests
-    needs: changes
-    if: needs.changes.outputs.plateform == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm --workspace plateform run test
-
-  plateform-accessibility-tests:
-    name: Plateform Accessibility Tests
-    needs: changes
-    if: needs.changes.outputs.plateform == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Use Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check Chrome
-        run: google-chrome --version
-
-      - name: Run accessibility tests
-        run: npm --workspace plateform run test:e2e:a11y
-
-  taxonomy-tests:
-    name: Taxonomy Tests
-    needs: changes
-    if: needs.changes.outputs.taxonomy == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm --workspace @engagement/taxonomy run test

@@ -1,0 +1,338 @@
+name: Project checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      app: ${{ steps.filter.outputs.app }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+      analytics_dbt: ${{ steps.filter.outputs.analytics_dbt }}
+      widget: ${{ steps.filter.outputs.widget }}
+      plateform: ${{ steps.filter.outputs.plateform }}
+      dto: ${{ steps.filter.outputs.dto }}
+      taxonomy: ${{ steps.filter.outputs.taxonomy }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          base: ${{ github.event_name != 'pull_request' && github.ref || '' }}
+          filters: |
+            api:
+              - 'api/**'
+              - 'packages/**'
+            app:
+              - 'app/**'
+              - 'packages/**'
+            analytics:
+              - 'analytics/**'
+            analytics_dbt:
+              - 'analytics/db/**'
+              - 'analytics/dbt/**'
+              - 'analytics/scripts/dbt-env.sh'
+              - 'analytics/package.json'
+            widget:
+              - 'widget/**'
+            plateform:
+              - 'plateform/**'
+              - 'packages/**'
+            dto:
+              - 'packages/dto/**'
+            taxonomy:
+              - 'packages/taxonomy/**'
+
+  api-checks:
+    name: API checks
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace api --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace api
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace api run build
+
+      - name: Lint OpenAPI spec
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npx --yes @redocly/cli lint --config api/redocly.yaml
+
+      - name: Generate Prisma clients
+        id: prisma
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm --workspace api run prisma:generate
+
+      - name: Run unit tests
+        if: ${{ !cancelled() && steps.prisma.outcome == 'success' }}
+        run: npm --workspace api run test:unit
+
+      - name: Run integration tests
+        if: ${{ !cancelled() && steps.prisma.outcome == 'success' }}
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: npm --workspace api run test:integration
+
+  app-checks:
+    name: App checks
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace app
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace app run build
+
+      - name: Check Chrome
+        id: chrome
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: google-chrome --version
+
+      - name: Run functional E2E tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        run: npm --workspace app run test:e2e:functional
+
+      - name: Run accessibility tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        run: npm --workspace app run test:e2e:a11y
+
+  widget-checks:
+    name: Widget checks
+    needs: changes
+    if: needs.changes.outputs.widget == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace widget --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace widget
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace widget run build
+
+  plateform-checks:
+    name: Plateform checks
+    needs: changes
+    if: needs.changes.outputs.plateform == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace plateform --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace plateform
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace plateform run build
+
+      - name: Run unit tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm --workspace plateform run test
+
+      - name: Check Chrome
+        id: chrome
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: google-chrome --version
+
+      - name: Run accessibility tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        run: npm --workspace plateform run test:e2e:a11y
+
+  analytics-checks:
+    name: Analytics checks
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true' || needs.changes.outputs.analytics_dbt == 'true'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: ${{ needs.changes.outputs.analytics_dbt == 'true' && 'postgres:15' || '' }}
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace analytics --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        id: python
+        if: ${{ !cancelled() && needs.changes.outputs.analytics_dbt == 'true' && steps.install.outcome == 'success' }}
+        with:
+          python-version: "3.11"
+
+      - name: Install dbt and SQLFluff
+        id: python-dependencies
+        if: ${{ !cancelled() && needs.changes.outputs.analytics_dbt == 'true' && steps.install.outcome == 'success' && steps.python.outcome == 'success' }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir -r analytics/dbt/analytics/requirements.txt
+
+      - name: Run ESLint
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm run lint --workspace analytics
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace analytics run build
+
+      - name: Prepare temporary databases
+        id: database
+        if: ${{ !cancelled() && needs.changes.outputs.analytics_dbt == 'true' && steps.install.outcome == 'success' }}
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
+
+      - name: Check dbmate migrations
+        id: migrations
+        if: ${{ !cancelled() && needs.changes.outputs.analytics_dbt == 'true' && steps.install.outcome == 'success' && steps.database.outcome == 'success' }}
+        env:
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
+        run: npm --workspace analytics run db:migrate
+
+      - name: Check dbt compile
+        if: ${{ !cancelled() && needs.changes.outputs.analytics_dbt == 'true' && steps.migrations.outcome == 'success' && steps.python-dependencies.outcome == 'success' }}
+        working-directory: analytics
+        env:
+          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
+        run: ./scripts/dbt-env.sh compile
+
+      - name: Lint dbt project
+        if: ${{ !cancelled() && needs.changes.outputs.analytics_dbt == 'true' && steps.python-dependencies.outcome == 'success' }}
+        run: sqlfluff lint --config analytics/dbt/analytics/.sqlfluff analytics/dbt/analytics/models
+
+  lint-dto:
+    name: Run ESLint (dto)
+    needs: changes
+    if: needs.changes.outputs.dto == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        run: npm ci --workspace packages/dto --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace packages/dto
+
+  taxonomy-checks:
+    name: Taxonomy checks
+    needs: changes
+    if: needs.changes.outputs.taxonomy == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace packages/taxonomy --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace packages/taxonomy
+
+      - name: Run unit tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm --workspace @engagement/taxonomy run test
