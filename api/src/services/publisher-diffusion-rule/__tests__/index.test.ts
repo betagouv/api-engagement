@@ -39,7 +39,7 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
 
     expect(where).toEqual({});
     expect(prismaMock.publisherDiffusionRule.findMany).toHaveBeenCalledWith({
-      where: { publisherId: "publisher-1" },
+      where: { publisherId: "publisher-1", deletedAt: null },
       orderBy: [{ position: "asc" }, { createdAt: "asc" }],
     });
   });
