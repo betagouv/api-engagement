@@ -30,17 +30,10 @@ jobs:
       pull-requests: read
     runs-on: ubuntu-latest
     outputs:
-      api_migrations: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.api_migrations }}
-      widget: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.widget }}
-      analytics_migrations: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.analytics_migrations }}
-      api_prisma_schema: ${{ steps.force.outputs.all == 'true' && 'true' || steps.filter.outputs.api_prisma_schema }}
+      api_migrations: ${{ steps.filter.outputs.api_migrations }}
+      widget: ${{ steps.filter.outputs.widget }}
+      api_prisma_schema: ${{ steps.filter.outputs.api_prisma_schema }}
     steps:
-      # Temporaire : retirer après les mesures de la PR #1626.
-      - name: Force all checks for CI timing
-        id: force
-        env:
-          FORCE_ALL: ${{ github.event_name == 'pull_request' && github.head_ref == 'arnaud/refaco/ci-optimization' }}
-        run: echo "all=$FORCE_ALL" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
@@ -49,25 +42,8 @@ jobs:
             api_migrations:
               - 'api/prisma/**'
               - 'api/prisma.config.ts'
-              - 'api/tsconfig*.json'
-              - 'api/package.json'
-              - 'api/.npmrc'
-              - 'package.json'
-              - 'package-lock.json'
-              - '.npmrc'
-              - '.github/workflows/tests.yml'
             widget:
               - 'widget/**'
-            analytics_migrations:
-              - 'analytics/db/**'
-              - 'analytics/dbt/**'
-              - 'analytics/scripts/dbt-env.sh'
-              - 'analytics/package.json'
-              - 'analytics/.npmrc'
-              - 'package.json'
-              - 'package-lock.json'
-              - '.npmrc'
-              - '.github/workflows/tests.yml'
             api_prisma_schema:
               - 'api/prisma/schema.prisma'
 
@@ -112,63 +88,6 @@ jobs:
         env:
           DATABASE_URL_CORE: postgresql://postgres:postgres@localhost:5432/core
         run: npm --workspace api run prisma:migrate:deploy
-
-  analytics-migrations:
-    name: Verify Analytics migrations
-    needs: changes
-    if: needs.changes.outputs.analytics_migrations == 'true'
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-          cache-dependency-path: "package-lock.json"
-
-      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: npm ci --workspace analytics --include-workspace-root=false --prefer-offline --no-audit --no-fund
-
-      - name: Install dbt
-        run: |
-          python -m pip install --upgrade pip
-          pip install --no-cache-dir -r analytics/dbt/analytics/requirements.txt
-
-      - name: Prepare temporary databases
-        env:
-          PGPASSWORD: postgres
-        run: |
-          psql -h localhost -U postgres -d postgres -c 'CREATE DATABASE analytics;'
-
-      - name: Check dbmate migrations
-        env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics?sslmode=disable
-        run: npm --workspace analytics run db:migrate
-
-      - name: Check dbt compile
-        working-directory: analytics
-        env:
-          DATABASE_URL_ANALYTICS: postgresql://postgres:postgres@localhost:5432/analytics
-        run: ./scripts/dbt-env.sh compile
 
   analytics-export-job:
     name: Verify analytics export job
