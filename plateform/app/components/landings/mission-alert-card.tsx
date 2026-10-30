@@ -81,7 +81,7 @@ export default function MissionAlertCard({ signupSource }: { signupSource?: Sign
             {loading ? "Inscription en cours…" : "Recevoir des missions"}
           </button>
           <p id={`${emailId}-hint`} className="fr-hint-text mb-0!">
-            1 email 1 fois par mois. Uniquement des missions.
+            1 e-mail 1 fois par mois. Uniquement des missions.
           </p>
         </form>
       )}

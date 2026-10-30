@@ -20,7 +20,7 @@ export function serializeForInlineScript(value: unknown): string {
 // Format attendu : nom@domaine.extension (pas de vérification de l'existence de la boîte).
 const EMAIL_FORMAT = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export const INVALID_EMAIL_FORMAT_ERROR = "Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr";
+export const INVALID_EMAIL_FORMAT_ERROR = "Le format de l'adresse e-mail n'est pas valide. Le format attendu est : nom@email.fr";
 
 export function isValidEmail(value: string): boolean {
   return EMAIL_FORMAT.test(value);

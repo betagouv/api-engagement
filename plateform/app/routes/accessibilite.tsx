@@ -40,7 +40,7 @@ export default function Accessibilite() {
           <li>Des contenus ne sont pas visibles lorsque l'affichage est réduit à une largeur de 320px ;</li>
           <li>Certains champs de saisie (formulaires, recherches) n'ont pas d'étiquettes visibles ;</li>
           <li>Certains regroupements de champs de même nature ont une légende non pertinente ;</li>
-          <li>Certains champs (email) manquent de messages d'erreur visibles ;</li>
+          <li>Certains champs (e-mail) manquent de messages d'erreur visibles ;</li>
           <li>Le site ne dispose pas d'au moins deux systèmes de navigation différents, tels qu'un menu de navigation ou un moteur de recherche ;</li>
           <li>Le contenu principal ne dispose pas de rôle approprié pour indiquer sa fonction ;</li>
           <li>L'ordre de tabulation de certains éléments interactifs (boutons, vignettes, listes des résultats) n'est pas toujours cohérent.</li>
