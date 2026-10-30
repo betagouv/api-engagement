@@ -30,7 +30,9 @@ resource "scaleway_function" "sentry_webhook" {
   privacy      = "public"
   http_option  = "redirected"
   memory_limit = 128
-  min_scale    = 0
+  # Une instance toujours chaude : Sentry abandonne la requête après ~1 s et un démarrage à froid
+  # prend plusieurs dizaines de secondes, chaque alerte (espacées de plusieurs heures) tombait en timeout.
+  min_scale    = 1
   max_scale    = 1
   deploy       = true
   zip_file     = data.archive_file.sentry_webhook[0].output_path
