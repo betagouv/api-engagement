@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.*
+.tmp
+.cache
+.tsbuildinfo
+dist
+build
+.strapi
+types/generated
+public/uploads/*
+!public/uploads/.gitkeep
+.strapi-updater.json

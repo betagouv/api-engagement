@@ -396,3 +396,38 @@ variable "typesense_load_balancer_type" {
   default     = "LB-S"
   description = "Scaleway Load Balancer type used by Typesense."
 }
+
+# CMS (Strapi)
+
+variable "enable_cms" {
+  type        = bool
+  default     = false
+  description = "Deploy the CMS container (Strapi) and its media bucket. Requires the CMS_* keys in the workspace secret, the CMS database and the DNS record (see cms/README.md)."
+}
+
+variable "cms_hostname" {
+  type        = string
+  default     = ""
+  description = "Custom domain of the CMS (empty to use the default Scaleway domain)."
+}
+
+variable "cms_cpu_limit" {
+  type    = number
+  default = 500
+}
+
+variable "cms_memory_limit" {
+  type    = number
+  default = 1024
+}
+
+variable "cms_min_scale" {
+  type        = number
+  default     = 1
+  description = "Keep one instance up: plateform reads the CMS at request time and Strapi takes ~20s to boot."
+}
+
+variable "cms_max_scale" {
+  type    = number
+  default = 1
+}

@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, analytics, widget)
+# For each service (app, api, analytics, widget, plateform, cms)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
@@ -90,6 +90,9 @@ jobs:
           - service: plateform
             image_name: plateform
             context: .
+          # CMS : contexte et Dockerfile dédiés (projet autonome, hors workspaces npm).
+          - service: cms
+            image_name: cms
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

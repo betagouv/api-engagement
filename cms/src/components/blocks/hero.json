@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_blocks_heroes",
+  "info": {
+    "displayName": "Hero",
+    "icon": "picture",
+    "description": "Titre, texte et bouton « Trouve ta mission » (quiz)."
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "text",
+      "required": true,
+      "description": "Retour à la ligne = saut de ligne. ==mot== pour surligner."
+    },
+    "hint": {
+      "type": "string"
+    },
+    "visual": {
+      "type": "enumeration",
+      "enum": [
+        "none",
+        "chacun_pour_tous"
+      ],
+      "default": "none",
+      "required": true,
+      "description": "Habillage de campagne codé dans plateform (laisser sur none sauf cas particulier)."
+    }
+  }
+}

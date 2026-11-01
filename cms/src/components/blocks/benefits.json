@@ -1,0 +1,10 @@
+{
+  "collectionName": "components_blocks_benefits",
+  "info": { "displayName": "Bénéfices + newsletter", "icon": "heart" },
+  "attributes": {
+    "title": { "type": "text", "required": true, "description": "Retour à la ligne = saut de ligne." },
+    "benefits": { "type": "component", "repeatable": true, "component": "items.benefit" },
+    "newsletterTitle": { "type": "text", "required": true },
+    "newsletterText": { "type": "string", "required": true }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "collectionName": "components_items_stories",
+  "info": { "displayName": "Histoire", "icon": "quote" },
+  "attributes": {
+    "image": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true },
+    "domain": { "type": "string", "required": true },
+    "story": { "type": "text", "required": true },
+    "publisher": { "type": "string", "required": true },
+    "logo": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true }
+  }
+}
