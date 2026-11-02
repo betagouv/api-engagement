@@ -55,6 +55,9 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Typecheck
+        run: npx tsc --noEmit
+
   lint-openapi:
     name: Lint OpenAPI spec
     runs-on: ubuntu-latest
