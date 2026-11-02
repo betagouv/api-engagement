@@ -1,0 +1,52 @@
+name: API checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: API checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace api --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace api
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace api run build
+
+      - name: Lint OpenAPI spec
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npx --yes @redocly/cli lint --config api/redocly.yaml
+
+      - name: Generate Prisma clients
+        id: prisma
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: npm --workspace api run prisma:generate
+
+      - name: Run unit tests
+        if: ${{ !cancelled() && steps.prisma.outcome == 'success' }}
+        run: npm --workspace api run test:unit
+
+      - name: Run integration tests
+        if: ${{ !cancelled() && steps.prisma.outcome == 'success' }}
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: npm --workspace api run test:integration

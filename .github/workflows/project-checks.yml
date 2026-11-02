@@ -1,0 +1,106 @@
+name: Project checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    name: Detect changes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      app: ${{ steps.filter.outputs.app }}
+      analytics: ${{ steps.filter.outputs.analytics }}
+      analytics_dbt: ${{ steps.filter.outputs.analytics_dbt }}
+      widget: ${{ steps.filter.outputs.widget }}
+      plateform: ${{ steps.filter.outputs.plateform }}
+      cms: ${{ steps.filter.outputs.cms }}
+      dto: ${{ steps.filter.outputs.dto }}
+      taxonomy: ${{ steps.filter.outputs.taxonomy }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        id: filter
+        with:
+          base: ${{ github.event_name != 'pull_request' && github.ref || '' }}
+          filters: |
+            api:
+              - 'api/**'
+              - 'packages/**'
+            app:
+              - 'app/**'
+              - 'packages/**'
+            analytics:
+              - 'analytics/**'
+            analytics_dbt:
+              - 'analytics/db/**'
+              - 'analytics/dbt/**'
+              - 'analytics/scripts/dbt-env.sh'
+              - 'analytics/package.json'
+            widget:
+              - 'widget/**'
+            plateform:
+              - 'plateform/**'
+              - 'packages/**'
+            cms:
+              - 'cms/**'
+            dto:
+              - 'packages/dto/**'
+            taxonomy:
+              - 'packages/taxonomy/**'
+
+  api-checks:
+    name: API checks
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    uses: ./.github/workflows/projects/project-checks-api.yml
+
+  app-checks:
+    name: App checks
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    uses: ./.github/workflows/projects/project-checks-app.yml
+
+  widget-checks:
+    name: Widget checks
+    needs: changes
+    if: needs.changes.outputs.widget == 'true'
+    uses: ./.github/workflows/projects/project-checks-widget.yml
+
+  plateform-checks:
+    name: Plateform checks
+    needs: changes
+    if: needs.changes.outputs.plateform == 'true'
+    uses: ./.github/workflows/projects/project-checks-plateform.yml
+
+  analytics-checks:
+    name: Analytics checks
+    needs: changes
+    if: needs.changes.outputs.analytics == 'true' || needs.changes.outputs.analytics_dbt == 'true'
+    uses: ./.github/workflows/projects/project-checks-analytics.yml
+    with:
+      dbt: ${{ needs.changes.outputs.analytics_dbt == 'true' }}
+
+  lint-dto:
+    name: Run ESLint (dto)
+    needs: changes
+    if: needs.changes.outputs.dto == 'true'
+    uses: ./.github/workflows/projects/project-checks-dto.yml
+
+  taxonomy-checks:
+    name: Taxonomy checks
+    needs: changes
+    if: needs.changes.outputs.taxonomy == 'true'
+    uses: ./.github/workflows/projects/project-checks-taxonomy.yml
+
+  cms-checks:
+    name: CMS checks
+    needs: changes
+    if: needs.changes.outputs.cms == 'true'
+    uses: ./.github/workflows/projects/project-checks-cms.yml
