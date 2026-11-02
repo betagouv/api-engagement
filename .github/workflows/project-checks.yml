@@ -59,31 +59,31 @@ jobs:
     name: API checks
     needs: changes
     if: needs.changes.outputs.api == 'true'
-    uses: ./.github/workflows/projects/project-checks-api.yml
+    uses: ./.github/workflows/project-checks-api.yml
 
   app-checks:
     name: App checks
     needs: changes
     if: needs.changes.outputs.app == 'true'
-    uses: ./.github/workflows/projects/project-checks-app.yml
+    uses: ./.github/workflows/project-checks-app.yml
 
   widget-checks:
     name: Widget checks
     needs: changes
     if: needs.changes.outputs.widget == 'true'
-    uses: ./.github/workflows/projects/project-checks-widget.yml
+    uses: ./.github/workflows/project-checks-widget.yml
 
   plateform-checks:
     name: Plateform checks
     needs: changes
     if: needs.changes.outputs.plateform == 'true'
-    uses: ./.github/workflows/projects/project-checks-plateform.yml
+    uses: ./.github/workflows/project-checks-plateform.yml
 
   analytics-checks:
     name: Analytics checks
     needs: changes
     if: needs.changes.outputs.analytics == 'true' || needs.changes.outputs.analytics_dbt == 'true'
-    uses: ./.github/workflows/projects/project-checks-analytics.yml
+    uses: ./.github/workflows/project-checks-analytics.yml
     with:
       dbt: ${{ needs.changes.outputs.analytics_dbt == 'true' }}
 
@@ -91,16 +91,16 @@ jobs:
     name: Run ESLint (dto)
     needs: changes
     if: needs.changes.outputs.dto == 'true'
-    uses: ./.github/workflows/projects/project-checks-dto.yml
+    uses: ./.github/workflows/project-checks-dto.yml
 
   taxonomy-checks:
     name: Taxonomy checks
     needs: changes
     if: needs.changes.outputs.taxonomy == 'true'
-    uses: ./.github/workflows/projects/project-checks-taxonomy.yml
+    uses: ./.github/workflows/project-checks-taxonomy.yml
 
   cms-checks:
     name: CMS checks
     needs: changes
     if: needs.changes.outputs.cms == 'true'
-    uses: ./.github/workflows/projects/project-checks-cms.yml
+    uses: ./.github/workflows/project-checks-cms.yml
