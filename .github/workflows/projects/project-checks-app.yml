@@ -1,0 +1,47 @@
+name: App checks
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: App checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: "package-lock.json"
+
+      - name: Install dependencies
+        id: install
+        run: npm ci --workspace app --include-workspace-root=false --prefer-offline --no-audit --no-fund
+
+      - name: Run ESLint
+        run: npm run lint --workspace app
+
+      - name: Build
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && steps.install.outcome == 'success' }}
+        run: npm --workspace app run build
+
+      - name: Check Chrome
+        id: chrome
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: google-chrome --version
+
+      - name: Run functional E2E tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        run: npm --workspace app run test:e2e:functional
+
+      - name: Run accessibility tests
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.chrome.outcome == 'success' }}
+        run: npm --workspace app run test:e2e:a11y
