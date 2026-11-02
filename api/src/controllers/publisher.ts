@@ -377,10 +377,6 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         },
       });
 
-      if (body.data.publishers !== undefined) {
-        await publisherService.enqueuePublisherDiffusion(params.data.id);
-      }
-
       res.status(200).send({ ok: true, data: updated });
     } catch (error) {
       if (error instanceof PublisherNotFoundError) {

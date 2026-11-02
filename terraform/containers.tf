@@ -73,6 +73,7 @@ resource "scaleway_container" "api" {
     "DATABASE_URL_CORE"           = local.secrets.DATABASE_URL_CORE
     "SENTRY_DSN_API"              = local.secrets.SENTRY_DSN_API
     "SENDINBLUE_APIKEY"           = local.secrets.SENDINBLUE_APIKEY
+    "BENCH_RATE_LIMIT_TOKEN"      = lookup(local.secrets, "BENCH_RATE_LIMIT_TOKEN", "")
     "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
     "ALERTS_WEBHOOK_TOKEN"        = local.secrets.ALERTS_WEBHOOK_TOKEN
     "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
@@ -196,10 +197,12 @@ resource "scaleway_container" "plateform" {
     "PLATEFORM_LEGACY_HOSTNAME" = var.ttm_legacy_hostname
     "SERVER_API_URL"            = "https://${var.api_hostname}"
     "ENV"                       = var.env
+    "CMS_URL"                   = local.cms_url
   }
 
   secret_environment_variables = {
     "PUBLISHER_API_KEY" = lookup(local.secrets, "PLATEFORM_PUBLISHER_API_KEY", "")
+    "CMS_API_TOKEN"     = lookup(local.secrets, "PLATEFORM_CMS_API_TOKEN", "")
   }
 }
 

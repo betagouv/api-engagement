@@ -2,7 +2,7 @@
 # - main branch: production
 # - staging branch: staging
 #
-# For each service (app, api, analytics, widget)
+# For each service (app, api, analytics, widget, plateform, cms)
 # - use build args to pass environment variables
 # - build and push image to GitHub Container Registry
 #
@@ -92,6 +92,9 @@ jobs:
           - service: plateform
             image_name: plateform
             context: .
+          # CMS : contexte et Dockerfile dédiés (projet autonome, hors workspaces npm).
+          - service: cms
+            image_name: cms
         exclude:
           - production: false
             image:
@@ -112,7 +115,7 @@ jobs:
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}

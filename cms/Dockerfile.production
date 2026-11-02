@@ -1,0 +1,21 @@
+FROM node:22-alpine AS builder
+# Dépendances natives de sharp (images) et de strapi.
+RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git > /dev/null 2>&1
+WORKDIR /opt/app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+ENV NODE_ENV=production
+# Compile le serveur (TS → dist) et construit l'admin (build). Les secrets ne sont pas nécessaires au build.
+RUN npm run build && npm prune --omit=dev
+
+FROM node:22-alpine
+RUN apk add --no-cache vips-dev
+WORKDIR /opt/app
+ENV NODE_ENV=production
+COPY --from=builder --chown=node:node /opt/app ./
+USER node
+# Scaleway Serverless Containers expose le port 8080.
+ENV HOST=0.0.0.0 PORT=8080
+EXPOSE 8080
+CMD ["npm", "run", "start"]

@@ -1,0 +1,8 @@
+{
+  "collectionName": "components_blocks_partners",
+  "info": { "displayName": "Partenaires", "icon": "handHeart" },
+  "attributes": {
+    "title": { "type": "string", "required": true },
+    "partners": { "type": "component", "repeatable": true, "component": "items.partner" }
+  }
+}

@@ -20,6 +20,7 @@ jobs:
       analytics_dbt: ${{ steps.filter.outputs.analytics_dbt }}
       widget: ${{ steps.filter.outputs.widget }}
       plateform: ${{ steps.filter.outputs.plateform }}
+      cms: ${{ steps.filter.outputs.cms }}
       dto: ${{ steps.filter.outputs.dto }}
       taxonomy: ${{ steps.filter.outputs.taxonomy }}
     steps:
@@ -47,6 +48,8 @@ jobs:
             plateform:
               - 'plateform/**'
               - 'packages/**'
+            cms:
+              - 'cms/**'
             dto:
               - 'packages/dto/**'
             taxonomy:
@@ -95,3 +98,9 @@ jobs:
     needs: changes
     if: needs.changes.outputs.taxonomy == 'true'
     uses: ./.github/workflows/projects/project-checks-taxonomy.yml
+
+  cms-checks:
+    name: CMS checks
+    needs: changes
+    if: needs.changes.outputs.cms == 'true'
+    uses: ./.github/workflows/projects/project-checks-cms.yml

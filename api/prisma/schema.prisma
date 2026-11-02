@@ -458,11 +458,13 @@ model PublisherDiffusionRule {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
+  deletedAt      DateTime? @map("deleted_at")
+
   publisher     Publisher                @relation("PublisherDiffuseurRuleRelation", fields: [publisherId], references: [id], onDelete: Cascade)
   combinedWith  PublisherDiffusionRule?  @relation("PublisherDiffusionRuleCombined", fields: [combinedWithId], references: [id], onDelete: Cascade)
   combinedRules PublisherDiffusionRule[] @relation("PublisherDiffusionRuleCombined")
 
-  @@unique([publisherId, combinedWithId, field, value], map: "publisher_diffusion_rule_publisher_combined_field_value_key")
+  // Unicité des règles actives : indexes SQL partiels définis dans les migrations.
   @@index([publisherId], map: "publisher_diffusion_rule_publisher_id_idx")
   @@index([combinedWithId], map: "publisher_diffusion_rule_combined_with_id_idx")
   @@map("publisher_diffusion_rule")
