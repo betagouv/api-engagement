@@ -66,6 +66,7 @@ jobs:
 
   deploy:
     needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     uses: ./.github/workflows/terraform-deploy.yml
     secrets:
       DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}
