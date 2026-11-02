@@ -73,6 +73,7 @@ resource "scaleway_container" "api" {
     "DATABASE_URL_CORE"           = local.secrets.DATABASE_URL_CORE
     "SENTRY_DSN_API"              = local.secrets.SENTRY_DSN_API
     "SENDINBLUE_APIKEY"           = local.secrets.SENDINBLUE_APIKEY
+    "BENCH_RATE_LIMIT_TOKEN"      = lookup(local.secrets, "BENCH_RATE_LIMIT_TOKEN", "")
     "BREVO_WEBHOOK_TOKEN"         = local.secrets.BREVO_WEBHOOK_TOKEN
     "ALERTS_WEBHOOK_TOKEN"        = local.secrets.ALERTS_WEBHOOK_TOKEN
     "SLACK_TOKEN"                 = local.secrets.SLACK_TOKEN
