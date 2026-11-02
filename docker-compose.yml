@@ -52,7 +52,7 @@ services:
       - postgres-cms
     environment:
       NODE_ENV: development
-      DATABASE_HOST: postgres-cms
+      DATABASE_URL: postgres://strapi:strapi@postgres-cms:5432/strapi
       APP_KEYS: dev-key-1,dev-key-2,dev-key-3,dev-key-4
       ADMIN_JWT_SECRET: dev-admin-jwt-secret
       API_TOKEN_SALT: dev-api-token-salt
