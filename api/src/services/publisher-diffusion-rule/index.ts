@@ -326,7 +326,7 @@ export const publisherDiffusionRuleService = {
    * et création des manquants. Pas de delete+recreate global, pour préserver les
    * rules enfants (ex. exclusions d'organisations) des roots conservés.
    */
-  async syncScopeRoots(diffuseurPublisherId: string, annonceurPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<void> {
+  async syncScopeRoots(diffuseurPublisherId: string, annonceurPublisherIds: string[], tx?: Prisma.TransactionClient): Promise<boolean> {
     const roots = await this.findRules({ publisherId: diffuseurPublisherId, ...DIFFUSION_SCOPE_ROOT_CRITERIA }, tx);
     const desired = new Set(annonceurPublisherIds);
     const existing = new Set(roots.map((root) => root.value));
@@ -341,6 +341,7 @@ export const publisherDiffusionRuleService = {
         await this.findOrCreateScopeRoot(diffuseurPublisherId, annonceurPublisherId, tx);
       }
     }
+    return desired.size !== existing.size || [...desired].some((id) => !existing.has(id));
   },
 
   async createScopedRule(input: {
