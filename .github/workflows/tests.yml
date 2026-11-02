@@ -33,8 +33,16 @@ jobs:
       api_migrations: ${{ steps.filter.outputs.api_migrations }}
       widget: ${{ steps.filter.outputs.widget }}
       api_prisma_schema: ${{ steps.filter.outputs.api_prisma_schema }}
+      playwright_version: ${{ steps.playwright.outputs.version }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Read Playwright version
+        id: playwright
+        run: |
+          node <<'NODE'
+          const version = require('./package-lock.json').packages['node_modules/@playwright/test'].version;
+          require('node:fs').appendFileSync(process.env.GITHUB_OUTPUT, `version=${version}\n`);
+          NODE
       - uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
         id: filter
         with:
@@ -151,7 +159,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       # Garder la version alignée sur Playwright dans package-lock.json.
-      image: mcr.microsoft.com/playwright:v1.63.0-resolute
+      image: mcr.microsoft.com/playwright:v${{ needs.changes.outputs.playwright_version }}-resolute
       options: --init --ipc=host
     strategy:
       fail-fast: false
