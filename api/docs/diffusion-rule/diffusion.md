@@ -143,3 +143,9 @@ Les comparaisons sont insensibles à la casse. S'il n'existe aucune règle d'exc
 ```json
 { "publisherIds": ["..."], "field": "publisherOrganization.parentOrganizations", "operator": "does_not_contain", "value": "Marine nationale" }
 ```
+
+## Historique des suppressions
+
+Les règles supprimées sont conservées avec `deleted_at` (champ Prisma `deletedAt`). L’API ne lit que les règles actives, dont `deleted_at` est nul. La suppression d’une règle archive également ses descendants, avec la même date. Recréer une règle produit un nouvel identifiant et une nouvelle période de validité.
+
+Le mart analytics `publisher_diffusion_rule` expose `created_at`, `updated_at` et `deleted_at` pour Metabase. Une règle était active à une date donnée si `created_at <= date` et (`deleted_at IS NULL` ou `deleted_at > date`). Les suppressions antérieures à cette évolution ne peuvent pas être reconstituées. Les suppressions physiques de publishers restent soumises aux cascades existantes.

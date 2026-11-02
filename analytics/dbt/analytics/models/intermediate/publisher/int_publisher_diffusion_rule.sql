@@ -13,5 +13,6 @@ select
   position,
   combined_with_id,
   created_at,
-  updated_at
+  updated_at,
+  deleted_at
 from {{ ref('stg_publisher_diffusion_rule') }}
