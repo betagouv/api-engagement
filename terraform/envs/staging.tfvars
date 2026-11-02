@@ -44,9 +44,9 @@ enable_mfa            = true
 
 private_network_cidr = "10.41.0.0/22"
 
-# CMS : passer enable_cms à true une fois les prérequis en place (secrets CMS_*, base, DNS), cf. cms/README.md.
-enable_cms   = false
-cms_hostname = "cms.trouvetamission.api-engagement-dev.fr"
+# CMS : premier déploiement sur le domaine Scaleway ; renseigner cms.trouvetamission.api-engagement-dev.fr une fois le CNAME créé, cf. cms/README.md.
+enable_cms   = true
+cms_hostname = ""
 
 enable_plateform = true
 ttm_hostname     = "trouvetamission.api-engagement-dev.fr"

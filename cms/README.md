@@ -1,6 +1,6 @@
 # CMS (Strapi)
 
-CMS headless (Strapi 5, Community, Postgres) pour construire les **landing pages** de `plateform/` à partir de blocs, sans passer par le code. Local via Docker Compose ; déploiement sur Scaleway décrit plus bas.
+CMS headless (Strapi 5, Community, Postgres) pour construire les **landing pages** de `plateform/` à partir de blocs, sans passer par le code. Local via Docker Compose (Postgres dédié, `DATABASE_URL`) ; déploiement sur Scaleway décrit plus bas.
 
 ## Démarrage
 
@@ -64,8 +64,16 @@ Le CMS est **désactivé par défaut** (`enable_cms = false` dans `terraform/env
 
 ### Mise en service d'un environnement (staging d'abord)
 
-1. **Base PostgreSQL dédiée** : créer une base `cms` et un utilisateur propre sur l'instance RDB, joignables via le Private Network (comme la base core, créée hors Terraform).
-2. **Secret `<workspace>-secret`** (Secret Manager) : ajouter les clés `CMS_APP_KEYS` (4 valeurs séparées par des virgules), `CMS_ADMIN_JWT_SECRET`, `CMS_API_TOKEN_SALT`, `CMS_TRANSFER_TOKEN_SALT`, `CMS_ENCRYPTION_KEY`, `CMS_JWT_SECRET` (valeurs aléatoires, ex. `openssl rand -base64 32`) et `CMS_DATABASE_HOST`, `CMS_DATABASE_PORT`, `CMS_DATABASE_NAME`, `CMS_DATABASE_USERNAME`, `CMS_DATABASE_PASSWORD`. Le plan échoue avec un message explicite si une clé manque.
+1. **Base et utilisateur dédiés** sur l'instance RDB existante (`core-staging` / `core-production`, déjà dans le Private Network), créés hors Terraform pour cloisonner le CMS de la base core. Avec un compte admin de l'instance :
+
+   ```sql
+   CREATE ROLE cms LOGIN PASSWORD '<mot-de-passe>';
+   CREATE DATABASE cms OWNER cms;
+   ```
+
+   Vérifier que l'utilisateur `cms` n'a aucun droit sur la base core (`REVOKE CONNECT ON DATABASE <base-core> FROM PUBLIC` si besoin) et, côté Scaleway, qu'il est autorisé à se connecter (ACL de l'instance).
+
+2. **Secret `<workspace>-secret`** (Secret Manager) : ajouter les clés `CMS_APP_KEYS` (4 valeurs séparées par des virgules), `CMS_ADMIN_JWT_SECRET`, `CMS_API_TOKEN_SALT`, `CMS_TRANSFER_TOKEN_SALT`, `CMS_ENCRYPTION_KEY`, `CMS_JWT_SECRET` (valeurs aléatoires, ex. `openssl rand -base64 32`) et `CMS_DATABASE_URL`, la chaîne de connexion à la base `cms` : `postgres://cms:<mot-de-passe>@<hôte-privé-rdb>:<port>/cms` (même hôte privé que `DATABASE_URL_CORE`, mot de passe encodé en URL s'il contient des caractères spéciaux, sans `sslmode` : le TLS est géré par `DATABASE_SSL` dans `terraform/cms.tf`). Le plan échoue avec un message explicite si une clé manque.
 3. **Activer** : `enable_cms = true` dans `terraform/envs/<env>.tfvars` (avec `cms_hostname = ""` pour un premier déploiement sur le domaine Scaleway), puis merge : le pipeline construit l'image et applique Terraform.
 4. **DNS** : créer le CNAME du `cms_hostname` vers le domaine du conteneur (`<workspace>-cms`, visible dans la console), puis renseigner `cms_hostname` et redéployer pour attacher le domaine.
 5. **Premier administrateur** : le formulaire de `/admin` crée le super-admin au premier accès. Le faire **immédiatement** après le déploiement (tant qu'aucun admin n'existe, n'importe qui joignant l'URL peut le créer).
