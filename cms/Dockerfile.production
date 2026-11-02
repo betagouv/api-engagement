@@ -12,6 +12,8 @@ RUN npm run build && npm prune --omit=dev
 FROM node:22-alpine
 RUN apk add --no-cache vips-dev
 WORKDIR /opt/app
+# Strapi crée `database/migrations` au démarrage : le répertoire racine doit appartenir à l'utilisateur non-root.
+RUN chown node:node /opt/app
 ENV NODE_ENV=production
 COPY --from=builder --chown=node:node /opt/app ./
 USER node
