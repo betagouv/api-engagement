@@ -4,7 +4,7 @@ Ce fichier décrit uniquement les conventions spécifiques à `cms/`. Les règle
 
 ## Rôle
 
-CMS headless **Strapi 5 (Community)** + Postgres dédié, pour construire les landing pages de `plateform/` à partir de blocs. Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
+CMS headless **Strapi 5 (Community)** + Postgres (dédié en local, base `cms` de l'instance core sur Scaleway), pour construire les landing pages de `plateform/` à partir de blocs. Projet Node **autonome** : pas un workspace npm racine (Strapi épingle ses propres dépendances), avec son `package-lock.json`. Déployé sur Scaleway via `terraform/cms.tf` (désactivé par défaut, cf. `README.md`).
 
 ## Périmètre et fichiers à ne pas modifier
 

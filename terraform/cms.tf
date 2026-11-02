@@ -1,5 +1,5 @@
 # CMS (Strapi) : landings et pages éditoriales de plateform (cf. cms/README.md).
-# - Base PostgreSQL dédiée, créée hors Terraform comme la base core ; identifiants dans le secret `<workspace>-secret`.
+# - Base `cms` (+ utilisateur dédié) sur l'instance RDB core, créée hors Terraform ; chaîne de connexion dans le secret `<workspace>-secret` (`DATABASE_URL_CMS`).
 # - Médias sur un bucket Object Storage (le disque d'un container serverless est éphémère).
 # - Secrets Strapi et accès plateform → CMS dans le même secret (clés `CMS_*`, `PLATEFORM_CMS_API_TOKEN`).
 
@@ -17,11 +17,7 @@ locals {
     "CMS_TRANSFER_TOKEN_SALT",
     "CMS_ENCRYPTION_KEY",
     "CMS_JWT_SECRET",
-    "CMS_DATABASE_HOST",
-    "CMS_DATABASE_PORT",
-    "CMS_DATABASE_NAME",
-    "CMS_DATABASE_USERNAME",
-    "CMS_DATABASE_PASSWORD",
+    "DATABASE_URL_CMS",
   ]
 }
 
@@ -84,11 +80,7 @@ resource "scaleway_container" "cms" {
     "TRANSFER_TOKEN_SALT" = lookup(local.secrets, "CMS_TRANSFER_TOKEN_SALT", "")
     "ENCRYPTION_KEY"      = lookup(local.secrets, "CMS_ENCRYPTION_KEY", "")
     "JWT_SECRET"          = lookup(local.secrets, "CMS_JWT_SECRET", "")
-    "DATABASE_HOST"       = lookup(local.secrets, "CMS_DATABASE_HOST", "")
-    "DATABASE_PORT"       = lookup(local.secrets, "CMS_DATABASE_PORT", "")
-    "DATABASE_NAME"       = lookup(local.secrets, "CMS_DATABASE_NAME", "")
-    "DATABASE_USERNAME"   = lookup(local.secrets, "CMS_DATABASE_USERNAME", "")
-    "DATABASE_PASSWORD"   = lookup(local.secrets, "CMS_DATABASE_PASSWORD", "")
+    "DATABASE_URL"        = lookup(local.secrets, "DATABASE_URL_CMS", "")
     # Clés Object Storage déjà utilisées par l'API pour son bucket.
     "SCW_ACCESS_KEY" = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY" = local.secrets.SCW_SECRET_KEY
