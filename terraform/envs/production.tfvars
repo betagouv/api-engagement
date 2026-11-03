@@ -59,7 +59,7 @@ enable_mission_v2_list = false
 
 # CMS : le CNAME du hostname doit exister avant l'apply, cf. cms/README.md.
 enable_cms   = true
-cms_hostname = "cms.trouvetamission.gouv.fr"
+cms_hostname = "cms.trouvetamission.api-engagement.beta.gouv.fr"
 
 enable_plateform = true
 ttm_hostname     = "trouvetamission.gouv.fr"
