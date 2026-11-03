@@ -76,7 +76,8 @@ const Edit = () => {
       ...values,
       ...publisher,
       isDiffuseur: publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights || false,
-      isDemarcheSimplifiee: (publisher.demarcheSimplifiees || []).length > 0,
+      isDemarcheSimplifiee: (publisher.demarcheSimplifiees || []).length > 0 || publisher.hasDemarcheSimplifieeToken,
+      demarcheSimplifieeAuthMode: publisher.hasDemarcheSimplifieeToken ? "token" : "account",
       demarcheSimplifieeToken: null,
     });
   }, [publisher]);
@@ -233,7 +234,7 @@ const Edit = () => {
           </div>
         </div>
         <div className="h-px w-full bg-gray-900" />
-        <DemarcheSimplifiee values={values} onChange={setValues} hasSavedToken={publisher.hasDemarcheSimplifieeToken} />
+        <DemarcheSimplifiee values={values} onChange={setValues} errors={errors} />
         <div className="h-px w-full bg-gray-900" />
         <Administration values={values} onChange={setValues} />
         <div className="h-px w-full bg-gray-900" />

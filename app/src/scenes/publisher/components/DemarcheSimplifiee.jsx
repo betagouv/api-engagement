@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RiAddLine, RiCheckboxCircleFill, RiCloseCircleFill, RiDeleteBinLine, RiErrorWarningFill } from "react-icons/ri";
 
 import LabelledInput from "@/components/form/LabelledInput";
+import RadioInput from "@/components/form/RadioInput";
 import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -23,8 +24,10 @@ const CANDIDATE_FIELDS = [
   { type: "POSTAL_CODE", label: "Champ « Code postal »", attribute: "candidatePostalCode" },
 ];
 
-const DemarcheSimplifiee = ({ values, onChange, hasSavedToken }) => {
+const DemarcheSimplifiee = ({ values, onChange, errors }) => {
   const [loadingIndex, setLoadingIndex] = useState(null);
+  const [loadingToken, setLoadingToken] = useState(false);
+  const [isEditingToken, setIsEditingToken] = useState(false);
   const [accessByNumber, setAccessByNumber] = useState({});
   const [checkByIndex, setCheckByIndex] = useState({});
   const [redirectionIdByIndex, setRedirectionIdByIndex] = useState({});
@@ -71,14 +74,16 @@ const DemarcheSimplifiee = ({ values, onChange, hasSavedToken }) => {
       toast.error("Veuillez renseigner l'URL de la démarche");
       return;
     }
-    // La recherche utilise le token enregistré côté API : il faut sauvegarder le partenaire avant.
-    if (values.demarcheSimplifieeToken || Boolean(values.hasDemarcheSimplifieeToken) !== Boolean(hasSavedToken)) {
-      toast.error("Enregistrez le partenaire pour prendre en compte le token avant de chercher la démarche");
+    const isTokenMode = values.demarcheSimplifieeAuthMode === "token";
+    // En mode token, la recherche utilise le token enregistré côté API : il doit avoir été validé.
+    if (isTokenMode && (values.demarcheSimplifieeToken || !values.hasDemarcheSimplifieeToken)) {
+      toast.error("Validez le token avant de chercher la démarche");
       return;
     }
     try {
       setLoadingIndex(index);
-      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}&publisherId=${values.id}`);
+      const publisherParam = isTokenMode ? `&publisherId=${values.id}` : "";
+      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}${publisherParam}`);
       if (!res.ok) {
         toast.error("Démarche introuvable pour cette URL");
         return;
@@ -130,6 +135,31 @@ const DemarcheSimplifiee = ({ values, onChange, hasSavedToken }) => {
     }
   };
 
+  const handleValidateToken = async () => {
+    try {
+      setLoadingToken(true);
+      const res = await api.post("/demarches-simplifiees/token", { publisherId: values.id, token: values.demarcheSimplifieeToken });
+      if (!res.ok) {
+        toast.error(res.message || "Token invalide");
+        return;
+      }
+      onChange({ ...values, hasDemarcheSimplifieeToken: true, demarcheSimplifieeToken: null });
+      setIsEditingToken(false);
+      toast.success("Token validé et enregistré");
+    } catch (error) {
+      captureError(error, { message: "Erreur lors de la validation du token", extra: { publisherId: values.id } });
+    } finally {
+      setLoadingToken(false);
+    }
+  };
+
+  const handleCancelTokenChange = () => {
+    onChange({ ...values, demarcheSimplifieeToken: null });
+    setIsEditingToken(false);
+  };
+
+  const showTokenInput = !values.hasDemarcheSimplifieeToken || isEditingToken;
+
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -148,29 +178,77 @@ const DemarcheSimplifiee = ({ values, onChange, hasSavedToken }) => {
       </div>
       {isDemarcheSimplifiee && (
         <div className="flex flex-col gap-6">
-          <div className="flex items-end gap-4">
-            <LabelledInput
-              id="demarche-simplifiees-token"
-              label="Token API du partenaire (optionnel)"
-              hint="Token fourni par le partenaire, stocké chiffré et jamais réaffiché. Sans token, on utilise le compte API Engagement, qui doit alors être ajouté comme instructeur de la démarche."
-              type="password"
-              autoComplete="off"
-              placeholder={values.hasDemarcheSimplifieeToken ? "Token enregistré — saisir un nouveau token pour le remplacer" : ""}
-              value={values.demarcheSimplifieeToken ?? ""}
-              onChange={(e) => onChange({ ...values, demarcheSimplifieeToken: e.target.value || null })}
-              className="w-full"
+          <fieldset className="flex flex-col gap-4">
+            <legend className="mb-4 text-base font-bold">Mode de connexion à Démarche Numérique</legend>
+            <RadioInput
+              id="demarche-simplifiees-auth-account"
+              name="demarche-simplifiees-auth-mode"
+              value="account"
+              label="Compte API Engagement : nous avons été ajoutés à l'organisation du partenaire"
+              checked={values.demarcheSimplifieeAuthMode !== "token"}
+              onChange={() => onChange({ ...values, demarcheSimplifieeAuthMode: "account", demarcheSimplifieeToken: null })}
             />
-            {values.hasDemarcheSimplifieeToken && (
-              <button
-                type="button"
-                className="text-error flex shrink-0 items-center gap-1"
-                onClick={() => onChange({ ...values, hasDemarcheSimplifieeToken: false, demarcheSimplifieeToken: null })}
+            <RadioInput
+              id="demarche-simplifiees-auth-token"
+              name="demarche-simplifiees-auth-mode"
+              value="token"
+              label="Token API fourni par le partenaire"
+              checked={values.demarcheSimplifieeAuthMode === "token"}
+              onChange={() => onChange({ ...values, demarcheSimplifieeAuthMode: "token" })}
+            />
+          </fieldset>
+          {values.demarcheSimplifieeAuthMode === "token" && (
+            <div className="flex flex-col gap-2">
+              {showTokenInput ? (
+                <div className="flex items-end gap-4">
+                  <LabelledInput
+                    id="demarche-simplifiees-token"
+                    label="Token API du partenaire"
+                    hint="Vérifié auprès de Démarche Numérique puis enregistré chiffré ; il n'est jamais réaffiché."
+                    type="password"
+                    autoComplete="off"
+                    value={values.demarcheSimplifieeToken ?? ""}
+                    onChange={(e) => onChange({ ...values, demarcheSimplifieeToken: e.target.value || null })}
+                    error={errors.demarcheSimplifieeToken}
+                    required
+                    className="w-full"
+                  />
+                  <button type="button" className="primary-btn shrink-0" disabled={loadingToken || !values.demarcheSimplifieeToken} onClick={handleValidateToken}>
+                    {loadingToken ? "Validation..." : "Valider le token"}
+                  </button>
+                  {values.hasDemarcheSimplifieeToken && (
+                    <button type="button" className="tertiary-btn shrink-0" onClick={handleCancelTokenChange}>
+                      Annuler
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-end gap-4">
+                  {/* Le token n'est jamais renvoyé par l'API : on affiche un masque fixe. */}
+                  <LabelledInput
+                    id="demarche-simplifiees-token"
+                    label="Token API du partenaire"
+                    hint="Token vérifié et enregistré chiffré."
+                    type="password"
+                    value="••••••••••••••••••••••••"
+                    readOnly
+                    className="w-full"
+                  />
+                  <button type="button" className="secondary-btn shrink-0" onClick={() => setIsEditingToken(true)}>
+                    Changer le token
+                  </button>
+                </div>
+              )}
+              <a
+                href="https://doc.demarches-simplifiees.fr/api-graphql/jeton-dauthentification"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-france w-fit text-sm underline"
               >
-                <RiDeleteBinLine aria-hidden="true" />
-                <span>Supprimer le token</span>
-              </button>
-            )}
-          </div>
+                Comment le partenaire crée son token (documentation Démarche Numérique, nouvel onglet)
+              </a>
+            </div>
+          )}
           {demarches.map((demarche, index) => (
             <div key={index} className="border-grey-border flex flex-col gap-4 border p-4 sm:p-6">
               <div className="flex items-end gap-4">
