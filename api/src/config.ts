@@ -21,6 +21,8 @@ export const SECRET = process.env.SECRET || DEFAULT_SECRET;
 const deriveJwtSecret = (domain: string) => crypto.createHmac("sha256", SECRET).update(`api-engagement:${domain}`).digest("hex");
 export const MFA_TOKEN_SECRET = deriveJwtSecret("mfa-challenge");
 export const MFA_DEVICE_SECRET = deriveJwtSecret("mfa-device");
+// Clé AES-256 (32 octets) pour chiffrer en base les secrets qu'on doit pouvoir relire (cf. utils/encryption).
+export const ENCRYPTION_KEY = crypto.createHmac("sha256", SECRET).update("api-engagement:encryption").digest();
 export const IMAGE_VERSION = process.env.IMAGE_VERSION || "unknown";
 
 export const MFA_ENABLED = process.env.MFA_ENABLED !== "false";
