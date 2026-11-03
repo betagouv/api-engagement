@@ -2,7 +2,8 @@ import { Response, Router } from "express";
 import passport from "passport";
 import zod from "zod";
 
-import { INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
+import { DemarcheSimplifieeFieldType } from "@/db/core";
+import { INVALID_BODY, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
 import statEventService from "@/services/stat-event";
@@ -51,24 +52,23 @@ router.get("/access", passport.authenticate("admin", { session: false }), async 
 
 // Teste la config d'une démarche sur un dossier réel, comme le ferait le job d'import des candidatures (lecture seule) :
 // identifiant de la redirection, existence du clic en base et attributs candidat extraits avec les champs donnés.
-router.get("/check-dossier", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response) => {
+// En POST pour recevoir les champs qualifiés en objet (config affichée, même non enregistrée) ; rien n'est écrit.
+router.post("/check-dossier", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response) => {
   try {
-    const query = zod
+    const body = zod
       .object({
         dossierNumber: zod.coerce.number().int().positive(),
         demarcheNumber: zod.coerce.number().int().positive(),
         url: zod.string().nullable().default(null),
-        birthDateField: zod.string().nullable().default(null),
-        countryField: zod.string().nullable().default(null),
-        postalCodeField: zod.string().nullable().default(null),
+        fields: zod.partialRecord(zod.enum(DemarcheSimplifieeFieldType), zod.string().nullish()).default({}),
       })
-      .safeParse(req.query);
-    if (!query.success) {
-      return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
+      .safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const { dossierNumber, demarcheNumber, ...demarche } = query.data;
-    const result = await demarchesSimplifiees.checkDossier(dossierNumber, { number: demarcheNumber, ...demarche });
+    const { dossierNumber, demarcheNumber, url, fields } = body.data;
+    const result = await demarchesSimplifiees.checkDossier(dossierNumber, { number: demarcheNumber, url, fields });
     if (!result.ok) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: result.message });
     }

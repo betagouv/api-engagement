@@ -1,18 +1,26 @@
-import { PublisherDemarcheSimplifiee } from "@/db/core";
-import { publisherDemarcheSimplifieesRepository } from "@/repositories/publisher-demarche-simplifiees";
-import { PublisherDemarcheSimplifieeInput, PublisherDemarcheSimplifieeRecord } from "@/types/publisher";
+import { DemarcheSimplifieeFieldType } from "@/db/core";
+import { PublisherDemarcheSimplifieeWithFields, publisherDemarcheSimplifieesRepository } from "@/repositories/publisher-demarche-simplifiees";
+import { CandidateFields, PublisherDemarcheSimplifieeInput, PublisherDemarcheSimplifieeRecord } from "@/types/publisher";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
 
-export const toDemarcheSimplifieeRecord = (demarche: PublisherDemarcheSimplifiee): PublisherDemarcheSimplifieeRecord => ({
+// Lignes de champs qualifiés → { BIRTH_DATE: "Date de naissance", POSTAL_CODE: "Code postal" } (types configurés uniquement).
+const toCandidateFields = (fields: { type: DemarcheSimplifieeFieldType; label: string }[]): CandidateFields => Object.fromEntries(fields.map((field) => [field.type, field.label]));
+
+export const toDemarcheSimplifieeRecord = (demarche: PublisherDemarcheSimplifieeWithFields): PublisherDemarcheSimplifieeRecord => ({
   id: demarche.id,
   number: demarche.number,
   name: demarche.name ?? null,
   url: demarche.url ?? null,
   annotationKey: demarche.annotationKey ?? null,
-  birthDateField: demarche.birthDateField ?? null,
-  countryField: demarche.countryField ?? null,
-  postalCodeField: demarche.postalCodeField ?? null,
+  fields: toCandidateFields(demarche.fields),
 });
+
+// { BIRTH_DATE: "Date de naissance", COUNTRY: null, ... } → lignes de champs qualifiés à créer (types renseignés uniquement).
+const normalizeFields = (fields?: CandidateFields | null) =>
+  Object.values(DemarcheSimplifieeFieldType).flatMap((type) => {
+    const label = normalizeOptionalString(fields?.[type]);
+    return label ? [{ type, label }] : [];
+  });
 
 // Garde les démarches ayant un numéro valide et dédoublonne par numéro (contrainte unique (publisherId, number)).
 export const normalizeDemarches = (demarches?: PublisherDemarcheSimplifieeInput[] | null) =>
@@ -27,9 +35,7 @@ export const normalizeDemarches = (demarches?: PublisherDemarcheSimplifieeInput[
         name: normalizeOptionalString(demarche.name) ?? null,
         url: normalizeOptionalString(demarche.url) ?? null,
         annotationKey: normalizeOptionalString(demarche.annotationKey) ?? null,
-        birthDateField: normalizeOptionalString(demarche.birthDateField) ?? null,
-        countryField: normalizeOptionalString(demarche.countryField) ?? null,
-        postalCodeField: normalizeOptionalString(demarche.postalCodeField) ?? null,
+        fields: { create: normalizeFields(demarche.fields) },
       };
     },
     {

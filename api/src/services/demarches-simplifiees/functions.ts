@@ -1,6 +1,5 @@
 import { captureException } from "@/error";
 import {
-  CandidateFields,
   ChampDescriptor,
   DEMARCHES_SIMPLIFIEES_BASE_URL,
   detectCandidateFields,
@@ -12,6 +11,8 @@ import {
   REDIRECTION_ANNOTATION_LABEL,
   resolveCandidateFields,
 } from "@/services/demarches-simplifiees/utils";
+
+import { CandidateFields } from "@/types/publisher";
 
 import { DemarchesSimplifieesResponse, query } from "./client";
 
@@ -266,7 +267,7 @@ export const getDemarcheAccess = async (demarcheNumber: number): Promise<{ demar
 // pour considérer la résolution réussie.
 export const resolveDemarcheByUrl = async (
   url: string
-): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null } & CandidateFields>> => {
+): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null; fields: CandidateFields }>> => {
   const slug = extractDemarcheSlug(url);
   if (!slug) {
     return { ok: false, message: "URL must point to a /commencer/<slug> démarche" };
@@ -286,7 +287,7 @@ export const resolveDemarcheByUrl = async (
       number,
       name: demarche.ok ? demarche.data.demarche.title : null,
       annotationKey: annotation.ok ? annotation.data : null,
-      ...detectCandidateFields(champDescriptors.ok ? champDescriptors.data : []),
+      fields: detectCandidateFields(champDescriptors.ok ? champDescriptors.data : []),
     },
   };
 };
@@ -295,7 +296,7 @@ export const resolveDemarcheByUrl = async (
 // la redirection (id du clic) et des attributs candidat avec les champs donnés. Sert à tester une config depuis le back-office.
 export const checkDossier = async (
   dossierNumber: number,
-  demarche: { number: number; url: string | null } & CandidateFields
+  demarche: { number: number; url: string | null; fields: CandidateFields }
 ): Promise<
   DemarchesSimplifieesResponse<{
     state: string;
@@ -316,7 +317,7 @@ export const checkDossier = async (
   }
 
   const descriptorsResult = await getChampDescriptors(demarche.number, extractDemarcheSlug(demarche.url));
-  const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche, descriptorsResult.data) : { fields: demarche, missingFields: [] };
+  const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche.fields, descriptorsResult.data) : { fields: demarche.fields, missingFields: [] };
   const annotation = dossier.annotations.find((item) => isRedirectionAnnotation(item.label));
 
   return {

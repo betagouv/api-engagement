@@ -53,9 +53,9 @@ describe("detectCandidateFields", () => {
       { __typename: "CommuneChampDescriptor", label: "Commune de résidence" },
     ];
     expect(detectCandidateFields(descriptors)).toEqual({
-      birthDateField: "Votre date",
-      countryField: "Nationalité",
-      postalCodeField: "Commune de résidence",
+      BIRTH_DATE: "Votre date",
+      COUNTRY: "Nationalité",
+      POSTAL_CODE: "Commune de résidence",
     });
   });
 
@@ -68,9 +68,9 @@ describe("detectCandidateFields", () => {
       { __typename: "TextChampDescriptor", label: "Code postal" },
     ];
     expect(detectCandidateFields(descriptors)).toEqual({
-      birthDateField: "Date de naissance",
-      countryField: "Pays de résidence",
-      postalCodeField: "Code postal",
+      BIRTH_DATE: "Date de naissance",
+      COUNTRY: "Pays de résidence",
+      POSTAL_CODE: "Code postal",
     });
   });
 
@@ -83,9 +83,9 @@ describe("detectCandidateFields", () => {
       { __typename: "CommuneChampDescriptor", label: "Ville de résidence" },
     ];
     expect(detectCandidateFields(descriptors)).toEqual({
-      birthDateField: "Date de naissance",
-      countryField: "Pays de naissance",
-      postalCodeField: "Ville de résidence",
+      BIRTH_DATE: "Date de naissance",
+      COUNTRY: "Pays de naissance",
+      POSTAL_CODE: "Ville de résidence",
     });
   });
 
@@ -94,14 +94,14 @@ describe("detectCandidateFields", () => {
       { __typename: "DropDownListChampDescriptor", label: "Votre engagement" },
       { __typename: "IntegerNumberChampDescriptor", label: "Âge" },
     ];
-    expect(detectCandidateFields(descriptors).birthDateField).toBe("Âge");
+    expect(detectCandidateFields(descriptors).BIRTH_DATE).toBe("Âge");
   });
 
   it("returns null when nothing matches", () => {
     expect(detectCandidateFields([{ __typename: "TextChampDescriptor", label: "Motivation" }])).toEqual({
-      birthDateField: null,
-      countryField: null,
-      postalCodeField: null,
+      BIRTH_DATE: null,
+      COUNTRY: null,
+      POSTAL_CODE: null,
     });
   });
 });
@@ -114,14 +114,14 @@ describe("resolveCandidateFields", () => {
   ];
 
   it("keeps configured fields found on the démarche and detects the others", () => {
-    const { fields, missingFields } = resolveCandidateFields({ birthDateField: "date de naissance", countryField: null, postalCodeField: "Code postal de résidence" }, descriptors);
-    expect(fields).toEqual({ birthDateField: "date de naissance", countryField: "Pays", postalCodeField: "Code postal de résidence" });
+    const { fields, missingFields } = resolveCandidateFields({ BIRTH_DATE: "date de naissance", COUNTRY: null, POSTAL_CODE: "Code postal de résidence" }, descriptors);
+    expect(fields).toEqual({ BIRTH_DATE: "date de naissance", COUNTRY: "Pays", POSTAL_CODE: "Code postal de résidence" });
     expect(missingFields).toEqual([]);
   });
 
   it("reports configured fields missing from the démarche and falls back on detection", () => {
-    const { fields, missingFields } = resolveCandidateFields({ birthDateField: "Né(e) le", countryField: null, postalCodeField: null }, descriptors);
-    expect(fields.birthDateField).toBe("Date de naissance");
+    const { fields, missingFields } = resolveCandidateFields({ BIRTH_DATE: "Né(e) le", COUNTRY: null, POSTAL_CODE: null }, descriptors);
+    expect(fields.BIRTH_DATE).toBe("Date de naissance");
     expect(missingFields).toEqual(["Né(e) le"]);
   });
 });
@@ -134,7 +134,7 @@ describe("computeAge", () => {
 });
 
 describe("extractCandidateAttributes", () => {
-  const fields = { birthDateField: "Date de naissance", countryField: "Pays", postalCodeField: "Adresse" };
+  const fields = { BIRTH_DATE: "Date de naissance", COUNTRY: "Pays", POSTAL_CODE: "Adresse" };
   const referenceDate = new Date("2026-10-27");
 
   it("builds candidate attributes from typed champs and the demandeur civilité", () => {
@@ -165,7 +165,7 @@ describe("extractCandidateAttributes", () => {
 
   it("reads the declared age from an age champ", () => {
     const champs: DossierChamp[] = [{ __typename: "IntegerNumberChamp", label: "Âge", stringValue: "23" }];
-    expect(extractCandidateAttributes({ champs, demandeur: null }, { ...fields, birthDateField: "Âge" }, referenceDate)).toEqual({ candidateAge: "23" });
+    expect(extractCandidateAttributes({ champs, demandeur: null }, { ...fields, BIRTH_DATE: "Âge" }, referenceDate)).toEqual({ candidateAge: "23" });
   });
 
   it("falls back on the demandeur birth date when no champ is found", () => {

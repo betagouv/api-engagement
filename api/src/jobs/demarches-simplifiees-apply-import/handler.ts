@@ -44,7 +44,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
       // Si un libellé configuré n'existe plus sur la démarche (renommé côté DN), on alerte pour corriger la config.
       const demarche = demarches.find((item) => item.number === demarcheNumber)!;
       const descriptorsResult = await demarchesSimplifiees.getChampDescriptors(demarcheNumber, extractDemarcheSlug(demarche.url));
-      const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche, descriptorsResult.data) : { fields: demarche, missingFields: [] };
+      const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche.fields, descriptorsResult.data) : { fields: demarche.fields, missingFields: [] };
       if (missingFields.length) {
         captureException("[Démarches Simplifiées] Configured fields not found on démarche", { extra: { demarcheNumber, missingFields } });
       }

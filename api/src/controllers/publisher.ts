@@ -4,6 +4,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "@/config";
+import { DemarcheSimplifieeFieldType } from "@/db/core";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
 import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
@@ -26,9 +27,7 @@ const demarcheSimplifieeSchema = zod.object({
   name: nullableString,
   url: nullableString,
   annotationKey: nullableString,
-  birthDateField: nullableString,
-  countryField: nullableString,
-  postalCodeField: nullableString,
+  fields: zod.partialRecord(zod.enum(DemarcheSimplifieeFieldType), nullableString).nullish(),
 });
 const publisherDiffusionSchema = zod.object({
   publisherId: zod.string().min(1),

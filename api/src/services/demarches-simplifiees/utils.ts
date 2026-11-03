@@ -1,4 +1,6 @@
+import { DemarcheSimplifieeFieldType } from "@/db/core";
 import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
+import { CandidateFields } from "@/types/publisher";
 import { slugify } from "@/utils";
 
 // Instance qui héberge la démarche (par défaut demarche.numerique.gouv.fr, l'instance DINUM).
@@ -97,16 +99,6 @@ export interface DossierDemandeur {
   dateDeNaissance?: string | null;
 }
 
-// Libellés des champs du formulaire DN à lire pour construire les customAttributes candidate* d'une candidature.
-// La civilité n'en fait pas partie : elle est lue sur le demandeur du dossier.
-export interface CandidateFields {
-  birthDateField: string | null;
-  countryField: string | null;
-  postalCodeField: string | null;
-}
-
-const CANDIDATE_FIELD_KEYS: (keyof CandidateFields)[] = ["birthDateField", "countryField", "postalCodeField"];
-
 const GENDERS: Record<string, string> = { M: "monsieur", Mme: "madame" };
 
 const hasLabel = (items: { label: string }[], label: string) => items.some((item) => slugify(item.label) === slugify(label));
@@ -118,18 +110,18 @@ const labelHasWord = (label: string, word: string) => slugify(label).split("-").
 
 // Devine les champs date de naissance, pays et code postal d'un formulaire DN, sans connaître leur libellé exact :
 // on privilégie le type du champ (champ date "naissance", pays, commune/adresse hors lieu de naissance), puis des mots-clés du libellé.
-// À défaut de date de naissance, `birthDateField` peut désigner un champ « Âge » : l'âge déclaré y est lu tel quel.
+// À défaut de date de naissance, `BIRTH_DATE` peut désigner un champ « Âge » : l'âge déclaré y est lu tel quel.
 export const detectCandidateFields = (descriptors: ChampDescriptor[]): CandidateFields => {
   const findLabel = (predicate: (descriptor: ChampDescriptor) => boolean) => descriptors.find(predicate)?.label ?? null;
 
   return {
-    birthDateField:
+    BIRTH_DATE:
       findLabel((descriptor) => descriptor.__typename === "DateChampDescriptor" && Boolean(descriptor.birthdate)) ??
       findLabel((descriptor) => descriptor.__typename === "DateChampDescriptor" && labelContains(descriptor.label, ["naissance"])) ??
       findLabel((descriptor) => labelContains(descriptor.label, ["date"]) && labelContains(descriptor.label, ["naissance"])) ??
       findLabel((descriptor) => labelHasWord(descriptor.label, "age")),
-    countryField: findLabel((descriptor) => descriptor.__typename === "PaysChampDescriptor") ?? findLabel((descriptor) => labelContains(descriptor.label, ["pays", "nationalite"])),
-    postalCodeField:
+    COUNTRY: findLabel((descriptor) => descriptor.__typename === "PaysChampDescriptor") ?? findLabel((descriptor) => labelContains(descriptor.label, ["pays", "nationalite"])),
+    POSTAL_CODE:
       findLabel((descriptor) => labelContains(descriptor.label, ["code-postal"])) ??
       findLabel(
         (descriptor) =>
@@ -145,13 +137,13 @@ export const resolveCandidateFields = (configured: CandidateFields, descriptors:
   const fields = { ...detected };
   const missingFields: string[] = [];
 
-  for (const key of CANDIDATE_FIELD_KEYS) {
-    const field = configured[key];
+  for (const type of Object.values(DemarcheSimplifieeFieldType)) {
+    const field = configured[type];
     if (!field) {
       continue;
     }
     if (hasLabel(descriptors, field)) {
-      fields[key] = field;
+      fields[type] = field;
     } else {
       missingFields.push(field);
     }
@@ -188,10 +180,10 @@ export const extractCandidateAttributes = (
   fields: CandidateFields,
   referenceDate: Date
 ): Record<string, string> => {
-  const findChamp = (field: string | null) => (field ? dossier.champs.find((champ) => slugify(champ.label) === slugify(field)) : undefined);
+  const findChamp = (field: string | null | undefined) => (field ? dossier.champs.find((champ) => slugify(champ.label) === slugify(field)) : undefined);
   const attributes: Record<string, string> = {};
 
-  const birthDateChamp = findChamp(fields.birthDateField);
+  const birthDateChamp = findChamp(fields.BIRTH_DATE);
   const declaredAge = birthDateChamp?.stringValue?.match(/^\s*(\d{1,3})\s*(ans)?\s*$/i)?.[1];
   const birthDateString = dossier.demandeur?.dateDeNaissance;
   const birthDate = parseBirthDate(birthDateChamp) ?? (birthDateString ? new Date(birthDateString) : null);
@@ -205,13 +197,13 @@ export const extractCandidateAttributes = (
     attributes.candidateGender = GENDERS[civilite];
   }
 
-  const countryChamp = findChamp(fields.countryField);
+  const countryChamp = findChamp(fields.COUNTRY);
   const country = countryChamp?.pays?.code ?? countryChamp?.address?.countryCode ?? countryChamp?.stringValue;
   if (country) {
     attributes.candidateCountry = country;
   }
 
-  const postalCodeChamp = findChamp(fields.postalCodeField);
+  const postalCodeChamp = findChamp(fields.POSTAL_CODE);
   const postalCode = postalCodeChamp?.commune?.postalCode ?? postalCodeChamp?.address?.postalCode ?? postalCodeChamp?.stringValue?.match(/\b\d{5}\b/)?.[0];
   if (postalCode) {
     attributes.candidatePostalCode = postalCode;
