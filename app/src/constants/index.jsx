@@ -71,6 +71,21 @@ export const WARNINGS = {
     name: "Problème de tracking",
     advice: "Pour monitorer les candidatures, le script doit être ajouté. Nous vous recommandons de le vérifier.",
   },
+  DELETION_WARNING: {
+    emoji: <span aria-hidden="true">❌</span>,
+    name: "Taux de suppression critique",
+    advice: "Un nombre important de missions a été supprimé. Nous vous conseillons de vérifier votre flux.",
+  },
+  REDIRECTION_WARNING: {
+    emoji: <span aria-hidden="true">🚨</span>,
+    name: "Nombre de redirections inhabituel",
+    advice: "Le nombre de redirections vers vos missions est inhabituel. Nous vous conseillons de vérifier votre tracking.",
+  },
+  CONVERSION_WARNING: {
+    emoji: <span aria-hidden="true">🚨</span>,
+    name: "Nombre de candidatures inhabituel",
+    advice: "Le nombre de candidatures est inhabituel. Nous vous conseillons de vérifier votre tracking.",
+  },
   OTHER_WARNING: {
     emoji: <span aria-hidden="true">🤔</span>,
     name: "Alerte",
