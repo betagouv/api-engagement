@@ -77,7 +77,7 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
     const isTokenMode = values.demarcheSimplifieeAuthMode === "token";
     // En mode token, la recherche utilise le token enregistré côté API : il doit avoir été validé.
     if (isTokenMode && (values.demarcheSimplifieeToken || !values.hasDemarcheSimplifieeToken)) {
-      toast.error("Validez le token avant de chercher la démarche");
+      toast.error("Validez le token avant d'ajouter la démarche");
       return;
     }
     try {
@@ -85,16 +85,16 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
       const publisherParam = isTokenMode ? `&publisherId=${values.id}` : "";
       const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}${publisherParam}`);
       if (!res.ok) {
-        toast.error("Démarche introuvable pour cette URL");
+        updateDemarche(index, { notFound: true });
         return;
       }
       updateDemarche(index, {
+        notFound: false,
         number: res.data.number,
         name: res.data.name ?? null,
         annotationKey: res.data.annotationKey ?? null,
         fields: res.data.fields,
       });
-      toast.success("Démarche trouvée");
     } catch (error) {
       captureError(error, { message: "Erreur lors de la recherche de la démarche", extra: { url: demarche.url } });
     } finally {
@@ -257,21 +257,62 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
                   label="URL de la démarche"
                   placeholder="https://demarche.numerique.gouv.fr/commencer/..."
                   value={demarche.url ?? ""}
-                  onChange={(e) => updateDemarche(index, { ...EMPTY_DEMARCHE, url: e.target.value || null })}
+                  onChange={(e) => updateDemarche(index, { ...EMPTY_DEMARCHE, notFound: false, url: e.target.value || null })}
                   className="w-full"
                 />
                 <button type="button" className="primary-btn" disabled={loadingIndex === index || !demarche.url} onClick={() => handleSearch(index)}>
-                  {loadingIndex === index ? "Recherche..." : "Chercher"}
+                  {loadingIndex === index ? "Ajout..." : "Ajouter"}
                 </button>
-                <button type="button" className="text-error ml-auto flex items-center gap-1" aria-label="Supprimer la démarche" onClick={() => removeDemarche(index)}>
+                <button type="button" className="text-error ml-auto flex min-h-10 items-center gap-1" aria-label="Supprimer la démarche" onClick={() => removeDemarche(index)}>
                   <RiDeleteBinLine aria-hidden="true" />
                   <span>Supprimer</span>
                 </button>
               </div>
+              {/* Statut de la démarche, déduit du résultat de « Ajouter » : le nom n'est récupéré que si on a accès à la démarche,
+                  et l'annotation ne peut être cherchée qu'avec cet accès. */}
+              <ul className="flex flex-col gap-2 text-sm" aria-live="polite">
+                {demarche.notFound && (
+                  <li className="flex items-center gap-2">
+                    <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                    Démarche introuvable : vérifiez l'URL (/commencer/...).
+                  </li>
+                )}
+                {demarche.number && (
+                  <li className="flex items-center gap-2">
+                    <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                    Démarche n°{demarche.number} trouvée.
+                  </li>
+                )}
+                {demarche.number && demarche.name && (
+                  <li className="flex items-center gap-2">
+                    <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                    Accès à la démarche « {demarche.name} ».
+                  </li>
+                )}
+                {demarche.number && !demarche.name && (
+                  <li className="flex items-center gap-2">
+                    <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                    Pas d'accès à la démarche : vérifiez le mode de connexion (token du partenaire ou compte API Engagement ajouté à son organisation), puis cliquez à nouveau sur «
+                    Ajouter ».
+                  </li>
+                )}
+                {demarche.number && demarche.name && demarche.annotationKey && (
+                  <li className="flex items-center gap-2">
+                    <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                    Champ « Identifiant de la redirection » trouvé.
+                  </li>
+                )}
+                {demarche.number && demarche.name && !demarche.annotationKey && (
+                  <li className="flex items-center gap-2">
+                    <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                    Champ « Identifiant de la redirection » introuvable : le partenaire doit ajouter cette annotation privée à la démarche, puis cliquez à nouveau sur « Ajouter ».
+                  </li>
+                )}
+              </ul>
               <LabelledInput
                 id={`demarche-simplifiees-number-${index}`}
                 label="Numéro de la démarche"
-                hint="Renseigné automatiquement via « Chercher »."
+                hint="Renseigné automatiquement via « Ajouter »."
                 value={demarche.number ?? ""}
                 readOnly
                 className="w-64"
@@ -299,7 +340,7 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
               <LabelledInput
                 id={`demarche-simplifiees-name-${index}`}
                 label="Nom de la démarche"
-                hint="Renseigné automatiquement via « Chercher »."
+                hint="Renseigné automatiquement via « Ajouter »."
                 value={demarche.name ?? ""}
                 readOnly
                 className="w-full"
@@ -307,7 +348,7 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
               <LabelledInput
                 id={`demarche-simplifiees-annotation-key-${index}`}
                 label="Champ « Identifiant de la redirection »"
-                hint="Clé de l'annotation préremplie avec l'identifiant du clic lors de la redirection. Renseignée automatiquement via « Chercher »."
+                hint="Clé de l'annotation préremplie avec l'identifiant du clic lors de la redirection. Renseignée automatiquement via « Ajouter »."
                 value={demarche.annotationKey ?? ""}
                 readOnly
                 className="w-full"
