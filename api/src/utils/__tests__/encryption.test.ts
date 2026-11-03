@@ -17,4 +17,10 @@ describe("encryption", () => {
     const [iv, authTag] = encrypt("mon-token").split(".");
     expect(() => decrypt([iv, authTag, Buffer.from("autre-token").toString("base64")].join("."))).toThrow();
   });
+
+  it("rejects a truncated auth tag", () => {
+    const [iv, authTag, encrypted] = encrypt("mon-token").split(".");
+    const truncatedAuthTag = Buffer.from(authTag, "base64").subarray(0, 4).toString("base64");
+    expect(() => decrypt([iv, truncatedAuthTag, encrypted].join("."))).toThrow();
+  });
 });
