@@ -21,7 +21,7 @@ export default function Hero({ onStartQuiz }: HeroProps) {
     // À partir de `lg`, texte et collage partagent la même cellule de grille : le collage se cale à droite
     // sous le texte et donne sa hauteur au bandeau beige.
     <section className="bg-brown-cafe-creme-975 lg:grid">
-      <div className="fr-container relative z-10 py-8! lg:col-start-1 lg:row-start-1 lg:self-center lg:py-0!">
+      <div className="fr-container relative z-10 pt-14! pb-8! lg:col-start-1 lg:row-start-1 lg:self-center lg:pt-16! lg:pb-0!">
         <div className="w-full lg:max-w-[48%]">
           <p className="fr-h1 text-4xl! md:text-5xl! lg:text-6xl! xl:text-7xl! text-title-grey">Et si une mission pouvait t'aider à avancer ?</p>
           <p className="fr-text--lead text-default-grey fr-mb-3w">
