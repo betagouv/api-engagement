@@ -28,7 +28,11 @@ export default function Header() {
               </div>
               <div className="fr-header__service">
                 <Link to="/" title={`Accueil — ${SERVICE_TITLE}`}>
-                  <p className="fr-header__service-title">{SERVICE_TITLE}</p>
+                  {/* Badge bêta prévu par le DSFR à côté du nom du service : signale la bêta sur toutes les pages.
+                      Écrit « Bêta » : le DSFR l'affiche en majuscules (« BÊTA ») et les lecteurs d'écran lisent le mot. */}
+                  <p className="fr-header__service-title">
+                    {SERVICE_TITLE} <span className="fr-badge fr-badge--sm fr-badge--info fr-badge--no-icon">Bêta</span>
+                  </p>
                 </Link>
                 <p className="fr-header__service-tagline">{SERVICE_TAGLINE}</p>
               </div>
