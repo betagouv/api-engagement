@@ -37,15 +37,19 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
     .map((demarche) => demarche.number)
     .filter(Boolean)
     .join(",");
+  // En mode token, les appels à DN se font avec le token validé du partenaire (retrouvé côté API via son id).
+  const tokenPublisherId = values.demarcheSimplifieeAuthMode === "token" && values.hasDemarcheSimplifieeToken ? values.id : null;
 
-  // Accès de notre jeton DN à chaque démarche et à ses dossiers : sans accès, le job ne peut pas importer les candidatures.
+  // Accès du jeton DN (celui du partenaire en mode token, sinon le nôtre) à chaque démarche et à ses dossiers :
+  // sans accès, le job ne peut pas importer les candidatures.
   useEffect(() => {
     if (!demarcheNumbers) {
       return;
     }
     demarcheNumbers.split(",").forEach(async (number) => {
       try {
-        const res = await api.get(`/demarches-simplifiees/access?number=${number}`);
+        const publisherParam = tokenPublisherId ? `&publisherId=${tokenPublisherId}` : "";
+        const res = await api.get(`/demarches-simplifiees/access?number=${number}${publisherParam}`);
         if (res.ok) {
           setAccessByNumber((prev) => ({ ...prev, [number]: res.data }));
         }
@@ -53,7 +57,7 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
         captureError(error, { message: "Erreur lors de la vérification de l'accès à la démarche", extra: { number } });
       }
     });
-  }, [demarcheNumbers]);
+  }, [demarcheNumbers, tokenPublisherId]);
 
   const updateDemarche = (index, patch) => {
     const next = demarches.map((demarche, i) => (i === index ? { ...demarche, ...patch } : demarche));
@@ -124,6 +128,7 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
         demarcheNumber: demarche.number,
         url: demarche.url ?? null,
         fields: demarche.fields ?? {},
+        publisherId: tokenPublisherId ?? undefined,
       });
       if (!res.ok) {
         toast.error("Dossier introuvable sur cette démarche (ou jeton sans accès aux dossiers)");
@@ -143,7 +148,21 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
         toast.error(res.message || "Token invalide");
         return;
       }
-      onChange({ ...values, hasDemarcheSimplifieeToken: true, demarcheSimplifieeToken: null });
+      // Avec le nouveau token, on relit le nom et l'annotation « Identifiant de la redirection » des démarches déjà ajoutées
+      // (l'accès est revérifié automatiquement). Les libellés des champs candidat, éventuellement ajustés à la main, sont conservés.
+      const refreshedDemarches = await Promise.all(
+        demarches.map(async (demarche) => {
+          if (!demarche.url) {
+            return demarche;
+          }
+          const resolved = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}&publisherId=${values.id}`);
+          if (!resolved.ok) {
+            return demarche;
+          }
+          return { ...demarche, name: resolved.data.name ?? null, annotationKey: resolved.data.annotationKey ?? null };
+        }),
+      );
+      onChange({ ...values, hasDemarcheSimplifieeToken: true, demarcheSimplifieeToken: null, demarcheSimplifiees: refreshedDemarches });
       setIsEditingToken(false);
       toast.success("Token validé et enregistré");
     } catch (error) {
@@ -268,8 +287,8 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
                   <span>Supprimer</span>
                 </button>
               </div>
-              {/* Statut de la démarche, déduit du résultat de « Ajouter » : le nom n'est récupéré que si on a accès à la démarche,
-                  et l'annotation ne peut être cherchée qu'avec cet accès. */}
+              {/* Statut de la démarche : résultat de « Ajouter » et accès du jeton DN (vérifié à part). Le nom n'est récupéré
+                  qu'avec l'accès à la démarche, sans lequel l'annotation ne peut pas être cherchée. */}
               <ul className="flex flex-col gap-2 text-sm" aria-live="polite">
                 {demarche.notFound && (
                   <li className="flex items-center gap-2">
@@ -283,19 +302,23 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
                     Démarche n°{demarche.number} trouvée.
                   </li>
                 )}
-                {demarche.number && demarche.name && (
-                  <li className="flex items-center gap-2">
-                    <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
-                    Accès à la démarche « {demarche.name} ».
-                  </li>
-                )}
-                {demarche.number && !demarche.name && (
-                  <li className="flex items-center gap-2">
-                    <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
-                    Pas d'accès à la démarche : vérifiez le mode de connexion (token du partenaire ou compte API Engagement ajouté à son organisation), puis cliquez à nouveau sur «
-                    Ajouter ».
-                  </li>
-                )}
+                {demarche.number &&
+                  accessByNumber[demarche.number] &&
+                  [
+                    { label: "à la démarche", hasAccess: accessByNumber[demarche.number].demarche },
+                    { label: "aux dossiers (candidatures)", hasAccess: accessByNumber[demarche.number].dossiers },
+                  ].map((item) => (
+                    <li key={item.label} className="flex items-center gap-2">
+                      {item.hasAccess ? (
+                        <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                      )}
+                      {item.hasAccess
+                        ? `Accès ${item.label}.`
+                        : `Pas d'accès ${item.label} : les candidatures ne peuvent pas être importées. Vérifiez le mode de connexion (token du partenaire, ou compte API Engagement ajouté comme instructeur de la démarche).`}
+                    </li>
+                  ))}
                 {demarche.number && demarche.name && demarche.annotationKey && (
                   <li className="flex items-center gap-2">
                     <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
@@ -317,26 +340,6 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
                 readOnly
                 className="w-64"
               />
-              {accessByNumber[demarche.number] && (
-                <div className="flex flex-col gap-1">
-                  <div className="flex flex-wrap gap-6 text-sm">
-                    {[
-                      { label: "Accès à la démarche", hasAccess: accessByNumber[demarche.number].demarche },
-                      { label: "Accès aux dossiers (candidatures)", hasAccess: accessByNumber[demarche.number].dossiers },
-                    ].map((item) => (
-                      <span key={item.label} className="flex items-center gap-1">
-                        {item.hasAccess ? <RiCheckboxCircleFill className="text-success" aria-hidden="true" /> : <RiCloseCircleFill className="text-error" aria-hidden="true" />}
-                        {item.label} : {item.hasAccess ? "oui" : "non"}
-                      </span>
-                    ))}
-                  </div>
-                  {!accessByNumber[demarche.number].dossiers && (
-                    <p className="text-text-mention text-sm">
-                      Sans accès, les candidatures ne peuvent pas être importées : le compte du jeton API doit être ajouté comme instructeur de la démarche.
-                    </p>
-                  )}
-                </div>
-              )}
               <LabelledInput
                 id={`demarche-simplifiees-name-${index}`}
                 label="Nom de la démarche"
