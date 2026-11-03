@@ -19,9 +19,11 @@ interface DemarchesSimplifieesError {
 export type DemarchesSimplifieesResponse<T> = DemarchesSimplifieesSuccess<T> | DemarchesSimplifieesError;
 
 // Fonction de base : envoie n'importe quelle requête GraphQL et renvoie la donnée typée.
-export const query = async <T = unknown>(graphqlQuery: string, variables: Record<string, unknown> = {}): Promise<DemarchesSimplifieesResponse<T>> => {
+// `token` : token API fourni par le partenaire ; à défaut, on utilise le token global (compte API Engagement).
+export const query = async <T = unknown>(graphqlQuery: string, variables: Record<string, unknown> = {}, token?: string | null): Promise<DemarchesSimplifieesResponse<T>> => {
   try {
-    if (!DEMARCHES_SIMPLIFIEES_TOKEN) {
+    const apiToken = token || DEMARCHES_SIMPLIFIEES_TOKEN;
+    if (!apiToken) {
       return { ok: false, message: "DEMARCHES_SIMPLIFIEES_TOKEN is not set" };
     }
 
@@ -29,7 +31,7 @@ export const query = async <T = unknown>(graphqlQuery: string, variables: Record
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${DEMARCHES_SIMPLIFIEES_TOKEN}`,
+        Authorization: `Bearer ${apiToken}`,
       },
       body: JSON.stringify({ query: graphqlQuery, variables }),
     });

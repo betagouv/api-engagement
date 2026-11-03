@@ -77,6 +77,7 @@ const Edit = () => {
       ...publisher,
       isDiffuseur: publisher.hasApiRights || publisher.hasWidgetRights || publisher.hasCampaignRights || false,
       isDemarcheSimplifiee: (publisher.demarcheSimplifiees || []).length > 0,
+      demarcheSimplifieeToken: null,
     });
   }, [publisher]);
 
@@ -232,7 +233,7 @@ const Edit = () => {
           </div>
         </div>
         <div className="h-px w-full bg-gray-900" />
-        <DemarcheSimplifiee values={values} onChange={setValues} />
+        <DemarcheSimplifiee values={values} onChange={setValues} hasSavedToken={publisher.hasDemarcheSimplifieeToken} />
         <div className="h-px w-full bg-gray-900" />
         <Administration values={values} onChange={setValues} />
         <div className="h-px w-full bg-gray-900" />

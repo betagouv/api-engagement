@@ -46,6 +46,8 @@ export const buildPublisherPayload = (values) => ({
           fields: demarche.fields ?? {},
         }))
     : [],
+  // Le token enregistré n'est jamais renvoyé par l'API : undefined = on garde celui en base, null = on le supprime.
+  demarcheSimplifieeToken: values.isDemarcheSimplifiee ? values.demarcheSimplifieeToken || (values.hasDemarcheSimplifieeToken ? undefined : null) : null,
 });
 
 export const withLegacyPublisher = (publisher = {}) => {

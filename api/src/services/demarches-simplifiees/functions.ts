@@ -17,7 +17,7 @@ import { CandidateFields } from "@/types/publisher";
 import { DemarchesSimplifieesResponse, query } from "./client";
 
 // Exemple de helper : récupère les infos de base d'une démarche par son numéro.
-export const getDemarche = async (number: number) => {
+export const getDemarche = async (number: number, token?: string | null) => {
   const graphqlQuery = `
     query getDemarche($number: Int!) {
       demarche(number: $number) {
@@ -32,7 +32,7 @@ export const getDemarche = async (number: number) => {
       }
     }
   `;
-  return query<{ demarche: { id: string; number: number; title: string; state: string; dateCreation: string } }>(graphqlQuery, { number });
+  return query<{ demarche: { id: string; number: number; title: string; state: string; dateCreation: string } }>(graphqlQuery, { number }, token);
 };
 
 // Champs d'un dossier lus par le job d'import des candidatures (annotation de redirection, champs candidat, demandeur).
@@ -95,7 +95,7 @@ export const getDossier = async (number: number) => {
 // Récupère l'id de l'annotation "Identifiant de la redirection" d'une démarche, au format de clé de
 // préremplissage (`champ_<id sans ==>`). C'est cette clé qu'on passe en query param pour préremplir
 // l'annotation avec l'id du clic. Renvoie une erreur si l'annotation n'existe pas sur la démarche.
-export const getAnnotationId = async (demarcheNumber: number): Promise<DemarchesSimplifieesResponse<string>> => {
+export const getAnnotationId = async (demarcheNumber: number, token?: string | null): Promise<DemarchesSimplifieesResponse<string>> => {
   const graphqlQuery = `
     query getAnnotationDescriptors($number: Int!) {
       demarche(number: $number) {
@@ -109,7 +109,7 @@ export const getAnnotationId = async (demarcheNumber: number): Promise<Demarches
     }
   `;
 
-  const result = await query<{ demarche: { activeRevision: { annotationDescriptors: { id: string; label: string }[] } } }>(graphqlQuery, { number: demarcheNumber });
+  const result = await query<{ demarche: { activeRevision: { annotationDescriptors: { id: string; label: string }[] } } }>(graphqlQuery, { number: demarcheNumber }, token);
   if (!result.ok) {
     return result;
   }
@@ -196,7 +196,7 @@ interface DossiersPage {
 // En GraphQL, une liste paginée est une "connection" : on demande une page (max 100),
 // et `pageInfo.endCursor` sert de curseur pour réclamer la page suivante via `after`.
 // On boucle tant que `pageInfo.hasNextPage` est vrai.
-export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date): Promise<DemarchesSimplifieesResponse<DossierNode[]>> => {
+export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date, token?: string | null): Promise<DemarchesSimplifieesResponse<DossierNode[]>> => {
   const graphqlQuery = `
     query getDemarcheDossiers($number: Int!, $after: String, $createdSince: ISO8601DateTime) {
       demarche(number: $number) {
@@ -218,11 +218,15 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const result: DemarchesSimplifieesResponse<DossiersPage> = await query<DossiersPage>(graphqlQuery, {
-      number: demarcheNumber,
-      after,
-      createdSince: createdSince ? createdSince.toISOString() : null,
-    });
+    const result: DemarchesSimplifieesResponse<DossiersPage> = await query<DossiersPage>(
+      graphqlQuery,
+      {
+        number: demarcheNumber,
+        after,
+        createdSince: createdSince ? createdSince.toISOString() : null,
+      },
+      token
+    );
     if (!result.ok) {
       return result;
     }
@@ -266,7 +270,8 @@ export const getDemarcheAccess = async (demarcheNumber: number): Promise<{ demar
 // dans le formulaire. Tout sauf le numéro est best-effort (null si indisponible) ; seul le numéro est requis
 // pour considérer la résolution réussie.
 export const resolveDemarcheByUrl = async (
-  url: string
+  url: string,
+  token?: string | null
 ): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null; fields: CandidateFields }>> => {
   const slug = extractDemarcheSlug(url);
   if (!slug) {
@@ -279,7 +284,7 @@ export const resolveDemarcheByUrl = async (
   }
   const number = numberResult.data;
 
-  const [annotation, demarche, champDescriptors] = await Promise.all([getAnnotationId(number), getDemarche(number), getChampDescriptors(number, slug)]);
+  const [annotation, demarche, champDescriptors] = await Promise.all([getAnnotationId(number, token), getDemarche(number, token), getChampDescriptors(number, slug)]);
 
   return {
     ok: true,

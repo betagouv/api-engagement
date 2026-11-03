@@ -21,8 +21,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     console.log(`[Démarches Simplifiées] Starting at ${start.toISOString()}`);
 
     const createdSince = new Date(start.getTime() - FIFTEEN_DAYS_IN_MS);
-    const demarches = await publisherDemarcheSimplifieesService.findAll();
-    const demarcheNumbers = [...new Set(demarches.map((demarche) => demarche.number))];
+    const demarches = await publisherDemarcheSimplifieesService.findAllWithToken();
 
     let submitted = 0;
     let created = 0;
@@ -31,9 +30,9 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     let missingClick = 0;
     const failedDemarches: number[] = [];
 
-    for (const demarcheNumber of demarcheNumbers) {
-      // 1. Récupérer les dossiers de la démarche créés sur les 15 derniers jours.
-      const dossiersResult = await demarchesSimplifiees.getAllDossiers(demarcheNumber, createdSince);
+    for (const { number: demarcheNumber, token } of demarches) {
+      // 1. Récupérer les dossiers de la démarche créés sur les 15 derniers jours (avec le token du partenaire s'il en a fourni un).
+      const dossiersResult = await demarchesSimplifiees.getAllDossiers(demarcheNumber, createdSince, token);
       if (!dossiersResult.ok) {
         captureException("[Démarches Simplifiées] Failed to fetch dossiers", { extra: { demarcheNumber, message: dossiersResult.message } });
         failedDemarches.push(demarcheNumber);

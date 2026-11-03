@@ -23,7 +23,7 @@ const CANDIDATE_FIELDS = [
   { type: "POSTAL_CODE", label: "Champ « Code postal »", attribute: "candidatePostalCode" },
 ];
 
-const DemarcheSimplifiee = ({ values, onChange }) => {
+const DemarcheSimplifiee = ({ values, onChange, hasSavedToken }) => {
   const [loadingIndex, setLoadingIndex] = useState(null);
   const [accessByNumber, setAccessByNumber] = useState({});
   const [checkByIndex, setCheckByIndex] = useState({});
@@ -71,9 +71,14 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       toast.error("Veuillez renseigner l'URL de la démarche");
       return;
     }
+    // La recherche utilise le token enregistré côté API : il faut sauvegarder le partenaire avant.
+    if (values.demarcheSimplifieeToken || Boolean(values.hasDemarcheSimplifieeToken) !== Boolean(hasSavedToken)) {
+      toast.error("Enregistrez le partenaire pour prendre en compte le token avant de chercher la démarche");
+      return;
+    }
     try {
       setLoadingIndex(index);
-      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}`);
+      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}&publisherId=${values.id}`);
       if (!res.ok) {
         toast.error("Démarche introuvable pour cette URL");
         return;
@@ -143,6 +148,29 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       </div>
       {isDemarcheSimplifiee && (
         <div className="flex flex-col gap-6">
+          <div className="flex items-end gap-4">
+            <LabelledInput
+              id="demarche-simplifiees-token"
+              label="Token API du partenaire (optionnel)"
+              hint="Token fourni par le partenaire, stocké chiffré et jamais réaffiché. Sans token, on utilise le compte API Engagement, qui doit alors être ajouté comme instructeur de la démarche."
+              type="password"
+              autoComplete="off"
+              placeholder={values.hasDemarcheSimplifieeToken ? "Token enregistré — saisir un nouveau token pour le remplacer" : ""}
+              value={values.demarcheSimplifieeToken ?? ""}
+              onChange={(e) => onChange({ ...values, demarcheSimplifieeToken: e.target.value || null })}
+              className="w-full"
+            />
+            {values.hasDemarcheSimplifieeToken && (
+              <button
+                type="button"
+                className="text-error flex shrink-0 items-center gap-1"
+                onClick={() => onChange({ ...values, hasDemarcheSimplifieeToken: false, demarcheSimplifieeToken: null })}
+              >
+                <RiDeleteBinLine aria-hidden="true" />
+                <span>Supprimer le token</span>
+              </button>
+            )}
+          </div>
           {demarches.map((demarche, index) => (
             <div key={index} className="border-grey-border flex flex-col gap-4 border p-4 sm:p-6">
               <div className="flex items-end gap-4">

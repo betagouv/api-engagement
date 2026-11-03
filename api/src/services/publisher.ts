@@ -22,6 +22,7 @@ import {
 } from "@/types/publisher";
 import type { PublisherDiffusionRuleRecord } from "@/types/publisher-diffusion-rule";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
+import { encrypt } from "@/utils/encryption";
 
 export class PublisherNotFoundError extends Error {
   constructor(id: string) {
@@ -93,6 +94,8 @@ export const publisherService = (() => {
     feed: publisher.feed ?? null,
     feedUsername: publisher.feedUsername ?? null,
     feedPassword: publisher.feedPassword ?? null,
+    // Le token est chiffré en base et n'est jamais renvoyé : on indique seulement s'il est configuré.
+    hasDemarcheSimplifieeToken: Boolean(publisher.demarcheSimplifieeToken),
     apikey: publisher.apikey ?? null,
     description: publisher.description ?? "",
     missionType: (publisher.missionType as PublisherMissionType) ?? null,
@@ -272,6 +275,7 @@ export const publisherService = (() => {
       feed: normalizeOptionalString(input.feed),
       feedUsername: normalizeOptionalString(input.feedUsername),
       feedPassword: normalizeOptionalString(input.feedPassword),
+      demarcheSimplifieeToken: input.demarcheSimplifieeToken?.trim() ? encrypt(input.demarcheSimplifieeToken.trim()) : null,
       apikey: normalizeOptionalString(input.apikey),
       description: normalizeOptionalString(input.description) ?? "",
       missionType: (normalizeOptionalString(input.missionType) as PublisherMissionType) ?? null,
@@ -473,6 +477,9 @@ export const publisherService = (() => {
     }
     if (patch.feedPassword !== undefined) {
       data.feedPassword = normalizeOptionalString(patch.feedPassword);
+    }
+    if (patch.demarcheSimplifieeToken !== undefined) {
+      data.demarcheSimplifieeToken = patch.demarcheSimplifieeToken?.trim() ? encrypt(patch.demarcheSimplifieeToken.trim()) : null;
     }
     if (patch.apikey !== undefined) {
       data.apikey = normalizeOptionalString(patch.apikey);

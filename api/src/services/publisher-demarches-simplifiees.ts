@@ -1,7 +1,9 @@
 import { DemarcheSimplifieeFieldType } from "@/db/core";
+import { publisherRepository } from "@/repositories/publisher";
 import { PublisherDemarcheSimplifieeWithFields, publisherDemarcheSimplifieesRepository } from "@/repositories/publisher-demarche-simplifiees";
 import { CandidateFields, PublisherDemarcheSimplifieeInput, PublisherDemarcheSimplifieeRecord } from "@/types/publisher";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
+import { decrypt } from "@/utils/encryption";
 
 // Lignes de champs qualifiés → { BIRTH_DATE: "Date de naissance", POSTAL_CODE: "Code postal" } (types configurés uniquement).
 const toCandidateFields = (fields: { type: DemarcheSimplifieeFieldType; label: string }[]): CandidateFields => Object.fromEntries(fields.map((field) => [field.type, field.label]));
@@ -50,10 +52,26 @@ export const publisherDemarcheSimplifieesService = {
     return demarches.map(toDemarcheSimplifieeRecord);
   },
 
-  // Toutes les démarches Démarches Simplifiées configurées (utilisé par le job d'import des candidatures).
-  findAll: async (): Promise<PublisherDemarcheSimplifieeRecord[]> => {
+  // Token API Démarches Simplifiées déchiffré d'un publisher, ou null s'il n'en a pas fourni (→ token global).
+  findTokenByPublisherId: async (publisherId: string): Promise<string | null> => {
+    const publisher = await publisherRepository.findUnique({ where: { id: publisherId } });
+    return publisher?.demarcheSimplifieeToken ? decrypt(publisher.demarcheSimplifieeToken) : null;
+  },
+
+  // Toutes les démarches configurées, dédoublonnées par numéro, avec le token API du partenaire déchiffré (null → token global).
+  // Utilisé par le job d'import des candidatures.
+  findAllWithToken: async (): Promise<{ number: number; token: string | null }[]> => {
     const demarches = await publisherDemarcheSimplifieesRepository.findMany();
-    return demarches.map(toDemarcheSimplifieeRecord);
+    const publishers = await publisherRepository.findMany({ where: { id: { in: [...new Set(demarches.map((demarche) => demarche.publisherId))] } } });
+    const tokenByPublisherId = new Map(publishers.map((publisher) => [publisher.id, publisher.demarcheSimplifieeToken ? decrypt(publisher.demarcheSimplifieeToken) : null]));
+
+    const tokenByNumber = new Map<number, string | null>();
+    for (const demarche of demarches) {
+      if (!tokenByNumber.get(demarche.number)) {
+        tokenByNumber.set(demarche.number, tokenByPublisherId.get(demarche.publisherId) ?? null);
+      }
+    }
+    return [...tokenByNumber].map(([number, token]) => ({ number, token }));
   },
 
   // Démarches groupées par publisher (utilisé pour enrichir plusieurs publishers en une seule requête).

@@ -6,6 +6,7 @@ import { DemarcheSimplifieeFieldType } from "@/db/core";
 import { INVALID_BODY, INVALID_QUERY, NOT_FOUND, SERVER_ERROR, captureException } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import demarchesSimplifiees from "@/services/demarches-simplifiees";
+import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import statEventService from "@/services/stat-event";
 import { UserRequest } from "@/types/passport";
 
@@ -14,14 +15,16 @@ router.use(ipRateLimiter);
 
 // Résout une démarche à partir de son URL publique (/commencer/<slug>) : numéro, nom et clé d'annotation.
 // Utilisé par le back-office pour préremplir la config Démarches Simplifiées d'un publisher.
+// Si `publisherId` est fourni et que ce publisher a enregistré son propre token API, on l'utilise (sinon token global).
 router.get("/resolve", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response) => {
   try {
-    const query = zod.object({ url: zod.url() }).safeParse(req.query);
+    const query = zod.object({ url: zod.url(), publisherId: zod.string().optional() }).safeParse(req.query);
     if (!query.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const result = await demarchesSimplifiees.resolveDemarcheByUrl(query.data.url);
+    const token = query.data.publisherId ? await publisherDemarcheSimplifieesService.findTokenByPublisherId(query.data.publisherId) : null;
+    const result = await demarchesSimplifiees.resolveDemarcheByUrl(query.data.url, token);
     if (!result.ok) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: result.message });
     }
