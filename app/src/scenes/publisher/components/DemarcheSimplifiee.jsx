@@ -12,16 +12,15 @@ const EMPTY_DEMARCHE = {
   name: null,
   url: null,
   annotationKey: null,
-  birthDateField: null,
-  countryField: null,
-  postalCodeField: null,
+  fields: {},
 };
 
-// Champs du formulaire DN lus par le job d'import pour enrichir les candidatures (customAttributes candidate*).
+// Champs du formulaire DN lus par le job d'import pour enrichir les candidatures (customAttributes candidate*),
+// par type de champ qualifié (enum DemarcheSimplifieeFieldType côté API).
 const CANDIDATE_FIELDS = [
-  { key: "birthDateField", label: "Champ « Date de naissance » ou « Âge »", attribute: "candidateAge" },
-  { key: "countryField", label: "Champ « Pays »", attribute: "candidateCountry" },
-  { key: "postalCodeField", label: "Champ « Code postal »", attribute: "candidatePostalCode" },
+  { type: "BIRTH_DATE", label: "Champ « Date de naissance » ou « Âge »", attribute: "candidateAge" },
+  { type: "COUNTRY", label: "Champ « Pays »", attribute: "candidateCountry" },
+  { type: "POSTAL_CODE", label: "Champ « Code postal »", attribute: "candidatePostalCode" },
 ];
 
 const DemarcheSimplifiee = ({ values, onChange }) => {
@@ -83,9 +82,7 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
         number: res.data.number,
         name: res.data.name ?? null,
         annotationKey: res.data.annotationKey ?? null,
-        birthDateField: res.data.birthDateField ?? null,
-        countryField: res.data.countryField ?? null,
-        postalCodeField: res.data.postalCodeField ?? null,
+        fields: res.data.fields,
       });
       toast.success("Démarche trouvée");
     } catch (error) {
@@ -110,15 +107,14 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
   const handleCheckDossier = async (index) => {
     const demarche = demarches[index];
     const dossierNumber = checkByIndex[index]?.dossierNumber;
-    const params = new URLSearchParams({ dossierNumber, demarcheNumber: demarche.number });
-    ["url", ...CANDIDATE_FIELDS.map((field) => field.key)].forEach((key) => {
-      if (demarche[key]) {
-        params.append(key, demarche[key]);
-      }
-    });
     try {
       setCheckByIndex((prev) => ({ ...prev, [index]: { dossierNumber, loading: true } }));
-      const res = await api.get(`/demarches-simplifiees/check-dossier?${params}`);
+      const res = await api.post("/demarches-simplifiees/check-dossier", {
+        dossierNumber,
+        demarcheNumber: demarche.number,
+        url: demarche.url ?? null,
+        fields: demarche.fields ?? {},
+      });
       if (!res.ok) {
         toast.error("Dossier introuvable sur cette démarche (ou jeton sans accès aux dossiers)");
       }
@@ -221,12 +217,12 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {CANDIDATE_FIELDS.map((field) => (
                     <LabelledInput
-                      key={field.key}
-                      id={`demarche-simplifiees-${field.key}-${index}`}
+                      key={field.type}
+                      id={`demarche-simplifiees-${field.type}-${index}`}
                       label={field.label}
                       hint={`Alimente ${field.attribute}.`}
-                      value={demarche[field.key] ?? ""}
-                      onChange={(e) => updateDemarche(index, { [field.key]: e.target.value || null })}
+                      value={demarche.fields?.[field.type] ?? ""}
+                      onChange={(e) => updateDemarche(index, { fields: { ...demarche.fields, [field.type]: e.target.value || null } })}
                       className="w-full"
                     />
                   ))}

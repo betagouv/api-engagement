@@ -43,9 +43,7 @@ export const buildPublisherPayload = (values) => ({
           name: demarche.name ?? null,
           url: demarche.url ?? null,
           annotationKey: demarche.annotationKey ?? null,
-          birthDateField: demarche.birthDateField ?? null,
-          countryField: demarche.countryField ?? null,
-          postalCodeField: demarche.postalCodeField ?? null,
+          fields: demarche.fields ?? {},
         }))
     : [],
 });
