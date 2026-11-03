@@ -57,8 +57,8 @@ enable_mfa            = true
 
 enable_mission_v2_list = false
 
-# CMS : à activer après la validation en staging, cf. cms/README.md.
-enable_cms   = false
+# CMS : le CNAME du hostname doit exister avant l'apply, cf. cms/README.md.
+enable_cms   = true
 cms_hostname = "cms.trouvetamission.gouv.fr"
 
 enable_plateform = true
