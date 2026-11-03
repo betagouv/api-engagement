@@ -612,12 +612,14 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(payload.emailTo).toEqual(["user@example.com"]);
     expect(payload.tags).toEqual(["user-scoring", "mission-matching-results"]);
 
-    const { contentHtml } = payload.params;
-    matching.missions.slice(0, 6).forEach((mission) => {
-      expect(contentHtml).toContain(mission.title);
-      expect(contentHtml).toContain(mission.city);
-      expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`);
+    const { params } = payload;
+    matching.missions.slice(0, 6).forEach((mission, index) => {
+      const cardHtml = params[`mission${index + 1}`];
+      expect(cardHtml).toContain(mission.title);
+      expect(cardHtml).toContain(mission.city);
+      expect(cardHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}`);
     });
+    const contentHtml = Object.values(params).join("");
     expect(contentHtml).toContain("1 jour par semaine");
     expect(contentHtml).toContain("620€ par mois");
 
@@ -646,7 +648,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(res.status).toBe(200);
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
 
-    const contentHtml = brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml;
+    const contentHtml = Object.values(brevoMock.sendTemplate.mock.calls[0][1].params).join("");
     expect(contentHtml).toContain(frozenMatching.missions[0].title);
     expect(contentHtml).not.toContain(currentMatching.missions[0].title);
   });
@@ -668,11 +670,12 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(res.body.data.email_sent).toBe(true);
     expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ signupSource: "quiz", userScoringId }));
 
-    const { contentHtml, resultUrl } = brevoMock.sendTemplate.mock.calls[0][1].params;
-    matching.missions.slice(0, 6).forEach((mission) => {
-      expect(contentHtml).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}&email_source=quiz`);
+    const { params } = brevoMock.sendTemplate.mock.calls[0][1];
+    matching.missions.slice(0, 6).forEach((mission, index) => {
+      expect(params[`mission${index + 1}`]).toContain(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?user_scoring_id=${userScoringId}&email_source=quiz`);
     });
-    expect(contentHtml).not.toContain(matching.missions[6].title);
+    expect(params.mission7).toBeUndefined();
+    const { resultUrl } = params;
     expect(resultUrl).toBe(`http://localhost:3005/results/${userScoringId}?utm_source=brevo&utm_medium=email&utm_campaign=quiz_missions`);
   });
 
@@ -756,7 +759,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 
     expect(res.status).toBe(200);
     expect(brevoMock.sendTemplate).toHaveBeenCalledTimes(1);
-    expect(brevoMock.sendTemplate.mock.calls[0][1].params.contentHtml).toContain("Matched City");
+    expect(brevoMock.sendTemplate.mock.calls[0][1].params.mission1).toContain("Matched City");
   });
 
   it("should send mission emails without user scoring when missionIds are provided", async () => {
