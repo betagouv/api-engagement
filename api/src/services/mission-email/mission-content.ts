@@ -108,12 +108,16 @@ export const buildSavedMissionContentHtml = (mission: MissionContent) => `
 // Liste de missions : la grille est construite dans le template Brevo, chaque case reçoit une carte (mission1 à mission6).
 // Carte étroite (une colonne de la grille), une info par ligne et un lien « Voir la mission ». Le titre est limité à
 // 2 lignes (hauteur fixe + line-clamp pour les clients qui le gèrent) pour que les cartes d'une même ligne restent alignées.
+// De même, chaque info tient sur une ligne (tronquée avec « … ») et le bloc d'infos a toujours la hauteur de 3 infos,
+// même quand la mission n'en a que 1 ou 2.
 const LIST_MISSION_IMAGE_WIDTH = 280;
 const LIST_MISSION_IMAGE_HEIGHT = 132;
+// 3 infos × (20px de ligne + 8px d'espacement)
+const LIST_MISSION_INFOS_HEIGHT = 3 * 28;
 
 const buildListMissionInfo = (iconUrl: string, label: string) =>
   label
-    ? `<div style="padding-bottom: 8px; font-family: ${FONT_FAMILY}; font-size: 14px; line-height: 20px; color: #3a3a3a;"><img src="${iconUrl}" alt="" width="16" height="16" style="width: 16px; height: 16px; border: 0; vertical-align: middle; margin-right: 8px;" /><span style="vertical-align: middle;">${escapeBrevoHtml(label)}</span></div>`
+    ? `<div style="height: 20px; padding-bottom: 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-family: ${FONT_FAMILY}; font-size: 14px; line-height: 20px; color: #3a3a3a;"><img src="${iconUrl}" alt="" width="16" height="16" style="width: 16px; height: 16px; border: 0; vertical-align: middle; margin-right: 8px;" /><span style="vertical-align: middle;">${escapeBrevoHtml(label)}</span></div>`
     : "";
 
 export const buildListMissionCardHtml = (mission: MissionContent) => `
@@ -121,11 +125,13 @@ export const buildListMissionCardHtml = (mission: MissionContent) => `
     ${buildMissionImageRow(mission, LIST_MISSION_IMAGE_WIDTH, LIST_MISSION_IMAGE_HEIGHT)}
     <tr>
       <td style="padding: 16px 16px 0;">
-        <div style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; height: 48px; overflow: hidden; font-family: ${FONT_FAMILY}; font-size: 16px; font-weight: 700; line-height: 24px; color: #161616;">${escapeBrevoHtml(mission.title)}</div>
+        <div style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; height: 48px; overflow: hidden; font-family: ${FONT_FAMILY}; font-size: 14px; font-weight: 700; line-height: 24px; color: #161616;">${escapeBrevoHtml(mission.title)}</div>
       </td>
     </tr>
     <tr>
-      <td style="padding: 12px 16px 0;">${buildListMissionInfo(LOCATION_ICON_URL, mission.location)}${buildListMissionInfo(SCHEDULE_ICON_URL, mission.schedule)}${buildListMissionInfo(COMPENSATION_ICON_URL, mission.compensation)}</td>
+      <td height="${LIST_MISSION_INFOS_HEIGHT}" valign="top" style="height: ${LIST_MISSION_INFOS_HEIGHT}px; padding: 12px 16px 0; vertical-align: top;">
+        <div style="height: ${LIST_MISSION_INFOS_HEIGHT}px; overflow: hidden;">${buildListMissionInfo(LOCATION_ICON_URL, mission.location)}${buildListMissionInfo(SCHEDULE_ICON_URL, mission.schedule)}${buildListMissionInfo(COMPENSATION_ICON_URL, mission.compensation)}</div>
+      </td>
     </tr>
     ${buildMissionPublisherRow(mission, "0 16px")}
     <tr>
