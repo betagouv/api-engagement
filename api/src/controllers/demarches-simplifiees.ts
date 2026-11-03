@@ -37,16 +37,17 @@ router.get("/resolve", passport.authenticate("admin", { session: false }), async
   }
 });
 
-// Indique si notre jeton a accès à la démarche et à ses dossiers (nécessaire au job d'import des candidatures).
+// Indique si le jeton (celui du partenaire si `publisherId` est fourni et qu'il en a un, sinon le nôtre) a accès à la démarche et à ses dossiers (nécessaire au job d'import des candidatures).
 // Utilisé par le back-office pour signaler les démarches dont le compte du jeton n'est pas instructeur.
 router.get("/access", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response) => {
   try {
-    const query = zod.object({ number: zod.coerce.number().int().positive() }).safeParse(req.query);
+    const query = zod.object({ number: zod.coerce.number().int().positive(), publisherId: zod.string().optional() }).safeParse(req.query);
     if (!query.success) {
       return res.status(400).send({ ok: false, code: INVALID_QUERY, error: query.error });
     }
 
-    const data = await demarchesSimplifiees.getDemarcheAccess(query.data.number);
+    const token = query.data.publisherId ? await publisherDemarcheSimplifieesService.findTokenByPublisherId(query.data.publisherId) : null;
+    const data = await demarchesSimplifiees.getDemarcheAccess(query.data.number, token);
     return res.status(200).send({ ok: true, data });
   } catch (error) {
     captureException(error);
@@ -65,14 +66,16 @@ router.post("/check-dossier", passport.authenticate("admin", { session: false })
         demarcheNumber: zod.coerce.number().int().positive(),
         url: zod.string().nullable().default(null),
         fields: zod.partialRecord(zod.enum(DemarcheSimplifieeFieldType), zod.string().nullish()).default({}),
+        publisherId: zod.string().optional(),
       })
       .safeParse(req.body);
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
     }
 
-    const { dossierNumber, demarcheNumber, url, fields } = body.data;
-    const result = await demarchesSimplifiees.checkDossier(dossierNumber, { number: demarcheNumber, url, fields });
+    const { dossierNumber, demarcheNumber, url, fields, publisherId } = body.data;
+    const token = publisherId ? await publisherDemarcheSimplifieesService.findTokenByPublisherId(publisherId) : null;
+    const result = await demarchesSimplifiees.checkDossier(dossierNumber, { number: demarcheNumber, url, fields }, token);
     if (!result.ok) {
       return res.status(404).send({ ok: false, code: NOT_FOUND, message: result.message });
     }

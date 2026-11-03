@@ -69,19 +69,19 @@ export const publisherDemarcheSimplifieesService = {
   },
 
   // Toutes les démarches configurées, dédoublonnées par numéro, avec le token API du partenaire déchiffré (null → token global).
-  // Utilisé par le job d'import des candidatures.
-  findAllWithToken: async (): Promise<{ number: number; token: string | null }[]> => {
+  // Si plusieurs partenaires ont la même démarche, on garde de préférence celui qui a un token. Utilisé par le job d'import.
+  findAllWithToken: async (): Promise<(PublisherDemarcheSimplifieeRecord & { token: string | null })[]> => {
     const demarches = await publisherDemarcheSimplifieesRepository.findMany();
     const publishers = await publisherRepository.findMany({ where: { id: { in: [...new Set(demarches.map((demarche) => demarche.publisherId))] } } });
     const tokenByPublisherId = new Map(publishers.map((publisher) => [publisher.id, publisher.demarcheSimplifieeToken ? decrypt(publisher.demarcheSimplifieeToken) : null]));
 
-    const tokenByNumber = new Map<number, string | null>();
+    const demarcheByNumber = new Map<number, PublisherDemarcheSimplifieeRecord & { token: string | null }>();
     for (const demarche of demarches) {
-      if (!tokenByNumber.get(demarche.number)) {
-        tokenByNumber.set(demarche.number, tokenByPublisherId.get(demarche.publisherId) ?? null);
+      if (!demarcheByNumber.get(demarche.number)?.token) {
+        demarcheByNumber.set(demarche.number, { ...toDemarcheSimplifieeRecord(demarche), token: tokenByPublisherId.get(demarche.publisherId) ?? null });
       }
     }
-    return [...tokenByNumber].map(([number, token]) => ({ number, token }));
+    return [...demarcheByNumber.values()];
   },
 
   // Démarches groupées par publisher (utilisé pour enrichir plusieurs publishers en une seule requête).
