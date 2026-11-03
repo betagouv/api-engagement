@@ -265,6 +265,17 @@ export const getDemarcheAccess = async (demarcheNumber: number): Promise<{ demar
   return { demarche: true, dossiers: dossiers.ok };
 };
 
+// Vérifie qu'un token API est reconnu par Démarche Numérique. Un token inconnu est traité comme une absence de token :
+// toute requête non publique est alors rejetée en HTTP 403. Avec un token valide, la démarche n°0 (inexistante) renvoie
+// une simple erreur GraphQL en HTTP 200 : on ne regarde donc que le rejet HTTP.
+export const checkToken = async (token: string): Promise<DemarchesSimplifieesResponse<true>> => {
+  const result = await query("query checkToken { demarche(number: 0) { number } }", {}, token);
+  if (!result.ok && result.status) {
+    return result;
+  }
+  return { ok: true, data: true };
+};
+
 // Résout une démarche à partir de son URL publique (/commencer/<slug>) : on extrait le slug, on le
 // convertit en numéro, puis on récupère le nom (title), la clé d'annotation et les champs candidat détectés
 // dans le formulaire. Tout sauf le numéro est best-effort (null si indisponible) ; seul le numéro est requis

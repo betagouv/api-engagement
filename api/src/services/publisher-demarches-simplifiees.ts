@@ -3,7 +3,7 @@ import { publisherRepository } from "@/repositories/publisher";
 import { PublisherDemarcheSimplifieeWithFields, publisherDemarcheSimplifieesRepository } from "@/repositories/publisher-demarche-simplifiees";
 import { CandidateFields, PublisherDemarcheSimplifieeInput, PublisherDemarcheSimplifieeRecord } from "@/types/publisher";
 import { normalizeCollection, normalizeOptionalString } from "@/utils";
-import { decrypt } from "@/utils/encryption";
+import { decrypt, encrypt } from "@/utils/encryption";
 
 // Lignes de champs qualifiés → { BIRTH_DATE: "Date de naissance", POSTAL_CODE: "Code postal" } (types configurés uniquement).
 const toCandidateFields = (fields: { type: DemarcheSimplifieeFieldType; label: string }[]): CandidateFields => Object.fromEntries(fields.map((field) => [field.type, field.label]));
@@ -50,6 +50,16 @@ export const publisherDemarcheSimplifieesService = {
   findByPublisher: async (publisherId: string): Promise<PublisherDemarcheSimplifieeRecord[]> => {
     const demarches = await publisherDemarcheSimplifieesRepository.findMany({ where: { publisherId } });
     return demarches.map(toDemarcheSimplifieeRecord);
+  },
+
+  // Enregistre (chiffré) le token API Démarches Simplifiées d'un publisher. Renvoie false si le publisher n'existe pas.
+  saveToken: async (publisherId: string, token: string): Promise<boolean> => {
+    const publisher = await publisherRepository.findUnique({ where: { id: publisherId } });
+    if (!publisher) {
+      return false;
+    }
+    await publisherRepository.update({ where: { id: publisherId }, data: { demarcheSimplifieeToken: encrypt(token) } });
+    return true;
   },
 
   // Token API Démarches Simplifiées déchiffré d'un publisher, ou null s'il n'en a pas fourni (→ token global).

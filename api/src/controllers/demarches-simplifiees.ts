@@ -9,6 +9,7 @@ import demarchesSimplifiees from "@/services/demarches-simplifiees";
 import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarches-simplifiees";
 import statEventService from "@/services/stat-event";
 import { UserRequest } from "@/types/passport";
+import { appendAuditEvent } from "@/utils/audit-log";
 
 const router = Router();
 router.use(ipRateLimiter);
@@ -78,6 +79,41 @@ router.post("/check-dossier", passport.authenticate("admin", { session: false })
 
     const click = result.data.redirectionId ? await statEventService.findOneStatEventById(result.data.redirectionId) : null;
     return res.status(200).send({ ok: true, data: { ...result.data, clickFound: Boolean(click) } });
+  } catch (error) {
+    captureException(error);
+    return res.status(500).send({ ok: false, code: SERVER_ERROR });
+  }
+});
+
+// Vérifie le token API fourni par un partenaire auprès de Démarche Numérique, puis l'enregistre (chiffré) sur le publisher.
+// Permet de valider le token sans enregistrer tout le formulaire du partenaire.
+router.post("/token", passport.authenticate("admin", { session: false }), async (req: UserRequest, res: Response) => {
+  try {
+    const body = zod.object({ publisherId: zod.string().min(1), token: zod.string().trim().min(1) }).safeParse(req.body);
+    if (!body.success) {
+      return res.status(400).send({ ok: false, code: INVALID_BODY, error: body.error });
+    }
+
+    const check = await demarchesSimplifiees.checkToken(body.data.token);
+    if (!check.ok) {
+      // Pas de 401 vers le back-office : il le traiterait comme une session expirée.
+      const isRejected = check.status === 401 || check.status === 403;
+      return res
+        .status(isRejected ? 400 : 502)
+        .send({ ok: false, code: isRejected ? INVALID_BODY : SERVER_ERROR, message: isRejected ? "Token refusé par Démarche Numérique" : check.message });
+    }
+
+    const saved = await publisherDemarcheSimplifieesService.saveToken(body.data.publisherId, body.data.token);
+    if (!saved) {
+      return res.status(404).send({ ok: false, code: NOT_FOUND, message: "Publisher not found" });
+    }
+
+    appendAuditEvent(req, {
+      action: "publisher.demarche_simplifiee_token.update",
+      outcome: "success",
+      target: { type: "publisher", id: body.data.publisherId },
+    });
+    return res.status(200).send({ ok: true });
   } catch (error) {
     captureException(error);
     return res.status(500).send({ ok: false, code: SERVER_ERROR });
