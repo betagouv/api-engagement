@@ -9,6 +9,7 @@ import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
 import HowItWorks from "~/components/home/how-it-works";
 import MissionExamples from "~/components/home/mission-examples";
+import BetaBanner from "~/components/layout/beta-banner";
 import Partners from "~/components/layout/partners";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
@@ -102,6 +103,8 @@ export default function Landing() {
 
   return (
     <main id="contenu" tabIndex={-1}>
+      {/* Test : bandeau bêta en complément du badge bêta du header, sans lien de feedback. */}
+      <BetaBanner source="site" />
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
       <MissionExamples />
       <HowItWorks onStartQuiz={() => handleStartQuiz("how_it_works")} />

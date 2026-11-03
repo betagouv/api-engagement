@@ -1,9 +1,9 @@
 // Bandeau « version bêta » : la fermeture est mémorisée 30 jours dans le localStorage.
-// La mémorisation est propre à chaque source (quiz / résultats) : les deux bandeaux ne posent
-// pas les mêmes questions, fermer celui du quiz ne doit pas masquer celui des résultats.
+// La mémorisation est propre à chaque source (quiz / résultats / site) : les bandeaux n'ont pas
+// le même message, fermer celui du site ou du quiz ne doit pas masquer celui des résultats.
 // Fonctions pures (storage et now injectés) pour rester testables sans `window`.
 
-export type BetaBannerSource = "quiz" | "results";
+export type BetaBannerSource = "quiz" | "results" | "site";
 
 export const BETA_BANNER_DISMISS_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 

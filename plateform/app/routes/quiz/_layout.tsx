@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 import BetaBanner from "~/components/layout/beta-banner";
 import BackButton from "~/components/quiz/back-button";
+import ExitModal from "~/components/quiz/exit-modal";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import QuizProgress from "~/components/quiz/progress";
 import { QUIZ_FLOW, QUIZ_FLOW_REGISTRY, type StepDef, type StepId } from "~/config/quiz-flow";
@@ -14,10 +15,6 @@ import { evalCondition } from "~/utils/conditions";
 import { buildPayload, refreshSteps } from "~/utils/quiz";
 import { pageMeta } from "~/utils/seo";
 import type { Route } from "./+types/_layout";
-
-// Le bandeau bêta n'apparaît qu'à partir de cette étape : assez avancé dans le parcours pour
-// que l'utilisateur ait un avis, sans polluer les premiers écrans.
-const BETA_BANNER_FROM_STEP = 5;
 
 // Contexte partagé avec les steps enfants via `useOutletContext<QuizOutletContext>()`.
 export type QuizOutletContext = {
@@ -176,8 +173,11 @@ export default function QuizLayout() {
   return (
     <div className="flex min-h-svh flex-1 flex-col">
       <QuizProgress step={loadingResults ? steps.length + 1 : isEmailPage && currentIndex < 0 ? steps.length : currentIndex + 1} stepCount={steps.length + 1} />
-      {!loadingResults && currentIndex + 1 >= BETA_BANNER_FROM_STEP && <BetaBanner source="quiz" session={quizAttemptId} />}
-      <main id="contenu" tabIndex={-1} className="flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
+      {/* Bandeau bêta affiché dès la première étape : la bêta est signalée avant que l'utilisateur s'engage dans le parcours. */}
+      {!loadingResults && <BetaBanner source="quiz" session={quizAttemptId} />}
+      <main id="contenu" tabIndex={-1} className="relative flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
+        {/* Bouton de sortie (desktop) : en haut de la zone de contenu, donc sous le bandeau bêta et non sur sa ligne. */}
+        <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-4 right-4 p-2 z-10 hidden lg:block" />
         <div className="fr-container flex flex-1 flex-col gap-10">
           {!loadingResults && !isEmailPage && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : (backTo ?? "/")} onBack={handleBackNavigated} />}
           {scoringError && !loadingResults && (
