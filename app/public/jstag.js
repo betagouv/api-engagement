@@ -17,8 +17,10 @@
     ((window._apieng.cookieDomain = "www." === window.location.hostname.slice(0, 4) ? window.location.hostname.slice(4) : window.location.hostname),
       (window._apieng.eventHost = eventHost),
       // Configuration
-      (window._apieng.config = function (e) {
+      // Second argument optionnel : hôte des événements (ex. bac à sable, utile pour un script auto-hébergé)
+      (window._apieng.config = function (e, host) {
         window._apieng.accountId = e;
+        if (typeof host === "string" && /^https?:\/\//.test(host)) window._apieng.eventHost = host.replace(/\/+$/, "");
       }),
       // Human detection (not used but kept for later maybe)
       (window._apieng.isHuman = function () {

@@ -19,6 +19,15 @@ test.describe("jstag.js - config()", () => {
     expect(accountId).toBe("queue-account");
   });
 
+  test("overrides eventHost via config() second argument", async ({ page }) => {
+    await page.goto("/test-jstag.html");
+
+    await page.evaluate(() => (window as any).apieng("config", "acc", "https://api.bac-a-sable.api-engagement.beta.gouv.fr/"));
+    const eventHost = await page.evaluate(() => (window as any)._apieng.eventHost);
+
+    expect(eventHost).toBe("https://api.bac-a-sable.api-engagement.beta.gouv.fr");
+  });
+
   test("defaults eventHost to production when not served from an app.* host", async ({ page }) => {
     await page.goto("/test-jstag.html");
 
