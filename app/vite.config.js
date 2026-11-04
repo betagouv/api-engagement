@@ -15,9 +15,11 @@ export default defineConfig((env) => {
         org: "betagouv",
         project: "api-engagement-app",
         url: process.env.SENTRY_HOST,
-        environment: env.mode,
         release: {
           name: "app",
+          deploy: {
+            env: env.mode,
+          },
         },
         authToken: process.env.SENTRY_AUTH_TOKEN,
       }),
