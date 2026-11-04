@@ -1,6 +1,7 @@
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { APP_URL } from "@/config";
 import { userService } from "@/services/user";
 import { createTestPublisher } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
@@ -111,7 +112,7 @@ describe("Dashboard user controller", () => {
       expect(updated?.invitationExpiresAt).toBeNull();
       expect(updated?.invitationCompletedAt).not.toBeNull();
 
-      const login = await request(app).post("/user/login").send({ email: user.email, password: VALID_PASSWORD });
+      const login = await request(app).post("/user/login").set("Origin", new URL(APP_URL).origin).send({ email: user.email, password: VALID_PASSWORD });
       expect(login.status).toBe(200);
     });
 
@@ -214,7 +215,7 @@ describe("Dashboard user controller", () => {
     it("strips sensitive fields from POST /user/login and GET /user/refresh", async () => {
       const { user } = await createTestUser({ password: "SuperSecret123!", publishers: [publisherId] });
 
-      const login = await request(app).post("/user/login").send({ email: user.email, password: "SuperSecret123!" });
+      const login = await request(app).post("/user/login").set("Origin", new URL(APP_URL).origin).send({ email: user.email, password: "SuperSecret123!" });
       expect(login.status).toBe(200);
       expectPublicUser(login.body.data.user);
 
