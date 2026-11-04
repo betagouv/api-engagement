@@ -1,4 +1,4 @@
-/* jstag v1
+/* jstag v1 - __ENV__
  *
  * ATTENTION — Partenaires auto-hébergeurs
  * Ce script est auto-hébergé par certains partenaires annonceurs.
@@ -12,7 +12,7 @@
   (window.apieng = window.apieng || {}),
   (function () {
     ((window._apieng.cookieDomain = "www." === window.location.hostname.slice(0, 4) ? window.location.hostname.slice(4) : window.location.hostname),
-      (window._apieng.eventHost = "https://api.api-engagement.beta.gouv.fr"),
+      (window._apieng.eventHost = "__API_URL__"),
       // Configuration
       (window._apieng.config = function (e) {
         window._apieng.accountId = e;

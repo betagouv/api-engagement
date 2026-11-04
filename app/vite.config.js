@@ -10,21 +10,26 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig((env) => {
   const plugins = [react(), svgr(), tailwindcss()];
 
-  // jstag.js est servi par chaque environnement (prod, staging, bac à sable) : au build, son hôte d'événements
-  // devient VITE_API_URL et son en-tête indique l'environnement (VITE_ENV).
-  const { VITE_API_URL: apiUrl, VITE_ENV: envName } = loadEnv(env.mode, process.cwd(), "VITE_");
-  if (env.command === "build" && (apiUrl || envName)) {
-    plugins.push({
-      name: "jstag-environment",
-      closeBundle() {
-        const file = path.resolve(__dirname, "dist/jstag.js");
-        let content = fs.readFileSync(file, "utf8");
-        if (apiUrl) content = content.replace("https://api.api-engagement.beta.gouv.fr", apiUrl.replace(/\/+$/, ""));
-        if (envName) content = content.replace(/^\/\* (jstag v\d+)/, `/* $1 - ${envName}`);
-        fs.writeFileSync(file, content);
-      },
-    });
-  }
+  // jstag.js est servi par chaque environnement (prod, staging, bac à sable) : les placeholders __API_URL__
+  // (hôte des événements) et __ENV__ (en-tête) sont remplacés par VITE_API_URL et VITE_ENV, au build comme en dev.
+  const { VITE_API_URL, VITE_ENV } = loadEnv(env.mode, process.cwd(), "VITE_");
+  const renderJstag = (content) =>
+    content.replace("__API_URL__", (VITE_API_URL || "https://api.api-engagement.beta.gouv.fr").replace(/\/+$/, "")).replace("__ENV__", VITE_ENV || "development");
+  const jstagFile = path.resolve(__dirname, "public/jstag.js");
+  plugins.push({
+    name: "jstag-environment",
+    configureServer(server) {
+      server.middlewares.use("/jstag.js", (_req, res) => {
+        res.setHeader("Content-Type", "application/javascript");
+        res.end(renderJstag(fs.readFileSync(jstagFile, "utf8")));
+      });
+    },
+    closeBundle() {
+      if (env.command !== "build") return;
+      const file = path.resolve(__dirname, "dist/jstag.js");
+      fs.writeFileSync(file, renderJstag(fs.readFileSync(file, "utf8")));
+    },
+  });
 
   if (process.env.SENTRY_AUTH_TOKEN) {
     plugins.push(
