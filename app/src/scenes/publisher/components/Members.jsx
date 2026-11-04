@@ -16,7 +16,7 @@ const Members = ({ values, onChange }) => {
         if (!res.ok) throw res;
         setMembers(res.data);
       } catch (error) {
-        captureError(error, { extra: { publisherId: values.id } });
+        captureError(error, { message: "Erreur lors du chargement des membres", extra: { publisherId: values.id } });
       }
     };
     fetchData();

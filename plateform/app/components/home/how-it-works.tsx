@@ -24,9 +24,9 @@ export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void })
   return (
     <section className="fr-container relative z-10 flex flex-col gap-4 py-8 md:py-12 lg:items-center lg:gap-8 lg:py-16">
       <div className="md:mx-auto! md:text-center">
-        <h2 className="fr-h1 mb-0! md:mx-auto md:mb-3! md:max-w-3xl">
+        <h1 className="fr-h1 mb-0! md:mx-auto md:mb-3! md:max-w-3xl">
           Toute l'offre publique d'<Highlight className="bg-green-tilleul-verveine-925">engagement</Highlight> réunie en un seul endroit
-        </h2>
+        </h1>
         <p className="fr-text--lead fr-mb-0 hidden md:block">Il existe plein de façons de s'engager, selon tes besoins et tes disponibilités.</p>
       </div>
 

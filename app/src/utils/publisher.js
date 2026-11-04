@@ -56,4 +56,27 @@ export const withLegacyPublisher = (publisher = {}) => {
 
 export const withLegacyPublishers = (items = []) => items.map((publisher) => withLegacyPublisher(publisher));
 
+export const validatePublisher = (values) => {
+  const errors = {};
+  if (!values.name?.trim()) {
+    errors.name = "Veuillez renseigner le nom du partenaire.";
+  }
+  if (!values.isAnnonceur && !values.isDiffuseur) {
+    errors.settings = "Veuillez activer le mode annonceur, diffuseur, ou les deux.";
+  }
+  if (values.isAnnonceur && !values.missionType) {
+    errors.missionType = "Veuillez sélectionner un type de mission.";
+  }
+  if (values.isAnnonceur && (values.expectedApplications === null || values.expectedApplications === undefined)) {
+    errors.expectedApplications = "Veuillez indiquer si des candidatures sont attendues.";
+  }
+  if (values.isDiffuseur && !values.category) {
+    errors.category = "Veuillez sélectionner une catégorie de diffuseur.";
+  }
+  if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights) {
+    errors.mode = "Veuillez sélectionner au moins un moyen de diffusion.";
+  }
+  return errors;
+};
+
 export { formatPublishersForApi, sanitizeNullableString };

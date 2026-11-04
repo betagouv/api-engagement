@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: warning
+    description: >
+      Alertes métier levées sur les partenaires, avec leur statut de traitement et leur date de résolution. Une ligne par
+      alerte ; joindre `warning_occurrence` pour l'historique de ses réceptions et `publisher` pour le partenaire.
+    columns:
+      - name: id
+        description: Identifiant unique de l'alerte.
+        tests:
+          - not_null
+          - unique
+      - name: type
+        description: Type d'alerte.
+      - name: title
+        description: Titre de l'alerte (nullable).
+      - name: description
+        description: Détail de la dernière réception (nullable).
+      - name: publisher_id
+        description: Identifiant du partenaire concerné.
+        tests:
+          - not_null
+      - name: status
+        description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`).
+      - name: occurrences
+        description: Nombre de réceptions cumulées.
+      - name: procedure_url
+        description: Lien vers la procédure de traitement (nullable).
+      - name: notified_at
+        description: Date du mail d'alerte aux assignés (nullable).
+      - name: fixed_at
+        description: Date de résolution (nullable).
+      - name: created_at
+        description: Date de création de l'alerte.
+      - name: updated_at
+        description: Date de dernière mise à jour.
+
+  - name: warning_occurrence
+    description: >
+      Historique des réceptions d'alerte : une ligne par envoi de la source (Metabase), avec le titre et la description
+      envoyés à ce moment-là. Permet de suivre l'évolution d'une alerte ouverte dans le temps.
+    columns:
+      - name: id
+        description: Identifiant unique de la réception.
+        tests:
+          - not_null
+          - unique
+      - name: warning_id
+        description: Identifiant de l'alerte concernée.
+        tests:
+          - not_null
+      - name: source
+        description: Origine de la réception (`metabase` pour le webhook d'alertes, `job` pour les anciens jobs de détection).
+      - name: title
+        description: Titre envoyé à cette réception (nullable).
+      - name: description
+        description: Description envoyée à cette réception (nullable).
+      - name: created_at
+        description: Date de la réception.

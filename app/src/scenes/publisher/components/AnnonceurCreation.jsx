@@ -1,4 +1,4 @@
-import { RiInformationLine } from "react-icons/ri";
+import { RiErrorWarningFill, RiInformationLine } from "react-icons/ri";
 
 import Checkbox from "@/components/form/Checkbox";
 import RadioInput from "@/components/form/RadioInput";
@@ -7,7 +7,7 @@ import Tooltip from "@/components/Tooltip";
 import { MISSION_TYPES } from "@/constants";
 import ExpectedApplications from "@/scenes/publisher/components/ExpectedApplications";
 
-const AnnonceurCreation = ({ values, onChange }) => {
+const AnnonceurCreation = ({ values, onChange, errors }) => {
   const { isAnnonceur } = values;
   return (
     <div className="border-grey-border space-y-6 border p-6">
@@ -22,7 +22,13 @@ const AnnonceurCreation = ({ values, onChange }) => {
       {isAnnonceur && (
         <>
           <div className="h-px w-full bg-gray-900" />
-          <div className="space-y-4">
+          <fieldset className={`space-y-4 ${errors.missionType ? "before:bg-error relative before:absolute before:inset-y-0 before:-left-3 before:w-0.5" : ""}`}>
+            <legend className={`mb-4 text-base font-bold ${errors.missionType ? "text-error" : ""}`}>
+              Type de mission
+              <span className="text-error ml-1" aria-hidden="true">
+                *
+              </span>
+            </legend>
             {Object.values(MISSION_TYPES).map((type) => (
               <RadioInput
                 key={type.slug}
@@ -33,11 +39,23 @@ const AnnonceurCreation = ({ values, onChange }) => {
                 size={24}
                 checked={values.missionType === type.slug}
                 onChange={() => onChange({ ...values, missionType: type.slug })}
+                required
+                ariaDescribedby={errors.missionType ? "mission-type-error" : undefined}
               />
             ))}
-          </div>
+            {errors.missionType && (
+              <p id="mission-type-error" className="text-error flex items-center text-sm" aria-live="polite">
+                <RiErrorWarningFill className="mr-2" aria-hidden="true" />
+                {errors.missionType}
+              </p>
+            )}
+          </fieldset>
           <div className="h-px w-full bg-gray-900" />
-          <ExpectedApplications value={values.expectedApplications} onChange={(expectedApplications) => onChange({ ...values, expectedApplications })} />
+          <ExpectedApplications
+            value={values.expectedApplications}
+            error={errors.expectedApplications}
+            onChange={(expectedApplications) => onChange({ ...values, expectedApplications })}
+          />
           <div className="h-px w-full bg-gray-900" />
           <div className="flex items-center gap-2">
             <Checkbox

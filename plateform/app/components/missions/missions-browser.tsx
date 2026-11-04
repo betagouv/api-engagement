@@ -308,8 +308,8 @@ export default function MissionsBrowser({
     <section className="fr-container relative z-10 -mt-40 flex flex-col gap-6 lg:-mt-50 lg:flex-row">
       <h2 className="fr-sr-only">Missions disponibles</h2>
 
-      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section), sans défilement interne. */}
-      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:w-74 lg:shrink-0">
+      {/* Desktop : colonne de filtres à gauche, qui défile avec la page. */}
+      <div className="hidden h-fit flex-col gap-6 lg:flex lg:w-74 lg:shrink-0">
         {filters.includes("departmentCode") && <LocationFilter id="missions-localisation" />}
         <FilterGroups
           keys={groupFilters}

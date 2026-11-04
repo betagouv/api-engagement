@@ -18,6 +18,7 @@ import Questions from "~/components/landings/chacun-pour-tous/questions";
 import Etapes, { type Etape } from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import Missions from "~/components/landings/missions";
+import BetaBanner from "~/components/layout/beta-banner";
 import Partners from "~/components/layout/partners";
 import Highlight from "~/components/ui/highlight";
 import { type Partner } from "~/config/partners";
@@ -120,43 +121,47 @@ export default function ChacunPourTous() {
   });
 
   return (
-    <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
-      <Hero
-        title="S'engager ça fait du bien, à soi, aux autres, au pays."
-        titleClassName="lg:w-184 lg:text-[80px]! lg:leading-22!"
-        description={
-          <>
-            On croit que s'engager, c'est rare. En fait, 3 Français sur 4 l'ont déjà fait cette année.
-            <br />
-            On fait le tour des bonnes idées ?
-          </>
-        }
-        hint="En quelques questions, trouve une mission qui te correspond."
-        onStartQuiz={() => handleStartQuiz("hero")}
-        className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(664px,51.6vw)]"
-      >
-        <HeroVisual />
-      </Hero>
-      <Missions
-        missions={missions}
-        cta={missionsCta("missions")}
-        title={
-          <>
-            Tu peux agir au <Highlight className="bg-[#9ef9be] dark:bg-transparent">coin de ta rue</Highlight>
-          </>
-        }
-        description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !"
-        landing="landing_chacun_pour_tous"
-        backTo="/chacun-pour-tous"
-        examples
-        className="bg-brown-cafe-creme-975"
-      />
-      <Etapes etapes={ETAPES} onStartQuiz={() => handleStartQuiz("etapes")} />
-      <BonPourToi />
-      <EtapesVie onStartQuiz={() => handleStartQuiz("etapes_vie")} cta={missionsCta("etapes_vie")} />
-      <Histoires cta={missionsCta("histoires")} />
-      <Questions />
-      <Partners style="compact" squareArrows partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
-    </main>
+    <>
+      {/* Même bandeau bêta que la page d'accueil, hors du <main> pour ne pas hériter de son espacement entre blocs. */}
+      <BetaBanner source="site" />
+      <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
+        <Hero
+          title="S'engager ça fait du bien, à soi, aux autres, au pays."
+          titleClassName="lg:w-184 lg:text-[80px]! lg:leading-22!"
+          description={
+            <>
+              On croit que s'engager, c'est rare. En fait, 3 Français sur 4 l'ont déjà fait cette année.
+              <br />
+              On fait le tour des bonnes idées ?
+            </>
+          }
+          hint="En quelques questions, trouve une mission qui te correspond."
+          onStartQuiz={() => handleStartQuiz("hero")}
+          className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(664px,51.6vw)]"
+        >
+          <HeroVisual />
+        </Hero>
+        <Missions
+          missions={missions}
+          cta={missionsCta("missions")}
+          title={
+            <>
+              Tu peux agir au <Highlight className="bg-[#9ef9be] dark:bg-transparent">coin de ta rue</Highlight>
+            </>
+          }
+          description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !"
+          landing="landing_chacun_pour_tous"
+          backTo="/chacun-pour-tous"
+          examples
+          className="bg-brown-cafe-creme-975"
+        />
+        <Etapes etapes={ETAPES} onStartQuiz={() => handleStartQuiz("etapes")} />
+        <BonPourToi />
+        <EtapesVie onStartQuiz={() => handleStartQuiz("etapes_vie")} cta={missionsCta("etapes_vie")} />
+        <Histoires cta={missionsCta("histoires")} />
+        <Questions />
+        <Partners style="compact" squareArrows partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
+      </main>
+    </>
   );
 }

@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_rich_texts",
+  "info": {
+    "displayName": "Texte",
+    "icon": "align-left",
+    "description": "Titre de section optionnel et texte riche (titres, paragraphes, listes, liens, images)."
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "description": "Titre de section (niveau 2). Laisser vide pour un texte à la suite du bloc précédent."
+    },
+    "body": {
+      "type": "blocks",
+      "required": true,
+      "description": "Dans l'éditeur, « Titre 1 » devient un titre de niveau 2 (le titre de la page est le niveau 1), « Titre 2 » le niveau 3, etc."
+    }
+  }
+}

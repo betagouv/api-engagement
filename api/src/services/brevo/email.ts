@@ -7,8 +7,8 @@ import { buildEmailRecipients, redactEmailRecipients, sanitizeEmailOptions } fro
 export const TEMPLATE_IDS = {
   INVITATION: 1,
   FORGOT_PASSWORD: 5,
-  TTM_MISSIONS_LISTING: 27,
-  TTM_MISSION_SAVED: 30,
+  TTM_MISSIONS_LISTING: 34,
+  TTM_MISSION_SAVED: 33,
   MFA_CODE: 28,
   WARNING_ALERT: 32,
 };

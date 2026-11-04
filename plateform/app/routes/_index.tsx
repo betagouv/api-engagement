@@ -9,6 +9,7 @@ import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
 import HowItWorks from "~/components/home/how-it-works";
 import MissionExamples from "~/components/home/mission-examples";
+import BetaBanner from "~/components/layout/beta-banner";
 import Partners from "~/components/layout/partners";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
@@ -75,7 +76,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return [
     ...pageMeta(location, {
       title: "S'engager et se rendre utile | Trouve Ta Mission",
-      description: "Bénévolat, service civique, réserves, pompiers : trouvez la mission qui vous ressemble, près de chez vous, à distance ou à l'étranger.",
+      description: "Bénévolat, Service Civique, réserves, sapeur-pompier volontaire : trouvez la mission qui vous ressemble, près de chez vous, à distance ou à l'étranger.",
     }),
     { "script:ld+json": STRUCTURED_DATA },
   ];
@@ -102,6 +103,8 @@ export default function Landing() {
 
   return (
     <main id="contenu" tabIndex={-1}>
+      {/* Test : bandeau bêta en complément du badge bêta du header, sans lien de feedback. */}
+      <BetaBanner source="site" />
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
       <MissionExamples />
       <HowItWorks onStartQuiz={() => handleStartQuiz("how_it_works")} />

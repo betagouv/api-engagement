@@ -1,0 +1,8 @@
+{
+  "collectionName": "components_items_benefits",
+  "info": { "displayName": "Bénéfice", "icon": "heart" },
+  "attributes": {
+    "emoji": { "type": "string", "required": true },
+    "label": { "type": "string", "required": true }
+  }
+}

@@ -41,7 +41,7 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       updateDemarche(index, { number: res.data.number, name: res.data.name ?? null, annotationKey: res.data.annotationKey ?? null });
       toast.success("Démarche trouvée");
     } catch (error) {
-      captureError(error, { extra: { url: demarche.url } });
+      captureError(error, { message: "Erreur lors de la recherche de la démarche", extra: { url: demarche.url } });
     } finally {
       setLoadingIndex(null);
     }

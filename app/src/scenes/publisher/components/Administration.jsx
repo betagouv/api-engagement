@@ -65,7 +65,7 @@ const Administration = ({ values, onChange }) => {
           })),
         );
       } catch (error) {
-        captureError(error, { extra: { publisherId: values.id } });
+        captureError(error, { message: "Erreur lors du chargement des règles de diffusion", extra: { publisherId: values.id } });
       }
     };
     fetchDiffusionRules();

@@ -16,6 +16,9 @@ const LINKS = {
   ERROR_WARNING: "/announce?tab=settings",
   VALIDATION_WARNING: "/?tab=missions",
   TRACKING_WARNING: "/",
+  DELETION_WARNING: "/announce?tab=settings",
+  REDIRECTION_WARNING: "/",
+  CONVERSION_WARNING: "/",
 };
 
 const List = () => {

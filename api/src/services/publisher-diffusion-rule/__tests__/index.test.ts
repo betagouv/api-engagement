@@ -39,7 +39,7 @@ describe("publisherDiffusionRuleService.buildMissionDiffuseurCandidateWhere", ()
 
     expect(where).toEqual({});
     expect(prismaMock.publisherDiffusionRule.findMany).toHaveBeenCalledWith({
-      where: { publisherId: "publisher-1" },
+      where: { publisherId: "publisher-1", deletedAt: null },
       orderBy: [{ position: "asc" }, { createdAt: "asc" }],
     });
   });
@@ -283,5 +283,28 @@ describe("publisherDiffusionRuleService.findDistributionPublisherIdsForSnapshot"
       select: { id: true },
     });
     expect(publisherIds).toEqual(["api-only", "rule-only", "both"]);
+  });
+});
+
+describe("publisherDiffusionRuleService.syncScopeRoots : changement effectif", () => {
+  it.each([
+    { desired: ["annonceur-1", "annonceur-2"], changed: false },
+    { desired: ["annonceur-2", "annonceur-1", "annonceur-1"], changed: false },
+    { desired: ["annonceur-1"], changed: true },
+    { desired: ["annonceur-1", "annonceur-3"], changed: true },
+    { desired: [], changed: true },
+  ])("compare les ensembles : $desired", async ({ desired, changed }) => {
+    const find = vi
+      .spyOn(publisherDiffusionRuleService, "findRules")
+      .mockResolvedValue([buildRule({ id: "root-1", value: "annonceur-1" }), buildRule({ id: "root-2", value: "annonceur-2" })] as never);
+    const remove = vi.spyOn(publisherDiffusionRuleService, "deleteRule").mockResolvedValue();
+    const create = vi.spyOn(publisherDiffusionRuleService, "findOrCreateScopeRoot").mockResolvedValue(buildRule() as never);
+    try {
+      expect(await publisherDiffusionRuleService.syncScopeRoots("diffuseur", desired)).toBe(changed);
+    } finally {
+      find.mockRestore();
+      remove.mockRestore();
+      create.mockRestore();
+    }
   });
 });
