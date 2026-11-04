@@ -9,9 +9,22 @@ if (SENTRY_DSN_API && ENV !== "development") {
     dsn: SENTRY_DSN_API,
     environment: ENV,
     release: IMAGE_VERSION,
-    integrations: [nodeProfilingIntegration],
+    integrations: [nodeProfilingIntegration()],
     tracesSampleRate: ENV === "production" ? 0.1 : 1,
-    profilesSampleRate: ENV === "production" ? 0.1 : 1,
+    profileSessionSampleRate: ENV === "production" ? 0.1 : 1,
+    profileLifecycle: "trace",
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: {
+        request: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
+        response: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
+      },
+      httpBodies: [],
+      urlQueryParams: { deny: ["forwarded", "-ip", "remote-", "via", "-user"] },
+      genAI: { inputs: false, outputs: false },
+      graphQL: { document: false, variables: false },
+    },
     debug: isSentryDebugEnabled,
   });
 } else if (!SENTRY_DSN_API) {
