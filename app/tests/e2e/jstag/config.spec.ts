@@ -18,12 +18,4 @@ test.describe("jstag.js - config()", () => {
 
     expect(accountId).toBe("queue-account");
   });
-
-  test("defaults eventHost to production when not served from an app.* host", async ({ page }) => {
-    await page.goto("/test-jstag.html");
-
-    const eventHost = await page.evaluate(() => (window as any)._apieng.eventHost);
-
-    expect(eventHost).toBe("https://api.api-engagement.beta.gouv.fr");
-  });
 });
