@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { RiArrowRightSLine } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 import Avatar from "@/components/Avatar";
@@ -10,7 +11,14 @@ import { captureError } from "@/services/error";
 import useStore from "@/services/store";
 
 const PAGE_SIZE = 20;
-const HEADER = [{ title: "Partenaire" }, { title: "Alerte" }, { title: "Assignés" }, { title: "Notifiée" }, { title: "Statut" }];
+const HEADER = [
+  { title: "Partenaire" },
+  { title: "Alerte" },
+  { title: "Assignés" },
+  { title: "Notifiée" },
+  { title: "Statut" },
+  { title: <span className="sr-only">Détail</span> },
+];
 
 const UNASSIGNED = "none";
 const STATUS_OPTIONS = [
@@ -135,7 +143,7 @@ const Alerts = () => {
       </p>
       <Table caption="Liste des alertes" header={HEADER} pagination page={page} pageSize={PAGE_SIZE} onPageChange={setPage} total={total} loading={loading}>
         {data.map((w, i) => (
-          <tr key={w.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+          <tr key={w.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} relative table-row hover:bg-gray-950`}>
             <td className="p-4">
               <div className="flex items-center gap-3">
                 {w.publisherLogo ? (
@@ -147,7 +155,7 @@ const Alerts = () => {
               </div>
             </td>
             <td className="space-y-1 p-4">
-              <Link className="link text-base font-bold" to={`/admin-warning/alerts/${w.id}`}>
+              <Link className="link text-base font-bold after:absolute after:inset-0 after:content-['']" to={`/admin-warning/alerts/${w.id}`}>
                 {w.title || (WARNINGS[w.type] || WARNINGS.OTHER_WARNING).name}
               </Link>
               <p className="text-xs">
@@ -179,6 +187,9 @@ const Alerts = () => {
             </td>
             <td className="p-4">
               <StatusBadge status={w.status} />
+            </td>
+            <td className="text-blue-france p-4">
+              <RiArrowRightSLine className="text-2xl" aria-hidden="true" />
             </td>
           </tr>
         ))}
