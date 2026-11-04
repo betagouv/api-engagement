@@ -130,6 +130,9 @@ const Alerts = () => {
           Tout réinitialiser
         </button>
       </div>
+      <p className="text-sm font-semibold" role="status">
+        {loading ? "Chargement…" : `${total} alerte${total > 1 ? "s" : ""}`}
+      </p>
       <Table caption="Liste des alertes" header={HEADER} pagination page={page} pageSize={PAGE_SIZE} onPageChange={setPage} total={total} loading={loading}>
         {data.map((w, i) => (
           <tr key={w.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
