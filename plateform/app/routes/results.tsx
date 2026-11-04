@@ -295,8 +295,8 @@ export default function ResultsPage() {
             />
 
             <Newsletter
-              title="Reçois tes missions par email"
-              subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+              title="Reçois tes missions par e-mail"
+              subtitle="1 e-mail par mois avec les missions qui pourraient t'intéresser."
               ctaText="Recevoir mes missions"
               hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
             />
@@ -386,7 +386,7 @@ export default function ResultsPage() {
                                   e.stopPropagation();
                                   setEmailMission({ missionId: displayedMission.mission.id, publisherId: displayedMission.mission.publisherId ?? "", rank: displayedMissionRank });
                                 }}
-                                aria-label="Recevoir par email"
+                                aria-label="Recevoir par e-mail"
                               >
                                 <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
                               </button>
@@ -416,8 +416,8 @@ export default function ResultsPage() {
         </GradientBg>
 
         <Newsletter
-          title="Reçois tes missions par email"
-          subtitle="1 email par mois avec les missions qui pourraient t'intéresser."
+          title="Reçois tes missions par e-mail"
+          subtitle="1 e-mail par mois avec les missions qui pourraient t'intéresser."
           ctaText="Recevoir mes missions"
           hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
         />

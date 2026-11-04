@@ -80,7 +80,7 @@ export default function EmailStep() {
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
       trackEmailCaptureFailed({ signupSource: "quiz", errorType: "invalid_format" });
-      setError("Renseigne ton adresse email pour recevoir tes missions, ou continue sans laisser ton email.");
+      setError("Renseigne ton adresse e-mail pour recevoir tes missions, ou continue sans laisser ton e-mail.");
       return;
     }
     if (!isValidEmail(trimmedEmail)) {
@@ -118,8 +118,8 @@ export default function EmailStep() {
 
       <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
         <label className="fr-label" htmlFor={emailId}>
-          Ton adresse email
-          <span className="fr-hint-text">1 email 1 fois par mois avec d'autres missions</span>
+          Ton adresse e-mail
+          <span className="fr-hint-text">1 e-mail 1 fois par mois avec d'autres missions</span>
         </label>
         <input
           id={emailId}
@@ -144,7 +144,7 @@ export default function EmailStep() {
           {loading ? "Envoi en cours…" : "Voir mes résultats"}
         </button>
         <button type="button" onClick={handleSkip} disabled={loading} className="fr-btn fr-btn--lg fr-btn--secondary w-full! justify-center! md:w-auto!">
-          Continuer sans laisser mon email
+          Continuer sans laisser mon e-mail
         </button>
       </div>
     </form>
