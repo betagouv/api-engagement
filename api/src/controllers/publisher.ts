@@ -4,6 +4,7 @@ import passport from "passport";
 import zod from "zod";
 
 import { DEFAULT_AVATAR, PUBLISHER_IDS } from "@/config";
+import { DemarcheSimplifieeFieldType } from "@/db/core";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
 import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
@@ -21,6 +22,13 @@ const router = Router();
 router.use(ipRateLimiter);
 
 const nullableString = zod.string().nullish();
+const demarcheSimplifieeSchema = zod.object({
+  number: zod.number().int().positive(),
+  name: nullableString,
+  url: nullableString,
+  annotationKey: nullableString,
+  fields: zod.partialRecord(zod.enum(DemarcheSimplifieeFieldType), nullableString).nullish(),
+});
 const publisherDiffusionSchema = zod.object({
   publisherId: zod.string().min(1),
   missionType: zod.enum(PublisherMissionType).nullable().optional(),
@@ -158,7 +166,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         url: nullableString,
         email: nullableString,
         feed: nullableString,
-        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), name: nullableString, url: nullableString, annotationKey: nullableString })).optional(),
+        demarcheSimplifiees: zod.array(demarcheSimplifieeSchema).optional(),
       })
       .safeParse(req.body);
 
@@ -317,7 +325,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         url: nullableString,
         email: nullableString,
         feed: nullableString,
-        demarcheSimplifiees: zod.array(zod.object({ number: zod.number().int().positive(), name: nullableString, url: nullableString, annotationKey: nullableString })).optional(),
+        demarcheSimplifiees: zod.array(demarcheSimplifieeSchema).optional(),
       })
       .safeParse(req.body);
 

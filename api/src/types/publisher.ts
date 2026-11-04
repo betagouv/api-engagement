@@ -1,3 +1,5 @@
+import { DemarcheSimplifieeFieldType } from "@/db/core";
+
 import { PublisherDiffusionRuleRecord } from "./publisher-diffusion-rule";
 
 export type PublisherRoleFilter = "annonceur" | "diffuseur" | "api" | "widget" | "campaign";
@@ -28,12 +30,17 @@ export interface PublisherDiffusionRecord {
   updatedAt: Date;
 }
 
+// Libellés des champs du formulaire d'une démarche DN à lire pour qualifier les candidatures (customAttributes candidate*),
+// par type de champ qualifié. La civilité n'en fait pas partie : elle est lue sur le demandeur du dossier.
+export type CandidateFields = Partial<Record<DemarcheSimplifieeFieldType, string | null>>;
+
 export interface PublisherDemarcheSimplifieeRecord {
   id: string;
   number: number;
   name: string | null;
   url: string | null;
   annotationKey: string | null;
+  fields: CandidateFields;
 }
 
 export interface PublisherDemarcheSimplifieeInput {
@@ -41,6 +48,7 @@ export interface PublisherDemarcheSimplifieeInput {
   name?: string | null;
   url?: string | null;
   annotationKey?: string | null;
+  fields?: CandidateFields | null;
 }
 
 export interface PublisherRecord {

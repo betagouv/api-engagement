@@ -17,6 +17,13 @@ enum CampaignType {
   OTHER
 }
 
+// Information qualifiée par un champ du formulaire d'une démarche Démarches Simplifiées (cf. PublisherDemarcheSimplifieeField).
+enum DemarcheSimplifieeFieldType {
+  BIRTH_DATE
+  COUNTRY
+  POSTAL_CODE
+}
+
 enum WarningStatus {
   TODO
   IN_PROGRESS
@@ -421,12 +428,30 @@ model PublisherDemarcheSimplifiee {
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  publisher Publisher @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  publisher Publisher                          @relation(fields: [publisherId], references: [id], onDelete: Cascade)
+  fields    PublisherDemarcheSimplifieeField[]
 
   @@unique([publisherId, number], map: "publisher_demarche_simplifiees_publisher_id_number_key")
   @@index([publisherId], map: "publisher_demarche_simplifiees_publisher_id_idx")
   @@index([number], map: "publisher_demarche_simplifiees_number_idx")
   @@map("publisher_demarche_simplifiees")
+}
+
+// Champ du formulaire d'une démarche à lire pour qualifier les candidatures (customAttributes candidate*).
+// `type` = information qualifiée ; `label` = libellé du champ dans le formulaire DN. Un nouveau type de champ qualifié
+// s'ajoute dans l'enum DemarcheSimplifieeFieldType (+ sa lecture dans extractCandidateAttributes).
+model PublisherDemarcheSimplifieeField {
+  id         String                      @id @default(uuid())
+  demarcheId String                      @map("demarche_id")
+  type       DemarcheSimplifieeFieldType @map("type")
+  label      String                      @map("label")
+  createdAt  DateTime                    @default(now()) @map("created_at")
+  updatedAt  DateTime                    @updatedAt @map("updated_at")
+
+  demarche PublisherDemarcheSimplifiee @relation(fields: [demarcheId], references: [id], onDelete: Cascade)
+
+  @@unique([demarcheId, type], map: "publisher_demarche_simplifiee_fields_demarche_id_type_key")
+  @@map("publisher_demarche_simplifiee_fields")
 }
 
 model UserPublisher {

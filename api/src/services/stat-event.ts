@@ -181,6 +181,17 @@ async function hasStatEventWithRecentClickId({ type, clickId, since }: HasRecent
   return total > 0;
 }
 
+async function findOneRecentStatEventByClickId({ type, clickId, since }: HasRecentStatEventWithClickIdParams): Promise<StatEventRecord | null> {
+  const result = (await statEventRepository.findFirst({
+    where: {
+      type: type as any,
+      clickId: clickId,
+      createdAt: { gte: since },
+    },
+  })) as PrismaStatEventWithPublishers | null;
+  return toStatEventRecordOrNull(result);
+}
+
 async function hasStatEventWithRecentClientEventId({ type, clientEventId, toPublisherId, since }: HasRecentStatEventWithClientEventIdParams): Promise<boolean> {
   const total = await statEventRepository.count({
     where: {
@@ -631,6 +642,7 @@ export const statEventService = {
   aggregateStatEventWarningBotByUser,
   updateStatEventsBotFlagForUser,
   hasStatEventWithRecentClickId,
+  findOneRecentStatEventByClickId,
   hasStatEventWithRecentClientEventId,
   countStatEventsByClientEventId,
   findOneStatEventByClientEventId,
