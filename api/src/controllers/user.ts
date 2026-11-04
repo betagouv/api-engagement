@@ -7,6 +7,7 @@ import zod from "zod";
 
 import { APP_URL, ENV, MFA_ENABLED, SECRET } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND, REQUEST_EXPIRED, RESSOURCE_ALREADY_EXIST, SERVICE_UNAVAILABLE, TOO_MANY_ATTEMPTS } from "@/error";
+import { loginCsrfProtection } from "@/middlewares/login-csrf";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
 import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo";
 import { loginHistoryService } from "@/services/login-history";
@@ -322,7 +323,7 @@ router.post("/signup", async (req: UserRequest, res: Response, next: NextFunctio
   }
 });
 
-router.post("/login", async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/login", loginCsrfProtection, async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
@@ -379,7 +380,7 @@ const getMfaToken = (req: UserRequest): string | null => {
   return header?.startsWith("jwt ") ? header.slice(4) : null;
 };
 
-router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/login/mfa", loginCsrfProtection, async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const body = zod
       .object({
@@ -424,7 +425,7 @@ router.post("/login/mfa", async (req: UserRequest, res: Response, next: NextFunc
   }
 });
 
-router.post("/login/mfa/resend", async (req: UserRequest, res: Response, next: NextFunction) => {
+router.post("/login/mfa/resend", loginCsrfProtection, async (req: UserRequest, res: Response, next: NextFunction) => {
   try {
     const mfaToken = getMfaToken(req);
     if (!mfaToken) {
