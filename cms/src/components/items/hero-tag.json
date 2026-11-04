@@ -1,0 +1,8 @@
+{
+  "collectionName": "components_items_hero_tags",
+  "info": { "displayName": "Pastille du hero", "icon": "hashtag" },
+  "attributes": {
+    "icon": { "type": "enumeration", "enum": ["team", "money", "briefcase", "plant", "heart"], "required": true },
+    "label": { "type": "string", "required": true }
+  }
+}

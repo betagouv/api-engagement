@@ -11,7 +11,36 @@
       "__component": "blocks.hero",
       "title": "Deviens réserviste de la Police près de chez toi",
       "description": "En parallèle de tes études ou de ton job, tu renforces les policiers de ton secteur : sécurisation lors d'événements ou d'accidents, prévention, accueil du public.",
+      "tags": [
+        {
+          "icon": "team",
+          "label": "Dès 18 ans"
+        },
+        {
+          "icon": "money",
+          "label": "Avec indemnisation"
+        },
+        {
+          "icon": "briefcase",
+          "label": "Quelques jours par mois"
+        },
+        {
+          "icon": "plant",
+          "label": "10 jours de préparation"
+        },
+        {
+          "icon": "heart",
+          "label": "Au service de ton territoire"
+        }
+      ],
+      "primaryLabel": "Je candidate",
+      "primaryUrl": "https://www.devenirpolicier.fr",
+      "secondaryLabel": "En savoir plus sur la mission",
+      "secondaryUrl": "https://www.devenirpolicier.fr",
       "hint": "À un clic de ton engagement.",
+      "image": {
+        "upload": "landings/trouve-ta-caserne/police-lp.webp"
+      },
       "visual": "none"
     },
     {

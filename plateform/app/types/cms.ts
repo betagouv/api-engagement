@@ -11,6 +11,9 @@ export type CmsMedia = {
 // Pictogrammes DSFR proposés dans le CMS (enum `icon`).
 export type CmsPictogram = "search" | "self_training" | "mail_send" | "backpack" | "environment" | "human_cooperation" | "community" | "compass";
 
+// Icônes DSFR des pastilles du hero (enum `icon` de `items.hero-tag`).
+export type CmsHeroTagIcon = "team" | "money" | "briefcase" | "plant" | "heart";
+
 export type CmsMissionSlot = {
   dispositif: string | null;
   domaineEngagement: string | null;
@@ -36,7 +39,13 @@ export type CmsBlock =
       __component: "blocks.hero";
       title: string;
       description: string;
+      tags: { icon: CmsHeroTagIcon; label: string }[];
+      primaryLabel: string | null;
+      primaryUrl: string | null;
+      secondaryLabel: string | null;
+      secondaryUrl: string | null;
       hint: string | null;
+      image: CmsMedia | null;
       visual: "none" | "chacun_pour_tous";
     }
   | {

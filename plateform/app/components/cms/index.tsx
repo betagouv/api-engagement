@@ -9,6 +9,7 @@ import Accordion from "./accordion";
 import Benefits from "./benefits";
 import Cards from "./cards";
 import Faq from "./faq";
+import HeroActions from "./hero-actions";
 import InlineText from "./inline-text";
 import RichText from "./rich-text";
 import Stories from "./stories";
@@ -41,16 +42,32 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
   switch (block.__component) {
     case "blocks.hero": {
       const campaignVisual = block.visual === "chacun_pour_tous";
+      const image = campaignVisual ? null : block.image;
+      const primary = block.primaryLabel && block.primaryUrl ? { label: block.primaryLabel, url: block.primaryUrl } : null;
+      const secondary = block.secondaryLabel && block.secondaryUrl ? { label: block.secondaryLabel, url: block.secondaryUrl } : null;
+      // Sans pastille ni bouton renseigné : hero historique avec le seul bouton quiz.
+      const withActions = block.tags.length > 0 || primary || secondary;
       return (
         <Hero
           title={block.title}
-          titleClassName={campaignVisual ? "lg:w-184 lg:text-[80px]! lg:leading-22!" : undefined}
+          titleClassName={campaignVisual ? "lg:w-184 lg:text-[80px]! lg:leading-22!" : "lg:text-[72px]! lg:leading-20!"}
           description={<InlineText text={block.description} />}
-          hint={block.hint ?? undefined}
-          onStartQuiz={() => context.onStartQuiz("hero")}
-          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : ""}`}
+          hint={withActions ? undefined : (block.hint ?? undefined)}
+          onStartQuiz={withActions ? undefined : () => context.onStartQuiz("hero")}
+          action={withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
+          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : "pb-8 md:pb-11"} ${image ? "md:min-h-130 lg:min-h-187" : ""}`}
         >
           {campaignVisual && <HeroVisual />}
+          {/* Visuel du CMS : sous le texte sur mobile, calé en bas à droite à partir de la tablette. */}
+          {image && (
+            <img
+              src={image.url}
+              alt={image.alternativeText ?? ""}
+              width={image.width ?? undefined}
+              height={image.height ?? undefined}
+              className="mt-8 h-auto w-full md:absolute md:right-0 md:bottom-0 md:mt-0 md:w-[46%] lg:w-[56%] lg:max-w-[812px]"
+            />
+          )}
         </Hero>
       );
     }

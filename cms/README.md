@@ -38,6 +38,7 @@ La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/cha
 
   | Bloc           | Éléments               |
   | -------------- | ---------------------- |
+  | `hero`         | `items.hero-tag`       |
   | `etapes`       | `items.etape`          |
   | `benefits`     | `items.benefit`        |
   | `cards`        | `items.card`           |
