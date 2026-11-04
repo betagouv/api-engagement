@@ -20,11 +20,16 @@ const uploadImage = async (strapi: Core.Strapi, { upload, alternativeText = "" }
   const filepath = path.join(IMAGES, upload);
   const name = path.basename(filepath);
   const existing = await strapi.db.query("plugin::upload.file").findOne({ where: { name } });
-  if (existing) {
+  // Média déjà en base mais fichier absent de public/uploads (dossier vidé, base reprise…) : on le renvoie.
+  const fileOnDisk = existing && fs.existsSync(path.join(process.cwd(), "public", existing.url));
+  if (existing && fileOnDisk) {
     if (alternativeText) {
       await strapi.db.query("plugin::upload.file").update({ where: { id: existing.id }, data: { alternativeText } });
     }
     return existing.id;
+  }
+  if (existing) {
+    await strapi.db.query("plugin::upload.file").delete({ where: { id: existing.id } });
   }
 
   const [file] = await strapi
