@@ -16,7 +16,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 - `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Une landing est une page qui utilise des blocs de campagne ; les blocs génériques (`rich-text`, `image`) servent aux pages éditoriales.
 - `src/components/blocks/` : les sections qu'un éditeur ajoute à une page (zone dynamique `blocks`) ; `src/components/items/` : les éléments répétables à l'intérieur d'un bloc (carte, étape, partenaire…), jamais ajoutés seuls à une page.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
-- `scripts/seed.ts` : seed de **dev uniquement** (jeton de lecture de plateform + page `chacun-pour-tous` avec les blocs existants ; images lues dans `plateform/app/assets` via `/seed-assets`). Refuse de tourner en production. Si ces images ou la landing en code sont déplacées, adapter le seed.
+- `scripts/seed.ts` : seed de **dev uniquement** (jeton de lecture de plateform + pages décrites en JSON dans `seed/pages/`, une par fichier ; médias `{ "upload": "…" }` lus dans `seed/images/`). Refuse de tourner en production.
 
 ## Contrat avec plateform
 
@@ -41,6 +41,6 @@ Depuis `cms/` (ou dans le conteneur : `docker compose exec cms npm run <script>`
 - Typecheck : `npm run typecheck` (génère les types Strapi puis `tsc`)
 - Lint : `npm run lint`
 - Format : `npm run prettier`
-- Seed (dev) : `npm run seed`
+- Seed (dev) : `npm run seed` (toutes les pages) ou `npm run seed -- <slug>` (une seule)
 
 Strapi redémarre à chaque modification de fichier dans `cms/` (mode `develop`).
