@@ -46,7 +46,7 @@ function buildMissionPayload() {
     softSkills: ["Esprit d'équipe", "Rigueur", "Sang-froid", "Sens du service", "Sens des responsabilités", "Autonomie"],
     romeSkills: ["300355", "404530", "300149", "300361", "300481", "300478"],
     requirements: ["Nationalité française", "17 à 45 ans", "JDC effectuée", "Apte physiquement"],
-    schedule: "Quelques jours par mois selon vos disponibilités",
+    schedule: "Quelques jours par mois",
     places: 1,
     remote: "local",
     openToMinors: true,

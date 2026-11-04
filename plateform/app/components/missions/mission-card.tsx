@@ -16,6 +16,7 @@ export default function MissionCard({
   publisherName,
   publisherLogo,
   onEmailClick,
+  badge,
 }: {
   image: string | null;
   domainLabel: string | null;
@@ -27,41 +28,49 @@ export default function MissionCard({
   publisherName: string | null;
   publisherLogo: string | null;
   onEmailClick?: () => void;
+  // Nature de la mission affichée sur le visuel : indemnisée (volontariats, réserves) ou bénévole.
+  badge?: "indemnisee" | "benevole" | null;
 }) {
   return (
     // Sans tags (cartes d'exemple des landings) : hauteur au contenu et titre plus grand, sur 3 lignes.
-    <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-83.75" : "h-full"}`}>
-      {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
+    <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
+      <div className="relative">
+        {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
+        {badge === "indemnisee" && <p className="fr-badge fr-badge--sm fr-badge--success fr-badge--no-icon absolute! top-2 left-2">Indemnisée</p>}
+        {badge === "benevole" && <p className="fr-badge fr-badge--sm fr-badge--error fr-badge--no-icon absolute! top-2 left-2">Bénévole</p>}
+      </div>
 
       <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex min-w-0 flex-col gap-2">
-            {domainLabel && (
-              <span
-                title={domainLabel}
-                className="bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 h-4 block max-w-full truncate leading-4! text-xs uppercase w-fit!"
-              >
-                {domainLabel}
-              </span>
-            )}
-            <h3 className={`text-blue-france-sun! m-0! font-bold! ${tags ? "line-clamp-2 text-base!" : "line-clamp-3 text-xl! leading-7!"}`}>{title}</h3>
-          </div>
-          {onEmailClick && (
-            <button
-              type="button"
-              className="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-heart-line shrink-0 w-8! h-8! text-xs!"
-              title="Recevoir cette mission par e-mail"
-              onClick={onEmailClick}
+        {/* Cœur en absolute au-dessus du titre : le titre garde toute la largeur de la carte. */}
+        {onEmailClick && (
+          <button
+            type="button"
+            className="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-heart-line absolute! top-2 right-4 w-8! h-8! text-xs!"
+            title="Recevoir cette mission par e-mail"
+            onClick={onEmailClick}
+          >
+            Recevoir cette mission par e-mail
+          </button>
+        )}
+        <div className="flex min-w-0 flex-col gap-2">
+          {domainLabel && (
+            <span
+              title={domainLabel}
+              className={`bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 block leading-4! text-xs uppercase w-fit! ${onEmailClick ? "max-w-[calc(100%-2.5rem)]" : "max-w-full"}`}
             >
-              Recevoir cette mission par e-mail
-            </button>
+              {domainLabel}
+            </span>
           )}
+          {/* title : intitulé complet au survol quand il dépasse les 3 lignes. */}
+          <h3 title={title} className={`text-blue-france-sun! m-0! font-bold! line-clamp-3 ${tags ? "text-base!" : "text-xl! leading-7!"} ${onEmailClick ? "mt-1!" : ""}`}>
+            {title}
+          </h3>
         </div>
 
         {tags && (
           <div className="flex mt-auto flex-1 max-h-14 flex-wrap content-start gap-2 overflow-hidden">
             {tags.map((tag) => (
-              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex items-center rounded-full px-2.5 py-0.5 text-xs! whitespace-nowrap truncate">
+              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs!">
                 {tag}
               </span>
             ))}
