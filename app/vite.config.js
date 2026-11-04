@@ -1,13 +1,27 @@
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import fs from "fs";
 import path from "path";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
 export default defineConfig((env) => {
   const plugins = [react(), svgr(), tailwindcss()];
+
+  // jstag.js poste ses événements vers l'API de l'environnement qui le sert (prod, staging, bac à sable) :
+  // l'hôte par défaut du fichier source est remplacé par VITE_API_URL au build.
+  const apiUrl = loadEnv(env.mode, process.cwd(), "VITE_").VITE_API_URL;
+  if (env.command === "build" && apiUrl) {
+    plugins.push({
+      name: "jstag-event-host",
+      closeBundle() {
+        const file = path.resolve(__dirname, "dist/jstag.js");
+        fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("https://api.api-engagement.beta.gouv.fr", apiUrl.replace(/\/+$/, "")));
+      },
+    });
+  }
 
   if (process.env.SENTRY_AUTH_TOKEN) {
     plugins.push(
