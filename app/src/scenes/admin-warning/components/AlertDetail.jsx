@@ -95,6 +95,9 @@ const AlertDetail = () => {
           <p className="text-sm">
             {label.name} · {alert.occurrences} occurrence{alert.occurrences > 1 ? "s" : ""}
           </p>
+          <Link className="tertiary-btn mt-3" to={`/${alert.publisherId}/performance`}>
+            Accéder à l’espace du partenaire
+          </Link>
         </div>
       </div>
       {alert.description && <p className="whitespace-pre-line">{alert.description}</p>}
