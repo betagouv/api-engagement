@@ -10,15 +10,18 @@ import svgr from "vite-plugin-svgr";
 export default defineConfig((env) => {
   const plugins = [react(), svgr(), tailwindcss()];
 
-  // jstag.js poste ses événements vers l'API de l'environnement qui le sert (prod, staging, bac à sable) :
-  // l'hôte par défaut du fichier source est remplacé par VITE_API_URL au build.
-  const apiUrl = loadEnv(env.mode, process.cwd(), "VITE_").VITE_API_URL;
-  if (env.command === "build" && apiUrl) {
+  // jstag.js est servi par chaque environnement (prod, staging, bac à sable) : au build, son hôte d'événements
+  // devient VITE_API_URL et son en-tête indique l'environnement (VITE_ENV).
+  const { VITE_API_URL: apiUrl, VITE_ENV: envName } = loadEnv(env.mode, process.cwd(), "VITE_");
+  if (env.command === "build" && (apiUrl || envName)) {
     plugins.push({
-      name: "jstag-event-host",
+      name: "jstag-environment",
       closeBundle() {
         const file = path.resolve(__dirname, "dist/jstag.js");
-        fs.writeFileSync(file, fs.readFileSync(file, "utf8").replace("https://api.api-engagement.beta.gouv.fr", apiUrl.replace(/\/+$/, "")));
+        let content = fs.readFileSync(file, "utf8");
+        if (apiUrl) content = content.replace("https://api.api-engagement.beta.gouv.fr", apiUrl.replace(/\/+$/, ""));
+        if (envName) content = content.replace(/^\/\* (jstag v\d+)/, `/* $1 - ${envName}`);
+        fs.writeFileSync(file, content);
       },
     });
   }
