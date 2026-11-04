@@ -9,7 +9,7 @@ export type CmsMedia = {
 };
 
 // Pictogrammes DSFR proposés dans le CMS (enum `icon`).
-export type CmsPictogram = "search" | "self_training" | "mail_send" | "backpack" | "environment" | "human_cooperation" | "community";
+export type CmsPictogram = "search" | "self_training" | "mail_send" | "backpack" | "environment" | "human_cooperation" | "community" | "compass";
 
 export type CmsMissionSlot = {
   dispositif: string | null;
@@ -20,7 +20,8 @@ export type CmsMissionSlot = {
 export type CmsTextNode = { type: "text"; text: string; bold?: boolean; italic?: boolean; underline?: boolean; strikethrough?: boolean; code?: boolean };
 export type CmsLinkNode = { type: "link"; url: string; children: CmsTextNode[] };
 export type CmsInlineNode = CmsTextNode | CmsLinkNode;
-export type CmsListNode = { type: "list"; format: "ordered" | "unordered"; children: CmsListItemNode[] };
+// Une sous-liste (`indentLevel` > 0) est un enfant de la liste, à côté de ses éléments.
+export type CmsListNode = { type: "list"; format: "ordered" | "unordered"; indentLevel?: number; children: (CmsListItemNode | CmsListNode)[] };
 export type CmsListItemNode = { type: "list-item"; children: (CmsInlineNode | CmsListNode)[] };
 export type CmsRichTextNode =
   | { type: "paragraph"; children: CmsInlineNode[] }
@@ -53,7 +54,16 @@ export type CmsBlock =
   | { __component: "blocks.benefits"; title: string; benefits: { emoji: string; label: string }[]; newsletterTitle: string; newsletterText: string }
   | { __component: "blocks.cards"; title: string; cards: { icon: CmsPictogram; title: string; points: string }[] }
   | { __component: "blocks.stories"; title: string; intro: string | null; stories: { image: CmsMedia; domain: string; story: string; publisher: string; logo: CmsMedia }[] }
+  | { __component: "blocks.testimonials"; testimonials: { image: CmsMedia; quote: string; name: string; role: string }[] }
   | { __component: "blocks.faq"; title: string; intro: string | null; questions: { icon: CmsPictogram; question: string; answer: string }[] }
+  | {
+      __component: "blocks.accordion";
+      title: string;
+      questions: { question: string; answer: CmsRichTextNode[] }[];
+      linkLabel: string | null;
+      linkUrl: string | null;
+      teamPhotos: CmsMedia[] | null;
+    }
   | { __component: "blocks.partners"; title: string; partners: { name: string; description: string; url: string | null; logo: CmsMedia }[] };
 
 export type CmsPage = {

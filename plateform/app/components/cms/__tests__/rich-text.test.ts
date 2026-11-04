@@ -76,6 +76,21 @@ describe("RichText", () => {
     expect(html).toBe("<ol><li>un<ul><li>sous-point</li></ul></li></ol>");
   });
 
+  it("rend une sous-liste de l'éditeur (à côté des éléments) dans l'élément qui la précède", () => {
+    const html = render([
+      {
+        type: "list",
+        format: "unordered",
+        children: [
+          { type: "list-item", children: [text("un")] },
+          { type: "list", format: "unordered", indentLevel: 1, children: [{ type: "list-item", children: [text("sous-point")] }] },
+          { type: "list-item", children: [text("deux")] },
+        ],
+      },
+    ]);
+    expect(html).toBe("<ul><li>un<ul><li>sous-point</li></ul></li><li>deux</li></ul>");
+  });
+
   it("rend une image avec alt vide quand aucun texte alternatif n'est renseigné", () => {
     const html = render([{ type: "image", image: { url: "/a.webp", alternativeText: null, width: 10, height: 5 }, children: [text("")] }]);
     expect(html).toContain('alt=""');

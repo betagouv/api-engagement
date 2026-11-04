@@ -65,15 +65,22 @@ function Node({ node }: { node: CmsRichTextNode }) {
   }
 }
 
+// L'éditeur range une sous-liste (Tab) à côté des éléments, pas dedans : on la rend dans l'élément qui la précède,
+// seul emplacement valide en HTML.
 function List({ node }: { node: CmsListNode }) {
   const Tag = node.format === "ordered" ? "ol" : "ul";
   return (
     <Tag>
-      {node.children.map((item, index) => (
-        <li key={index}>
-          {item.children.map((child, childIndex) => (child.type === "list" ? <List key={childIndex} node={child} /> : <Inline key={childIndex} nodes={[child]} />))}
-        </li>
-      ))}
+      {node.children.map((item, index) => {
+        if (item.type === "list") return null;
+        const next = node.children[index + 1];
+        return (
+          <li key={index}>
+            {item.children.map((child, childIndex) => (child.type === "list" ? <List key={childIndex} node={child} /> : <Inline key={childIndex} nodes={[child]} />))}
+            {next?.type === "list" && <List node={next} />}
+          </li>
+        );
+      })}
     </Tag>
   );
 }

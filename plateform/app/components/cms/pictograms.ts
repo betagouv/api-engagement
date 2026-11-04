@@ -5,6 +5,7 @@ import EnvironmentSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/env
 import HumanCooperationSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/human-cooperation.svg?url";
 import CommunitySvg from "@gouvfr/dsfr/dist/artwork/pictograms/leisure/community.svg?url";
 import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
+import CompassSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/compass.svg?url";
 
 import type { CmsPictogram } from "~/types/cms";
 
@@ -17,4 +18,5 @@ export const PICTOGRAMS: Record<CmsPictogram, string> = {
   environment: EnvironmentSvg,
   human_cooperation: HumanCooperationSvg,
   community: CommunitySvg,
+  compass: CompassSvg,
 };

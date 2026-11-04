@@ -6,7 +6,7 @@ CMS headless (Strapi 5, Community, Postgres) pour construire les **landing pages
 
 ```bash
 docker compose up -d cms                # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
-docker compose exec cms npm run seed    # dev uniquement : jeton de lecture + page « chacun-pour-tous »
+docker compose exec cms npm run seed    # dev uniquement : jeton de lecture + pages de seed/pages/
 ```
 
 À la première visite de l'admin, créer un compte administrateur (local). Le contenu se crée ensuite dans l'interface : _Content Manager_ → **Page**.
@@ -14,7 +14,11 @@ docker compose exec cms npm run seed    # dev uniquement : jeton de lecture + pa
 Le **seed** (`cms/scripts/seed.ts`) fait deux choses, et seulement en développement local (il refuse de tourner en production) :
 
 - il crée le jeton de lecture de plateform, de valeur fixe `dev-cms-read-token` (variable `CMS_API_TOKEN` du conteneur `cms`, hachée par Strapi) ;
-- il recrée la page `chacun-pour-tous` avec les blocs existants (hero, missions, étapes, bénéfices, cartes, histoires, questions, partenaires), à partir des images de `plateform/app/assets` (montées sur `/seed-assets`). Relancer le seed **écrase** cette page.
+- il recrée chaque page décrite dans `cms/seed/pages/` (un fichier JSON par page, au format de l'API : `title`, `slug`, champs SEO, `blocks` avec leur `__component`). Un média s'écrit `{ "upload": "logo/jva-logo.png", "alternativeText": "…" }`, chemin relatif à `cms/seed/images/`. Relancer le seed **écrase** les pages concernées ; `npm run seed -- <slug>` n'en recrée qu'une.
+
+Pour ajouter une page de dev : créer `cms/seed/pages/<slug>.json` (s'inspirer de `chacun-pour-tous.json`), déposer ses images dans `cms/seed/images/`, puis relancer le seed.
+
+Compte admin perdu : `docker compose exec cms npx strapi admin:list-users` pour retrouver l'email, puis `docker compose exec cms npx strapi admin:reset-user-password --email <email>`.
 
 Côté `plateform` (hors Docker, Node ≥ 22.22) :
 
@@ -29,18 +33,20 @@ La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/cha
 - `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
 - **`src/components/blocks/`** : les sections qu'un éditeur ajoute à une page (les seuls composants proposés dans la zone `blocks`).
   - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images) et `image` (image + légende).
-  - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `faq`, `partners`.
+  - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `testimonials`, `faq`, `accordion` (FAQ en accordéon), `partners`.
 - **`src/components/items/`** : les éléments répétables **à l'intérieur d'un bloc** (une carte, une étape, un partenaire…). Ils ne s'ajoutent jamais seuls à une page.
 
-  | Bloc       | Éléments             |
-  | ---------- | -------------------- |
-  | `etapes`   | `items.etape`        |
-  | `benefits` | `items.benefit`      |
-  | `cards`    | `items.card`         |
-  | `stories`  | `items.story`        |
-  | `faq`      | `items.question`     |
-  | `partners` | `items.partner`      |
-  | `missions` | `items.mission-slot` |
+  | Bloc           | Éléments               |
+  | -------------- | ---------------------- |
+  | `etapes`       | `items.etape`          |
+  | `benefits`     | `items.benefit`        |
+  | `cards`        | `items.card`           |
+  | `stories`      | `items.story`          |
+  | `testimonials` | `items.testimonial`    |
+  | `faq`          | `items.question`       |
+  | `accordion`    | `items.accordion-item` |
+  | `partners`     | `items.partner`        |
+  | `missions`     | `items.mission-slot`   |
 
 - Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
 - Texte riche (`rich-text`) : éditeur « Blocks » de Strapi (sans tableaux). « Titre 1 » donne un h2 (le h1 est le titre de la page), « Titre 2 » un h3, etc. Le texte alternatif des images se renseigne dans la médiathèque ; sans lui, l'image est décorative.

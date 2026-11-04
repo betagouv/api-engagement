@@ -50,7 +50,9 @@
         "blocks.benefits",
         "blocks.cards",
         "blocks.stories",
+        "blocks.testimonials",
         "blocks.faq",
+        "blocks.accordion",
         "blocks.partners"
       ]
     }

@@ -5,12 +5,14 @@ import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import Missions from "~/components/landings/missions";
 import Partners from "~/components/layout/partners";
+import Accordion from "./accordion";
 import Benefits from "./benefits";
 import Cards from "./cards";
 import Faq from "./faq";
 import InlineText from "./inline-text";
 import RichText from "./rich-text";
 import Stories from "./stories";
+import Testimonials from "./testimonials";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 import type { CmsBlock } from "~/types/cms";
 
@@ -116,12 +118,24 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           cta={context.missionsCta("histoires")}
         />
       );
+    case "blocks.testimonials":
+      return <Testimonials testimonials={block.testimonials} />;
     case "blocks.faq":
       return (
         <Faq
           title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_YELLOW} />}
           intro={block.intro && <InlineText text={block.intro} linkClassName="fr-link fr-text--lg!" />}
           questions={block.questions.map((question) => ({ ...question, icon: PICTOGRAMS[question.icon] }))}
+        />
+      );
+    case "blocks.accordion":
+      return (
+        <Accordion
+          title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_YELLOW} />}
+          questions={block.questions}
+          linkLabel={block.linkLabel}
+          linkUrl={block.linkUrl}
+          teamPhotos={block.teamPhotos ?? []}
         />
       );
     case "blocks.partners":

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_blocks_accordions",
+  "info": { "displayName": "FAQ (accordéon)", "icon": "question" },
+  "attributes": {
+    "title": { "type": "text", "required": true, "description": "==mots== pour surligner. Retour à la ligne = saut de ligne." },
+    "questions": { "type": "component", "repeatable": true, "component": "items.accordion-item", "min": 1 },
+    "linkLabel": { "type": "string", "description": "Bouton sous les questions (ex. : Toutes les réponses à tes questions). Affiché si le lien est renseigné." },
+    "linkUrl": { "type": "string" },
+    "teamPhotos": {
+      "type": "media",
+      "multiple": true,
+      "allowedTypes": ["images"],
+      "description": "Avatars de l'équipe, affichés avec « L'équipe de TrouveTaMission.gouv.fr est là pour t'aider »."
+    }
+  }
+}
