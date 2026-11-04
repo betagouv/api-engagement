@@ -48,6 +48,11 @@ private_network_cidr = "10.41.0.0/22"
 enable_cms   = true
 cms_hostname = "cms.trouvetamission.api-engagement-dev.fr"
 
+cms_cpu_limit    = 250
+cms_memory_limit = 512
+cms_min_scale    = 0
+cms_max_scale    = 1
+
 enable_plateform = true
 ttm_hostname     = "trouvetamission.api-engagement-dev.fr"
 ttm_www_hostname = "www.trouvetamission.api-engagement-dev.fr"
