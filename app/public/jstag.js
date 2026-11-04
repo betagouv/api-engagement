@@ -1,4 +1,4 @@
-/* jstag v1
+/* jstag v2
  *
  * ATTENTION — Partenaires auto-hébergeurs
  * Ce script est auto-hébergé par certains partenaires annonceurs.
@@ -11,8 +11,11 @@
 ((window._apieng = window._apieng || {}),
   (window.apieng = window.apieng || {}),
   (function () {
+    // L'hôte des événements est déduit du script chargé depuis app.<domaine> (ex. bac à sable) ; production par défaut (dont auto-hébergement).
+    const scriptHost = (document.currentScript && document.currentScript.src && new URL(document.currentScript.src).hostname) || "";
+    const eventHost = /^app\.([\w-]+\.)*api-engagement\.beta\.gouv\.fr$/.test(scriptHost) ? `https://api.${scriptHost.slice(4)}` : "https://api.api-engagement.beta.gouv.fr";
     ((window._apieng.cookieDomain = "www." === window.location.hostname.slice(0, 4) ? window.location.hostname.slice(4) : window.location.hostname),
-      (window._apieng.eventHost = "https://api.api-engagement.beta.gouv.fr"),
+      (window._apieng.eventHost = eventHost),
       // Configuration
       (window._apieng.config = function (e) {
         window._apieng.accountId = e;
