@@ -1,14 +1,31 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Avatar from "@/components/Avatar";
+import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { WARNING_STATUS, WARNINGS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const PAGE_SIZE = 20;
 const HEADER = [{ title: "Partenaire" }, { title: "Alerte" }, { title: "Assignés" }, { title: "Notifiée" }, { title: "Statut" }];
+
+const UNASSIGNED = "none";
+const STATUS_OPTIONS = [
+  { value: "TODO", label: "À traiter" },
+  { value: "RESOLVED", label: "Résolue" },
+];
+const TYPE_OPTIONS = Object.entries(WARNINGS).map(([value, { name }]) => ({ value, label: name }));
+const fullName = (u) => [u.firstname, u.lastname].filter(Boolean).join(" ") || u.email;
+
+const Field = ({ label, children }) => (
+  <div className="flex min-w-48 flex-1 flex-col gap-1">
+    <span className="text-sm font-semibold">{label}</span>
+    {children}
+  </div>
+);
 
 export const formatDateTime = (date) => new Date(date).toLocaleString("fr", { dateStyle: "long", timeStyle: "short" });
 
@@ -33,50 +50,85 @@ export const StatusBadge = ({ status }) => {
 };
 
 const Alerts = () => {
-  const [resolved, setResolved] = useState(false);
+  const { user } = useStore();
+  const initialFilters = { assignee: user?.id || "", status: "", type: "", publisherId: "" };
+  const [filters, setFilters] = useState(initialFilters);
+  const [admins, setAdmins] = useState([]);
+  const [publishers, setPublishers] = useState([]);
   const [page, setPage] = useState(1);
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [resU, resP] = await Promise.all([api.post("/user/search", { role: "admin" }), api.post("/publisher/search")]);
+        if (!resU.ok) throw resU;
+        if (!resP.ok) throw resP;
+        setAdmins(resU.data);
+        setPublishers(resP.data);
+      } catch (error) {
+        captureError(error);
+      }
+    };
+    fetchOptions();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/warning/search", { fixed: resolved, page, size: PAGE_SIZE });
+        const res = await api.post("/warning/search", {
+          fixed: filters.status ? filters.status === "RESOLVED" : null,
+          type: filters.type || undefined,
+          publisherId: filters.publisherId || undefined,
+          assigneeId: filters.assignee && filters.assignee !== UNASSIGNED ? filters.assignee : undefined,
+          unassigned: filters.assignee === UNASSIGNED || undefined,
+          page,
+          size: PAGE_SIZE,
+        });
         if (!res.ok) throw res;
         setData(res.data);
         setTotal(res.total);
       } catch (error) {
-        captureError(error, { extra: { resolved, page } });
+        captureError(error, { extra: { filters, page } });
       }
       setLoading(false);
     };
     fetchData();
-  }, [resolved, page]);
+  }, [filters, page]);
 
-  const select = (value) => {
-    setResolved(value);
+  const assigneeOptions = useMemo(() => [{ value: UNASSIGNED, label: "Non assignée(s)" }, ...admins.map((a) => ({ value: a.id, label: fullName(a) }))], [admins]);
+  const publisherOptions = useMemo(() => publishers.map((p) => ({ value: p.id, label: p.name })).sort((a, b) => a.label.localeCompare(b.label, "fr")), [publishers]);
+
+  const setFilter = (key) => (option) => {
+    setFilters((f) => ({ ...f, [key]: option.value }));
+    setPage(1);
+  };
+  const reset = () => {
+    setFilters({ assignee: "", status: "", type: "", publisherId: "" });
     setPage(1);
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2" role="group" aria-label="Statut des alertes">
-        {[
-          { label: "Ouvertes", value: false },
-          { label: "Résolues", value: true },
-        ].map((o) => (
-          <button
-            key={o.label}
-            type="button"
-            aria-pressed={resolved === o.value}
-            onClick={() => select(o.value)}
-            className={resolved === o.value ? "primary-btn" : "secondary-btn"}
-          >
-            {o.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-end gap-4" role="group" aria-label="Filtres des alertes">
+        <Field label="Assigné à">
+          <Select options={assigneeOptions} value={filters.assignee} placeholder="Tous" onChange={setFilter("assignee")} />
+        </Field>
+        <Field label="Statut">
+          <Select options={STATUS_OPTIONS} value={filters.status} placeholder="Tous" onChange={setFilter("status")} />
+        </Field>
+        <Field label="Type d’alerte">
+          <Select options={TYPE_OPTIONS} value={filters.type} placeholder="Tous" onChange={setFilter("type")} />
+        </Field>
+        <Field label="Partenaire">
+          <Select options={publisherOptions} value={filters.publisherId} placeholder="Tous" onChange={setFilter("publisherId")} />
+        </Field>
+        <button type="button" className="tertiary-bis-btn" onClick={reset}>
+          Tout réinitialiser
+        </button>
       </div>
       <Table caption="Liste des alertes" header={HEADER} pagination page={page} pageSize={PAGE_SIZE} onPageChange={setPage} total={total} loading={loading}>
         {data.map((w, i) => (
