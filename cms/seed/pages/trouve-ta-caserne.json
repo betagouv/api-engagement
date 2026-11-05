@@ -39,7 +39,10 @@
       "secondaryUrl": "https://www.devenirpolicier.fr",
       "hint": "À un clic de ton engagement.",
       "image": {
-        "upload": "landings/trouve-ta-caserne/police-lp.webp"
+        "upload": "landings/trouve-ta-caserne/hero-police.webp"
+      },
+      "imageMobile": {
+        "upload": "landings/trouve-ta-caserne/hero-police-mobile.webp"
       },
       "visual": "none"
     },

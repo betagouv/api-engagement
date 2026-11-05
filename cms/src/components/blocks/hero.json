@@ -42,12 +42,25 @@
     "image": {
       "type": "media",
       "multiple": false,
-      "allowedTypes": ["images"],
-      "description": "Visuel à droite du texte (sous le texte sur mobile). Ignoré si un habillage de campagne est choisi."
+      "allowedTypes": [
+        "images"
+      ],
+      "description": "Visuel à droite du texte à partir de la tablette (et sur mobile si aucune image mobile). Ignoré si un habillage de campagne est choisi."
+    },
+    "imageMobile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "description": "Visuel sous le texte sur mobile (moins de 768 px). Sans elle, l'image principale est utilisée."
     },
     "visual": {
       "type": "enumeration",
-      "enum": ["none", "chacun_pour_tous"],
+      "enum": [
+        "none",
+        "chacun_pour_tous"
+      ],
       "default": "none",
       "required": true,
       "description": "Habillage de campagne codé dans plateform (laisser sur none sauf cas particulier)."

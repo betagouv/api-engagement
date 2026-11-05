@@ -46,6 +46,7 @@ export type CmsBlock =
       secondaryUrl: string | null;
       hint: string | null;
       image: CmsMedia | null;
+      imageMobile: CmsMedia | null;
       visual: "none" | "chacun_pour_tous";
     }
   | {

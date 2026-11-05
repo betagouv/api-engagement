@@ -43,6 +43,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
     case "blocks.hero": {
       const campaignVisual = block.visual === "chacun_pour_tous";
       const image = campaignVisual ? null : block.image;
+      const mobileImage = block.imageMobile ?? image;
       const primary = block.primaryLabel && block.primaryUrl ? { label: block.primaryLabel, url: block.primaryUrl } : null;
       const secondary = block.secondaryLabel && block.secondaryUrl ? { label: block.secondaryLabel, url: block.secondaryUrl } : null;
       // Sans pastille ni bouton renseigné : hero historique avec le seul bouton quiz.
@@ -55,18 +56,22 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           hint={withActions ? undefined : (block.hint ?? undefined)}
           onStartQuiz={withActions ? undefined : () => context.onStartQuiz("hero")}
           action={withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
-          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : "pb-8 md:pb-11"} ${image ? "md:min-h-130 lg:min-h-187" : ""}`}
+          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
           {campaignVisual && <HeroVisual />}
-          {/* Visuel du CMS : sous le texte sur mobile, calé en bas à droite à partir de la tablette. */}
+          {/* Visuel du CMS : sous le texte, en pleine largeur et collé au bas du hero sur mobile (image mobile si
+              renseignée), calé en bas à droite à partir de la tablette (48em, point de rupture `md` du DSFR). */}
           {image && (
-            <img
-              src={image.url}
-              alt={image.alternativeText ?? ""}
-              width={image.width ?? undefined}
-              height={image.height ?? undefined}
-              className="mt-8 h-auto w-full md:absolute md:right-0 md:bottom-0 md:mt-0 md:w-[46%] lg:w-[56%] lg:max-w-[812px]"
-            />
+            <picture>
+              <source media="(min-width: 48em)" srcSet={image.url} width={image.width ?? undefined} height={image.height ?? undefined} />
+              <img
+                src={mobileImage?.url}
+                alt={image.alternativeText ?? ""}
+                width={mobileImage?.width ?? undefined}
+                height={mobileImage?.height ?? undefined}
+                className="mt-8 block h-auto w-full md:absolute md:right-0 md:bottom-0 md:mt-0 md:w-[46%] lg:w-[56%] lg:max-w-[812px]"
+              />
+            </picture>
           )}
         </Hero>
       );
