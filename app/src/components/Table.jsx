@@ -90,20 +90,21 @@ const Table = ({ header, caption, sortBy, total, onSort, loading, children, stic
         </table>
       </div>
       {/* eslint-enable jsx-a11y-x/no-noninteractive-tabindex */}
-      {pagination && <Pagination page={resolvedPage} setPage={handleSetPage} end={Math.ceil(total / pageSize) || 1} />}
+      {pagination && <Pagination page={resolvedPage} setPage={handleSetPage} end={Math.ceil(total / pageSize) || 1} loading={loading} />}
     </>
   );
 };
 
 // https://www.systeme-de-design.gouv.fr/version-courante/fr/composants/pagination/code-de-la-pagination
-const Pagination = ({ page, setPage, end }) => {
+const Pagination = ({ page, setPage, end, loading }) => {
   const [pages, setPages] = useState([]);
 
   useEffect(() => {
     if (page < 1) {
       setPage(1);
     }
-    if (page > end && end > 0) {
+    // Le total n'est pas connu pendant le chargement : ne pas borner la page (ex. ouverture directe de ?page=2).
+    if (!loading && page > end && end > 0) {
       setPage(end);
     }
     if (end > 5) {
@@ -117,7 +118,7 @@ const Pagination = ({ page, setPage, end }) => {
     } else {
       setPages([...Array(end).keys()].map((i) => (i + 1).toString()));
     }
-  }, [end, page]);
+  }, [end, page, loading]);
 
   return (
     <nav role="navigation" aria-label="pagination" className="mt-4 flex flex-row items-center justify-center gap-1 text-sm">
