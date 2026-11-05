@@ -1,4 +1,4 @@
-/* jstag v1
+/* jstag v1 - __ENV__
  *
  * ATTENTION — Partenaires auto-hébergeurs
  * Ce script est auto-hébergé par certains partenaires annonceurs.
@@ -6,13 +6,18 @@
  * Avant de modifier ce fichier, vérifier la liste des partenaires avec
  * selfHostedScript = true et les en informer manuellement.
  * Incrémenter le numéro de version (v1, v2, v3…) à chaque changement notable.
+ * @source-only
+ *
+ * Les placeholders (entourés de doubles underscores) de l'en-tête et de eventHost sont réécrits par
+ * vite.config.js (build et serveur de dev) avec VITE_ENV et VITE_API_URL. Récupérer ce fichier depuis l'app déployée, pas depuis le dépôt.
+ * @end-source-only
  */
 "use strict";
 ((window._apieng = window._apieng || {}),
   (window.apieng = window.apieng || {}),
   (function () {
     ((window._apieng.cookieDomain = "www." === window.location.hostname.slice(0, 4) ? window.location.hostname.slice(4) : window.location.hostname),
-      (window._apieng.eventHost = "https://api.api-engagement.beta.gouv.fr"),
+      (window._apieng.eventHost = "__API_URL__"),
       // Configuration
       (window._apieng.config = function (e) {
         window._apieng.accountId = e;
