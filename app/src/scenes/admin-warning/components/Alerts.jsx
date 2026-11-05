@@ -1,14 +1,39 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { RiArrowRightSLine } from "react-icons/ri";
+import { Link, useSearchParams } from "react-router-dom";
 
 import Avatar from "@/components/Avatar";
+import Select from "@/components/Select";
 import Table from "@/components/Table";
 import { WARNING_STATUS, WARNINGS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
+import useStore from "@/services/store";
 
 const PAGE_SIZE = 20;
-const HEADER = [{ title: "Partenaire" }, { title: "Alerte" }, { title: "Assignés" }, { title: "Notifiée" }, { title: "Statut" }];
+const HEADER = [
+  { title: "Partenaire" },
+  { title: "Alerte" },
+  { title: "Assignés" },
+  { title: "Notifiée" },
+  { title: "Statut" },
+  { title: <span className="sr-only">Détail</span> },
+];
+
+const UNASSIGNED = "none";
+const STATUS_OPTIONS = [
+  { value: "TODO", label: "À traiter" },
+  { value: "RESOLVED", label: "Résolue" },
+];
+const TYPE_OPTIONS = Object.entries(WARNINGS).map(([value, { name }]) => ({ value, label: name }));
+const fullName = (u) => [u.firstname, u.lastname].filter(Boolean).join(" ") || u.email;
+
+const Field = ({ label, children }) => (
+  <div className="flex min-w-48 flex-1 flex-col gap-1">
+    <span className="text-sm font-semibold">{label}</span>
+    {children}
+  </div>
+);
 
 export const formatDateTime = (date) => new Date(date).toLocaleString("fr", { dateStyle: "long", timeStyle: "short" });
 
@@ -33,54 +58,100 @@ export const StatusBadge = ({ status }) => {
 };
 
 const Alerts = () => {
-  const [resolved, setResolved] = useState(false);
-  const [page, setPage] = useState(1);
+  const { user } = useStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Filtres portés par l'URL : paramètre absent = valeur par défaut, paramètre vide (`?status=`) = « Tous ».
+  const filters = useMemo(() => {
+    const get = (key, fallback) => searchParams.get(key) ?? fallback;
+    return { assignee: get("assignee", user?.id || ""), status: get("status", "TODO"), type: get("type", ""), publisherId: get("publisher", "") };
+  }, [searchParams, user?.id]);
+  const page = Number(searchParams.get("page")) || 1;
+  const [admins, setAdmins] = useState([]);
+  const [publishers, setPublishers] = useState([]);
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const [resU, resP] = await Promise.all([api.post("/user/search", { role: "admin" }), api.post("/publisher/search")]);
+        if (!resU.ok) throw resU;
+        if (!resP.ok) throw resP;
+        setAdmins(resU.data);
+        setPublishers(resP.data);
+      } catch (error) {
+        captureError(error);
+      }
+    };
+    fetchOptions();
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await api.post("/warning/search", { fixed: resolved, page, size: PAGE_SIZE });
+        const res = await api.post("/warning/search", {
+          fixed: filters.status ? filters.status === "RESOLVED" : null,
+          type: filters.type || undefined,
+          publisherId: filters.publisherId || undefined,
+          assigneeId: filters.assignee && filters.assignee !== UNASSIGNED ? filters.assignee : undefined,
+          unassigned: filters.assignee === UNASSIGNED || undefined,
+          page,
+          size: PAGE_SIZE,
+        });
         if (!res.ok) throw res;
         setData(res.data);
         setTotal(res.total);
       } catch (error) {
-        captureError(error, { extra: { resolved, page } });
+        captureError(error, { extra: { filters, page } });
       }
       setLoading(false);
     };
     fetchData();
-  }, [resolved, page]);
+  }, [filters, page]);
 
-  const select = (value) => {
-    setResolved(value);
-    setPage(1);
-  };
+  const assigneeOptions = useMemo(() => [{ value: UNASSIGNED, label: "Non assignée(s)" }, ...admins.map((a) => ({ value: a.id, label: fullName(a) }))], [admins]);
+  const publisherOptions = useMemo(() => publishers.map((p) => ({ value: p.id, label: p.name })).sort((a, b) => a.label.localeCompare(b.label, "fr")), [publishers]);
+
+  const update = (changes) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        Object.entries(changes).forEach(([key, value]) => (value === null ? next.delete(key) : next.set(key, value)));
+        return next;
+      },
+      { replace: true },
+    );
+  const setFilter = (key) => (option) => update({ [key]: option.value, page: null });
+  const setPage = (value) => update({ page: value === 1 ? null : String(value) });
+  const reset = () => update({ assignee: "", status: "", type: "", publisher: "", page: null });
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-2" role="group" aria-label="Statut des alertes">
-        {[
-          { label: "Ouvertes", value: false },
-          { label: "Résolues", value: true },
-        ].map((o) => (
-          <button
-            key={o.label}
-            type="button"
-            aria-pressed={resolved === o.value}
-            onClick={() => select(o.value)}
-            className={resolved === o.value ? "primary-btn" : "secondary-btn"}
-          >
-            {o.label}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-end gap-4" role="group" aria-label="Filtres des alertes">
+        <Field label="Assigné à">
+          <Select options={assigneeOptions} value={filters.assignee} placeholder="Tous" onChange={setFilter("assignee")} />
+        </Field>
+        <Field label="Statut">
+          <Select options={STATUS_OPTIONS} value={filters.status} placeholder="Tous" onChange={setFilter("status")} />
+        </Field>
+        <Field label="Type d’alerte">
+          <Select options={TYPE_OPTIONS} value={filters.type} placeholder="Tous" onChange={setFilter("type")} />
+        </Field>
+        <Field label="Partenaire">
+          <Select options={publisherOptions} value={filters.publisherId} placeholder="Tous" onChange={setFilter("publisher")} />
+        </Field>
+        <button type="button" className="tertiary-bis-btn" onClick={reset}>
+          Tout réinitialiser
+        </button>
       </div>
+      <p className="text-sm font-semibold" role="status">
+        {loading ? "Chargement…" : `${total} alerte${total > 1 ? "s" : ""}`}
+      </p>
       <Table caption="Liste des alertes" header={HEADER} pagination page={page} pageSize={PAGE_SIZE} onPageChange={setPage} total={total} loading={loading}>
         {data.map((w, i) => (
-          <tr key={w.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} table-row`}>
+          <tr key={w.id} className={`${i % 2 === 0 ? "bg-table-even" : "bg-table-odd"} relative table-row hover:bg-gray-950`}>
             <td className="p-4">
               <div className="flex items-center gap-3">
                 {w.publisherLogo ? (
@@ -92,7 +163,7 @@ const Alerts = () => {
               </div>
             </td>
             <td className="space-y-1 p-4">
-              <Link className="link text-base font-bold" to={`/admin-warning/alerts/${w.id}`}>
+              <Link className="link text-base font-bold after:absolute after:inset-0 after:content-['']" to={`/admin-warning/alerts/${w.id}`}>
                 {w.title || (WARNINGS[w.type] || WARNINGS.OTHER_WARNING).name}
               </Link>
               <p className="text-xs">
@@ -124,6 +195,9 @@ const Alerts = () => {
             </td>
             <td className="p-4">
               <StatusBadge status={w.status} />
+            </td>
+            <td className="text-blue-france p-4">
+              <RiArrowRightSLine className="text-2xl" aria-hidden="true" />
             </td>
           </tr>
         ))}

@@ -358,6 +358,17 @@ describe("Admin alerts screen endpoints", () => {
     expect(res.body.data[0].type).toBe("ERROR_WARNING");
   });
 
+  it("filters by assignee, unassigned, and all statuses with fixed null", async () => {
+    const { user } = await createTestUser({ role: "admin" });
+    await warningService.createWarning({ type: "TRACKING_WARNING", publisherId, assigneeIds: [user.id] });
+    await warningService.createWarning({ type: "ERROR_WARNING", publisherId, status: "RESOLVED" });
+
+    const search = (body: object) => request(app).post("/warning/search").set(adminAuth).send({ page: 1, ...body });
+    expect((await search({ assigneeId: user.id, fixed: null })).body.data.map((w: { type: string }) => w.type)).toEqual(["TRACKING_WARNING"]);
+    expect((await search({ unassigned: true, fixed: null })).body.data.map((w: { type: string }) => w.type)).toEqual(["ERROR_WARNING"]);
+    expect((await search({ fixed: null })).body.total).toBe(2);
+  });
+
   it("gets an alert by id, 404 when unknown", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId });
     const ok = await request(app).get(`/warning/${alert.id}`).set(adminAuth);

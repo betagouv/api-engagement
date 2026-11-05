@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { RiArrowLeftLine } from "react-icons/ri";
+import { RiArrowLeftLine, RiExternalLinkLine } from "react-icons/ri";
 import { Link, useParams } from "react-router-dom";
 
 import Avatar from "@/components/Avatar";
@@ -95,6 +95,9 @@ const AlertDetail = () => {
           <p className="text-sm">
             {label.name} · {alert.occurrences} occurrence{alert.occurrences > 1 ? "s" : ""}
           </p>
+          <Link className="tertiary-btn mt-3" to={`/${alert.publisherId}/performance`}>
+            Accéder à l’espace du partenaire
+          </Link>
         </div>
       </div>
       {alert.description && <p className="whitespace-pre-line">{alert.description}</p>}
@@ -140,8 +143,10 @@ const AlertDetail = () => {
           <div>
             <dt className="font-bold">Procédure</dt>
             <dd>
-              <a className="link" href={alert.procedureUrl} target="_blank" rel="noopener noreferrer">
-                Ouvrir la procédure (nouvel onglet)
+              <a className="primary-btn gap-2" href={alert.procedureUrl} target="_blank" rel="noopener noreferrer">
+                Consulter la procédure
+                <RiExternalLinkLine aria-hidden="true" />
+                <span className="sr-only">(nouvel onglet)</span>
               </a>
             </dd>
           </div>

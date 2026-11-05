@@ -23,8 +23,11 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
   try {
     const body = zod
       .object({
-        fixed: zod.coerce.boolean().default(false),
+        // `null` = tous les statuts ; absent = alertes ouvertes (comportement historique).
+        fixed: zod.union([zod.null(), zod.coerce.boolean()]).default(false),
         publisherId: zod.string().optional(),
+        assigneeId: zod.string().optional(),
+        unassigned: zod.boolean().optional(),
         type: zod.string().optional(),
         status: zod.enum(["TODO", "IN_PROGRESS", "RESOLVED"]).optional(),
         month: zod.number().optional(),
@@ -58,9 +61,11 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
 
     // `status` remplace `fixed` quand il est fourni ; sans `page`, la réponse reste la liste complète (appelants historiques).
     const params = {
-      fixed: body.data.status ? undefined : body.data.fixed,
+      fixed: body.data.status ? undefined : (body.data.fixed ?? undefined),
       status: body.data.status,
       publisherId: body.data.publisherId,
+      assigneeId: body.data.assigneeId,
+      unassigned: body.data.unassigned,
       type: body.data.type,
       createdAtGte,
       createdAtLt,
