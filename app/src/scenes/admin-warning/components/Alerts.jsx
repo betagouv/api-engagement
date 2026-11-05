@@ -59,7 +59,7 @@ export const StatusBadge = ({ status }) => {
 
 const Alerts = () => {
   const { user } = useStore();
-  const initialFilters = { assignee: user?.id || "", status: "", type: "", publisherId: "" };
+  const initialFilters = { assignee: user?.id || "", status: "TODO", type: "", publisherId: "" };
   const [filters, setFilters] = useState(initialFilters);
   const [admins, setAdmins] = useState([]);
   const [publishers, setPublishers] = useState([]);
