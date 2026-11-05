@@ -27,7 +27,9 @@ const POPULATE = [
   "populate[blocks][on][blocks.benefits][populate][benefits]=true",
   "populate[blocks][on][blocks.cards][populate][cards]=true",
   "populate[blocks][on][blocks.stories][populate][stories][populate]=*",
+  "populate[blocks][on][blocks.testimonials][populate][testimonials][populate]=*",
   "populate[blocks][on][blocks.faq][populate][questions]=true",
+  "populate[blocks][on][blocks.accordion][populate]=*",
   "populate[blocks][on][blocks.partners][populate][partners][populate]=*",
 ].join("&");
 

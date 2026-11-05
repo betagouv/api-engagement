@@ -22,9 +22,9 @@ export default function HeroVisual() {
 
       {/* Pictos casque, carte, gilet et badge : groupe de 330×228 dans la maquette desktop. */}
       <div className="absolute top-[14.2%] left-[65.4%] aspect-330/228 w-[36%] md:top-[32%] md:left-[72.1%] md:w-[31.4%]">
-        <img src={CasqueSvg} alt="" className="absolute top-[22.8%] left-[18.6%] w-[20.9%] -translate-1/2 -rotate-[7.89deg]" />
+        <img src={CasqueSvg} alt="" className="absolute top-[22.8%] left-[18.6%] w-[20.9%] -translate-1/2 rotate-[-7.89deg]" />
         <img src={CasqueTraitsSvg} alt="" className="absolute top-[19.9%] left-[4.7%] w-[4.9%] -translate-1/2 rotate-[156.33deg]" />
-        <img src={CarteSvg} alt="" className="absolute top-[16.8%] left-[58.7%] w-[27.1%] -translate-1/2 -rotate-[5.35deg]" />
+        <img src={CarteSvg} alt="" className="absolute top-[16.8%] left-[58.7%] w-[27.1%] -translate-1/2 rotate-[-5.35deg]" />
         <img src={GiletSvg} alt="" className="absolute top-[53%] left-[39.1%] w-[20.4%] -translate-1/2 rotate-[5.78deg]" />
         <img src={BadgeSvg} alt="" className="absolute top-[73.3%] left-[81.6%] w-[23%] -translate-1/2 rotate-[43.1deg]" />
       </div>
@@ -32,7 +32,7 @@ export default function HeroVisual() {
       {/* Curseur « clic » : absent de la maquette mobile. */}
       <div className="absolute top-[66.5%] left-[2.3%] hidden aspect-94/98 w-[8.9%] md:block">
         <img src={CurseurSvg} alt="" className="absolute top-[66.3%] left-[60.9%] w-[73.8%] -translate-1/2 rotate-[11.99deg]" />
-        <img src={CurseurTraitsSvg} alt="" className="absolute top-[21.4%] left-[20%] w-[31.3%] -translate-1/2 -rotate-[165.07deg]" />
+        <img src={CurseurTraitsSvg} alt="" className="absolute top-[21.4%] left-[20%] w-[31.3%] -translate-1/2 rotate-[-165.07deg]" />
       </div>
     </div>
   );

@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Hero",
     "icon": "picture",
-    "description": "Titre, texte et bouton « Trouve ta mission » (quiz)."
+    "description": "Titre, texte, pastilles et boutons. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz)."
   },
   "attributes": {
     "title": {
@@ -15,8 +15,45 @@
       "required": true,
       "description": "Retour à la ligne = saut de ligne. ==mot== pour surligner."
     },
-    "hint": {
+    "tags": {
+      "type": "component",
+      "repeatable": true,
+      "component": "items.hero-tag"
+    },
+    "primaryLabel": {
+      "type": "string",
+      "description": "Bouton principal (ex. : Je candidate). Remplace le bouton quiz si le lien est renseigné."
+    },
+    "primaryUrl": {
+      "type": "string",
+      "description": "Lien du bouton principal. Une URL https://… s'ouvre dans un nouvel onglet."
+    },
+    "secondaryLabel": {
+      "type": "string",
+      "description": "Bouton secondaire (ex. : En savoir plus sur la mission)."
+    },
+    "secondaryUrl": {
       "type": "string"
+    },
+    "hint": {
+      "type": "string",
+      "description": "Texte en italique sous les boutons."
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "description": "Visuel à droite du texte à partir de la tablette (et sur mobile si aucune image mobile). Ignoré si un habillage de campagne est choisi."
+    },
+    "imageMobile": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ],
+      "description": "Visuel sous le texte sur mobile (moins de 768 px). Sans elle, l'image principale est utilisée."
     },
     "visual": {
       "type": "enumeration",

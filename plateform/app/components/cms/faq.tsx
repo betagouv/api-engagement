@@ -5,8 +5,8 @@ export type Question = { icon: string; question: string; answer: string };
 // Titre, introduction et questions/réponses illustrées d'un pictogramme, pilotés par le CMS.
 export default function Faq({ title, intro, questions }: { title: ReactNode; intro?: ReactNode; questions: Question[] }) {
   return (
-    <section className="fr-container flex flex-col gap-6 lg:flex-row lg:justify-between lg:gap-12">
-      <div className="lg:max-w-107">
+    <section className="fr-container flex flex-col gap-6 lg:flex-row lg:justify-between lg:gap-12 lg:max-w-6xl!">
+      <div className="lg:max-w-106">
         <h2 className="fr-h2 mb-4!">{title}</h2>
         {intro && <p className="fr-text--lg mb-0!">{intro}</p>}
       </div>
