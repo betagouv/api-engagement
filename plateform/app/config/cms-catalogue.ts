@@ -13,7 +13,7 @@ import jvaLogo from "~/assets/images/logo/jva-logo.png";
 import spvLogo from "~/assets/images/logo/spv-logo.png";
 import type { CmsBlock, CmsMedia } from "~/types/cms";
 
-// Exemples affichés sur le catalogue des blocs du CMS (/catalogue-blocs) : une ou plusieurs variantes par bloc.
+// Exemples affichés sur le catalogue des blocs du CMS (/_cms/catalogue-blocs) : une ou plusieurs variantes par bloc.
 // Typés `CmsBlock` : un bloc ajouté ou modifié dans `types/cms.ts` sans exemple à jour fait échouer le typecheck.
 const media = (url: string, alternativeText: string | null = null): CmsMedia => ({ url, alternativeText, width: null, height: null });
 

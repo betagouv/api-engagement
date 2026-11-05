@@ -48,8 +48,9 @@ export default [
 
   // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales), rendues depuis le contenu du CMS (cf. routes/cms-page.tsx).
   route("pages/:slug", "routes/cms-page.tsx"),
-  // Catalogue interne des blocs du CMS (exemples + champs), non indexé.
-  route("catalogue-blocs", "routes/catalogue-blocs.tsx"),
+  // Outils internes affichés dans l'admin Strapi (iframe) : pas de header/footer (cf. root.tsx), non indexés.
+  // Catalogue des blocs du CMS (exemples + champs).
+  route("_cms/catalogue-blocs", "routes/catalogue-blocs.tsx"),
 
   // Pages légales et informatives, liées depuis le footer.
   route("plan-du-site", "routes/plan-du-site.tsx"),

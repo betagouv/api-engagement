@@ -7,7 +7,7 @@ import type { CmsBlock, CmsMedia } from "~/types/cms";
 
 type Values = Record<string, unknown>;
 
-// Démonstration d'un bloc du CMS (catalogue /catalogue-blocs), à la manière des démos du DSFR : aperçu en direct
+// Démonstration d'un bloc du CMS (catalogue /_cms/catalogue-blocs), à la manière des démos du DSFR : aperçu en direct
 // et paramètres générés depuis le schéma Strapi. Rien n'est enregistré.
 export default function CatalogueEditor({
   uid,

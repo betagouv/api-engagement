@@ -6,11 +6,12 @@ import CatalogueEditor from "~/components/cms/catalogue-editor";
 import { CATALOGUE_EXAMPLES, CATALOGUE_MISSIONS } from "~/config/cms-catalogue";
 import type { CmsBlock } from "~/types/cms";
 import { type CatalogueField, getBlockSchema } from "~/services/cms-catalogue.server";
+import { CMS_PUBLIC_URL } from "~/services/cms.server";
 
 import type { Route } from "./+types/catalogue-blocs";
 
 // Catalogue interne des blocs du CMS : rendu de chaque bloc avec des données d'exemple et liste de ses champs,
-// lue dans les schémas Strapi (cms/src/components). Non indexée.
+// lue dans les schémas Strapi (cms/src/components). Non indexée, affichée dans l'admin Strapi (menu « Catalogue des blocs »).
 export function meta(): Route.MetaDescriptors {
   return [{ title: "Catalogue des blocs du CMS" }, { name: "robots", content: "noindex, nofollow" }];
 }
@@ -19,11 +20,16 @@ const BLOCK_UIDS = [...new Set(CATALOGUE_EXAMPLES.map(({ block }) => block.__com
 
 const CONTEXT: CmsBlocksContext = {
   landing: "landing_catalogue_blocs",
-  path: "/catalogue-blocs",
+  path: "/_cms/catalogue-blocs",
   missionsByBlock: { 0: CATALOGUE_MISSIONS },
   onStartQuiz: () => {},
   missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
 };
+
+// Seule l'admin Strapi peut afficher la page en iframe.
+export function headers() {
+  return { "Content-Security-Policy": `frame-ancestors 'self' ${CMS_PUBLIC_URL}` };
+}
 
 export async function loader({ request }: Route.LoaderArgs) {
   // Bloc affiché : `?bloc=blocks.hero` (lien partageable), le premier par défaut.

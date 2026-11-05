@@ -1,7 +1,7 @@
 import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
 import { type ReactNode } from "react";
-import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useNavigation } from "react-router";
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useLocation, useNavigation } from "react-router";
 import CookieConsentManager from "~/components/layout/cookie-consent-manager";
 import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
@@ -28,7 +28,12 @@ export function meta({ error }: Route.MetaArgs): Route.MetaDescriptors {
   return [{ title: isNotFound ? "Page introuvable | Trouve ta mission" : "Une erreur est survenue | Trouve ta mission" }];
 }
 
+// Outils internes (/_cms/…) affichés dans l'admin Strapi : sans header, footer ni bandeau cookies.
+const isCmsTool = (pathname: string) => pathname.startsWith("/_cms/");
+
 export function Layout({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+
   return (
     <html lang="fr" data-fr-scheme="system" suppressHydrationWarning>
       <head>
@@ -44,9 +49,9 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body className="flex flex-col min-h-screen">
-        <SkipLinks />
+        {!isCmsTool(pathname) && <SkipLinks />}
         {children}
-        <CookieConsentManager />
+        {!isCmsTool(pathname) && <CookieConsentManager />}
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -56,6 +61,9 @@ export function Layout({ children }: { children: ReactNode }) {
 
 export default function Root() {
   const navigation = useNavigation();
+  const { pathname } = useLocation();
+
+  if (isCmsTool(pathname)) return <Outlet />;
 
   return (
     <>
