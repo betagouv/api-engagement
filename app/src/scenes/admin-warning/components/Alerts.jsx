@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { RiArrowRightSLine } from "react-icons/ri";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import Avatar from "@/components/Avatar";
 import Select from "@/components/Select";
@@ -59,11 +59,15 @@ export const StatusBadge = ({ status }) => {
 
 const Alerts = () => {
   const { user } = useStore();
-  const initialFilters = { assignee: user?.id || "", status: "TODO", type: "", publisherId: "" };
-  const [filters, setFilters] = useState(initialFilters);
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Filtres portés par l'URL : paramètre absent = valeur par défaut, paramètre vide (`?status=`) = « Tous ».
+  const filters = useMemo(() => {
+    const get = (key, fallback) => searchParams.get(key) ?? fallback;
+    return { assignee: get("assignee", user?.id || ""), status: get("status", "TODO"), type: get("type", ""), publisherId: get("publisher", "") };
+  }, [searchParams, user?.id]);
+  const page = Number(searchParams.get("page")) || 1;
   const [admins, setAdmins] = useState([]);
   const [publishers, setPublishers] = useState([]);
-  const [page, setPage] = useState(1);
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -110,14 +114,18 @@ const Alerts = () => {
   const assigneeOptions = useMemo(() => [{ value: UNASSIGNED, label: "Non assignée(s)" }, ...admins.map((a) => ({ value: a.id, label: fullName(a) }))], [admins]);
   const publisherOptions = useMemo(() => publishers.map((p) => ({ value: p.id, label: p.name })).sort((a, b) => a.label.localeCompare(b.label, "fr")), [publishers]);
 
-  const setFilter = (key) => (option) => {
-    setFilters((f) => ({ ...f, [key]: option.value }));
-    setPage(1);
-  };
-  const reset = () => {
-    setFilters({ assignee: "", status: "", type: "", publisherId: "" });
-    setPage(1);
-  };
+  const update = (changes) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        Object.entries(changes).forEach(([key, value]) => (value === null ? next.delete(key) : next.set(key, value)));
+        return next;
+      },
+      { replace: true },
+    );
+  const setFilter = (key) => (option) => update({ [key]: option.value, page: null });
+  const setPage = (value) => update({ page: value === 1 ? null : String(value) });
+  const reset = () => update({ assignee: "", status: "", type: "", publisher: "", page: null });
 
   return (
     <div className="space-y-6">
@@ -132,7 +140,7 @@ const Alerts = () => {
           <Select options={TYPE_OPTIONS} value={filters.type} placeholder="Tous" onChange={setFilter("type")} />
         </Field>
         <Field label="Partenaire">
-          <Select options={publisherOptions} value={filters.publisherId} placeholder="Tous" onChange={setFilter("publisherId")} />
+          <Select options={publisherOptions} value={filters.publisherId} placeholder="Tous" onChange={setFilter("publisher")} />
         </Field>
         <button type="button" className="tertiary-bis-btn" onClick={reset}>
           Tout réinitialiser
