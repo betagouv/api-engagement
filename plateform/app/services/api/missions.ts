@@ -1,6 +1,7 @@
-import type { MissionBrowseFilters, MissionBrowseResponse } from "@engagement/dto";
+import type { MissionBrowseFilters, MissionBrowseResponse, MissionDetailResponse } from "@engagement/dto";
 
 import { createApi } from "~/services/api";
+import { sanitizeDescriptionHtml } from "~/services/api/sanitize";
 
 const appendMulti = (params: URLSearchParams, key: string, values?: string | string[]) => {
   if (!values?.length) return;
@@ -27,4 +28,10 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   if (filters.slots?.length) params.set("slots", JSON.stringify(filters.slots));
 
   return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`);
+}
+
+export async function getMissionDetail(id: string, request: Request): Promise<MissionDetailResponse> {
+  const mission = await createApi(request).get<MissionDetailResponse>(`/missions/browse/${encodeURIComponent(id)}`);
+  if (mission.descriptionHtml) mission.descriptionHtml = sanitizeDescriptionHtml(mission.descriptionHtml);
+  return mission;
 }
