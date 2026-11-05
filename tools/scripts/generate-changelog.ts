@@ -42,8 +42,8 @@ const NOTION_TICKET_FIELDS = {
 // ⚙️  Thème des noms de code — modifier uniquement ici pour changer de thème
 // ---------------------------------------------------------------------------
 const CODE_NAME_THEME = {
-  description: "prénoms traditionnels Francs (mérovingiens et carolingiens)",
-  examples: "Clovis, Pépin, Dagobert, Childebert, Caribert, Mérovée, Sigebert, Gontran, Thierry, Chilpéric",
+  description: "personnalité vivante, française ou internationale, connue pour son engagement (sport, culture, solidarité, écologie), consensuelle et sans polémique",
+  examples: "Marcus Rashford, Lilian Thuram, Omar Sy, Dolly Parton, Teddy Riner, Camille Étienne, Jane Goodall, Yannick Noah",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ const GITHUB_REPO = "betagouv/api-engagement";
 // ⚙️  Apps connues — ordre d'affichage et décorateurs Slack
 // ---------------------------------------------------------------------------
 const APPS = [
-  { scope: "plateform", label: "Plateforme de l'engagement", decorator: "🇫🇷" },
+  { scope: "plateform", label: "TrouveTaMission", decorator: "🇫🇷" },
   { scope: "app", label: "Tableau de bord", decorator: "💻" },
   { scope: "api", label: "API", decorator: "⚙️" },
   { scope: "widget", label: "Widget", decorator: "🖼️" },
@@ -422,7 +422,7 @@ Section "sections" :
 - Produis autant de bullets que nécessaire pour couvrir la release, sans limite artificielle
 - Ajoute les changements de fiabilité, données, suivi ou automatisation quand ils ont un effet opérationnel clair
 - N'inclure que les apps qui ont des changements visibles
-- Ordre des apps : Plateforme de l'Engagement, Tableau de bord, API, Widget, Analytics
+- Ordre des apps : ${APPS.map((a) => a.label).join(", ")}
 
 Réponds UNIQUEMENT avec un objet JSON de la forme :
 {
@@ -452,11 +452,11 @@ async function generateCodeName(tag: string, existingCodeNames: string[], openai
   const normalizedExistingCodeNames = new Set(existingCodeNames.map(normalizeCodeName));
 
   for (let attempt = 1; attempt <= CODE_NAME_GENERATION.maxAttempts; attempt += 1) {
-    const previousAttempts = attempt > 1 ? `Tentative ${attempt}/${CODE_NAME_GENERATION.maxAttempts} : propose un autre prénom. ` : "";
+    const previousAttempts = attempt > 1 ? `Tentative ${attempt}/${CODE_NAME_GENERATION.maxAttempts} : propose une autre personnalité. ` : "";
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      max_tokens: 20,
+      max_tokens: 30,
       messages: [
         {
           role: "user",
@@ -465,7 +465,7 @@ async function generateCodeName(tag: string, existingCodeNames: string[], openai
             `Exemples : ${CODE_NAME_THEME.examples}. ` +
             (excludedCodeNames ? `Noms déjà attribués à exclure absolument : ${excludedCodeNames}. ` : "") +
             previousAttempts +
-            `Réponds uniquement avec le prénom, sans ponctuation ni explication.`,
+            `Réponds uniquement avec le prénom et le nom, sans ponctuation ni explication.`,
         },
       ],
     });
