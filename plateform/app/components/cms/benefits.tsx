@@ -44,7 +44,7 @@ export default function Benefits({
 
   return (
     <section className="fr-container">
-      <div className="bg-blue-ecume-850 flex flex-col gap-8 rounded-sm p-4 shadow-[0_6px_18px_0_rgba(0,0,18,0.16)] md:p-8 lg:flex-row lg:items-start lg:gap-6 lg:p-15">
+      <div className="bg-blue-ecume-850 flex flex-col gap-8 rounded-sm p-4 shadow-[0_6px_18px_0_rgba(0,0,18,0.16)] md:p-8 lg:flex-row lg:items-start lg:gap-16 lg:p-15">
         <div className="flex flex-1 flex-col gap-6 md:gap-10">
           <h2 className="fr-h1 mb-0!">{title}</h2>
           <ul role="list" className="m-0! flex list-none! flex-col items-start gap-2 p-0! drop-shadow-[0_6px_9px_rgba(0,0,18,0.16)] md:flex-row md:flex-wrap md:gap-6">
