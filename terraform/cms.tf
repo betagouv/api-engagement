@@ -71,6 +71,10 @@ resource "scaleway_container" "cms" {
 
     "CMS_MEDIA_BUCKET" = local.cms_media_bucket_name
     "CMS_MEDIA_REGION" = "fr-par"
+
+    # Catalogue des blocs de plateform, affiché en iframe dans l'admin. Domaine personnalisé uniquement : le domaine
+    # Scaleway du conteneur plateform créerait un cycle (plateform dépend déjà de l'URL du CMS).
+    "PLATEFORM_URL" = var.ttm_hostname != "" ? "https://${var.ttm_hostname}" : ""
   }
 
   secret_environment_variables = {

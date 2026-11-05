@@ -5,7 +5,10 @@ const bucket = process.env.CMS_MEDIA_BUCKET;
 const mediaHost = bucket ? `${bucket}.s3.${process.env.CMS_MEDIA_REGION ?? "fr-par"}.scw.cloud` : null;
 const mediaSources = mediaHost ? [`https://${mediaHost}`] : [];
 
-// Liste par défaut, explicite, dont `strapi::security` configurée pour autoriser les médias du bucket.
+// Catalogue des blocs de plateform, affiché en iframe dans l'admin (cf. src/admin/app.tsx).
+const plateformUrl = process.env.PLATEFORM_URL || "http://localhost:3005";
+
+// Liste par défaut, explicite, dont `strapi::security` configurée pour autoriser les médias du bucket et l'iframe plateform.
 const config: Core.Config.Middlewares = [
   "strapi::logger",
   "strapi::errors",
@@ -17,6 +20,7 @@ const config: Core.Config.Middlewares = [
         directives: {
           "img-src": ["'self'", "data:", "blob:", "https://market-assets.strapi.io", ...mediaSources],
           "media-src": ["'self'", "data:", "blob:", ...mediaSources],
+          "frame-src": ["'self'", plateformUrl],
         },
       },
     },
