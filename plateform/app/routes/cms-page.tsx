@@ -1,10 +1,10 @@
-import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseFilters, MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
 import CmsBlocks from "~/components/cms";
 import { getCmsPage } from "~/services/cms.server";
-import { browseMissions } from "~/services/api/missions";
+import { browseMissions, getMissionDetail } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
@@ -43,8 +43,18 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   // Missions de chaque bloc « Missions » : les créneaux mis en avant, puis (option) 10 missions d'une page tirée
   // au hasard parmi les 10 premières pour varier le carrousel. Dédoublonnage par id.
   const missionsByBlock: Record<number, MissionBrowse[]> = {};
+  // Mission de chaque bloc « Fiche mission » : absente (introuvable, non diffusée, API indisponible) → bloc ignoré.
+  const missionDetailsByBlock: Record<number, MissionDetailResponse> = {};
   await Promise.all(
     page.blocks.map(async (block: CmsBlock, index: number) => {
+      if (block.__component === "blocks.mission-detail") {
+        try {
+          missionDetailsByBlock[index] = await getMissionDetail(block.missionId, request);
+        } catch {
+          // Bloc ignoré.
+        }
+        return;
+      }
       if (block.__component !== "blocks.missions") return;
       const slots = block.slots.map(({ dispositif, domaineEngagement }) => ({
         ...(dispositif && { dispositif }),
@@ -58,11 +68,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }),
   );
 
-  return { page, missionsByBlock };
+  return { page, missionsByBlock, missionDetailsByBlock };
 }
 
 export default function CmsLanding() {
-  const { page, missionsByBlock } = useLoaderData<typeof loader>();
+  const { page, missionsByBlock, missionDetailsByBlock } = useLoaderData<typeof loader>();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
@@ -92,8 +102,8 @@ export default function CmsLanding() {
     onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
   });
 
-  // Un hero porte déjà le h1 ; sans hero, le titre de la page en tient lieu.
-  const hasHero = page.blocks.some((block) => block.__component === "blocks.hero");
+  // Un hero ou une fiche mission affichée porte déjà le h1 ; sinon, le titre de la page en tient lieu.
+  const hasHero = page.blocks.some((block, index) => block.__component === "blocks.hero" || missionDetailsByBlock[index]);
 
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-15!">
@@ -102,7 +112,7 @@ export default function CmsLanding() {
           <h1 className="mb-0!">{page.title}</h1>
         </div>
       )}
-      <CmsBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, onStartQuiz, missionsCta }} />
+      <CmsBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, missionDetailsByBlock, onStartQuiz, missionsCta }} />
     </main>
   );
 }

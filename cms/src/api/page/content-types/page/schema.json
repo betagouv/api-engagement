@@ -43,6 +43,7 @@
       "required": true,
       "components": [
         "blocks.hero",
+        "blocks.mission-detail",
         "blocks.rich-text",
         "blocks.image",
         "blocks.missions",
@@ -53,7 +54,8 @@
         "blocks.testimonials",
         "blocks.faq",
         "blocks.accordion",
-        "blocks.partners"
+        "blocks.partners",
+        "blocks.newsletter"
       ]
     }
   }

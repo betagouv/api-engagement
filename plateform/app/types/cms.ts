@@ -55,6 +55,7 @@ export type CmsBlock =
       examples: boolean;
       background: "creme" | "galet";
     }
+  | { __component: "blocks.mission-detail"; missionId: string; backUrl: string | null }
   | { __component: "blocks.rich-text"; title: string | null; body: CmsRichTextNode[] }
   | { __component: "blocks.image"; image: CmsMedia; caption: string | null }
   | { __component: "blocks.etapes"; items: { icon: string; title: string; description: string }[] }
@@ -71,6 +72,7 @@ export type CmsBlock =
       linkUrl: string | null;
       teamPhotos: CmsMedia[] | null;
     }
+  | { __component: "blocks.newsletter"; title: string; subtitle: string; ctaText: string; hintText: string }
   | { __component: "blocks.partners"; title: string; partners: { name: string; description: string; url: string | null; logo: CmsMedia }[] };
 
 export type CmsPage = {

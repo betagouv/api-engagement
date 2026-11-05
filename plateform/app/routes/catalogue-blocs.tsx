@@ -3,7 +3,7 @@ import { Link, useLoaderData } from "react-router";
 
 import { type CmsBlocksContext } from "~/components/cms";
 import CatalogueEditor from "~/components/cms/catalogue-editor";
-import { CATALOGUE_EXAMPLES, CATALOGUE_MISSIONS } from "~/config/cms-catalogue";
+import { CATALOGUE_EXAMPLES, CATALOGUE_MISSION_DETAIL, CATALOGUE_MISSIONS } from "~/config/cms-catalogue";
 import type { CmsBlock } from "~/types/cms";
 import { type CatalogueField, getBlockSchema } from "~/services/cms-catalogue.server";
 import { CMS_PUBLIC_URL } from "~/services/cms.server";
@@ -22,6 +22,7 @@ const CONTEXT: CmsBlocksContext = {
   landing: "landing_catalogue_blocs",
   path: "/_cms/catalogue-blocs",
   missionsByBlock: { 0: CATALOGUE_MISSIONS },
+  missionDetailsByBlock: { 0: CATALOGUE_MISSION_DETAIL },
   onStartQuiz: () => {},
   missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
 };

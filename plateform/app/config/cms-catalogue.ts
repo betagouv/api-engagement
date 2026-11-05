@@ -1,4 +1,4 @@
-import type { MissionBrowse } from "@engagement/dto";
+import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 
 import missionAsc from "~/assets/images/home/mission-asc.webp";
 import missionJva from "~/assets/images/home/mission-jva.webp";
@@ -118,6 +118,10 @@ export const CATALOGUE_EXAMPLES: { label: string; block: CmsBlock }[] = [
         { type: "quote", children: [{ type: "text", text: "Une citation." }] },
       ],
     },
+  },
+  {
+    label: "Exemple (mission fictive ; dans le CMS, la mission est lue dans l'API)",
+    block: { __component: "blocks.mission-detail", missionId: "exemple-police", backUrl: "/" },
   },
   {
     label: "Exemple",
@@ -246,6 +250,16 @@ export const CATALOGUE_EXAMPLES: { label: string; block: CmsBlock }[] = [
       ],
     },
   },
+  {
+    label: "Textes par défaut",
+    block: {
+      __component: "blocks.newsletter",
+      title: "Reçois tes missions par email",
+      subtitle: "1 email par mois avec des missions qui pourraient t'intéresser.",
+      ctaText: "Recevoir mes missions",
+      hintText: "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment.",
+    },
+  },
 ];
 
 const exampleMission = (id: string, title: string, photo: string, organizationName: string): MissionBrowse => ({
@@ -280,3 +294,32 @@ export const CATALOGUE_MISSIONS: MissionBrowse[] = [
   exampleMission("exemple-2", "Animer des ateliers de soutien scolaire", missionAsc, "Collège Jean Moulin"),
   exampleMission("exemple-3", "Renforcer le centre de secours de ton secteur", missionSpv, "SDIS du Rhône"),
 ];
+
+// Mission affichée par l'exemple du bloc « Fiche mission ».
+export const CATALOGUE_MISSION_DETAIL: MissionDetailResponse = {
+  id: "exemple-police",
+  title: "Je deviens réserviste de la Police nationale près de chez moi",
+  domain: "service-public-defense-securite",
+  domainLogo: null,
+  type: "volontariat_reserve_operationnelle",
+  publisherId: null,
+  publisherName: "Police nationale",
+  publisherLogo: null,
+  organizationName: "Police nationale",
+  organizationLogo: null,
+  location: null,
+  startAt: null,
+  endAt: null,
+  duration: null,
+  schedule: "Quelques jours par mois",
+  compensation: { amount: 74, amountMax: 119, unit: "day", type: "gross" },
+  descriptionHtml:
+    "<p>Engagez-vous pour la sécurité de tous, près de chez vous.</p><h3>Vos missions</h3><ul><li>sécuriser un festival, un concert ou une compétition sportive</li><li>participer à des actions de prévention routière</li></ul>",
+  description: null,
+  applicationUrl: "https://demarche.numerique.gouv.fr/dossiers/new?procedure_id=43316",
+  photo: heroEngagementSecurite,
+  remote: "local",
+  openToMinors: false,
+  reducedMobilityAccessible: false,
+  places: 5000,
+};

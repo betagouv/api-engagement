@@ -1,0 +1,47 @@
+{
+  "title": "Je deviens réserviste de la Police nationale près de chez moi",
+  "slug": "trouve-ta-caserne-mission",
+  "seoTitle": "Je deviens réserviste de la Police nationale | Trouve ta mission",
+  "seoDescription": "Quelques jours par mois, renforce les policiers de ton secteur : sécurisation d'événements, prévention, accueil du public. Dès 18 ans, avec indemnisation.",
+  "noindex": true,
+  "blocks": [
+    {
+      "__component": "blocks.mission-detail",
+      "missionId": "6c930858-fcf0-42f5-a0fd-cc7134240bca",
+      "backUrl": "/pages/trouve-ta-caserne"
+    },
+    {
+      "__component": "blocks.missions",
+      "title": "Il y a plein d'autres ==façons d'aider==",
+      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Trouve la mission d'engagement qui te correspond !",
+      "slots": [
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "solidarite_inclusion"
+        },
+        {
+          "dispositif": "service_civique",
+          "domaineEngagement": "sport"
+        },
+        {
+          "dispositif": "sapeurs_pompiers",
+          "domaineEngagement": "securite_secours"
+        },
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "education"
+        }
+      ],
+      "fillWithRandom": true,
+      "examples": true,
+      "background": "creme"
+    },
+    {
+      "__component": "blocks.newsletter",
+      "title": "Reçois tes missions par email",
+      "subtitle": "1 email par mois avec des missions qui pourraient t'intéresser.",
+      "ctaText": "Recevoir mes missions",
+      "hintText": "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+    }
+  ]
+}
