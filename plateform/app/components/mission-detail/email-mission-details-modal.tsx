@@ -69,7 +69,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
       }
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {
-        setError("Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr");
+        setError("Le format de l'adresse e-mail n'est pas valide. Le format attendu est : nom@email.fr");
       } else {
         setError("Une erreur est survenue. Merci de réessayer.");
       }
@@ -84,7 +84,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
         Recevoir cette mission par e-mail
       </button>
 
-      <Modal open={open} onClose={handleClose} title="Reçois ta mission par email" titleIcon="fr-icon-mail-line">
+      <Modal open={open} onClose={handleClose} title="Reçois ta mission par e-mail" titleIcon="fr-icon-mail-line">
         {success ? (
           <div role="status" className="fr-alert fr-alert--success">
             <p>La mission a bien été envoyée ! Vérifie ta boîte mail.</p>
@@ -99,7 +99,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
 
             <div className={`fr-input-group fr-mb-2w ${error ? "fr-input-group--error" : ""}`}>
               <label className="fr-label" htmlFor={emailId}>
-                Adresse email <span aria-hidden="true">*</span>
+                Adresse e-mail <span aria-hidden="true">*</span>
               </label>
               <input
                 id={emailId}
@@ -127,7 +127,7 @@ export default function EmailMissionModal({ missionId, publisherId, userScoringI
                   Recevoir aussi les nouvelles missions près de chez moi
                 </label>
                 <div className="fr-messages-group">
-                  <p className="fr-hint-text">1 email maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
+                  <p className="fr-hint-text">1 e-mail maximum par semaine. Ton adresse sera uniquement utilisée pour t'envoyer ces missions.</p>
                 </div>
               </div>
             )}

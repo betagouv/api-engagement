@@ -16,13 +16,14 @@ vi.mock("@/services/brevo", async (importOriginal) => {
   return { ...actual, sendTemplate: sendTemplateMock };
 });
 
-import { MFA_DEVICE_SECRET } from "@/config";
+import { APP_URL, MFA_DEVICE_SECRET } from "@/config";
 
 import { createTestUser } from "../../../fixtures/user";
 import { createTestApp } from "../../../testApp";
 
 const PASSWORD = "SuperSecret123!";
 const app = createTestApp();
+const appRequest = () => request.agent(app).set("Origin", new URL(APP_URL).origin);
 
 const lastSentCode = (): string => sendTemplateMock.mock.calls.at(-1)?.[1]?.params?.code;
 
@@ -31,10 +32,25 @@ describe("MFA login flow", () => {
     sendTemplateMock.mockReset().mockResolvedValue({ ok: true });
   });
 
+  describe.each(["/user/login", "/user/login/mfa", "/user/login/mfa/resend"])("protection CSRF de %s", (path) => {
+    it.each(["https://attacker.example.test", "null", undefined])("refuse l'origine %s", async (origin) => {
+      const req = request(app).post(path).set("Cookie", "mfa_device=device-token");
+      if (origin !== undefined) {
+        req.set("Origin", origin);
+      }
+      const res = await req.send({});
+
+      expect(res.status).toBe(403);
+      expect(res.body.code).toBe("FORBIDDEN");
+      expect(res.headers["set-cookie"]).toBeUndefined();
+      expect(sendTemplateMock).not.toHaveBeenCalled();
+    });
+  });
+
   it("challenges with an OTP instead of issuing a token when password is correct", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
 
-    const res = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const res = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
 
     expect(res.status).toBe(200);
     expect(res.body.data.mfaRequired).toBe(true);
@@ -46,10 +62,10 @@ describe("MFA login flow", () => {
   it("issues the access token when the OTP is correct, and sets the trusted-device cookie", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
 
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
     const code = lastSentCode();
 
-    const res = await request(app).post("/user/login/mfa").set("Authorization", `jwt ${login.body.data.mfaToken}`).send({ code, rememberDevice: true });
+    const res = await appRequest().post("/user/login/mfa").set("Authorization", `jwt ${login.body.data.mfaToken}`).send({ code, rememberDevice: true });
 
     expect(res.status).toBe(200);
     expect(res.body.data.token).toBeTruthy();
@@ -58,9 +74,9 @@ describe("MFA login flow", () => {
 
   it("rejects an incorrect OTP", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
 
-    const res = await request(app).post("/user/login/mfa").set("Authorization", `jwt ${login.body.data.mfaToken}`).send({ code: "000000" });
+    const res = await appRequest().post("/user/login/mfa").set("Authorization", `jwt ${login.body.data.mfaToken}`).send({ code: "000000" });
 
     expect(res.status).toBe(401);
     expect(res.body.data?.token).toBeUndefined();
@@ -68,7 +84,7 @@ describe("MFA login flow", () => {
 
   it("rejects the MFA challenge token on user-protected routes", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
 
     const res = await request(app).get("/user/refresh").set("Authorization", `jwt ${login.body.data.mfaToken}`);
 
@@ -77,7 +93,7 @@ describe("MFA login flow", () => {
 
   it("rejects the MFA challenge token on admin-protected routes", async () => {
     const { user } = await createTestUser({ password: PASSWORD, role: "admin" });
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
 
     const res = await request(app).post("/user/search").set("Authorization", `jwt ${login.body.data.mfaToken}`).send({});
 
@@ -97,7 +113,7 @@ describe("MFA login flow", () => {
     const { user } = await createTestUser({ password: PASSWORD });
     const deviceToken = jwt.sign({ _id: user.id, purpose: "mfa-device" }, MFA_DEVICE_SECRET);
 
-    const res = await request(app)
+    const res = await appRequest()
       .post("/user/login")
       .set("Cookie", [`mfa_device=${deviceToken}`])
       .send({ email: user.email, password: PASSWORD });
@@ -110,36 +126,36 @@ describe("MFA login flow", () => {
 
   it("locks the challenge after 5 failed attempts (429) and refuses the correct code afterwards", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
     const auth = `jwt ${login.body.data.mfaToken}`;
     const code = lastSentCode();
 
     for (let i = 0; i < 4; i++) {
-      const wrong = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
+      const wrong = await appRequest().post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
       expect(wrong.status).toBe(401);
     }
 
-    const locked = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
+    const locked = await appRequest().post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
     expect(locked.status).toBe(429);
     expect(locked.body.code).toBe("TOO_MANY_ATTEMPTS");
 
     // Même le bon code ne fonctionne plus une fois le challenge verrouillé.
-    const afterLock = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code });
+    const afterLock = await appRequest().post("/user/login/mfa").set("Authorization", auth).send({ code });
     expect(afterLock.status).toBe(401);
     expect(afterLock.body.data?.token).toBeUndefined();
   });
 
   it("consumes the code only once (single-use)", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
     const auth = `jwt ${login.body.data.mfaToken}`;
     const code = lastSentCode();
 
-    const first = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code });
+    const first = await appRequest().post("/user/login/mfa").set("Authorization", auth).send({ code });
     expect(first.status).toBe(200);
     expect(first.body.data.token).toBeTruthy();
 
-    const second = await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code });
+    const second = await appRequest().post("/user/login/mfa").set("Authorization", auth).send({ code });
     expect(second.status).toBe(401);
     expect(second.body.data?.token).toBeUndefined();
   });
@@ -148,7 +164,7 @@ describe("MFA login flow", () => {
     sendTemplateMock.mockResolvedValue({ ok: false });
     const { user } = await createTestUser({ password: PASSWORD });
 
-    const res = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const res = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
 
     expect(res.status).toBe(503);
     expect(res.body.code).toBe("SERVICE_UNAVAILABLE");
@@ -157,10 +173,10 @@ describe("MFA login flow", () => {
 
   it("throttles resend during the cooldown window (429)", async () => {
     const { user } = await createTestUser({ password: PASSWORD });
-    const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
     const auth = `jwt ${login.body.data.mfaToken}`;
 
-    const res = await request(app).post("/user/login/mfa/resend").set("Authorization", auth).send({});
+    const res = await appRequest().post("/user/login/mfa/resend").set("Authorization", auth).send({});
 
     expect(res.status).toBe(429);
     expect(res.body.code).toBe("TOO_MANY_ATTEMPTS");
@@ -171,15 +187,15 @@ describe("MFA login flow", () => {
 
     // 2 challenges × 5 échecs = 10 tentatives = plafond compte ; un nouveau login est alors throttlé.
     for (let round = 0; round < 2; round++) {
-      const login = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+      const login = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
       expect(login.body.data.mfaRequired).toBe(true);
       const auth = `jwt ${login.body.data.mfaToken}`;
       for (let i = 0; i < 5; i++) {
-        await request(app).post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
+        await appRequest().post("/user/login/mfa").set("Authorization", auth).send({ code: "000000" });
       }
     }
 
-    const throttled = await request(app).post("/user/login").send({ email: user.email, password: PASSWORD });
+    const throttled = await appRequest().post("/user/login").send({ email: user.email, password: PASSWORD });
     expect(throttled.status).toBe(429);
     expect(throttled.body.code).toBe("TOO_MANY_ATTEMPTS");
     expect(throttled.body.data?.mfaRequired).toBeUndefined();

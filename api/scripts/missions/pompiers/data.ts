@@ -217,7 +217,7 @@ export const SDIS_DATA: SdisEntry[] = [
     applicationUrl: "https://www.sdis44.fr/nous-rejoindre/devenir-sapeur-pompier-volontaire/",
     organizationUrl: "https://www.sdis44.fr/",
   },
-  { dept: "45", organizationName: "SDIS du Loiret", applicationUrl: "https://sdis45.com/sp-volontaires/", organizationUrl: "https://sdis45.com/" },
+  { dept: "45", organizationName: "SDIS du Loiret", applicationUrl: "https://sdis45.com/devenez-sapeur-pompier-volontaire/", organizationUrl: "https://sdis45.com/" },
   {
     dept: "46",
     organizationName: "SDIS du Lot",

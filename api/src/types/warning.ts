@@ -53,6 +53,8 @@ export interface WarningFindParams {
   publisherId?: string;
   type?: string;
   status?: WarningStatus;
+  assigneeId?: string;
+  unassigned?: boolean;
   createdAtGte?: Date;
   createdAtLt?: Date;
   limit?: number;

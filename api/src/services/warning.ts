@@ -148,6 +148,11 @@ export const warningService = (() => {
     if (params.type) {
       where.type = params.type;
     }
+    if (params.unassigned) {
+      where.assignees = { none: {} };
+    } else if (params.assigneeId) {
+      where.assignees = { some: { userId: params.assigneeId } };
+    }
     if (params.createdAtGte || params.createdAtLt) {
       where.createdAt = {
         ...(params.createdAtGte ? { gte: params.createdAtGte } : {}),

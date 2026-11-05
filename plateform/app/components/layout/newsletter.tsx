@@ -20,7 +20,7 @@ interface NewsletterProps {
 
 export default function Newsletter({
   title = "Inscris-toi à la newsletter",
-  subtitle = "1 e-mail par mois avec nos meilleures missions adaptées à tes critères",
+  subtitle = "Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager.",
   ctaText = "Je m'inscris",
   hintText = "1 e-mail. Pas de spam. Tu te désinscris quand tu veux.",
 }: NewsletterProps) {
@@ -42,7 +42,7 @@ export default function Newsletter({
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {
-        setError("Le format de l'adresse email n'est pas valide. Le format attendu est : nom@email.fr");
+        setError("Le format de l'adresse e-mail n'est pas valide. Le format attendu est : nom@email.fr");
       } else {
         setError("Une erreur est survenue. Merci de réessayer.");
       }

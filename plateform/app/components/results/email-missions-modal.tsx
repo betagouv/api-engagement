@@ -116,7 +116,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
         <form onSubmit={handleSubmit} noValidate>
           <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
             <label className="fr-label fr-sr-only" htmlFor={emailId}>
-              Ton adresse email
+              Ton adresse e-mail
             </label>
             <input
               id={emailId}

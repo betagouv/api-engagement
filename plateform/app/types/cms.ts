@@ -8,11 +8,8 @@ export type CmsMedia = {
   height: number | null;
 };
 
-// Pictogrammes DSFR proposés dans le CMS (enum `icon`).
-export type CmsPictogram = "search" | "self_training" | "mail_send" | "backpack" | "environment" | "human_cooperation" | "community" | "compass";
-
-// Icônes DSFR des pastilles du hero (enum `icon` de `items.hero-tag`).
-export type CmsHeroTagIcon = "team" | "money" | "briefcase" | "plant" | "heart";
+// Pastille du hero : `icon` est le nom d'une icône DSFR sans le préfixe `fr-icon-` (ex. `team-line`).
+export type CmsHeroTag = { icon: string; color: "bleu" | "vert" | "caramel" | "rose"; label: string };
 
 export type CmsMissionSlot = {
   dispositif: string | null;
@@ -39,7 +36,7 @@ export type CmsBlock =
       __component: "blocks.hero";
       title: string;
       description: string;
-      tags: { icon: CmsHeroTagIcon; label: string }[];
+      tags: CmsHeroTag[];
       primaryLabel: string | null;
       primaryUrl: string | null;
       secondaryLabel: string | null;
@@ -60,12 +57,12 @@ export type CmsBlock =
     }
   | { __component: "blocks.rich-text"; title: string | null; body: CmsRichTextNode[] }
   | { __component: "blocks.image"; image: CmsMedia; caption: string | null }
-  | { __component: "blocks.etapes"; items: { icon: CmsPictogram; title: string; description: string }[] }
+  | { __component: "blocks.etapes"; items: { icon: string; title: string; description: string }[] }
   | { __component: "blocks.benefits"; title: string; benefits: { emoji: string; label: string }[]; newsletterTitle: string; newsletterText: string }
-  | { __component: "blocks.cards"; title: string; cards: { icon: CmsPictogram; title: string; points: string }[] }
+  | { __component: "blocks.cards"; title: string; cards: { icon: string; title: string; points: string }[] }
   | { __component: "blocks.stories"; title: string; intro: string | null; stories: { image: CmsMedia; domain: string; story: string; publisher: string; logo: CmsMedia }[] }
   | { __component: "blocks.testimonials"; testimonials: { image: CmsMedia; quote: string; name: string; role: string }[] }
-  | { __component: "blocks.faq"; title: string; intro: string | null; questions: { icon: CmsPictogram; question: string; answer: string }[] }
+  | { __component: "blocks.faq"; title: string; intro: string | null; questions: { icon: string; question: string; answer: string }[] }
   | {
       __component: "blocks.accordion";
       title: string;

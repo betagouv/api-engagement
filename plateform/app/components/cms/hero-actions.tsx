@@ -1,12 +1,11 @@
-import type { CmsHeroTagIcon } from "~/types/cms";
+import type { CmsHeroTag } from "~/types/cms";
 
-// Icône DSFR et couleurs (fond de la pastille d'icône, icône) de chaque pastille du hero.
-const TAG_ICONS: Record<CmsHeroTagIcon, { icon: string; className: string }> = {
-  team: { icon: "fr-icon-team-line", className: "bg-green-bourgeon-975 text-(--green-emeraude-main-632)" },
-  money: { icon: "fr-icon-money-euro-circle-line", className: "bg-brown-caramel-950 text-(--brown-caramel-main-648)" },
-  briefcase: { icon: "fr-icon-briefcase-line", className: "bg-blue-france-950 text-(--blue-france-sun-113-625)" },
-  plant: { icon: "fr-icon-plant-line", className: "bg-blue-france-950 text-(--blue-france-sun-113-625)" },
-  heart: { icon: "fr-icon-heart-line", className: "bg-pink-tuile-950 text-(--pink-tuile-main-556)" },
+// Couleurs (fond de la pastille d'icône, icône) proposées dans le CMS pour les pastilles du hero.
+const TAG_COLORS: Record<CmsHeroTag["color"], string> = {
+  bleu: "bg-blue-france-950 text-(--blue-france-sun-113-625)",
+  vert: "bg-green-bourgeon-975 text-(--green-emeraude-main-632)",
+  caramel: "bg-brown-caramel-950 text-(--brown-caramel-main-648)",
+  rose: "bg-pink-tuile-950 text-(--pink-tuile-main-556)",
 };
 
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
@@ -22,7 +21,7 @@ export default function HeroActions({
   hint,
   onStartQuiz,
 }: {
-  tags: { icon: CmsHeroTagIcon; label: string }[];
+  tags: CmsHeroTag[];
   primary: HeroLink | null;
   secondary: HeroLink | null;
   hint: string | null;
@@ -34,8 +33,8 @@ export default function HeroActions({
         <ul role="list" className="m-0! mb-8! flex list-none! flex-wrap gap-2 p-0!">
           {tags.map((tag) => (
             <li key={tag.label} className="bg-background flex items-center gap-2 rounded-full p-1 pr-3! shadow-[0_4px_7px_rgba(0,0,0,0.1)]">
-              <span aria-hidden="true" className={`flex size-6 items-center justify-center rounded-full ${TAG_ICONS[tag.icon].className}`}>
-                <span className={`${TAG_ICONS[tag.icon].icon} fr-icon--xs`} />
+              <span aria-hidden="true" className={`flex size-6 items-center justify-center rounded-full ${TAG_COLORS[tag.color] ?? TAG_COLORS.bleu}`}>
+                <span className={`fr-icon-${tag.icon} fr-icon--xs`} />
               </span>
               <span className="text-default-grey text-xs">{tag.label}</span>
             </li>

@@ -8,6 +8,19 @@ const SENSITIVE_FIELDS = ["password", "apikey"];
 // Routes dont le corps (mails entrants : expéditeur, texte, en-têtes) ne doit jamais être journalisé.
 const BODY_NOT_LOGGED_PATHS = ["/inbound-email", "/slack/interactions"];
 
+const getOrigin = (value: string | undefined): string | undefined => {
+  if (!value) {
+    return undefined;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.origin : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const httpLogger = morgan<Request, Response>(
   (tokens, req, res) => {
     const user = req.user as any;
@@ -18,6 +31,8 @@ const httpLogger = morgan<Request, Response>(
       path: req.originalUrl.split("?")[0],
       endpoint: req.route ? req.baseUrl + req.route.path : undefined,
       query: req.query,
+      origin: getOrigin(req.header("origin")),
+      referer_origin: getOrigin(req.header("referer")),
       request_id: (req as any).requestId ?? req.header(REQUEST_ID_HEADER),
       status: tokens.status(req, res),
       "response-time": Math.round(parseFloat(tokens["response-time"](req, res) || "0")),
