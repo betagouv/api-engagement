@@ -1,22 +1,7 @@
-import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
-import SearchSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/search.svg?url";
-import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
-import EnvironmentSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/environment.svg?url";
-import HumanCooperationSvg from "@gouvfr/dsfr/dist/artwork/pictograms/environment/human-cooperation.svg?url";
-import CommunitySvg from "@gouvfr/dsfr/dist/artwork/pictograms/leisure/community.svg?url";
-import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
-import CompassSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/compass.svg?url";
+// Tous les pictogrammes DSFR, indexés comme l'enum `icon` du CMS : nom du fichier, tirets remplacés par des underscores
+// (`digital/self-training.svg` → `self_training`). Une nouvelle version du DSFR les rend disponibles sans code ici.
+const FILES = import.meta.glob<string>("../../../../node_modules/@gouvfr/dsfr/dist/artwork/pictograms/*/*.svg", { eager: true, query: "?url", import: "default" });
 
-import type { CmsPictogram } from "~/types/cms";
-
-// Pictogrammes DSFR proposés dans le CMS (enum `icon`). Pour en ajouter un : l'importer ici et l'ajouter à l'enum Strapi.
-export const PICTOGRAMS: Record<CmsPictogram, string> = {
-  search: SearchSvg,
-  self_training: SelfTrainingSvg,
-  mail_send: MailSendSvg,
-  backpack: BackpackSvg,
-  environment: EnvironmentSvg,
-  human_cooperation: HumanCooperationSvg,
-  community: CommunitySvg,
-  compass: CompassSvg,
-};
+export const PICTOGRAMS: Record<string, string> = Object.fromEntries(
+  Object.entries(FILES).map(([file, url]) => [file.split("/").pop()!.replace(".svg", "").replaceAll("-", "_"), url]),
+);

@@ -2,7 +2,12 @@
   "collectionName": "components_items_hero_tags",
   "info": { "displayName": "Pastille du hero", "icon": "hashtag" },
   "attributes": {
-    "icon": { "type": "enumeration", "enum": ["team", "money", "briefcase", "plant", "heart"], "required": true },
+    "icon": {
+      "type": "string",
+      "required": true,
+      "description": "Nom d'une icône DSFR, sans le préfixe fr-icon- (ex. : team-line). Liste : systeme-de-design.gouv.fr › Fondamentaux › Icônes."
+    },
+    "color": { "type": "enumeration", "enum": ["bleu", "vert", "caramel", "rose"], "default": "bleu", "required": true },
     "label": { "type": "string", "required": true }
   }
 }
