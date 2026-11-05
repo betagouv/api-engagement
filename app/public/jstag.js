@@ -6,9 +6,11 @@
  * Avant de modifier ce fichier, vérifier la liste des partenaires avec
  * selfHostedScript = true et les en informer manuellement.
  * Incrémenter le numéro de version (v1, v2, v3…) à chaque changement notable.
+ * @source-only
  *
  * Les placeholders (entourés de doubles underscores) de l'en-tête et de eventHost sont réécrits par
  * vite.config.js (build et serveur de dev) avec VITE_ENV et VITE_API_URL. Récupérer ce fichier depuis l'app déployée, pas depuis le dépôt.
+ * @end-source-only
  */
 "use strict";
 ((window._apieng = window._apieng || {}),

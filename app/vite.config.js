@@ -15,7 +15,7 @@ export default defineConfig((env) => {
   const { VITE_API_URL, VITE_ENV } = loadEnv(env.mode, process.cwd(), "VITE_");
   const renderJstag = (content) =>
     content
-      .replace(/ \*\n \* Les placeholders[\s\S]*?dépôt\.\n/, "") // commentaire réservé à la source
+      .replace(/^[ \t]*(?:\*|\/\/)?[ \t]*@source-only\b[\s\S]*?@end-source-only[^\n]*\n/gm, "") // lignes entre @source-only et @end-source-only
       .replaceAll("__API_URL__", (VITE_API_URL || "https://api.api-engagement.beta.gouv.fr").replace(/\/+$/, ""))
       .replaceAll("__ENV__", VITE_ENV || "development");
   const jstagFile = path.resolve(__dirname, "public/jstag.js");
