@@ -39,30 +39,25 @@ export default function CatalogueBlocs() {
   const examples = CATALOGUE_EXAMPLES.filter(({ block }) => block.__component === selected);
 
   return (
-    <main id="contenu" tabIndex={-1} className="flex flex-col pb-16 md:flex-row">
-      <nav className="fr-sidemenu fr-sidemenu--sticky-full-height shrink-0 md:w-72 md:pl-4" aria-labelledby="catalogue-sidemenu-title">
-        <div className="fr-sidemenu__inner">
-          <button type="button" className="fr-sidemenu__btn" aria-controls="catalogue-sidemenu" aria-expanded="false">
-            Blocs du CMS
-          </button>
-          <div className="fr-collapse" id="catalogue-sidemenu">
-            <p className="fr-sidemenu__title" id="catalogue-sidemenu-title">
-              Blocs du CMS
-            </p>
-            <ul className="fr-sidemenu__list">
-              {BLOCK_UIDS.map((uid) => (
-                <li key={uid} className={`fr-sidemenu__item ${uid === selected ? "fr-sidemenu__item--active" : ""}`}>
-                  <Link className="fr-sidemenu__link" to={`?bloc=${uid}`} aria-current={uid === selected ? "page" : undefined}>
-                    {displayNames[uid]}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+    <main id="contenu" tabIndex={-1} className="pb-16">
+      {/* Menu horizontal collant, défilable latéralement : le contenu garde toute la largeur de l'écran. */}
+      <nav aria-label="Blocs du CMS" className="sticky top-0 z-20 border-b border-gray-300 bg-(--background-default-grey)">
+        <ul className="fr-container flex list-none! gap-2 overflow-x-auto py-3!">
+          {BLOCK_UIDS.map((uid) => (
+            <li key={uid} className="shrink-0 p-0!">
+              <Link
+                to={`?bloc=${uid}`}
+                aria-current={uid === selected ? "page" : undefined}
+                className={`fr-tag whitespace-nowrap ${uid === selected ? "bg-(--background-active-blue-france)! text-(--text-inverted-blue-france)!" : ""}`}
+              >
+                {displayNames[uid]}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </nav>
 
-      <div className="min-w-0 flex-1">
+      <div>
         <div className="fr-container pt-8 md:pt-12">
           <p className="fr-text--sm text-mention-grey! mb-1!">Catalogue des blocs du CMS</p>
           <h1 className="mb-1!">{displayNames[selected]}</h1>

@@ -33,7 +33,7 @@ export default function CatalogueEditor({
       <div className="fr-container">
         <h2 className="fr-h4 mb-4!">Aperçu</h2>
         {examples.length > 1 && (
-          <div className="fr-select-group max-w-md">
+          <div className="fr-select-group max-w-md mb-4!">
             <label className="fr-label" htmlFor={`${uid}-example`}>
               Variante de départ
             </label>
