@@ -123,6 +123,7 @@ services:
     volumes:
       - ./plateform:/workspace/plateform
       - /workspace/plateform/node_modules
+      - ./cms/src/components:/workspace/cms/src/components
       - ./packages/taxonomy:/workspace/packages/taxonomy
       - ./packages/dto:/workspace/packages/dto
     ports:

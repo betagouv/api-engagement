@@ -19,6 +19,8 @@ WORKDIR /workspace/plateform
 RUN npm ci --workspace=plateform
 
 COPY --chown=node:node plateform/ .
+# Schémas des blocs Strapi, lus par le catalogue des blocs (/catalogue-blocs).
+COPY --chown=node:node cms/src/components /workspace/cms/src/components
 
 EXPOSE 3005
 

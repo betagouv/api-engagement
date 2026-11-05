@@ -26,6 +26,8 @@ COPY packages/taxonomy ./packages/taxonomy
 COPY packages/dto ./packages/dto
 RUN npm ci --workspace=plateform
 COPY plateform ./plateform
+# Schémas des blocs Strapi, lus au build par le catalogue des blocs (/catalogue-blocs).
+COPY cms/src/components ./cms/src/components
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     npm --workspace=plateform run build
 
