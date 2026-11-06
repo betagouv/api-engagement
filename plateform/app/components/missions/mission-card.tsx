@@ -33,7 +33,9 @@ export default function MissionCard({
     <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
       {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
 
-      <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
+      {/* min-h-0 : à hauteur fixe, le corps doit pouvoir rétrécir sous la hauteur de ses tags (qui sont
+          coupés) pour que la ligne annonceur / « Détails » reste dans la carte, au même niveau partout. */}
+      <div className="relative flex min-h-0 flex-1 flex-col px-4 py-3 gap-4">
         {/* Cœur en absolute au-dessus du titre : le titre garde toute la largeur de la carte. */}
         {onEmailClick && (
           <button
@@ -46,10 +48,11 @@ export default function MissionCard({
           </button>
         )}
         <div className="flex min-w-0 flex-col gap-2">
+          {/* Tag sur une ligne (libellé complet au survol) : sur 2 lignes, il ne laisse plus la place aux tags dans les cartes étroites. */}
           {domainLabel && (
             <span
               title={domainLabel}
-              className={`bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 block leading-4! text-xs uppercase w-fit! ${onEmailClick ? "max-w-[calc(100%-2.5rem)]" : "max-w-full"}`}
+              className={`bg-action-low-blue-france text-blue-france-sun rounded-full px-2.5 block truncate leading-4! text-xs uppercase w-fit! ${onEmailClick ? "max-w-[calc(100%-2.5rem)]" : "max-w-full"}`}
             >
               {domainLabel}
             </span>
@@ -63,7 +66,7 @@ export default function MissionCard({
         {tags && (
           <div className="flex mt-auto flex-1 max-h-14 flex-wrap content-start gap-2 overflow-hidden">
             {tags.map((tag) => (
-              <span key={tag} className="bg-(--background-contrast-grey) text-label-grey flex max-w-full items-center rounded-full px-2.5 py-0.5 text-xs!">
+              <span key={tag} title={tag} className="bg-(--background-contrast-grey) text-label-grey block max-w-full truncate rounded-full px-2.5 py-0.5 text-xs!">
                 {tag}
               </span>
             ))}
