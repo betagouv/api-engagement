@@ -44,6 +44,7 @@ const MISSIONS_CONFIG: LandingMissionsConfig = {
   includeRemote: true,
   filters: ["departmentCode", "tranche_age", "activite", "domaine_engagement", "dispositif"],
   slots: [ARMEES, BENEVOLAT, SAPEURS_POMPIERS, ARMEES, BENEVOLAT, SERVICE_CIVIQUE, BENEVOLAT, GENDARMERIE, SERVICE_CIVIQUE, BENEVOLAT],
+  alertCard: true,
 };
 
 const ETAPES: Etape[] = [
@@ -123,6 +124,7 @@ export default function EngagementSecurite() {
         exclude={MISSIONS_CONFIG.exclude}
         pageName="landing_engagement_securite"
         backTo="/engagement-securite"
+        alertCard={MISSIONS_CONFIG.alertCard}
         signupSource="landing_page_reengagement_police_nationale"
       />
       <Etapes etapes={ETAPES} />

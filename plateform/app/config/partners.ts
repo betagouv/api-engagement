@@ -1,4 +1,5 @@
 import AscPng from "~/assets/images/logo/asc-logo.png";
+import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
 import SpvPng from "~/assets/images/logo/spv-logo.png";
@@ -38,5 +39,36 @@ export const DEFAULT_PARTNERS: Partner[] = [
     description: "Des missions rémunérées de réservistes.",
     url: "https://www.gendarmerie.interieur.gouv.fr/reserves/reserve-operationnelle-de-la-gendarmerie-nationale",
     logo: RocPng,
+  },
+];
+
+// Bandeau « dispositifs » de bas de page (home, page missions) : les cinq dispositifs vérifiés par l'État, sans lien.
+export const STATE_PARTNERS_TITLE = "Toutes les missions d'engagement vérifiées par l'État";
+
+export const STATE_PARTNERS: Partner[] = [
+  {
+    name: "Les réserves des armées",
+    description: "Des missions indemnisées de réservistes.",
+    logo: RocPng,
+  },
+  {
+    name: "Le Service Civique",
+    description: "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+    logo: AscPng,
+  },
+  {
+    name: "JeVeuxAider.gouv.fr",
+    description: "La plateforme publique du bénévolat.",
+    logo: JvaPng,
+  },
+  {
+    name: "Sapeurs-pompiers de France",
+    description: "Deviens sapeur-pompier volontaire près de chez toi.",
+    logo: SpvPng,
+  },
+  {
+    name: "Gendarmerie nationale",
+    description: "Deviens gendarme près de chez toi.",
+    logo: GendarmeriePng,
   },
 ];
