@@ -85,7 +85,7 @@ const NotificationMenu = () => {
   }, []);
 
   const label = count ? `${count} alerte${count > 1 ? "s" : ""} à traiter` : "Aucune alerte à traiter";
-  const allPath = isAdmin ? "/admin-warning?assignee=" : warningPath;
+  const allPath = "/admin-warning?assignee=";
   const linkClass = "text-blue-france flex items-center justify-end p-4 text-sm font-medium hover:bg-gray-950";
 
   // Menu ouvert au survol et au focus clavier (focus-within) ; le lien « Alerte(s) » reste cliquable.
@@ -99,32 +99,34 @@ const NotificationMenu = () => {
           </span>
         )}
       </Link>
-      <div className="border-grey-border absolute top-full right-0 z-10 hidden w-80 border bg-white text-black shadow-lg group-focus-within:block group-hover:block">
-        <p className="border-grey-border m-0 border-b p-4 text-lg font-bold">État du service</p>
-        <div className="border-grey-border flex flex-col gap-1 border-b p-4">
-          {count ? (
-            <>
-              <p className="m-0 flex items-center gap-2 text-xl font-bold">
-                <RiErrorWarningFill className="text-error" aria-hidden="true" />
-                {label}
-              </p>
-              <p className="text-text-mention m-0 text-xs">En attente de traitement</p>
-            </>
-          ) : (
-            <>
-              <p className="m-0 flex items-center gap-2 text-base font-bold">
-                <RiCheckboxCircleFill className="text-green-700" aria-hidden="true" />
-                {label}
-              </p>
-              <p className="m-0 text-sm">{isAdmin ? "Aucune alerte ne vous est attribuée pour le moment." : "Aucune alerte pour le moment."}</p>
-            </>
-          )}
+      {isAdmin && (
+        <div className="border-grey-border absolute top-full right-0 z-10 hidden w-80 border bg-white text-black shadow-lg group-focus-within:block group-hover:block">
+          <p className="border-grey-border m-0 border-b p-4 text-lg font-bold">État du service</p>
+          <div className="border-grey-border flex flex-col gap-1 border-b p-4">
+            {count ? (
+              <>
+                <p className="m-0 flex items-center gap-2 text-xl font-bold">
+                  <RiErrorWarningFill className="text-error" aria-hidden="true" />
+                  {label}
+                </p>
+                <p className="text-text-mention m-0 text-xs">En attente de traitement</p>
+              </>
+            ) : (
+              <>
+                <p className="m-0 flex items-center gap-2 text-base font-bold">
+                  <RiCheckboxCircleFill className="text-green-700" aria-hidden="true" />
+                  {label}
+                </p>
+                <p className="m-0 text-sm">Aucune alerte ne vous est attribuée pour le moment.</p>
+              </>
+            )}
+          </div>
+          <Link to={count ? warningPath : allPath} className={linkClass}>
+            {count ? "Voir mes alertes" : "Voir toutes les alertes"}
+            <RiArrowRightSLine aria-hidden="true" />
+          </Link>
         </div>
-        <Link to={count ? warningPath : allPath} className={linkClass}>
-          {count ? (isAdmin ? "Voir mes alertes" : "Voir les alertes") : "Voir toutes les alertes"}
-          <RiArrowRightSLine aria-hidden="true" />
-        </Link>
-      </div>
+      )}
     </div>
   );
 };
