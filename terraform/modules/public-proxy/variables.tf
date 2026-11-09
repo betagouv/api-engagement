@@ -46,12 +46,12 @@ variable "load_balancer_type" {
 variable "htpasswd" {
   type        = string
   sensitive   = true
-  description = "Contenu htpasswd bcrypt (un compte par ligne), issu de PARTNER_PROXY_HTPASSWD."
+  description = "Contenu htpasswd bcrypt (un compte par ligne), issu de PUBLIC_PROXY_HTPASSWD."
   validation {
     condition = length(trimspace(var.htpasswd)) > 0 && alltrue([
       for line in split("\n", trimspace(var.htpasswd)) :
       can(regex("^[a-zA-Z0-9_-]+:\\$2[aby]\\$[0-9]{2}\\$[./A-Za-z0-9]{53}$", line))
     ])
-    error_message = "PARTNER_PROXY_HTPASSWD doit contenir des comptes avec empreintes bcrypt, un par ligne."
+    error_message = "PUBLIC_PROXY_HTPASSWD doit contenir des comptes avec empreintes bcrypt, un par ligne."
   }
 }

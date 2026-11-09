@@ -48,7 +48,7 @@ enable_intern_jobs                = true
 enable_analytics_jobs             = true
 enable_rdb_backup_job             = true
 enable_rdb_backup_replication_job = true
-enable_partner_proxy              = true
+enable_public_proxy               = true
 
 rdb_backup_s3_bucket = "api-engagement-rdb-backup"
 

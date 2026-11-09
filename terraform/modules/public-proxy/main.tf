@@ -1,6 +1,6 @@
 locals {
-  name = "${var.workspace}-partner-proxy"
-  tags = [var.workspace, "partner-proxy"]
+  name = "${var.workspace}-public-proxy"
+  tags = [var.workspace, "public-proxy"]
 }
 
 resource "scaleway_instance_ip" "egress" {
@@ -68,8 +68,8 @@ resource "scaleway_instance_server" "proxy" {
         { path = "/etc/squid/passwords", permissions = "0600", content = var.htpasswd },
         # L'image Ubuntu Scaleway utilise ens2 pour l'interface publique.
         # Priorité 10, devant la route DHCP privée (50), sans retirer les routes du VPC.
-        { path = "/etc/netplan/90-partner-proxy.yaml", permissions = "0600", content = "network:\n  version: 2\n  ethernets:\n    ens2:\n      dhcp4-overrides:\n        route-metric: 10\n" },
-        { path = "/etc/sysctl.d/90-partner-proxy.conf", permissions = "0644", content = "net.ipv6.conf.all.disable_ipv6 = 1\nnet.ipv6.conf.default.disable_ipv6 = 1\n" }
+        { path = "/etc/netplan/90-public-proxy.yaml", permissions = "0600", content = "network:\n  version: 2\n  ethernets:\n    ens2:\n      dhcp4-overrides:\n        route-metric: 10\n" },
+        { path = "/etc/sysctl.d/90-public-proxy.conf", permissions = "0644", content = "net.ipv6.conf.all.disable_ipv6 = 1\nnet.ipv6.conf.default.disable_ipv6 = 1\n" }
       ]
       runcmd = [
         ["chown", "root:proxy", "/etc/squid/passwords"],

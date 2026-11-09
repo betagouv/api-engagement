@@ -399,34 +399,34 @@ variable "typesense_load_balancer_type" {
 
 # Proxy de sortie partenaires (socle Instance)
 
-variable "enable_partner_proxy" {
+variable "enable_public_proxy" {
   type        = bool
   default     = false
   description = "Déployer Squid et son Load Balancer public HTTPS pour les partenaires."
 }
 
-variable "partner_proxy_zone" {
+variable "public_proxy_zone" {
   type        = string
   default     = "fr-par-1"
   description = "Zone de l'Instance et de son IPv4 réservée."
 }
 
-variable "partner_proxy_instance_type" {
+variable "public_proxy_instance_type" {
   type        = string
   default     = "STARDUST1-S"
-  description = "Type de l'Instance dédiée au proxy partenaires."
+  description = "Type de l'Instance dédiée au proxy public."
 }
 
-variable "partner_proxy_hostname" {
+variable "public_proxy_hostname" {
   type        = string
   default     = ""
   description = "Domaine du proxy ; vide pour dériver proxy.<domaine> à partir de api_hostname."
 }
 
-variable "partner_proxy_load_balancer_type" {
+variable "public_proxy_load_balancer_type" {
   type        = string
   default     = "LB-S"
-  description = "Type du Load Balancer public du proxy partenaires."
+  description = "Type du Load Balancer public du proxy public."
 }
 
 # CMS (Strapi)

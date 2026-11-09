@@ -16,7 +16,7 @@ resource "scaleway_ipam_ip" "load_balancer" {
 
 resource "scaleway_lb" "proxy" {
   name        = "${local.name}-lb"
-  description = "Entrée TLS du proxy partenaires ${var.workspace}"
+  description = "Entrée TLS du proxy public ${var.workspace}"
   project_id  = var.project_id
   zone        = var.zone
   type        = var.load_balancer_type
