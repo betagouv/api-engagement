@@ -266,6 +266,22 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "publisher_demarche_simplifiees",
+    batchSize: 1000,
+    source: {
+      table: "publisher_demarche_simplifiees",
+      cursor: {
+        field: "updated_at",
+        idField: "id",
+      },
+      columns: ["id", "publisher_id", "number", "created_at", "updated_at"],
+    },
+    destination: {
+      table: "publisher_demarche_simplifiees",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "publisher_organization",
     batchSize: 1000,
     source: {

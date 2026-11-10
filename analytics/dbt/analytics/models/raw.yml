@@ -229,6 +229,21 @@ sources:
             description: Timestamp de création de la règle.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+      - name: publisher_demarche_simplifiees
+        description: >-
+          Démarches Numériques (ex-Démarches Simplifiées) rattachées aux partenaires, synchronisées depuis la table
+          `publisher_demarche_simplifiees` de la base core. Une ligne = un numéro de démarche utilisé par un partenaire.
+        columns:
+          - name: id
+            description: Identifiant unique (UUID).
+          - name: publisher_id
+            description: Identifiant du partenaire.
+          - name: number
+            description: Numéro de la démarche.
+          - name: created_at
+            description: Timestamp de création.
+          - name: updated_at
+            description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
       - name: publisher_organization
         description: >-
           Organisations associées aux partenaires, synchronisées depuis la table `publisher_organization` de la base
