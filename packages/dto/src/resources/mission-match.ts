@@ -21,6 +21,8 @@ export type MissionMatchLocation = {
 export type MissionMatchMission = {
   id: string;
   title: string;
+  // Optionnel : les déploiements antérieurs de l'API ne renvoient pas encore ce champ.
+  type?: "benevolat" | "volontariat_service_civique" | "volontariat_sapeurs_pompiers" | "volontariat_reserve_operationnelle" | null;
   remote: "no" | "possible" | "full" | "local" | null;
   schedule: string | null;
   // Optionnel : les déploiements antérieurs de l'API ne renvoient pas encore ce champ.

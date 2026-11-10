@@ -16,11 +16,13 @@ on:
       - ".github/workflows/terraform-deploy.yml"
       - ".github/workflows/terraform-security-deploy.yml"
       - ".github/workflows/tests.yml"
+      - ".github/workflows/project-checks.yml"
       - "api/**"
       - "app/**"
       - "analytics/**"
       - "widget/**"
       - "plateform/**"
+      - "cms/**"
       - "packages/**"
       - "tools/chrome-extension/**"
       - "terraform/**"
@@ -37,11 +39,13 @@ jobs:
     permissions:
       contents: read
       actions: write
+      pull-requests: read
     with:
       branch: ${{ github.ref_name }}
 
   release:
     needs: test
+    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/release.yml
     permissions:
       contents: write
@@ -49,7 +53,8 @@ jobs:
       branch: ${{ github.ref_name }}
 
   build:
-    needs: release
+    needs: [test, release]
+    if: ${{ !cancelled() && needs.test.result == 'success' && (needs.release.result == 'success' || needs.release.result == 'skipped') }}
     uses: ./.github/workflows/docker-build-push.yml
     secrets:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -61,6 +66,7 @@ jobs:
 
   deploy:
     needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     uses: ./.github/workflows/terraform-deploy.yml
     secrets:
       DATABASE_URL_CORE: ${{ secrets.DATABASE_URL_CORE }}

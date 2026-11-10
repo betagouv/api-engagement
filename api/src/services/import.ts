@@ -87,17 +87,6 @@ export const importService = (() => {
     return { data: data.map(toImportRecord), total };
   };
 
-  const findLastImportsPerPublisher = async (params: { publisherId?: string } = {}): Promise<ImportRecord[]> => {
-    const where = buildWhereClause(params);
-    const data = await importRepository.findMany({
-      where,
-      orderBy: { startedAt: "desc" },
-      distinct: ["publisherId"],
-      include: { publisher: true },
-    });
-    return data.map(toImportRecord);
-  };
-
   const findOneImportById = async (id: string): Promise<ImportRecord | null> => {
     const doc = await importRepository.findUnique({ where: { id }, include: { publisher: { select: { name: true, logo: true } } } });
     return doc ? toImportRecord(doc) : null;
@@ -156,7 +145,6 @@ export const importService = (() => {
     countImports,
     findImports,
     findImportsWithCount,
-    findLastImportsPerPublisher,
     findOneImportById,
     createImport,
     updateImport,

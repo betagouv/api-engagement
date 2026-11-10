@@ -1,0 +1,7 @@
+{
+  "collectionName": "components_blocks_testimonials",
+  "info": { "displayName": "Témoignages", "icon": "quote" },
+  "attributes": {
+    "testimonials": { "type": "component", "repeatable": true, "component": "items.testimonial", "min": 1 }
+  }
+}

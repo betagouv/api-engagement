@@ -7,7 +7,8 @@
  * Options :
  *   --user-scoring-id ID       Profil a benchmarker, repetable
  *   --sample-size N            Nombre de profils auto-selectionnes si aucun id n'est fourni (defaut : 8)
- *   --iterations N             Iterations mesurees par scenario/profil (defaut : 5)
+ *   --iterations N             Iterations mesurees par worker et scenario/profil (defaut : 5)
+ *   --concurrency 1,2,4        Matchings paralleles par profil ; paliers successifs (defaut : 1)
  *   --warmup N                 Iterations non mesurees par scenario/profil (defaut : 1)
  *   --limits 20,50,100         Limites a tester (defaut : MATCHING_ENGINE_RESULTS_LIMIT)
  *   --publisher-id ID          Diffuseur utilise pour filtrer les missions (defaut : PLATEFORME_ENGAGEMENT)
@@ -35,6 +36,7 @@ const allowedFlags = new Set([
   "--user-scoring-id",
   "--sample-size",
   "--iterations",
+  "--concurrency",
   "--warmup",
   "--limits",
   "--publisher-id",
@@ -59,6 +61,7 @@ type BenchmarkOptions = {
   userScoringIds: string[];
   sampleSize: number;
   iterations: number;
+  concurrency: number[];
   warmup: number;
   limits: number[];
   publisherId: string;
@@ -95,10 +98,16 @@ type ScenarioResult = {
   };
   scenario: {
     limit: number;
+    concurrency: number;
     taxonomyWeight?: number;
     geoWeight?: number;
     geoHalfDecayKm?: number;
   };
+  startedAt: string;
+  finishedAt: string;
+  durationMs: number;
+  throughputPerSecond: number;
+  failures: number;
   itemCount: number;
   measuredMs: number[];
   serviceTookMs: number[];
@@ -188,6 +197,7 @@ const parseOptions = (): BenchmarkOptions => ({
   userScoringIds: getAllFlagValues("--user-scoring-id"),
   sampleSize: parsePositiveInteger("--sample-size", 8),
   iterations: parsePositiveInteger("--iterations", 5),
+  concurrency: parsePositiveIntegerList("--concurrency", [1]),
   warmup: parsePositiveOrZeroInteger("--warmup", 1),
   limits: parsePositiveIntegerList("--limits", [MATCHING_ENGINE_RESULTS_LIMIT]),
   publisherId: getFlagValue("--publisher-id") ?? PUBLISHER_IDS.PLATEFORME_ENGAGEMENT,
@@ -347,7 +357,7 @@ const buildRankingInput = (options: BenchmarkOptions, userScoringId: string, lim
   persistMatchingResult: false,
 });
 
-const benchmarkScenario = async (params: { options: BenchmarkOptions; userScoring: UserScoringCandidate; limit: number }): Promise<ScenarioResult> => {
+const benchmarkScenario = async (params: { options: BenchmarkOptions; userScoring: UserScoringCandidate; limit: number; concurrency: number }): Promise<ScenarioResult> => {
   const measuredMs: number[] = [];
   const serviceTookMs: number[] = [];
   let itemCount = 0;
@@ -357,11 +367,31 @@ const benchmarkScenario = async (params: { options: BenchmarkOptions; userScorin
     await matchingEngineService.rankMissionsByUserScoring(input);
   }
 
-  for (let index = 0; index < params.options.iterations; index++) {
-    const measured = await measureMs(() => matchingEngineService.rankMissionsByUserScoring(input));
-    itemCount = measured.value.items.length;
-    measuredMs.push(roundMs(measured.ms));
-    serviceTookMs.push(measured.value.tookMs);
+  const startedAt = new Date().toISOString();
+  const started = process.hrtime.bigint();
+  let failures = 0;
+  // Chaque worker relance un matching dès que le précédent finit : charge fermée,
+  // sans synchronisation entre les itérations ni nouveau pool par worker.
+  await Promise.all(
+    Array.from({ length: params.concurrency }, async () => {
+      for (let index = 0; index < params.options.iterations && failures === 0; index++) {
+        try {
+          const measured = await measureMs(() => matchingEngineService.rankMissionsByUserScoring(input));
+          itemCount = measured.value.items.length;
+          measuredMs.push(roundMs(measured.ms));
+          serviceTookMs.push(measured.value.tookMs);
+        } catch (error) {
+          failures++;
+          // Les autres appels déjà en cours se terminent, sans en lancer de nouveaux.
+          console.error(`[${SCRIPT_LABEL}] Matching en échec : ${error instanceof Error ? error.name : "erreur inconnue"}`);
+        }
+      }
+    })
+  );
+  const durationMs = Number(process.hrtime.bigint() - started) / 1_000_000;
+  const finishedAt = new Date().toISOString();
+  if (!params.options.json) {
+    console.log(`[${SCRIPT_LABEL}] concurrency=${params.concurrency} startedAt=${startedAt} finishedAt=${finishedAt} completed=${measuredMs.length} failures=${failures}`);
   }
 
   return {
@@ -374,10 +404,16 @@ const benchmarkScenario = async (params: { options: BenchmarkOptions; userScorin
     },
     scenario: {
       limit: params.limit,
+      concurrency: params.concurrency,
       taxonomyWeight: params.options.taxonomyWeight,
       geoWeight: params.options.geoWeight,
       geoHalfDecayKm: params.options.geoHalfDecayKm,
     },
+    startedAt,
+    finishedAt,
+    durationMs: roundMs(durationMs),
+    throughputPerSecond: roundMs((measuredMs.length * 1000) / durationMs),
+    failures,
     itemCount,
     measuredMs,
     serviceTookMs,
@@ -406,6 +442,10 @@ const printTable = (params: { dataset: DatasetSummary; options: BenchmarkOptions
       gates: result.profile.gateValueCount,
       geo: result.profile.hasGeo,
       limit: result.scenario.limit,
+      concurrency: result.scenario.concurrency,
+      completed: result.measuredMs.length,
+      failures: result.failures,
+      matchingPerSec: result.throughputPerSecond,
       items: result.itemCount,
       minMs: result.stats.minMs,
       medianMs: result.stats.medianMs,
@@ -449,19 +489,25 @@ const run = async () => {
     }
 
     const results: ScenarioResult[] = [];
-    const scenarioCount = userScorings.length * options.limits.length;
+    const scenarioCount = userScorings.length * options.limits.length * options.concurrency.length;
     let currentScenario = 0;
 
-    for (const userScoring of userScorings) {
+    scenarios: for (const userScoring of userScorings) {
       for (const limit of options.limits) {
-        currentScenario++;
-        if (!options.json) {
-          console.log(
-            `[${SCRIPT_LABEL}] ${currentScenario}/${scenarioCount} userScoringId=${userScoring.id} publisherId=${options.publisherId} values=${userScoring.value_count} geo=${userScoring.has_geo} limit=${limit}`
-          );
+        for (const concurrency of options.concurrency) {
+          currentScenario++;
+          if (!options.json) {
+            console.log(
+              `[${SCRIPT_LABEL}] ${currentScenario}/${scenarioCount} userScoringId=${userScoring.id} publisherId=${options.publisherId} values=${userScoring.value_count} geo=${userScoring.has_geo} limit=${limit} concurrency=${concurrency}`
+            );
+          }
+          const result = await benchmarkScenario({ options, userScoring, limit, concurrency });
+          results.push(result);
+          if (result.failures > 0) {
+            process.exitCode = 1;
+            break scenarios;
+          }
         }
-
-        results.push(await benchmarkScenario({ options, userScoring, limit }));
       }
     }
 

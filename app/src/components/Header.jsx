@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSLine, RiArrowDropRightLine, RiBookletLine, RiDashboard3Line, RiUserLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiBookletLine, RiUserLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 
 import LogoSvg from "@/assets/svg/logo.svg?react";
 
 import Nav from "@/components/Nav";
-import { WARNINGS } from "@/constants";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
 import useStore from "@/services/store";
-import { slugify } from "@/utils/string";
 
 import deviseSrc from "@/assets/svg/gouv-devise.svg";
 import marianneBanner from "@/assets/svg/marianne-banner.svg";
@@ -64,174 +62,39 @@ const Header = () => {
 };
 
 const NotificationMenu = () => {
-  const [warnings, setWarnings] = useState([]);
-  const [state, setState] = useState({});
-  const [show, setShow] = useState(false);
-  const ref = useRef(null);
-  const buttonRef = useRef(null);
-  const location = useLocation();
+  const [count, setCount] = useState(0);
   const { user, publisher } = useStore();
   const publisherId = publisher?.id;
   const isAdmin = user.role === "admin";
   const warningPath = isAdmin ? "/admin-warning" : `/${publisherId}/warning`;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchCount = async () => {
       try {
-        const resW = await api.post("/warning/search", isAdmin ? { fixed: false } : { publisherId, fixed: false });
-        if (!resW.ok) {
-          throw resW;
+        // Admin : mes alertes à traiter (la page /admin-warning est pré-filtrée sur l'utilisateur).
+        const res = await api.post("/warning/search", { ...(isAdmin ? { assigneeId: user.id } : { publisherId }), fixed: false, page: 1, size: 1 });
+        if (!res.ok) {
+          throw res;
         }
-        setWarnings(resW.data);
-
-        const resS = await api.get(isAdmin ? "/warning/admin-state" : "/warning/state");
-        if (!resS.ok) {
-          throw resS;
-        }
-        setState(resS.data);
+        setCount(res.total);
       } catch (error) {
         captureError(error, { extra: { publisherId } });
       }
     };
-    fetchData();
+    fetchCount();
   }, []);
 
-  useEffect(() => {
-    const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setShow(false);
-      }
-    };
-    document.addEventListener("click", handleClick);
-    return () => document.removeEventListener("click", handleClick);
-  }, []);
-
-  useEffect(() => {
-    setShow(false);
-  }, [location]);
-
-  const handleFocusOut = (e) => {
-    if (ref.current && !ref.current.contains(e.relatedTarget)) {
-      setShow(false);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Escape") {
-      setShow(false);
-      buttonRef.current?.focus();
-    }
-  };
-
-  const maxWarnings = isAdmin ? 3 : 2;
-  const stateMessage = isAdmin
-    ? state.success / state.imports < 0.9
-      ? `${Math.round(((state.imports - state.success) * 100) / state.imports)}% des imports ont généré une erreur`
-      : new Date(state.last) < new Date(Date.now() - 1000 * 60 * 60 * 24)
-        ? "Le dernier import réalisé il y a plus de 24h"
-        : "L'API Engagement est parfaitement opérationnelle"
-    : !state.up
-      ? "L'API Engagement est rencontre quelques problèmes en ce moment"
-      : !state.upToDate
-        ? "Le dernier import réalisé il y a plus de 24h"
-        : "L'API Engagement est parfaitement opérationnelle";
+  const label = count ? `${count} alerte${count > 1 ? "s" : ""} à traiter` : "Aucune alerte à traiter";
 
   return (
-    // eslint-disable-next-line jsx-a11y-x/no-static-element-interactions -- Le conteneur délègue Échap et la sortie du focus aux éléments interactifs du menu.
-    <div ref={ref} onBlur={handleFocusOut} onKeyDown={handleKeyDown}>
-      <button
-        ref={buttonRef}
-        type="button"
-        className="hover:bg-gray-975 relative p-2 text-lg"
-        onClick={() => setShow(!show)}
-        aria-label="Menu des alertes"
-        aria-expanded={show}
-        aria-controls="menu-alertes"
-      >
-        <RiDashboard3Line aria-hidden="true" />
-        {warnings.length > 0 && <div className="bg-error absolute top-2 right-1.5 h-2.25 w-2.25 rounded-full border border-white" />}
-      </button>
-
-      <div
-        id="menu-alertes"
-        inert={!show ? true : undefined}
-        className={`border-grey-border absolute top-full right-0 z-10 mt-2 w-[calc(100vw-2rem)] origin-top-right border bg-white text-black shadow-lg transition-[max-height,opacity] duration-200 ease-in-out sm:w-100 ${show ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0"}`}
-      >
-        <div className="flex items-center justify-between p-6">
-          <h3 className="m-0 text-lg font-bold text-black">État du service</h3>
-          <Link to={warningPath} className="text-blue-france flex items-center">
-            <span>Détails</span>
-            <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
-          </Link>
-        </div>
-        {state && (
-          <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-            <div className="flex w-6 items-center">
-              <LogoSvg alt="" aria-hidden="true" />
-            </div>
-            <div className="flex flex-1 flex-col gap-2">
-              <p className="text-base font-bold text-black">{stateMessage}</p>
-            </div>
-          </Link>
-        )}
-        {warnings.length ? (
-          <>
-            {!isAdmin && (
-              <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-                <div className="flex w-6 items-center">
-                  <span aria-hidden="true">❌</span>
-                </div>
-                <div className="flex flex-1 flex-col gap-2">
-                  <p className="text-base font-bold text-black">Il semble y avoir un problème de paramétrage de votre côté.</p>
-                </div>
-              </Link>
-            )}
-            {warnings.slice(0, maxWarnings).map((w, index) => {
-              const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
-              return (
-                <Link
-                  key={index}
-                  to={isAdmin ? { pathname: warningPath, hash: slugify(`${w.type}-${w.publisherName}`) } : warningPath}
-                  className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950"
-                >
-                  <div className="flex w-6 items-center">{label.emoji}</div>
-                  <div className="flex flex-1 flex-col gap-2">
-                    {isAdmin && <p className="text-text-mention m-0 text-xs">{w.publisherName}</p>}
-                    <div>
-                      <span className="bg-yellow-tournesol-950 text-yellow-tournesol-200 truncate rounded p-1 text-center text-xs font-semibold uppercase">{label.name}</span>
-                    </div>
-                    <h4 className="m-0 text-sm font-bold text-black">{w.title}</h4>
-                    <p className="text-text-mention m-0 text-xs">{new Date(w.createdAt).toLocaleDateString("fr-FR")}</p>
-                  </div>
-                  {!isAdmin && (
-                    <div className="flex w-6 items-center justify-center">
-                      <div className="bg-error h-3 w-3 rounded-full" />
-                    </div>
-                  )}
-                </Link>
-              );
-            })}
-            {warnings.length > maxWarnings && (
-              <Link to={warningPath} className="border-grey-border flex items-center justify-end gap-6 border-t p-6 hover:bg-gray-950">
-                <div className="text-blue-france flex">
-                  <span>Voir toutes les alertes</span>
-                  <RiArrowDropRightLine className="mt-1 text-lg" aria-hidden="true" />
-                </div>
-              </Link>
-            )}
-          </>
-        ) : (
-          <Link to={warningPath} className="border-grey-border flex items-center justify-between gap-6 border-t p-6 hover:bg-gray-950">
-            <div className="flex w-6 items-center">
-              <span aria-hidden="true">✅</span>
-            </div>
-            <div className="flex flex-1 flex-col gap-2">
-              <p className="text-base font-bold text-black">Les comptes partenaires semblent parfaitement opérationnels</p>
-            </div>
-          </Link>
-        )}
-      </div>
-    </div>
+    <Link to={warningPath} className="hover:bg-gray-975 flex items-center gap-2 p-2 text-sm font-medium" aria-label={`Alertes : ${label}`}>
+      <span aria-hidden="true">Alertes</span>
+      {count > 0 && (
+        <span className="bg-error min-w-5 rounded-full px-1.5 py-0.5 text-center text-xs font-bold text-white" aria-hidden="true">
+          {count}
+        </span>
+      )}
+    </Link>
   );
 };
 

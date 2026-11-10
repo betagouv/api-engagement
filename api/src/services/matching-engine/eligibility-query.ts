@@ -11,15 +11,21 @@ type EligibilityParams = {
 
 export const buildEligibilityCtes = (params: EligibilityParams): Prisma.Sql => {
   return Prisma.sql`
-  active_mission_scorings AS (
-    SELECT mc."mission_scoring_id", mc."mission_id", m."remote"::text AS "remote"
-    FROM "matching_mission_catalog" mc
-    JOIN "mission" m ON m."id" = mc."mission_id"
+  -- Résoudre le statut et la diffusion avant les gates : leurs estimations très
+  -- sélectives ne doivent pas provoquer des recherches mission par mission.
+  active_missions AS MATERIALIZED (
+    SELECT m."id" AS "mission_id", m."remote"::text AS "remote"
+    FROM "mission" m
     ${params.publisherDiffusionJoinSql ?? Prisma.empty}
+    WHERE m."deleted_at" IS NULL
+      AND m."status_code" = 'ACCEPTED'
+  ),
+  active_mission_scorings AS MATERIALIZED (
+    SELECT mc."mission_scoring_id", mc."mission_id", m."remote"
+    FROM "matching_mission_catalog" mc
+    JOIN active_missions m ON m."mission_id" = mc."mission_id"
     WHERE mc."prompt_version" = ${CURRENT_PROMPT_VERSION}
       AND mc."enrichment_status" = 'completed'
-      AND m."deleted_at" IS NULL
-      AND m."status_code" = 'ACCEPTED'
   ),
   user_gate_values AS MATERIALIZED (
     SELECT DISTINCT usv."taxonomy_key", usv."value_key"

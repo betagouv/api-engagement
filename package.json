@@ -1,6 +1,6 @@
 {
   "name": "api-engagement",
-  "version": "1.34.0",
+  "version": "1.39.0",
   "workspaces": [
     "packages/dto",
     "packages/taxonomy",
@@ -26,6 +26,9 @@
     "commitizen": {
       "path": "cz-customizable"
     }
+  },
+  "overrides": {
+    "@opentelemetry/api": "1.10.0"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",

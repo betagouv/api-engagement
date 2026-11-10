@@ -1,0 +1,511 @@
+{
+  "title": "Deviens réserviste de la Police nationale",
+  "slug": "trouve-ta-caserne",
+  "seoTitle": "Deviens réserviste de la Police nationale | Trouve ta mission",
+  "seoDescription": "En parallèle de tes études ou de ton job, renforce les policiers de ton secteur : sécurisation d'événements, prévention, accueil du public. Dès 18 ans, avec indemnisation.",
+  "ogTitle": "Deviens réserviste de la Police près de chez toi",
+  "ogDescription": "Quelques jours par mois, au service de ton territoire.",
+  "noindex": true,
+  "blocks": [
+    {
+      "__component": "blocks.hero",
+      "title": "Deviens réserviste de la Police près de chez toi",
+      "description": "En parallèle de tes études ou de ton job, tu renforces les policiers de ton secteur : sécurisation lors d'événements ou d'accidents, prévention, accueil du public.",
+      "tags": [
+        {
+          "icon": "team-line",
+          "color": "vert",
+          "label": "Dès 18 ans"
+        },
+        {
+          "icon": "money-euro-circle-line",
+          "color": "caramel",
+          "label": "Avec indemnisation"
+        },
+        {
+          "icon": "briefcase-line",
+          "color": "bleu",
+          "label": "Quelques jours par mois"
+        },
+        {
+          "icon": "plant-line",
+          "color": "bleu",
+          "label": "10 jours de préparation"
+        },
+        {
+          "icon": "heart-line",
+          "color": "rose",
+          "label": "Au service de ton territoire"
+        }
+      ],
+      "primaryLabel": "Je candidate",
+      "primaryUrl": "https://www.devenirpolicier.fr",
+      "secondaryLabel": "En savoir plus sur la mission",
+      "secondaryUrl": "https://www.devenirpolicier.fr",
+      "hint": "À un clic de ton engagement.",
+      "image": {
+        "upload": "landings/trouve-ta-caserne/hero-police.webp"
+      },
+      "imageMobile": {
+        "upload": "landings/trouve-ta-caserne/hero-police-mobile.webp"
+      },
+      "visual": "none"
+    },
+    {
+      "__component": "blocks.etapes",
+      "items": [
+        {
+          "icon": "self_training",
+          "title": "Découvre la mission",
+          "description": "Conditions, formation, rythme : tout est expliqué avant de te lancer."
+        },
+        {
+          "icon": "search",
+          "title": "Postule en ligne",
+          "description": "Lettre de motivation, CV et pièces justificatives, sur la plateforme de la Police nationale."
+        },
+        {
+          "icon": "community",
+          "title": "Lance-toi",
+          "description": "Après un entretien, une visite médicale et ta formation, tu rejoins un service près de chez toi."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.benefits",
+      "title": "Comment ça se passe ?",
+      "benefits": [
+        {
+          "emoji": "🪪",
+          "label": "Dès 18 ans"
+        },
+        {
+          "emoji": "🤝",
+          "label": "En collectif"
+        },
+        {
+          "emoji": "💸",
+          "label": "Avec indemnisation"
+        },
+        {
+          "emoji": "🎓",
+          "label": "10 jours de préparation"
+        },
+        {
+          "emoji": "♥️",
+          "label": "Au service de ton territoire"
+        }
+      ],
+      "newsletterTitle": "C'est pas le bon moment ? On te livre les dernières missions par mail.",
+      "newsletterText": "Une fois par mois, des idées de missions adaptées à tes disponibilités et sélectionnées avec amour par l'équipe."
+    },
+    {
+      "__component": "blocks.testimonials",
+      "testimonials": [
+        {
+          "image": {
+            "upload": "landings/trouve-ta-caserne/temoignage-sarah.webp"
+          },
+          "quote": "S'engager, ça responsabilise énormément. Ce que j'ai appris, surtout, c'est la cohésion. On a toujours un binôme sur qui compter.",
+          "name": "Sarah",
+          "role": "sapeur-pompier volontaire depuis 2023"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.missions",
+      "title": "Il y a plein d'autres ==façons d'aider==",
+      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Trouve la mission d'engagement qui te correspond !",
+      "slots": [
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "solidarite_inclusion"
+        },
+        {
+          "dispositif": "service_civique",
+          "domaineEngagement": "sport"
+        },
+        {
+          "dispositif": "sapeurs_pompiers",
+          "domaineEngagement": "securite_secours"
+        },
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "education"
+        }
+      ],
+      "fillWithRandom": true,
+      "examples": true,
+      "background": "creme"
+    },
+    {
+      "__component": "blocks.faq",
+      "title": "C'est quoi ==TrouveTaMission.gouv.fr== ?",
+      "intro": "[TrouveTaMission.gouv.fr](/) est le service public numérique de l'engagement, accessible à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des citoyennes vers les missions d'intérêt général.",
+      "questions": [
+        {
+          "icon": "compass",
+          "question": "Une vie pas boring du tout",
+          "answer": "On t'aide à trouver où tes forces rencontrent les besoins du monde."
+        },
+        {
+          "icon": "backpack",
+          "question": "Ça compte pour mon parcours !",
+          "answer": "Chaque mission t'apporte des compétences, des connaissances, une idée plus claire de ce que tu veux faire."
+        },
+        {
+          "icon": "community",
+          "question": "Rencontre du beau monde",
+          "answer": "Découvre des personnes que tu n'aurais jamais croisées autrement et crée des liens."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.accordion",
+      "title": "Devenir ==réserviste de la Police nationale,==\nles questions fréquentes",
+      "questions": [
+        {
+          "question": "Qui peut candidater ?",
+          "answer": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Pour s'engager, le candidat doit :"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "être de nationalité française ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "être âgé de 18 à 67 ans ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "être en règle au regard des obligations du service national : Journée Défense et Citoyenneté (JDC ex-JAPD) accomplie pour celles et ceux nés après le 31 décembre 1979 ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "ne pas avoir été condamné soit à la perte des droits civiques ou à l’interdiction d’exercer un emploi public, soit à une peine criminelle ou correctionnelle inscrite au bulletin n° 2 du casier judiciaire ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "se référer à l’arrêté du 25 novembre 2022 et l'arrêté du 7 novembre 2023 portant modification de l'arrêté du 25 novembre 2022, tous deux relatifs aux conditions de santé particulières applicables aux réservistes opérationnels de la police nationale, à télécharger dans l’onglet « Textes de références » ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "s'engager à respecter le code de déontologie ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "pas de condition de diplôme ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "le permis B n'est pas exigé ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "mêmes critères que pour les policiers adjoints pour la chevelure et les tatouages."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Ce recrutement est également ouvert aux réservistes de la gendarmerie nationale, aux policiers municipaux, aux personnels administratifs techniques et scientifiques de la police nationale, qui suivront également toute la formation."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "Comment candidater ?",
+          "answer": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "La procédure de candidature est dématérialisée. Le candidat doit se connecter sur la plateforme « Démarche numérique » (cliquer sur « se connecter »), puis il choisira le dossier de candidature correspondant à sa situation, et complétera le formulaire en ligne."
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Il faut joindre au formulaire toutes les pièces justificatives nécessaires à l’analyse du dossier :"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "lettre de motivation manuscrite ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "curriculum vitae (CV) ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "photocopie d'un titre d'identité en cours de validité ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "copie intégrale de l'acte de naissance avec filiation ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "copie du certificat individuel de participation à la journée de défense et citoyenneté ou copie de l'attestation d'exemption."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "À l’issue du dépôt de la candidature, un accusé de réception sera envoyé. Par la suite, le candidat recevra une convocation pour passer un entretien avec un jury. Afin de valider l’entrée en formation, une visite médicale devra déclarer le candidat apte à exercer les missions de réserviste opérationnelle de la police nationale."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "Comment se passent les épreuves ?",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "L'épreuve d'entretien permet d'évaluer l'aptitude et la motivation du candidat à occuper les fonctions de policier réserviste, d'apprécier sa personnalité, ses qualités de réflexion ainsi que ses connaissances. (Durée 20 minutes, dont 5 minutes de présentation).\nL'épreuve d'entretien est notée sur 20."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "La candidature sera retenue si :"
+                    }
+                  ]
+                },
+                {
+                  "type": "list",
+                  "format": "unordered",
+                  "children": [
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "les conditions d'accès sont remplies ;"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "votre dossier est complet et conforme ;"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "la motivation et les compétences du candidat sont vérifiées lors d'un entretien auquel il sera convoqué ;"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "le candidat répond aux aptitudes physiques requises lors de la visite médicale ;"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "le candidat répond à un contrôle d'aptitudes à l'issue des 2 premières semaines de formation."
+                        }
+                      ]
+                    }
+                  ],
+                  "indentLevel": 1
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "À l'issue de l'entretien, le candidat sera avisé par courrier de la décision prise."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "teamPhotos": [
+        {
+          "upload": "team/membre-1.webp"
+        },
+        {
+          "upload": "team/membre-2.webp"
+        },
+        {
+          "upload": "team/membre-3.webp"
+        },
+        {
+          "upload": "team/membre-4.webp"
+        },
+        {
+          "upload": "team/membre-5.webp"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.partners",
+      "title": "Toutes les missions d’engagement vérifiées par l'État",
+      "partners": [
+        {
+          "name": "Les réserves des armées",
+          "description": "Des missions indemnisées de réservistes.",
+          "logo": {
+            "upload": "logo/roc-logo.png"
+          }
+        },
+        {
+          "name": "JeVeuxAider.gouv.fr",
+          "description": "La plateforme publique du bénévolat.",
+          "logo": {
+            "upload": "logo/jva-logo.png"
+          }
+        },
+        {
+          "name": "Le Service Civique",
+          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+          "logo": {
+            "upload": "logo/asc-logo.png"
+          }
+        },
+        {
+          "name": "Sapeurs-pompiers de France",
+          "description": "Deviens sapeur-pompier volontaire près de chez toi.",
+          "logo": {
+            "upload": "logo/spv-logo.png"
+          }
+        },
+        {
+          "name": "Gendarmerie nationale",
+          "description": "Deviens gendarme près de chez toi.",
+          "logo": {
+            "upload": "logo/gendarmerie-logo.png"
+          }
+        }
+      ]
+    }
+  ]
+}

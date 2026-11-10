@@ -1,7 +1,7 @@
 import zod from "zod";
 
 // Types d'alerte connus (ceux gérés par les vues `admin-warning` / `warnings`).
-export const ALERT_TYPES = ["TRACKING_WARNING", "ERROR_WARNING", "EMPTY_WARNING", "VALIDATION_WARNING"] as const;
+export const ALERT_TYPES = ["TRACKING_WARNING", "ERROR_WARNING", "EMPTY_WARNING", "VALIDATION_WARNING", "DELETION_WARNING", "REDIRECTION_WARNING", "CONVERSION_WARNING"] as const;
 
 export const alertInputSchema = zod.object({
   type: zod.enum(ALERT_TYPES),

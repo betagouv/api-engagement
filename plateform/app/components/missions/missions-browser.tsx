@@ -215,6 +215,7 @@ export default function MissionsBrowser({
   exclude,
   pageName,
   backTo,
+  alertCard = false,
   signupSource,
 }: {
   missions: MissionBrowse[];
@@ -225,6 +226,8 @@ export default function MissionsBrowser({
   exclude?: MissionBrowseTaxonomyParams;
   pageName: "missions_list" | LandingName;
   backTo: string;
+  // Carte d'inscription aux alertes en première page (`alertCard` de la `LandingMissionsConfig`) : la page 1 compte alors une mission de moins.
+  alertCard?: boolean;
   // Source Brevo de la carte d'inscription aux alertes.
   signupSource?: SignupSource;
 }) {
@@ -296,8 +299,8 @@ export default function MissionsBrowser({
     setSheetOpen(false);
   };
 
-  const totalPages = getTotalPages(total);
-  const { offset } = getPageWindow(page);
+  const totalPages = getTotalPages(total, alertCard);
+  const { offset } = getPageWindow(page, alertCard);
   // Page 1 : carte d'alertes en 6e position, ou après la dernière mission s'il y en a moins de 5.
   const alertCardAfterIndex = Math.min(ALERT_CARD_POSITION - 1, missions.length) - 1;
   const groupFilters = filters.filter((key) => key !== "departmentCode");
@@ -308,8 +311,8 @@ export default function MissionsBrowser({
     <section className="fr-container relative z-10 -mt-40 flex flex-col gap-6 lg:-mt-50 lg:flex-row">
       <h2 className="fr-sr-only">Missions disponibles</h2>
 
-      {/* Desktop : la colonne suit le défilement jusqu'à la fin de la liste (bas de la section), sans défilement interne. */}
-      <div className="hidden h-fit flex-col gap-6 lg:sticky lg:top-4 lg:flex lg:w-74 lg:shrink-0">
+      {/* Desktop : colonne de filtres à gauche, qui défile avec la page. */}
+      <div className="hidden h-fit flex-col gap-6 lg:flex lg:w-74 lg:shrink-0">
         {filters.includes("departmentCode") && <LocationFilter id="missions-localisation" />}
         <FilterGroups
           keys={groupFilters}
@@ -360,7 +363,7 @@ export default function MissionsBrowser({
                     onEmailClick={() => setEmailMissionId(mission.id)}
                   />
                 </li>
-                {page === 1 && index === alertCardAfterIndex && (
+                {alertCard && page === 1 && index === alertCardAfterIndex && (
                   <li className="min-w-0 p-0!">
                     <MissionAlertCard signupSource={signupSource} />
                   </li>

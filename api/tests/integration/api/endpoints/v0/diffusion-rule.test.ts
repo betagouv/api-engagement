@@ -1,6 +1,7 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { prisma } from "@/db/postgres";
 import { asyncTaskBus } from "@/services/async-task";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { type PublisherRecord } from "@/types";
@@ -289,6 +290,46 @@ describe("DiffusionRule API Integration Tests", () => {
         value: organization.clientId,
       });
       expect(persisted.map((rule) => rule.publisherId).sort()).toEqual([diffuseur1.id, diffuseur2.id].sort());
+    });
+
+    it("archive les racines et leurs enfants et permet de recréer les règles", async () => {
+      const root = await publisherDiffusionRuleService.findOrCreateScopeRoot(diffuseur1.id, publisher.id);
+      const input = {
+        diffuseurPublisherId: diffuseur1.id,
+        annonceurPublisherId: publisher.id,
+        field: "publisherOrganization.clientId",
+        fieldType: "string",
+        operator: "is_not",
+        value: "org-history",
+      };
+      const child = await publisherDiffusionRuleService.createScopedRule(input);
+      const duplicate = {
+        publisherId: diffuseur1.id,
+        combinedWithId: root.id,
+        field: input.field,
+        fieldType: input.fieldType,
+        operator: input.operator,
+        value: input.value,
+        combinator: "or",
+      };
+      await expect(prisma.publisherDiffusionRule.create({ data: duplicate })).rejects.toMatchObject({ code: "P2002" });
+      await expect(
+        prisma.publisherDiffusionRule.create({ data: { ...duplicate, combinedWithId: null, field: "publisherId", value: publisher.id } })
+      ).rejects.toMatchObject({ code: "P2002" });
+      await publisherDiffusionRuleService.deleteRule(child.id);
+      expect(await publisherDiffusionRuleService.findRuleById(child.id)).toBeNull();
+      const recreatedChild = await publisherDiffusionRuleService.createScopedRule(input);
+      expect(recreatedChild.id).not.toBe(child.id);
+      const loadedRoot = await publisherDiffusionRuleService.findRuleById(root.id);
+      expect(loadedRoot?.combinedRules?.map((rule) => rule.id)).toEqual([recreatedChild.id]);
+
+      await publisherDiffusionRuleService.deleteRules({ publisherId: diffuseur1.id, combinedWithId: null });
+      const archived = await prisma.publisherDiffusionRule.findMany({ where: { id: { in: [root.id, recreatedChild.id] } } });
+      expect(archived).toHaveLength(2);
+      expect(archived.every((rule) => rule.deletedAt instanceof Date)).toBe(true);
+      expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur1.id })).toEqual([]);
+      const recreatedRoot = await publisherDiffusionRuleService.findOrCreateScopeRoot(diffuseur1.id, publisher.id);
+      expect(recreatedRoot.id).not.toBe(root.id);
     });
 
     it("enqueues a publisher.diffusion recompute for each allowed diffuseur, but not for unrelated ones", async () => {

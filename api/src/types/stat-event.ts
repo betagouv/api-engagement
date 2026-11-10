@@ -52,12 +52,6 @@ export interface WarningBotAggregations {
   publisherFrom: WarningBotAggregationBucket[];
 }
 
-export interface CountByTypeParams {
-  publisherId: string;
-  from: Date;
-  types?: StatEventType[];
-}
-
 export interface CountEventsParams {
   type?: StatEventType;
   user?: string;

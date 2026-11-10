@@ -51,7 +51,7 @@ function buildMissionPayload() {
       "Être apte médicalement",
       "Réussir un entretien et une formation",
     ],
-    schedule: "Quelques jours par mois selon vos disponibilités",
+    schedule: "Quelques jours par mois",
     places: 5000,
     remote: "local",
     openToMinors: false,

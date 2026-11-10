@@ -15,6 +15,10 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
   let statusComment: string | undefined;
   let description: string | undefined;
 
+  // Les adresses font foi quand elles sont fournies (POST/PUT v2), sinon le pays dérivé de l'adresse principale.
+  const countries: (string | null | undefined)[] = mission.addresses?.length ? mission.addresses.map((a: { country?: string | null }) => a.country) : [mission.country];
+  const invalidCountry = countries.find((c) => c && !COUNTRIES.includes(c));
+
   if (!mission.title || mission.title === " ") {
     statusComment = "Titre manquant";
   } else if (hasEncodageIssue(mission.title)) {
@@ -32,8 +36,8 @@ export const getModeration = (mission: Partial<MissionRecord> & Record<string, a
     statusComment = "La description est trop longue (plus de 20000 caractères)";
   } else if (!mission.applicationUrl) {
     statusComment = "URL de candidature manquant";
-  } else if (mission.country && !COUNTRIES.includes(mission.country)) {
-    statusComment = `Pays non valide : "${mission.country}"`;
+  } else if (invalidCountry) {
+    statusComment = `Pays non valide : "${invalidCountry}"`;
   } else if (mission.remote && !["no", "possible", "full", "local"].includes(mission.remote)) {
     statusComment = "Valeur remote non valide (no, possible, full ou local)";
   } else if (typeof mission.places === "number" && mission.places <= 0) {

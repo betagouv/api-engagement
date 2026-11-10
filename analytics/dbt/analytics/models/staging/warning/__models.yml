@@ -1,0 +1,69 @@
+version: 2
+
+models:
+  - name: stg_warning
+    description: >
+      Staging des alertes issues de `analytics_raw.warning`. Conversions de types (entiers, timestamps) avant exposition
+      au mart `warning`.
+    columns:
+      - name: id
+        description: Identifiant unique de l'alerte.
+        tests:
+          - not_null
+          - unique
+      - name: type
+        description: Type d'alerte.
+        tests:
+          - not_null
+      - name: title
+        description: Titre de l'alerte (nullable).
+      - name: description
+        description: Détail de la dernière réception (nullable).
+      - name: publisher_id
+        description: Identifiant du partenaire concerné.
+        tests:
+          - not_null
+      - name: status
+        description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["TODO", "IN_PROGRESS", "RESOLVED"]
+      - name: occurrences
+        description: Nombre de réceptions cumulées.
+      - name: procedure_url
+        description: Lien vers la procédure de traitement (nullable).
+      - name: notified_at
+        description: Date du mail d'alerte aux assignés (nullable).
+      - name: fixed_at
+        description: Date de résolution (nullable).
+      - name: created_at
+        description: Date de création de l'alerte.
+      - name: updated_at
+        description: Date de dernière mise à jour.
+
+  - name: stg_warning_occurrence
+    description: >
+      Staging de l'historique des réceptions d'alerte issu de `analytics_raw.warning_occurrence`.
+    columns:
+      - name: id
+        description: Identifiant unique de la réception.
+        tests:
+          - not_null
+          - unique
+      - name: warning_id
+        description: Identifiant de l'alerte concernée.
+        tests:
+          - not_null
+      - name: source
+        description: Origine de la réception (`metabase` ou `job`).
+        tests:
+          - not_null
+      - name: title
+        description: Titre envoyé à cette réception (nullable).
+      - name: description
+        description: Description envoyée à cette réception (nullable).
+      - name: created_at
+        description: Date de la réception.
+        tests:
+          - not_null

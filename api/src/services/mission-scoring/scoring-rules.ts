@@ -15,6 +15,8 @@ type MissionScoringRuleMission = {
 type MissionScoringRuleOutput = {
   mode: "replace" | "add";
   values: TaxonomyValueKey[];
+  // Restreint la règle à ces types de mission (toutes les missions si absent).
+  types?: MissionType[];
 };
 
 type MissionScoringEqualsRule = {
@@ -26,7 +28,7 @@ type MissionScoringEqualsRule = {
 
 type MissionScoringPresentRule = {
   field: keyof MissionScoringRuleMission;
-  condition: { operator: "present" };
+  condition: { operator: "present" | "missing" };
 } & MissionScoringRuleOutput;
 
 type MissionScoringRule = MissionScoringEqualsRule | MissionScoringPresentRule;
@@ -59,6 +61,8 @@ const ADULT_TRANCHE_AGE_KEYS = [
  *
  * - `equals` compare la valeur du champ à une valeur précise ;
  * - `present` vérifie uniquement que le champ n'est ni null ni undefined ;
+ * - `missing` est l'inverse : le champ est null ou undefined ;
+ * - `types` (optionnel) limite la règle à certains types de mission ;
  * - `replace` remplace les valeurs enrichies de la taxonomie et intersecte les
  *   allowlists lorsque plusieurs règles la contraignent ;
  * - `add` complète les valeurs enrichies sans les remplacer.
@@ -179,6 +183,15 @@ export const SCORING_RULES = [
     mode: "replace",
     values: ADULT_TRANCHE_AGE_KEYS,
   },
+  // Service Civique et bénévolat : une mission qui ne précise pas openToMinors est considérée comme
+  // fermée aux mineurs. Les autres dispositifs gardent leurs propres bornes d'âge (ex. ROC dès 17 ans).
+  {
+    field: "openToMinors",
+    condition: { operator: "missing" },
+    types: ["benevolat", "volontariat_service_civique"],
+    mode: "replace",
+    values: ADULT_TRANCHE_AGE_KEYS,
+  },
   // Les filtres Typesense sont explicites : une taxonomie absente est indexée comme
   // un tableau vide, pas comme une absence de contrainte. Les gates ne contribuent
   // pas au score pondéré du matching engine et peuvent donc être matérialisées ici.
@@ -265,7 +278,11 @@ export const resolveMissionScoringRules = (mission: MissionScoringRuleMission): 
 
   for (const rule of SCORING_RULES) {
     const fieldValue = mission[rule.field];
-    const matches = rule.condition.operator === "present" ? fieldValue != null : fieldValue === rule.condition.value;
+    const { condition } = rule;
+    const conditionMatches = condition.operator === "present" ? fieldValue != null : condition.operator === "missing" ? fieldValue == null : fieldValue === condition.value;
+    const types: MissionType[] | undefined = "types" in rule ? rule.types : undefined;
+    const typeMatches = !types || (mission.type !== null && types.includes(mission.type));
+    const matches = conditionMatches && typeMatches;
     if (matches) {
       addRuleKeys(rule);
     }

@@ -66,7 +66,7 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
         <form onSubmit={handleSubmit} noValidate className="relative">
           <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
             <label className="fr-label fr-sr-only" htmlFor={emailId}>
-              Ton adresse email
+              Ton adresse e-mail
             </label>
             <div className="fr-input-wrap fr-input-wrap--addon">
               <input
@@ -92,7 +92,7 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
             )}
           </div>
           <p id={`${emailId}-hint`} className="fr-hint-text mt-2! mb-0!">
-            1 email 1 fois par mois. Uniquement des missions. Désinscription en un clic.
+            1 e-mail 1 fois par mois. Uniquement des missions. Désinscription en un clic.
           </p>
         </form>
       )}

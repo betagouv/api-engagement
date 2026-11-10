@@ -1,0 +1,9 @@
+{
+  "collectionName": "components_items_questions",
+  "info": { "displayName": "Question", "icon": "question" },
+  "attributes": {
+    "icon": { "type": "enumeration", "enum": ["accessibility","airport","application","archive","army_tank","art","astronaut","audio","avatar","backpack","base","binders","book","calendar","catalog","city_hall","coding","community","companie","compass","conclusion","connection_lost","contract","culture","data_visualization","digital_art","doctor","document","document_add","document_download","document_search","document_signature","driving_licence","driving_license_new","ear_off","ecosystem","environment","error","eye_off","factory","firefighter","flow_list","flow_settings","food","gendarmerie","grocery","health","hospital","house","human_cooperation","in_progress","information","innovation","international_driving_license","international_driving_license_new","internet","justice","language","leaf","location_france","location_overseas_france","luggage","mail_send","map","map_pin","medical_research","mental_disabilities","money","moon","mountain","national_identity_card","national_identity_card_passport","navy_anchor","navy_bachi","notification","nuclear_plant","padlock","paint","passport","pictures","podcast","police","presse_card","school","search","self_training","sign_document","smartphone","success","sun","system","tax_stamp","technical_error","travel_back","tree","vaccine","vehicle_registration","video","video_games","virus","warning","wheelchair"], "description": "Pictogramme DSFR (systeme-de-design.gouv.fr › Fondamentaux › Pictogrammes).", "required": true },
+    "question": { "type": "string", "required": true },
+    "answer": { "type": "text", "required": true }
+  }
+}

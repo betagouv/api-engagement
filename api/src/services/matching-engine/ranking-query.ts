@@ -253,24 +253,30 @@ export const buildRankingQuery = (params: {
   -- Phase 2 : appliquer les contraintes du dernier scoring publié.
   ${buildEligibilityCtes(params)},
   ${buildGeographicPrefilterCtes()},
-  -- Matérialiser les correspondances depuis les quelques valeurs du profil empêche PostgreSQL
-  -- de réordonner la jointure en une recherche mission par mission dans les valeurs publiées.
-  -- Filtrer les scorings par gates et localisation avant le GROUP BY évite d'agréger
-  -- les correspondances qui seraient ensuite éliminées.
-  matching_mission_values AS MATERIALIZED (
+  -- Isoler les correspondances avant l'éligibilité empêche PostgreSQL de lire toutes
+  -- les valeurs mission par mission avant de les comparer à celles du profil.
+  user_matching_values AS MATERIALIZED (
     SELECT
       msv."mission_scoring_id",
       uv."taxonomy_key",
-      SUM(uv."user_score" * msv."score") AS "taxonomy_sum"
+      uv."user_score" * msv."score" AS "score_contribution"
     FROM user_values uv
     JOIN ${buildMissionValuesSource()} msv
       ON msv."taxonomy_key" = uv."taxonomy_key"
      AND msv."value_key" = uv."value_key"
+  ),
+  -- Les gates et la localisation restent appliquées avant l'agrégation des scores.
+  matching_mission_values AS MATERIALIZED (
+    SELECT
+      umv."mission_scoring_id",
+      umv."taxonomy_key",
+      SUM(umv."score_contribution") AS "taxonomy_sum"
+    FROM user_matching_values umv
     WHERE EXISTS (
       SELECT 1 FROM geographically_eligible_mission_scorings ems
-      WHERE ems."mission_scoring_id" = msv."mission_scoring_id"
+      WHERE ems."mission_scoring_id" = umv."mission_scoring_id"
     )
-    GROUP BY msv."mission_scoring_id", uv."taxonomy_key"
+    GROUP BY umv."mission_scoring_id", umv."taxonomy_key"
   ),
   -- Phase 3 : calculer la similarité taxonomique. Une taxonomie partiellement matchée reçoit le
   -- socle taxonomyOrBaseScore, complété par la proportion de valeurs communes, puis par son poids.

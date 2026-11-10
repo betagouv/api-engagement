@@ -1,0 +1,10 @@
+{
+  "collectionName": "components_items_testimonials",
+  "info": { "displayName": "Témoignage", "icon": "quote" },
+  "attributes": {
+    "image": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true },
+    "quote": { "type": "text", "required": true, "description": "Sans guillemets : ils sont ajoutés à l'affichage." },
+    "name": { "type": "string", "required": true },
+    "role": { "type": "string", "required": true, "description": "Ex. : sapeur-pompier volontaire depuis 2023" }
+  }
+}
