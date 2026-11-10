@@ -33,7 +33,7 @@ type WarningRecord = {
   publisherId: string;
   seen: boolean;
   status: "TODO" | "RESOLVED";
-  fixedAt: Date | null;
+  resolvedAt: Date | null;
   occurrences: number;
   createdAt: Date;
   updatedAt: Date;
@@ -101,7 +101,7 @@ const normalizeAlert = (doc: MongoWarningDocument): NormalizedWarningData => {
   const description = asString(doc.description);
   const seen = asBoolean(doc.seen, false);
   const status = asBoolean(doc.fixed, false) ? "RESOLVED" : "TODO";
-  const fixedAt = asDate(doc.fixedAt);
+  const resolvedAt = asDate(doc.fixedAt);
   const occurrences = asNumber(doc.occurrences, 1);
   const createdAt = asDate(doc.createdAt) ?? new Date();
   const updatedAt = asDate(doc.updatedAt) ?? createdAt;
@@ -114,7 +114,7 @@ const normalizeAlert = (doc: MongoWarningDocument): NormalizedWarningData => {
     publisherId,
     seen,
     status,
-    fixedAt,
+    resolvedAt,
     occurrences,
     createdAt,
     updatedAt,
@@ -128,7 +128,7 @@ const normalizeAlert = (doc: MongoWarningDocument): NormalizedWarningData => {
     publisherId: record.publisherId,
     seen: record.seen,
     status: record.status,
-    fixedAt: record.fixedAt,
+    resolvedAt: record.resolvedAt,
     occurrences: record.occurrences,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
@@ -141,7 +141,7 @@ const normalizeAlert = (doc: MongoWarningDocument): NormalizedWarningData => {
     publisherId: record.publisherId,
     seen: record.seen,
     status: record.status,
-    fixedAt: record.fixedAt,
+    resolvedAt: record.resolvedAt,
     occurrences: record.occurrences,
     updatedAt: record.updatedAt,
   };
@@ -156,7 +156,7 @@ const hasDifferences = (existing: WarningRecord, target: WarningRecord): boolean
   if (!compareStrings(existing.publisherId, target.publisherId)) return true;
   if (!compareBooleans(existing.seen, target.seen)) return true;
   if (!compareStrings(existing.status, target.status)) return true;
-  if (!compareDates(existing.fixedAt, target.fixedAt)) return true;
+  if (!compareDates(existing.resolvedAt, target.resolvedAt)) return true;
   if (!compareNumbers(existing.occurrences, target.occurrences)) return true;
   if (!compareDates(existing.createdAt, target.createdAt)) return true;
   if (!compareDates(existing.updatedAt, target.updatedAt)) return true;
@@ -179,7 +179,7 @@ const formatRecordForLog = (record: WarningRecord) => ({
   publisherId: record.publisherId,
   seen: record.seen,
   status: record.status,
-  fixedAt: record.fixedAt ? record.fixedAt.toISOString() : null,
+  resolvedAt: record.resolvedAt ? record.resolvedAt.toISOString() : null,
   occurrences: record.occurrences,
   createdAt: record.createdAt.toISOString(),
   updatedAt: record.updatedAt.toISOString(),
@@ -283,7 +283,7 @@ const main = async () => {
         publisherId: existing.publisherId,
         seen: existing.seen,
         status: existing.status === "RESOLVED" ? "RESOLVED" : "TODO",
-        fixedAt: existing.fixedAt,
+        resolvedAt: existing.resolvedAt,
         occurrences: existing.occurrences,
         createdAt: existing.createdAt,
         updatedAt: existing.updatedAt,

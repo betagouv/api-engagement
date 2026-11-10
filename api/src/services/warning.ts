@@ -26,7 +26,7 @@ export const warningService = (() => {
     publisherName: "publisher" in warning && warning.publisher ? warning.publisher.name : null,
     publisherLogo: "publisher" in warning && warning.publisher ? warning.publisher.logo : null,
     seen: warning.seen,
-    fixedAt: warning.fixedAt,
+    resolvedAt: warning.resolvedAt,
     occurrences: warning.occurrences,
     status: warning.status,
     procedureUrl: warning.procedureUrl,
@@ -59,7 +59,7 @@ export const warningService = (() => {
         publisherId: input.publisherId,
         seen: input.seen ?? false,
         status,
-        fixedAt: status === "RESOLVED" ? (input.fixedAt ?? new Date()) : null,
+        resolvedAt: status === "RESOLVED" ? (input.resolvedAt ?? new Date()) : null,
         occurrences: input.occurrences ?? 1,
         procedureUrl: input.procedureUrl ?? null,
         itemId: input.itemId ?? null,
@@ -97,9 +97,9 @@ export const warningService = (() => {
     const status = patch.status;
     if (status !== undefined) {
       updateData.status = status;
-      updateData.fixedAt = status === "RESOLVED" ? (patch.fixedAt ?? new Date()) : null;
-    } else if (patch.fixedAt !== undefined) {
-      updateData.fixedAt = patch.fixedAt;
+      updateData.resolvedAt = status === "RESOLVED" ? (patch.resolvedAt ?? new Date()) : null;
+    } else if (patch.resolvedAt !== undefined) {
+      updateData.resolvedAt = patch.resolvedAt;
     }
     if (patch.occurrencesIncrement !== undefined) {
       updateData.occurrences = { increment: patch.occurrencesIncrement };
@@ -182,7 +182,7 @@ export const warningService = (() => {
   const transitionStatus = async (id: string, from: WarningStatus[], to: WarningStatus): Promise<boolean> => {
     const { count } = await warningRepository.updateMany({
       where: { id, status: { in: from } },
-      data: { status: to, fixedAt: to === "RESOLVED" ? new Date() : null },
+      data: { status: to, resolvedAt: to === "RESOLVED" ? new Date() : null },
     });
     return count === 1;
   };

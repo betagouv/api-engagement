@@ -483,7 +483,7 @@ model PublisherDiffusionRule {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  deletedAt      DateTime? @map("deleted_at")
+  deletedAt DateTime? @map("deleted_at")
 
   publisher     Publisher                @relation("PublisherDiffuseurRuleRelation", fields: [publisherId], references: [id], onDelete: Cascade)
   combinedWith  PublisherDiffusionRule?  @relation("PublisherDiffusionRuleCombined", fields: [combinedWithId], references: [id], onDelete: Cascade)
@@ -522,7 +522,7 @@ model Warning {
   seen           Boolean       @default(false)
   // Déprécié : plus lu ni écrit (utiliser `status`), colonne supprimée dans une migration ultérieure
   fixed          Boolean       @default(false)
-  fixedAt        DateTime?     @map("fixed_at")
+  resolvedAt     DateTime?     @map("resolved_at")
   occurrences    Int           @default(1)
   status         WarningStatus @default(TODO)
   procedureUrl   String?       @map("procedure_url")

@@ -271,7 +271,7 @@ const List = () => {
                           <div className="mt-3 flex items-center">
                             <RiCheckboxCircleFill className="text-success mr-2 w-4" aria-hidden="true" />
                             <p className="text-gray-dar text-sm">
-                              Corrigée le {new Date(w.fixedAt || w.updatedAt).getDate()} {MONTHS[new Date(w.fixedAt || w.updatedAt).getMonth()].toLowerCase()}
+                              Corrigée le {new Date(w.resolvedAt || w.updatedAt).getDate()} {MONTHS[new Date(w.resolvedAt || w.updatedAt).getMonth()].toLowerCase()}
                             </p>
                           </div>
                         )}

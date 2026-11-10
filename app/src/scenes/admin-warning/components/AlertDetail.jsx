@@ -117,10 +117,10 @@ const AlertDetail = () => {
           <dt className="font-bold">Créée le</dt>
           <dd>{formatDateTime(alert.createdAt)}</dd>
         </div>
-        {alert.status === "RESOLVED" && alert.fixedAt && (
+        {alert.status === "RESOLVED" && alert.resolvedAt && (
           <div>
             <dt className="font-bold">Résolue le</dt>
-            <dd>{formatDateTime(alert.fixedAt)}</dd>
+            <dd>{formatDateTime(alert.resolvedAt)}</dd>
           </div>
         )}
         <div>

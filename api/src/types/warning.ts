@@ -17,7 +17,7 @@ export interface WarningRecord {
   publisherName: string | null;
   publisherLogo: string | null;
   seen: boolean;
-  fixedAt: Date | null;
+  resolvedAt: Date | null;
   occurrences: number;
   status: WarningStatus;
   procedureUrl: string | null;
@@ -71,7 +71,7 @@ export interface WarningCreateInput {
   description?: string | null;
   publisherId: string;
   seen?: boolean;
-  fixedAt?: Date | null;
+  resolvedAt?: Date | null;
   occurrences?: number;
   status?: WarningStatus;
   procedureUrl?: string | null;
@@ -88,7 +88,7 @@ export interface WarningUpdatePatch {
   description?: string | null;
   publisherId?: string;
   seen?: boolean;
-  fixedAt?: Date | null;
+  resolvedAt?: Date | null;
   occurrences?: number;
   /** Incrémente atomiquement `occurrences` (prioritaire sur `occurrences`). */
   occurrencesIncrement?: number;

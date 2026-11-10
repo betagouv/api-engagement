@@ -243,7 +243,7 @@ describe("Warning alerting", () => {
     it("records the legacy job receptions with the job source", async () => {
       const created = await warningService.createWarning({ type: "ERROR_WARNING", publisherId, title: "Flux invalide", source: "job" });
       await warningService.updateWarning(created.id, { description: "FAILED", occurrences: created.occurrences + 1, source: "job" });
-      await warningService.updateWarning(created.id, { status: "RESOLVED", fixedAt: new Date() });
+      await warningService.updateWarning(created.id, { status: "RESOLVED", resolvedAt: new Date() });
       const untracked = await warningService.createWarning({ type: TYPE, publisherId });
 
       const list = (id: string) => request(app).get(`/warning/${id}/occurrences`).set("Authorization", `jwt ${deploymentUser.token}`);
@@ -417,7 +417,7 @@ describe("Admin alerts screen endpoints", () => {
     expect((await request(app).get("/warning/unknown-id").set(adminAuth)).status).toBe(404);
   });
 
-  it("changes the status and sets and clears fixedAt", async () => {
+  it("changes the status and sets and clears resolvedAt", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId });
 
     const resolved = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "RESOLVED" });
@@ -425,7 +425,7 @@ describe("Admin alerts screen endpoints", () => {
     expect(resolved.body.data).toMatchObject({ status: "RESOLVED" });
 
     const reopened = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "IN_PROGRESS" });
-    expect(reopened.body.data).toMatchObject({ status: "IN_PROGRESS", fixedAt: null });
+    expect(reopened.body.data).toMatchObject({ status: "IN_PROGRESS", resolvedAt: null });
   });
 
   it("returns 409 when reopening an alert while another one is open for the same publisher and type", async () => {
@@ -458,10 +458,10 @@ describe("Alert comments", () => {
     publisherId = (await createTestPublisher({ isAnnonceur: true })).id;
   });
 
-  it("exposes fixedAt once the alert is resolved", async () => {
+  it("exposes resolvedAt once the alert is resolved", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId });
     const resolved = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "RESOLVED" });
-    expect(resolved.body.data.fixedAt).toBeTruthy();
+    expect(resolved.body.data.resolvedAt).toBeTruthy();
   });
 
   it("lists, adds and edits comments (author only)", async () => {
