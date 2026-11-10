@@ -1,27 +1,27 @@
 import { Fragment } from "react";
-import { Link, useLoaderData } from "react-router";
+import { data, Link, useLoaderData } from "react-router";
 
 import { type CmsBlocksContext } from "~/components/cms";
-import CatalogueEditor from "~/components/cms/catalogue-editor";
-import { CATALOGUE_EXAMPLES, CATALOGUE_MISSIONS } from "~/config/cms-catalogue";
+import ComponentPreview from "~/components/cms/component-preview";
+import { CMS_COMPONENT_EXAMPLES, CMS_COMPONENT_MISSIONS } from "~/config/cms-components";
 import type { CmsBlock } from "~/types/cms";
-import { type CatalogueField, getBlockSchema } from "~/services/cms-catalogue.server";
+import { type CmsComponentField, getBlockSchema } from "~/services/cms-components.server";
 import { CMS_PUBLIC_URL } from "~/services/cms.server";
 
-import type { Route } from "./+types/catalogue-blocs";
+import type { Route } from "./+types/cms-components";
 
-// Catalogue interne des blocs du CMS : rendu de chaque bloc avec des données d'exemple et liste de ses champs,
-// lue dans les schémas Strapi (cms/src/components). Non indexée, affichée dans l'admin Strapi (menu « Catalogue des blocs »).
+// Page interne des composants du CMS : rendu de chaque bloc avec des données d'exemple et liste de ses champs,
+// lue dans les schémas Strapi (cms/src/components). Non indexée, affichée dans l'admin Strapi (menu « Composants du CMS »).
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Catalogue des blocs du CMS" }, { name: "robots", content: "noindex, nofollow" }];
+  return [{ title: "Composants du CMS" }, { name: "robots", content: "noindex, nofollow" }];
 }
 
-const BLOCK_UIDS = [...new Set(CATALOGUE_EXAMPLES.map(({ block }) => block.__component))];
+const BLOCK_UIDS = [...new Set(CMS_COMPONENT_EXAMPLES.map(({ block }) => block.__component))];
 
 const CONTEXT: CmsBlocksContext = {
-  landing: "landing_catalogue_blocs",
-  path: "/_cms/catalogue-blocs",
-  missionsByBlock: { 0: CATALOGUE_MISSIONS },
+  landing: "landing_cms_components",
+  path: "/_cms/components",
+  missionsByBlock: { 0: CMS_COMPONENT_MISSIONS },
   onStartQuiz: () => {},
   missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
 };
@@ -32,6 +32,9 @@ export function headers() {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
+  // Ouverte directement dans un onglet (hors iframe de l'admin Strapi) : 404. Les navigations internes (`?bloc=`) sont des
+  // requêtes `fetch` (`Sec-Fetch-Dest: empty`), elles restent autorisées.
+  if (request.headers.get("Sec-Fetch-Dest") === "document") throw data("Page introuvable", { status: 404 });
   // Bloc affiché : `?bloc=blocks.hero` (lien partageable), le premier par défaut.
   const requested = new URL(request.url).searchParams.get("bloc");
   const selected = requested && BLOCK_UIDS.includes(requested as CmsBlock["__component"]) ? requested : BLOCK_UIDS[0];
@@ -40,9 +43,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   return { displayNames, selected, schema: getBlockSchema(selected) };
 }
 
-export default function CatalogueBlocs() {
+export default function CmsComponents() {
   const { displayNames, selected, schema } = useLoaderData<typeof loader>();
-  const examples = CATALOGUE_EXAMPLES.filter(({ block }) => block.__component === selected);
+  const examples = CMS_COMPONENT_EXAMPLES.filter(({ block }) => block.__component === selected);
 
   return (
     <main id="contenu" tabIndex={-1} className="pb-16">
@@ -65,7 +68,7 @@ export default function CatalogueBlocs() {
 
       <div>
         <div className="fr-container pt-8 md:pt-12">
-          <p className="fr-text--sm text-mention-grey! mb-1!">Catalogue des blocs du CMS</p>
+          <p className="fr-text--sm text-mention-grey! mb-1!">Composants du CMS</p>
           <h1 className="mb-1!">{displayNames[selected]}</h1>
           <p className="fr-text--sm text-mention-grey! mb-4!">
             <code>{selected}</code>
@@ -73,7 +76,7 @@ export default function CatalogueBlocs() {
           {schema?.description && <p>{schema.description}</p>}
         </div>
 
-        {schema && <CatalogueEditor key={selected} uid={selected} fields={schema.fields} examples={examples} context={CONTEXT} />}
+        {schema && <ComponentPreview key={selected} uid={selected} fields={schema.fields} examples={examples} context={CONTEXT} />}
 
         {schema && (
           <div className="fr-container">
@@ -106,7 +109,7 @@ export default function CatalogueBlocs() {
   );
 }
 
-function FieldRows({ fields, depth }: { fields: CatalogueField[]; depth: number }) {
+function FieldRows({ fields, depth }: { fields: CmsComponentField[]; depth: number }) {
   return fields.map((field) => (
     <Fragment key={field.name}>
       <tr>

@@ -5,7 +5,7 @@ const bucket = process.env.CMS_MEDIA_BUCKET;
 const mediaHost = bucket ? `${bucket}.s3.${process.env.CMS_MEDIA_REGION ?? "fr-par"}.scw.cloud` : null;
 const mediaSources = mediaHost ? [`https://${mediaHost}`] : [];
 
-// Catalogue des blocs de plateform, affiché en iframe dans l'admin (cf. src/admin/app.tsx).
+// Page des composants du CMS (plateform), affiché en iframe dans l'admin (cf. src/admin/app.tsx).
 const plateformUrl = process.env.PLATEFORM_URL || "http://localhost:3005";
 
 // Liste par défaut, explicite, dont `strapi::security` configurée pour autoriser les médias du bucket et l'iframe plateform.

@@ -13,12 +13,12 @@ import jvaLogo from "~/assets/images/logo/jva-logo.png";
 import spvLogo from "~/assets/images/logo/spv-logo.png";
 import type { CmsBlock, CmsMedia } from "~/types/cms";
 
-// Exemples affichés sur le catalogue des blocs du CMS (/_cms/catalogue-blocs) : une ou plusieurs variantes par bloc.
+// Exemples affichés sur la page des composants du CMS (/_cms/components) : une ou plusieurs variantes par bloc.
 // Typés `CmsBlock` : un bloc ajouté ou modifié dans `types/cms.ts` sans exemple à jour fait échouer le typecheck.
 const media = (url: string, alternativeText: string | null = null): CmsMedia => ({ url, alternativeText, width: null, height: null });
 
-// Images proposées dans le formulaire du catalogue pour les champs « Image ».
-export const CATALOGUE_IMAGES: { label: string; media: CmsMedia }[] = [
+// Images proposées dans le formulaire de la page pour les champs « Image ».
+export const CMS_COMPONENT_IMAGES: { label: string; media: CmsMedia }[] = [
   { label: "Hero (réserve)", media: media(heroEngagementSecurite) },
   { label: "Histoire 1", media: media(histoire1, "Des bénévoles en mission") },
   { label: "Histoire 2", media: media(histoire2) },
@@ -32,7 +32,7 @@ export const CATALOGUE_IMAGES: { label: string; media: CmsMedia }[] = [
   { label: "Logo sapeurs-pompiers", media: media(spvLogo) },
 ];
 
-export const CATALOGUE_EXAMPLES: { label: string; block: CmsBlock }[] = [
+export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
   {
     label: "Sans pastille ni bouton : bouton quiz « Trouve ta mission »",
     block: {
@@ -274,8 +274,8 @@ const exampleMission = (id: string, title: string, photo: string, organizationNa
   compensation: null,
 });
 
-// Missions fictives du bloc « Missions » : le catalogue n'appelle pas l'API.
-export const CATALOGUE_MISSIONS: MissionBrowse[] = [
+// Missions fictives du bloc « Missions » : la page n'appelle pas l'API.
+export const CMS_COMPONENT_MISSIONS: MissionBrowse[] = [
   exampleMission("exemple-1", "Accompagner des personnes âgées isolées", missionJva, "Association des aînés"),
   exampleMission("exemple-2", "Animer des ateliers de soutien scolaire", missionAsc, "Collège Jean Moulin"),
   exampleMission("exemple-3", "Renforcer le centre de secours de ton secteur", missionSpv, "SDIS du Rhône"),

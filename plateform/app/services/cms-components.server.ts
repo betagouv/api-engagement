@@ -15,7 +15,7 @@ type StrapiComponent = { info: { displayName: string; description?: string }; at
 
 const SCHEMAS = import.meta.glob<StrapiComponent>("../../../cms/src/components/*/*.json", { eager: true, import: "default" });
 
-export type CatalogueField = {
+export type CmsComponentField = {
   name: string;
   // Type Strapi, pour choisir le contrôle du formulaire : string, text, enumeration, boolean, media, blocks, component.
   kind: string;
@@ -30,10 +30,10 @@ export type CatalogueField = {
   defaultValue: string | null;
   description: string | null;
   // Champs d'un composant imbriqué (ex. les questions d'une FAQ).
-  children: CatalogueField[];
+  children: CmsComponentField[];
 };
 
-export type CatalogueSchema = { displayName: string; description: string | null; fields: CatalogueField[] };
+export type CmsComponentSchema = { displayName: string; description: string | null; fields: CmsComponentField[] };
 
 const getSchema = (uid: string) => {
   const [category, name] = uid.split(".");
@@ -56,7 +56,7 @@ const describeType = (attribute: StrapiAttribute) => {
   return attribute.type;
 };
 
-const toFields = (schema: StrapiComponent): CatalogueField[] =>
+const toFields = (schema: StrapiComponent): CmsComponentField[] =>
   Object.entries(schema.attributes).map(([name, attribute]) => {
     const child = attribute.type === "component" ? getSchema(attribute.component!) : undefined;
     return {
@@ -73,7 +73,7 @@ const toFields = (schema: StrapiComponent): CatalogueField[] =>
     };
   });
 
-export const getBlockSchema = (uid: string): CatalogueSchema | null => {
+export const getBlockSchema = (uid: string): CmsComponentSchema | null => {
   const schema = getSchema(uid);
   if (!schema) return null;
   return { displayName: schema.info.displayName, description: schema.info.description ?? null, fields: toFields(schema) };
