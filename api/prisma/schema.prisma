@@ -28,6 +28,7 @@ enum WarningStatus {
   TODO
   IN_PROGRESS
   RESOLVED
+  IGNORED
 }
 
 enum EmailStatus {
@@ -527,6 +528,8 @@ model Warning {
   // Déprécié : plus lu ni écrit (utiliser `status`), colonne supprimée dans une migration ultérieure
   fixed          Boolean       @default(false)
   resolvedAt     DateTime?     @map("fixed_at")
+  // Date de passage en « Ignorée » (null sinon) : aucune nouvelle alerte ni notification pendant WARNING_IGNORE_DELAY_DAYS
+  ignoredAt      DateTime?     @map("ignored_at")
   occurrences    Int           @default(1)
   status         WarningStatus @default(TODO)
   procedureUrl   String?       @map("procedure_url")

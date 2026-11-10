@@ -1,3 +1,4 @@
+import { WARNING_IGNORE_DELAY_DAYS } from "@/config";
 import { Prisma, Warning as PrismaWarning } from "@/db/core";
 import { warningRepository } from "@/repositories/warning";
 import { WarningCreateInput, WarningFindParams, WarningRecord, WarningStatus, WarningUpdatePatch } from "@/types/warning";
@@ -16,6 +17,11 @@ const warningInclude = {
   assignees: { select: { user: { select: { id: true, firstname: true, lastname: true, photo: true } } } },
 } satisfies Prisma.WarningInclude;
 
+const ignoreUntil = (from: Date): Date => new Date(from.getTime() + WARNING_IGNORE_DELAY_DAYS * 24 * 60 * 60 * 1000);
+
+// Ligne de trace ajoutée aux commentaires lors d'un passage en « Ignorée » ou « Résolue », suivie du commentaire saisi.
+const TRACE_LABELS: Partial<Record<WarningStatus, string>> = { IGNORED: "ignorée", RESOLVED: "résolue" };
+
 export const warningService = (() => {
   const toWarningRecord = (warning: WarningWithPublisher): WarningRecord => ({
     id: warning.id,
@@ -27,6 +33,8 @@ export const warningService = (() => {
     publisherLogo: "publisher" in warning && warning.publisher ? warning.publisher.logo : null,
     seen: warning.seen,
     resolvedAt: warning.resolvedAt,
+    ignoredAt: warning.ignoredAt,
+    ignoreUntil: ignoreUntil(warning.ignoredAt ?? new Date()),
     occurrences: warning.occurrences,
     status: warning.status,
     procedureUrl: warning.procedureUrl,
@@ -98,6 +106,7 @@ export const warningService = (() => {
     if (status !== undefined) {
       updateData.status = status;
       updateData.resolvedAt = status === "RESOLVED" ? (patch.resolvedAt ?? new Date()) : null;
+      updateData.ignoredAt = status === "IGNORED" ? new Date() : null;
     } else if (patch.resolvedAt !== undefined) {
       updateData.resolvedAt = patch.resolvedAt;
     }
@@ -109,6 +118,9 @@ export const warningService = (() => {
     if (patch.slackMessage) {
       updateData.slackChannelId = patch.slackMessage.channelId;
       updateData.slackMessageTs = patch.slackMessage.ts;
+    }
+    if (patch.comment) {
+      updateData.comments = { create: patch.comment };
     }
     if (patch.assigneeIds?.length) {
       updateData.assignees = { createMany: { data: patch.assigneeIds.map((userId) => ({ userId })), skipDuplicates: true } };
@@ -182,9 +194,16 @@ export const warningService = (() => {
   const transitionStatus = async (id: string, from: WarningStatus[], to: WarningStatus): Promise<boolean> => {
     const { count } = await warningRepository.updateMany({
       where: { id, status: { in: from } },
-      data: { status: to, resolvedAt: to === "RESOLVED" ? new Date() : null },
+      data: { status: to, resolvedAt: to === "RESOLVED" ? new Date() : null, ignoredAt: to === "IGNORED" ? new Date() : null },
     });
     return count === 1;
+  };
+
+  // Change le statut depuis le back-office : pour « Ignorée » et « Résolue », une ligne de trace (+ le commentaire saisi) est ajoutée aux commentaires, dans la même écriture.
+  const setStatus = (id: string, status: WarningStatus, author: { id: string }, comment?: string): Promise<WarningRecord> => {
+    const label = TRACE_LABELS[status];
+    const body = label ? [`L'alerte a été passée en statut "${label}"`, comment].filter(Boolean).join("\n") : null;
+    return updateWarning(id, { status, ...(body ? { comment: { authorId: author.id, body } } : {}) });
   };
 
   // Réserve la notification (null -> now) : un seul appelant l'obtient, même en concurrence.
@@ -206,6 +225,7 @@ export const warningService = (() => {
     countWarnings,
     findWarningById,
     transitionStatus,
+    setStatus,
     claimNotification,
     releaseNotification,
   };

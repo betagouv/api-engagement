@@ -76,7 +76,17 @@ const ingest = async (input: AlertInput, source: string): Promise<{ warning: War
   let created = false;
   const open = await findOpen();
   if (open) {
+    // « Ignorée » : pendant le délai on enregistre la réception sans notifier ; à l'échéance l'alerte est rouverte (historique conservé) et renotifiée.
+    const ignored = open.status === "IGNORED";
+    const expired = ignored && open.ignoreUntil.getTime() <= Date.now();
+    if (expired) {
+      await warningService.updateWarning(open.id, { status: "TODO" });
+      await warningService.releaseNotification(open.id);
+    }
     warning = await bump(open, input, source);
+    if (ignored && !expired) {
+      return { warning, created: false, notification: "already" };
+    }
   } else {
     try {
       warning = await warningService.createWarning({
