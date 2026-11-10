@@ -46,7 +46,7 @@ export class PublisherDiffusionPartnerNotFoundError extends Error {
 }
 
 export const publisherService = (() => {
-  const defaultInclude = Object.freeze({ demarcheSimplifiees: true }) satisfies Prisma.PublisherInclude;
+  const defaultInclude = Object.freeze({ demarcheSimplifiees: { where: { deletedAt: null } } }) satisfies Prisma.PublisherInclude;
   type DiffusionPartnerInfo = { name: string; moderator: boolean; missionType: PublisherMissionType | null };
 
   const getPartnerInfoMap = async (partnerIds: string[]): Promise<Map<string, DiffusionPartnerInfo>> => {
@@ -516,8 +516,9 @@ export const publisherService = (() => {
       data.deploymentUser = patch.deploymentUserId ? { connect: { id: patch.deploymentUserId } } : { disconnect: true };
     }
     if (patch.demarcheSimplifiees !== undefined) {
+      // Archive les démarches actives puis recrée la liste reçue (ponytail: une ligne archivée par save, diff si le volume gêne).
       data.demarcheSimplifiees = {
-        deleteMany: {},
+        updateMany: { where: { deletedAt: null }, data: { deletedAt: new Date() } },
         create: normalizeDemarches(patch.demarcheSimplifiees),
       };
     }
