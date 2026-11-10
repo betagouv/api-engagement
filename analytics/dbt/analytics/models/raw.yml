@@ -244,6 +244,8 @@ sources:
             description: Timestamp de création.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export incrémental.
+          - name: deleted_at
+            description: Timestamp de suppression logique (nullable) ; une démarche archivée ne compte plus.
       - name: publisher_organization
         description: >-
           Organisations associées aux partenaires, synchronisées depuis la table `publisher_organization` de la base

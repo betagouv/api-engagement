@@ -13,7 +13,7 @@ select
   exists(
     select 1
     from {{ source('analytics_raw', 'publisher_demarche_simplifiees') }} as d
-    where d.publisher_id = publisher.id
+    where d.publisher_id = publisher.id and d.deleted_at is null
   ) as uses_demarche_numerique,
   deleted_at::timestamp as deleted_at,
   created_at::timestamp as created_at,

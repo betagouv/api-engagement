@@ -274,7 +274,7 @@ export const exportDefinitions: ExportDefinition[] = [
         field: "updated_at",
         idField: "id",
       },
-      columns: ["id", "publisher_id", "number", "created_at", "updated_at"],
+      columns: ["id", "publisher_id", "number", "created_at", "updated_at", "deleted_at"],
     },
     destination: {
       table: "publisher_demarche_simplifiees",
