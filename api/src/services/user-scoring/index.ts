@@ -15,6 +15,8 @@ type UserScoringGeoInput = {
   lon: number;
   radiusKm?: number;
   countryCode?: string;
+  address?: string;
+  city?: string;
 };
 
 type TaxonomyTransformerResult =
@@ -110,6 +112,8 @@ const resolveAnswer = (answer: UserScoringAnswerInput): ResolvedAnswer => {
 
 const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
   const valuesByKey = new Map<string, { taxonomyKey: string; valueKey: string; score: number }>();
+  // Réponses telles que choisies, neutres incluses : uniquement pour l'affichage (email « Tu nous as dit »).
+  const answeredValues: Array<{ taxonomyKey: string; valueKey: string }> = [];
   let geo: UserScoringGeoInput | undefined;
   // Vrai dès qu'une réponse valide a été résolue (valeur — neutre incluse — ou géo). Sert à
   // distinguer un payload vide/illisible d'un payload légitime dont il ne reste aucune valeur
@@ -135,6 +139,7 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
 
     for (const valueKey of resolvedAnswer.values) {
       hasResolvedInput = true;
+      answeredValues.push({ taxonomyKey: answer.taxonomy, valueKey });
       // Les réponses « je ne sais pas » / « peu importe » ne sont jamais portées par une mission :
       // les persister ne ferait que gonfler le dénominateur du taxonomy_score (dilution). On ne les
       // enregistre donc pas ; la taxonomie concernée sort simplement du calcul de matching.
@@ -161,6 +166,7 @@ const buildValuesToPersist = (answers: UserScoringAnswerInput[]) => {
 
   return {
     values: [...valuesByKey.values()],
+    answeredValues,
     geo,
   };
 };
@@ -175,6 +181,7 @@ export const userScoringService = {
 
     const userScoring = await userScoringRepository.create({
       values: scoringData.values,
+      answeredValues: scoringData.answeredValues,
       geo: scoringData.geo,
       distinctId: input?.distinctId,
       missionAlertEnabled: input.missionAlertEnabled,
@@ -184,7 +191,7 @@ export const userScoringService = {
   },
 
   async update(input: UpdateUserScoringInput) {
-    const scoringData = input.answers ? buildValuesToPersist(input.answers) : { values: [], geo: undefined };
+    const scoringData = input.answers ? buildValuesToPersist(input.answers) : { values: [], answeredValues: [], geo: undefined };
     const userScoring = await userScoringRepository.findById(input.userScoringId);
     if (!userScoring) {
       return { status: "not_found" as const };
@@ -197,6 +204,7 @@ export const userScoringService = {
     const result = await userScoringRepository.update({
       userScoringId: input.userScoringId,
       values: scoringData.values,
+      answeredValues: scoringData.answeredValues,
       replaceAnswers: input.answers !== undefined,
       geo: scoringData.geo,
       missionAlertEnabled: input.missionAlertEnabled,

@@ -679,6 +679,32 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(resultUrl).toBe(`http://localhost:3005/results/${userScoringId}?utm_source=brevo&utm_medium=email&utm_campaign=quiz_missions`);
   });
 
+  it("should send the quiz answers and the searched city with the selection", async () => {
+    const userScoringId = await createUserScoring({
+      distinctId,
+      answers: [
+        { taxonomy: "location", params: { lat: 45.18, lon: 5.72, label: "5 Place Victor Hugo 38000 Grenoble", city: "Grenoble" } },
+        { taxonomy: "motivation_recherche", value: "agir_pour_une_cause" },
+        { taxonomy: "rythme", value: "ponctuelle_journee" },
+        { taxonomy: "domaine_engagement", value: "numerique" },
+      ],
+    });
+    await createStoredMatchingResult(userScoringId, 2);
+    const emailPublisher = await createEmailPublisher();
+
+    const res = await postMissionEmailRequest().send({ distinctId, email: "user@example.com", publisherId: emailPublisher.id, userScoringId, signupSource: "quiz" });
+
+    expect(res.status).toBe(200);
+    const { params } = brevoMock.sendTemplate.mock.calls[0][1];
+    expect(params.city).toBe("Grenoble");
+    expect(params.missionCount).toBe(2);
+    expect(params.answersHtml).toContain("Tu nous as dit :");
+    expect(params.answersHtml).toContain("Rechercher des missions à 5 Place Victor Hugo 38000 Grenoble");
+    expect(params.answersHtml).toContain("“Je veux aider une cause qui me tient à cœur”");
+    expect(params.answersHtml).toContain("“Une mission ponctuelle, sur une journée”");
+    expect(params.answersHtml).toContain("“Numérique”");
+  });
+
   it("should reject an unknown signup source", async () => {
     const userScoringId = await createUserScoring();
     const emailPublisher = await createEmailPublisher();

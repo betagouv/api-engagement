@@ -9,9 +9,21 @@ export const userScoringRepository = {
     });
   },
 
+  findEmailContext(id: string) {
+    return prisma.userScoring.findUnique({
+      where: { id },
+      select: {
+        answers: true,
+        geo: { select: { address: true, city: true } },
+        values: { select: { taxonomyKey: true, valueKey: true } },
+      },
+    });
+  },
+
   create(params: {
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
-    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
+    answeredValues: Array<{ taxonomyKey: string; valueKey: string }>;
+    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string; address?: string; city?: string };
     distinctId?: string;
     missionAlertEnabled: boolean;
   }): Promise<UserScoring> {
@@ -19,6 +31,7 @@ export const userScoringRepository = {
       data: {
         distinctId: params.distinctId,
         missionAlertEnabled: params.missionAlertEnabled,
+        answers: params.answeredValues,
         ...(params.values.length
           ? {
               values: {
@@ -40,6 +53,8 @@ export const userScoringRepository = {
                   lon: params.geo.lon,
                   radiusKm: params.geo.radiusKm,
                   countryCode: params.geo.countryCode,
+                  address: params.geo.address,
+                  city: params.geo.city,
                 },
               },
             }
@@ -51,8 +66,9 @@ export const userScoringRepository = {
   update(params: {
     userScoringId: string;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
+    answeredValues: Array<{ taxonomyKey: string; valueKey: string }>;
     replaceAnswers: boolean;
-    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
+    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string; address?: string; city?: string };
     missionAlertEnabled?: boolean;
   }): Promise<{ createdCount: number; missionAlertEnabled: boolean }> {
     return prisma.$transaction(async (tx) => {
@@ -88,6 +104,7 @@ export const userScoringRepository = {
         where: { id: params.userScoringId },
         data: {
           ...(params.missionAlertEnabled === undefined ? { updatedAt: new Date() } : { missionAlertEnabled: params.missionAlertEnabled }),
+          ...(params.replaceAnswers ? { answers: params.answeredValues } : {}),
           ...(params.geo
             ? {
                 geo: {
@@ -97,12 +114,16 @@ export const userScoringRepository = {
                       lon: params.geo.lon,
                       radiusKm: params.geo.radiusKm,
                       countryCode: params.geo.countryCode,
+                      address: params.geo.address,
+                      city: params.geo.city,
                     },
                     update: {
                       lat: params.geo.lat,
                       lon: params.geo.lon,
                       radiusKm: params.geo.radiusKm,
                       countryCode: params.geo.countryCode,
+                      address: params.geo.address ?? null,
+                      city: params.geo.city ?? null,
                     },
                   },
                 },

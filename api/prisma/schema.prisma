@@ -1238,6 +1238,8 @@ model UserScoring {
   id                  String   @id @default(uuid())
   distinctId          String?  @map("distinct_id")
   missionAlertEnabled Boolean  @default(false) @map("mission_alert_enabled")
+  // Réponses du quiz telles que choisies (neutres incluses), pour l'affichage uniquement (email « Tu nous as dit »).
+  answers             Json?
   createdAt           DateTime @default(now()) @map("created_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
@@ -1285,6 +1287,8 @@ model UserScoringGeo {
   lon           Float
   radiusKm      Float?   @map("radius_km")
   countryCode   String?  @map("country_code")
+  address       String?
+  city          String?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 

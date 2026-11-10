@@ -6,8 +6,9 @@ import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/ser
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
+import { TAXONOMY } from "@engagement/taxonomy";
 
-import { buildListMissionCardsParams, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
+import { buildAnswersContentHtml, buildListMissionCardsParams, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
 
 const USER_SCORING_EMAIL_MISSION_LIMIT = 6;
 
@@ -184,6 +185,23 @@ export const buildMissionEmailParams = async (params: {
   return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId, params.signupSource);
 };
 
+// Questions du quiz rappelées dans « Tu nous as dit », dans l'ordre du parcours.
+const EMAIL_ANSWER_TAXONOMIES = ["motivation_recherche", "rythme", "domaine_engagement", "activite"] as const;
+
+// Une puce pour l'adresse recherchée, puis une puce par question avec les libellés choisis, dans l'ordre de la taxonomie.
+export const buildQuizAnswers = (address: string | null, values: Array<{ taxonomyKey: string | null; valueKey: string | null }>) => {
+  const answers = address ? [`Rechercher des missions à ${address}`] : [];
+  for (const taxonomyKey of EMAIL_ANSWER_TAXONOMIES) {
+    const selectedValueKeys = new Set(values.filter((value) => value.taxonomyKey === taxonomyKey).map((value) => value.valueKey));
+    const taxonomyValues = Object.entries(TAXONOMY[taxonomyKey].values as Record<string, { label: string }>);
+    const labels = taxonomyValues.filter(([valueKey]) => selectedValueKeys.has(valueKey)).map(([, value]) => `“${value.label}”`);
+    if (labels.length > 0) {
+      answers.push(labels.join(", "));
+    }
+  }
+  return answers;
+};
+
 export const getMissionEmailSkipReason = (missionIds?: string[]): MissionEmailSkipReason => {
   return missionIds?.length ? MISSION_EMAIL_SKIP_REASONS.MISSION_NOT_FOUND : MISSION_EMAIL_SKIP_REASONS.NO_MATCHING_RESULT;
 };
@@ -232,24 +250,37 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
 
   // Une seule mission demandée (cœur d'une carte, fiche mission) : grande carte, et le CTA « Découvrir la mission »
   // du template pointe vers la mission. Sinon : la sélection de résultats en grille.
-  const emailResult =
-    input.missionIds?.length === 1
-      ? await sendTemplate(TEMPLATE_IDS.TTM_MISSION_SAVED, {
-          emailTo: [input.email],
-          params: {
-            contentHtml: buildSavedMissionContentHtml(missions[0]),
-            missionUrl: missions[0].url,
-          },
-          tags: ["mission-saved"],
-        })
-      : await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
-          emailTo: [input.email],
-          params: {
-            ...buildListMissionCardsParams(missions),
-            resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
-          },
-          tags: ["user-scoring", "mission-matching-results"],
-        });
+  if (input.missionIds?.length === 1) {
+    const [mission] = missions;
+    const savedResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSION_SAVED, {
+      emailTo: [input.email],
+      params: {
+        contentHtml: buildSavedMissionContentHtml(mission),
+        missionUrl: mission.url,
+        missionTitle: mission.title,
+        publisherName: mission.publisherName,
+      },
+      tags: ["mission-saved"],
+    });
+    return savedResult.ok ? { status: "sent" } : { status: "failed" };
+  }
+
+  // Sans scoring (sélection envoyée depuis une landing), pas de réponses à rappeler ni de ville.
+  const emailContext = input.userScoringId ? await userScoringRepository.findEmailContext(input.userScoringId) : null;
+  // Les scorings antérieurs à la colonne `answers` n'ont que les valeurs de scoring (sans les réponses neutres).
+  const answeredValues = Array.isArray(emailContext?.answers) ? (emailContext.answers as Array<{ taxonomyKey: string; valueKey: string }>) : (emailContext?.values ?? []);
+  const answers = buildQuizAnswers(emailContext?.geo?.address ?? null, answeredValues);
+  const emailResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
+    emailTo: [input.email],
+    params: {
+      ...buildListMissionCardsParams(missions),
+      answersHtml: buildAnswersContentHtml(answers),
+      city: emailContext?.geo?.city ?? "",
+      missionCount: missions.length,
+      resultUrl: buildResultsUrl(input.userScoringId, input.signupSource),
+    },
+    tags: ["user-scoring", "mission-matching-results"],
+  });
 
   if (!emailResult.ok) {
     return { status: "failed" };
