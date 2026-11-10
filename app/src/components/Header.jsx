@@ -141,10 +141,10 @@ const AccountMenu = () => {
         className="btn hover:bg-gray-975 focus"
         type="button"
         onClick={() => setShow(!show)}
-        aria-label="Menu du compte"
         aria-expanded={show}
         aria-controls="menu-compte"
       >
+        <span className="sr-only">Menu du compte</span>
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" aria-hidden="true" />
         </div>
