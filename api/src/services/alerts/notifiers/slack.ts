@@ -30,8 +30,13 @@ const TYPE_LABELS: Record<string, { emoji: string; label: string }> = {
   VALIDATION_WARNING: { emoji: "🙅", label: "Taux de validation critique" },
   TRACKING_WARNING: { emoji: "🤔", label: "Problème de tracking" },
   DELETION_WARNING: { emoji: "❌", label: "Taux de suppression critique" },
-  REDIRECTION_WARNING: { emoji: "🚨", label: "Nombre de redirections inhabituel" },
-  CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
+  CAMPAIGN_REDIRECTION_WARNING: { emoji: "🚨", label: "Nombre de redirections inhabituel" },
+  CAMPAIGN_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
+  LOW_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures détectés faible" },
+  WIDGET_REDIRECTION_WARNING: { emoji: "🚨", label: "Nombre de redirections inhabituel" },
+  WIDGET_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
+  API_WARNING: { emoji: "🚨", label: "Irrégularité dans les appels API" },
+  ATTRIBUTES_TRACKING_WARNING: { emoji: "🤔", label: "Problème sur la récupération des attributes" },
 };
 
 // Limites Slack (section : 3000 caractères, champ : 2000, en-tête : 150) : on tronque le contenu libre venant de l'extérieur.
