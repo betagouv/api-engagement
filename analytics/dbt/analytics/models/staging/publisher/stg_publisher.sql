@@ -10,9 +10,9 @@ select
   expected_applications::boolean as expected_applications,
   deployment_user_id,
   feed,
-  exists (
+  exists(
     select 1
-    from {{ source('analytics_raw', 'publisher_demarche_simplifiees') }} d
+    from {{ source('analytics_raw', 'publisher_demarche_simplifiees') }} as d
     where d.publisher_id = publisher.id
   ) as uses_demarche_numerique,
   deleted_at::timestamp as deleted_at,
