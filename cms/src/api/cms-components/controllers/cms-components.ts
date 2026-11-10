@@ -5,6 +5,6 @@ const PLATEFORM_URL = process.env.PLATEFORM_URL || "http://localhost:3005";
 
 export default {
   redirect(ctx: Context) {
-    ctx.redirect(`${PLATEFORM_URL}/_cms/catalogue-blocs`);
+    ctx.redirect(`${PLATEFORM_URL}/_cms/components`);
   },
 };

@@ -61,7 +61,7 @@ services:
       JWT_SECRET: dev-jwt-secret
       # Jeton lecture seule de plateform, créé de façon déterministe par `npm run seed` (dev local uniquement).
       CMS_API_TOKEN: dev-cms-read-token
-      # Catalogue des blocs (plateform) affiché dans l'admin : URL vue par le navigateur.
+      # Composants du CMS (plateform) affiché dans l'admin : URL vue par le navigateur.
       PLATEFORM_URL: http://localhost:3005
     volumes:
       - ./cms:/opt/app

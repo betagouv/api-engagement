@@ -1,22 +1,22 @@
 import { useState } from "react";
 
 import CmsBlocks, { type CmsBlocksContext } from "~/components/cms";
-import { CATALOGUE_IMAGES } from "~/config/cms-catalogue";
-import type { CatalogueField } from "~/services/cms-catalogue.server";
+import { CMS_COMPONENT_IMAGES } from "~/config/cms-components";
+import type { CmsComponentField } from "~/services/cms-components.server";
 import type { CmsBlock, CmsMedia } from "~/types/cms";
 
 type Values = Record<string, unknown>;
 
-// Démonstration d'un bloc du CMS (catalogue /_cms/catalogue-blocs), à la manière des démos du DSFR : aperçu en direct
+// Démonstration d'un bloc du CMS (page /_cms/components), à la manière des démos du DSFR : aperçu en direct
 // et paramètres générés depuis le schéma Strapi. Rien n'est enregistré.
-export default function CatalogueEditor({
+export default function ComponentPreview({
   uid,
   fields,
   examples,
   context,
 }: {
   uid: string;
-  fields: CatalogueField[];
+  fields: CmsComponentField[];
   examples: { label: string; block: CmsBlock }[];
   context: CmsBlocksContext;
 }) {
@@ -76,13 +76,13 @@ export default function CatalogueEditor({
   );
 }
 
-function Fields({ fields, values, onChange, idPrefix }: { fields: CatalogueField[]; values: Values; onChange: (values: Values) => void; idPrefix: string }) {
+function Fields({ fields, values, onChange, idPrefix }: { fields: CmsComponentField[]; values: Values; onChange: (values: Values) => void; idPrefix: string }) {
   return fields.map((field) => (
     <FieldInput key={field.name} field={field} value={values[field.name]} onChange={(value) => onChange({ ...values, [field.name]: value })} id={`${idPrefix}-${field.name}`} />
   ));
 }
 
-function FieldInput({ field, value, onChange, id }: { field: CatalogueField; value: unknown; onChange: (value: unknown) => void; id: string }) {
+function FieldInput({ field, value, onChange, id }: { field: CmsComponentField; value: unknown; onChange: (value: unknown) => void; id: string }) {
   const label = `${field.name}${field.required ? " *" : ""}`;
   const hint = field.description && <span className="fr-hint-text">{field.description}</span>;
 
@@ -125,7 +125,7 @@ function FieldInput({ field, value, onChange, id }: { field: CatalogueField; val
           {label}
           {hint}
         </legend>
-        {CATALOGUE_IMAGES.map(({ label: imageLabel, media }, index) => {
+        {CMS_COMPONENT_IMAGES.map(({ label: imageLabel, media }, index) => {
           const checked = selected.some((item) => item.url === media.url);
           return (
             <div key={media.url} className="fr-checkbox-group fr-checkbox-group--sm">
@@ -156,10 +156,10 @@ function FieldInput({ field, value, onChange, id }: { field: CatalogueField; val
           className="fr-select"
           id={id}
           value={(value as CmsMedia | null)?.url ?? ""}
-          onChange={(event) => onChange(CATALOGUE_IMAGES.find(({ media }) => media.url === event.target.value)?.media ?? null)}
+          onChange={(event) => onChange(CMS_COMPONENT_IMAGES.find(({ media }) => media.url === event.target.value)?.media ?? null)}
         >
           {!field.required && <option value="">Aucune image</option>}
-          {CATALOGUE_IMAGES.map(({ label: imageLabel, media }) => (
+          {CMS_COMPONENT_IMAGES.map(({ label: imageLabel, media }) => (
             <option key={media.url} value={media.url}>
               {imageLabel}
             </option>
@@ -241,15 +241,15 @@ function FieldInput({ field, value, onChange, id }: { field: CatalogueField; val
 
 // Nouvel élément d'une liste (ex. une question de plus) : valeurs par défaut du schéma, textes obligatoires pré-remplis
 // pour que l'élément soit visible dans l'aperçu.
-function emptyItem(fields: CatalogueField[]): Values {
+function emptyItem(fields: CmsComponentField[]): Values {
   return Object.fromEntries(fields.map((field) => [field.name, emptyValue(field)]));
 }
 
-function emptyValue(field: CatalogueField): unknown {
+function emptyValue(field: CmsComponentField): unknown {
   if (field.list) return [];
   if (field.kind === "boolean") return field.defaultValue === "true";
   if (field.kind === "enumeration") return field.defaultValue ?? (field.required ? field.options[0] : null);
-  if (field.kind === "media") return field.required ? CATALOGUE_IMAGES[0].media : null;
+  if (field.kind === "media") return field.required ? CMS_COMPONENT_IMAGES[0].media : null;
   if (field.kind === "blocks") return [{ type: "paragraph", children: [{ type: "text", text: "Texte à rédiger dans Strapi." }] }];
   if (field.kind === "component") return emptyItem(field.children);
   return field.required ? "À compléter" : null;
