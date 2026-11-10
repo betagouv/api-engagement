@@ -34,6 +34,7 @@ export type CmsRichTextNode =
 export type CmsBlock =
   | {
       __component: "blocks.hero";
+      badge?: string | null;
       title: string;
       description: string;
       tags: CmsHeroTag[];
@@ -73,6 +74,8 @@ export type CmsBlock =
       teamPhotos: CmsMedia[] | null;
     }
   | { __component: "blocks.newsletter"; title: string; subtitle: string; ctaText: string; hintText: string }
+  | { __component: "blocks.missions-browser"; dispositif: string | null; domaineEngagement: string | null }
+  | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[] }
   | { __component: "blocks.partners"; title: string; partners: { name: string; description: string; url: string | null; logo: CmsMedia }[] };
 
 export type CmsPage = {

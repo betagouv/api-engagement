@@ -216,6 +216,7 @@ export default function MissionsBrowser({
   pageName,
   backTo,
   signupSource,
+  overlapHero = true,
 }: {
   missions: MissionBrowse[];
   total: number;
@@ -227,6 +228,8 @@ export default function MissionsBrowser({
   backTo: string;
   // Source Brevo de la carte d'inscription aux alertes.
   signupSource?: SignupSource;
+  // Les premières cartes remontent sur le bas du hero (fond prévu pour) ; à désactiver sous un hero à visuel.
+  overlapHero?: boolean;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -305,7 +308,7 @@ export default function MissionsBrowser({
   // Les premières cartes chevauchent le bas du hero : -160px moins l'espacement entre sections sur mobile et
   // tablette, et à côté de la colonne de filtres sur desktop.
   return (
-    <section className="fr-container relative z-10 -mt-40 flex flex-col gap-6 lg:-mt-50 lg:flex-row">
+    <section className={`fr-container relative z-10 flex flex-col gap-6 lg:flex-row ${overlapHero ? "-mt-40 lg:-mt-50" : ""}`}>
       <h2 className="fr-sr-only">Missions disponibles</h2>
 
       {/* Desktop : colonne de filtres à gauche, qui défile avec la page. */}

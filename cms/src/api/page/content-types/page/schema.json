@@ -55,7 +55,9 @@
         "blocks.faq",
         "blocks.accordion",
         "blocks.partners",
-        "blocks.newsletter"
+        "blocks.newsletter",
+        "blocks.missions-browser",
+        "blocks.quote-wall"
       ]
     }
   }

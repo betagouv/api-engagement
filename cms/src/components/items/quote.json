@@ -1,0 +1,10 @@
+{
+  "collectionName": "components_items_quotes",
+  "info": { "displayName": "Témoignage de la mosaïque", "icon": "quote" },
+  "attributes": {
+    "quote": { "type": "text", "required": true },
+    "name": { "type": "string", "required": true },
+    "role": { "type": "string", "required": true, "description": "Ex. : Volontaire à la LPO" },
+    "image": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true, "description": "Photo de la mosaïque associée à ce témoignage." }
+  }
+}

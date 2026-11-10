@@ -1,11 +1,15 @@
 import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 
 import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
+import Histoires from "~/components/landings/defis-engagement/histoires";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
+import LocationFilter from "~/components/landings/location-filter";
 import Missions from "~/components/landings/missions";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
+import MissionsBrowser from "~/components/missions/missions-browser";
+import { getCmsBrowserConfig } from "~/utils/landing-missions";
 import Accordion from "./accordion";
 import Benefits from "./benefits";
 import Cards from "./cards";
@@ -25,6 +29,9 @@ const HIGHLIGHT_GREEN = "bg-[#9ef9be] dark:bg-transparent";
 const HIGHLIGHT_YELLOW = "bg-yellow-tournesol-925 dark:bg-transparent";
 const BACKGROUNDS = { creme: "bg-brown-cafe-creme-975", galet: "bg-beige-gris-galet-975" } as const;
 
+// Page de résultats chargée par le loader pour le bloc « Liste de missions filtrable ».
+export type CmsBrowserResults = { missions: MissionBrowse[]; total: number; page: number };
+
 // Contexte partagé par les blocs : nom de la page (tracking), chemin de retour depuis une fiche mission, missions
 // chargées par le loader (par index de bloc), CTA.
 export type CmsBlocksContext = {
@@ -32,6 +39,9 @@ export type CmsBlocksContext = {
   path: string;
   missionsByBlock: Record<number, MissionBrowse[]>;
   missionDetailsByBlock: Record<number, MissionDetailResponse>;
+  browsersByBlock: Record<number, CmsBrowserResults>;
+  // La page contient une liste de missions filtrable (le hero affiche alors la recherche par localisation).
+  hasMissionsBrowser: boolean;
   onStartQuiz: (section: QuizEntrySection) => void;
   missionsCta: (section: CtaSection) => LandingCta;
 };
@@ -50,16 +60,25 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       const mobileImage = block.imageMobile ?? image;
       const primary = block.primaryLabel && block.primaryUrl ? { label: block.primaryLabel, url: block.primaryUrl } : null;
       const secondary = block.secondaryLabel && block.secondaryUrl ? { label: block.secondaryLabel, url: block.secondaryUrl } : null;
-      // Sans pastille ni bouton renseigné : hero historique avec le seul bouton quiz.
+      // Sans pastille ni bouton renseigné : hero historique avec le seul bouton quiz, sauf au-dessus d'une liste de
+      // missions filtrable : sa recherche par localisation prend la place du bouton sur mobile et tablette (sur
+      // desktop, elle est dans la colonne de filtres).
       const withActions = block.tags.length > 0 || primary || secondary;
+      const withQuiz = !withActions && !context.hasMissionsBrowser;
       return (
         <Hero
+          badge={block.badge ?? undefined}
           title={block.title}
           titleClassName={campaignVisual ? "lg:w-184 lg:text-[80px]! lg:leading-22!" : "lg:text-[72px]! lg:leading-20!"}
           description={<InlineText text={block.description} />}
-          hint={withActions ? undefined : (block.hint ?? undefined)}
-          onStartQuiz={withActions ? undefined : () => context.onStartQuiz("hero")}
-          action={withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
+          hint={withQuiz ? (block.hint ?? undefined) : undefined}
+          onStartQuiz={withQuiz ? () => context.onStartQuiz("hero") : undefined}
+          action={
+            <>
+              {withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
+              {context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
+            </>
+          }
           className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
           {campaignVisual && <HeroVisual />}
@@ -181,6 +200,30 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       );
     case "blocks.newsletter":
       return <Newsletter title={block.title} subtitle={block.subtitle} ctaText={block.ctaText} hintText={block.hintText} />;
+    case "blocks.missions-browser": {
+      const results = context.browsersByBlock[index];
+      if (!results) return null;
+      return (
+        <MissionsBrowser
+          missions={results.missions}
+          total={results.total}
+          page={results.page}
+          filters={getCmsBrowserConfig(block).filters}
+          pageName={context.landing}
+          backTo={context.path}
+          overlapHero={false}
+        />
+      );
+    }
+    case "blocks.quote-wall":
+      return (
+        <Histoires
+          cta={context.missionsCta("histoires")}
+          title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_YELLOW} />}
+          temoignages={block.quotes}
+          images={block.quotes.map((quote) => quote.image.url)}
+        />
+      );
     default:
       return null;
   }
