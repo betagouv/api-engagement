@@ -169,7 +169,8 @@ const Alerts = () => {
                 {w.title || (WARNINGS[w.type] || WARNINGS.OTHER_WARNING).name}
               </Link>
               <p className="text-xs">
-                {(WARNINGS[w.type] || WARNINGS.OTHER_WARNING).name} · {w.occurrences} occurrence{w.occurrences > 1 ? "s" : ""}
+                {(WARNINGS[w.type] || WARNINGS.OTHER_WARNING).name}
+                {w.itemLabel ? ` · ${w.itemLabel}` : ""} · {w.occurrences} occurrence{w.occurrences > 1 ? "s" : ""}
               </p>
             </td>
             <td className="p-4">

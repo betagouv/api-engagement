@@ -1,13 +1,30 @@
 import zod from "zod";
 
 // Types d'alerte connus (ceux gérés par les vues `admin-warning` / `warnings`).
-export const ALERT_TYPES = ["TRACKING_WARNING", "ERROR_WARNING", "EMPTY_WARNING", "VALIDATION_WARNING", "DELETION_WARNING", "CAMPAIGN_REDIRECTION_WARNING", "CAMPAIGN_CONVERSION_WARNING", "LOW_CONVERSION_WARNING", "WIDGET_REDIRECTION_WARNING", "WIDGET_CONVERSION_WARNING", "API_WARNING", "ATTRIBUTES_TRACKING_WARNING"] as const;
+export const ALERT_TYPES = [
+  "TRACKING_WARNING",
+  "ERROR_WARNING",
+  "EMPTY_WARNING",
+  "VALIDATION_WARNING",
+  "DELETION_WARNING",
+  "CAMPAIGN_REDIRECTION_WARNING",
+  "CAMPAIGN_CONVERSION_WARNING",
+  "LOW_CONVERSION_WARNING",
+  "WIDGET_REDIRECTION_WARNING",
+  "WIDGET_CONVERSION_WARNING",
+  "API_WARNING",
+  "ATTRIBUTES_TRACKING_WARNING",
+] as const;
 
 export const alertInputSchema = zod.object({
   type: zod.enum(ALERT_TYPES),
   publisherId: zod.string().min(1),
   title: zod.string().optional(),
   description: zod.string().optional(),
+  // Clé de l'alerte (id du lien tracké, du widget...) : une alerte par (annonceur, type, clé) ; sans clé, une par (annonceur, type).
+  itemId: zod.string().trim().min(1).optional(),
+  // Libellé lisible de l'élément, affiché dans les notifications et le back-office.
+  itemLabel: zod.string().optional(),
   procedureUrl: zod
     .string()
     .url()
