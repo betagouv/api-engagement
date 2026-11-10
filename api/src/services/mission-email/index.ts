@@ -6,7 +6,7 @@ import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/ser
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
 import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
-import { TAXONOMY } from "@engagement/taxonomy";
+import { formatCompensation, TAXONOMY } from "@engagement/taxonomy";
 
 import { buildAnswersContentHtml, buildListMissionCardsParams, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
 
@@ -79,38 +79,14 @@ const buildResultsUrl = (userScoringId: string | undefined, signupSource?: Signu
   return url.toString();
 };
 
-const COMPENSATION_UNIT_LABELS: Record<string, string> = {
-  hour: "heure",
-  day: "jour",
-  week: "semaine",
-  month: "mois",
-  year: "an",
-};
-
-// Même libellé que la plateforme (formatCompensation dans plateform/app/utils/mission.ts).
-const formatCompensationLabel = (mission: EmailMission) => {
-  if (typeof mission.compensationAmount !== "number") {
-    return null;
-  }
-  const amount =
-    typeof mission.compensationAmountMax === "number"
-      ? mission.compensationAmount === 0
-        ? `Jusqu'à ${mission.compensationAmountMax}€`
-        : `Entre ${mission.compensationAmount} et ${mission.compensationAmountMax}€`
-      : `${mission.compensationAmount}€`;
-  if (!mission.compensationUnit) {
-    return amount;
-  }
-  return `${amount} par ${COMPENSATION_UNIT_LABELS[mission.compensationUnit] ?? mission.compensationUnit}`;
-};
-
 const formatLocationLabel = (mission: EmailMission) => (mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city) ?? "";
 
 // Mêmes infos que les cartes de la plateforme hors matching (buildMissionBrowseTags) : lieu, rythme et indemnité.
 const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => {
   const location = formatLocationLabel(mission);
   const schedule = mission.schedule ?? "";
-  const compensation = formatCompensationLabel(mission) ?? "";
+  const compensation =
+    formatCompensation({ amount: mission.compensationAmount ?? null, amountMax: mission.compensationAmountMax ?? null, unit: mission.compensationUnit ?? null }) ?? "";
   return {
     id: mission.id,
     title: mission.title,

@@ -15,7 +15,7 @@ import { PUBLISHER_ID } from "~/services/config";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackMissionsPageChanged } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import { SINGLE_CHOICE_FILTERS, getPageWindow, getSelectedValues, getTotalPages, type LandingFilterKey } from "~/utils/landing-missions";
-import { buildMissionBrowseTags } from "~/utils/mission";
+import { buildMissionBrowseTags } from "@engagement/taxonomy";
 import { getScrollBehavior } from "~/utils/motion";
 
 // Place de la carte d'inscription aux alertes dans la première page.

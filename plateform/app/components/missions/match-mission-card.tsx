@@ -3,7 +3,8 @@ import { getDomainLabel } from "@engagement/dto";
 
 import { trackMissionClickedFromMatch } from "~/services/tracking/events";
 import type { MissionDetailEntrySource, MissionDetailNavState } from "~/services/tracking/types";
-import { buildMissionDetailHref, buildMissionMatchTags } from "~/utils/mission";
+import { buildMissionMatchTags } from "@engagement/taxonomy";
+import { buildMissionDetailHref, matchResultToBrowseMission } from "~/utils/mission";
 import MissionCard from "./mission-card";
 
 // Sections de résultats (matching) et leur entry_source de fiche détail correspondante.
@@ -48,7 +49,7 @@ export default function MatchMissionCard({
       to={buildMissionDetailHref(item, userScoringId)}
       state={state}
       onClick={() => trackMissionClickedFromMatch(item, { section, entryPage: "results", rank, pageNumber })}
-      tags={buildMissionMatchTags(item, userValueKeys)}
+      tags={buildMissionMatchTags(item.match, matchResultToBrowseMission(item), userValueKeys)}
       publisherName={mission.publisherName}
       publisherLogo={mission.media.publisherLogo}
       onEmailClick={onEmailClick ? () => onEmailClick(mission, rank) : undefined}
