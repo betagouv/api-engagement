@@ -26,7 +26,6 @@ export const warningService = (() => {
     publisherName: "publisher" in warning && warning.publisher ? warning.publisher.name : null,
     publisherLogo: "publisher" in warning && warning.publisher ? warning.publisher.logo : null,
     seen: warning.seen,
-    fixed: warning.fixed,
     fixedAt: warning.fixedAt,
     occurrences: warning.occurrences,
     status: warning.status,
@@ -42,27 +41,16 @@ export const warningService = (() => {
   });
 
   const findOneWarning = async (params: WarningFindParams = {}): Promise<WarningRecord | null> => {
-    const where: Prisma.WarningWhereInput = {
-      publisherId: params.publisherId,
-      type: params.type,
-      itemId: params.itemId,
-      ...(params.fixed !== undefined ? { fixed: params.fixed } : {}),
-    };
-
     const warning = await warningRepository.findFirst({
-      where,
+      where: buildWhere(params),
       orderBy: { createdAt: Prisma.SortOrder.desc },
     });
 
     return warning ? toWarningRecord(warning) : null;
   };
 
-  // `fixed` (déprécié) est dérivé de `status` ; un appelant historique peut encore passer `fixed`.
-  const toStatus = (input: { status?: WarningStatus; fixed?: boolean }): WarningStatus | undefined =>
-    input.status ?? (input.fixed === undefined ? undefined : input.fixed ? "RESOLVED" : "TODO");
-
   const createWarning = async (input: WarningCreateInput): Promise<WarningRecord> => {
-    const status = toStatus(input) ?? "TODO";
+    const status = input.status ?? "TODO";
     const created = await warningRepository.create({
       data: {
         type: input.type,
@@ -71,7 +59,6 @@ export const warningService = (() => {
         publisherId: input.publisherId,
         seen: input.seen ?? false,
         status,
-        fixed: status === "RESOLVED",
         fixedAt: status === "RESOLVED" ? (input.fixedAt ?? new Date()) : null,
         occurrences: input.occurrences ?? 1,
         procedureUrl: input.procedureUrl ?? null,
@@ -107,10 +94,9 @@ export const warningService = (() => {
     if (patch.seen !== undefined) {
       updateData.seen = patch.seen;
     }
-    const status = toStatus(patch);
+    const status = patch.status;
     if (status !== undefined) {
       updateData.status = status;
-      updateData.fixed = status === "RESOLVED";
       updateData.fixedAt = status === "RESOLVED" ? (patch.fixedAt ?? new Date()) : null;
     } else if (patch.fixedAt !== undefined) {
       updateData.fixedAt = patch.fixedAt;
@@ -144,17 +130,20 @@ export const warningService = (() => {
   const buildWhere = (params: WarningFindParams): Prisma.WarningWhereInput => {
     const where: Prisma.WarningWhereInput = {};
 
-    if (params.fixed !== undefined) {
-      where.fixed = params.fixed;
-    }
+    // `open` : non résolue ; `status` (valeur ou liste) est prioritaire.
     if (params.status) {
-      where.status = params.status;
+      where.status = Array.isArray(params.status) ? { in: params.status } : params.status;
+    } else if (params.open) {
+      where.status = { not: "RESOLVED" };
     }
     if (params.publisherId) {
       where.publisherId = params.publisherId;
     }
     if (params.type) {
       where.type = params.type;
+    }
+    if (params.itemId !== undefined) {
+      where.itemId = params.itemId;
     }
     if (params.unassigned) {
       where.assignees = { none: {} };
@@ -193,7 +182,7 @@ export const warningService = (() => {
   const transitionStatus = async (id: string, from: WarningStatus[], to: WarningStatus): Promise<boolean> => {
     const { count } = await warningRepository.updateMany({
       where: { id, status: { in: from } },
-      data: { status: to, fixed: to === "RESOLVED", fixedAt: to === "RESOLVED" ? new Date() : null },
+      data: { status: to, fixedAt: to === "RESOLVED" ? new Date() : null },
     });
     return count === 1;
   };

@@ -72,7 +72,7 @@ const NotificationMenu = () => {
     const fetchCount = async () => {
       try {
         // Admin : mes alertes à traiter (la page /admin-warning est pré-filtrée sur l'utilisateur).
-        const res = await api.post("/warning/search", { ...(isAdmin ? { assigneeId: user.id } : { publisherId }), fixed: null, status: "TODO", page: 1, size: 1 });
+        const res = await api.post("/warning/search", { ...(isAdmin ? { assigneeId: user.id } : { publisherId }), status: "TODO", page: 1, size: 1 });
         if (!res.ok) {
           throw res;
         }

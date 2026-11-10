@@ -80,7 +80,7 @@ describe("Warning alerting", () => {
     expect(first.body.data).toMatchObject({ created: 1, updated: 0, unknownPublishers: [], unassigned: [] });
 
     const [warning] = await warningService.findWarnings({ publisherId });
-    expect(warning).toMatchObject({ status: "TODO", fixed: false, occurrences: 1, procedureUrl: "https://notion.so/proc" });
+    expect(warning).toMatchObject({ status: "TODO", occurrences: 1, procedureUrl: "https://notion.so/proc" });
     expect(warning.assignees.map((a) => a.id)).toEqual([deploymentUser.user.id]);
     expect(sendTemplate).toHaveBeenCalledTimes(1);
     expect(sendTemplate.mock.calls[0][0]).toBe(TEMPLATE_IDS.WARNING_ALERT);
@@ -243,7 +243,7 @@ describe("Warning alerting", () => {
     it("records the legacy job receptions with the job source", async () => {
       const created = await warningService.createWarning({ type: "ERROR_WARNING", publisherId, title: "Flux invalide", source: "job" });
       await warningService.updateWarning(created.id, { description: "FAILED", occurrences: created.occurrences + 1, source: "job" });
-      await warningService.updateWarning(created.id, { fixed: true, fixedAt: new Date() });
+      await warningService.updateWarning(created.id, { status: "RESOLVED", fixedAt: new Date() });
       const untracked = await warningService.createWarning({ type: TYPE, publisherId });
 
       const list = (id: string) => request(app).get(`/warning/${id}/occurrences`).set("Authorization", `jwt ${deploymentUser.token}`);
@@ -317,7 +317,7 @@ describe("Warning alerting", () => {
         { type: TYPE, publisherId },
         { type: "ERROR_WARNING", publisherId },
       ]);
-      const res = await request(app).post("/warning/search").set("Authorization", `jwt ${deploymentUser.token}`).send({ publisherId, fixed: false });
+      const res = await request(app).post("/warning/search").set("Authorization", `jwt ${deploymentUser.token}`).send({ publisherId, open: true });
       expect(res.body.data.map((w: { type: string }) => w.type).sort()).toEqual(["ERROR_WARNING", TYPE]);
       // Pas de notion d'incident : un mail par alerte (pas de regroupement)
       expect(sendTemplate).toHaveBeenCalledTimes(2);
@@ -373,7 +373,7 @@ describe("Admin alerts screen endpoints", () => {
     expect(paged.body.total).toBe(3);
     expect(paged.body.data).toHaveLength(1);
 
-    const legacy = await request(app).post("/warning/search").set(adminAuth).send({ fixed: false });
+    const legacy = await request(app).post("/warning/search").set(adminAuth).send({ open: true });
     expect(legacy.body.data).toHaveLength(3);
     expect(legacy.body.total).toBeUndefined();
   });
@@ -385,9 +385,15 @@ describe("Admin alerts screen endpoints", () => {
     const res = await request(app).post("/warning/search").set(adminAuth).send({ status: "RESOLVED", page: 1 });
     expect(res.body.total).toBe(1);
     expect(res.body.data[0].type).toBe("ERROR_WARNING");
+
+    const several = await request(app)
+      .post("/warning/search")
+      .set(adminAuth)
+      .send({ status: ["TODO", "IN_PROGRESS"], page: 1 });
+    expect(several.body.data.map((w: { type: string }) => w.type)).toEqual(["TRACKING_WARNING"]);
   });
 
-  it("filters by assignee, unassigned, and all statuses with fixed null", async () => {
+  it("filters by assignee, unassigned, and all statuses without filter", async () => {
     const { user } = await createTestUser({ role: "admin" });
     await warningService.createWarning({ type: "TRACKING_WARNING", publisherId, assigneeIds: [user.id] });
     await warningService.createWarning({ type: "ERROR_WARNING", publisherId, status: "RESOLVED" });
@@ -397,9 +403,9 @@ describe("Admin alerts screen endpoints", () => {
         .post("/warning/search")
         .set(adminAuth)
         .send({ page: 1, ...body });
-    expect((await search({ assigneeId: user.id, fixed: null })).body.data.map((w: { type: string }) => w.type)).toEqual(["TRACKING_WARNING"]);
-    expect((await search({ unassigned: true, fixed: null })).body.data.map((w: { type: string }) => w.type)).toEqual(["ERROR_WARNING"]);
-    expect((await search({ fixed: null })).body.total).toBe(2);
+    expect((await search({ assigneeId: user.id })).body.data.map((w: { type: string }) => w.type)).toEqual(["TRACKING_WARNING"]);
+    expect((await search({ unassigned: true })).body.data.map((w: { type: string }) => w.type)).toEqual(["ERROR_WARNING"]);
+    expect((await search({})).body.total).toBe(2);
   });
 
   it("gets an alert by id, 404 when unknown", async () => {
@@ -411,15 +417,15 @@ describe("Admin alerts screen endpoints", () => {
     expect((await request(app).get("/warning/unknown-id").set(adminAuth)).status).toBe(404);
   });
 
-  it("changes the status and keeps the legacy fixed flag in sync", async () => {
+  it("changes the status and sets and clears fixedAt", async () => {
     const alert = await warningService.createWarning({ type: TYPE, publisherId });
 
     const resolved = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "RESOLVED" });
     expect(resolved.status).toBe(200);
-    expect(resolved.body.data).toMatchObject({ status: "RESOLVED", fixed: true });
+    expect(resolved.body.data).toMatchObject({ status: "RESOLVED" });
 
     const reopened = await request(app).put(`/warning/${alert.id}/status`).set(adminAuth).send({ status: "IN_PROGRESS" });
-    expect(reopened.body.data).toMatchObject({ status: "IN_PROGRESS", fixed: false, fixedAt: null });
+    expect(reopened.body.data).toMatchObject({ status: "IN_PROGRESS", fixedAt: null });
   });
 
   it("returns 409 when reopening an alert while another one is open for the same publisher and type", async () => {
@@ -530,7 +536,7 @@ describe("Alert email reply", () => {
     expect((await reply([item])).body.data.processed).toBe(0);
 
     const after = await warningService.findWarningById(alert.id);
-    expect(after).toMatchObject({ status: "RESOLVED", fixed: true });
+    expect(after).toMatchObject({ status: "RESOLVED" });
     const comments = await warningCommentService.findComments(alert.id);
     expect(comments).toHaveLength(1);
     expect(comments[0]).toMatchObject({ body: "Tracking rétabli côté partenaire", author: { id: assignee.user.id } });

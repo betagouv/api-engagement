@@ -47,7 +47,7 @@ const List = () => {
           throw resS;
         }
         setState(resS.data);
-        const resP = await api.post("/warning/search", { publisherId: publisher.id });
+        const resP = await api.post("/warning/search", { publisherId: publisher.id, open: true });
         if (!resP.ok) {
           throw resP;
         }
@@ -75,7 +75,7 @@ const List = () => {
     const fetchData = async () => {
       try {
         const query = {
-          fixed: "true",
+          status: "RESOLVED",
           publisherId: publisher.id,
           type: archivedFilters.type,
           month: archivedFilters.month,
@@ -267,7 +267,7 @@ const List = () => {
                         </div>
                         <p className="text-lg font-semibold">{w.title}</p>
                         <p className="mb-3 text-base">{label.advice}</p>
-                        {w.fixed && (
+                        {w.status === "RESOLVED" && (
                           <div className="mt-3 flex items-center">
                             <RiCheckboxCircleFill className="text-success mr-2 w-4" aria-hidden="true" />
                             <p className="text-gray-dar text-sm">

@@ -70,7 +70,7 @@ const ingest = async (input: AlertInput, source: string): Promise<{ warning: War
     return null;
   }
   const deploymentUserId = publisher.deploymentUserId ?? null;
-  const findOpen = () => warningService.findOneWarning({ publisherId: input.publisherId, type: input.type, itemId: input.itemId ?? null, fixed: false });
+  const findOpen = () => warningService.findOneWarning({ publisherId: input.publisherId, type: input.type, itemId: input.itemId ?? null, open: true });
 
   let warning: WarningRecord;
   let created = false;

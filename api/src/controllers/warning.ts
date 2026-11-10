@@ -13,6 +13,7 @@ import { warningService } from "@/services/warning";
 import { warningCommentService } from "@/services/warning-comment";
 import { warningOccurrenceService } from "@/services/warning-occurrence";
 import { UserRequest } from "@/types/passport";
+import { WARNING_STATUSES } from "@/types/warning";
 import { appendAuditEvent } from "@/utils/audit-log";
 import { isUniqueViolation } from "@/utils/prisma";
 
@@ -23,13 +24,13 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
   try {
     const body = zod
       .object({
-        // `null` = tous les statuts ; absent = alertes ouvertes (comportement historique).
-        fixed: zod.union([zod.null(), zod.coerce.boolean()]).default(false),
+        // `open` : alertes non résolues. Sans `open` ni `status` : tous les statuts.
+        open: zod.boolean().optional(),
         publisherId: zod.string().optional(),
         assigneeId: zod.string().optional(),
         unassigned: zod.boolean().optional(),
         type: zod.string().optional(),
-        status: zod.enum(["TODO", "IN_PROGRESS", "RESOLVED"]).optional(),
+        status: zod.union([zod.enum(WARNING_STATUSES), zod.array(zod.enum(WARNING_STATUSES)).min(1)]).optional(),
         month: zod.number().optional(),
         year: zod.number().optional(),
         page: zod.number().int().min(1).optional(),
@@ -59,9 +60,9 @@ router.post("/search", passport.authenticate(["user", "admin"], { session: false
       return res.status(403).send({ ok: false, code: FORBIDDEN });
     }
 
-    // `status` remplace `fixed` quand il est fourni ; sans `page`, la réponse reste la liste complète (appelants historiques).
+    // Sans `page`, la réponse reste la liste complète (appelants historiques).
     const params = {
-      fixed: body.data.status ? undefined : (body.data.fixed ?? undefined),
+      open: body.data.open,
       status: body.data.status,
       publisherId: body.data.publisherId,
       assigneeId: body.data.assigneeId,
@@ -150,7 +151,7 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
-    const body = zod.object({ status: zod.enum(["TODO", "IN_PROGRESS", "RESOLVED"]) }).safeParse(req.body);
+    const body = zod.object({ status: zod.enum(WARNING_STATUSES) }).safeParse(req.body);
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }

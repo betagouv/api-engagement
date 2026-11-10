@@ -107,7 +107,7 @@ describe("POST /slack/interactions", () => {
     await vi.waitFor(() => expect(slack.updateMessage).toHaveBeenCalledTimes(1));
     expect(slack.respondEphemeral.mock.calls[0][1]).toContain("déjà changé");
     const warning = await warningService.findWarningById(warningId);
-    expect(warning).toMatchObject({ status: "RESOLVED", fixed: true });
+    expect(warning).toMatchObject({ status: "RESOLVED" });
     expect(warning?.fixedAt).not.toBeNull();
     expect(JSON.stringify(slack.updateMessage.mock.calls[0][0].blocks)).not.toContain('"type":"actions"');
   });

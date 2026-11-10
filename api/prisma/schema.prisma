@@ -520,7 +520,7 @@ model Warning {
   description    String?
   publisherId    String        @map("publisher_id")
   seen           Boolean       @default(false)
-  // Déprécié : utiliser `status`. Conservé pour les vues et jobs existants, synchronisé par warningService (CHECK en base : RESOLVED <=> fixed)
+  // Déprécié : plus lu ni écrit (utiliser `status`), colonne supprimée dans une migration ultérieure
   fixed          Boolean       @default(false)
   fixedAt        DateTime?     @map("fixed_at")
   occurrences    Int           @default(1)
