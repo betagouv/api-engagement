@@ -23,6 +23,7 @@ const HEADER = [
 const UNASSIGNED = "none";
 const STATUS_OPTIONS = [
   { value: "TODO", label: "À traiter" },
+  { value: "IN_PROGRESS", label: "En cours" },
   { value: "RESOLVED", label: "Résolue" },
 ];
 const TYPE_OPTIONS = Object.entries(WARNINGS).map(([value, { name }]) => ({ value, label: name }));
@@ -92,7 +93,8 @@ const Alerts = () => {
       setLoading(true);
       try {
         const res = await api.post("/warning/search", {
-          fixed: filters.status ? filters.status === "RESOLVED" : null,
+          fixed: null,
+          status: filters.status || undefined,
           type: filters.type || undefined,
           publisherId: filters.publisherId || undefined,
           assigneeId: filters.assignee && filters.assignee !== UNASSIGNED ? filters.assignee : undefined,
