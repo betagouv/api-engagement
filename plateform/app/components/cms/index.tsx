@@ -10,7 +10,7 @@ import Accordion from "./accordion";
 import Benefits from "./benefits";
 import Cards from "./cards";
 import Faq from "./faq";
-import HeroActions from "./hero-actions";
+import HeroActions, { HeroButton } from "./hero-actions";
 import InlineText from "./inline-text";
 import MissionDetail from "./mission-detail";
 import RichText from "./rich-text";
@@ -121,7 +121,13 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         />
       );
     case "blocks.etapes":
-      return <Etapes etapes={block.items.map((item) => ({ ...item, icon: PICTOGRAMS[item.icon] }))} onStartQuiz={() => context.onStartQuiz("etapes")} />;
+      return (
+        <Etapes
+          etapes={block.items.map((item) => ({ ...item, icon: PICTOGRAMS[item.icon] }))}
+          onStartQuiz={() => context.onStartQuiz("etapes")}
+          cta={block.ctaLabel && block.ctaUrl ? <HeroButton link={{ label: block.ctaLabel, url: block.ctaUrl }} className="fr-btn--secondary fr-btn--lg" /> : undefined}
+        />
+      );
     case "blocks.benefits":
       return (
         <Benefits
