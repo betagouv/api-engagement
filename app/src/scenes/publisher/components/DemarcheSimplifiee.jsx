@@ -182,9 +182,9 @@ const DemarcheSimplifiee = ({ values, onChange, errors }) => {
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">Démarches Simplifiées</h2>
+        <h2 className="text-3xl font-bold">Démarche Numérique</h2>
         <Toggle
-          aria-label={isDemarcheSimplifiee ? "Désactiver les démarches simplifiées" : "Activer les démarches simplifiées"}
+          aria-label={isDemarcheSimplifiee ? "Désactiver la Démarche Numérique" : "Activer la Démarche Numérique"}
           value={isDemarcheSimplifiee}
           onChange={(e) =>
             onChange({
