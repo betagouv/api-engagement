@@ -58,18 +58,19 @@ const bump = (open: WarningRecord, input: AlertInput, source: string) =>
     source,
     ...(input.title ? { title: input.title } : {}),
     ...(input.description ? { description: input.description } : {}),
+    ...(input.itemLabel ? { itemLabel: input.itemLabel } : {}),
     ...(input.procedureUrl ? { procedureUrl: input.procedureUrl } : {}),
   });
 
 // Crée l'alerte (ou incrémente l'alerte ouverte du même type) puis notifie si ce n'est pas déjà fait.
-// L'unicité d'une alerte ouverte par (annonceur, type) est garantie par un index unique partiel : en cas de course, on incrémente.
+// L'unicité d'une alerte ouverte par (annonceur, type, clé) est garantie par un index unique partiel : en cas de course, on incrémente.
 const ingest = async (input: AlertInput, source: string): Promise<{ warning: WarningRecord; created: boolean; notification: Notification } | null> => {
   const publisher = await publisherService.findOnePublisherById(input.publisherId);
   if (!publisher) {
     return null;
   }
   const deploymentUserId = publisher.deploymentUserId ?? null;
-  const findOpen = () => warningService.findOneWarning({ publisherId: input.publisherId, type: input.type, fixed: false });
+  const findOpen = () => warningService.findOneWarning({ publisherId: input.publisherId, type: input.type, itemId: input.itemId ?? null, fixed: false });
 
   let warning: WarningRecord;
   let created = false;
@@ -82,6 +83,8 @@ const ingest = async (input: AlertInput, source: string): Promise<{ warning: War
         type: input.type,
         title: input.title,
         description: input.description,
+        itemId: input.itemId,
+        itemLabel: input.itemLabel,
         publisherId: input.publisherId,
         procedureUrl: input.procedureUrl,
         assigneeIds: deploymentUserId ? [deploymentUserId] : [],

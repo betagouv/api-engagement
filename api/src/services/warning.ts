@@ -31,6 +31,8 @@ export const warningService = (() => {
     occurrences: warning.occurrences,
     status: warning.status,
     procedureUrl: warning.procedureUrl,
+    itemId: warning.itemId,
+    itemLabel: warning.itemLabel,
     notifiedAt: warning.notifiedAt,
     slackChannelId: warning.slackChannelId,
     slackMessageTs: warning.slackMessageTs,
@@ -43,6 +45,7 @@ export const warningService = (() => {
     const where: Prisma.WarningWhereInput = {
       publisherId: params.publisherId,
       type: params.type,
+      itemId: params.itemId,
       ...(params.fixed !== undefined ? { fixed: params.fixed } : {}),
     };
 
@@ -72,6 +75,8 @@ export const warningService = (() => {
         fixedAt: status === "RESOLVED" ? (input.fixedAt ?? new Date()) : null,
         occurrences: input.occurrences ?? 1,
         procedureUrl: input.procedureUrl ?? null,
+        itemId: input.itemId ?? null,
+        itemLabel: input.itemLabel ?? null,
         assignees: { create: (input.assigneeIds ?? []).map((userId) => ({ userId })) },
         ...(input.source ? { receptions: { create: { source: input.source, title: input.title ?? null, description: input.description ?? null } } } : {}),
       },
@@ -95,6 +100,9 @@ export const warningService = (() => {
     }
     if (patch.procedureUrl !== undefined) {
       updateData.procedureUrl = patch.procedureUrl;
+    }
+    if (patch.itemLabel !== undefined) {
+      updateData.itemLabel = patch.itemLabel;
     }
     if (patch.seen !== undefined) {
       updateData.seen = patch.seen;

@@ -526,6 +526,10 @@ model Warning {
   occurrences    Int           @default(1)
   status         WarningStatus @default(TODO)
   procedureUrl   String?       @map("procedure_url")
+  // Clé d'alerte fournie par la source (id du lien tracké, du widget...) : une alerte ouverte par (annonceur, type, clé). Pas une FK (cible variable selon le type)
+  itemId         String?       @map("item_id")
+  // Libellé lisible de l'élément (mails, Slack, back-office), mis à jour à chaque réception
+  itemLabel      String?       @map("item_label")
   // Date du mail d'alerte aux assignés (null = pas encore notifiée)
   notifiedAt     DateTime?     @map("notified_at")
   slackChannelId String?       @map("slack_channel_id")
@@ -538,7 +542,7 @@ model Warning {
   comments   WarningComment[]
   receptions WarningOccurrence[]
 
-  // Index unique partiel "warning_open_publisher_type_key" (publisher_id, type) WHERE status <> 'RESOLVED' : voir la migration (non exprimable en Prisma)
+  // Index unique partiel "warning_open_publisher_type_item_key" (publisher_id, type, COALESCE(item_id, '')) WHERE status <> 'RESOLVED' : voir la migration (non exprimable en Prisma)
   @@index([publisherId], map: "warning_publisher_id_idx")
   @@index([type], map: "warning_type_idx")
   @@index([fixed], map: "warning_fixed_idx")

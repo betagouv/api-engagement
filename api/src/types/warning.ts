@@ -22,6 +22,8 @@ export interface WarningRecord {
   occurrences: number;
   status: WarningStatus;
   procedureUrl: string | null;
+  itemId: string | null;
+  itemLabel: string | null;
   notifiedAt: Date | null;
   slackChannelId: string | null;
   slackMessageTs: string | null;
@@ -52,6 +54,8 @@ export interface WarningFindParams {
   fixed?: boolean;
   publisherId?: string;
   type?: string;
+  /** `null` = alertes sans clé ; `undefined` = pas de filtre. */
+  itemId?: string | null;
   status?: WarningStatus;
   assigneeId?: string;
   unassigned?: boolean;
@@ -73,6 +77,8 @@ export interface WarningCreateInput {
   occurrences?: number;
   status?: WarningStatus;
   procedureUrl?: string | null;
+  itemId?: string | null;
+  itemLabel?: string | null;
   assigneeIds?: string[];
   /** Origine de la réception (`metabase`, `job`...) : enregistre une ligne d'historique avec le titre et la description. */
   source?: string;
@@ -92,6 +98,7 @@ export interface WarningUpdatePatch {
   occurrencesIncrement?: number;
   status?: WarningStatus;
   procedureUrl?: string | null;
+  itemLabel?: string | null;
   /** Ajoute des assignés (sans doublon). */
   assigneeIds?: string[];
   /** Origine de la réception (`metabase`, `job`...) : avec `occurrences` / `occurrencesIncrement`, enregistre une ligne d'historique. */
