@@ -1,6 +1,7 @@
 import { query } from "./client";
 import {
   checkDossier,
+  checkToken,
   createDossier,
   getAllDossiers,
   getAnnotationId,
@@ -15,6 +16,7 @@ import {
 
 export default {
   query,
+  checkToken,
   getDemarche,
   getDossier,
   getAllDossiers,

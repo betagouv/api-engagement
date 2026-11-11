@@ -67,6 +67,7 @@ export interface PublisherRecord {
   feed: string | null;
   feedUsername: string | null;
   feedPassword: string | null;
+  hasDemarcheSimplifieeToken: boolean;
   apikey: string | null;
   description: string;
   missionType: PublisherMissionType | null;
@@ -120,6 +121,7 @@ export interface PublisherCreateInput {
   feed?: string | null;
   feedUsername?: string | null;
   feedPassword?: string | null;
+  demarcheSimplifieeToken?: string | null;
   apikey?: string | null;
   missionType?: PublisherMissionType | null;
   isAnnonceur?: boolean;
