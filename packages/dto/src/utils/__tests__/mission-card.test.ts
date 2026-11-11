@@ -1,4 +1,6 @@
+import { getMissionCardTag } from "@engagement/taxonomy";
 import { describe, expect, it } from "vitest";
+
 import { buildMissionBrowseTags, buildMissionMatchTags, formatCompensation, type MissionCardInfo } from "../mission-card";
 
 describe("formatCompensation", () => {
@@ -80,7 +82,7 @@ describe("buildMissionMatchTags", () => {
       { taxonomyScores: { imprevu: 0.5, equipe: 1 } }
     );
 
-    expect(buildMissionMatchTags(item.match, item.mission, new Set(["imprevu.adaptation_rapide", "equipe.petit_groupe"]))).toEqual([
+    expect(buildMissionMatchTags(item.match, item.mission, new Set(["imprevu.adaptation_rapide", "equipe.petit_groupe"]), getMissionCardTag)).toEqual([
       "Une équipe de moins de 10 bénévoles",
       "Ça bouge beaucoup",
     ]);
@@ -95,21 +97,21 @@ describe("buildMissionMatchTags", () => {
       { taxonomyScores: { equipe: 1, interaction: 0 } }
     );
 
-    expect(buildMissionMatchTags(item.match, item.mission, new Set(["equipe.petit_groupe", "interaction.interaction_collective"]))).toEqual([]);
+    expect(buildMissionMatchTags(item.match, item.mission, new Set(["equipe.petit_groupe", "interaction.interaction_collective"]), getMissionCardTag)).toEqual([]);
   });
 
   it("ajoute la ville quand le score géo est haut, ordonnée par score", () => {
     const item = buildItem([["imprevu", "cadre_previsible"]], { taxonomyScores: { imprevu: 0.5 }, geoScore: 0.98 }, "Grenoble");
 
-    expect(buildMissionMatchTags(item.match, item.mission, new Set(["imprevu.cadre_previsible"]))).toEqual(["Grenoble", "Un cadre stable"]);
+    expect(buildMissionMatchTags(item.match, item.mission, new Set(["imprevu.cadre_previsible"]), getMissionCardTag)).toEqual(["Grenoble", "Un cadre stable"]);
   });
 
   it("n'ajoute pas la ville comme tag de matching quand le score géo est bas ou que la mission n'en a pas", () => {
     // Score géo bas : la ville n'est plus un tag de matching, mais elle revient via les tags standards.
     const farItem = buildItem([], { geoScore: 0.4 }, "Grenoble");
     const itemWithoutCity = buildItem([], { geoScore: 0.98 });
-    expect(buildMissionMatchTags(farItem.match, farItem.mission, new Set())).toEqual(["Grenoble"]);
-    expect(buildMissionMatchTags(itemWithoutCity.match, itemWithoutCity.mission, new Set())).toEqual([]);
+    expect(buildMissionMatchTags(farItem.match, farItem.mission, new Set(), getMissionCardTag)).toEqual(["Grenoble"]);
+    expect(buildMissionMatchTags(itemWithoutCity.match, itemWithoutCity.mission, new Set(), getMissionCardTag)).toEqual([]);
   });
 
   it("complète avec les tags standards quand le matching produit moins de 5 tags", () => {
@@ -118,7 +120,7 @@ describe("buildMissionMatchTags", () => {
     item.mission.schedule = "Quelques heures par semaine";
     item.mission.compensation = { amount: 600, amountMax: null, unit: "month", type: "net" };
 
-    expect(buildMissionMatchTags(item.match, item.mission, new Set(["equipe.petit_groupe"]))).toEqual([
+    expect(buildMissionMatchTags(item.match, item.mission, new Set(["equipe.petit_groupe"]), getMissionCardTag)).toEqual([
       "Une équipe de moins de 10 bénévoles",
       "À distance",
       "Quelques heures par semaine",
@@ -146,7 +148,7 @@ describe("buildMissionMatchTags", () => {
       "imprevu.adaptation_rapide",
     ]);
 
-    expect(buildMissionMatchTags(item.match, item.mission, userValueKeys)).toEqual([
+    expect(buildMissionMatchTags(item.match, item.mission, userValueKeys, getMissionCardTag)).toEqual([
       "À distance",
       "Idéale pour débuter",
       "Utile à une cause",
@@ -158,7 +160,7 @@ describe("buildMissionMatchTags", () => {
   it("ignore les valeurs de taxonomie sans tag de carte", () => {
     const item = buildItem([["statut", "lyceen"]], { taxonomyScores: { statut: 1 } });
 
-    expect(buildMissionMatchTags(item.match, item.mission, new Set(["statut.lyceen"]))).toEqual([]);
+    expect(buildMissionMatchTags(item.match, item.mission, new Set(["statut.lyceen"]), getMissionCardTag)).toEqual([]);
   });
 
   it("limite le nombre de tags à 6", () => {
@@ -183,7 +185,7 @@ describe("buildMissionMatchTags", () => {
       "interaction.interaction_collective",
     ]);
 
-    expect(buildMissionMatchTags(item.match, item.mission, userValueKeys)).toEqual([
+    expect(buildMissionMatchTags(item.match, item.mission, userValueKeys, getMissionCardTag)).toEqual([
       "À distance",
       "Idéale pour débuter",
       "Utile à une cause",

@@ -5,8 +5,16 @@ import { sendTemplate, subscribeToNewsletter, TEMPLATE_IDS } from "@/services/br
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
-import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
-import { buildMissionBrowseTags, buildMissionMatchTags, type MissionCardInfo, TAXONOMY } from "@engagement/taxonomy";
+import {
+  buildMissionBrowseTags,
+  buildMissionMatchTags,
+  getDomainLabel,
+  type MissionCardInfo,
+  type MissionEmailSkipReason,
+  type SendMissionEmailRequest,
+  type SignupSource,
+} from "@engagement/dto";
+import { getMissionCardTag, TAXONOMY } from "@engagement/taxonomy";
 
 import { buildAnswersContentHtml, buildListMissionCardsParams, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
 
@@ -131,7 +139,7 @@ const buildMissionMatchingEmailParams = async (
     }
     const { mission, values } = matchedMission;
     const match = { taxonomyScores: matchingItem.taxonomyScores as Record<string, number>, values, geoScore: null };
-    const tags = buildMissionMatchTags(match, toMissionCardInfo(mission), userValueKeys);
+    const tags = buildMissionMatchTags(match, toMissionCardInfo(mission), userValueKeys, getMissionCardTag);
     emailItems.push(buildMissionEmailItem(mission, tags, buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource)));
   }
 

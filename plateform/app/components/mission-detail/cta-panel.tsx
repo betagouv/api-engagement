@@ -1,8 +1,7 @@
-import type { MissionDetailResponse } from "@engagement/dto";
+import { formatCompensation, type MissionDetailResponse } from "@engagement/dto";
 import type { ReactNode } from "react";
 import EmailMissionModal from "~/components/mission-detail/email-mission-details-modal";
 import { trackMissionClickedFromDetail } from "~/services/tracking/events";
-import { formatCompensation } from "@engagement/taxonomy";
 import { buildMissionApplicationHref, formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {

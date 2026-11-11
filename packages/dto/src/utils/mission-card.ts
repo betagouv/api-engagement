@@ -1,5 +1,3 @@
-import { getMissionCardTag } from "./utils";
-
 // Règles d'affichage d'une carte mission, partagées par la plateforme et les emails de l'API
 // pour que le jeune retrouve la même carte sur le site et dans le mail.
 
@@ -16,6 +14,10 @@ export type MissionCardInfo = {
   schedule: string | null;
   compensation: MissionCardCompensation | null;
 };
+
+// Tag d'une valeur de taxonomie (`getMissionCardTag` de `@engagement/taxonomy`), passé par l'appelant : le DTO
+// reste sans dépendance runtime.
+export type MissionCardTagResolver = (taxonomyKey: string, valueKey: string) => string | null;
 
 export type MissionCardMatch = {
   taxonomyScores: Record<string, number>;
@@ -81,7 +83,7 @@ const MAX_CARD_TAGS = 6;
  * score géo est haut. Les valeurs sans `mission_card_tag` sont ignorées. Quand le matching en produit moins de
  * `MIN_CARD_TAGS`, la carte est complétée par les tags standards (cf. buildMissionBrowseTags).
  */
-export function buildMissionMatchTags(match: MissionCardMatch, mission: MissionCardInfo, userValueKeys: ReadonlySet<string>): string[] {
+export function buildMissionMatchTags(match: MissionCardMatch, mission: MissionCardInfo, userValueKeys: ReadonlySet<string>, getMissionCardTag: MissionCardTagResolver): string[] {
   const entries: { score: number; tags: string[] }[] = [];
 
   for (const [taxonomyKey, score] of Object.entries(match.taxonomyScores)) {
