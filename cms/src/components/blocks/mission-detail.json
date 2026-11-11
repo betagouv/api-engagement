@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_mission_details",
+  "info": {
+    "displayName": "Fiche mission",
+    "icon": "file",
+    "description": "Fiche d'une mission de l'API Engagement (titre, description, rythme, indemnisation, photo, candidature), comme sur la plateforme. Porte le titre principal de la page."
+  },
+  "attributes": {
+    "missionId": {
+      "type": "string",
+      "required": true,
+      "description": "Identifiant (UUID) de la mission dans l'API Engagement de cet environnement. Mission introuvable ou non diffusée : le bloc n'est pas affiché."
+    },
+    "backUrl": {
+      "type": "string",
+      "description": "Lien « Retour » en haut de page (ex. : /pages/trouve-ta-caserne). Vide : pas de lien."
+    }
+  }
+}

@@ -1,16 +1,18 @@
-import type { MissionBrowse } from "@engagement/dto";
+import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 
 import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import Missions from "~/components/landings/missions";
+import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import Accordion from "./accordion";
 import Benefits from "./benefits";
 import Cards from "./cards";
 import Faq from "./faq";
-import HeroActions from "./hero-actions";
+import HeroActions, { HeroButton } from "./hero-actions";
 import InlineText from "./inline-text";
+import MissionDetail from "./mission-detail";
 import RichText from "./rich-text";
 import Stories from "./stories";
 import Testimonials from "./testimonials";
@@ -23,11 +25,13 @@ const HIGHLIGHT_GREEN = "bg-[#9ef9be] dark:bg-transparent";
 const HIGHLIGHT_YELLOW = "bg-yellow-tournesol-925 dark:bg-transparent";
 const BACKGROUNDS = { creme: "bg-brown-cafe-creme-975", galet: "bg-beige-gris-galet-975" } as const;
 
-// Contexte partagé par les blocs : nom de la page (tracking), chemin de retour depuis une fiche mission, CTA.
+// Contexte partagé par les blocs : nom de la page (tracking), chemin de retour depuis une fiche mission, missions
+// chargées par le loader (par index de bloc), CTA.
 export type CmsBlocksContext = {
   landing: LandingName;
   path: string;
   missionsByBlock: Record<number, MissionBrowse[]>;
+  missionDetailsByBlock: Record<number, MissionDetailResponse>;
   onStartQuiz: (section: QuizEntrySection) => void;
   missionsCta: (section: CtaSection) => LandingCta;
 };
@@ -76,6 +80,11 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         </Hero>
       );
     }
+    case "blocks.mission-detail": {
+      // Mission introuvable ou non diffusée : le bloc est ignoré.
+      const mission = context.missionDetailsByBlock[index];
+      return mission ? <MissionDetail mission={mission} backUrl={block.backUrl} landing={context.landing} /> : null;
+    }
     case "blocks.rich-text":
       return (
         <section className="fr-container max-w-3xl">
@@ -112,7 +121,13 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         />
       );
     case "blocks.etapes":
-      return <Etapes etapes={block.items.map((item) => ({ ...item, icon: PICTOGRAMS[item.icon] }))} onStartQuiz={() => context.onStartQuiz("etapes")} />;
+      return (
+        <Etapes
+          etapes={block.items.map((item) => ({ ...item, icon: PICTOGRAMS[item.icon] }))}
+          onStartQuiz={() => context.onStartQuiz("etapes")}
+          cta={block.ctaLabel && block.ctaUrl ? <HeroButton link={{ label: block.ctaLabel, url: block.ctaUrl }} className="fr-btn--secondary fr-btn--lg" /> : undefined}
+        />
+      );
     case "blocks.benefits":
       return (
         <Benefits
@@ -170,6 +185,8 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           partners={block.partners.map((partner) => ({ name: partner.name, description: partner.description, url: partner.url ?? undefined, logo: partner.logo.url }))}
         />
       );
+    case "blocks.newsletter":
+      return <Newsletter title={block.title} subtitle={block.subtitle} ctaText={block.ctaText} hintText={block.hintText} />;
     default:
       return null;
   }

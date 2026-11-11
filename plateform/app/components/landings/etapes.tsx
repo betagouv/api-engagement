@@ -2,6 +2,8 @@ import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.
 import SearchSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/search.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
 
+import type { ReactNode } from "react";
+
 import Carousel from "~/components/ui/carousel";
 import Highlight from "~/components/ui/highlight";
 
@@ -14,8 +16,8 @@ const ETAPES: Etape[] = [
   { icon: MailSendSvg, title: "Ton engagement commence ici", description: "On te met en relation avec le service public qui mobilise" },
 ];
 
-// Sans `onStartQuiz`, pas de CTA quiz sous les étapes.
-export default function Etapes({ onStartQuiz, etapes = ETAPES }: { onStartQuiz?: () => void; etapes?: Etape[] }) {
+// Sans `onStartQuiz`, pas de CTA quiz sous les étapes ; `cta` le remplace par un autre bouton (ex. lien du CMS).
+export default function Etapes({ onStartQuiz, etapes = ETAPES, cta }: { onStartQuiz?: () => void; etapes?: Etape[]; cta?: ReactNode }) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 text-center mb-4! md:mb-8!">
@@ -32,11 +34,12 @@ export default function Etapes({ onStartQuiz, etapes = ETAPES }: { onStartQuiz?:
         listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 md:overflow-visible"
         itemClassName="w-[85vw] max-w-[330px] md:w-auto md:max-w-none"
         action={
-          onStartQuiz && (
+          cta ??
+          (onStartQuiz && (
             <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center md:w-auto!">
               Trouve ta mission
             </button>
-          )
+          ))
         }
       >
         {etapes.map((etape) => (

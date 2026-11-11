@@ -20,6 +20,7 @@ const SLUG_MAX_LENGTH = 80;
 // Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.
 const POPULATE = [
   "populate[blocks][on][blocks.hero][populate]=*",
+  "populate[blocks][on][blocks.mission-detail][populate]=*",
   "populate[blocks][on][blocks.rich-text][populate]=*",
   "populate[blocks][on][blocks.image][populate]=*",
   "populate[blocks][on][blocks.missions][populate][slots]=true",
@@ -31,6 +32,7 @@ const POPULATE = [
   "populate[blocks][on][blocks.faq][populate][questions]=true",
   "populate[blocks][on][blocks.accordion][populate]=*",
   "populate[blocks][on][blocks.partners][populate][partners][populate]=*",
+  "populate[blocks][on][blocks.newsletter][populate]=*",
 ].join("&");
 
 // Contenu publié uniquement (pas de brouillon côté plateform).

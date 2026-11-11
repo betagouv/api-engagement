@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_blocks_newsletters",
+  "info": {
+    "displayName": "Newsletter",
+    "icon": "envelop",
+    "description": "Inscription à la newsletter et liens vers les réseaux sociaux, à placer en fin de page (collé au pied de page)."
+  },
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "default": "Reçois tes missions par email"
+    },
+    "subtitle": {
+      "type": "string",
+      "required": true,
+      "default": "1 email par mois avec des missions qui pourraient t'intéresser."
+    },
+    "ctaText": {
+      "type": "string",
+      "required": true,
+      "default": "Recevoir mes missions",
+      "description": "Libellé du bouton d'inscription."
+    },
+    "hintText": {
+      "type": "text",
+      "required": true,
+      "default": "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment.",
+      "description": "Texte sous le champ e-mail."
+    }
+  }
+}
