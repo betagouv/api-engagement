@@ -4,7 +4,7 @@ import type { CmsPage } from "~/types/cms";
 // Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.
 const CMS_URL = process.env.CMS_URL || "http://localhost:1337";
 // Les médias sont chargés par le navigateur : URL publique du CMS (différente de CMS_URL dans Docker).
-const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
+export const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
 const CMS_API_TOKEN = process.env.CMS_API_TOKEN;
 
 // Cache mémoire des pages publiées : évite un aller-retour CMS par visite et garde la page servie si le CMS est indisponible.
