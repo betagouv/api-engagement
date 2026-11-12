@@ -21,6 +21,21 @@ Il a déjà été lancé sur les environnements : ne pas le modifier pour ajoute
 
 Pour ajouter une page de dev : créer `cms/seed/pages/<slug>.json` (s'inspirer de `trouve-ta-caserne.json`), déposer ses images dans `cms/seed/images/`, puis lancer `npm run seed:pages`.
 
+### Envoyer une page du seed en staging ou en production
+
+`seed-pages.ts` ne tourne qu'en local (il passe par la base). Pour un CMS déployé, `cms/scripts/seed-remote.ts` envoie les mêmes JSON par l'API REST :
+
+1. Dans l'admin de l'environnement : _Settings_ → _API Tokens_ → **Create new API Token**, type **Full access**, durée **7 days**.
+2. Depuis la racine du dépôt, une ou plusieurs pages par slug :
+
+   ```bash
+   docker compose exec -T -e CMS_REMOTE_URL=https://<cms-staging> -e CMS_REMOTE_TOKEN=<jeton> cms npm run seed:remote -- sport education
+   ```
+
+3. Supprimer le jeton dans l'admin.
+
+Une page dont le slug existe déjà est **ignorée** : elle a pu être retouchée dans l'admin. Ajouter `--replace` pour l'écraser (elle est supprimée puis recréée, publiée). Les images sont réutilisées si un média du même nom existe déjà dans la médiathèque : renommer le fichier pour forcer l'envoi d'une nouvelle version. Les composants utilisés par la page doivent déjà être déployés sur l'environnement visé.
+
 Compte admin perdu : `docker compose exec cms npx strapi admin:list-users` pour retrouver l'email, puis `docker compose exec cms npx strapi admin:reset-user-password --email <email>`.
 
 Côté `plateform` (hors Docker, Node ≥ 22.22) :
