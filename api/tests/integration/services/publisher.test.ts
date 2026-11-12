@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { prisma } from "@/db/postgres";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 
@@ -41,5 +42,18 @@ describe("publisherService diffusion sync", () => {
     const persisted = await publisherService.findOnePublisherById(diffuseur.id);
     expect(persisted?.name).toBe("Diffuseur before rollback");
     expect(await publisherDiffusionRuleService.findRules({ publisherId: diffuseur.id })).toHaveLength(0);
+  });
+});
+
+describe("publisherService demarches soft delete", () => {
+  it("archives removed demarches and allows re-saving the same number", async () => {
+    const annonceur = await createTestPublisher({ name: "Annonceur DN", demarcheSimplifiees: [{ number: 1 }, { number: 2 }] });
+
+    const afterRemoval = await publisherService.updatePublisher(annonceur.id, { demarcheSimplifiees: [{ number: 2 }] });
+    expect(afterRemoval.demarcheSimplifiees.map((d) => d.number)).toEqual([2]);
+
+    const rows = await prisma.publisherDemarcheSimplifiee.findMany({ where: { publisherId: annonceur.id } });
+    expect(rows.filter((r) => r.deletedAt === null).map((r) => r.number)).toEqual([2]);
+    expect(rows.filter((r) => r.deletedAt !== null).map((r) => r.number).sort()).toEqual([1, 2]);
   });
 });
