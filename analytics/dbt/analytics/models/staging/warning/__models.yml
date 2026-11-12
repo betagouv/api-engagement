@@ -24,11 +24,11 @@ models:
         tests:
           - not_null
       - name: status
-        description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`).
+        description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`, `IGNORED`).
         tests:
           - not_null
           - accepted_values:
-              values: ["TODO", "IN_PROGRESS", "RESOLVED"]
+              values: ["TODO", "IN_PROGRESS", "RESOLVED", "IGNORED"]
       - name: occurrences
         description: Nombre de réceptions cumulées.
       - name: procedure_url
@@ -37,6 +37,8 @@ models:
         description: Date du mail d'alerte aux assignés (nullable).
       - name: resolved_at
         description: Date de résolution (nullable).
+      - name: ignored_at
+        description: Date de passage en « Ignorée » (nullable) ; aucune nouvelle alerte du même type pour le partenaire pendant le délai qui suit.
       - name: created_at
         description: Date de création de l'alerte.
       - name: updated_at
