@@ -54,7 +54,7 @@ export default function EtapesVie({ onStartQuiz, cta }: { onStartQuiz: () => voi
               }}
               className="fr-link fr-icon-arrow-right-line fr-link--icon-right mt-auto!"
             >
-              Trouve ta mission<span className="fr-sr-only"> : {etape.title}</span>
+              Trouvez votre mission<span className="fr-sr-only"> : {etape.title}</span>
             </Link>
           </div>
         ))}

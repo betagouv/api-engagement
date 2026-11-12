@@ -59,7 +59,7 @@ const PARTNERS: Partner[] = [
 ];
 
 // CTA "voir les missions" partagé par les blocs Missions, Étapes de vie et Histoires.
-const MISSIONS_CTA = { to: "/quiz/age", label: "Trouve ta mission" };
+const MISSIONS_CTA = { to: "/quiz/age", label: "Trouvez votre mission" };
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
@@ -108,7 +108,7 @@ export default function ChacunPourTous() {
   const handleStartQuiz = (section: QuizEntrySection) => {
     // reset() regénère quiz_attempt_id : on réinitialise avant de tracer, pour rattacher cta.clicked au nouveau funnel.
     reset("/chacun-pour-tous");
-    trackCtaClicked({ pageName: "landing_chacun_pour_tous", ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
+    trackCtaClicked({ pageName: "landing_chacun_pour_tous", ctaSection: section, ctaLabel: MISSIONS_CTA.label, ctaDestination: "quiz", destinationPath: "/quiz/age" });
     navigate("/quiz/age", { state: { entrySource: "landing_chacun_pour_tous_cta", entrySection: section } });
   };
 
@@ -136,6 +136,7 @@ export default function ChacunPourTous() {
             "Vous vous engagez peut-être déjà, sans même vous en rendre compte\u00a0: aider un voisin, donner de votre temps, voter… Et vous êtes loin d'être seul\u00a0: en France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Trouvez la mission qui vous ressemble, près de chez vous et à votre rythme."
           }
           onStartQuiz={() => handleStartQuiz("hero")}
+          ctaLabel={MISSIONS_CTA.label}
           className="bg-brown-cafe-creme-975 md:min-h-130 lg:min-h-[max(664px,51.6vw)]"
         >
           <HeroVisual />
@@ -164,7 +165,7 @@ export default function ChacunPourTous() {
         <BonPourToi />
         <EtapesVie onStartQuiz={() => handleStartQuiz("etapes_vie")} cta={missionsCta("etapes_vie")} />
         <Histoires cta={missionsCta("histoires")} />
-        <Etapes etapes={ETAPES} onStartQuiz={() => handleStartQuiz("etapes")} />
+        <Etapes etapes={ETAPES} onStartQuiz={() => handleStartQuiz("etapes")} ctaLabel={MISSIONS_CTA.label} />
         <Questions />
         <Partners style="compact" squareArrows partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
       </main>
