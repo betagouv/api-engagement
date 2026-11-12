@@ -199,7 +199,7 @@ export default function LocationFilter({
               id={listboxId}
               role="listbox"
               aria-label="Suggestions d'adresses"
-              className="bg-background border-border-default-grey absolute top-full right-0 left-0 z-50 m-0! mt-1 max-h-60 list-none! overflow-auto border p-0! shadow-md md:max-lg:top-auto md:max-lg:bottom-full md:max-lg:mt-0! md:max-lg:mb-1"
+              className={`bg-background border-border-default-grey absolute top-full right-0 left-0 z-50 m-0! mt-1 max-h-60 list-none! overflow-auto border p-0! shadow-md ${onSearch ? "" : "md:max-lg:top-auto md:max-lg:bottom-full md:max-lg:mt-0! md:max-lg:mb-1"}`}
             >
               {/* eslint-disable jsx-a11y-x/click-events-have-key-events -- Le clavier pilote les options depuis la combobox via aria-activedescendant ; les options ne doivent pas devenir des arrêts de tabulation. */}
               {options.map((option, index) => (

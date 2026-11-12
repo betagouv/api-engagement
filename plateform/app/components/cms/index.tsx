@@ -90,7 +90,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
               {!searchDispositif && context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
             </>
           }
-          className={`${BACKGROUNDS.creme} ${searchDispositif ? "rounded-none! md:max-lg:pb-14" : ""} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
+          className={`${BACKGROUNDS.creme} ${searchDispositif ? "overflow-visible! rounded-none! md:max-lg:pb-14" : ""} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
           {campaignVisual && <HeroVisual />}
           {/* Visuel du CMS : sous le texte, en pleine largeur et collé au bas du hero sur mobile (image mobile si
