@@ -621,7 +621,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     });
     const contentHtml = Object.values(params).join("");
     expect(contentHtml).toContain("1 jour par semaine");
-    expect(contentHtml).toContain("620€ par mois");
+    expect(contentHtml).toContain("620\u00a0€ par mois");
 
     const userScoring = await prisma.userScoring.findUniqueOrThrow({
       where: { id: userScoringId },
@@ -829,7 +829,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(contentHtml).toContain(mission.title);
     expect(contentHtml).toContain("Paris");
     expect(contentHtml).toContain("1 jour par semaine");
-    expect(contentHtml).toContain("620€ par mois");
+    expect(contentHtml).toContain("620\u00a0€ par mois");
     expect(contentHtml).not.toContain("Détails");
     expect(missionUrl).toBe(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}`);
   });

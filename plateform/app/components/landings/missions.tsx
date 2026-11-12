@@ -1,5 +1,5 @@
 import type { MissionBrowse } from "@engagement/dto";
-import { getDomainLabel } from "@engagement/dto";
+import { buildMissionBrowseTags, getDomainLabel } from "@engagement/dto";
 import { type ReactNode, useState } from "react";
 import { Link } from "react-router";
 
@@ -8,7 +8,6 @@ import EmailMissionsModal from "~/components/results/email-missions-modal";
 import Carousel from "~/components/ui/carousel";
 import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
 import type { LandingCta, LandingName, MissionDetailNavState } from "~/services/tracking/types";
-import { buildMissionBrowseTags } from "~/utils/mission";
 
 // Carrousel de missions (issues du loader de la landing) dans un bandeau coloré. `landing` nomme la page
 // pour le tracking, `backTo` est son chemin, pour revenir à la landing depuis la fiche mission.

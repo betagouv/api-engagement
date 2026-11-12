@@ -5,8 +5,16 @@ import { sendTemplate, subscribeToNewsletter, TEMPLATE_IDS } from "@/services/br
 import { CURRENT_MATCHING_ENGINE_VERSION, MATCHING_ENGINE_VERSIONS } from "@/services/matching-engine/config";
 import type { MissionMatchingResultItem } from "@/services/matching-engine/types";
 import { missionService } from "@/services/mission";
-import { getDomainLabel, type MissionEmailSkipReason, type SendMissionEmailRequest, type SignupSource } from "@engagement/dto";
-import { TAXONOMY } from "@engagement/taxonomy";
+import {
+  buildMissionBrowseTags,
+  buildMissionMatchTags,
+  getDomainLabel,
+  type MissionCardInfo,
+  type MissionEmailSkipReason,
+  type SendMissionEmailRequest,
+  type SignupSource,
+} from "@engagement/dto";
+import { getMissionCardTag, TAXONOMY } from "@engagement/taxonomy";
 
 import { buildAnswersContentHtml, buildListMissionCardsParams, buildSavedMissionContentHtml, type MissionContent } from "./mission-content";
 
@@ -49,7 +57,8 @@ const extractMissionMatchingResultItems = (results: unknown): MissionMatchingRes
       return {
         missionScoringId: item.missionScoringId,
         missionAddressId: "missionAddressId" in item && typeof item.missionAddressId === "string" ? item.missionAddressId : null,
-        taxonomyScores: {},
+        // Scores par taxonomie du snapshot : ils ordonnent les tags de matching des cartes, comme sur la page résultats.
+        taxonomyScores: "taxonomyScores" in item && typeof item.taxonomyScores === "object" && item.taxonomyScores !== null ? item.taxonomyScores : {},
       };
     })
     .filter((item): item is MissionMatchingResultItem => item !== null)
@@ -79,53 +88,32 @@ const buildResultsUrl = (userScoringId: string | undefined, signupSource?: Signu
   return url.toString();
 };
 
-const COMPENSATION_UNIT_LABELS: Record<string, string> = {
-  hour: "heure",
-  day: "jour",
-  week: "semaine",
-  month: "mois",
-  year: "an",
-};
+const toMissionCardInfo = (mission: EmailMission): MissionCardInfo => ({
+  remote: mission.remote ?? null,
+  city: mission.city ?? null,
+  schedule: mission.schedule ?? null,
+  compensation: { amount: mission.compensationAmount ?? null, amountMax: mission.compensationAmountMax ?? null, unit: mission.compensationUnit ?? null },
+});
 
-// Même libellé que la plateforme (formatCompensation dans plateform/app/utils/mission.ts).
-const formatCompensationLabel = (mission: EmailMission) => {
-  if (typeof mission.compensationAmount !== "number") {
-    return null;
-  }
-  const amount =
-    typeof mission.compensationAmountMax === "number"
-      ? mission.compensationAmount === 0
-        ? `Jusqu'à ${mission.compensationAmountMax}€`
-        : `Entre ${mission.compensationAmount} et ${mission.compensationAmountMax}€`
-      : `${mission.compensationAmount}€`;
-  if (!mission.compensationUnit) {
-    return amount;
-  }
-  return `${amount} par ${COMPENSATION_UNIT_LABELS[mission.compensationUnit] ?? mission.compensationUnit}`;
-};
+const buildMissionEmailItem = (mission: EmailMission, tags: string[], url: string): MissionContent => ({
+  id: mission.id,
+  title: mission.title,
+  imageUrl: mission.domainLogo || mission.organizationLogo || mission.publisherLogo || "",
+  domainLabel: getDomainLabel(mission.domain ?? null) ?? "",
+  tags,
+  publisherLogo: mission.publisherLogo ?? "",
+  publisherName: mission.publisherName ?? "",
+  url,
+});
 
-const formatLocationLabel = (mission: EmailMission) => (mission.remote === "local" ? "Près de chez moi" : mission.remote === "full" ? "À distance" : mission.city) ?? "";
-
-// Mêmes infos que les cartes de la plateforme hors matching (buildMissionBrowseTags) : lieu, rythme et indemnité.
-const buildMissionEmailItem = (mission: EmailMission, publisherId: string, userScoringId?: string, signupSource?: SignupSource): MissionContent => {
-  const location = formatLocationLabel(mission);
-  const schedule = mission.schedule ?? "";
-  const compensation = formatCompensationLabel(mission) ?? "";
-  return {
-    id: mission.id,
-    title: mission.title,
-    imageUrl: mission.domainLogo || mission.organizationLogo || mission.publisherLogo || "",
-    domainLabel: getDomainLabel(mission.domain ?? null) ?? "",
-    location,
-    schedule,
-    compensation,
-    publisherLogo: mission.publisherLogo ?? "",
-    publisherName: mission.publisherName ?? "",
-    url: buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource),
-  };
-};
-
-const buildMissionMatchingEmailParams = async (userScoringId: string, publisherId: string, signupSource?: SignupSource): Promise<MissionContent[] | null> => {
+// Mêmes tags que la page résultats (buildMissionMatchTags). Le snapshot ne garde pas le score géo : la ville n'y
+// remonte donc que par les tags standards, quand le matching produit moins de 5 tags.
+const buildMissionMatchingEmailParams = async (
+  userScoringId: string,
+  publisherId: string,
+  userValueKeys: ReadonlySet<string>,
+  signupSource?: SignupSource
+): Promise<MissionContent[] | null> => {
   // Même version figée que la page résultats : un ancien scoring n'a que son ancien snapshot (ex. m1),
   // pas celui de la version courante. Lire CURRENT renverrait null → email jamais envoyé.
   const version = (await missionMatchingResultRepository.findEarliestVersion(userScoringId)) ?? CURRENT_MATCHING_ENGINE_VERSION;
@@ -143,13 +131,19 @@ const buildMissionMatchingEmailParams = async (userScoringId: string, publisherI
   const ignoreRemoteAddress = MATCHING_ENGINE_VERSIONS[version].remoteFullGeoScore != null || MATCHING_ENGINE_VERSIONS[version].remoteLocalGeoScore != null;
   const missions = await missionMatchingResultRepository.findMissionsByMatchingResultItems(matchingItems, ignoreRemoteAddress);
   const missionsByScoringId = new Map(missions.map((item) => [item.missionScoringId, item]));
-  const orderedMissions = matchingItems.map((item) => missionsByScoringId.get(item.missionScoringId)).filter((item): item is NonNullable<typeof item> => Boolean(item));
-
-  if (orderedMissions.length === 0) {
-    return null;
+  const emailItems: MissionContent[] = [];
+  for (const matchingItem of matchingItems) {
+    const matchedMission = missionsByScoringId.get(matchingItem.missionScoringId);
+    if (!matchedMission) {
+      continue;
+    }
+    const { mission, values } = matchedMission;
+    const match = { taxonomyScores: matchingItem.taxonomyScores as Record<string, number>, values, geoScore: null };
+    const tags = buildMissionMatchTags(match, toMissionCardInfo(mission), userValueKeys, getMissionCardTag);
+    emailItems.push(buildMissionEmailItem(mission, tags, buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource)));
   }
 
-  return orderedMissions.map(({ mission }) => buildMissionEmailItem(mission, publisherId, userScoringId, signupSource));
+  return emailItems.length > 0 ? emailItems : null;
 };
 
 const normalizeMissionIds = (missionIds: string[]) => {
@@ -166,7 +160,10 @@ const buildMissionIdsEmailParams = async (missionIds: string[], publisherId: str
     return null;
   }
 
-  return orderedMissions.map((mission) => buildMissionEmailItem(mission, publisherId, userScoringId, signupSource));
+  // Hors matching (mission sauvegardée, sélection depuis une landing) : lieu, rythme et indemnité, comme sur le site.
+  return orderedMissions.map((mission) =>
+    buildMissionEmailItem(mission, buildMissionBrowseTags(toMissionCardInfo(mission)), buildMissionEmailUrl(mission.id, publisherId, userScoringId, signupSource))
+  );
 };
 
 export const buildMissionEmailParams = async (params: {
@@ -174,6 +171,7 @@ export const buildMissionEmailParams = async (params: {
   userScoringId?: string;
   missionIds?: string[];
   signupSource?: SignupSource;
+  userValueKeys?: ReadonlySet<string>;
 }): Promise<MissionContent[] | null> => {
   if (params.missionIds?.length) {
     return buildMissionIdsEmailParams(params.missionIds, params.publisherId, params.userScoringId, params.signupSource);
@@ -182,7 +180,7 @@ export const buildMissionEmailParams = async (params: {
   if (!params.userScoringId) {
     return null;
   }
-  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId, params.signupSource);
+  return buildMissionMatchingEmailParams(params.userScoringId, params.publisherId, params.userValueKeys ?? new Set(), params.signupSource);
 };
 
 // Questions du quiz rappelées dans « Tu nous as dit », dans l'ordre du parcours.
@@ -237,11 +235,16 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     }
   }
 
+  // Sans scoring (envoi depuis une landing), pas de réponses à rappeler, de ville ni de tags de matching.
+  const emailContext = input.userScoringId ? await userScoringRepository.findEmailContext(input.userScoringId) : null;
+  const scoringValues = emailContext?.values ?? [];
+
   const missions = await buildMissionEmailParams({
     publisherId: input.publisherId,
     userScoringId: input.userScoringId,
     missionIds: input.missionIds,
     signupSource: input.signupSource,
+    userValueKeys: new Set(scoringValues.map((value) => `${value.taxonomyKey}.${value.valueKey}`)),
   });
 
   if (!missions) {
@@ -265,10 +268,8 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     return savedResult.ok ? { status: "sent" } : { status: "failed" };
   }
 
-  // Sans scoring (sélection envoyée depuis une landing), pas de réponses à rappeler ni de ville.
-  const emailContext = input.userScoringId ? await userScoringRepository.findEmailContext(input.userScoringId) : null;
   // Les scorings antérieurs à la colonne `answers` n'ont que les valeurs de scoring (sans les réponses neutres).
-  const answeredValues = Array.isArray(emailContext?.answers) ? (emailContext.answers as Array<{ taxonomyKey: string; valueKey: string }>) : (emailContext?.values ?? []);
+  const answeredValues = Array.isArray(emailContext?.answers) ? (emailContext.answers as Array<{ taxonomyKey: string; valueKey: string }>) : scoringValues;
   const answers = buildQuizAnswers(emailContext?.geo?.address ?? null, answeredValues);
   const emailResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
     emailTo: [input.email],

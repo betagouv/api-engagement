@@ -1,5 +1,5 @@
 import type { MissionBrowse, MissionBrowseTaxonomyKey, MissionBrowseTaxonomyParams, SignupSource } from "@engagement/dto";
-import { getDomainLabel } from "@engagement/dto";
+import { buildMissionBrowseTags, getDomainLabel } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -15,7 +15,6 @@ import { PUBLISHER_ID } from "~/services/config";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackMissionsPageChanged } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import { SINGLE_CHOICE_FILTERS, getPageWindow, getSelectedValues, getTotalPages, type LandingFilterKey } from "~/utils/landing-missions";
-import { buildMissionBrowseTags } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 
 // Place de la carte d'inscription aux alertes dans la première page.
