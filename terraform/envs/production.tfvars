@@ -50,6 +50,8 @@ enable_rdb_backup_job             = true
 enable_rdb_backup_replication_job = true
 enable_public_proxy               = true
 
+public_proxy_instance_type = "DEV1-S"
+
 rdb_backup_s3_bucket = "api-engagement-rdb-backup"
 
 enable_typesense      = true
