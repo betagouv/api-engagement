@@ -701,7 +701,7 @@ sources:
             description: Lien vers la procédure de traitement (nullable).
           - name: notified_at
             description: Date du mail d'alerte aux assignés (nullable, null = pas encore notifiée).
-          - name: resolved_at
+          - name: fixed_at
             description: Date de résolution (nullable).
           - name: created_at
             description: Date de création de l'alerte (première réception).
