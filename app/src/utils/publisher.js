@@ -46,6 +46,9 @@ export const buildPublisherPayload = (values) => ({
           fields: demarche.fields ?? {},
         }))
     : [],
+  // Le token est enregistré via « Valider le token » (vérifié auprès de Démarche Numérique) : undefined = on garde celui en base,
+  // null = on le supprime (connexion via le compte API Engagement).
+  demarcheSimplifieeToken: values.isDemarcheSimplifiee && values.demarcheSimplifieeAuthMode === "token" ? undefined : null,
 });
 
 export const withLegacyPublisher = (publisher = {}) => {
@@ -81,6 +84,9 @@ export const validatePublisher = (values) => {
   }
   if (values.isDiffuseur && !values.hasApiRights && !values.hasWidgetRights && !values.hasCampaignRights) {
     errors.mode = "Veuillez sélectionner au moins un moyen de diffusion.";
+  }
+  if (values.isDemarcheSimplifiee && values.demarcheSimplifieeAuthMode === "token" && !values.hasDemarcheSimplifieeToken) {
+    errors.demarcheSimplifieeToken = "Veuillez renseigner et valider le token API du partenaire.";
   }
   return errors;
 };

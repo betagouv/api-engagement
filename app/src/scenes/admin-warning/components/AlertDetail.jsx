@@ -93,7 +93,8 @@ const AlertDetail = () => {
           <p className="text-text-mention text-sm">{alert.publisherName}</p>
           <h2 className="text-2xl font-bold">{alert.title || label.name}</h2>
           <p className="text-sm">
-            {label.name} · {alert.occurrences} occurrence{alert.occurrences > 1 ? "s" : ""}
+            {label.name}
+            {alert.itemLabel ? ` · ${alert.itemLabel}` : ""} · {alert.occurrences} occurrence{alert.occurrences > 1 ? "s" : ""}
           </p>
           <Link className="tertiary-btn mt-3" to={`/${alert.publisherId}/performance`}>
             Accéder à l’espace du partenaire

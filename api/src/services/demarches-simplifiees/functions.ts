@@ -17,7 +17,7 @@ import { CandidateFields } from "@/types/publisher";
 import { DemarchesSimplifieesResponse, query } from "./client";
 
 // Exemple de helper : récupère les infos de base d'une démarche par son numéro.
-export const getDemarche = async (number: number) => {
+export const getDemarche = async (number: number, token?: string | null) => {
   const graphqlQuery = `
     query getDemarche($number: Int!) {
       demarche(number: $number) {
@@ -32,7 +32,7 @@ export const getDemarche = async (number: number) => {
       }
     }
   `;
-  return query<{ demarche: { id: string; number: number; title: string; state: string; dateCreation: string } }>(graphqlQuery, { number });
+  return query<{ demarche: { id: string; number: number; title: string; state: string; dateCreation: string } }>(graphqlQuery, { number }, token);
 };
 
 // Champs d'un dossier lus par le job d'import des candidatures (annotation de redirection, champs candidat, demandeur).
@@ -78,7 +78,7 @@ const DOSSIER_FIELDS = `
 `;
 
 // Récupère un dossier par son numéro, avec le numéro de sa démarche.
-export const getDossier = async (number: number) => {
+export const getDossier = async (number: number, token?: string | null) => {
   const graphqlQuery = `
     query getDossier($number: Int!) {
       dossier(number: $number) {
@@ -89,13 +89,13 @@ export const getDossier = async (number: number) => {
       }
     }
   `;
-  return query<{ dossier: DossierNode & { demarche: { number: number } } }>(graphqlQuery, { number });
+  return query<{ dossier: DossierNode & { demarche: { number: number } } }>(graphqlQuery, { number }, token);
 };
 
 // Récupère l'id de l'annotation "Identifiant de la redirection" d'une démarche, au format de clé de
 // préremplissage (`champ_<id sans ==>`). C'est cette clé qu'on passe en query param pour préremplir
 // l'annotation avec l'id du clic. Renvoie une erreur si l'annotation n'existe pas sur la démarche.
-export const getAnnotationId = async (demarcheNumber: number): Promise<DemarchesSimplifieesResponse<string>> => {
+export const getAnnotationId = async (demarcheNumber: number, token?: string | null): Promise<DemarchesSimplifieesResponse<string>> => {
   const graphqlQuery = `
     query getAnnotationDescriptors($number: Int!) {
       demarche(number: $number) {
@@ -109,7 +109,7 @@ export const getAnnotationId = async (demarcheNumber: number): Promise<Demarches
     }
   `;
 
-  const result = await query<{ demarche: { activeRevision: { annotationDescriptors: { id: string; label: string }[] } } }>(graphqlQuery, { number: demarcheNumber });
+  const result = await query<{ demarche: { activeRevision: { annotationDescriptors: { id: string; label: string }[] } } }>(graphqlQuery, { number: demarcheNumber }, token);
   if (!result.ok) {
     return result;
   }
@@ -142,7 +142,7 @@ export const getPublicChampDescriptors = async (slug: string): Promise<Demarches
 // Champs du formulaire (descripteurs) de la révision active d'une démarche : libellé, type et, pour un champ date,
 // s'il s'agit d'une date de naissance. Sert à détecter / vérifier les champs à lire pour enrichir les candidatures.
 // On lit d'abord le schéma public (sans token) si on connaît le slug, puis l'API GraphQL en repli.
-export const getChampDescriptors = async (demarcheNumber: number, slug?: string | null): Promise<DemarchesSimplifieesResponse<ChampDescriptor[]>> => {
+export const getChampDescriptors = async (demarcheNumber: number, slug?: string | null, token?: string | null): Promise<DemarchesSimplifieesResponse<ChampDescriptor[]>> => {
   if (slug) {
     const publicResult = await getPublicChampDescriptors(slug);
     if (publicResult.ok) {
@@ -166,7 +166,7 @@ export const getChampDescriptors = async (demarcheNumber: number, slug?: string 
     }
   `;
 
-  const result = await query<{ demarche: { activeRevision: { champDescriptors: ChampDescriptor[] } } }>(graphqlQuery, { number: demarcheNumber });
+  const result = await query<{ demarche: { activeRevision: { champDescriptors: ChampDescriptor[] } } }>(graphqlQuery, { number: demarcheNumber }, token);
   if (!result.ok) {
     return result;
   }
@@ -196,7 +196,7 @@ interface DossiersPage {
 // En GraphQL, une liste paginée est une "connection" : on demande une page (max 100),
 // et `pageInfo.endCursor` sert de curseur pour réclamer la page suivante via `after`.
 // On boucle tant que `pageInfo.hasNextPage` est vrai.
-export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date): Promise<DemarchesSimplifieesResponse<DossierNode[]>> => {
+export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date, token?: string | null): Promise<DemarchesSimplifieesResponse<DossierNode[]>> => {
   const graphqlQuery = `
     query getDemarcheDossiers($number: Int!, $after: String, $createdSince: ISO8601DateTime) {
       demarche(number: $number) {
@@ -218,11 +218,15 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
   let hasNextPage = true;
 
   while (hasNextPage) {
-    const result: DemarchesSimplifieesResponse<DossiersPage> = await query<DossiersPage>(graphqlQuery, {
-      number: demarcheNumber,
-      after,
-      createdSince: createdSince ? createdSince.toISOString() : null,
-    });
+    const result: DemarchesSimplifieesResponse<DossiersPage> = await query<DossiersPage>(
+      graphqlQuery,
+      {
+        number: demarcheNumber,
+        after,
+        createdSince: createdSince ? createdSince.toISOString() : null,
+      },
+      token
+    );
     if (!result.ok) {
       return result;
     }
@@ -237,11 +241,11 @@ export const getAllDossiers = async (demarcheNumber: number, createdSince?: Date
   return { ok: true, data: dossiers };
 };
 
-// Vérifie ce que notre jeton peut lire sur une démarche : la démarche elle-même, et ses dossiers (lus par le job d'import
-// des candidatures). DN masque une démarche ("hidden due to permissions") quand le compte du jeton n'en est ni
-// administrateur ni instructeur.
-export const getDemarcheAccess = async (demarcheNumber: number): Promise<{ demarche: boolean; dossiers: boolean }> => {
-  const demarche = await getDemarche(demarcheNumber);
+// Vérifie ce que le jeton (celui du partenaire, sinon le nôtre) peut lire sur une démarche : la démarche elle-même, et ses
+// dossiers (lus par le job d'import des candidatures). DN masque une démarche ("hidden due to permissions") quand le compte
+// du jeton n'en est ni administrateur ni instructeur.
+export const getDemarcheAccess = async (demarcheNumber: number, token?: string | null): Promise<{ demarche: boolean; dossiers: boolean }> => {
+  const demarche = await getDemarche(demarcheNumber, token);
   if (!demarche.ok) {
     return { demarche: false, dossiers: false };
   }
@@ -257,8 +261,19 @@ export const getDemarcheAccess = async (demarcheNumber: number): Promise<{ demar
       }
     }
   `;
-  const dossiers = await query(graphqlQuery, { number: demarcheNumber });
+  const dossiers = await query(graphqlQuery, { number: demarcheNumber }, token);
   return { demarche: true, dossiers: dossiers.ok };
+};
+
+// Vérifie qu'un token API est reconnu par Démarche Numérique. Un token inconnu est traité comme une absence de token :
+// toute requête non publique est alors rejetée en HTTP 403. Avec un token valide, la démarche n°0 (inexistante) renvoie
+// une simple erreur GraphQL en HTTP 200 : on ne regarde donc que le rejet HTTP.
+export const checkToken = async (token: string): Promise<DemarchesSimplifieesResponse<true>> => {
+  const result = await query("query checkToken { demarche(number: 0) { number } }", {}, token);
+  if (!result.ok && result.status) {
+    return result;
+  }
+  return { ok: true, data: true };
 };
 
 // Résout une démarche à partir de son URL publique (/commencer/<slug>) : on extrait le slug, on le
@@ -266,7 +281,8 @@ export const getDemarcheAccess = async (demarcheNumber: number): Promise<{ demar
 // dans le formulaire. Tout sauf le numéro est best-effort (null si indisponible) ; seul le numéro est requis
 // pour considérer la résolution réussie.
 export const resolveDemarcheByUrl = async (
-  url: string
+  url: string,
+  token?: string | null
 ): Promise<DemarchesSimplifieesResponse<{ number: number; name: string | null; annotationKey: string | null; fields: CandidateFields }>> => {
   const slug = extractDemarcheSlug(url);
   if (!slug) {
@@ -279,7 +295,7 @@ export const resolveDemarcheByUrl = async (
   }
   const number = numberResult.data;
 
-  const [annotation, demarche, champDescriptors] = await Promise.all([getAnnotationId(number), getDemarche(number), getChampDescriptors(number, slug)]);
+  const [annotation, demarche, champDescriptors] = await Promise.all([getAnnotationId(number, token), getDemarche(number, token), getChampDescriptors(number, slug, token)]);
 
   return {
     ok: true,
@@ -296,7 +312,8 @@ export const resolveDemarcheByUrl = async (
 // la redirection (id du clic) et des attributs candidat avec les champs donnés. Sert à tester une config depuis le back-office.
 export const checkDossier = async (
   dossierNumber: number,
-  demarche: { number: number; url: string | null; fields: CandidateFields }
+  demarche: { number: number; url: string | null; fields: CandidateFields },
+  token?: string | null
 ): Promise<
   DemarchesSimplifieesResponse<{
     state: string;
@@ -307,7 +324,7 @@ export const checkDossier = async (
     candidateAttributes: Record<string, string>;
   }>
 > => {
-  const dossierResult = await getDossier(dossierNumber);
+  const dossierResult = await getDossier(dossierNumber, token);
   if (!dossierResult.ok) {
     return dossierResult;
   }
@@ -316,7 +333,7 @@ export const checkDossier = async (
     return { ok: false, message: `Dossier belongs to démarche ${dossier.demarche.number}` };
   }
 
-  const descriptorsResult = await getChampDescriptors(demarche.number, extractDemarcheSlug(demarche.url));
+  const descriptorsResult = await getChampDescriptors(demarche.number, extractDemarcheSlug(demarche.url), token);
   const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche.fields, descriptorsResult.data) : { fields: demarche.fields, missingFields: [] };
   const annotation = dossier.annotations.find((item) => isRedirectionAnnotation(item.label));
 

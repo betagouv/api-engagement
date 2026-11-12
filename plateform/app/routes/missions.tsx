@@ -8,6 +8,7 @@ import Partners from "~/components/layout/partners";
 import MissionsBrowser, { FILTER_TYPES } from "~/components/missions/missions-browser";
 import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/api/missions";
+import { STATE_PARTNERS, STATE_PARTNERS_TITLE } from "~/config/partners";
 import { trackPageViewed } from "~/services/tracking/events";
 import { buildLandingBrowseFilters, getSelectedValues, type LandingMissionsConfig } from "~/utils/landing-missions";
 import { pageMeta } from "~/utils/seo";
@@ -71,13 +72,16 @@ export default function MissionsPage() {
         </div>
       </GradientBg>
       <MissionsBrowser missions={missions} total={total} page={page} filters={MISSIONS_CONFIG.filters} pageName="missions_list" backTo="/missions" />
-      <Newsletter
-        title="Inscris-toi à la newsletter"
-        subtitle="Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager."
-        ctaText="Je m'inscris"
-        hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
-      />
-      <Partners />
+      {/* Regroupés pour que le `gap` du <main> ne s'applique pas entre la newsletter et le bandeau des dispositifs. */}
+      <div>
+        <Newsletter
+          title="Inscris-toi à la newsletter"
+          subtitle="Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager."
+          ctaText="Je m'inscris"
+          hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
+        />
+        <Partners style="compact" partners={STATE_PARTNERS} title={STATE_PARTNERS_TITLE} description={null} />
+      </div>
     </main>
   );
 }

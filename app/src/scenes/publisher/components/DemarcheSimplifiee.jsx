@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { RiAddLine, RiCheckboxCircleFill, RiCloseCircleFill, RiDeleteBinLine, RiErrorWarningFill } from "react-icons/ri";
 
 import LabelledInput from "@/components/form/LabelledInput";
+import RadioInput from "@/components/form/RadioInput";
 import Toggle from "@/components/Toggle";
 import api from "@/services/api";
 import { captureError } from "@/services/error";
@@ -23,8 +24,10 @@ const CANDIDATE_FIELDS = [
   { type: "POSTAL_CODE", label: "Champ « Code postal »", attribute: "candidatePostalCode" },
 ];
 
-const DemarcheSimplifiee = ({ values, onChange }) => {
+const DemarcheSimplifiee = ({ values, onChange, errors }) => {
   const [loadingIndex, setLoadingIndex] = useState(null);
+  const [loadingToken, setLoadingToken] = useState(false);
+  const [isEditingToken, setIsEditingToken] = useState(false);
   const [accessByNumber, setAccessByNumber] = useState({});
   const [checkByIndex, setCheckByIndex] = useState({});
   const [redirectionIdByIndex, setRedirectionIdByIndex] = useState({});
@@ -34,15 +37,19 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
     .map((demarche) => demarche.number)
     .filter(Boolean)
     .join(",");
+  // En mode token, les appels à DN se font avec le token validé du partenaire (retrouvé côté API via son id).
+  const tokenPublisherId = values.demarcheSimplifieeAuthMode === "token" && values.hasDemarcheSimplifieeToken ? values.id : null;
 
-  // Accès de notre jeton DN à chaque démarche et à ses dossiers : sans accès, le job ne peut pas importer les candidatures.
+  // Accès du jeton DN (celui du partenaire en mode token, sinon le nôtre) à chaque démarche et à ses dossiers :
+  // sans accès, le job ne peut pas importer les candidatures.
   useEffect(() => {
     if (!demarcheNumbers) {
       return;
     }
     demarcheNumbers.split(",").forEach(async (number) => {
       try {
-        const res = await api.get(`/demarches-simplifiees/access?number=${number}`);
+        const publisherParam = tokenPublisherId ? `&publisherId=${tokenPublisherId}` : "";
+        const res = await api.get(`/demarches-simplifiees/access?number=${number}${publisherParam}`);
         if (res.ok) {
           setAccessByNumber((prev) => ({ ...prev, [number]: res.data }));
         }
@@ -50,7 +57,7 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
         captureError(error, { message: "Erreur lors de la vérification de l'accès à la démarche", extra: { number } });
       }
     });
-  }, [demarcheNumbers]);
+  }, [demarcheNumbers, tokenPublisherId]);
 
   const updateDemarche = (index, patch) => {
     const next = demarches.map((demarche, i) => (i === index ? { ...demarche, ...patch } : demarche));
@@ -71,20 +78,27 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       toast.error("Veuillez renseigner l'URL de la démarche");
       return;
     }
+    const isTokenMode = values.demarcheSimplifieeAuthMode === "token";
+    // En mode token, la recherche utilise le token enregistré côté API : il doit avoir été validé.
+    if (isTokenMode && (values.demarcheSimplifieeToken || !values.hasDemarcheSimplifieeToken)) {
+      toast.error("Validez le token avant d'ajouter la démarche");
+      return;
+    }
     try {
       setLoadingIndex(index);
-      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}`);
+      const publisherParam = isTokenMode ? `&publisherId=${values.id}` : "";
+      const res = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}${publisherParam}`);
       if (!res.ok) {
-        toast.error("Démarche introuvable pour cette URL");
+        updateDemarche(index, { notFound: true });
         return;
       }
       updateDemarche(index, {
+        notFound: false,
         number: res.data.number,
         name: res.data.name ?? null,
         annotationKey: res.data.annotationKey ?? null,
         fields: res.data.fields,
       });
-      toast.success("Démarche trouvée");
     } catch (error) {
       captureError(error, { message: "Erreur lors de la recherche de la démarche", extra: { url: demarche.url } });
     } finally {
@@ -114,6 +128,7 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
         demarcheNumber: demarche.number,
         url: demarche.url ?? null,
         fields: demarche.fields ?? {},
+        publisherId: tokenPublisherId ?? undefined,
       });
       if (!res.ok) {
         toast.error("Dossier introuvable sur cette démarche (ou jeton sans accès aux dossiers)");
@@ -124,6 +139,45 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       captureError(error, { message: "Erreur lors du test du dossier", extra: { dossierNumber } });
     }
   };
+
+  const handleValidateToken = async () => {
+    try {
+      setLoadingToken(true);
+      const res = await api.post("/demarches-simplifiees/token", { publisherId: values.id, token: values.demarcheSimplifieeToken });
+      if (!res.ok) {
+        toast.error(res.message || "Token invalide");
+        return;
+      }
+      // Avec le nouveau token, on relit le nom et l'annotation « Identifiant de la redirection » des démarches déjà ajoutées
+      // (l'accès est revérifié automatiquement). Les libellés des champs candidat, éventuellement ajustés à la main, sont conservés.
+      const refreshedDemarches = await Promise.all(
+        demarches.map(async (demarche) => {
+          if (!demarche.url) {
+            return demarche;
+          }
+          const resolved = await api.get(`/demarches-simplifiees/resolve?url=${encodeURIComponent(demarche.url)}&publisherId=${values.id}`);
+          if (!resolved.ok) {
+            return demarche;
+          }
+          return { ...demarche, name: resolved.data.name ?? null, annotationKey: resolved.data.annotationKey ?? null };
+        }),
+      );
+      onChange({ ...values, hasDemarcheSimplifieeToken: true, demarcheSimplifieeToken: null, demarcheSimplifiees: refreshedDemarches });
+      setIsEditingToken(false);
+      toast.success("Token validé et enregistré");
+    } catch (error) {
+      captureError(error, { message: "Erreur lors de la validation du token", extra: { publisherId: values.id } });
+    } finally {
+      setLoadingToken(false);
+    }
+  };
+
+  const handleCancelTokenChange = () => {
+    onChange({ ...values, demarcheSimplifieeToken: null });
+    setIsEditingToken(false);
+  };
+
+  const showTokenInput = !values.hasDemarcheSimplifieeToken || isEditingToken;
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -143,6 +197,77 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
       </div>
       {isDemarcheSimplifiee && (
         <div className="flex flex-col gap-6">
+          <fieldset className="flex flex-col gap-4">
+            <legend className="mb-4 text-base font-bold">Mode de connexion à Démarche Numérique</legend>
+            <RadioInput
+              id="demarche-simplifiees-auth-account"
+              name="demarche-simplifiees-auth-mode"
+              value="account"
+              label="Compte API Engagement : nous avons été ajoutés à l'organisation du partenaire"
+              checked={values.demarcheSimplifieeAuthMode !== "token"}
+              onChange={() => onChange({ ...values, demarcheSimplifieeAuthMode: "account", demarcheSimplifieeToken: null })}
+            />
+            <RadioInput
+              id="demarche-simplifiees-auth-token"
+              name="demarche-simplifiees-auth-mode"
+              value="token"
+              label="Token API fourni par le partenaire"
+              checked={values.demarcheSimplifieeAuthMode === "token"}
+              onChange={() => onChange({ ...values, demarcheSimplifieeAuthMode: "token" })}
+            />
+          </fieldset>
+          {values.demarcheSimplifieeAuthMode === "token" && (
+            <div className="flex flex-col gap-2">
+              {showTokenInput ? (
+                <div className="flex items-end gap-4">
+                  <LabelledInput
+                    id="demarche-simplifiees-token"
+                    label="Token API du partenaire"
+                    hint="Vérifié auprès de Démarche Numérique puis enregistré chiffré ; il n'est jamais réaffiché."
+                    type="password"
+                    autoComplete="off"
+                    value={values.demarcheSimplifieeToken ?? ""}
+                    onChange={(e) => onChange({ ...values, demarcheSimplifieeToken: e.target.value || null })}
+                    error={errors.demarcheSimplifieeToken}
+                    required
+                    className="w-full"
+                  />
+                  <button type="button" className="primary-btn shrink-0" disabled={loadingToken || !values.demarcheSimplifieeToken} onClick={handleValidateToken}>
+                    {loadingToken ? "Validation..." : "Valider le token"}
+                  </button>
+                  {values.hasDemarcheSimplifieeToken && (
+                    <button type="button" className="tertiary-btn shrink-0" onClick={handleCancelTokenChange}>
+                      Annuler
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-end gap-4">
+                  {/* Le token n'est jamais renvoyé par l'API : on affiche un masque fixe. */}
+                  <LabelledInput
+                    id="demarche-simplifiees-token"
+                    label="Token API du partenaire"
+                    hint="Token vérifié et enregistré chiffré."
+                    type="password"
+                    value="••••••••••••••••••••••••"
+                    readOnly
+                    className="w-full"
+                  />
+                  <button type="button" className="secondary-btn shrink-0" onClick={() => setIsEditingToken(true)}>
+                    Changer le token
+                  </button>
+                </div>
+              )}
+              <a
+                href="https://doc.demarches-simplifiees.fr/api-graphql/jeton-dauthentification"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-france w-fit text-sm underline"
+              >
+                Comment le partenaire crée son token (documentation Démarche Numérique, nouvel onglet)
+              </a>
+            </div>
+          )}
           {demarches.map((demarche, index) => (
             <div key={index} className="border-grey-border flex flex-col gap-4 border p-4 sm:p-6">
               <div className="flex items-end gap-4">
@@ -151,49 +276,74 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
                   label="URL de la démarche"
                   placeholder="https://demarche.numerique.gouv.fr/commencer/..."
                   value={demarche.url ?? ""}
-                  onChange={(e) => updateDemarche(index, { ...EMPTY_DEMARCHE, url: e.target.value || null })}
+                  onChange={(e) => updateDemarche(index, { ...EMPTY_DEMARCHE, notFound: false, url: e.target.value || null })}
                   className="w-full"
                 />
                 <button type="button" className="primary-btn" disabled={loadingIndex === index || !demarche.url} onClick={() => handleSearch(index)}>
-                  {loadingIndex === index ? "Recherche..." : "Chercher"}
+                  {loadingIndex === index ? "Ajout..." : "Ajouter"}
                 </button>
-                <button type="button" className="text-error ml-auto flex items-center gap-1" aria-label="Supprimer la démarche" onClick={() => removeDemarche(index)}>
+                <button type="button" className="text-error ml-auto flex min-h-10 items-center gap-1" aria-label="Supprimer la démarche" onClick={() => removeDemarche(index)}>
                   <RiDeleteBinLine aria-hidden="true" />
                   <span>Supprimer</span>
                 </button>
               </div>
+              {/* Statut de la démarche : résultat de « Ajouter » et accès du jeton DN (vérifié à part). Le nom n'est récupéré
+                  qu'avec l'accès à la démarche, sans lequel l'annotation ne peut pas être cherchée. */}
+              <ul className="flex flex-col gap-2 text-sm" aria-live="polite">
+                {demarche.notFound && (
+                  <li className="flex items-center gap-2">
+                    <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                    Démarche introuvable : vérifiez l'URL (/commencer/...).
+                  </li>
+                )}
+                {demarche.number && (
+                  <li className="flex items-center gap-2">
+                    <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                    Démarche n°{demarche.number} trouvée.
+                  </li>
+                )}
+                {demarche.number &&
+                  accessByNumber[demarche.number] &&
+                  [
+                    { label: "à la démarche", hasAccess: accessByNumber[demarche.number].demarche },
+                    { label: "aux dossiers (candidatures)", hasAccess: accessByNumber[demarche.number].dossiers },
+                  ].map((item) => (
+                    <li key={item.label} className="flex items-center gap-2">
+                      {item.hasAccess ? (
+                        <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                      ) : (
+                        <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                      )}
+                      {item.hasAccess
+                        ? `Accès ${item.label}.`
+                        : `Pas d'accès ${item.label} : les candidatures ne peuvent pas être importées. Vérifiez le mode de connexion (token du partenaire, ou compte API Engagement ajouté comme instructeur de la démarche).`}
+                    </li>
+                  ))}
+                {demarche.number && demarche.name && demarche.annotationKey && (
+                  <li className="flex items-center gap-2">
+                    <RiCheckboxCircleFill className="text-success h-5 w-5 shrink-0" aria-hidden="true" />
+                    Champ « Identifiant de la redirection » trouvé.
+                  </li>
+                )}
+                {demarche.number && demarche.name && !demarche.annotationKey && (
+                  <li className="flex items-center gap-2">
+                    <RiCloseCircleFill className="text-error h-5 w-5 shrink-0" aria-hidden="true" />
+                    Champ « Identifiant de la redirection » introuvable : le partenaire doit ajouter cette annotation privée à la démarche, puis cliquez à nouveau sur « Ajouter ».
+                  </li>
+                )}
+              </ul>
               <LabelledInput
                 id={`demarche-simplifiees-number-${index}`}
                 label="Numéro de la démarche"
-                hint="Renseigné automatiquement via « Chercher »."
+                hint="Renseigné automatiquement via « Ajouter »."
                 value={demarche.number ?? ""}
                 readOnly
                 className="w-64"
               />
-              {accessByNumber[demarche.number] && (
-                <div className="flex flex-col gap-1">
-                  <div className="flex flex-wrap gap-6 text-sm">
-                    {[
-                      { label: "Accès à la démarche", hasAccess: accessByNumber[demarche.number].demarche },
-                      { label: "Accès aux dossiers (candidatures)", hasAccess: accessByNumber[demarche.number].dossiers },
-                    ].map((item) => (
-                      <span key={item.label} className="flex items-center gap-1">
-                        {item.hasAccess ? <RiCheckboxCircleFill className="text-success" aria-hidden="true" /> : <RiCloseCircleFill className="text-error" aria-hidden="true" />}
-                        {item.label} : {item.hasAccess ? "oui" : "non"}
-                      </span>
-                    ))}
-                  </div>
-                  {!accessByNumber[demarche.number].dossiers && (
-                    <p className="text-text-mention text-sm">
-                      Sans accès, les candidatures ne peuvent pas être importées : le compte du jeton API doit être ajouté comme instructeur de la démarche.
-                    </p>
-                  )}
-                </div>
-              )}
               <LabelledInput
                 id={`demarche-simplifiees-name-${index}`}
                 label="Nom de la démarche"
-                hint="Renseigné automatiquement via « Chercher »."
+                hint="Renseigné automatiquement via « Ajouter »."
                 value={demarche.name ?? ""}
                 readOnly
                 className="w-full"
@@ -201,7 +351,7 @@ const DemarcheSimplifiee = ({ values, onChange }) => {
               <LabelledInput
                 id={`demarche-simplifiees-annotation-key-${index}`}
                 label="Champ « Identifiant de la redirection »"
-                hint="Clé de l'annotation préremplie avec l'identifiant du clic lors de la redirection. Renseignée automatiquement via « Chercher »."
+                hint="Clé de l'annotation préremplie avec l'identifiant du clic lors de la redirection. Renseignée automatiquement via « Ajouter »."
                 value={demarche.annotationKey ?? ""}
                 readOnly
                 className="w-full"

@@ -1,5 +1,6 @@
 import SearchSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/search.svg?url";
 import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
+import BookSvg from "@gouvfr/dsfr/dist/artwork/pictograms/leisure/book.svg?url";
 import BackpackSvg from "@gouvfr/dsfr/dist/artwork/pictograms/map/backpack.svg?url";
 import { Link } from "react-router";
 
@@ -8,9 +9,10 @@ import Highlight from "~/components/ui/highlight";
 import type { LandingCta } from "~/services/tracking/types";
 
 const ETAPES_VIE = [
-  { icon: BackpackSvg, title: "Tu fais des études\u00a0?", points: ["Des missions dès 16 ans", "Pendant les week-ends et les vacances"] },
-  { icon: SearchSvg, title: "Tu cherches un emploi\u00a0?", points: ["Une expérience pour rebondir", "Service Civique indemnisé"] },
-  { icon: SelfTrainingSvg, title: "Tu travailles déjà\u00a0?", points: ["Quelques heures par mois", "Le soir ou les week-ends"] },
+  { icon: BackpackSvg, title: "Vous faites des études\u00a0?", points: ["Des missions dès 16 ans", "Pendant les week-ends et les vacances"] },
+  { icon: SearchSvg, title: "Vous préparez votre insertion professionnelle\u00a0?", points: ["Une expérience pour rebondir", "Des compétences à valoriser sur votre CV"] },
+  { icon: SelfTrainingSvg, title: "Vous travaillez déjà\u00a0?", points: ["Quelques heures par mois", "Le soir ou les week-ends"] },
+  { icon: BookSvg, title: "Vous êtes à la retraite\u00a0?", points: ["Des missions ponctuelles ou régulières", "La possibilité de transmettre votre expérience"] },
 ];
 
 export default function EtapesVie({ onStartQuiz, cta }: { onStartQuiz: () => void; cta: LandingCta }) {
@@ -25,7 +27,7 @@ export default function EtapesVie({ onStartQuiz, cta }: { onStartQuiz: () => voi
         label="Une mission pour chaque étape de la vie"
         previousLabel="Voir la carte précédente"
         nextLabel="Voir la carte suivante"
-        listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-3 md:overflow-visible"
+        listClassName="md:mx-0! md:px-0! md:scroll-px-0! md:grid md:grid-cols-2 lg:grid-cols-4 md:overflow-visible"
         itemClassName="w-[70vw] max-w-66 md:w-auto md:max-w-none"
         // Le bouton « Voir toutes les missions » n'existe que dans la maquette mobile.
         action={
@@ -52,7 +54,7 @@ export default function EtapesVie({ onStartQuiz, cta }: { onStartQuiz: () => voi
               }}
               className="fr-link fr-icon-arrow-right-line fr-link--icon-right mt-auto!"
             >
-              Trouver ma mission<span className="fr-sr-only"> : {etape.title}</span>
+              Trouve ta mission<span className="fr-sr-only"> : {etape.title}</span>
             </Link>
           </div>
         ))}

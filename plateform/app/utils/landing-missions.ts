@@ -14,21 +14,26 @@ export type LandingMissionsConfig = {
   filters: LandingFilterKey[];
   // Emplacements des premiers résultats, appliqués par l'API tant qu'aucun filtre n'est coché.
   slots?: MissionBrowseSlot[];
+  // Carte d'inscription aux alertes en première page (landing Police uniquement).
+  alertCard?: boolean;
 };
 
-// La première page garde une place pour la carte d'inscription aux alertes : 11 missions + la carte, puis 12
-// missions par page (des rangées de 2 ou 3 cartes toujours complètes).
-export const LANDING_MISSIONS_FIRST_PAGE_SIZE = 11;
+// 12 cartes par page (des rangées de 2 ou 3 cartes toujours complètes). Avec la carte d'inscription aux alertes,
+// la première page n'a que 11 missions pour lui laisser sa place.
 export const LANDING_MISSIONS_PAGE_SIZE = 12;
 
-// Position de départ et nombre de missions d'une page.
-export const getPageWindow = (page: number): { offset: number; pageSize: number } =>
-  page === 1
-    ? { offset: 0, pageSize: LANDING_MISSIONS_FIRST_PAGE_SIZE }
-    : { offset: LANDING_MISSIONS_FIRST_PAGE_SIZE + (page - 2) * LANDING_MISSIONS_PAGE_SIZE, pageSize: LANDING_MISSIONS_PAGE_SIZE };
+const getFirstPageSize = (alertCard: boolean): number => (alertCard ? LANDING_MISSIONS_PAGE_SIZE - 1 : LANDING_MISSIONS_PAGE_SIZE);
 
-export const getTotalPages = (total: number): number =>
-  total <= LANDING_MISSIONS_FIRST_PAGE_SIZE ? 1 : 1 + Math.ceil((total - LANDING_MISSIONS_FIRST_PAGE_SIZE) / LANDING_MISSIONS_PAGE_SIZE);
+// Position de départ et nombre de missions d'une page.
+export const getPageWindow = (page: number, alertCard = false): { offset: number; pageSize: number } => {
+  const firstPageSize = getFirstPageSize(alertCard);
+  return page === 1 ? { offset: 0, pageSize: firstPageSize } : { offset: firstPageSize + (page - 2) * LANDING_MISSIONS_PAGE_SIZE, pageSize: LANDING_MISSIONS_PAGE_SIZE };
+};
+
+export const getTotalPages = (total: number, alertCard = false): number => {
+  const firstPageSize = getFirstPageSize(alertCard);
+  return total <= firstPageSize ? 1 : 1 + Math.ceil((total - firstPageSize) / LANDING_MISSIONS_PAGE_SIZE);
+};
 
 // Filtres à choix unique : un seul param d'URL est pris en compte.
 export const SINGLE_CHOICE_FILTERS: LandingFilterKey[] = ["tranche_age"];
@@ -49,7 +54,7 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
   const page = getPage(searchParams);
   const filters: MissionBrowseFilters = {
     page,
-    ...getPageWindow(page),
+    ...getPageWindow(page, config.alertCard),
     sort: "recent",
     exclude: config.exclude,
     includeRemote: config.includeRemote,

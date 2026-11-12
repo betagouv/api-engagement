@@ -7,6 +7,7 @@ export type AuditAction =
   | "user.login_as"
   | "publisher.api_key.regenerate"
   | "publisher.update"
+  | "publisher.demarche_simplifiee_token.update"
   | "widget.update"
   | "organization.update"
   | "webhook.brevo.invalid_token"

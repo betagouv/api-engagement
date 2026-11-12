@@ -21,8 +21,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     console.log(`[Démarches Simplifiées] Starting at ${start.toISOString()}`);
 
     const createdSince = new Date(start.getTime() - FIFTEEN_DAYS_IN_MS);
-    const demarches = await publisherDemarcheSimplifieesService.findAll();
-    const demarcheNumbers = [...new Set(demarches.map((demarche) => demarche.number))];
+    const demarches = await publisherDemarcheSimplifieesService.findAllWithToken();
 
     let submitted = 0;
     let created = 0;
@@ -31,9 +30,10 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     let missingClick = 0;
     const failedDemarches: number[] = [];
 
-    for (const demarcheNumber of demarcheNumbers) {
-      // 1. Récupérer les dossiers de la démarche créés sur les 15 derniers jours.
-      const dossiersResult = await demarchesSimplifiees.getAllDossiers(demarcheNumber, createdSince);
+    for (const demarche of demarches) {
+      const { number: demarcheNumber, token } = demarche;
+      // 1. Récupérer les dossiers de la démarche créés sur les 15 derniers jours (avec le token du partenaire s'il en a fourni un).
+      const dossiersResult = await demarchesSimplifiees.getAllDossiers(demarcheNumber, createdSince, token);
       if (!dossiersResult.ok) {
         captureException("[Démarches Simplifiées] Failed to fetch dossiers", { extra: { demarcheNumber, message: dossiersResult.message } });
         failedDemarches.push(demarcheNumber);
@@ -42,8 +42,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
 
       // Champs du formulaire à lire pour les attributs candidat : ceux configurés dans le back-office (sinon détectés).
       // Si un libellé configuré n'existe plus sur la démarche (renommé côté DN), on alerte pour corriger la config.
-      const demarche = demarches.find((item) => item.number === demarcheNumber)!;
-      const descriptorsResult = await demarchesSimplifiees.getChampDescriptors(demarcheNumber, extractDemarcheSlug(demarche.url));
+      const descriptorsResult = await demarchesSimplifiees.getChampDescriptors(demarcheNumber, extractDemarcheSlug(demarche.url), token);
       const { fields, missingFields } = descriptorsResult.ok ? resolveCandidateFields(demarche.fields, descriptorsResult.data) : { fields: demarche.fields, missingFields: [] };
       if (missingFields.length) {
         captureException("[Démarches Simplifiées] Configured fields not found on démarche", { extra: { demarcheNumber, missingFields } });

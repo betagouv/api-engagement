@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { RiArrowDownSLine, RiBookletLine, RiUserLine } from "react-icons/ri";
+import { RiArrowDownSLine, RiArrowRightSLine, RiBookletLine, RiCheckboxCircleFill, RiErrorWarningFill, RiUserLine } from "react-icons/ri";
 import { Link, useLocation } from "react-router-dom";
 
 import LogoSvg from "@/assets/svg/logo.svg?react";
@@ -72,7 +72,7 @@ const NotificationMenu = () => {
     const fetchCount = async () => {
       try {
         // Admin : mes alertes à traiter (la page /admin-warning est pré-filtrée sur l'utilisateur).
-        const res = await api.post("/warning/search", { ...(isAdmin ? { assigneeId: user.id } : { publisherId }), fixed: false, page: 1, size: 1 });
+        const res = await api.post("/warning/search", { ...(isAdmin ? { assigneeId: user.id } : { publisherId }), fixed: null, status: "TODO", page: 1, size: 1 });
         if (!res.ok) {
           throw res;
         }
@@ -85,16 +85,49 @@ const NotificationMenu = () => {
   }, []);
 
   const label = count ? `${count} alerte${count > 1 ? "s" : ""} à traiter` : "Aucune alerte à traiter";
+  const allPath = "/admin-warning?assignee=";
+  const linkClass = "text-blue-france flex items-center justify-end p-4 text-sm font-medium hover:bg-gray-950";
 
+  // Menu ouvert au survol et au focus clavier (focus-within) ; le lien « Alerte(s) » reste cliquable.
   return (
-    <Link to={warningPath} className="hover:bg-gray-975 flex items-center gap-2 p-2 text-sm font-medium" aria-label={`Alertes : ${label}`}>
-      <span aria-hidden="true">Alertes</span>
-      {count > 0 && (
-        <span className="bg-error min-w-5 rounded-full px-1.5 py-0.5 text-center text-xs font-bold text-white" aria-hidden="true">
-          {count}
-        </span>
+    <div className="group relative">
+      <Link to={warningPath} className="hover:bg-gray-975 flex items-center gap-2 p-2 text-sm font-medium" aria-label={`Alertes : ${label}`}>
+        <span aria-hidden="true">Alerte(s)</span>
+        {count > 0 && (
+          <span className="bg-error min-w-5 rounded-full px-1.5 py-0.5 text-center text-xs font-bold text-white" aria-hidden="true">
+            {count}
+          </span>
+        )}
+      </Link>
+      {isAdmin && (
+        <div className="border-grey-border absolute top-full right-0 z-10 hidden w-80 border bg-white text-black shadow-lg group-focus-within:block group-hover:block">
+          <p className="border-grey-border m-0 border-b p-4 text-lg font-bold">État du service</p>
+          <div className="border-grey-border flex flex-col gap-1 border-b p-4">
+            {count ? (
+              <>
+                <p className="m-0 flex items-center gap-2 text-xl font-bold">
+                  <RiErrorWarningFill className="text-error" aria-hidden="true" />
+                  {label}
+                </p>
+                <p className="text-text-mention m-0 text-xs">En attente de traitement</p>
+              </>
+            ) : (
+              <>
+                <p className="m-0 flex items-center gap-2 text-base font-bold">
+                  <RiCheckboxCircleFill className="text-green-700" aria-hidden="true" />
+                  {label}
+                </p>
+                <p className="m-0 text-sm">Aucune alerte ne vous est attribuée pour le moment.</p>
+              </>
+            )}
+          </div>
+          <Link to={count ? warningPath : allPath} className={linkClass}>
+            {count ? "Voir mes alertes" : "Voir toutes les alertes"}
+            <RiArrowRightSLine aria-hidden="true" />
+          </Link>
+        </div>
       )}
-    </Link>
+    </div>
   );
 };
 
@@ -141,10 +174,10 @@ const AccountMenu = () => {
         className="btn hover:bg-gray-975 focus"
         type="button"
         onClick={() => setShow(!show)}
-        aria-label="Menu du compte"
         aria-expanded={show}
         aria-controls="menu-compte"
       >
+        <span className="sr-only">Menu du compte</span>
         <div className="bg-blue-france flex h-8 w-8 items-center justify-center rounded-full">
           <RiUserLine className="text-white" aria-hidden="true" />
         </div>
