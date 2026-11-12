@@ -147,6 +147,10 @@ export const LETUDIANT_PILOTY_TOKEN = process.env.LETUDIANT_PILOTY_TOKEN || "";
 // Démarches Simplifiées (API GraphQL)
 export const DEMARCHES_SIMPLIFIEES_TOKEN = process.env.DEMARCHES_SIMPLIFIEES_TOKEN;
 
+// Proxy public à IP de sortie fixe (cf. terraform/modules/public-proxy), optionnel.
+// URL avec identifiants (compte htpasswd du proxy) : https://utilisateur:motdepasse@proxy.exemple.fr:443
+export const PUBLIC_PROXY_URL = process.env.PUBLIC_PROXY_URL || "";
+
 // Typesense
 export const TYPESENSE_HOST = process.env.TYPESENSE_HOST || "localhost";
 export const TYPESENSE_PORT = parseInt(process.env.TYPESENSE_PORT || "8108", 10);
