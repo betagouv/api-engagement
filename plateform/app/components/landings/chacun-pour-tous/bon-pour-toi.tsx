@@ -26,7 +26,7 @@ export default function BonPourToi() {
     setError(null);
 
     try {
-      await subscribeNewsletter({ email, distinctId });
+      await subscribeNewsletter({ email, distinctId, signupSource: "chacun_pour_tous_newsletter" });
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {
@@ -69,10 +69,7 @@ export default function BonPourToi() {
             <br />
             On vous prévient
           </h3>
-          <p className="fr-text--lead mb-0!">
-            Vous souhaitez attendre avant de vous lancer&nbsp;? Inscrivez-vous pour recevoir, une fois par mois, des idées de missions près de chez vous. Vous vous lancez quand
-            vous voulez, à votre rythme.
-          </p>
+          <p className="fr-text--lead mb-0!">Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager.</p>
 
           {success ? (
             <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
@@ -82,7 +79,7 @@ export default function BonPourToi() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
                 <label className="fr-label fr-sr-only" htmlFor="landing-newsletter-email">
-                  Votre adresse électronique (ex. : nom@domaine.fr)
+                  Votre adresse e-mail (ex. : nom@domaine.fr)
                 </label>
                 <input
                   id="landing-newsletter-email"
@@ -92,9 +89,9 @@ export default function BonPourToi() {
                   required
                   aria-required="true"
                   aria-invalid={error ? true : undefined}
-                  aria-describedby={error ? "landing-newsletter-email-messages" : undefined}
+                  aria-describedby={`landing-newsletter-email-hint ${error ? "landing-newsletter-email-messages" : ""}`}
                   className="fr-input mt-0!"
-                  placeholder="Votre adresse électronique"
+                  placeholder="Votre adresse e-mail"
                 />
                 {error && (
                   <div className="fr-messages-group" id="landing-newsletter-email-messages" role="alert">
@@ -102,9 +99,14 @@ export default function BonPourToi() {
                   </div>
                 )}
               </div>
-              <button type="submit" disabled={loading} className="fr-btn w-full! justify-center!">
-                {loading ? "Inscription en cours…" : "Je m'inscris"}
-              </button>
+              <div className="flex flex-col gap-2">
+                <button type="submit" disabled={loading} className="fr-btn w-full! justify-center!">
+                  {loading ? "Inscription en cours…" : "Je m'inscris"}
+                </button>
+                <p id="landing-newsletter-email-hint" className="fr-hint-text mb-0!">
+                  1 e-mail par mois. Vous pouvez vous désinscrire en un clic depuis chaque e-mail.
+                </p>
+              </div>
             </form>
           )}
         </div>

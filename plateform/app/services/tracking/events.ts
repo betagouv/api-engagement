@@ -367,12 +367,12 @@ export function trackMissionsFilterApplied(params: { filterType: MissionsFilterT
 // ============================================================================
 
 // Contexte d'un point de collecte d'email. `quiz` porte `completion_type` (recopié car `quiz_attempt_id` est retiré en
-// cookieless, impossible de joindre `quiz.shortcut_taken`) ; `save_mission` décrit la mission du cœur
-// (`publisherId` et `rank` absents hors résultats, ex. landings).
+// cookieless, impossible de joindre `quiz.shortcut_taken`) ; `save_mission` (cœur) et `mission_detail` (fiche) décrivent la mission
+// envoyée (`publisherId` et `rank` absents hors résultats, ex. landings).
 export type EmailCaptureContext =
   | { signupSource: "quiz"; completionType: QuizCompletionType }
   | { signupSource: "result_list" }
-  | { signupSource: "save_mission"; missionId: string; publisherId?: string; rank?: number; entrySource?: EmailMissionDetailEntrySource };
+  | { signupSource: "save_mission" | "mission_detail"; missionId: string; publisherId?: string; rank?: number; entrySource?: EmailMissionDetailEntrySource };
 
 function emailCaptureProps(context: EmailCaptureContext) {
   switch (context.signupSource) {
@@ -381,7 +381,8 @@ function emailCaptureProps(context: EmailCaptureContext) {
     case "result_list":
       return { signup_source: "result_list" };
     case "save_mission":
-      return { signup_source: "save_mission", mission_id: context.missionId, publisher_id: context.publisherId, rank: context.rank, entry_source: context.entrySource };
+    case "mission_detail":
+      return { signup_source: context.signupSource, mission_id: context.missionId, publisher_id: context.publisherId, rank: context.rank, entry_source: context.entrySource };
   }
 }
 
@@ -402,7 +403,10 @@ export function trackEmailCaptureFailed(params: { signupSource: EmailCaptureSign
 }
 
 // `email_capture.skipped` (feature_usage) : sortie sans email. Pas de skip pour l'encart des résultats, qui est passif.
-export function trackEmailCaptureSkipped(context: Extract<EmailCaptureContext, { signupSource: "quiz" | "save_mission" }>, skipMethod: EmailCaptureSkipMethod): void {
+export function trackEmailCaptureSkipped(
+  context: Extract<EmailCaptureContext, { signupSource: "quiz" | "save_mission" | "mission_detail" }>,
+  skipMethod: EmailCaptureSkipMethod,
+): void {
   track("email_capture.skipped", {
     signup_source: context.signupSource,
     skip_method: skipMethod,

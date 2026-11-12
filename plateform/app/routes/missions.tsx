@@ -78,7 +78,8 @@ export default function MissionsPage() {
           title="Inscris-toi à la newsletter"
           subtitle="Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager."
           ctaText="Je m'inscris"
-          hintText="1 e-mail. Pas de spam. Tu te désinscris quand tu veux."
+          hintText="1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail."
+          signupSource="missions_newsletter"
         />
         <Partners style="compact" partners={STATE_PARTNERS} title={STATE_PARTNERS_TITLE} description={null} />
       </div>

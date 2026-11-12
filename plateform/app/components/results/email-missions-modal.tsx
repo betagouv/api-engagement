@@ -1,4 +1,5 @@
 import { type SubmitEvent, useEffect, useId, useState } from "react";
+import { useLocation } from "react-router";
 import Modal from "~/components/layout/modal";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
@@ -11,16 +12,19 @@ import {
   trackEmailMissionDetailSent,
   trackEmailMissionsSent,
 } from "~/services/tracking/events";
-import type { EmailCaptureSkipMethod, EmailMissionsEntryPage } from "~/services/tracking/types";
+import type { EmailCaptureSkipMethod, EmailMissionsEntryPage, MissionDetailNavState } from "~/services/tracking/types";
+import { resolveEmailMissionDetailEntrySource } from "~/services/tracking/utils";
 import { useQuizStore } from "~/stores/quiz";
 import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 
-type SaveMissionContext = Extract<EmailCaptureContext, { signupSource: "save_mission" }>;
+type SaveMissionContext = Extract<EmailCaptureContext, { signupSource: "save_mission" | "mission_detail" }>;
 
 interface EmailMissionsModalProps {
   userScoringId: string | undefined;
-  // Page d'où part l'envoi, pour `email_missions.sent` (landing, sans annonceur connu).
-  entryPage: EmailMissionsEntryPage;
+  // `save_mission` : cœur d'une carte. `mission_detail` : CTA de la fiche mission. Mêmes listes Brevo, origine distincte.
+  signupSource?: "save_mission" | "mission_detail";
+  // Page d'où part l'envoi, pour `email_missions.sent` (landing, sans annonceur connu). Inutile sur la fiche mission.
+  entryPage?: EmailMissionsEntryPage;
   // Mission sauvegardée depuis le cœur d'une carte.
   missionId?: string;
   // Annonceur de la mission (pour `email_mission_detail.sent` depuis une carte de résultats).
@@ -31,10 +35,11 @@ interface EmailMissionsModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Modale « Garde cette mission » (clic sur le cœur d'une carte) : envoie la mission par email et inscrit
-// l'utilisateur aux listes Brevo de la source `save_mission`.
-export default function EmailMissionsModal({ userScoringId, entryPage, missionId, publisherId, rank, open, onOpenChange }: EmailMissionsModalProps) {
+// Modale « Reçois cette mission par e-mail » (cœur d'une carte ou CTA de la fiche mission) : envoie la mission par email
+// et inscrit l'utilisateur aux listes Brevo de la source `save_mission` ou `mission_detail`.
+export default function EmailMissionsModal({ userScoringId, signupSource = "save_mission", entryPage, missionId, publisherId, rank, open, onOpenChange }: EmailMissionsModalProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -43,10 +48,12 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
   const [error, setError] = useState<string | null>(null);
   const emailId = useId();
 
-  // `entry_source` n'a de sens que sur une carte de résultats (publisherId fourni) ; absent sur les landings.
-  const captureContext: SaveMissionContext | null = missionId
-    ? { signupSource: "save_mission", missionId, publisherId: publisherId || undefined, rank, entrySource: publisherId !== undefined ? "results_card" : undefined }
-    : null;
+  // `entry_source` : provenance de la fiche, ou carte de résultats (publisherId fourni) ; absent sur les landings.
+  const navState = location.state as MissionDetailNavState | null;
+  const missionDetailEntrySource = resolveEmailMissionDetailEntrySource(navState?.entrySource, Boolean(userScoringId));
+  const cardEntrySource = publisherId !== undefined ? "results_card" : undefined;
+  const entrySource = signupSource === "mission_detail" ? missionDetailEntrySource : cardEntrySource;
+  const captureContext: SaveMissionContext | null = missionId ? { signupSource, missionId, publisherId: publisherId || undefined, rank, entrySource } : null;
 
   // Ouverture de la modale = clic sur le cœur (simultanés) : un seul `viewed` par ouverture.
   useEffect(() => {
@@ -67,7 +74,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
     if (!missionId) return;
     const trimmedEmail = email.trim();
     if (!isValidEmail(trimmedEmail)) {
-      trackEmailCaptureFailed({ signupSource: "save_mission", errorType: "invalid_format" });
+      trackEmailCaptureFailed({ signupSource, errorType: "invalid_format" });
       setError(INVALID_EMAIL_FORMAT_ERROR);
       return;
     }
@@ -80,7 +87,7 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
         email: trimmedEmail,
         publisherId: PUBLISHER_ID,
         missionIds: [missionId],
-        signupSource: "save_mission",
+        signupSource,
         ...(userScoringId ? { userScoringId, distinctId } : {}),
       });
       // Contact accepté par l'API : `submitted` même si l'envoi échoue ensuite (`email_sent` false).
@@ -90,13 +97,15 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
         setError("Cette mission n'a pas pu être envoyée. Merci de réessayer.");
         return;
       }
-      // Carte de résultats (publisherId fourni, même vide car un match peut ne pas avoir d'annonceur) :
+      // Fiche mission ou carte de résultats (publisherId fourni, même vide car un match peut ne pas avoir d'annonceur) :
       // évènement dédié à la mission. Landing sans publisherId : évènement d'envoi.
-      if (publisherId !== undefined) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: false });
-      else trackEmailMissionsSent({ hasAlertOptIn: false, entryPage });
+      if (signupSource === "mission_detail")
+        trackEmailMissionDetailSent({ missionId, publisherId: publisherId ?? "", entrySource: missionDetailEntrySource, hasAlertOptIn: false });
+      else if (publisherId !== undefined) trackEmailMissionDetailSent({ missionId, publisherId, entrySource: "results_card", hasAlertOptIn: false });
+      else if (entryPage) trackEmailMissionsSent({ hasAlertOptIn: false, entryPage });
       setSuccess(true);
     } catch {
-      trackEmailCaptureFailed({ signupSource: "save_mission", errorType: "api_error" });
+      trackEmailCaptureFailed({ signupSource, errorType: "api_error" });
       setError("Une erreur est survenue. Merci de réessayer.");
     } finally {
       setLoading(false);
@@ -104,19 +113,20 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
   };
 
   return (
-    <Modal open={open} onClose={() => handleClose("close")} title="Garde cette mission" titleIcon="fr-icon-mail-send-fill" size="lg">
-      <p>On t'envoie ta mission par mail tout de suite, puis des actualités ou des missions qui correspondent à ton profil régulièrement.</p>
+    <Modal open={open} onClose={() => handleClose("close")} title="Reçois cette mission par e-mail" titleIcon="fr-icon-mail-send-fill">
+      <p>On te l'envoie tout de suite pour que tu la retrouves facilement.</p>
 
       {success ? (
-        <p role="status" className="flex items-center gap-2 font-bold! text-blue-france-sun! mb-8!">
+        <p role="status" className="flex items-center gap-2 font-bold! text-blue-france-sun! mb-0!">
           <span className="fr-icon-check-line" aria-hidden="true" />
-          Ta mission a bien été envoyée ! Vérifie ta boîte mail.
+          C'est envoyé ! Vérifie ta boîte mail (et tes spams).
         </p>
       ) : (
         <form onSubmit={handleSubmit} noValidate>
-          <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
-            <label className="fr-label fr-sr-only" htmlFor={emailId}>
+          <div className={`fr-input-group ${error ? "fr-input-group--error" : ""}`}>
+            <label className="fr-label" htmlFor={emailId}>
               Ton adresse e-mail
+              <span className="fr-hint-text">Format attendu : nom@domaine.fr</span>
             </label>
             <input
               id={emailId}
@@ -126,9 +136,8 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               aria-invalid={error ? true : undefined}
-              aria-describedby={error ? `${emailId}-error` : undefined}
+              aria-describedby={`${emailId}-consent ${error ? `${emailId}-error` : ""}`}
               className={`fr-input ${error ? "fr-input--error" : ""}`}
-              placeholder="nom@email.fr"
             />
             {error && (
               <div className="fr-messages-group" id={`${emailId}-error`} role="alert">
@@ -136,13 +145,18 @@ export default function EmailMissionsModal({ userScoringId, entryPage, missionId
               </div>
             )}
           </div>
+          <p id={`${emailId}-consent`} className="fr-hint-text">
+            En laissant ton e-mail, tu recevras aussi 1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement. Tu peux te désinscrire en un clic depuis
+            chaque e-mail.
+          </p>
 
-          <div className="flex flex-col-reverse gap-4 mt-8 md:flex-row md:justify-end">
+          {/* Le bas de `fr-modal__content` (3,5 rem / 4 rem) est ramené à l'espace d'un `fr-modal__footer` DSFR sous les boutons (1 rem / 2 rem). */}
+          <div className="flex flex-col-reverse gap-4 mt-8 -mb-10 md:flex-row md:justify-end md:-mb-8">
             <button type="button" onClick={() => handleClose("continue_without_email")} disabled={loading} className="fr-btn fr-btn--secondary w-full! justify-center! md:w-auto!">
-              Continuer sans recevoir ma mission
+              Retour
             </button>
-            <button type="submit" disabled={loading} className="fr-btn w-full! justify-center! md:w-62!">
-              {loading ? "Envoi en cours…" : "Recevoir ma mission"}
+            <button type="submit" disabled={loading} className="fr-btn w-full! justify-center! md:w-auto!">
+              {loading ? "Envoi en cours…" : "Recevoir la mission"}
             </button>
           </div>
         </form>

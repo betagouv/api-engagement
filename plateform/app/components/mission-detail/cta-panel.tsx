@@ -1,6 +1,6 @@
 import { formatCompensation, type MissionDetailResponse } from "@engagement/dto";
-import type { ReactNode } from "react";
-import EmailMissionModal from "~/components/mission-detail/email-mission-details-modal";
+import { type ReactNode, useState } from "react";
+import EmailMissionsModal from "~/components/results/email-missions-modal";
 import { trackMissionClickedFromDetail } from "~/services/tracking/events";
 import { buildMissionApplicationHref, formatStartDate } from "~/utils/mission";
 
@@ -21,6 +21,7 @@ function InfoRow({ icon, children }: { icon: string; children: ReactNode }) {
 }
 
 export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel = "", className = "" }: MissionCtaPanelProps) {
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
   const applicationHref = buildMissionApplicationHref(mission.applicationUrl, userScoringId);
@@ -70,7 +71,17 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
           Découvrir la mission
         </a>
 
-        <EmailMissionModal missionId={mission.id} publisherId={mission.publisherId} userScoringId={userScoringId} />
+        <button type="button" onClick={() => setEmailModalOpen(true)} className="fr-btn fr-btn--secondary w-full! justify-center!">
+          Recevoir cette mission par e-mail
+        </button>
+        <EmailMissionsModal
+          userScoringId={userScoringId}
+          signupSource="mission_detail"
+          missionId={mission.id}
+          publisherId={mission.publisherId ?? ""}
+          open={emailModalOpen}
+          onOpenChange={setEmailModalOpen}
+        />
 
         {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center!">{deadlineLabel}</p>}
       </div>

@@ -68,38 +68,44 @@ export default function Presentation() {
               Pas le bon moment ?<br />
               On vous prévient
             </h3>
-            <p className="fr-text--lead text-title-grey! mb-0!">On vous envoie des idées de missions une fois par mois près de chez vous.</p>
+            <p className="fr-text--lead text-title-grey! mb-0!">1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement.</p>
 
             {success ? (
               <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
-                <p>Votre inscription est bien prise en compte. À très vite dans votre boîte mail !</p>
+                <p>C'est noté ! Vous recevrez chaque mois de nouvelles missions et des actualités sur l'engagement.</p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <form onSubmit={handleSubmit}>
                 <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
                   <label className="fr-label" htmlFor="presentation-newsletter-email">
-                    E-mail
+                    Votre adresse e-mail
+                    <span className="fr-hint-text">Format attendu : nom@domaine.fr</span>
                   </label>
-                  <input
-                    id="presentation-newsletter-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    aria-required="true"
-                    aria-invalid={error ? true : undefined}
-                    aria-describedby={error ? "presentation-newsletter-email-messages" : undefined}
-                    className="fr-input"
-                  />
+                  <div className="fr-input-wrap fr-input-wrap--addon">
+                    <input
+                      id="presentation-newsletter-email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      aria-required="true"
+                      aria-invalid={error ? true : undefined}
+                      aria-describedby={`presentation-newsletter-email-hint ${error ? "presentation-newsletter-email-messages" : ""}`}
+                      className="fr-input"
+                    />
+                    <button type="submit" disabled={loading} className="fr-btn shrink-0! whitespace-nowrap!">
+                      {loading ? "Inscription en cours…" : "Je m'inscris"}
+                    </button>
+                  </div>
                   {error && (
                     <div className="fr-messages-group" id="presentation-newsletter-email-messages" role="alert">
                       <p className="fr-message fr-message--error">{error}</p>
                     </div>
                   )}
                 </div>
-                <button type="submit" disabled={loading} className="fr-btn fr-btn--secondary w-full! justify-center!">
-                  {loading ? "Inscription en cours…" : "Je m'inscris"}
-                </button>
+                <p id="presentation-newsletter-email-hint" className="fr-hint-text mt-2! mb-0!">
+                  Vous pouvez vous désinscrire en un clic depuis chaque e-mail.
+                </p>
               </form>
             )}
           </div>

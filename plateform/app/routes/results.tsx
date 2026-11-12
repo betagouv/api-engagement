@@ -3,8 +3,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router";
 import BetaBanner from "~/components/layout/beta-banner";
 import { FooterContent } from "~/components/layout/footer";
-import Newsletter from "~/components/layout/newsletter";
-import Partners from "~/components/layout/partners";
 import MatchMissionCard from "~/components/missions/match-mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
 import LazyMissionMap from "~/components/results/lazy-mission-map";
@@ -294,13 +292,6 @@ export default function ResultsPage() {
               onPageChange={handlePageChange}
             />
 
-            <Newsletter
-              title="Reçois tes missions par e-mail"
-              subtitle="1 e-mail par mois avec les missions qui pourraient t'intéresser."
-              ctaText="Recevoir mes missions"
-              hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-            />
-            <Partners style="compact" />
             <FooterContent landmark={false} />
           </BottomSheet>
 
@@ -414,14 +405,6 @@ export default function ResultsPage() {
           </section>
           <MatchingDebugModal items={items} userValues={userValues} />
         </GradientBg>
-
-        <Newsletter
-          title="Reçois tes missions par e-mail"
-          subtitle="1 e-mail par mois avec les missions qui pourraient t'intéresser."
-          ctaText="Recevoir mes missions"
-          hintText="En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
-        />
-        <Partners style="compact" />
       </main>
       <EmailMissionsModal
         userScoringId={userScoringId}

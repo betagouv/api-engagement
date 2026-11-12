@@ -205,7 +205,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         />
       );
     case "blocks.newsletter":
-      return <Newsletter title={block.title} subtitle={block.subtitle} ctaText={block.ctaText} hintText={block.hintText} />;
+      return <Newsletter title={block.title} subtitle={block.subtitle} ctaText={block.ctaText} hintText={block.hintText} signupSource="cms_newsletter" />;
     case "blocks.missions-browser": {
       const results = context.browsersByBlock[index];
       if (!results) return null;
