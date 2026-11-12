@@ -13,7 +13,6 @@ export const userScoringRepository = {
     return prisma.userScoring.findUnique({
       where: { id },
       select: {
-        answers: true,
         geo: { select: { address: true, city: true } },
         values: { select: { taxonomyKey: true, valueKey: true } },
       },
@@ -22,7 +21,6 @@ export const userScoringRepository = {
 
   create(params: {
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
-    answeredValues: Array<{ taxonomyKey: string; valueKey: string }>;
     geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string; address?: string; city?: string };
     distinctId?: string;
     missionAlertEnabled: boolean;
@@ -31,7 +29,6 @@ export const userScoringRepository = {
       data: {
         distinctId: params.distinctId,
         missionAlertEnabled: params.missionAlertEnabled,
-        answers: params.answeredValues,
         ...(params.values.length
           ? {
               values: {
@@ -66,7 +63,6 @@ export const userScoringRepository = {
   update(params: {
     userScoringId: string;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
-    answeredValues: Array<{ taxonomyKey: string; valueKey: string }>;
     replaceAnswers: boolean;
     geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string; address?: string; city?: string };
     missionAlertEnabled?: boolean;
@@ -104,7 +100,6 @@ export const userScoringRepository = {
         where: { id: params.userScoringId },
         data: {
           ...(params.missionAlertEnabled === undefined ? { updatedAt: new Date() } : { missionAlertEnabled: params.missionAlertEnabled }),
-          ...(params.replaceAnswers ? { answers: params.answeredValues } : {}),
           ...(params.geo
             ? {
                 geo: {

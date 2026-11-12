@@ -268,9 +268,8 @@ export const sendMissionEmail = async (input: SendMissionEmailRequest): Promise<
     return savedResult.ok ? { status: "sent" } : { status: "failed" };
   }
 
-  // Les scorings antérieurs à la colonne `answers` n'ont que les valeurs de scoring (sans les réponses neutres).
-  const answeredValues = Array.isArray(emailContext?.answers) ? (emailContext.answers as Array<{ taxonomyKey: string; valueKey: string }>) : scoringValues;
-  const answers = buildQuizAnswers(emailContext?.geo?.address ?? null, answeredValues);
+  // Les réponses neutres (« peu importe », « une cause qui me tient à cœur »…) ne sont pas enregistrées : elles ne sont pas rappelées.
+  const answers = buildQuizAnswers(emailContext?.geo?.address ?? null, scoringValues);
   const emailResult = await sendTemplate(TEMPLATE_IDS.TTM_MISSIONS_LISTING, {
     emailTo: [input.email],
     params: {

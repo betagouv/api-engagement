@@ -700,7 +700,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(params.missionCount).toBe(2);
     expect(params.answersHtml).toContain("Tu nous as dit :");
     expect(params.answersHtml).toContain("Rechercher des missions à 5 Place Victor Hugo 38000 Grenoble");
-    expect(params.answersHtml).toContain("“Je veux aider une cause qui me tient à cœur”");
+    expect(params.answersHtml).not.toContain("“Je veux aider une cause qui me tient à cœur”");
     expect(params.answersHtml).toContain("“Une mission ponctuelle, sur une journée”");
     expect(params.answersHtml).toContain("“Numérique”");
   });
