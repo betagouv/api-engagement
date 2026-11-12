@@ -3,9 +3,13 @@
   "info": {
     "displayName": "Hero",
     "icon": "picture",
-    "description": "Titre, texte, pastilles et boutons. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz)."
+    "description": "Titre, texte, pastilles et boutons. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz), ou recherche par localisation si la page a une liste de missions filtrable."
   },
   "attributes": {
+    "badge": {
+      "type": "string",
+      "description": "Pastille au-dessus du titre (ex. : Environnement et animaux)."
+    },
     "title": {
       "type": "string",
       "required": true

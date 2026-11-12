@@ -33,6 +33,8 @@ const POPULATE = [
   "populate[blocks][on][blocks.accordion][populate]=*",
   "populate[blocks][on][blocks.partners][populate][partners][populate]=*",
   "populate[blocks][on][blocks.newsletter][populate]=*",
+  "populate[blocks][on][blocks.missions-browser][populate]=*",
+  "populate[blocks][on][blocks.quote-wall][populate][quotes][populate]=*",
 ].join("&");
 
 // Contenu publié uniquement (pas de brouillon côté plateform).

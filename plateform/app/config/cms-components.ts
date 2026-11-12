@@ -74,6 +74,24 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Avec une pastille (thématique)",
+    block: {
+      __component: "blocks.hero",
+      badge: "Environnement et animaux",
+      title: "Prends soin de la planète, à ton rythme",
+      description: "Nettoyage de berges, jardins partagés, refuges pour animaux… Tu choisis la mission qui te ressemble.",
+      tags: [],
+      primaryLabel: null,
+      primaryUrl: null,
+      secondaryLabel: null,
+      secondaryUrl: null,
+      hint: null,
+      image: null,
+      imageMobile: null,
+      visual: "none",
+    },
+  },
+  {
     label: "Habillage de campagne « chacun_pour_tous »",
     block: {
       __component: "blocks.hero",
@@ -271,6 +289,22 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       subtitle: "1 email par mois avec des missions qui pourraient t'intéresser.",
       ctaText: "Recevoir mes missions",
       hintText: "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment.",
+    },
+  },
+  {
+    label: "Limitée à un domaine (filtre Domaines masqué)",
+    block: { __component: "blocks.missions-browser", dispositif: null, domaineEngagement: "environnement_animaux" },
+  },
+  {
+    label: "Exemple",
+    block: {
+      __component: "blocks.quote-wall",
+      title: "Des histoires vraies\nqui donnent ==envie d'agir==",
+      quotes: [
+        { quote: "J'ai découvert un collectif et un vrai sens à mes week-ends.", name: "Camille", role: "Bénévole depuis 2024", image: media(histoire1) },
+        { quote: "Mon service civique m'a aidé à choisir mon orientation.", name: "Yanis", role: "Volontaire en service civique", image: media(testimonialSolidarity) },
+        { quote: "On apprend autant qu'on donne.", name: "Inès", role: "Réserviste depuis 2023", image: media(histoire2) },
+      ],
     },
   },
 ];

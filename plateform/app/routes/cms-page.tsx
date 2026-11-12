@@ -2,7 +2,7 @@ import type { MissionBrowse, MissionBrowseFilters, MissionDetailResponse } from 
 import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
-import CmsBlocks from "~/components/cms";
+import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
 import { getCmsPage } from "~/services/cms.server";
 import { browseMissions, getMissionDetail } from "~/services/api/missions";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -10,6 +10,7 @@ import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import type { CmsBlock } from "~/types/cms";
+import { buildLandingBrowseFilters, getLandingMissionsConfig } from "~/utils/landing-missions";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/cms-page";
@@ -45,8 +46,21 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const missionsByBlock: Record<number, MissionBrowse[]> = {};
   // Mission de chaque bloc « Fiche mission » : absente (introuvable, non diffusée, API indisponible) → bloc ignoré.
   const missionDetailsByBlock: Record<number, MissionDetailResponse> = {};
+  // Page de résultats du bloc « Liste de missions filtrable » : filtres et page lus dans l'URL.
+  const browsersByBlock: Record<number, CmsBrowserResults> = {};
   await Promise.all(
     page.blocks.map(async (block: CmsBlock, index: number) => {
+      if (block.__component === "blocks.missions-browser") {
+        const filters = buildLandingBrowseFilters(new URL(request.url).searchParams, getLandingMissionsConfig(block));
+        const browsePage = filters.page ?? 1;
+        try {
+          const res = await browseMissions(filters, request);
+          browsersByBlock[index] = { missions: res.data, total: res.total, page: browsePage };
+        } catch {
+          browsersByBlock[index] = { missions: [], total: 0, page: browsePage };
+        }
+        return;
+      }
       if (block.__component === "blocks.mission-detail") {
         try {
           missionDetailsByBlock[index] = await getMissionDetail(block.missionId, request);
@@ -68,11 +82,11 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }),
   );
 
-  return { page, missionsByBlock, missionDetailsByBlock };
+  return { page, missionsByBlock, missionDetailsByBlock, browsersByBlock };
 }
 
 export default function CmsLanding() {
-  const { page, missionsByBlock, missionDetailsByBlock } = useLoaderData<typeof loader>();
+  const { page, missionsByBlock, missionDetailsByBlock, browsersByBlock } = useLoaderData<typeof loader>();
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
@@ -102,6 +116,7 @@ export default function CmsLanding() {
     onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
   });
 
+  const hasMissionsBrowser = page.blocks.some((block) => block.__component === "blocks.missions-browser");
   // Un hero ou une fiche mission affichée porte déjà le h1 ; sinon, le titre de la page en tient lieu.
   const hasHero = page.blocks.some((block, index) => block.__component === "blocks.hero" || missionDetailsByBlock[index]);
 
@@ -112,7 +127,10 @@ export default function CmsLanding() {
           <h1 className="mb-0!">{page.title}</h1>
         </div>
       )}
-      <CmsBlocks blocks={page.blocks} context={{ landing, path: pathname, missionsByBlock, missionDetailsByBlock, onStartQuiz, missionsCta }} />
+      <CmsBlocks
+        blocks={page.blocks}
+        context={{ landing, path: pathname, missionsByBlock, missionDetailsByBlock, browsersByBlock, hasMissionsBrowser, onStartQuiz, missionsCta }}
+      />
     </main>
   );
 }

@@ -1,0 +1,193 @@
+{
+  "title": "Engage-toi pour la sécurité de tous",
+  "slug": "securite-secours",
+  "seoTitle": "Missions sécurité et secours | Trouve ta mission",
+  "seoDescription": "Premiers secours, prévention, renfort lors d'événements, réserve… Tu es formé avant d'agir : quelques heures ou plusieurs années, tu choisis l'engagement qui te ressemble.",
+  "ogTitle": "Engage-toi pour la sécurité de tous",
+  "ogDescription": "Premiers secours, prévention, renfort lors d'événements, réserve… Tu es formé avant d'agir : quelques heures ou plusieurs années, tu choisis l'engagement qui te ressemble.",
+  "noindex": true,
+  "blocks": [
+    {
+      "__component": "blocks.hero",
+      "tags": [],
+      "visual": "none",
+      "badge": "Sécurité et secours",
+      "title": "Engage-toi pour la sécurité de tous",
+      "description": "Premiers secours, prévention, renfort lors d'événements, réserve… Tu es formé avant d'agir : quelques heures ou plusieurs années, tu choisis l'engagement qui te ressemble.",
+      "image": {
+        "upload": "landings/securite-secours/hero-securite-secours.webp"
+      }
+    },
+    {
+      "__component": "blocks.missions-browser",
+      "domaineEngagement": "securite_secours"
+    },
+    {
+      "__component": "blocks.etapes",
+      "items": [
+        {
+          "icon": "self_training",
+          "title": "Indique ta ville",
+          "description": "On ne te montre que les missions près de chez toi."
+        },
+        {
+          "icon": "search",
+          "title": "Choisis ta mission",
+          "description": "Durée, rythme, lieu : tout est indiqué avant de te lancer."
+        },
+        {
+          "icon": "community",
+          "title": "Contacte l'organisation",
+          "description": "Tu échanges directement avec la structure."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.benefits",
+      "title": "Bon pour toi,\nutile pour tous",
+      "benefits": [
+        {
+          "emoji": "🎓",
+          "label": "De l'expérience pour ton CV"
+        },
+        {
+          "emoji": "💼",
+          "label": "Des compétences"
+        },
+        {
+          "emoji": "🤝",
+          "label": "Des rencontres"
+        },
+        {
+          "emoji": "💸",
+          "label": "Avec ou sans indemnité"
+        },
+        {
+          "emoji": "❤️",
+          "label": "La fierté d'être utile"
+        }
+      ],
+      "newsletterTitle": "C'est pas le bon moment ?\nOn te livre les dernières missions par mail.",
+      "newsletterText": "Une fois par mois, des idées de missions adaptées à tes disponibilités et sélectionnées avec amour par l'équipe."
+    },
+    {
+      "__component": "blocks.faq",
+      "title": "C'est quoi ==TrouveTaMission.gouv.fr== ?",
+      "intro": "[TrouveTaMission.gouv.fr](/) est le service public numérique de l'engagement, accessible à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des citoyennes vers les missions d'intérêt général.",
+      "questions": [
+        {
+          "icon": "backpack",
+          "question": "Ça compte pour mon parcours !",
+          "answer": "Chaque mission t'apporte des compétences, des connaissances, une idée plus claire de ce que tu veux faire."
+        },
+        {
+          "icon": "compass",
+          "question": "Une vie pas boring du tout",
+          "answer": "On t'aide à trouver où tes forces rencontrent les besoins du monde."
+        },
+        {
+          "icon": "community",
+          "question": "Rencontre du beau monde",
+          "answer": "Découvre des personnes que tu n'aurais jamais croisées autrement et crée des liens."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.quote-wall",
+      "title": "Des histoires vraies\nqui donnent ==envie d'agir==",
+      "quotes": [
+        {
+          "quote": "Ça m'a vraiment aidé avec le déménagement à refaire mon cercle social. Aujourd'hui j'ai de vraies amitiés, ça m'a redonné de la motivation et un nouvel entourage. Chez les pompiers, on doit savoir compter les uns sur les autres. Je recommande à tout le monde de faire une expérience de bénévolat !",
+          "name": "Nacim",
+          "role": "Bénévole à la Croix Blanche et Pompier volontaire",
+          "image": {
+            "upload": "landings/temoignages/temoignage-1.webp"
+          }
+        },
+        {
+          "quote": "C'était ma première expérience de bénévolat, et sans doute l'une des plus marquantes ! J'ai eu la chance de contribuer à un projet enrichissant et de rencontrer des personnes inspirantes. C'était un réel plaisir de participer à ces événements qui ont su créer du lien social et promouvoir la culture. Je recommande fortement :)",
+          "name": "Victoria",
+          "role": "Bénévole pour Cosmos Arts à Vitry sur Seine",
+          "image": {
+            "upload": "landings/temoignages/temoignage-2.webp"
+          }
+        },
+        {
+          "quote": "Ce Service Civique m'a offert la possibilité d'agir concrètement, à ma mesure, pour l'environnement. Il a redonné du sens à mes gestes et à mes valeurs, dans une société où l'individualisme nous étouffe trop souvent.",
+          "name": "Camille",
+          "role": "Volontaire à la LPO",
+          "image": {
+            "upload": "landings/temoignages/temoignage-3.webp"
+          }
+        }
+      ]
+    },
+    {
+      "__component": "blocks.missions",
+      "title": "Il y a plein d'==autres façons d'aider==",
+      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Trouve la mission d'engagement qui te correspond !",
+      "slots": [
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "solidarite_inclusion"
+        },
+        {
+          "dispositif": "service_civique",
+          "domaineEngagement": "sport"
+        },
+        {
+          "dispositif": "sapeurs_pompiers",
+          "domaineEngagement": "securite_secours"
+        },
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "education"
+        }
+      ],
+      "fillWithRandom": true,
+      "examples": true,
+      "background": "creme"
+    },
+    {
+      "__component": "blocks.partners",
+      "title": "Toutes les missions d’engagement vérifiées par l'État",
+      "partners": [
+        {
+          "name": "Les réserves des armées",
+          "description": "Des missions indemnisées de réservistes.",
+          "logo": {
+            "upload": "logo/roc-logo.png"
+          }
+        },
+        {
+          "name": "JeVeuxAider.gouv.fr",
+          "description": "La plateforme publique du bénévolat.",
+          "logo": {
+            "upload": "logo/jva-logo.png"
+          }
+        },
+        {
+          "name": "Le Service Civique",
+          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+          "logo": {
+            "upload": "logo/asc-logo.png"
+          }
+        },
+        {
+          "name": "Sapeurs-pompiers de France",
+          "description": "Deviens sapeur-pompier volontaire près de chez toi.",
+          "logo": {
+            "upload": "logo/spv-logo.png"
+          }
+        },
+        {
+          "name": "Gendarmerie nationale",
+          "description": "Deviens gendarme près de chez toi.",
+          "logo": {
+            "upload": "logo/gendarmerie-logo.png"
+          }
+        }
+      ]
+    }
+  ]
+}

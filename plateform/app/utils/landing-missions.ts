@@ -8,6 +8,8 @@ export type LandingFilterKey = "departmentCode" | "tranche_age" | "activite" | "
 export type LandingMissionsConfig = {
   // Missions masquées partout : résultats, pages suivantes et compteurs des filtres.
   exclude?: MissionBrowseTaxonomyParams;
+  // Périmètre de la page (ex. réserve des armées) : toujours appliqué ; son filtre ne doit pas être affiché.
+  include?: MissionBrowseTaxonomyParams;
   // Avec une localisation choisie, garde aussi les missions à distance ou sans lieu précis (ex. réserves).
   includeRemote?: boolean;
   // Filtres affichés, dans l'ordre.
@@ -64,7 +66,19 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
     const values = getSelectedValues(searchParams, key);
     if (values.length) filters[key] = values;
   }
-  return filters;
+  return { ...filters, ...config.include };
+};
+
+// Tous les filtres de /missions, sauf ceux du dispositif et du domaine donnés, qui deviennent le périmètre (`include`)
+// de la liste. Missions à distance et réserves (sans département) toujours visibles.
+const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
+
+export const getLandingMissionsConfig = ({ dispositif, domaineEngagement }: { dispositif: string | null; domaineEngagement: string | null }): LandingMissionsConfig => {
+  const include: MissionBrowseTaxonomyParams = {
+    ...(dispositif && { dispositif: [dispositif] }),
+    ...(domaineEngagement && { domaine_engagement: [domaineEngagement] }),
+  };
+  return { include, includeRemote: true, filters: ALL_LANDING_FILTERS.filter((key) => !(key in include)) };
 };
 
 // Code département (format de la taxonomie : "01", "2A", "971"…) déduit d'un code postal français.

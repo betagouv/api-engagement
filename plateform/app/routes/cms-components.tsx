@@ -23,6 +23,8 @@ const CONTEXT: CmsBlocksContext = {
   path: "/_cms/components",
   missionsByBlock: { 0: CMS_COMPONENT_MISSIONS },
   missionDetailsByBlock: { 0: CMS_COMPONENT_MISSION_DETAIL },
+  browsersByBlock: { 0: { missions: CMS_COMPONENT_MISSIONS, total: CMS_COMPONENT_MISSIONS.length, page: 1 } },
+  hasMissionsBrowser: false,
   onStartQuiz: () => {},
   missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
 };

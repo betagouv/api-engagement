@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { buildLandingBrowseFilters, getDepartmentCodeFromPostcode, getPage, getPageWindow, getTotalPages, type LandingMissionsConfig } from "~/utils/landing-missions";
+import {
+  buildLandingBrowseFilters,
+  getLandingMissionsConfig,
+  getDepartmentCodeFromPostcode,
+  getPage,
+  getPageWindow,
+  getTotalPages,
+  type LandingMissionsConfig,
+} from "~/utils/landing-missions";
 
 const CONFIG: LandingMissionsConfig = {
   exclude: { dispositif: ["reserve_police_nationale"] },
@@ -86,5 +94,25 @@ describe("getPageWindow / getTotalPages", () => {
     expect(getTotalPages(12, true)).toBe(2);
     expect(getTotalPages(23, true)).toBe(2);
     expect(getTotalPages(24, true)).toBe(3);
+  });
+});
+
+describe("getLandingMissionsConfig", () => {
+  it("fait du dispositif choisi le périmètre de la page et masque son filtre", () => {
+    const config = getLandingMissionsConfig({ dispositif: "reserve_armees", domaineEngagement: null });
+    expect(config.include).toEqual({ dispositif: ["reserve_armees"] });
+    expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement"]);
+  });
+
+  it("applique toujours le périmètre, même si l'URL demande autre chose", () => {
+    const config = getLandingMissionsConfig({ dispositif: null, domaineEngagement: "environnement_animaux" });
+    const filters = buildLandingBrowseFilters(new URLSearchParams("domaine_engagement=sport&dispositif=benevolat"), config);
+    expect(filters.domaine_engagement).toEqual(["environnement_animaux"]);
+    expect(filters.dispositif).toEqual(["benevolat"]);
+    expect(filters.includeRemote).toBe(true);
+  });
+
+  it("propose tous les filtres sans périmètre", () => {
+    expect(getLandingMissionsConfig({ dispositif: null, domaineEngagement: null }).filters).toHaveLength(6);
   });
 });

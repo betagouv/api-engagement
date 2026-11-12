@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 
 import Temoignage1Webp from "~/assets/images/landings/defis-engagement/temoignage-1.webp";
@@ -28,6 +29,8 @@ const CAMILLE = {
   role: "Volontaire à la LPO",
 };
 
+type HistoireTemoignage = { quote: string; name: string; role: string };
+
 function Temoignage({ quote, name, role, className = "" }: { quote: string; name: string; role: string; className?: string }) {
   return (
     <figure className={`bg-blue-france-975 border-border-default-grey m-0! flex flex-col gap-6 rounded-2xl border p-3 md:p-4 lg:p-8 ${className}`}>
@@ -41,13 +44,31 @@ function Temoignage({ quote, name, role, className = "" }: { quote: string; name
   );
 }
 
-export default function Histoires({ cta }: { cta: LandingCta }) {
+// Le bloc « Mosaïque de témoignages » du CMS passe son titre, ses trois témoignages et ses trois photos (dans l'ordre
+// de la mosaïque) ; sans eux, contenu de la landing « Les défis de l'engagement ».
+export default function Histoires({
+  cta,
+  title,
+  temoignages = [NACIM, VICTORIA, CAMILLE],
+  images = [Temoignage1Webp, Temoignage2Webp, Temoignage3Webp],
+}: {
+  cta: LandingCta;
+  title?: ReactNode;
+  temoignages?: HistoireTemoignage[];
+  images?: string[];
+}) {
+  const [first, second, third] = temoignages;
+
   return (
     <section className="fr-container">
       <h2 className="fr-h1 text-center mb-4! md:mb-8!">
-        Des histoires vraies
-        <br />
-        qui donnent <Highlight className="bg-[#fbe769] dark:bg-transparent">envie d'agir</Highlight>
+        {title ?? (
+          <>
+            Des histoires vraies
+            <br />
+            qui donnent <Highlight className="bg-[#fbe769] dark:bg-transparent">envie d'agir</Highlight>
+          </>
+        )}
       </h2>
 
       {/* Mosaïque en colonnes dont la répartition change à chaque palier :
@@ -57,20 +78,20 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
           Victoria change de colonne entre tablette et desktop : son bloc est rendu deux fois, un seul est affiché. */}
       <div className="fr-mb-6w grid grid-cols-1 items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-6">
-          <Temoignage {...NACIM} />
-          <img src={Temoignage1Webp} alt="" loading="lazy" className="aspect-2/1 w-full rounded-2xl object-cover" />
-          <Temoignage {...VICTORIA} className="lg:hidden" />
+          <Temoignage {...first} />
+          <img src={images[0]} alt="" loading="lazy" className="aspect-2/1 w-full rounded-2xl object-cover" />
+          <Temoignage {...second} className="lg:hidden" />
         </div>
 
         <div className="flex flex-col gap-6 lg:contents">
           <div className="flex flex-col gap-6">
-            <img src={Temoignage2Webp} alt="" loading="lazy" className="h-47.5 w-full rounded-2xl object-cover object-[center_30%] md:h-104 lg:h-92" />
-            <Temoignage {...VICTORIA} className="hidden lg:flex" />
+            <img src={images[1]} alt="" loading="lazy" className="h-47.5 w-full rounded-2xl object-cover object-[center_30%] md:h-104 lg:h-92" />
+            <Temoignage {...second} className="hidden lg:flex" />
           </div>
 
           <div className="flex flex-col gap-6">
-            <Temoignage {...CAMILLE} />
-            <img src={Temoignage3Webp} alt="" loading="lazy" className="aspect-3/2 w-full rounded-2xl object-cover" />
+            <Temoignage {...third} />
+            <img src={images[2]} alt="" loading="lazy" className="aspect-3/2 w-full rounded-2xl object-cover" />
           </div>
         </div>
       </div>
