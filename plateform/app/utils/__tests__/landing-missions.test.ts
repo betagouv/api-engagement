@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildLandingBrowseFilters,
-  getCmsBrowserConfig,
+  getLandingMissionsConfig,
   getDepartmentCodeFromPostcode,
   getPage,
   getPageWindow,
@@ -85,15 +85,15 @@ describe("getPageWindow / getTotalPages", () => {
   });
 });
 
-describe("getCmsBrowserConfig", () => {
+describe("getLandingMissionsConfig", () => {
   it("fait du dispositif choisi le périmètre de la page et masque son filtre", () => {
-    const config = getCmsBrowserConfig({ dispositif: "reserve_armees", domaineEngagement: null });
+    const config = getLandingMissionsConfig({ dispositif: "reserve_armees", domaineEngagement: null });
     expect(config.include).toEqual({ dispositif: ["reserve_armees"] });
     expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement"]);
   });
 
   it("applique toujours le périmètre, même si l'URL demande autre chose", () => {
-    const config = getCmsBrowserConfig({ dispositif: null, domaineEngagement: "environnement_animaux" });
+    const config = getLandingMissionsConfig({ dispositif: null, domaineEngagement: "environnement_animaux" });
     const filters = buildLandingBrowseFilters(new URLSearchParams("domaine_engagement=sport&dispositif=benevolat"), config);
     expect(filters.domaine_engagement).toEqual(["environnement_animaux"]);
     expect(filters.dispositif).toEqual(["benevolat"]);
@@ -101,6 +101,6 @@ describe("getCmsBrowserConfig", () => {
   });
 
   it("propose tous les filtres sans périmètre", () => {
-    expect(getCmsBrowserConfig({ dispositif: null, domaineEngagement: null }).filters).toHaveLength(6);
+    expect(getLandingMissionsConfig({ dispositif: null, domaineEngagement: null }).filters).toHaveLength(6);
   });
 });

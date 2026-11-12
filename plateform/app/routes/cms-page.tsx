@@ -10,7 +10,7 @@ import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import type { CmsBlock } from "~/types/cms";
-import { buildLandingBrowseFilters, getCmsBrowserConfig } from "~/utils/landing-missions";
+import { buildLandingBrowseFilters, getLandingMissionsConfig } from "~/utils/landing-missions";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/cms-page";
@@ -51,7 +51,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   await Promise.all(
     page.blocks.map(async (block: CmsBlock, index: number) => {
       if (block.__component === "blocks.missions-browser") {
-        const filters = buildLandingBrowseFilters(new URL(request.url).searchParams, getCmsBrowserConfig(block));
+        const filters = buildLandingBrowseFilters(new URL(request.url).searchParams, getLandingMissionsConfig(block));
         const browsePage = filters.page ?? 1;
         try {
           const res = await browseMissions(filters, request);

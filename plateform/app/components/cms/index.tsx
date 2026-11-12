@@ -9,7 +9,7 @@ import Missions from "~/components/landings/missions";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import MissionsBrowser from "~/components/missions/missions-browser";
-import { getCmsBrowserConfig } from "~/utils/landing-missions";
+import { getLandingMissionsConfig } from "~/utils/landing-missions";
 import Accordion from "./accordion";
 import Benefits from "./benefits";
 import Cards from "./cards";
@@ -208,7 +208,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           missions={results.missions}
           total={results.total}
           page={results.page}
-          filters={getCmsBrowserConfig(block).filters}
+          filters={getLandingMissionsConfig(block).filters}
           pageName={context.landing}
           backTo={context.path}
           overlapHero={false}

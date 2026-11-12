@@ -64,16 +64,16 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
   return { ...filters, ...config.include };
 };
 
-// Liste filtrable d'une page du CMS : mêmes filtres que /missions, sauf ceux du dispositif et du domaine choisis dans
-// le bloc, qui deviennent le périmètre de la page. Missions à distance et réserves (sans département) toujours visibles.
-const CMS_BROWSER_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
+// Tous les filtres de /missions, sauf ceux du dispositif et du domaine donnés, qui deviennent le périmètre (`include`)
+// de la liste. Missions à distance et réserves (sans département) toujours visibles.
+const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
 
-export const getCmsBrowserConfig = ({ dispositif, domaineEngagement }: { dispositif: string | null; domaineEngagement: string | null }): LandingMissionsConfig => {
+export const getLandingMissionsConfig = ({ dispositif, domaineEngagement }: { dispositif: string | null; domaineEngagement: string | null }): LandingMissionsConfig => {
   const include: MissionBrowseTaxonomyParams = {
     ...(dispositif && { dispositif: [dispositif] }),
     ...(domaineEngagement && { domaine_engagement: [domaineEngagement] }),
   };
-  return { include, includeRemote: true, filters: CMS_BROWSER_FILTERS.filter((key) => !(key in include)) };
+  return { include, includeRemote: true, filters: ALL_LANDING_FILTERS.filter((key) => !(key in include)) };
 };
 
 // Code département (format de la taxonomie : "01", "2A", "971"…) déduit d'un code postal français.
