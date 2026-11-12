@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Hero",
     "icon": "picture",
-    "description": "Titre, texte, pastilles et boutons. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz), ou recherche par localisation si la page a une liste de missions filtrable."
+    "description": "Titre, texte, pastilles et boutons. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz), recherche de mission par adresse si un dispositif de recherche est choisi, ou recherche par localisation si la page a une liste de missions filtrable."
   },
   "attributes": {
     "badge": {
@@ -26,7 +26,7 @@
     },
     "primaryLabel": {
       "type": "string",
-      "description": "Bouton principal (ex. : Je candidate). Remplace le bouton quiz si le lien est renseigné."
+      "description": "Bouton principal (ex. : Je candidate). Remplace le bouton quiz si le lien est renseigné. Avec une recherche par adresse : libellé du bouton de recherche (ex. : Trouve ta caserne)."
     },
     "primaryUrl": {
       "type": "string",
@@ -42,6 +42,18 @@
     "hint": {
       "type": "string",
       "description": "Texte en italique sous les boutons."
+    },
+    "searchDispositif": {
+      "type": "enumeration",
+      "enum": [
+        "benevolat",
+        "service_civique",
+        "sapeurs_pompiers",
+        "reserve_gendarmerie",
+        "reserve_police_nationale",
+        "reserve_armees"
+      ],
+      "description": "Recherche par adresse à la place des boutons (ex. : sapeurs_pompiers). Ouvre la mission de ce dispositif dans le département choisi, sinon les missions du département. Vide : pas de recherche."
     },
     "image": {
       "type": "media",

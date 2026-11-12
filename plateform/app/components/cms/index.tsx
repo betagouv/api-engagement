@@ -43,6 +43,8 @@ export type CmsBlocksContext = {
   // La page contient une liste de missions filtrable (le hero affiche alors la recherche par localisation).
   hasMissionsBrowser: boolean;
   onStartQuiz: (section: QuizEntrySection) => void;
+  // Recherche par adresse du hero : ouvre la mission du dispositif dans le département, sinon la liste du département.
+  onLocationSearch: (dispositif: string, location: { departmentCode: string; label: string }) => Promise<void>;
   missionsCta: (section: CtaSection) => LandingCta;
 };
 
@@ -63,8 +65,9 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       // Sans pastille ni bouton renseigné : hero historique avec le seul bouton quiz, sauf au-dessus d'une liste de
       // missions filtrable : sa recherche par localisation prend la place du bouton sur mobile et tablette (sur
       // desktop, elle est dans la colonne de filtres).
-      const withActions = block.tags.length > 0 || primary || secondary;
-      const withQuiz = !withActions && !context.hasMissionsBrowser;
+      const { searchDispositif } = block;
+      const withActions = !searchDispositif && (block.tags.length > 0 || primary || secondary);
+      const withQuiz = !searchDispositif && !withActions && !context.hasMissionsBrowser;
       return (
         <Hero
           badge={block.badge ?? undefined}
@@ -76,7 +79,15 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           action={
             <>
               {withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
-              {context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
+              {searchDispositif && (
+                <LocationFilter
+                  id="hero-recherche"
+                  submitLabel={block.primaryLabel ?? "Trouve ta mission"}
+                  onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
+                  className="md:max-w-98 lg:max-w-149"
+                />
+              )}
+              {!searchDispositif && context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
             </>
           }
           className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}

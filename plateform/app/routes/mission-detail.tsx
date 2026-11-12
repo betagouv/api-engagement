@@ -1,4 +1,4 @@
-import type { MissionDetailResponse } from "@engagement/dto";
+import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams, useSearchParams } from "react-router";
 import type { Route } from "./+types/mission-detail";
@@ -12,6 +12,7 @@ export async function clientLoader() {
   return null;
 }
 
+import Missions from "~/components/landings/missions";
 import BetaBanner from "~/components/layout/beta-banner";
 import MissionCtaPanel from "~/components/mission-detail/cta-panel";
 import MissionDescriptionCard from "~/components/mission-detail/description-card";
@@ -19,10 +20,11 @@ import MissionHeroCard from "~/components/mission-detail/hero-card";
 import MissionLocationCard from "~/components/mission-detail/location-card";
 import SimilarMissions from "~/components/mission-detail/similar-missions";
 import GradientBg from "~/components/ui/gradient-bg";
-import { fetchMissionDetail } from "~/services/mission-browse";
+import Highlight from "~/components/ui/highlight";
+import { browseMissions, fetchMissionDetail } from "~/services/mission-browse";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/services/tracking/events";
-import type { MissionDetailNavState } from "~/services/tracking/types";
+import { trackCtaClicked, trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/services/tracking/events";
+import type { LandingName, MissionDetailNavState } from "~/services/tracking/types";
 import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
 import { buildMissionApplicationHref, formatDeadline } from "~/utils/mission";
 import { pageMeta } from "~/utils/seo";
@@ -35,8 +37,11 @@ export default function MissionDetailPage() {
   const [mission, setMission] = useState<MissionDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [otherMissions, setOtherMissions] = useState<MissionBrowse[]>([]);
   const viewedFiredRef = useRef<string | null>(null);
   const navState = location.state as MissionDetailNavState | null;
+  // Fiche ouverte depuis une landing (ex. recherche « Trouve ta caserne ») : la landing d'origine, pour le carrousel du bas.
+  const fromLanding = !userScoringId && navState?.backTo && navState.entrySource.startsWith("landing_") ? (navState.entrySource as LandingName) : null;
 
   useEffect(() => {
     if (!missionId) return;
@@ -46,6 +51,14 @@ export default function MissionDetailPage() {
       .catch(() => setError("Impossible de charger cette mission."))
       .finally(() => setLoading(false));
   }, [missionId, addressId]);
+
+  // Carrousel « Il y a plein d'autres façons d'aider » : 10 missions d'une page tirée au hasard parmi les 10 premières.
+  useEffect(() => {
+    if (!fromLanding || !missionId) return;
+    browseMissions({ pageSize: 10, page: Math.ceil(Math.random() * 10) })
+      .then(({ data }) => setOtherMissions(data.filter((other) => other.id !== missionId)))
+      .catch(() => setOtherMissions([]));
+  }, [fromLanding, missionId]);
 
   // Fiche issue d'un résultat (/results/:userScoringId/missions/:id) : le userScoringId de l'URL est
   // la clé de session quiz → on l'enregistre comme super property (quiz_session_id) pour tous les
@@ -155,6 +168,29 @@ export default function MissionDetailPage() {
         </GradientBg>
 
         {userScoringId && <SimilarMissions userScoringId={userScoringId} currentMissionId={mission.id} />}
+
+        {fromLanding && navState?.backTo && otherMissions.length > 0 && (
+          <div className="pb-28 md:pb-16">
+            <Missions
+              missions={otherMissions}
+              title={
+                <>
+                  Il y a plein d’autres <Highlight className="bg-[#9ef9be] dark:bg-transparent">façons d’aider</Highlight>
+                </>
+              }
+              description="Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s’engager pour son pays… Trouve la mission d’engagement qui te correspond !"
+              cta={{
+                to: "/quiz/age",
+                label: "Trouve ta mission",
+                onClick: () =>
+                  trackCtaClicked({ pageName: fromLanding, ctaSection: "mission_detail", ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" }),
+              }}
+              landing={fromLanding}
+              backTo={navState.backTo}
+              className="bg-brown-cafe-creme-975"
+            />
+          </div>
+        )}
 
         <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
           <a

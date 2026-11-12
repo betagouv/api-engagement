@@ -3,11 +3,13 @@ import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
 import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
+import { LOCATION_LABEL_PARAM } from "~/components/landings/location-filter";
 import { getCmsPage } from "~/services/cms.server";
 import { browseMissions, getMissionDetail } from "~/services/api/missions";
+import { browseMissions as browseMissionsFromClient } from "~/services/mission-browse";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
-import type { CtaSection, LandingCta, LandingName, QuizEntrySection } from "~/services/tracking/types";
+import type { CtaSection, LandingCta, LandingName, MissionDetailNavState, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import type { CmsBlock } from "~/types/cms";
 import { buildLandingBrowseFilters, getLandingMissionsConfig } from "~/utils/landing-missions";
@@ -111,6 +113,19 @@ export default function CmsLanding() {
     navigate("/quiz/age", { state: { entrySource: `${landing}_cta`, entrySection: section } });
   };
 
+  // Recherche par adresse du hero (ex. « Trouve ta caserne ») : la première mission du dispositif dans le département
+  // (ex. celle du SDIS), sinon les missions du département (ex. Paris, où les secours relèvent de la BSPP).
+  const onLocationSearch = async (dispositif: string, { departmentCode, label }: { departmentCode: string; label: string }) => {
+    const { data } = await browseMissionsFromClient({ dispositif: [dispositif], departmentCode: [departmentCode], pageSize: 1 });
+    const [mission] = data;
+    if (mission) {
+      navigate(`/missions/${mission.id}`, { state: { entrySource: landing, backTo: pathname } satisfies MissionDetailNavState });
+      return;
+    }
+    const params = new URLSearchParams({ departmentCode, [LOCATION_LABEL_PARAM]: label });
+    navigate(`/missions?${params}`);
+  };
+
   const missionsCta = (section: CtaSection): LandingCta => ({
     ...MISSIONS_CTA,
     onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
@@ -129,7 +144,7 @@ export default function CmsLanding() {
       )}
       <CmsBlocks
         blocks={page.blocks}
-        context={{ landing, path: pathname, missionsByBlock, missionDetailsByBlock, browsersByBlock, hasMissionsBrowser, onStartQuiz, missionsCta }}
+        context={{ landing, path: pathname, missionsByBlock, missionDetailsByBlock, browsersByBlock, hasMissionsBrowser, onStartQuiz, onLocationSearch, missionsCta }}
       />
     </main>
   );
