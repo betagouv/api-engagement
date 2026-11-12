@@ -32,9 +32,11 @@ const formatPostalCode = (postalCode: string) => {
   return "";
 };
 
-const getDepartmentCode = (departmentCode: string, postalCode: string) => {
-  if (departmentCode && DEPARTMENTS[departmentCode]) {
-    return departmentCode;
+const getDepartmentCode = (departmentCode: string | number, postalCode: string): string => {
+  // Le parseur XML peut convertir les codes numériques en nombres (75, 1, 971…).
+  const normalizedCode = String(departmentCode ?? "").trim().padStart(2, "0");
+  if (DEPARTMENTS[normalizedCode]) {
+    return normalizedCode;
   }
 
   let code;

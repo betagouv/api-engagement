@@ -7,7 +7,7 @@ import { MissionUpdatePatch } from "@/types/mission";
 import type { PublisherRecord } from "@/types/publisher";
 import { PublisherOrganizationRecord } from "@/types/publisher-organization";
 import { getJobTime } from "@/utils/job";
-import { getMissionChanges } from "@/utils/mission";
+import { getMissionChanges, IMPORT_FIELDS_TO_COMPARE } from "@/utils/mission";
 import { getPublisherOrganizationChanges } from "@/utils/publisher-organization";
 
 type UpsertOrganizationResult = {
@@ -73,7 +73,11 @@ export const upsertMission = async (input: ImportedMission, existing: MissionRec
   }
 
   // Check if update is needed
-  const changes = getMissionChanges(existing, input);
+  // Les champs absents de l'objet importé restent gérés par les autres circuits.
+  // Une propriété présente avec une valeur vide doit en revanche être comparée.
+  const fieldsToCompare = IMPORT_FIELDS_TO_COMPARE.filter((field) => Object.prototype.hasOwnProperty.call(input, field));
+  const missionToCompare = Object.prototype.hasOwnProperty.call(input, "addresses") ? input : { ...input, addresses: existing.addresses };
+  const changes = getMissionChanges(existing, missionToCompare, fieldsToCompare);
   if (!changes) {
     return {
       action: "unchanged",
