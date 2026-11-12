@@ -7,7 +7,7 @@ import { publisherDemarcheSimplifieesService } from "@/services/publisher-demarc
 import { statEventService } from "@/services/stat-event";
 import { StatEventRecord } from "@/types";
 
-const FIFTEEN_DAYS_IN_MS = 15 * 24 * 60 * 60 * 1000;
+const THIRTY_DAYS_IN_MS = 30 * 24 * 60 * 60 * 1000;
 
 interface DemarchesSimplifieesJobPayload {}
 
@@ -20,7 +20,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
     const start = new Date();
     console.log(`[Démarches Simplifiées] Starting at ${start.toISOString()}`);
 
-    const createdSince = new Date(start.getTime() - FIFTEEN_DAYS_IN_MS);
+    const createdSince = new Date(start.getTime() - THIRTY_DAYS_IN_MS);
     const demarches = await publisherDemarcheSimplifieesService.findAllWithToken();
 
     let submitted = 0;
@@ -32,7 +32,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
 
     for (const demarche of demarches) {
       const { number: demarcheNumber, token } = demarche;
-      // 1. Récupérer les dossiers de la démarche créés sur les 15 derniers jours (avec le token du partenaire s'il en a fourni un).
+      // 1. Récupérer les dossiers de la démarche créés sur les 30 derniers jours (avec le token du partenaire s'il en a fourni un).
       const dossiersResult = await demarchesSimplifiees.getAllDossiers(demarcheNumber, createdSince, token);
       if (!dossiersResult.ok) {
         captureException("[Démarches Simplifiées] Failed to fetch dossiers", { extra: { demarcheNumber, message: dossiersResult.message } });
@@ -74,7 +74,7 @@ export class DemarchesSimplifieesApplyImportHandler implements BaseHandler<Demar
         const createdAt = dossier.dateDepot ? new Date(dossier.dateDepot) : new Date();
         const candidateAttributes = extractCandidateAttributes(dossier, fields, createdAt);
 
-        // Idempotence : ne pas recréer un apply déjà importé pour ce clic (le job repasse sur les 15 derniers jours).
+        // Idempotence : ne pas recréer un apply déjà importé pour ce clic (le job repasse sur les 30 derniers jours).
         // On complète en revanche ses attributs candidat s'il lui en manque (import antérieur, config des champs ajoutée après coup).
         const existingApply = await statEventService.findOneRecentStatEventByClickId({ type: "apply", clickId: click._id, since: createdSince });
         if (existingApply) {
