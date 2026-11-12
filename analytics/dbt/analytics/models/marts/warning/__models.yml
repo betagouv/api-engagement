@@ -29,7 +29,7 @@ models:
         description: Lien vers la procédure de traitement (nullable).
       - name: notified_at
         description: Date du mail d'alerte aux assignés (nullable).
-      - name: fixed_at
+      - name: resolved_at
         description: Date de résolution (nullable).
       - name: created_at
         description: Date de création de l'alerte.

@@ -17,8 +17,7 @@ export interface WarningRecord {
   publisherName: string | null;
   publisherLogo: string | null;
   seen: boolean;
-  fixed: boolean;
-  fixedAt: Date | null;
+  resolvedAt: Date | null;
   occurrences: number;
   status: WarningStatus;
   procedureUrl: string | null;
@@ -51,12 +50,13 @@ export interface WarningOccurrenceRecord {
 }
 
 export interface WarningFindParams {
-  fixed?: boolean;
+  /** Alertes non résolues. Ignoré si `status` est fourni. */
+  open?: boolean;
   publisherId?: string;
   type?: string;
   /** `null` = alertes sans clé ; `undefined` = pas de filtre. */
   itemId?: string | null;
-  status?: WarningStatus;
+  status?: WarningStatus | WarningStatus[];
   assigneeId?: string;
   unassigned?: boolean;
   createdAtGte?: Date;
@@ -71,9 +71,7 @@ export interface WarningCreateInput {
   description?: string | null;
   publisherId: string;
   seen?: boolean;
-  /** @deprecated Utiliser `status`. */
-  fixed?: boolean;
-  fixedAt?: Date | null;
+  resolvedAt?: Date | null;
   occurrences?: number;
   status?: WarningStatus;
   procedureUrl?: string | null;
@@ -90,9 +88,7 @@ export interface WarningUpdatePatch {
   description?: string | null;
   publisherId?: string;
   seen?: boolean;
-  /** @deprecated Utiliser `status`. */
-  fixed?: boolean;
-  fixedAt?: Date | null;
+  resolvedAt?: Date | null;
   occurrences?: number;
   /** Incrémente atomiquement `occurrences` (prioritaire sur `occurrences`). */
   occurrencesIncrement?: number;

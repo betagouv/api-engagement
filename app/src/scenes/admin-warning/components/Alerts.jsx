@@ -93,7 +93,6 @@ const Alerts = () => {
       setLoading(true);
       try {
         const res = await api.post("/warning/search", {
-          fixed: null,
           status: filters.status || undefined,
           type: filters.type || undefined,
           publisherId: filters.publisherId || undefined,
