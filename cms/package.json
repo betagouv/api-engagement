@@ -9,7 +9,7 @@
     "start": "strapi start",
     "seed": "ts-node scripts/seed.ts",
     "seed:pages": "ts-node scripts/seed-pages.ts",
-    "seed:remote": "ts-node scripts/seed-remote.ts",
+    "seed:remote": "node --env-file-if-exists=.env --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seed-remote.ts",
     "typecheck": "strapi ts:generate-types && tsc --noEmit",
     "prettier": "prettier --write . --plugin=prettier-plugin-organize-imports",
     "lint": "eslint ."

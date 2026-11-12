@@ -26,11 +26,13 @@ Pour ajouter une page de dev : créer `cms/seed/pages/<slug>.json` (s'inspirer d
 `seed-pages.ts` ne tourne qu'en local (il passe par la base). Pour un CMS déployé, `cms/scripts/seed-remote.ts` envoie les mêmes JSON par l'API REST :
 
 1. Dans l'admin de l'environnement : _Settings_ → _API Tokens_ → **Create new API Token**, type **Full access**, durée **7 days**.
-2. Depuis la racine du dépôt, une ou plusieurs pages par slug :
+2. Depuis `cms/`, une ou plusieurs pages par slug, ou toutes sans slug (Node ≥ 22.18, sans Docker ni `npm install` : le script n'a aucune dépendance) :
 
    ```bash
-   docker compose exec -T -e CMS_REMOTE_URL=https://<cms-staging> -e CMS_REMOTE_TOKEN=<jeton> cms npm run seed:remote -- sport education
+   CMS_REMOTE_URL=https://<cms-staging> CMS_REMOTE_TOKEN=<jeton> npm run seed:remote -- sport education
    ```
+
+   Les deux variables peuvent aussi être mises dans `cms/.env`, lu par le script ; celles passées en ligne de commande l'emportent.
 
 3. Supprimer le jeton dans l'admin.
 

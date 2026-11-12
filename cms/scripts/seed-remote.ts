@@ -1,15 +1,15 @@
 // Envoie les pages de `seed/pages/` vers un CMS déployé (staging, production) par son API REST, sans accès à la base.
-// Usage : `docker compose exec -T -e CMS_REMOTE_URL=https://… -e CMS_REMOTE_TOKEN=… cms npm run seed:remote -- <slug> [--replace]`
+// Usage, depuis `cms/` (sans Docker ni dépendances) : `CMS_REMOTE_URL=https://… CMS_REMOTE_TOKEN=… npm run seed:remote -- [slug…] [--replace]` (ou dans `cms/.env`).
+// Sans slug, toutes les pages de `seed/pages/` sont envoyées.
 // Jeton : Settings → API Tokens → type « Full access », à supprimer après usage.
 // Sans `--replace`, une page dont le slug existe déjà est laissée telle quelle (elle a pu être modifiée dans l'admin).
 // Les images sont réutilisées si un média du même nom existe déjà dans la médiathèque.
 import fs from "node:fs";
 import path from "node:path";
 
-import mime from "mime-types";
-
 const PAGES = path.join(process.cwd(), "seed", "pages");
 const IMAGES = path.join(process.cwd(), "seed", "images");
+const MIME_TYPES: Record<string, string> = { ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".svg": "image/svg+xml" };
 
 const CMS_REMOTE_URL = process.env.CMS_REMOTE_URL?.replace(/\/$/, "");
 const CMS_REMOTE_TOKEN = process.env.CMS_REMOTE_TOKEN;
@@ -37,7 +37,7 @@ const uploadImage = async ({ upload, alternativeText = "" }: Upload): Promise<nu
   }
 
   const form = new FormData();
-  const file = new Blob([fs.readFileSync(filepath)], { type: mime.lookup(filepath) || "application/octet-stream" });
+  const file = new Blob([fs.readFileSync(filepath)], { type: MIME_TYPES[path.extname(filepath).toLowerCase()] ?? "application/octet-stream" });
   form.append("files", file, name);
   form.append("fileInfo", JSON.stringify({ name, alternativeText }));
   const [uploaded] = await request<Array<{ id: number }>>("/api/upload", { method: "POST", body: form });
@@ -95,10 +95,13 @@ const main = async () => {
 
   const args = process.argv.slice(2);
   const replace = args.includes("--replace");
-  const slugs = args.filter((arg) => arg !== "--replace");
-  if (slugs.length === 0) {
-    throw new Error("Indiquer au moins un slug (ex. `npm run seed:remote -- sport`).");
-  }
+  const requestedSlugs = args.filter((arg) => arg !== "--replace");
+  const allSlugs = fs
+    .readdirSync(PAGES)
+    .filter((file) => file.endsWith(".json"))
+    .map((file) => path.basename(file, ".json"));
+  const slugs = requestedSlugs.length > 0 ? requestedSlugs : allSlugs;
+  console.log(`CMS : ${CMS_REMOTE_URL} — ${slugs.length} page(s)${replace ? ", avec --replace" : ""}.`);
 
   for (const slug of slugs) {
     const file = path.join(PAGES, `${slug}.json`);
