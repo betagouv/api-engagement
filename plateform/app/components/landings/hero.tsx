@@ -47,7 +47,7 @@ export default function Hero({
               <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! justify-center! md:max-w-60!">
                 Trouve ta mission
               </button>
-              <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! text-center italic md:max-w-60! md:text-left">{hint}</p>
+              {hint && <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! text-center italic md:max-w-60! md:text-left">{hint}</p>}
             </>
           )}
         </div>

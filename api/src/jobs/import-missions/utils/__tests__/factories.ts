@@ -23,6 +23,7 @@ export const buildPublisher = (overrides: Partial<PublisherRecord> = {}): Publis
   feed: null,
   feedUsername: null,
   feedPassword: null,
+  hasDemarcheSimplifieeToken: false,
   apikey: null,
   description: "",
   missionType: PublisherMissionType.BENEVOLAT,

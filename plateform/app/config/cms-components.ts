@@ -169,6 +169,19 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Avec un bouton personnalisé",
+    block: {
+      __component: "blocks.etapes",
+      items: [
+        { icon: "self_training", title: "Découvre la mission", description: "Conditions, formation, rythme : tout est expliqué avant de te lancer." },
+        { icon: "search", title: "Postule en ligne", description: "Tu crées ton espace candidat sur le site de la Gendarmerie." },
+        { icon: "community", title: "Lance-toi", description: "Après les examens, tu suis 15 jours de formation et tu rejoins une unité près de chez toi." },
+      ],
+      ctaLabel: "Je deviens réserviste de la Gendarmerie",
+      ctaUrl: "https://www.lagendarmerierecrute.fr",
+    },
+  },
+  {
     label: "Exemple",
     block: {
       __component: "blocks.benefits",

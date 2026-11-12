@@ -167,6 +167,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
         email: nullableString,
         feed: nullableString,
         demarcheSimplifiees: zod.array(demarcheSimplifieeSchema).optional(),
+        demarcheSimplifieeToken: nullableString,
       })
       .safeParse(req.body);
 
@@ -217,6 +218,7 @@ router.post("/", passport.authenticate("admin", { session: false }), async (req:
       email: body.data.email,
       feed: body.data.feed,
       demarcheSimplifiees: body.data.demarcheSimplifiees,
+      demarcheSimplifieeToken: body.data.demarcheSimplifieeToken,
       publishers: mapPublishersForService(body.data.publishers),
     };
 
@@ -326,6 +328,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
         email: nullableString,
         feed: nullableString,
         demarcheSimplifiees: zod.array(demarcheSimplifieeSchema).optional(),
+        demarcheSimplifieeToken: nullableString,
       })
       .safeParse(req.body);
 
@@ -372,6 +375,7 @@ router.put("/:id", passport.authenticate("admin", { session: false }), async (re
       email: body.data.email,
       feed: body.data.feed,
       demarcheSimplifiees: body.data.demarcheSimplifiees,
+      demarcheSimplifieeToken: body.data.demarcheSimplifieeToken,
     };
 
     try {

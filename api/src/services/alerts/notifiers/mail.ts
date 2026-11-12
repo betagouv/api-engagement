@@ -5,7 +5,7 @@ import { sendTemplate, TEMPLATE_IDS } from "@/services/brevo/email";
 import { formatDate } from "@/utils/date";
 
 // Les emails ne quittent jamais l'API. Template Brevo (TEMPLATE_IDS.WARNING_ALERT) géré dans Brevo ; params : firstname,
-// publisherName, title, description, triggeredAtLabel, procedureUrl?, occurrences, alertsUrl, alertUrl. L'objet est défini ici.
+// publisherName, title, description, itemLabel?, triggeredAtLabel, procedureUrl?, occurrences, alertsUrl, alertUrl. L'objet est défini ici.
 export const mailNotifier: AlertNotifier = {
   name: "mail",
   required: true,
@@ -16,12 +16,13 @@ export const mailNotifier: AlertNotifier = {
         emailTo: [user.email],
         // Une réponse à ce mail arrive sur /inbound-email (voir ../reply.ts) et résout l'alerte.
         ...(INBOUND_EMAIL_DOMAIN ? { replyTo: alertReplyAddress(warning.id, user.id) } : {}),
-        subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}`,
+        subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}${warning.itemLabel ? ` (${warning.itemLabel})` : ""}`,
         params: {
           firstname: user.firstname,
           publisherName: warning.publisherName,
           title: warning.title,
           description: warning.description,
+          itemLabel: warning.itemLabel,
           triggeredAt: warning.createdAt.toISOString(),
           triggeredAtLabel: formatDate(warning.createdAt),
           procedureUrl: warning.procedureUrl,

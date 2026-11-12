@@ -8,20 +8,21 @@ import Highlight from "~/components/ui/highlight";
 
 const QUESTIONS = [
   {
+    icon: HumanCooperationSvg,
+    question: "«\u00a0Chacun pour tous\u00a0», c'est quoi\u00a0?",
+    answer:
+      "C'est la devise qui rassemble toutes les façons de participer à la vie collective et démocratique\u00a0: aider, transmettre, rejoindre une association, faire un Service Civique, voter… Concrètement, c'est un repère pour trouver plus facilement votre façon d'agir.",
+  },
+  {
     icon: EnvironmentSvg,
     question: "Comment avoir vraiment de l'impact, et pas juste en parler\u00a0?",
-    answer: "Parce qu'agir, même à petite échelle, change tout, pour toi et pour les autres.",
+    answer: "En choisissant une mission concrète, près de chez vous ou ailleurs. Même à petite échelle, votre action est utile aux autres, et à vous aussi.",
   },
-  { icon: CommunitySvg, question: "Comment rejoindre une communauté qui a du sens\u00a0?", answer: "Rencontre des personnes qui, comme toi, veulent agir concrètement." },
+  { icon: CommunitySvg, question: "Comment rejoindre une communauté qui a du sens\u00a0?", answer: "Rencontrez des personnes qui, comme vous, veulent agir concrètement." },
   {
     icon: BackpackSvg,
-    question: "Et ça compte pour mon parcours\u00a0?",
-    answer: "Oui ! Chaque mission t'apporte des compétences, des connaissances, une idée plus claire de ce que tu veux faire.",
-  },
-  {
-    icon: HumanCooperationSvg,
-    question: "Chacun pour tous",
-    answer: "Qu'on se le dise : nous sommes plus engagés que nous ne le croyons. 74 % des Français ont fait au moins un acte civique dans l'année.",
+    question: "Est-ce que cela compte pour votre parcours\u00a0?",
+    answer: "Oui\u00a0! Chaque mission vous apporte des compétences, des connaissances, une idée plus claire de ce que vous voulez faire.",
   },
 ];
 
@@ -30,7 +31,7 @@ export default function Questions() {
     <section className="fr-container flex flex-col gap-6 lg:flex-row lg:justify-between lg:gap-12">
       <div className="lg:max-w-107">
         <h2 className="fr-h2 mb-4!">
-          Tu te poses les mêmes <Highlight className="bg-yellow-tournesol-925 dark:bg-transparent">questions ?</Highlight>
+          Vous vous posez les mêmes <Highlight className="bg-yellow-tournesol-925 dark:bg-transparent">questions ?</Highlight>
         </h2>
         <p className="fr-text--lg mb-0!">
           <Link to="/" className="fr-link fr-text--lg!">

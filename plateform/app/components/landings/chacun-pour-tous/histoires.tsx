@@ -44,13 +44,13 @@ export default function Histoires({ cta }: { cta: LandingCta }) {
       <div className="fr-container">
         <div className="bg-brown-cafe-creme-975 @container mx-[calc(50%-50vw)] px-4 py-6 md:mx-0 md:px-6 md:py-14! lg:px-24">
           <h2 className="fr-h1 mb-4!">
-            Des histoires vraies qui donnent
+            Chacun son histoire, une même
             <br className="hidden md:block" /> <Highlight className="bg-[#9ef9be] dark:bg-transparent">envie d'agir</Highlight>
           </h2>
           <p className="fr-text--lead mb-4! md:mb-6! lg:mb-8!">
-            À ceux qui votent, qui laissent passer les piétons, qui sourient aux bébés, à celles qui donnent du temps à une cause, qui portent les cartons du voisin… À tous ceux
-            qui prennent part sans le savoir : MERCI
-            <span aria-hidden="true">🔥</span>
+            Vous votez, vous donnez de votre temps, vous tenez un bureau de vote, transmettez ce que vous savez, veillez sur une personne isolée ou aidez un voisin. L'ensemble de
+            ces gestes font vivre la vie collective et notre démocratie. Ils montrent que l'engagement est déjà là, dans le quotidien. À toutes celles et tous ceux qui le font
+            vivre&nbsp;: merci.
           </p>
 
           <Carousel

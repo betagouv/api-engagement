@@ -33,6 +33,10 @@ describe("alertsFromRows", () => {
     ]);
   });
 
+  it("reads the item key and label", () => {
+    expect(alertsFromRows(["publisher_id", "item_id", "item_label"], [["p1", "c1", "Campagne 1"]])).toMatchObject([{ itemId: "c1", itemLabel: "Campagne 1" }]);
+  });
+
   it("returns nothing when there is no publisher_id column", () => {
     expect(alertsFromRows(["annonceur"], [["Adie"]])).toEqual([]);
   });

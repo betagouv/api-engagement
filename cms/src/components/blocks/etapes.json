@@ -1,7 +1,9 @@
 {
   "collectionName": "components_blocks_etapes",
-  "info": { "displayName": "Étapes", "icon": "bulletList", "description": "« 3 étapes pour passer à l'action » + bouton quiz." },
+  "info": { "displayName": "Étapes", "icon": "bulletList", "description": "« 3 étapes pour passer à l'action » + bouton (quiz, ou lien si renseigné)." },
   "attributes": {
-    "items": { "type": "component", "repeatable": true, "component": "items.etape", "min": 1, "max": 3 }
+    "items": { "type": "component", "repeatable": true, "component": "items.etape", "min": 1, "max": 3 },
+    "ctaLabel": { "type": "string", "description": "Bouton sous les étapes (ex. : Je deviens réserviste de la Gendarmerie). Remplace le bouton quiz si le lien est renseigné." },
+    "ctaUrl": { "type": "string", "description": "Lien du bouton. Une URL https://… s'ouvre dans un nouvel onglet." }
   }
 }

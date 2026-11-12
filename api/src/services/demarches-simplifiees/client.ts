@@ -14,14 +14,18 @@ interface DemarchesSimplifieesSuccess<T> {
 interface DemarchesSimplifieesError {
   ok: false;
   message: string;
+  // Code HTTP quand l'API a rejeté la requête (absent pour une erreur GraphQL, renvoyée en HTTP 200).
+  status?: number;
 }
 
 export type DemarchesSimplifieesResponse<T> = DemarchesSimplifieesSuccess<T> | DemarchesSimplifieesError;
 
 // Fonction de base : envoie n'importe quelle requête GraphQL et renvoie la donnée typée.
-export const query = async <T = unknown>(graphqlQuery: string, variables: Record<string, unknown> = {}): Promise<DemarchesSimplifieesResponse<T>> => {
+// `token` : token API fourni par le partenaire ; à défaut, on utilise le token global (compte API Engagement).
+export const query = async <T = unknown>(graphqlQuery: string, variables: Record<string, unknown> = {}, token?: string | null): Promise<DemarchesSimplifieesResponse<T>> => {
   try {
-    if (!DEMARCHES_SIMPLIFIEES_TOKEN) {
+    const apiToken = token || DEMARCHES_SIMPLIFIEES_TOKEN;
+    if (!apiToken) {
       return { ok: false, message: "DEMARCHES_SIMPLIFIEES_TOKEN is not set" };
     }
 
@@ -29,7 +33,7 @@ export const query = async <T = unknown>(graphqlQuery: string, variables: Record
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${DEMARCHES_SIMPLIFIEES_TOKEN}`,
+        Authorization: `Bearer ${apiToken}`,
       },
       body: JSON.stringify({ query: graphqlQuery, variables }),
     });
@@ -37,10 +41,10 @@ export const query = async <T = unknown>(graphqlQuery: string, variables: Record
     if (!response.ok) {
       if (response.status === 401) {
         captureException("[DemarchesSimplifiees] Unauthorized");
-        return { ok: false, message: "Unauthorized" };
+        return { ok: false, status: 401, message: "Unauthorized" };
       }
       console.error("[DemarchesSimplifiees] HTTP error", response.status, response.statusText);
-      return { ok: false, message: `HTTP ${response.status} ${response.statusText}` };
+      return { ok: false, status: response.status, message: `HTTP ${response.status} ${response.statusText}` };
     }
 
     // En GraphQL, le code HTTP est souvent 200 même en cas d'erreur : il faut lire le champ `errors`.

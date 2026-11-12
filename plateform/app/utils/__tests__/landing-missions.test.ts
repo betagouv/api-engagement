@@ -15,6 +15,7 @@ const CONFIG: LandingMissionsConfig = {
   includeRemote: true,
   filters: ["departmentCode", "tranche_age", "activite"],
   slots: [{ filters: { dispositif: ["reserve_armees"] } }],
+  alertCard: true,
 };
 
 describe("buildLandingBrowseFilters", () => {
@@ -41,6 +42,10 @@ describe("buildLandingBrowseFilters", () => {
     const filters = buildLandingBrowseFilters(new URLSearchParams("tranche_age=18_25_ans&tranche_age=26_30_ans"), CONFIG);
 
     expect(filters.tranche_age).toEqual(["18_25_ans"]);
+  });
+
+  it("affiche 12 missions en page 1 sans carte d'alertes", () => {
+    expect(buildLandingBrowseFilters(new URLSearchParams(), { filters: [] })).toMatchObject({ offset: 0, pageSize: 12 });
   });
 });
 
@@ -70,18 +75,25 @@ describe("getDepartmentCodeFromPostcode", () => {
 });
 
 describe("getPageWindow / getTotalPages", () => {
-  it("garde 11 missions en page 1 (place de la carte d'alertes), puis 12 par page", () => {
-    expect(getPageWindow(1)).toEqual({ offset: 0, pageSize: 11 });
-    expect(getPageWindow(2)).toEqual({ offset: 11, pageSize: 12 });
-    expect(getPageWindow(3)).toEqual({ offset: 23, pageSize: 12 });
+  it("affiche 12 missions par page sans carte d'alertes", () => {
+    expect(getPageWindow(1)).toEqual({ offset: 0, pageSize: 12 });
+    expect(getPageWindow(2)).toEqual({ offset: 12, pageSize: 12 });
+    expect(getTotalPages(12)).toBe(1);
+    expect(getTotalPages(13)).toBe(2);
   });
 
-  it("compte les pages avec une première page plus courte", () => {
-    expect(getTotalPages(0)).toBe(1);
-    expect(getTotalPages(11)).toBe(1);
-    expect(getTotalPages(12)).toBe(2);
-    expect(getTotalPages(23)).toBe(2);
-    expect(getTotalPages(24)).toBe(3);
+  it("garde 11 missions en page 1 avec la carte d'alertes, puis 12 par page", () => {
+    expect(getPageWindow(1, true)).toEqual({ offset: 0, pageSize: 11 });
+    expect(getPageWindow(2, true)).toEqual({ offset: 11, pageSize: 12 });
+    expect(getPageWindow(3, true)).toEqual({ offset: 23, pageSize: 12 });
+  });
+
+  it("compte les pages avec une première page plus courte quand la carte d'alertes est affichée", () => {
+    expect(getTotalPages(0, true)).toBe(1);
+    expect(getTotalPages(11, true)).toBe(1);
+    expect(getTotalPages(12, true)).toBe(2);
+    expect(getTotalPages(23, true)).toBe(2);
+    expect(getTotalPages(24, true)).toBe(3);
   });
 });
 

@@ -30,8 +30,13 @@ const TYPE_LABELS: Record<string, { emoji: string; label: string }> = {
   VALIDATION_WARNING: { emoji: "🙅", label: "Taux de validation critique" },
   TRACKING_WARNING: { emoji: "🤔", label: "Problème de tracking" },
   DELETION_WARNING: { emoji: "❌", label: "Taux de suppression critique" },
-  REDIRECTION_WARNING: { emoji: "🚨", label: "Nombre de redirections inhabituel" },
-  CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
+  CAMPAIGN_REDIRECTION_WARNING: { emoji: "🚨", label: "Nombre de redirections inhabituel" },
+  CAMPAIGN_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
+  LOW_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures détectés faible" },
+  WIDGET_REDIRECTION_WARNING: { emoji: "🚨", label: "Nombre de redirections inhabituel" },
+  WIDGET_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
+  API_WARNING: { emoji: "🚨", label: "Irrégularité dans les appels API" },
+  ATTRIBUTES_TRACKING_WARNING: { emoji: "🤔", label: "Problème sur la récupération des attributes" },
 };
 
 // Limites Slack (section : 3000 caractères, champ : 2000, en-tête : 150) : on tronque le contenu libre venant de l'extérieur.
@@ -45,6 +50,7 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
   const { emoji, label } = TYPE_LABELS[warning.type] ?? { emoji: "🚨", label: "Alerte" };
   const publisher = escapeMrkdwn(truncate(warning.publisherName ?? "Annonceur", 200));
   const title = escapeMrkdwn(truncate(warning.title ?? label, 300));
+  const item = warning.itemLabel ? escapeMrkdwn(truncate(warning.itemLabel, 200)) : null;
   const mentions = users.map((u) => (u.slackUserId ? `<@${u.slackUserId}>` : escapeMrkdwn(u.firstname))).join(", ");
   const status = `${STATUS_LABELS[warning.status]}${handledBy ? ` (par ${escapeMrkdwn(truncate(handledBy, 100))})` : ""}`;
   const links = [`<${APP_URL}/admin-warning/alerts/${warning.id}|Ouvrir l'alerte>`, ...(warning.procedureUrl ? [`<${warning.procedureUrl}|Procédure>`] : [])];
@@ -59,7 +65,7 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
           },
         ];
   return {
-    text: `[Alerte] ${publisher} : ${title}`,
+    text: `[Alerte] ${publisher} : ${title}${item ? ` (${item})` : ""}`,
     blocks: [
       { type: "header", text: { type: "plain_text", text: truncate(`${emoji} ${label}`, 150), emoji: true } },
       {
@@ -67,6 +73,7 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
         text: { type: "mrkdwn", text: [`*${title}*`, ...(warning.description ? [escapeMrkdwn(truncate(warning.description, 2000))] : [])].join("\n") },
         fields: [
           field("Annonceur", publisher),
+          ...(item ? [field("Élément", item)] : []),
           field("Statut", status),
           field("Déclenchée le", formatDate(warning.createdAt)),
           field("Occurrences", String(warning.occurrences)),
