@@ -58,7 +58,8 @@ export default function HeroActions({
   );
 }
 
-function HeroButton({ link, className }: { link: HeroLink; className: string }) {
+// Aussi utilisé pour le bouton du bloc Étapes.
+export function HeroButton({ link, className }: { link: HeroLink; className: string }) {
   if (!isExternal(link.url)) {
     return (
       <a href={link.url} className={`fr-btn w-full! justify-center! md:w-auto! ${className}`}>

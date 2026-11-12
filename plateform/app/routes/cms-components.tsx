@@ -3,7 +3,7 @@ import { data, Link, useLoaderData } from "react-router";
 
 import { type CmsBlocksContext } from "~/components/cms";
 import ComponentPreview from "~/components/cms/component-preview";
-import { CMS_COMPONENT_EXAMPLES, CMS_COMPONENT_MISSIONS } from "~/config/cms-components";
+import { CMS_COMPONENT_EXAMPLES, CMS_COMPONENT_MISSION_DETAIL, CMS_COMPONENT_MISSIONS } from "~/config/cms-components";
 import type { CmsBlock } from "~/types/cms";
 import { type CmsComponentField, getBlockSchema } from "~/services/cms-components.server";
 import { CMS_PUBLIC_URL } from "~/services/cms.server";
@@ -22,6 +22,7 @@ const CONTEXT: CmsBlocksContext = {
   landing: "landing_cms_components",
   path: "/_cms/components",
   missionsByBlock: { 0: CMS_COMPONENT_MISSIONS },
+  missionDetailsByBlock: { 0: CMS_COMPONENT_MISSION_DETAIL },
   onStartQuiz: () => {},
   missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
 };
