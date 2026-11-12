@@ -15,6 +15,8 @@ type UserScoringGeoInput = {
   lon: number;
   radiusKm?: number;
   countryCode?: string;
+  address?: string;
+  city?: string;
 };
 
 type TaxonomyTransformerResult =

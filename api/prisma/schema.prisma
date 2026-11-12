@@ -1293,6 +1293,8 @@ model UserScoringGeo {
   lon           Float
   radiusKm      Float?   @map("radius_km")
   countryCode   String?  @map("country_code")
+  address       String?
+  city          String?
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 

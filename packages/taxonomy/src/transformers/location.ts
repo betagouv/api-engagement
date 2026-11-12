@@ -6,8 +6,14 @@ export type LocationTransformerResult = {
     lon: number;
     radiusKm?: number;
     countryCode?: string;
+    address?: string;
+    city?: string;
   };
 };
+
+// Adresse et ville servent uniquement à l'affichage (email « Tu nous as dit », objet du mail) :
+// une valeur absente ou invalide est ignorée plutôt que de rejeter la réponse.
+const readDisplayText = (value: unknown) => (typeof value === "string" && value.trim() ? value.trim().slice(0, 255) : undefined);
 
 export const resolveLocationValues = (params: unknown): LocationTransformerResult => {
   if (!isRecord(params)) {
@@ -18,6 +24,8 @@ export const resolveLocationValues = (params: unknown): LocationTransformerResul
   const lon = params.lon;
   const radiusKm = params.radius_km;
   const countryCode = params.country_code;
+  const address = readDisplayText(params.label);
+  const city = readDisplayText(params.city);
 
   if (typeof lat !== "number" || lat < -90 || lat > 90) {
     throw new Error("location.lat must be a number between -90 and 90");
@@ -41,6 +49,8 @@ export const resolveLocationValues = (params: unknown): LocationTransformerResul
       lon,
       ...(radiusKm === undefined ? {} : { radiusKm }),
       ...(countryCode === undefined ? {} : { countryCode: countryCode.toUpperCase() }),
+      ...(address === undefined ? {} : { address }),
+      ...(city === undefined ? {} : { city }),
     },
   };
 };

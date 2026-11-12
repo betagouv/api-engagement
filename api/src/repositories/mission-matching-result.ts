@@ -5,6 +5,8 @@ import { isAddressNeutralizedRemote } from "@/utils/mission-remote";
 
 export type MissionMatchingEmailMission = {
   missionScoringId: string;
+  // Valeurs portées par la mission, pour les tags de matching des cartes (cf. buildMissionMatchTags).
+  values: Array<{ taxonomyKey: string; taxonomyValueKey: string }>;
   mission: {
     id: string;
     title: string;
@@ -42,6 +44,7 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
     where: { id: { in: missionScoringIds } },
     select: {
       id: true,
+      missionScoringValues: { select: { taxonomyKey: true, valueKey: true } },
       mission: {
         select: {
           id: true,
@@ -76,6 +79,7 @@ const findMissionsByMatchingResultItems = async (items: MissionMatchingResultIte
 
     return {
       missionScoringId: missionScoring.id,
+      values: missionScoring.missionScoringValues.map((value) => ({ taxonomyKey: value.taxonomyKey ?? "", taxonomyValueKey: value.valueKey ?? "" })),
       mission: {
         id: missionScoring.mission.id,
         title: missionScoring.mission.title,

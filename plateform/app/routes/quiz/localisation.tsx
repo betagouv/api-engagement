@@ -16,15 +16,23 @@ export default function LocalisationStep() {
   const { goNext, saveScoring } = useOutletContext<QuizOutletContext>();
 
   const locAnswer = answers["localisation"];
-  // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran
-  // (ignoré côté API : le transformer `location` ne lit que lat/lon/country_code).
-  const savedLocation = locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string; postcode?: string }) : null;
+  // `label` est persisté avec les coordonnées pour ré-afficher la saisie au retour sur l'écran.
+  // Côté API, `label` et `city` sont enregistrés pour l'email de sélection (« Tu nous as dit », objet du mail).
+  const savedLocation =
+    locAnswer?.type === "params" ? (locAnswer.params as { lat: number; lon: number; country_code?: string; label?: string; postcode?: string; city?: string }) : null;
 
   const [value, setValue] = useState(savedLocation?.label ?? "");
   const [options, setOptions] = useState<GeoSuggestion[]>([]);
   const [selected, setSelected] = useState<GeoSuggestion | null>(
     savedLocation
-      ? { label: savedLocation.label ?? "", lat: savedLocation.lat, lon: savedLocation.lon, country_code: savedLocation.country_code, postcode: savedLocation.postcode }
+      ? {
+          label: savedLocation.label ?? "",
+          lat: savedLocation.lat,
+          lon: savedLocation.lon,
+          country_code: savedLocation.country_code,
+          postcode: savedLocation.postcode,
+          city: savedLocation.city,
+        }
       : null,
   );
   const [showOptions, setShowOptions] = useState(false);
@@ -159,6 +167,7 @@ export default function LocalisationStep() {
         ...(selected.postcode ? { postcode: selected.postcode } : {}),
         ...(selected.country_code ? { country_code: selected.country_code } : {}),
         ...(selected.label ? { label: selected.label } : {}),
+        ...(selected.city ? { city: selected.city } : {}),
       },
     });
     setValue(selected.label);

@@ -7,9 +7,7 @@ const mission = (overrides: Partial<MissionContent> = {}): MissionContent => ({
   title: "Mission de test",
   imageUrl: "",
   domainLabel: "Santé",
-  location: "Paris",
-  schedule: "",
-  compensation: "620€ par mois",
+  tags: ["Paris", "620\u00a0€ par mois"],
   publisherLogo: "https://example.com/logo.png",
   publisherName: "Éditeur",
   url: "https://example.com/missions/mission-1",
@@ -17,26 +15,34 @@ const mission = (overrides: Partial<MissionContent> = {}): MissionContent => ({
 });
 
 describe("buildSavedMissionContentHtml", () => {
-  it("pose le tag domaine sur l'image de la mission", () => {
+  it("affiche l'image sans surimpression et le tag domaine sous l'image", () => {
     const html = buildSavedMissionContentHtml(mission({ imageUrl: "https://example.com/image.png" }));
 
-    expect(html).toContain("background-image: url('https://images.weserv.nl/?url=https%3A%2F%2Fexample.com%2Fimage.png&w=1200&h=448&fit=cover')");
-    expect(html).toContain(">Santé</span></td>");
+    expect(html).toContain('<img src="https://images.weserv.nl/?url=https%3A%2F%2Fexample.com%2Fimage.png&w=1068&h=400&fit=cover"');
+    expect(html).not.toContain("background-image");
+    expect(html.indexOf(">Santé</span>")).toBeGreaterThan(html.indexOf("<img"));
   });
 
-  it("n'affiche que les infos renseignées, sans lien « Détails »", () => {
+  it("affiche le titre en bleu France et les tags gris, sans lien « Détails »", () => {
     const html = buildSavedMissionContentHtml(mission());
 
-    expect(html).toContain(">Paris</span>");
-    expect(html).toContain(">620€ par mois</span>");
-    expect(html.match(/width="16" height="16"/g)).toHaveLength(2);
+    expect(html).toMatch(/color: #000091;">Mission de test<\/div>/);
+    expect(html).toContain('background: #eeeeee; color: #161616;">Paris</span>');
+    expect(html).toContain(">620\u00a0€ par mois</span>");
     expect(html).not.toContain("Détails");
   });
 
+  it("n'affiche ni logo ni nom sans annonceur", () => {
+    const html = buildSavedMissionContentHtml(mission({ publisherName: "" }));
+
+    expect(html).not.toContain("example.com%2Flogo.png");
+  });
+
   it("encode les champs textuels et empêche la détection de lien sur le nom de l'annonceur", () => {
-    const html = buildSavedMissionContentHtml(mission({ title: "{{7*7}} <b>", publisherName: "JeVeuxAider.gouv.fr" }));
+    const html = buildSavedMissionContentHtml(mission({ title: "{{7*7}} <b>", tags: ["<i>"], publisherName: "JeVeuxAider.gouv.fr" }));
 
     expect(html).toContain("&#123;&#123;7*7&#125;&#125; &lt;b&gt;");
+    expect(html).toContain("&lt;i&gt;");
     expect(html).toContain("JeVeuxAider.&#8204;gouv.&#8204;fr");
   });
 });
@@ -50,14 +56,20 @@ describe("buildListMissionCardsParams", () => {
     expect(params.mission2).toContain(">Deuxième</div>");
   });
 
-  it("affiche une info par ligne et le lien vers la mission", () => {
+  it("donne la même hauteur à toutes les cartes, quel que soit le contenu", () => {
+    const { mission1, mission2 } = buildListMissionCardsParams([mission({ domainLabel: "", tags: [], publisherName: "" }), mission({ title: "Titre ".repeat(30) })]);
+    const fixedHeights = (html: string) => html.match(/<td height="\d+"/g);
+
+    expect(fixedHeights(mission1)).toEqual(fixedHeights(mission2));
+    expect(mission1).toContain("table-layout: fixed;");
+  });
+
+  it("affiche les tags et le lien « Détails » souligné vers la mission", () => {
     const { mission1 } = buildListMissionCardsParams([mission()]);
 
-    expect(mission1).toContain(">Paris</span></div>");
-    expect(mission1).toContain(">620€ par mois</span></div>");
-    expect(mission1.match(/width="16" height="16"/g)).toHaveLength(2);
+    expect(mission1).toContain(">Paris</span>");
     expect(mission1).toContain('<a href="https://example.com/missions/mission-1"');
-    expect(mission1).toContain("Voir la mission&nbsp;&rarr;");
+    expect(mission1).toContain('text-decoration: underline;">Détails&nbsp;&rarr;</a>');
   });
 });
 

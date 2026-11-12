@@ -9,9 +9,19 @@ export const userScoringRepository = {
     });
   },
 
+  findEmailContext(id: string) {
+    return prisma.userScoring.findUnique({
+      where: { id },
+      select: {
+        geo: { select: { address: true, city: true } },
+        values: { select: { taxonomyKey: true, valueKey: true } },
+      },
+    });
+  },
+
   create(params: {
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
-    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
+    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string; address?: string; city?: string };
     distinctId?: string;
     missionAlertEnabled: boolean;
   }): Promise<UserScoring> {
@@ -40,6 +50,8 @@ export const userScoringRepository = {
                   lon: params.geo.lon,
                   radiusKm: params.geo.radiusKm,
                   countryCode: params.geo.countryCode,
+                  address: params.geo.address,
+                  city: params.geo.city,
                 },
               },
             }
@@ -52,7 +64,7 @@ export const userScoringRepository = {
     userScoringId: string;
     values: Array<{ taxonomyKey: string; valueKey: string; score?: number }>;
     replaceAnswers: boolean;
-    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string };
+    geo?: { lat: number; lon: number; radiusKm?: number; countryCode?: string; address?: string; city?: string };
     missionAlertEnabled?: boolean;
   }): Promise<{ createdCount: number; missionAlertEnabled: boolean }> {
     return prisma.$transaction(async (tx) => {
@@ -97,12 +109,16 @@ export const userScoringRepository = {
                       lon: params.geo.lon,
                       radiusKm: params.geo.radiusKm,
                       countryCode: params.geo.countryCode,
+                      address: params.geo.address,
+                      city: params.geo.city,
                     },
                     update: {
                       lat: params.geo.lat,
                       lon: params.geo.lon,
                       radiusKm: params.geo.radiusKm,
                       countryCode: params.geo.countryCode,
+                      address: params.geo.address ?? null,
+                      city: params.geo.city ?? null,
                     },
                   },
                 },

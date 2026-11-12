@@ -18,6 +18,16 @@ describe("resolveLocationValues", () => {
     });
   });
 
+  it("reprend le libellé de l'adresse et la ville", () => {
+    expect(resolveLocationValues({ lat: 45.18, lon: 5.72, label: " 5 Place Victor Hugo 38000 Grenoble ", city: "Grenoble" })).toEqual({
+      geo: { lat: 45.18, lon: 5.72, address: "5 Place Victor Hugo 38000 Grenoble", city: "Grenoble" },
+    });
+  });
+
+  it("ignore une adresse ou une ville vide ou invalide", () => {
+    expect(resolveLocationValues({ lat: 45.18, lon: 5.72, label: "  ", city: 42 })).toEqual({ geo: { lat: 45.18, lon: 5.72 } });
+  });
+
   it("lève une erreur si lat est hors bornes", () => {
     expect(() => resolveLocationValues({ lat: 91, lon: 2.35 })).toThrow(/lat must be a number between -90 and 90/);
   });
