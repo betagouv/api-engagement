@@ -68,7 +68,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       const { searchDispositif } = block;
       const withActions = !searchDispositif && (block.tags.length > 0 || primary || secondary);
       const withQuiz = !searchDispositif && !withActions && !context.hasMissionsBrowser;
-      return (
+      const hero = (
         <Hero
           badge={block.badge ?? undefined}
           title={block.title}
@@ -84,13 +84,13 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
                   id="hero-recherche"
                   submitLabel={block.primaryLabel ?? "Trouve ta mission"}
                   onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
-                  className="md:max-w-98 lg:max-w-149"
+                  className="mb-16 max-w-149 max-lg:hidden"
                 />
               )}
               {!searchDispositif && context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
             </>
           }
-          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
+          className={`${BACKGROUNDS.creme} ${searchDispositif ? "rounded-none! md:max-lg:pb-14" : ""} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
           {campaignVisual && <HeroVisual />}
           {/* Visuel du CMS : sous le texte, en pleine largeur et collé au bas du hero sur mobile (image mobile si
@@ -108,6 +108,21 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
             </picture>
           )}
         </Hero>
+      );
+      if (!searchDispositif) return hero;
+      // Recherche par adresse : sous le texte sur desktop ; sur mobile et tablette, sous le visuel, à cheval sur le bas
+      // du hero (cf. maquette). Deux instances, une seule affichée selon la largeur.
+      return (
+        <div>
+          {hero}
+          <div className="fr-container relative z-20 -mt-8 lg:hidden">
+            <LocationFilter
+              id="hero-recherche-mobile"
+              submitLabel={block.primaryLabel ?? "Trouve ta mission"}
+              onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
+            />
+          </div>
+        </div>
       );
     }
     case "blocks.mission-detail": {

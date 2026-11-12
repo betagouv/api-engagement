@@ -159,12 +159,12 @@ export default function LocationFilter({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`bg-background relative z-20 flex flex-col gap-4 p-4 drop-shadow-[0_2px_3px_rgba(0,0,18,0.16)] lg:p-6 ${onSearch ? "lg:flex-row lg:items-start" : "md:flex-row md:items-start lg:flex-col lg:items-stretch"} ${className}`}
+      className={`bg-background relative z-20 flex flex-col gap-4 p-4 drop-shadow-[0_2px_3px_rgba(0,0,18,0.16)] lg:p-6 ${onSearch ? "md:flex-row md:items-start" : "md:flex-row md:items-start lg:flex-col lg:items-stretch"} ${className}`}
     >
       {/* `relative z-20` : l'ombre (drop-shadow) crée un contexte d'empilement ; sans z-index, le bloc de filtres
           voisin passerait par-dessus la liste de suggestions. */}
       {/* Tablette : champ et bouton sur une ligne ; mobile et colonne desktop : l'un sous l'autre. */}
-      <div className={`fr-input-group mb-0! ${onSearch ? "lg:flex-1" : "md:flex-1"} ${error ? "fr-input-group--error" : ""}`}>
+      <div className={`fr-input-group mb-0! md:flex-1 ${error ? "fr-input-group--error" : ""}`}>
         {/* Libellé masqué visuellement sur mobile, comme dans la maquette (le champ est déjà dans le hero). */}
         <label className={`fr-label text-label-grey ${onSearch ? "sr-only" : "max-lg:sr-only"}`} htmlFor={id}>
           Localisation
@@ -179,7 +179,7 @@ export default function LocationFilter({
             aria-activedescendant={activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? `${id}-messages` : undefined}
-            className={`fr-input mt-0! pr-10! ${onSearch ? "h-12" : "max-lg:h-12"} ${error ? "fr-input--error" : ""}`}
+            className={`fr-input mt-0! pr-10! ${onSearch ? "h-12! max-h-12!" : "max-lg:h-12"} ${error ? "fr-input--error" : ""}`}
             type="text"
             placeholder="Adresse ou ville"
             autoComplete="address-level2"
@@ -227,7 +227,7 @@ export default function LocationFilter({
           </div>
         )}
       </div>
-      <button type="submit" disabled={loading} className={`fr-btn fr-btn--lg w-full! shrink-0 justify-center! ${onSearch ? "lg:w-auto!" : "md:w-auto! lg:w-full!"}`}>
+      <button type="submit" disabled={loading} className={`fr-btn fr-btn--lg w-full! shrink-0 justify-center! ${onSearch ? "md:w-auto!" : "md:w-auto! lg:w-full!"}`}>
         {submitLabel}
       </button>
     </form>
