@@ -4,11 +4,11 @@ import { subscribeNewsletter } from "~/services/newsletter";
 import { useQuizStore } from "~/stores/quiz";
 
 const BENEFICES = [
-  { emoji: "🎓", label: "De l'expérience pour ton CV" },
-  { emoji: "💼", label: "Des compétences" },
+  { emoji: "🎓", label: "Une expérience à valoriser" },
+  { emoji: "💼", label: "De nouvelles compétences" },
   { emoji: "🤝", label: "Des rencontres" },
-  { emoji: "💸", label: "Avec ou sans indemnité" },
-  { emoji: "❤️", label: "La fierté d'être utile" },
+  { emoji: "💸", label: "Une indemnité, selon la mission" },
+  { emoji: "❤️", label: "Le sentiment d'être utile" },
 ];
 
 export default function BonPourToi() {
@@ -43,11 +43,14 @@ export default function BonPourToi() {
     <section className="fr-container">
       <div className="bg-blue-ecume-850 flex flex-col gap-8 rounded-sm p-4 shadow-[0_6px_18px_0_rgba(0,0,18,0.16)] md:p-8 lg:flex-row lg:items-start lg:gap-6 lg:p-15">
         <div className="flex flex-1 flex-col gap-6 md:gap-10">
-          <h2 className="fr-h1 mb-0!">
-            Bon pour toi,
-            <br />
-            utile pour tous
-          </h2>
+          <div>
+            <h2 className="fr-h1 mb-4!">
+              Bon pour vous,
+              <br />
+              utile pour tous
+            </h2>
+            <p className="fr-text--lead mb-0!">Une mission peut vous apporter&nbsp;:</p>
+          </div>
           <ul role="list" className="m-0! flex list-none! flex-col items-start gap-2 p-0! drop-shadow-[0_6px_9px_rgba(0,0,18,0.16)] md:flex-row md:flex-wrap md:gap-6">
             {BENEFICES.map((benefice) => (
               <li key={benefice.label} className="bg-background flex items-center gap-2 p-2 md:gap-4 md:px-4! md:py-3!">
@@ -64,13 +67,16 @@ export default function BonPourToi() {
           <h3 className="fr-h2 mb-0!">
             Pas le bon moment ?
             <br />
-            On te prévient
+            On vous prévient
           </h3>
-          <p className="fr-text--lead mb-0!">On t'envoie des idées de missions une fois par mois près de chez toi.</p>
+          <p className="fr-text--lead mb-0!">
+            Vous souhaitez attendre avant de vous lancer&nbsp;? Inscrivez-vous pour recevoir, une fois par mois, des idées de missions près de chez vous. Vous vous lancez quand
+            vous voulez, à votre rythme.
+          </p>
 
           {success ? (
             <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
-              <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
+              <p>Votre inscription est bien prise en compte. À très vite dans votre boîte mail !</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">

@@ -47,12 +47,12 @@ const post = (body: unknown, token = "test-alerts-token") =>
     .set("Authorization", `Bearer ${token}`)
     .send(body as object);
 
-type TestAlert = { type: string; publisherId: string; title?: string; description?: string; procedureUrl?: string };
+type TestAlert = { type: string; publisherId: string; title?: string; description?: string; procedureUrl?: string; itemId?: string; itemLabel?: string };
 const webhook = (alerts: TestAlert[], token?: string) =>
   post(
     metabasePayload(
-      ["publisher_id", "type", "title", "description", "procedure_url"],
-      alerts.map((a) => [a.publisherId, a.type, a.title ?? null, a.description ?? null, a.procedureUrl ?? null])
+      ["publisher_id", "type", "title", "description", "procedure_url", "item_id", "item_label"],
+      alerts.map((a) => [a.publisherId, a.type, a.title ?? null, a.description ?? null, a.procedureUrl ?? null, a.itemId ?? null, a.itemLabel ?? null])
     ),
     token
   );
@@ -283,6 +283,35 @@ describe("Warning alerting", () => {
       expect(sendTemplate).toHaveBeenCalledTimes(2);
     });
 
+    it("opens one alert per item key for the same advertiser and type, each notified once with its own label", async () => {
+      for (let i = 0; i < 2; i++) {
+        await webhook([
+          { type: TYPE, publisherId, itemId: "c1", itemLabel: "Campagne 1" },
+          { type: TYPE, publisherId, itemId: "c2", itemLabel: "Campagne 2" },
+        ]);
+      }
+      const warnings = await warningService.findWarnings({ publisherId });
+      expect(warnings.map((w) => [w.itemId, w.itemLabel, w.occurrences]).sort()).toEqual([
+        ["c1", "Campagne 1", 2],
+        ["c2", "Campagne 2", 2],
+      ]);
+      expect(sendTemplate).toHaveBeenCalledTimes(2);
+    });
+
+    it("keeps keyless alerts apart from keyed ones, and resolving one leaves the others open", async () => {
+      await webhook([
+        { type: TYPE, publisherId },
+        { type: TYPE, publisherId },
+        { type: TYPE, publisherId, itemId: "c1" },
+      ]);
+      const warnings = await warningService.findWarnings({ publisherId });
+      expect(warnings).toHaveLength(2);
+      const keyless = warnings.find((w) => !w.itemId)!;
+      expect(keyless.occurrences).toBe(2);
+      await warningService.updateWarning(keyless.id, { status: "RESOLVED" });
+      expect((await warningService.findWarnings({ publisherId, status: "TODO" })).map((w) => w.itemId)).toEqual(["c1"]);
+    });
+
     it("groups the alerts of one advertiser (several types) while keeping them separate", async () => {
       await webhook([
         { type: TYPE, publisherId },
@@ -363,7 +392,11 @@ describe("Admin alerts screen endpoints", () => {
     await warningService.createWarning({ type: "TRACKING_WARNING", publisherId, assigneeIds: [user.id] });
     await warningService.createWarning({ type: "ERROR_WARNING", publisherId, status: "RESOLVED" });
 
-    const search = (body: object) => request(app).post("/warning/search").set(adminAuth).send({ page: 1, ...body });
+    const search = (body: object) =>
+      request(app)
+        .post("/warning/search")
+        .set(adminAuth)
+        .send({ page: 1, ...body });
     expect((await search({ assigneeId: user.id, fixed: null })).body.data.map((w: { type: string }) => w.type)).toEqual(["TRACKING_WARNING"]);
     expect((await search({ unassigned: true, fixed: null })).body.data.map((w: { type: string }) => w.type)).toEqual(["ERROR_WARNING"]);
     expect((await search({ fixed: null })).body.total).toBe(2);

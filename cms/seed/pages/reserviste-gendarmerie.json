@@ -1,0 +1,464 @@
+{
+  "title": "Deviens réserviste de la Gendarmerie",
+  "slug": "reserviste-gendarmerie",
+  "seoTitle": "Deviens réserviste de la Gendarmerie | Trouve ta mission",
+  "seoDescription": "En parallèle de tes études ou de ton job, renforce les gendarmes de ton département : sécurité des grands événements, protection de la population, appui aux brigades. De 17 à 44 ans, avec indemnisation.",
+  "ogTitle": "Deviens réserviste de la Gendarmerie près de chez toi",
+  "ogDescription": "Quelques jours par mois, au service de ton territoire.",
+  "noindex": true,
+  "blocks": [
+    {
+      "__component": "blocks.hero",
+      "title": "Deviens réserviste de la Gendarmerie près de chez toi",
+      "description": "En parallèle de tes études ou de ton job, tu renforces les gendarmes de ton département : sécurité des grands événements, protection de la population, appui aux brigades.",
+      "tags": [
+        {
+          "icon": "team-line",
+          "color": "vert",
+          "label": "De 17 à 44 ans"
+        },
+        {
+          "icon": "money-euro-circle-line",
+          "color": "caramel",
+          "label": "Avec indemnisation"
+        },
+        {
+          "icon": "briefcase-line",
+          "color": "bleu",
+          "label": "Quelques jours par mois"
+        },
+        {
+          "icon": "plant-line",
+          "color": "bleu",
+          "label": "Formation de 15 jours"
+        },
+        {
+          "icon": "heart-line",
+          "color": "rose",
+          "label": "Au service de ton territoire"
+        }
+      ],
+      "primaryLabel": "Je candidate",
+      "primaryUrl": "https://www.lagendarmerierecrute.fr",
+      "secondaryLabel": "En savoir plus sur la mission",
+      "secondaryUrl": "https://www.lagendarmerierecrute.fr",
+      "hint": "À un clic de ton engagement.",
+      "image": {
+        "upload": "landings/reserviste-gendarmerie/hero-gendarmerie.webp"
+      },
+      "visual": "none"
+    },
+    {
+      "__component": "blocks.etapes",
+      "items": [
+        {
+          "icon": "self_training",
+          "title": "Découvre la mission",
+          "description": "Conditions, formation, rythme : tout est expliqué avant de te lancer."
+        },
+        {
+          "icon": "search",
+          "title": "Postule en ligne",
+          "description": "Tu crées ton espace candidat sur le site de la Gendarmerie."
+        },
+        {
+          "icon": "community",
+          "title": "Lance-toi",
+          "description": "Après les examens, tu suis 15 jours de formation et tu rejoins une unité près de chez toi."
+        }
+      ],
+      "ctaLabel": "Je deviens réserviste de la Gendarmerie",
+      "ctaUrl": "https://www.lagendarmerierecrute.fr"
+    },
+    {
+      "__component": "blocks.benefits",
+      "title": "Comment ça se passe ?",
+      "benefits": [
+        {
+          "emoji": "🪪",
+          "label": "De 17 à 44 ans"
+        },
+        {
+          "emoji": "🤝",
+          "label": "En collectif"
+        },
+        {
+          "emoji": "💸",
+          "label": "Avec indemnisation"
+        },
+        {
+          "emoji": "🎓",
+          "label": "Formation de 15 jours"
+        },
+        {
+          "emoji": "♥️",
+          "label": "Au service de ton territoire"
+        }
+      ],
+      "newsletterTitle": "C'est pas le bon moment ? On te livre les dernières missions par mail.",
+      "newsletterText": "Une fois par mois, des idées de missions adaptées à tes disponibilités et sélectionnées avec amour par l'équipe."
+    },
+    {
+      "__component": "blocks.testimonials",
+      "testimonials": [
+        {
+          "image": {
+            "upload": "landings/trouve-ta-caserne/temoignage-sarah.webp"
+          },
+          "quote": "S'engager, ça responsabilise énormément. Ce que j'ai appris, surtout, c'est la cohésion. On a toujours un binôme sur qui compter.",
+          "name": "Sarah",
+          "role": "sapeur-pompier volontaire depuis 2023"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.missions",
+      "title": "Il y a plein d'autres ==façons d'aider==",
+      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Trouve la mission d'engagement qui te correspond !",
+      "slots": [
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "solidarite_inclusion"
+        },
+        {
+          "dispositif": "service_civique",
+          "domaineEngagement": "sport"
+        },
+        {
+          "dispositif": "sapeurs_pompiers",
+          "domaineEngagement": "securite_secours"
+        },
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "education"
+        }
+      ],
+      "fillWithRandom": true,
+      "examples": true,
+      "background": "creme"
+    },
+    {
+      "__component": "blocks.faq",
+      "title": "C'est quoi ==TrouveTaMission.gouv.fr== ?",
+      "intro": "[TrouveTaMission.gouv.fr](/) est le service public numérique de l'engagement, accessible à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des citoyennes vers les missions d'intérêt général.",
+      "questions": [
+        {
+          "icon": "compass",
+          "question": "Une vie pas boring du tout",
+          "answer": "On t'aide à trouver où tes forces rencontrent les besoins du monde."
+        },
+        {
+          "icon": "backpack",
+          "question": "Ça compte pour mon parcours !",
+          "answer": "Chaque mission t'apporte des compétences, des connaissances, une idée plus claire de ce que tu veux faire."
+        },
+        {
+          "icon": "community",
+          "question": "Rencontre du beau monde",
+          "answer": "Découvre des personnes que tu n'aurais jamais croisées autrement et crée des liens."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.newsletter",
+      "title": "Reçois tes missions par email",
+      "subtitle": "1 email par mois avec les missions qui pourraient t'intéresser.",
+      "ctaText": "Recevoir mes missions",
+      "hintText": "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+    },
+    {
+      "__component": "blocks.accordion",
+      "title": "Devenir ==réserviste de la Gendarmerie,==\nles questions fréquentes",
+      "questions": [
+        {
+          "question": "Missions et conditions d’accès",
+          "answer": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Aucun diplôme n’est exigé pour devenir réserviste !\nVous devez cependant répondre à quelques conditions :"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "être de nationalité française ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "avoir effectué la JAPD, la JDC ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "être apte physiquement ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "être âgé d'au moins 17 ans et de moins de 45 ans."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "S’engager en tant que réserviste de gendarmerie offre plusieurs avantages :"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "un engagement souple selon vos disponibilités ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "une rémunération à la journée à partir de 60 € par jour (selon votre niveau) ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "la possibilité de monter en grade au sein de la réserve de gendarme adjoint à colonel ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "l'accès au concours sous-officier sur le terrain (SOG) en interne, sans condition de diplôme."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "Recrutement et épreuves",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Le recrutement des réservistes a lieu tout au long de l’année !"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Lorsque vous serez inscrit, vous serez contacté ultérieurement par le service gestionnaire dont vous relevez pour effectuer le contrôle de vos aptitudes comportementale, psychologique et médicale préalablement à votre engagement dans la réserve opérationnelle. A cet effet, un test psychotechnique ainsi qu'un examen médical assuré par un médecin des armées seront nécessaires. Une enquête administrative vous concernant sera également réalisée sur le fondement de l'article L.114-1 du code de la sécurité intérieure."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "La formation",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Une fois sélectionné, vous serez convoqué pour effectuer la préparation militaire gendarmerie (PMG), d’une durée de 15 jours. Préalablement, il vous sera demandé de suivre un enseignement à distance (EAD) d'une durée de 14 heures. Durant cette formation, vous obtiendrez la qualification permettant l’exercice des prérogatives d'agent de police judiciaire adjoint (APJA)."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "La PMG est obligatoirement suivie d'une formation complémentaire de 5 jours à réaliser dans les 18 mois suivant l’entrée en vigueur de votre contrat d'engagement dans la réserve."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Ces stages se déroulent près de chez vous et pendant les vacances scolaires. Suivant votre lieu d'affectation et l'unité de gendarmerie au sein de laquelle vous serez rattaché, la PMG et la formation complémentaire peuvent être groupées en une formation unique de trois semaines."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "L'affectation",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "À l'issue de la formation, vous signerez un contrat d’engagement à servir dans la réserve opérationnelle de la gendarmerie. Vous serez rattaché à la région la plus proche de votre domicile et employé en fonction de vos disponibilités. Vous serez un membre à part entière des forces de l'ordre. Vous participerez à l'action en uniforme dans trois grands types de missions :"
+                    }
+                  ]
+                },
+                {
+                  "type": "list",
+                  "format": "unordered",
+                  "children": [
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "sécurisation : secourir, rassurer et protéger la population, interpeller, participer à la sécurité des grands évènements ;"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "lutte anti-terroriste : patrouiller avec les armées pour contribuer à la sécurité nationale, protéger des points sensibles ;"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "list-item",
+                      "children": [
+                        {
+                          "type": "text",
+                          "text": "police judiciaire : appuyer les enquêteurs de la gendarmerie."
+                        }
+                      ]
+                    }
+                  ],
+                  "indentLevel": 1
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "linkLabel": "Toutes les réponses à tes questions",
+      "linkUrl": "https://www.lagendarmerierecrute.fr",
+      "teamPhotos": [
+        {
+          "upload": "team/membre-1.webp"
+        },
+        {
+          "upload": "team/membre-2.webp"
+        },
+        {
+          "upload": "team/membre-3.webp"
+        },
+        {
+          "upload": "team/membre-4.webp"
+        },
+        {
+          "upload": "team/membre-5.webp"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.partners",
+      "title": "Toutes les missions d’engagement vérifiées par l'État",
+      "partners": [
+        {
+          "name": "Les réserves des armées",
+          "description": "Des missions indemnisées de réservistes.",
+          "logo": {
+            "upload": "logo/roc-logo.png"
+          }
+        },
+        {
+          "name": "JeVeuxAider.gouv.fr",
+          "description": "La plateforme publique du bénévolat.",
+          "logo": {
+            "upload": "logo/jva-logo.png"
+          }
+        },
+        {
+          "name": "Le Service Civique",
+          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+          "logo": {
+            "upload": "logo/asc-logo.png"
+          }
+        },
+        {
+          "name": "Sapeurs-pompiers de France",
+          "description": "Deviens sapeur-pompier volontaire près de chez toi.",
+          "logo": {
+            "upload": "logo/spv-logo.png"
+          }
+        },
+        {
+          "name": "Gendarmerie nationale",
+          "description": "Deviens gendarme près de chez toi.",
+          "logo": {
+            "upload": "logo/gendarmerie-logo.png"
+          }
+        }
+      ]
+    }
+  ]
+}

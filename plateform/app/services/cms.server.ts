@@ -4,7 +4,7 @@ import type { CmsPage } from "~/types/cms";
 // Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.
 const CMS_URL = process.env.CMS_URL || "http://localhost:1337";
 // Les médias sont chargés par le navigateur : URL publique du CMS (différente de CMS_URL dans Docker).
-const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
+export const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
 const CMS_API_TOKEN = process.env.CMS_API_TOKEN;
 
 // Cache mémoire des pages publiées : évite un aller-retour CMS par visite et garde la page servie si le CMS est indisponible.
@@ -20,6 +20,7 @@ const SLUG_MAX_LENGTH = 80;
 // Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.
 const POPULATE = [
   "populate[blocks][on][blocks.hero][populate]=*",
+  "populate[blocks][on][blocks.mission-detail][populate]=*",
   "populate[blocks][on][blocks.rich-text][populate]=*",
   "populate[blocks][on][blocks.image][populate]=*",
   "populate[blocks][on][blocks.missions][populate][slots]=true",
@@ -31,6 +32,7 @@ const POPULATE = [
   "populate[blocks][on][blocks.faq][populate][questions]=true",
   "populate[blocks][on][blocks.accordion][populate]=*",
   "populate[blocks][on][blocks.partners][populate][partners][populate]=*",
+  "populate[blocks][on][blocks.newsletter][populate]=*",
 ].join("&");
 
 // Contenu publié uniquement (pas de brouillon côté plateform).

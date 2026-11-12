@@ -25,7 +25,7 @@ export default function Missions({
   missions: MissionBrowse[];
   cta: LandingCta;
   title: ReactNode;
-  description: string;
+  description: ReactNode;
   landing: LandingName;
   backTo: string;
   examples?: boolean;

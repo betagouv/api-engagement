@@ -55,9 +55,10 @@ export type CmsBlock =
       examples: boolean;
       background: "creme" | "galet";
     }
+  | { __component: "blocks.mission-detail"; missionId: string; backUrl: string | null }
   | { __component: "blocks.rich-text"; title: string | null; body: CmsRichTextNode[] }
   | { __component: "blocks.image"; image: CmsMedia; caption: string | null }
-  | { __component: "blocks.etapes"; items: { icon: string; title: string; description: string }[] }
+  | { __component: "blocks.etapes"; items: { icon: string; title: string; description: string }[]; ctaLabel?: string | null; ctaUrl?: string | null }
   | { __component: "blocks.benefits"; title: string; benefits: { emoji: string; label: string }[]; newsletterTitle: string; newsletterText: string }
   | { __component: "blocks.cards"; title: string; cards: { icon: string; title: string; points: string }[] }
   | { __component: "blocks.stories"; title: string; intro: string | null; stories: { image: CmsMedia; domain: string; story: string; publisher: string; logo: CmsMedia }[] }
@@ -71,6 +72,7 @@ export type CmsBlock =
       linkUrl: string | null;
       teamPhotos: CmsMedia[] | null;
     }
+  | { __component: "blocks.newsletter"; title: string; subtitle: string; ctaText: string; hintText: string }
   | { __component: "blocks.partners"; title: string; partners: { name: string; description: string; url: string | null; logo: CmsMedia }[] };
 
 export type CmsPage = {

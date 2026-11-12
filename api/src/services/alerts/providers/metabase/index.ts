@@ -21,7 +21,7 @@ type RawAlert = Omit<AlertInput, "type"> & { type: string };
 const columnName = (col: unknown): string => String(typeof col === "object" && col !== null && "name" in col ? (col as { name: unknown }).name : col).toLowerCase();
 
 // Une ligne de résultat = un annonceur. Colonnes reconnues (insensibles à la casse) : publisher_id (obligatoire),
-// type, title, description, procedure_url. Les autres colonnes sont ignorées, les lignes sans publisher_id aussi.
+// type, title, description, procedure_url, item_id (clé d'alerte), item_label. Les autres colonnes sont ignorées, les lignes sans publisher_id aussi.
 export const alertsFromRows = (cols: unknown[], rows: unknown[][]): RawAlert[] => {
   const index = new Map(cols.map((col, i) => [columnName(col), i]));
   const read = (row: unknown[], name: string): string | undefined => {
@@ -40,6 +40,8 @@ export const alertsFromRows = (cols: unknown[], rows: unknown[][]): RawAlert[] =
         publisherId,
         title: read(row, "title"),
         description: read(row, "description"),
+        itemId: read(row, "item_id"),
+        itemLabel: read(row, "item_label"),
         procedureUrl: read(row, "procedure_url"),
       },
     ];

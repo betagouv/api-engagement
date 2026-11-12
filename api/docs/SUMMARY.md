@@ -23,6 +23,10 @@
 
 - [Qualifier une candidature](tracking/qualifier.md)
 
+## Démarche Numérique
+
+- [Connecter vos démarches](demarche-numerique/connexion.md)
+
 ## Diffuseur (/publisher)
 
 - [Récupérer la liste des partenaires diffuseurs](diffuseur/liste.md)

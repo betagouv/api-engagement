@@ -76,15 +76,40 @@ export const WARNINGS = {
     name: "Taux de suppression critique",
     advice: "Un nombre important de missions a été supprimé. Nous vous conseillons de vérifier votre flux.",
   },
-  REDIRECTION_WARNING: {
+  CAMPAIGN_REDIRECTION_WARNING: {
     emoji: <span aria-hidden="true">🚨</span>,
     name: "Nombre de redirections inhabituel",
     advice: "Le nombre de redirections vers vos missions est inhabituel. Nous vous conseillons de vérifier votre tracking.",
   },
-  CONVERSION_WARNING: {
+  CAMPAIGN_CONVERSION_WARNING: {
     emoji: <span aria-hidden="true">🚨</span>,
     name: "Nombre de candidatures inhabituel",
     advice: "Le nombre de candidatures est inhabituel. Nous vous conseillons de vérifier votre tracking.",
+  },
+  LOW_CONVERSION_WARNING: {
+    emoji: <span aria-hidden="true">🚨</span>,
+    name: "Nombre de candidatures détectés faible",
+    advice: "Le nombre de candidatures détectées est faible. Nous vous conseillons de vérifier votre tracking.",
+  },
+  WIDGET_REDIRECTION_WARNING: {
+    emoji: <span aria-hidden="true">🚨</span>,
+    name: "Nombre de redirections inhabituel",
+    advice: "Le nombre de redirections depuis vos widgets est inhabituel. Nous vous conseillons de vérifier votre tracking.",
+  },
+  WIDGET_CONVERSION_WARNING: {
+    emoji: <span aria-hidden="true">🚨</span>,
+    name: "Nombre de candidatures inhabituel",
+    advice: "Le nombre de candidatures depuis vos widgets est inhabituel. Nous vous conseillons de vérifier votre tracking.",
+  },
+  API_WARNING: {
+    emoji: <span aria-hidden="true">🚨</span>,
+    name: "Irrégularité dans les appels API",
+    advice: "Les appels à l’API présentent une irrégularité. Nous vous conseillons de vérifier votre intégration.",
+  },
+  ATTRIBUTES_TRACKING_WARNING: {
+    emoji: <span aria-hidden="true">🤔</span>,
+    name: "Problème sur la récupération des attributes",
+    advice: "Les attributs de tracking ne sont pas correctement récupérés. Nous vous conseillons de vérifier votre tracking.",
   },
   OTHER_WARNING: {
     emoji: <span aria-hidden="true">🤔</span>,

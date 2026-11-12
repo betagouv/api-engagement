@@ -164,7 +164,7 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
     } catch (error) {
       // Index unique partiel : une seule alerte ouverte par annonceur et type.
       if (isUniqueViolation(error)) {
-        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "Une alerte ouverte existe déjà pour cet annonceur et ce type" });
+        return res.status(409).send({ ok: false, code: RESSOURCE_ALREADY_EXIST, message: "Une alerte ouverte existe déjà pour cet annonceur, ce type et cet élément" });
       }
       throw error;
     }
