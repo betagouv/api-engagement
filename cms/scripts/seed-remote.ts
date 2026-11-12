@@ -25,7 +25,7 @@ const request = async <T>(pathname: string, init: RequestInit = {}): Promise<T> 
   if (!response.ok) {
     throw new Error(`${init.method ?? "GET"} ${pathname} : ${response.status} ${await response.text()}`);
   }
-  return response.status === 204 ? (undefined as T) : response.json();
+  return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 };
 
 const uploadImage = async ({ upload, alternativeText = "" }: Upload): Promise<number> => {
