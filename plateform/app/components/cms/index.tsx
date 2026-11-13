@@ -4,7 +4,7 @@ import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
 import Histoires from "~/components/landings/defis-engagement/histoires";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
-import LocationFilter from "~/components/landings/location-filter";
+import LocationFilter, { type Location } from "~/components/landings/location-filter";
 import Missions from "~/components/landings/missions";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -43,6 +43,8 @@ export type CmsBlocksContext = {
   // La page contient une liste de missions filtrable (le hero affiche alors la recherche par localisation).
   hasMissionsBrowser: boolean;
   onStartQuiz: (section: QuizEntrySection) => void;
+  // Recherche par adresse du hero : ouvre la mission du dispositif la plus proche, sur son adresse la plus proche.
+  onLocationSearch: (dispositif: string, location: Location) => Promise<void>;
   missionsCta: (section: CtaSection) => LandingCta;
 };
 
@@ -63,9 +65,10 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       // Sans pastille ni bouton renseigné : hero historique avec le seul bouton quiz, sauf au-dessus d'une liste de
       // missions filtrable : sa recherche par localisation prend la place du bouton sur mobile et tablette (sur
       // desktop, elle est dans la colonne de filtres).
-      const withActions = block.tags.length > 0 || primary || secondary;
-      const withQuiz = !withActions && !context.hasMissionsBrowser;
-      return (
+      const { searchDispositif } = block;
+      const withActions = !searchDispositif && (block.tags.length > 0 || primary || secondary);
+      const withQuiz = !searchDispositif && !withActions && !context.hasMissionsBrowser;
+      const hero = (
         <Hero
           badge={block.badge ?? undefined}
           title={block.title}
@@ -76,10 +79,18 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           action={
             <>
               {withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
-              {context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
+              {searchDispositif && (
+                <LocationFilter
+                  id="hero-recherche"
+                  submitLabel={block.primaryLabel ?? "Trouve ta mission"}
+                  onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
+                  className="mb-16 max-w-149 max-lg:hidden"
+                />
+              )}
+              {!searchDispositif && context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
             </>
           }
-          className={`${BACKGROUNDS.creme} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
+          className={`${BACKGROUNDS.creme} ${searchDispositif ? "overflow-visible! rounded-none! md:max-lg:pb-14" : ""} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
           {campaignVisual && <HeroVisual />}
           {/* Visuel du CMS : sous le texte, en pleine largeur et collé au bas du hero sur mobile (image mobile si
@@ -97,6 +108,21 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
             </picture>
           )}
         </Hero>
+      );
+      if (!searchDispositif) return hero;
+      // Recherche par adresse : sous le texte sur desktop ; sur mobile et tablette, sous le visuel, à cheval sur le bas
+      // du hero (cf. maquette). Deux instances, une seule affichée selon la largeur.
+      return (
+        <div>
+          {hero}
+          <div className="fr-container relative z-20 -mt-8 lg:hidden">
+            <LocationFilter
+              id="hero-recherche-mobile"
+              submitLabel={block.primaryLabel ?? "Trouve ta mission"}
+              onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
+            />
+          </div>
+        </div>
       );
     }
     case "blocks.mission-detail": {

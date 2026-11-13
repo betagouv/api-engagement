@@ -1,0 +1,378 @@
+{
+  "title": "Deviens sapeur-pompier volontaire",
+  "slug": "sapeur-pompier-volontaire",
+  "seoTitle": "Deviens sapeur-pompier volontaire près de chez toi | Trouve ta mission",
+  "seoDescription": "Dès 16 ans, rejoins la caserne à côté de chez toi : formation initiale assurée par le SDIS, indemnisation, et un engagement qui se combine avec tes études ou ton job.",
+  "ogTitle": "Deviens sapeur-pompier volontaire dans la caserne à côté de chez toi",
+  "ogDescription": "Indique ta ville, on te trouve la caserne la plus proche.",
+  "noindex": true,
+  "blocks": [
+    {
+      "__component": "blocks.hero",
+      "title": "Deviens sapeur-pompier volontaire dans la caserne à côté de chez toi",
+      "description": "Enfile ton casque, ta tenue bleu et rouge, et apprends les gestes qui sauvent. Les sapeurs-pompiers volontaires, ce sont des jeunes comme toi, formés pour agir. Et ça se combine très bien avec tes études ou ton job. Fais du repérage de caserne en indiquant ta ville !",
+      "tags": [],
+      "primaryLabel": "Trouve ta caserne",
+      "searchDispositif": "sapeurs_pompiers",
+      "image": {
+        "upload": "landings/sapeur-pompier-volontaire/hero-pompier.webp"
+      },
+      "imageMobile": {
+        "upload": "landings/sapeur-pompier-volontaire/hero-pompier-mobile.webp"
+      },
+      "visual": "none"
+    },
+    {
+      "__component": "blocks.etapes",
+      "items": [
+        {
+          "icon": "self_training",
+          "title": "Filtre sur ta ville",
+          "description": "On identifie le service départemental d’incendie et de secours (SDIS) dont tu dépends."
+        },
+        {
+          "icon": "search",
+          "title": "Choisis ta mission",
+          "description": "Conditions, formation, rythme : tout ce qu’il faut savoir avant de te lancer."
+        },
+        {
+          "icon": "community",
+          "title": "Contacte la caserne",
+          "description": "On te redirige vers le formulaire de dépôt de candidature correspondant à ton département."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.benefits",
+      "title": "Comment ça se passe ?",
+      "benefits": [
+        {
+          "emoji": "🪪",
+          "label": "Dès 16 ans"
+        },
+        {
+          "emoji": "🤝",
+          "label": "En collectif"
+        },
+        {
+          "emoji": "💸",
+          "label": "Avec indemnisation"
+        },
+        {
+          "emoji": "🎓",
+          "label": "Formation initiale assurée par le SDIS"
+        },
+        {
+          "emoji": "♥️",
+          "label": "La fierté d’être utile"
+        }
+      ],
+      "newsletterTitle": "C'est pas le bon moment ? On te livre les dernières missions par mail.",
+      "newsletterText": "Une fois par mois, des idées de missions adaptées à tes disponibilités et sélectionnées avec amour par l'équipe."
+    },
+    {
+      "__component": "blocks.testimonials",
+      "testimonials": [
+        {
+          "image": {
+            "upload": "landings/trouve-ta-caserne/temoignage-sarah.webp"
+          },
+          "quote": "S'engager, ça responsabilise énormément. Ce que j'ai appris, surtout, c'est la cohésion. On a toujours un binôme sur qui compter.",
+          "name": "Sarah",
+          "role": "sapeur-pompier volontaire depuis 2023"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.missions",
+      "title": "Il y a plein d'autres ==façons d'aider==",
+      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Trouve la mission d'engagement qui te correspond !",
+      "slots": [
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "solidarite_inclusion"
+        },
+        {
+          "dispositif": "service_civique",
+          "domaineEngagement": "sport"
+        },
+        {
+          "dispositif": "sapeurs_pompiers",
+          "domaineEngagement": "securite_secours"
+        },
+        {
+          "dispositif": "benevolat",
+          "domaineEngagement": "education"
+        }
+      ],
+      "fillWithRandom": true,
+      "examples": true,
+      "background": "creme"
+    },
+    {
+      "__component": "blocks.faq",
+      "title": "C'est quoi ==TrouveTaMission.gouv.fr== ?",
+      "intro": "[TrouveTaMission.gouv.fr](/) est le service public numérique de l'engagement, accessible à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des citoyennes vers les missions d'intérêt général.",
+      "questions": [
+        {
+          "icon": "compass",
+          "question": "Une vie pas boring du tout",
+          "answer": "On t'aide à trouver où tes forces rencontrent les besoins du monde."
+        },
+        {
+          "icon": "backpack",
+          "question": "Ça compte pour mon parcours !",
+          "answer": "Chaque mission t'apporte des compétences, des connaissances, une idée plus claire de ce que tu veux faire."
+        },
+        {
+          "icon": "community",
+          "question": "Rencontre du beau monde",
+          "answer": "Découvre des personnes que tu n'aurais jamais croisées autrement et crée des liens."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.newsletter",
+      "title": "Reçois tes missions par email",
+      "subtitle": "1 email par mois avec les missions qui pourraient t'intéresser.",
+      "ctaText": "Recevoir mes missions",
+      "hintText": "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment."
+    },
+    {
+      "__component": "blocks.accordion",
+      "title": "Devenir ==sapeur-pompier volontaire,==\nles questions fréquentes",
+      "questions": [
+        {
+          "question": "Qui peut devenir sapeur-pompier volontaire ?",
+          "answer": [
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Le volontariat est largement accessible : il n’est pas nécessaire d’être un sportif de haut niveau, ni d’avoir déjà une expérience dans le secours. Ce qui compte surtout :"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "la motivation et l’envie de s’engager dans la durée ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "la proximité avec un centre de secours, pour pouvoir le rejoindre rapidement en cas d’intervention ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "la disponibilité régulière — les personnes disponibles en journée et en semaine sont particulièrement recherchées ;"
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "l’aptitude médicale et physique."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "children": [
+                {
+                  "type": "text",
+                  "text": "Quelques conditions s’ajoutent : avoir au moins 16 ans (avec l’accord écrit d’un représentant légal pour les mineurs), résider régulièrement en France (la nationalité française n’est pas exigée), jouir de ses droits civiques, être en règle avec les obligations du service national et avoir un casier judiciaire compatible avec l’engagement. Pour les plus jeunes, le dispositif Jeune sapeur-pompier (JSP) est accessible dès 11 ans et prépare au volontariat."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "En quoi consiste l'engagement ?",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Il n’existe pas de volume horaire national : selon les centres, les volontaires assurent des gardes et/ou des astreintes, participent aux interventions et suivent des formations régulières."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Le premier engagement dure 5 ans, renouvelable. Il commence par une période probatoire de 1 à 3 ans, pendant laquelle se déroule une formation initiale de 10 à 30 jours ; la formation continue ensuite tout au long de l’engagement."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "C’est un engagement qui s’inscrit dans le temps : beaucoup de volontaires restent engagés une dizaine d’années, voire plus."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "Comment se passe la candidature ?",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Il n’existe pas de parcours national unique : chaque département, à travers son Service départemental d’incendie et de secours (SDIS), organise son propre recrutement. Selon les départements, la candidature se fait par un formulaire en ligne, par email, par téléphone ou directement auprès d’un centre de secours.\nLa candidature est ensuite orientée vers le centre de secours le plus proche du domicile ou du lieu de travail. Le chef de centre rencontre généralement la personne pour parler de sa motivation et de ses disponibilités. Si l’échange est concluant, viennent ensuite les tests physiques, la visite médicale, le dossier administratif, puis la formation."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "À noter : le recrutement prend du temps, souvent plusieurs mois, parfois jusqu’à un an selon les territoires. Les besoins varient aussi beaucoup d’un centre à l’autre : certains recrutent activement, d’autres très peu à un moment donné."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "question": "Comment ça se passe sur TrouveTaMission.gouv.fr ?",
+          "answer": [
+            {
+              "type": "list",
+              "format": "unordered",
+              "children": [
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Les missions de sapeur-pompier volontaire ne se présentent pas comme les autres. Chacune correspond à un département et à son SDIS : elle ne décrit pas un poste précis, mais sert de porte d’entrée vers le volontariat dans ce département."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "En cliquant sur « Postuler », on arrive sur le formulaire de candidature du SDIS quand il en existe un, ou sinon sur sa page d’information sur le volontariat, qui indique comment se porter candidat."
+                    }
+                  ]
+                },
+                {
+                  "type": "list-item",
+                  "children": [
+                    {
+                      "type": "text",
+                      "text": "Bon à savoir : sur la plateforme, ces missions sont proposées à partir de 18 ans. Si l’engagement est théoriquement possible dès 16 ans, les recrutements de mineurs restent en pratique très rares. Entre 16 et 17 ans, le mieux est de se renseigner directement auprès du SDIS de son département."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "linkLabel": "Toutes les réponses à tes questions",
+      "linkUrl": "https://www.pompiers.fr/grand-public/devenir-sapeur-pompier",
+      "teamPhotos": [
+        {
+          "upload": "team/membre-1.webp"
+        },
+        {
+          "upload": "team/membre-2.webp"
+        },
+        {
+          "upload": "team/membre-3.webp"
+        },
+        {
+          "upload": "team/membre-4.webp"
+        },
+        {
+          "upload": "team/membre-5.webp"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.partners",
+      "title": "Toutes les missions d’engagement vérifiées par l'État",
+      "partners": [
+        {
+          "name": "Les réserves des armées",
+          "description": "Des missions indemnisées de réservistes.",
+          "logo": {
+            "upload": "logo/roc-logo.png"
+          }
+        },
+        {
+          "name": "JeVeuxAider.gouv.fr",
+          "description": "La plateforme publique du bénévolat.",
+          "logo": {
+            "upload": "logo/jva-logo.png"
+          }
+        },
+        {
+          "name": "Le Service Civique",
+          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+          "logo": {
+            "upload": "logo/asc-logo.png"
+          }
+        },
+        {
+          "name": "Sapeurs-pompiers de France",
+          "description": "Deviens sapeur-pompier volontaire près de chez toi.",
+          "logo": {
+            "upload": "logo/spv-logo.png"
+          }
+        },
+        {
+          "name": "Gendarmerie nationale",
+          "description": "Deviens gendarme près de chez toi.",
+          "logo": {
+            "upload": "logo/gendarmerie-logo.png"
+          }
+        }
+      ]
+    }
+  ]
+}

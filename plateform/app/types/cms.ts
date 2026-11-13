@@ -43,6 +43,8 @@ export type CmsBlock =
       secondaryLabel: string | null;
       secondaryUrl: string | null;
       hint: string | null;
+      // Recherche par adresse à la place des boutons : ouvre la mission de ce dispositif la plus proche de l'adresse choisie.
+      searchDispositif?: string | null;
       image: CmsMedia | null;
       imageMobile: CmsMedia | null;
       visual: "none" | "chacun_pour_tous";

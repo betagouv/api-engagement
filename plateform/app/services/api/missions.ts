@@ -25,6 +25,10 @@ export async function browseMissions(filters: MissionBrowseFilters, request: Req
   if (filters.exclude) params.set("exclude", JSON.stringify(filters.exclude));
   if (filters.includeRemote) params.set("includeRemote", "true");
   if (filters.sort) params.set("sort", filters.sort);
+  if (filters.lat !== undefined && filters.lon !== undefined) {
+    params.set("lat", String(filters.lat));
+    params.set("lon", String(filters.lon));
+  }
   if (filters.slots?.length) params.set("slots", JSON.stringify(filters.slots));
 
   return api.get<MissionBrowseResponse>(`/missions/browse?${params.toString()}`);

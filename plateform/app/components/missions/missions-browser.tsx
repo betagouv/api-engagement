@@ -15,6 +15,7 @@ import { PUBLISHER_ID } from "~/services/config";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackMissionsPageChanged } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
 import { SINGLE_CHOICE_FILTERS, getPageWindow, getSelectedValues, getTotalPages, type LandingFilterKey } from "~/utils/landing-missions";
+import { buildMissionBrowseHref } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 
 // Place de la carte d'inscription aux alertes dans la première page.
@@ -275,6 +276,8 @@ export default function MissionsBrowser({
         const params = new URLSearchParams(prev);
         for (const key of filters) params.delete(key);
         params.delete(LOCATION_LABEL_PARAM);
+        params.delete("lat");
+        params.delete("lon");
         params.delete("page");
         return params;
       },
@@ -348,7 +351,7 @@ export default function MissionsBrowser({
                     image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
                     domainLabel={getDomainLabel(mission.domain)}
                     title={mission.title}
-                    to={`/missions/${mission.id}`}
+                    to={buildMissionBrowseHref(mission)}
                     state={{ entrySource: pageName, backTo } satisfies MissionDetailNavState}
                     onClick={() =>
                       trackMissionClickedFromBrowse(mission, {

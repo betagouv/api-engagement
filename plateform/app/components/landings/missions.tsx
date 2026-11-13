@@ -8,6 +8,7 @@ import EmailMissionsModal from "~/components/results/email-missions-modal";
 import Carousel from "~/components/ui/carousel";
 import { trackMissionClickedFromBrowse } from "~/services/tracking/events";
 import type { LandingCta, LandingName, MissionDetailNavState } from "~/services/tracking/types";
+import { buildMissionBrowseHref } from "~/utils/mission";
 
 // Carrousel de missions (issues du loader de la landing) dans un bandeau coloré. `landing` nomme la page
 // pour le tracking, `backTo` est son chemin, pour revenir à la landing depuis la fiche mission.
@@ -67,7 +68,7 @@ export default function Missions({
                 image={mission.photo ?? mission.organizationLogo ?? mission.domainLogo}
                 domainLabel={getDomainLabel(mission.domain)}
                 title={mission.title}
-                to={examples ? undefined : `/missions/${mission.id}`}
+                to={examples ? undefined : buildMissionBrowseHref(mission)}
                 state={{ entrySource: landing, backTo } satisfies MissionDetailNavState}
                 onClick={() => trackMissionClickedFromBrowse(mission, { section: landing, entryPage: landing, opensExternal: false, rank: index + 1 })}
                 tags={examples ? undefined : buildMissionBrowseTags(mission)}

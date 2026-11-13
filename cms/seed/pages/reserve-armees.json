@@ -15,6 +15,9 @@
       "description": "Armées, Gendarmerie, Police nationale : en parallèle de tes études ou de ton job, tu renforces celles et ceux qui protègent le pays, selon tes disponibilités.",
       "image": {
         "upload": "landings/reserve-armees/hero-armees.webp"
+      },
+      "imageMobile": {
+        "upload": "landings/reserve-armees/hero-armees-mobile.webp"
       }
     },
     {
