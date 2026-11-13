@@ -122,6 +122,7 @@ export const WARNING_STATUS = {
   TODO: { name: "À traiter", className: "bg-red-100 text-red-700" },
   IN_PROGRESS: { name: "En cours", className: "bg-yellow-tournesol-950 text-yellow-tournesol-200" },
   RESOLVED: { name: "Résolue", className: "bg-green-100 text-green-700" },
+  IGNORED: { name: "Ignorée", className: "bg-grey-200 text-grey-default" },
 };
 
 export const REPORT_STATUS = {

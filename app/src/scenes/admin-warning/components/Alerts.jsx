@@ -25,6 +25,7 @@ const STATUS_OPTIONS = [
   { value: "TODO", label: "À traiter" },
   { value: "IN_PROGRESS", label: "En cours" },
   { value: "RESOLVED", label: "Résolue" },
+  { value: "IGNORED", label: "Ignorée" },
 ];
 const TYPE_OPTIONS = Object.entries(WARNINGS).map(([value, { name }]) => ({ value, label: name }));
 const fullName = (u) => [u.firstname, u.lastname].filter(Boolean).join(" ") || u.email;
