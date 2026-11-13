@@ -7,8 +7,8 @@ import { subscribeNewsletter } from "~/services/newsletter";
 import { useQuizStore } from "~/stores/quiz";
 import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 
-// Carte insérée parmi les premières missions d'une landing : inscrit le visiteur à la newsletter mensuelle de
-// missions. Contenu calibré pour tenir dans la hauteur fixe d'une carte mission (h-89.75) : côte à côte, les deux
+// Carte insérée parmi les premières missions d'une landing : inscrit le visiteur à la newsletter mensuelle
+// (missions et actualités sur l'engagement). Contenu calibré pour tenir dans la hauteur fixe d'une carte mission (h-89.75) : côte à côte, les deux
 // cartes s'alignent. Pas de quiz sur ces parcours, donc pas de réponses à rattacher (contrairement au bandeau des résultats).
 // `signupSource` : listes Brevo propres à la landing (ex. réengagement Police) ; sans source, liste par défaut.
 export default function MissionAlertCard({ signupSource }: { signupSource?: SignupSource }) {
@@ -46,19 +46,20 @@ export default function MissionAlertCard({ signupSource }: { signupSource?: Sign
       <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16 dark:hidden" />
       <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-2 right-4 w-14 rotate-[-11deg] dark:hidden" />
 
-      <h3 className="fr-text--lg text-title-grey relative mb-0! pr-16 font-bold">Recevez des nouvelles missions par e-mail</h3>
-      <p className="fr-text--sm relative mb-1!">On vous envoie des nouvelles missions qui vous correspondent</p>
+      <h3 className="fr-text--lg text-title-grey relative mb-0! pr-16 font-bold">Recevez de nouvelles missions par e-mail</h3>
+      <p className="fr-text--sm relative mb-1!">1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement.</p>
 
       {success ? (
         <p role="status" className="text-blue-france-sun! relative mb-0! flex items-center gap-2 font-bold!">
           <span className="fr-icon-check-line" aria-hidden="true" />
-          C'est noté ! Vous recevrez les nouvelles missions.
+          C'est noté ! Vous recevrez chaque mois de nouvelles missions et des actualités sur l'engagement.
         </p>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="relative flex flex-col gap-2">
           <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
             <label className="fr-label" htmlFor={emailId}>
-              E-mail
+              Votre adresse e-mail
+              <span className="fr-hint-text">Format attendu : nom@domaine.fr</span>
             </label>
             <input
               id={emailId}
@@ -81,7 +82,7 @@ export default function MissionAlertCard({ signupSource }: { signupSource?: Sign
             {loading ? "Inscription en cours…" : "Recevoir des missions"}
           </button>
           <p id={`${emailId}-hint`} className="fr-hint-text mb-0!">
-            1 e-mail 1 fois par mois. Uniquement des missions.
+            Vous pouvez vous désinscrire en un clic depuis chaque e-mail.
           </p>
         </form>
       )}

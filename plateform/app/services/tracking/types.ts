@@ -123,8 +123,8 @@ export type EmailMissionsEntryPage = "quiz" | "results" | "missions_list" | Land
 
 // --- email_capture.* ---
 // Origine d'inscription, alignée sur l'attribut Brevo SIGNUP_SOURCE (cf. SIGNUP_SOURCES dans @engagement/dto) pour croiser les outils.
-// `save_mission` : cœur sur une mission (modale des cartes).
-export type EmailCaptureSignupSource = "quiz" | "result_list" | "save_mission";
+// `save_mission` : cœur sur une mission (modale des cartes). `mission_detail` : CTA « Recevoir cette mission par e-mail » de la fiche.
+export type EmailCaptureSignupSource = "quiz" | "result_list" | "save_mission" | "mission_detail";
 // Cause d'un refus de soumission : champ vide ou format invalide (validation locale), ou erreur de l'API.
 export type EmailCaptureErrorType = "invalid_format" | "api_error";
 // Sortie sans email : lien « Continuer sans… » ou fermeture de la modale (croix, Échap).

@@ -1,3 +1,4 @@
+import type { SignupSource } from "@engagement/dto";
 import { type SubmitEvent, useState } from "react";
 
 import { subscribeNewsletter } from "~/services/newsletter";
@@ -16,13 +17,16 @@ interface NewsletterProps {
   subtitle: string;
   ctaText: string;
   hintText: string;
+  // Origine enregistrée dans Brevo (SIGNUP_SOURCE) : une valeur `…_newsletter` par page qui affiche le bloc.
+  signupSource: SignupSource;
 }
 
 export default function Newsletter({
   title = "Inscris-toi à la newsletter",
   subtitle = "Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager.",
   ctaText = "Je m'inscris",
-  hintText = "1 e-mail. Pas de spam. Tu te désinscris quand tu veux.",
+  hintText = "1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail.",
+  signupSource,
 }: NewsletterProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [loading, setLoading] = useState(false);
@@ -38,7 +42,7 @@ export default function Newsletter({
     setError(null);
 
     try {
-      await subscribeNewsletter({ email, distinctId });
+      await subscribeNewsletter({ email, distinctId, signupSource });
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {
@@ -70,7 +74,7 @@ export default function Newsletter({
                   <form onSubmit={handleSubmit}>
                     <div className={`fr-input-group ${error ? "fr-input-group--error" : ""}`}>
                       <label className="fr-label" htmlFor="newsletter-email">
-                        Votre adresse électronique (ex. : nom@domaine.fr)
+                        Ton adresse e-mail (ex. : nom@domaine.fr)
                       </label>
                       <div className="fr-input-wrap fr-input-wrap--addon">
                         <input
@@ -83,7 +87,7 @@ export default function Newsletter({
                           aria-invalid={error ? true : undefined}
                           aria-describedby={`newsletter-email-hint ${error ? "newsletter-email-messages" : ""}`}
                           className="fr-input"
-                          placeholder="Votre adresse électronique (ex. : nom@domaine.fr)"
+                          placeholder="Ton adresse e-mail (ex. : nom@domaine.fr)"
                         />
                         <button type="submit" disabled={loading} className="fr-btn shrink-0! whitespace-nowrap!">
                           {loading ? "Inscription en cours…" : ctaText}

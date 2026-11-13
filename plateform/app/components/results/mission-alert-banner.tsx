@@ -10,8 +10,8 @@ interface MissionAlertBannerProps {
   userScoringId: string | undefined;
 }
 
-// Bandeau inséré dans la liste des résultats : inscrit l'utilisateur à la liste Brevo « Recommandations futures »
-// (source `result_list`), qui lui enverra les nouvelles missions correspondant à ses réponses.
+// Bandeau inséré dans la liste des résultats : inscrit l'utilisateur aux listes Brevo « Newsletter » et
+// « Recommandations futures » (source `result_list`), en gardant ses réponses pour les prochaines missions.
 export default function MissionAlertBanner({ userScoringId }: MissionAlertBannerProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [email, setEmail] = useState("");
@@ -54,13 +54,16 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
       <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16" />
       <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute -top-0.5 right-4 w-12 rotate-[-11deg]" />
 
-      <h2 className="relative fr-text--lg font-bold! mb-0! pr-12">Reçois des missions qui matchent dès qu'elles sont dispo</h2>
-      <p className="relative fr-text--sm mb-0!">On garde tes réponses, et on t'envoie des nouvelles missions qui te correspondent quand elles sont dispos.</p>
+      <h2 className="relative fr-text--lg font-bold! mb-0! pr-12">Reçois les nouvelles missions qui matchent tes réponses</h2>
+      <p className="relative fr-text--sm mb-0!">
+        On garde tes réponses et on t'envoie 1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement. Tu peux te désinscrire en un clic depuis chaque
+        e-mail.
+      </p>
 
       {success ? (
         <p role="status" className="relative flex items-center gap-2 font-bold! text-blue-france-sun! mb-0!">
           <span className="fr-icon-check-line" aria-hidden="true" />
-          C'est noté ! Tu recevras les nouvelles missions qui te correspondent.
+          C'est noté ! Tu recevras chaque mois de nouvelles missions et des actualités sur l'engagement.
         </p>
       ) : (
         <form onSubmit={handleSubmit} noValidate className="relative">
@@ -77,7 +80,7 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 aria-invalid={error ? true : undefined}
-                aria-describedby={`${emailId}-hint ${error ? `${emailId}-error` : ""}`}
+                aria-describedby={error ? `${emailId}-error` : undefined}
                 className={`fr-input bg-background! ${error ? "fr-input--error" : ""}`}
                 placeholder="nom@domaine.fr"
               />
@@ -91,9 +94,6 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
               </div>
             )}
           </div>
-          <p id={`${emailId}-hint`} className="fr-hint-text mt-2! mb-0!">
-            1 e-mail 1 fois par mois. Uniquement des missions. Désinscription en un clic.
-          </p>
         </form>
       )}
     </section>
