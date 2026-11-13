@@ -329,6 +329,7 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
 
 const exampleMission = (id: string, title: string, photo: string, organizationName: string): MissionBrowse => ({
   id,
+  addressId: null,
   title,
   description: null,
   remote: "no",

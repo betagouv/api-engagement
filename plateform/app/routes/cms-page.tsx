@@ -13,6 +13,7 @@ import type { CtaSection, LandingCta, LandingName, MissionDetailNavState, QuizEn
 import { useQuizStore } from "~/stores/quiz";
 import type { CmsBlock } from "~/types/cms";
 import { buildLandingBrowseFilters, getLandingMissionsConfig } from "~/utils/landing-missions";
+import { buildMissionBrowseHref } from "~/utils/mission";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/cms-page";
@@ -113,28 +114,16 @@ export default function CmsLanding() {
     navigate("/quiz/age", { state: { entrySource: `${landing}_cta`, entrySection: section } });
   };
 
-  // Recherche par adresse du hero (ex. « Trouve ta caserne ») : la mission du dispositif la plus proche (ex. celle du
-  // SDIS, qui porte une adresse par caserne), ouverte sur son adresse la plus proche ; sinon les missions du département.
+  // Recherche par adresse du hero (ex. « Trouve ta caserne ») : la mission du dispositif la plus proche, ouverte sur
+  // l'adresse retenue par l'API ; sinon les missions du département.
   const onLocationSearch = async (dispositif: string, { departmentCode, label, lat, lon }: Location) => {
     const { data } = await browseMissionsFromClient({ dispositif: [dispositif], lat, lon, pageSize: 1 });
     const [mission] = data;
     if (mission) {
-      // Distance approchée (degrés, longitude corrigée par la latitude) : suffit pour comparer des casernes entre elles.
-      const distance = (location: { lat: number; lon: number }) => (location.lat - lat) ** 2 + ((location.lon - lon) * Math.cos((lat * Math.PI) / 180)) ** 2;
-      let nearestAddressId: string | null = null;
-      let nearestDistance = Infinity;
-      for (const address of mission.addresses) {
-        if (!address.id || !address.location) continue;
-        if (distance(address.location) < nearestDistance) {
-          nearestDistance = distance(address.location);
-          nearestAddressId = address.id;
-        }
-      }
-      const search = nearestAddressId ? `?addressId=${encodeURIComponent(nearestAddressId)}` : "";
-      navigate(`/missions/${mission.id}${search}`, { state: { entrySource: landing, backTo: pathname } satisfies MissionDetailNavState });
+      navigate(buildMissionBrowseHref(mission), { state: { entrySource: landing, backTo: pathname } satisfies MissionDetailNavState });
       return;
     }
-    const params = new URLSearchParams({ departmentCode, [LOCATION_LABEL_PARAM]: label });
+    const params = new URLSearchParams({ departmentCode, [LOCATION_LABEL_PARAM]: label, lat: String(lat), lon: String(lon) });
     navigate(`/missions?${params}`);
   };
 

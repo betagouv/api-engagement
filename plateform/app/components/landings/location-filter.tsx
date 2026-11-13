@@ -106,16 +106,21 @@ export default function LocationFilter({
     }
   };
 
-  const applyLocation = (location: Pick<Location, "departmentCode" | "label"> | null) => {
+  const applyLocation = (location: Location | null) => {
     setSearchParams(
       (prev) => {
         const params = new URLSearchParams(prev);
         params.delete("page");
         params.delete("departmentCode");
         params.delete(LOCATION_LABEL_PARAM);
+        params.delete("lat");
+        params.delete("lon");
         if (location) {
           params.set("departmentCode", location.departmentCode);
           params.set(LOCATION_LABEL_PARAM, location.label);
+          // Point de la recherche : l'API trie les missions par distance et retient leur adresse la plus proche.
+          params.set("lat", String(location.lat));
+          params.set("lon", String(location.lon));
         }
         return params;
       },
@@ -142,13 +147,14 @@ export default function LocationFilter({
       setError("Sélectionnez une adresse ou une ville dans la liste de suggestions.");
       return;
     }
+    const location = { departmentCode, label: selected.label, lat: selected.lat, lon: selected.lon };
     if (!onSearch) {
-      applyLocation({ departmentCode, label: selected.label });
+      applyLocation(location);
       return;
     }
     setLoading(true);
     try {
-      await onSearch({ departmentCode, label: selected.label, lat: selected.lat, lon: selected.lon });
+      await onSearch(location);
     } catch {
       setError("La recherche n'a pas abouti, réessaie dans un instant.");
     } finally {
