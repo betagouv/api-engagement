@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 
+import HeroWebp from "~/assets/images/landings/accompagnateurs/hero.webp";
 import AscPng from "~/assets/images/logo/asc-logo.png";
 import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
 import SpvPng from "~/assets/images/logo/spv-logo.png";
-import HeroVisual from "~/components/landings/accompagnateurs/hero-visual";
 import Benefices from "~/components/landings/accompagnateurs/benefices";
 import PourQui from "~/components/landings/accompagnateurs/pour-qui";
 import SignupForm, { SIGNUP_EMAIL_ID } from "~/components/landings/accompagnateurs/signup-form";
@@ -82,7 +82,8 @@ export default function Accompagnateurs() {
         }
         className="bg-brown-cafe-creme-975 lg:min-h-167"
       >
-        <HeroVisual />
+        {/* Visuel calé en bas de la section : centré sous le formulaire sur mobile et tablette, à droite à partir du desktop. */}
+        <img src={HeroWebp} alt="" className="mx-auto mb-10 aspect-780/644 w-[calc(100%-2rem)] md:mb-14 md:w-[73%] lg:absolute lg:right-0 lg:bottom-0 lg:mx-0 lg:mb-0 lg:w-[54.2%] lg:max-w-195" />
       </Hero>
 
       <PourQui />
