@@ -5,6 +5,7 @@ import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
 import SpvPng from "~/assets/images/logo/spv-logo.png";
+import HeroVisual from "~/components/landings/accompagnateurs/hero-visual";
 import Benefices from "~/components/landings/accompagnateurs/benefices";
 import PourQui from "~/components/landings/accompagnateurs/pour-qui";
 import SignupForm, { SIGNUP_EMAIL_ID } from "~/components/landings/accompagnateurs/signup-form";
@@ -75,13 +76,13 @@ export default function Accompagnateurs() {
         contentClassName="lg:max-w-155"
         description="Bénévolat, Service Civique, réserves : une mission aide les personnes que vous accompagnez à se développer et à avancer dans leur projet."
         action={
-          <div className="pb-8 md:pb-14 lg:max-w-155">
+          <div className="pb-6 md:pb-6 lg:max-w-155 lg:pb-14">
             <SignupForm />
           </div>
         }
-        className="bg-brown-cafe-creme-975"
+        className="bg-brown-cafe-creme-975 lg:min-h-167"
       >
-        {null}
+        <HeroVisual />
       </Hero>
 
       <PourQui />
