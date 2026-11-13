@@ -35,6 +35,8 @@ export interface PublisherOrganizationFindManyOptions {
   select?: Prisma.PublisherOrganizationSelect;
   take?: number;
   skip?: number;
+  cursor?: Prisma.PublisherOrganizationWhereUniqueInput;
+  orderBy?: Prisma.PublisherOrganizationOrderByWithRelationInput;
 }
 export interface PublisherOrganizationRecord {
   id: string;
