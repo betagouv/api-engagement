@@ -1,14 +1,30 @@
 import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 
-import type { MissionRecord } from "@/types/mission";
+import type { MissionAddress, MissionRecord } from "@/types/mission";
+import { getDistanceFromLatLonInKm } from "@/utils/geo";
 import { getMissionTrackedApplicationUrl } from "@/utils/mission";
 
-export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
+// Avec un point de référence, l'adresse retenue est la plus proche (ex. la caserne la plus proche d'un SDIS).
+const findNearestAddress = (addresses: MissionAddress[], lat: number, lon: number): MissionAddress | undefined => {
+  let nearestAddress = addresses[0];
+  let nearestDistance = Infinity;
+  for (const address of addresses) {
+    const distance = getDistanceFromLatLonInKm(lat, lon, address.location?.lat, address.location?.lon);
+    if (distance !== undefined && distance < nearestDistance) {
+      nearestAddress = address;
+      nearestDistance = distance;
+    }
+  }
+  return nearestAddress;
+};
+
+export const toMissionBrowse = (mission: MissionRecord, point?: { lat?: number; lon?: number }): MissionBrowse => {
   const hasCompensation = mission.compensationAmount != null || mission.compensationAmountMax != null;
-  const primaryAddress = mission.addresses[0];
+  const primaryAddress = point?.lat !== undefined && point.lon !== undefined ? findNearestAddress(mission.addresses, point.lat, point.lon) : mission.addresses[0];
 
   return {
     id: mission.id,
+    addressId: primaryAddress?.id ?? null,
     title: mission.title,
     description: mission.description ?? null,
     remote: mission.remote ?? null,
@@ -30,7 +46,6 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     places: mission.places ?? null,
     tags: mission.tags,
     addresses: mission.addresses.map((address) => ({
-      id: address.id ?? null,
       city: address.city ?? null,
       country: address.country ?? null,
       location: address.location ?? null,

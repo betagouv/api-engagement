@@ -295,7 +295,7 @@ export const missionBrowseService = {
     });
 
     return {
-      data: missions.map(toMissionBrowse),
+      data: missions.map((mission) => toMissionBrowse(mission, params)),
       total: (resultsResult.found ?? 0) + slotIds.length,
       page: params.page,
       pageSize: params.pageSize,

@@ -37,6 +37,9 @@ export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
 
 export type MissionBrowse = {
   id: string;
+  // Adresse retenue (la plus proche du point `lat`/`lon` de la recherche, sinon la première) : à passer en `?addressId=`
+  // à la fiche mission. `city` est celle de cette adresse.
+  addressId: string | null;
   title: string;
   description: string | null;
   remote: "no" | "possible" | "full" | "local" | null;
@@ -58,7 +61,6 @@ export type MissionBrowse = {
   places: number | null;
   tags: string[];
   addresses: Array<{
-    id: string | null;
     city: string | null;
     country: string | null;
     location: { lat: number; lon: number } | null;
