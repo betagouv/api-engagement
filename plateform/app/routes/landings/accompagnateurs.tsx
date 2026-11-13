@@ -30,7 +30,7 @@ const PARTNERS: Partner[] = [
 
 const CHIFFRES = [
   { value: "+\u00a0de\u00a0400\u00a0000", color: "text-[#6bffaf]", label: "occasions de s'engager" },
-  { value: "Déjà 6", color: "text-[#fffa66]", label: "dispositifs publics réunis, et c'est pas fini" },
+  { value: "Déjà 6", color: "text-[#fffa66]", label: "dispositifs publics réunis,\net c’est pas fini" },
   { value: "100 %", color: "text-[#dec3ff]", label: "des départements couverts, outre-mer compris" },
 ];
 
@@ -93,16 +93,16 @@ export default function Accompagnateurs() {
       <PourQui />
 
       {/* Bandeau bleu pleine largeur (couleurs fixes de la maquette, y compris en thème sombre). */}
-      <section className="bg-[#000091] py-12 md:py-16" aria-labelledby="chiffres">
+      <section className="bg-[#000091] py-8 md:py-12 lg:py-16" aria-labelledby="chiffres">
         <div className="fr-container">
-          <h2 id="chiffres" className="fr-h3 mx-auto mb-8! text-center text-white!">
+          <h2 id="chiffres" className="mb-8! text-center text-2xl! leading-8! font-bold! text-white! md:text-[32px]! md:leading-normal!">
             Toute l'offre publique d'engagement sur une seule plateforme
           </h2>
-          <ul className="m-0! grid list-none! gap-6 p-0! text-center md:grid-cols-3">
+          <ul className="m-0! grid list-none! gap-4 p-0! text-center md:grid-cols-3 md:gap-6">
             {CHIFFRES.map((c) => (
               <li key={c.value}>
-                <p className={`${c.color} mb-1! text-[44px]! leading-tight! font-bold! md:text-[32px]! lg:text-[56px]!`}>{c.value}</p>
-                <p className="mx-auto mb-0! max-w-80 text-lg text-white">{c.label}</p>
+                <p className={`${c.color} mb-1! text-[40px]! leading-normal! font-bold! md:text-[32px]! md:leading-10! lg:text-[56px]! lg:leading-normal!`}>{c.value}</p>
+                <p className="mb-0! text-lg whitespace-pre-line text-white">{c.label}</p>
               </li>
             ))}
           </ul>
