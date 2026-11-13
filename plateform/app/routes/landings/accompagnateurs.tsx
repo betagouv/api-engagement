@@ -71,11 +71,11 @@ export default function Accompagnateurs() {
       <Hero
         badge="Bientôt disponible"
         title="Proposez une mission d'engagement, sans être expert des dispositifs"
-        titleClassName="lg:text-[40px]! lg:leading-12! lg:max-w-155"
+        titleClassName="lg:text-[40px]! lg:leading-12!"
+        contentClassName="lg:max-w-155"
         description="Bénévolat, Service Civique, réserves : une mission aide les personnes que vous accompagnez à se développer et à avancer dans leur projet."
-        descriptionClassName="lg:max-w-155"
         action={
-          <div className="pb-8 md:pb-14 lg:max-w-155">
+          <div className="pb-8 md:pb-14">
             <SignupForm />
           </div>
         }

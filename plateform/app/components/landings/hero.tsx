@@ -10,6 +10,7 @@ export default function Hero({
   titleClassName = "lg:text-[80px]! lg:leading-22!",
   description,
   descriptionClassName = "",
+  contentClassName = "md:max-w-98 lg:max-w-156",
   hint,
   onStartQuiz,
   action,
@@ -25,6 +26,8 @@ export default function Hero({
   titleClassName?: string;
   description: ReactNode;
   descriptionClassName?: string;
+  // Largeur de la colonne de texte à partir de la tablette (par défaut : colonne étroite à côté du visuel).
+  contentClassName?: string;
   // Sans `onStartQuiz`, pas de CTA quiz (ni d'indication) sous la description.
   hint?: string;
   onStartQuiz?: () => void;
@@ -36,7 +39,7 @@ export default function Hero({
   return (
     <section className={`relative overflow-hidden rounded-b-[20px] md:rounded-none ${className}`}>
       <div className="fr-container relative z-10">
-        <div className="pt-8 md:max-w-98 md:pt-11 lg:max-w-156 lg:pt-24">
+        <div className={`pt-8 md:pt-11 lg:pt-24 ${contentClassName}`}>
           {badge && <p className="bg-action-low-blue-france text-blue-france-sun mb-2! w-fit rounded-full px-2.5 text-xs leading-5! font-bold uppercase">{badge}</p>}
           {kicker && <p className="fr-h4 text-title-grey! mb-0! md:mb-2! lg:text-[32px]! lg:leading-10!">{kicker}</p>}
           <h1 className={`text-title-grey! fr-mb-2w text-[40px]! leading-12! ${titleClassName}`}>{title}</h1>

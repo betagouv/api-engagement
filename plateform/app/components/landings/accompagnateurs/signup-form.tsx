@@ -37,7 +37,7 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="bg-background shadow-tile p-6! md:p-8!">
+    <div className="bg-background shadow-tile p-5! md:p-8!">
       {success ? (
         <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
           <p>C’est enregistré ! Vous recevrez bientôt un accès à votre espace pro.</p>
@@ -49,7 +49,7 @@ export default function SignupForm() {
               Votre adresse e-mail professionnelle
               <span className="fr-hint-text">Format attendu : nom@societe.fr</span>
             </label>
-            <div className="fr-input-wrap fr-input-wrap--addon">
+            <div className="fr-input-wrap fr-input-wrap--addon max-md:flex-col max-md:gap-3">
               <input
                 id={SIGNUP_EMAIL_ID}
                 name="email"
@@ -61,7 +61,7 @@ export default function SignupForm() {
                 className="fr-input"
                 placeholder="nom@structure.fr"
               />
-              <button type="submit" disabled={loading} className="fr-btn shrink-0! whitespace-nowrap!">
+              <button type="submit" disabled={loading} className="fr-btn shrink-0! justify-center whitespace-nowrap! max-md:w-full!">
                 {loading ? "Inscription en cours…" : "Tester en avant-première"}
               </button>
             </div>

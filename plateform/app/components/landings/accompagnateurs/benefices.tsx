@@ -38,7 +38,7 @@ export default function Benefices() {
         Face à l'urgence de la formation, de l'orientation, de l'emploi ou du revenu, on n'y pense pas toujours. Pourtant, une mission d'engagement peut beaucoup pour une personne
         en construction de projet.
       </p>
-      <ul className="m-0! grid list-none gap-6 p-0! md:grid-cols-3">
+      <ul className="m-0! grid list-none gap-6 p-0! lg:grid-cols-3">
         {BENEFICES.map((b) => (
           <li key={b.title} className="border-border-default-grey bg-background flex flex-col gap-3 rounded-lg border p-7! [&]:pb-7!">
             <span className={`flex size-16 items-center justify-center rounded-[28px] ${b.bg}`}>

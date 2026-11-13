@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 // Étape numérotée : texte d'un côté, écran d'exemple de l'autre (inversé une étape sur deux sur desktop).
 function Etape({ num, title, reverse, screen, children }: { num: number; title: string; reverse?: boolean; screen: ReactNode; children: ReactNode }) {
   return (
-    <li className="grid items-center gap-8 md:grid-cols-2 md:gap-16">
-      <div className={reverse ? "md:order-2" : ""}>
+    <li className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+      <div className={reverse ? "lg:order-2" : ""}>
         <p aria-hidden="true" className="bg-blue-france-sun mb-4! flex size-12 items-center justify-center rounded-full text-xl font-bold text-white">
           {num}
         </p>
@@ -14,7 +14,7 @@ function Etape({ num, title, reverse, screen, children }: { num: number; title: 
         </h3>
         {children}
       </div>
-      <div className={`border-border-default-grey bg-background shadow-tile rounded-lg border p-6! ${reverse ? "md:order-1" : ""}`}>{screen}</div>
+      <div className={`border-border-default-grey bg-background shadow-tile rounded-lg border p-6! ${reverse ? "lg:order-1" : ""}`}>{screen}</div>
     </li>
   );
 }
@@ -133,7 +133,9 @@ export default function Valeur() {
                         <thead>
                           <tr>
                             <th scope="col">Mission</th>
-                            <th scope="col">Dispositif</th>
+                            <th scope="col" className="max-md:hidden!">
+                              Dispositif
+                            </th>
                             <th scope="col">Statut</th>
                           </tr>
                         </thead>
@@ -141,7 +143,7 @@ export default function Valeur() {
                           {STATUTS.map((s) => (
                             <tr key={s.mission}>
                               <td>{s.mission}</td>
-                              <td>{s.dispositif}</td>
+                              <td className="max-md:hidden!">{s.dispositif}</td>
                               <td>
                                 <p className={`fr-badge fr-badge--sm fr-badge--no-icon ${s.color}`}>{s.statut}</p>
                               </td>
