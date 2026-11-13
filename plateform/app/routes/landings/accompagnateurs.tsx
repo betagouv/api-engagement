@@ -92,8 +92,8 @@ export default function Accompagnateurs() {
 
       <PourQui />
 
-      {/* Bandeau bleu pleine largeur (couleurs fixes de la maquette, y compris en thème sombre). */}
-      <section className="bg-[#000091] py-8 md:py-12 lg:py-16" aria-labelledby="chiffres">
+      {/* Bandeau pleine largeur : bleu en thème clair, bleu nuit en thème sombre ; textes aux couleurs fixes de la maquette. */}
+      <section className="bg-[#000091] py-8 md:py-12 lg:py-16 dark:bg-[#1b1b35]" aria-labelledby="chiffres">
         <div className="fr-container">
           <h2 id="chiffres" className="mb-8! text-center text-2xl! leading-8! font-bold! text-white! md:text-[32px]! md:leading-normal!">
             Toute l'offre publique d'engagement sur une seule plateforme
