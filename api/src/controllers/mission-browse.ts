@@ -48,6 +48,9 @@ const browseQuerySchema = zod.object({
   exclude: jsonQuerySchema(taxonomyValuesSchema).optional(),
   includeRemote: zod.stringbool().optional(),
   sort: zod.enum(["recent"]).optional(),
+  // Point de référence : les missions les plus proches d'abord (ex. caserne la plus proche d'une adresse).
+  lat: zod.coerce.number().min(-90).max(90).optional(),
+  lon: zod.coerce.number().min(-180).max(180).optional(),
   // Emplacements des premiers résultats (cf. `MissionBrowseSlot`).
   slots: jsonQuerySchema(slotsSchema).optional(),
   page: zod.coerce.number().int().positive().default(1),

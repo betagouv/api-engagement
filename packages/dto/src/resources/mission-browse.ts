@@ -28,6 +28,9 @@ export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
   includeRemote?: boolean;
   // `recent` : missions les plus récentes d'abord.
   sort?: "recent";
+  // Point de référence : les missions dont une adresse est la plus proche passent en premier (prioritaire sur `sort`).
+  lat?: number;
+  lon?: number;
   // Emplacements des premiers résultats, appliqués uniquement quand aucun filtre n'est coché.
   slots?: MissionBrowseSlot[];
 };
@@ -55,6 +58,7 @@ export type MissionBrowse = {
   places: number | null;
   tags: string[];
   addresses: Array<{
+    id: string | null;
     city: string | null;
     country: string | null;
     location: { lat: number; lon: number } | null;

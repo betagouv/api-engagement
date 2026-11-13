@@ -30,6 +30,7 @@ export const toMissionBrowse = (mission: MissionRecord): MissionBrowse => {
     places: mission.places ?? null,
     tags: mission.tags,
     addresses: mission.addresses.map((address) => ({
+      id: address.id ?? null,
       city: address.city ?? null,
       country: address.country ?? null,
       location: address.location ?? null,
