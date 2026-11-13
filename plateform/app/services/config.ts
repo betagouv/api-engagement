@@ -19,8 +19,8 @@ export const CRISP_WEBSITE_ID = "0825b9e0-ff50-4cae-8899-a22aa9f932a3";
 // Scénario bot Crisp joué à chaque ouverture du chat.
 export const CRISP_BOT_SCENARIO_ID = "scenario_2c549f12-5242-41cd-a8f1-4fd236cb2f9c";
 
-// Conteneur Google Tag Manager (public, côté client). Chargé uniquement après consentement :
-// mesure des conversions publicitaires et conservation de l'identifiant de clic (gclid).
+// Conteneur Google Tag Manager (public, côté client). Chargé après l'accord d'au moins une régie.
+// Chaque balise vérifie son propre consentement et le nom d'hôte de production côté GTM.
 export const GTM_CONTAINER_ID = "GTM-5XZ4FK3G";
 
 // Formulaire Tally de recueil de feedback (bandeau « version bêta »). Un seul formulaire pour

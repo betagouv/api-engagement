@@ -1,4 +1,5 @@
 import { getConsentServices, type ConsentService, type ConsentStatus } from "~/services/consent-services";
+import { applyGtmConsentPreferences } from "~/services/gtm-consent";
 
 export const COOKIE_CONSENT_MODAL_ID = "fr-consent-modal";
 
@@ -72,7 +73,12 @@ function writeCookieConsent(preferences: ConsentPreferences, services: ConsentSe
 }
 
 function applyConsentPreferences(preferences: ConsentPreferences, services: ConsentService[]): void {
-  for (const service of services) service.applyConsent(preferences[service.id] ?? "pending");
+  const enabledPreferences = Object.fromEntries(services.map((service) => [service.id, preferences[service.id] ?? "pending"]));
+  let reloadRequired = applyGtmConsentPreferences(enabledPreferences);
+  for (const service of services) {
+    if (service.applyConsent?.(enabledPreferences[service.id]) === true) reloadRequired = true;
+  }
+  if (reloadRequired) window.location.reload();
 }
 
 // Synchronise les choix avant l'hydratation afin que chaque outil démarre immédiatement dans le
