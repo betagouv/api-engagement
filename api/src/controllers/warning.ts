@@ -151,7 +151,8 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
     if (!params.success) {
       return res.status(400).send({ ok: false, code: INVALID_PARAMS, message: params.error });
     }
-    const body = zod.object({ status: zod.enum(WARNING_STATUSES) }).safeParse(req.body);
+    // `comment` : commentaire optionnel saisi dans la modale « Ignorée » / « Résolue » ; ajouté aux commentaires avec la ligne de trace.
+    const body = zod.object({ status: zod.enum(WARNING_STATUSES), comment: zod.string().trim().max(5000).optional() }).safeParse(req.body);
     if (!body.success) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: body.error });
     }
@@ -159,7 +160,7 @@ router.put("/:id/status", passport.authenticate("admin", { session: false }), as
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
     try {
-      const data = await warningService.updateWarning(params.data.id, { status: body.data.status });
+      const data = await warningService.setStatus(params.data.id, body.data.status, req.user, body.data.comment);
       await refreshSlackMessage(data.id, req.user?.firstname);
       return res.status(200).send({ ok: true, data });
     } catch (error) {

@@ -1,4 +1,4 @@
-export const WARNING_STATUSES = ["TODO", "IN_PROGRESS", "RESOLVED"] as const;
+export const WARNING_STATUSES = ["TODO", "IN_PROGRESS", "RESOLVED", "IGNORED"] as const;
 export type WarningStatus = (typeof WARNING_STATUSES)[number];
 
 export interface WarningAssignee {
@@ -18,6 +18,9 @@ export interface WarningRecord {
   publisherLogo: string | null;
   seen: boolean;
   resolvedAt: Date | null;
+  ignoredAt: Date | null;
+  /** Fin du délai « Ignorée » : `ignoredAt` + délai si l'alerte est ignorée, sinon la fin qu'aurait un passage en « Ignorée » maintenant. */
+  ignoreUntil: Date;
   occurrences: number;
   status: WarningStatus;
   procedureUrl: string | null;
@@ -95,6 +98,8 @@ export interface WarningUpdatePatch {
   status?: WarningStatus;
   procedureUrl?: string | null;
   itemLabel?: string | null;
+  /** Commentaire créé dans la même écriture que la mise à jour (atomique). */
+  comment?: { authorId: string; body: string };
   /** Ajoute des assignés (sans doublon). */
   assigneeIds?: string[];
   /** Origine de la réception (`metabase`, `job`...) : avec `occurrences` / `occurrencesIncrement`, enregistre une ligne d'historique. */
