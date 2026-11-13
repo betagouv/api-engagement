@@ -17,7 +17,18 @@ const ETAPES: Etape[] = [
 ];
 
 // Sans `onStartQuiz`, pas de CTA quiz sous les étapes ; `cta` le remplace par un autre bouton (ex. lien du CMS).
-export default function Etapes({ onStartQuiz, etapes = ETAPES, cta }: { onStartQuiz?: () => void; etapes?: Etape[]; cta?: ReactNode }) {
+// `ctaLabel` : libellé du CTA quiz (tutoiement par défaut ; une landing en vouvoiement passe le sien).
+export default function Etapes({
+  onStartQuiz,
+  etapes = ETAPES,
+  cta,
+  ctaLabel = "Trouve ta mission",
+}: {
+  onStartQuiz?: () => void;
+  etapes?: Etape[];
+  cta?: ReactNode;
+  ctaLabel?: string;
+}) {
   return (
     <section className="fr-container">
       <h2 className="fr-h1 text-center mb-4! md:mb-8!">
@@ -37,7 +48,7 @@ export default function Etapes({ onStartQuiz, etapes = ETAPES, cta }: { onStartQ
           cta ??
           (onStartQuiz && (
             <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--secondary fr-btn--lg w-full! justify-center md:w-auto!">
-              Trouve ta mission
+              {ctaLabel}
             </button>
           ))
         }

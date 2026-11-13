@@ -12,6 +12,7 @@ export default function Hero({
   descriptionClassName = "",
   hint,
   onStartQuiz,
+  ctaLabel = "Trouve ta mission",
   action,
   className = "",
   children,
@@ -28,6 +29,8 @@ export default function Hero({
   // Sans `onStartQuiz`, pas de CTA quiz (ni d'indication) sous la description.
   hint?: string;
   onStartQuiz?: () => void;
+  // Libellé du CTA quiz (tutoiement par défaut ; une landing en vouvoiement passe le sien).
+  ctaLabel?: string;
   // Bloc affiché sous le texte à la place du CTA quiz (ex. recherche par localisation).
   action?: ReactNode;
   className?: string;
@@ -45,7 +48,7 @@ export default function Hero({
           {onStartQuiz && (
             <>
               <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! justify-center! md:max-w-60!">
-                Trouve ta mission
+                {ctaLabel}
               </button>
               {hint && <p className="fr-text--xs text-mention-grey fr-mt-1w mb-0! text-center italic md:max-w-60! md:text-left">{hint}</p>}
             </>
