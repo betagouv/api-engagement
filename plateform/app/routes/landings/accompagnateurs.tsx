@@ -29,9 +29,9 @@ const PARTNERS: Partner[] = [
 ];
 
 const CHIFFRES = [
-  { value: "+ de 400 000", label: "occasions de s'engager" },
-  { value: "Déjà 6", label: "dispositifs publics réunis, et c'est pas fini" },
-  { value: "100 %", label: "des départements couverts, outre-mer compris" },
+  { value: "+\u00a0de\u00a0400\u00a0000", color: "text-[#6bffaf]", label: "occasions de s'engager" },
+  { value: "Déjà 6", color: "text-[#fffa66]", label: "dispositifs publics réunis, et c'est pas fini" },
+  { value: "100 %", color: "text-[#dec3ff]", label: "des départements couverts, outre-mer compris" },
 ];
 
 const BIENTOT = [
@@ -83,24 +83,33 @@ export default function Accompagnateurs() {
         className="bg-brown-cafe-creme-975 lg:min-h-167"
       >
         {/* Visuel calé en bas de la section : centré sous le formulaire sur mobile et tablette, à droite à partir du desktop. */}
-        <img src={HeroWebp} alt="" className="mx-auto mb-10 aspect-780/644 w-[calc(100%-2rem)] md:mb-14 md:w-[73%] lg:absolute lg:right-0 lg:bottom-0 lg:mx-0 lg:mb-0 lg:w-[54.2%] lg:max-w-195" />
+        <img
+          src={HeroWebp}
+          alt=""
+          className="mx-auto mb-10 aspect-780/644 w-[calc(100%-2rem)] md:mb-14 md:w-[73%] lg:absolute lg:right-0 lg:bottom-0 lg:mx-0 lg:mb-0 lg:w-[54.2%] lg:max-w-195"
+        />
       </Hero>
 
       <PourQui />
 
-      <section className="fr-container" aria-labelledby="chiffres">
-        <h2 id="chiffres" className="fr-h2 mb-8! text-center">
-          Toute l'offre publique d'engagement sur une seule plateforme
-        </h2>
-        <ul className="m-0! grid list-none! gap-6 p-0! text-center md:grid-cols-3">
-          {CHIFFRES.map((c) => (
-            <li key={c.value}>
-              <p className="text-blue-france-sun mb-1! text-[44px]! leading-tight! font-bold! md:text-[56px]!">{c.value}</p>
-              <p className="mb-0!">{c.label}</p>
-            </li>
-          ))}
-        </ul>
-        <p className="text-mention-grey fr-text--sm mt-6! mb-0! text-center">Bénévolat, Service Civique, réserves (police, armées, gendarmerie), sapeurs-pompiers volontaires.</p>
+      {/* Bandeau bleu pleine largeur (couleurs fixes de la maquette, y compris en thème sombre). */}
+      <section className="bg-[#000091] py-12 md:py-16" aria-labelledby="chiffres">
+        <div className="fr-container">
+          <h2 id="chiffres" className="fr-h3 mx-auto mb-8! text-center text-white!">
+            Toute l'offre publique d'engagement sur une seule plateforme
+          </h2>
+          <ul className="m-0! grid list-none! gap-6 p-0! text-center md:grid-cols-3">
+            {CHIFFRES.map((c) => (
+              <li key={c.value}>
+                <p className={`${c.color} mb-1! text-[44px]! leading-tight! font-bold! md:text-[32px]! lg:text-[56px]!`}>{c.value}</p>
+                <p className="mx-auto mb-0! max-w-80 text-lg text-white">{c.label}</p>
+              </li>
+            ))}
+          </ul>
+          <p className="fr-text--sm mx-auto mt-8! mb-0! max-w-250 text-center text-[#cecece]">
+            Bénévolat, Service Civique, réserves (police, armées, gendarmerie), sapeurs-pompiers volontaires.
+          </p>
+        </div>
       </section>
 
       <Benefices />
