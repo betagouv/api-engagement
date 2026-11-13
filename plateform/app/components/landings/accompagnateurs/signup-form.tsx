@@ -49,7 +49,7 @@ export default function SignupForm() {
               Votre adresse e-mail professionnelle
               <span className="fr-hint-text">Format attendu : nom@societe.fr</span>
             </label>
-            <div className="fr-input-wrap fr-input-wrap--addon max-md:flex-col max-md:gap-3">
+            <div className="fr-input-wrap fr-input-wrap--addon max-md:flex-col! max-md:gap-3!">
               <input
                 id={SIGNUP_EMAIL_ID}
                 name="email"
@@ -58,7 +58,7 @@ export default function SignupForm() {
                 aria-required="true"
                 aria-invalid={error ? true : undefined}
                 aria-describedby={error ? `${SIGNUP_EMAIL_ID}-error` : undefined}
-                className="fr-input"
+                className="fr-input max-md:w-full!"
                 placeholder="nom@structure.fr"
               />
               <button type="submit" disabled={loading} className="fr-btn shrink-0! justify-center whitespace-nowrap! max-md:w-full!">

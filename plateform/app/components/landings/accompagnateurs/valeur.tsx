@@ -40,7 +40,7 @@ export default function Valeur() {
         </p>
       </div>
 
-      <ol className="m-0! flex list-none flex-col gap-12 p-0! md:gap-16">
+      <ol className="m-0! flex list-none! flex-col gap-12 p-0! md:gap-16">
         <Etape
           num={1}
           title="Décrivez sa situation avec vos mots"
@@ -124,36 +124,35 @@ export default function Valeur() {
             <>
               <p className="fr-h5 mb-1!">Suivi des candidatures</p>
               <p className="text-mention-grey fr-text--sm mb-4!">4 missions partagées · 2 vues · 1 candidature</p>
-              <div className="fr-table fr-table--no-caption mb-0!">
-                <div className="fr-table__wrapper">
-                  <div className="fr-table__container">
-                    <div className="fr-table__content">
-                      <table>
-                        <caption>Suivi des missions partagées</caption>
-                        <thead>
-                          <tr>
-                            <th scope="col">Mission</th>
-                            <th scope="col" className="max-md:hidden!">
-                              Dispositif
-                            </th>
-                            <th scope="col">Statut</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {STATUTS.map((s) => (
-                            <tr key={s.mission}>
-                              <td>{s.mission}</td>
-                              <td className="max-md:hidden!">{s.dispositif}</td>
-                              <td>
-                                <p className={`fr-badge fr-badge--sm fr-badge--no-icon ${s.color}`}>{s.statut}</p>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </div>
+              {/* Tableau simple (pas de `fr-table` : son JS DSFR réécrit le DOM et casse l'hydratation). */}
+              <div className="border-border-default-grey overflow-x-auto border">
+                <table className="w-full text-left text-sm">
+                  <caption className="fr-sr-only">Suivi des missions partagées</caption>
+                  <thead className="bg-contrast-grey">
+                    <tr>
+                      <th scope="col" className="p-3!">
+                        Mission
+                      </th>
+                      <th scope="col" className="p-3! max-md:hidden!">
+                        Dispositif
+                      </th>
+                      <th scope="col" className="p-3!">
+                        Statut
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {STATUTS.map((s) => (
+                      <tr key={s.mission} className="border-border-default-grey border-t">
+                        <td className="p-3!">{s.mission}</td>
+                        <td className="p-3! max-md:hidden!">{s.dispositif}</td>
+                        <td className="p-3!">
+                          <p className={`fr-badge fr-badge--sm fr-badge--no-icon mb-0! ${s.color}`}>{s.statut}</p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </>
           }

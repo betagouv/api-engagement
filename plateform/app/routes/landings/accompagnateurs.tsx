@@ -75,7 +75,7 @@ export default function Accompagnateurs() {
         contentClassName="lg:max-w-155"
         description="Bénévolat, Service Civique, réserves : une mission aide les personnes que vous accompagnez à se développer et à avancer dans leur projet."
         action={
-          <div className="pb-8 md:pb-14">
+          <div className="pb-8 md:pb-14 lg:max-w-155">
             <SignupForm />
           </div>
         }
@@ -90,10 +90,10 @@ export default function Accompagnateurs() {
         <h2 id="chiffres" className="fr-h2 mb-8! text-center">
           Toute l'offre publique d'engagement sur une seule plateforme
         </h2>
-        <ul className="m-0! grid list-none gap-6 p-0! text-center md:grid-cols-3">
+        <ul className="m-0! grid list-none! gap-6 p-0! text-center md:grid-cols-3">
           {CHIFFRES.map((c) => (
             <li key={c.value}>
-              <p className="text-blue-france-sun mb-1! text-[44px] leading-tight font-bold md:text-[56px]">{c.value}</p>
+              <p className="text-blue-france-sun mb-1! text-[44px]! leading-tight! font-bold! md:text-[56px]!">{c.value}</p>
               <p className="mb-0!">{c.label}</p>
             </li>
           ))}
@@ -111,7 +111,7 @@ export default function Accompagnateurs() {
         <h2 id="bientot" className="fr-h4 mb-6!">
           Bientôt sur TrouveTaMission.gouv.fr
         </h2>
-        <ul className="m-0! grid list-none gap-6 p-0! md:grid-cols-2 lg:grid-cols-3">
+        <ul className="m-0! grid list-none! gap-6 p-0! md:grid-cols-2 lg:grid-cols-3">
           {BIENTOT.map((b) => (
             <li key={b.name} className="border-border-default-grey bg-[#f6f6f6] dark:bg-transparent border p-4!">
               <h3 className="fr-text--bold mb-1! text-base">{b.name}</h3>
