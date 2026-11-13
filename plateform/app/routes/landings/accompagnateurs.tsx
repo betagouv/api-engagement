@@ -70,7 +70,7 @@ export default function Accompagnateurs() {
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-20!">
       <Hero
-        badge="Bientôt disponible"
+        badge={<p className="fr-badge fr-badge--new mb-2!">Bientôt disponible</p>}
         title="Proposez une mission d'engagement, sans être expert des dispositifs"
         titleClassName="lg:text-[40px]! lg:leading-12!"
         contentClassName="lg:max-w-155"
