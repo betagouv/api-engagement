@@ -17,6 +17,10 @@ export async function browseMissions(filters: MissionBrowseFilters, signal?: Abo
   appendMulti(params, "type_mission", filters.type_mission);
   appendMulti(params, "tranche_age", filters.tranche_age);
   appendMulti(params, "dispositif", filters.dispositif);
+  if (filters.lat !== undefined && filters.lon !== undefined) {
+    params.set("lat", String(filters.lat));
+    params.set("lon", String(filters.lon));
+  }
 
   return client.get<MissionBrowseResponse>(`/api/missions/browse?${params.toString()}`, signal);
 }

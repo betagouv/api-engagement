@@ -4,7 +4,7 @@ import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
 import Histoires from "~/components/landings/defis-engagement/histoires";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
-import LocationFilter from "~/components/landings/location-filter";
+import LocationFilter, { type Location } from "~/components/landings/location-filter";
 import Missions from "~/components/landings/missions";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
@@ -43,8 +43,8 @@ export type CmsBlocksContext = {
   // La page contient une liste de missions filtrable (le hero affiche alors la recherche par localisation).
   hasMissionsBrowser: boolean;
   onStartQuiz: (section: QuizEntrySection) => void;
-  // Recherche par adresse du hero : ouvre la mission du dispositif dans le département, sinon la liste du département.
-  onLocationSearch: (dispositif: string, location: { departmentCode: string; label: string }) => Promise<void>;
+  // Recherche par adresse du hero : ouvre la mission du dispositif la plus proche, sur son adresse la plus proche.
+  onLocationSearch: (dispositif: string, location: Location) => Promise<void>;
   missionsCta: (section: CtaSection) => LandingCta;
 };
 

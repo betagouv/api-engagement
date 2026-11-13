@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import { data, useLoaderData, useLocation, useNavigate } from "react-router";
 
 import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
-import { LOCATION_LABEL_PARAM } from "~/components/landings/location-filter";
+import { LOCATION_LABEL_PARAM, type Location } from "~/components/landings/location-filter";
 import { getCmsPage } from "~/services/cms.server";
 import { browseMissions, getMissionDetail } from "~/services/api/missions";
 import { browseMissions as browseMissionsFromClient } from "~/services/mission-browse";
@@ -113,13 +113,25 @@ export default function CmsLanding() {
     navigate("/quiz/age", { state: { entrySource: `${landing}_cta`, entrySection: section } });
   };
 
-  // Recherche par adresse du hero (ex. « Trouve ta caserne ») : la première mission du dispositif dans le département
-  // (ex. celle du SDIS), sinon les missions du département (ex. Paris, où les secours relèvent de la BSPP).
-  const onLocationSearch = async (dispositif: string, { departmentCode, label }: { departmentCode: string; label: string }) => {
-    const { data } = await browseMissionsFromClient({ dispositif: [dispositif], departmentCode: [departmentCode], pageSize: 1 });
+  // Recherche par adresse du hero (ex. « Trouve ta caserne ») : la mission du dispositif la plus proche (ex. celle du
+  // SDIS, qui porte une adresse par caserne), ouverte sur son adresse la plus proche ; sinon les missions du département.
+  const onLocationSearch = async (dispositif: string, { departmentCode, label, lat, lon }: Location) => {
+    const { data } = await browseMissionsFromClient({ dispositif: [dispositif], lat, lon, pageSize: 1 });
     const [mission] = data;
     if (mission) {
-      navigate(`/missions/${mission.id}`, { state: { entrySource: landing, backTo: pathname } satisfies MissionDetailNavState });
+      // Distance approchée (degrés, longitude corrigée par la latitude) : suffit pour comparer des casernes entre elles.
+      const distance = (location: { lat: number; lon: number }) => (location.lat - lat) ** 2 + ((location.lon - lon) * Math.cos((lat * Math.PI) / 180)) ** 2;
+      let nearestAddressId: string | null = null;
+      let nearestDistance = Infinity;
+      for (const address of mission.addresses) {
+        if (!address.id || !address.location) continue;
+        if (distance(address.location) < nearestDistance) {
+          nearestDistance = distance(address.location);
+          nearestAddressId = address.id;
+        }
+      }
+      const search = nearestAddressId ? `?addressId=${encodeURIComponent(nearestAddressId)}` : "";
+      navigate(`/missions/${mission.id}${search}`, { state: { entrySource: landing, backTo: pathname } satisfies MissionDetailNavState });
       return;
     }
     const params = new URLSearchParams({ departmentCode, [LOCATION_LABEL_PARAM]: label });

@@ -14,7 +14,7 @@ export const LOCATION_LABEL_PARAM = "lieu";
 // `id` distingue les deux exemplaires.
 // Avec `onSearch` (recherche du hero CMS, ex. « Trouve ta caserne ») : la localisation choisie est transmise au lieu
 // d'être écrite dans l'URL ; champ et bouton sur une ligne à partir du desktop seulement (colonne de texte étroite en tablette).
-type Location = { departmentCode: string; label: string };
+export type Location = { departmentCode: string; label: string; lat: number; lon: number };
 
 export default function LocationFilter({
   id,
@@ -106,7 +106,7 @@ export default function LocationFilter({
     }
   };
 
-  const applyLocation = (location: Location | null) => {
+  const applyLocation = (location: Pick<Location, "departmentCode" | "label"> | null) => {
     setSearchParams(
       (prev) => {
         const params = new URLSearchParams(prev);
@@ -148,7 +148,7 @@ export default function LocationFilter({
     }
     setLoading(true);
     try {
-      await onSearch({ departmentCode, label: selected.label });
+      await onSearch({ departmentCode, label: selected.label, lat: selected.lat, lon: selected.lon });
     } catch {
       setError("La recherche n'a pas abouti, réessaie dans un instant.");
     } finally {
