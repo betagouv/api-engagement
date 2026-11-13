@@ -180,10 +180,8 @@ Commits :
 ### 5. Valider le Titre
 
 ```bash
-# Tester avec pr-title-lint (simulation)
-echo "feat(api): add client tracking" | npx @action-semantic/pull-request validate \
-  --types feat,refactor,fix,chore,test \
-  --scopes app,api,analytics,widget,jobs,ci
+# Valider avec commitlint (config locale du dépôt)
+echo "feat(api): add client tracking" | node_modules/.bin/commitlint
 ```
 
 **Si validation échoue** :
