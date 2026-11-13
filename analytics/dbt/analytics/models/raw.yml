@@ -711,7 +711,7 @@ sources:
           - name: publisher_id
             description: Identifiant du partenaire concerné.
           - name: status
-            description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`).
+            description: Statut de traitement (`TODO`, `IN_PROGRESS`, `RESOLVED`, `IGNORED`).
           - name: occurrences
             description: Nombre de réceptions cumulées de l'alerte tant qu'elle est ouverte.
           - name: procedure_url
@@ -720,6 +720,8 @@ sources:
             description: Date du mail d'alerte aux assignés (nullable, null = pas encore notifiée).
           - name: fixed_at
             description: Date de résolution (nullable).
+          - name: ignored_at
+            description: Date de passage en « Ignorée » (nullable).
           - name: created_at
             description: Date de création de l'alerte (première réception).
           - name: updated_at

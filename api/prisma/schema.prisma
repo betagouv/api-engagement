@@ -28,6 +28,7 @@ enum WarningStatus {
   TODO
   IN_PROGRESS
   RESOLVED
+  IGNORED
 }
 
 enum EmailStatus {
@@ -524,9 +525,9 @@ model Warning {
   description    String?
   publisherId    String        @map("publisher_id")
   seen           Boolean       @default(false)
-  // Déprécié : plus lu ni écrit (utiliser `status`), colonne supprimée dans une migration ultérieure
-  fixed          Boolean       @default(false)
   resolvedAt     DateTime?     @map("fixed_at")
+  // Date de passage en « Ignorée » (null sinon) : aucune nouvelle alerte ni notification pendant WARNING_IGNORE_DELAY_DAYS
+  ignoredAt      DateTime?     @map("ignored_at")
   occurrences    Int           @default(1)
   status         WarningStatus @default(TODO)
   procedureUrl   String?       @map("procedure_url")
@@ -549,7 +550,6 @@ model Warning {
   // Index unique partiel "warning_open_publisher_type_item_key" (publisher_id, type, COALESCE(item_id, '')) WHERE status <> 'RESOLVED' : voir la migration (non exprimable en Prisma)
   @@index([publisherId], map: "warning_publisher_id_idx")
   @@index([type], map: "warning_type_idx")
-  @@index([fixed], map: "warning_fixed_idx")
   @@index([createdAt], map: "warning_created_at_idx")
   @@map("warning")
 }
