@@ -24,20 +24,6 @@ function loadCrisp(): void {
   document.head.appendChild(script);
 }
 
-// Charge Google Tag Manager (extrait <head> officiel). Idempotent, sans effet côté serveur.
-// Le <noscript> officiel n'est pas injecté : il se déclencherait hors consentement (le flux de
-// consentement est en JS), ce qui contredirait la finalité gclid/conversions.
-function loadGtm(): void {
-  if (typeof window === "undefined" || !GTM_CONTAINER_ID || document.getElementById("gtm-client")) return;
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-  const script = document.createElement("script");
-  script.id = "gtm-client";
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_CONTAINER_ID}`;
-  document.head.appendChild(script);
-}
-
 export interface ConsentService {
   /** Identifiant stable utilisé dans le cookie de consentement et les champs du formulaire. */
   id: string;
@@ -46,7 +32,8 @@ export interface ConsentService {
   title: string;
   description: string;
   isEnabled(): boolean;
-  applyConsent(status: ConsentStatus): void;
+  /** Retourne true si le retrait exige un rechargement, effectué après la synchronisation de tous les services. */
+  applyConsent?(status: ConsentStatus): boolean | void;
 }
 
 // Pour ajouter un outil soumis au consentement, ajouter une entrée à ce registre. Le stockage,
@@ -73,22 +60,40 @@ const consentServices: ConsentService[] = [
     isEnabled: () => Boolean(CRISP_WEBSITE_ID),
     applyConsent(status) {
       if (status === "granted") return loadCrisp();
-      // Retrait du consentement : rechargement contrôlé si le widget est déjà chargé (prepareCookieConsent ne le relancera pas tant que le refus est stocké).
-      if (typeof document !== "undefined" && document.getElementById("crisp-client")) window.location.reload();
+      // Le gestionnaire recharge après avoir appliqué tous les choix, notamment le signal GTM.
+      return typeof document !== "undefined" && Boolean(document.getElementById("crisp-client"));
     },
   },
+  // Ces quatre choix sont synchronisés ensemble par gtm-consent, et non service par service.
+  // L'ancien identifiant « gtm » n'est pas repris : chaque régie exige un nouvel accord explicite.
   {
-    id: "gtm",
+    id: "google",
     version: 1,
-    title: "Mesure des conversions publicitaires",
+    title: "Google Campaign Manager",
     description:
-      "Google Tag Manager mesure les conversions issues de nos campagnes publicitaires et conserve l'identifiant de clic publicitaire (gclid) afin d'en optimiser la diffusion. Sans accord, aucun tag Google n'est chargé.",
+      "Google Campaign Manager mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
     isEnabled: () => Boolean(GTM_CONTAINER_ID),
-    applyConsent(status) {
-      if (status === "granted") return loadGtm();
-      // Retrait du consentement : rechargement contrôlé si GTM est déjà chargé (prepareCookieConsent ne le relancera pas tant que le refus est stocké).
-      if (typeof document !== "undefined" && document.getElementById("gtm-client")) window.location.reload();
-    },
+  },
+  {
+    id: "adform",
+    version: 1,
+    title: "Adform",
+    description: "Adform mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
+    isEnabled: () => Boolean(GTM_CONTAINER_ID),
+  },
+  {
+    id: "tiktok",
+    version: 1,
+    title: "TikTok",
+    description: "TikTok mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
+    isEnabled: () => Boolean(GTM_CONTAINER_ID),
+  },
+  {
+    id: "snapchat",
+    version: 1,
+    title: "Snapchat",
+    description: "Snapchat mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
+    isEnabled: () => Boolean(GTM_CONTAINER_ID),
   },
 ];
 
