@@ -581,3 +581,91 @@ describe("Alert email reply", () => {
     expect((await reply([], "bad")).status).toBe(401);
   });
 });
+
+describe("Ignored alerts", () => {
+  let publisherId: string;
+  let admin: Awaited<ReturnType<typeof createTestUser>>;
+  const putStatus = (id: string, body: object) => request(app).put(`/warning/${id}/status`).set("Authorization", `jwt ${admin.token}`).send(body);
+  const DAY = 24 * 60 * 60 * 1000;
+
+  beforeEach(async () => {
+    sendTemplate.mockClear();
+    admin = await createTestUser({ role: "admin" });
+    publisherId = (await createTestPublisher({ isAnnonceur: true, deploymentUserId: admin.user.id })).id;
+  });
+
+  const ignoreAlert = async (comment?: string) => {
+    await webhook([{ type: TYPE, publisherId }]);
+    const [alert] = await warningService.findWarnings({ publisherId });
+    const res = await putStatus(alert.id, { status: "IGNORED", ...(comment ? { comment } : {}) });
+    return { alert, res };
+  };
+
+  it("ignores an alert with a trace and the comment in a single comment", async () => {
+    const { alert, res } = await ignoreAlert("Newsletter terminée");
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toMatchObject({ status: "IGNORED", resolvedAt: null });
+    expect(res.body.data.ignoredAt).toBeTruthy();
+    expect(new Date(res.body.data.ignoreUntil).getTime() - new Date(res.body.data.ignoredAt).getTime()).toBe(90 * DAY);
+    const comments = await warningCommentService.findComments(alert.id);
+    expect(comments).toHaveLength(1);
+    expect(comments[0]).toMatchObject({ body: 'L\'alerte a été passée en statut "ignorée"\nNewsletter terminée', author: { id: admin.user.id } });
+  });
+
+  it("adds the trace line even without a comment, for ignored and resolved, and none for other statuses", async () => {
+    const { alert } = await ignoreAlert();
+    await putStatus(alert.id, { status: "IN_PROGRESS" });
+    await putStatus(alert.id, { status: "RESOLVED", comment: "  " });
+
+    const bodies = (await warningCommentService.findComments(alert.id)).map((c) => c.body);
+    expect(bodies).toEqual(['L\'alerte a été passée en statut "ignorée"', 'L\'alerte a été passée en statut "résolue"']);
+  });
+
+  it("keeps recording receptions without a new alert nor notification during the delay", async () => {
+    const { alert } = await ignoreAlert();
+    sendTemplate.mockClear();
+
+    const res = await webhook([{ type: TYPE, publisherId }]);
+    expect(res.body.data).toMatchObject({ created: 0, updated: 1, notified: 0 });
+    expect(sendTemplate).not.toHaveBeenCalled();
+    const warnings = await warningService.findWarnings({ publisherId });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatchObject({ id: alert.id, status: "IGNORED", occurrences: 2 });
+  });
+
+  it("does not block alerts of another type for the same advertiser", async () => {
+    await ignoreAlert();
+
+    const res = await webhook([{ type: "ERROR_WARNING", publisherId }]);
+    expect(res.body.data).toMatchObject({ created: 1, notified: 1 });
+  });
+
+  it("reopens the same alert and notifies again once the delay is over", async () => {
+    const { alert } = await ignoreAlert();
+    await prisma.warning.update({ where: { id: alert.id }, data: { ignoredAt: new Date(Date.now() - 91 * DAY) } });
+    sendTemplate.mockClear();
+
+    const res = await webhook([{ type: TYPE, publisherId }]);
+    expect(res.body.data).toMatchObject({ created: 0, updated: 1, notified: 1 });
+    const warnings = await warningService.findWarnings({ publisherId });
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]).toMatchObject({ id: alert.id, status: "TODO", ignoredAt: null, occurrences: 2 });
+  });
+
+  it("restarts the delay when an ignored alert is reopened then ignored again, and clears it on reopening", async () => {
+    const { alert } = await ignoreAlert();
+    const reopened = await putStatus(alert.id, { status: "IN_PROGRESS" });
+    expect(reopened.body.data).toMatchObject({ status: "IN_PROGRESS", ignoredAt: null });
+
+    const again = await putStatus(alert.id, { status: "IGNORED" });
+    expect(again.body.data.ignoredAt).toBeTruthy();
+  });
+
+  it("allows resolving an ignored alert", async () => {
+    const { alert } = await ignoreAlert();
+    const res = await putStatus(alert.id, { status: "RESOLVED" });
+    expect(res.body.data).toMatchObject({ status: "RESOLVED", ignoredAt: null });
+    expect(res.body.data.resolvedAt).toBeTruthy();
+  });
+});

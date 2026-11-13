@@ -6,7 +6,7 @@ import { warningService } from "@/services/warning";
 import type { WarningStatus } from "@/types/warning";
 
 // Statuts de départ autorisés pour chaque bouton : on ne rouvre jamais une alerte résolue (message Slack périmé).
-const ALLOWED_FROM: Partial<Record<WarningStatus, WarningStatus[]>> = { IN_PROGRESS: ["TODO"], RESOLVED: ["TODO", "IN_PROGRESS"] };
+const ALLOWED_FROM: Partial<Record<WarningStatus, WarningStatus[]>> = { IN_PROGRESS: ["TODO"], RESOLVED: ["TODO", "IN_PROGRESS", "IGNORED"] };
 
 // Actions des boutons du message Slack d'une alerte (pendant de ./reply.ts pour les réponses mail).
 // Boutons « En cours » / « Résolu » du message d'alerte. Réservé aux assignés et aux admins dont le compte est lié à un ID Slack.

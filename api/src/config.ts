@@ -17,6 +17,9 @@ export const ensureJwtSecretIsConfigured = () => {
 };
 
 export const SECRET = process.env.SECRET || DEFAULT_SECRET;
+
+// Délai pendant lequel une alerte « Ignorée » ne rouvre pas d'alerte ni ne notifie (valeur unique pour tous les types)
+export const WARNING_IGNORE_DELAY_DAYS = 90;
 // Sépare cryptographiquement les JWT à portée limitée des tokens d'accès lus par Passport.
 const deriveJwtSecret = (domain: string) => crypto.createHmac("sha256", SECRET).update(`api-engagement:${domain}`).digest("hex");
 export const MFA_TOKEN_SECRET = deriveJwtSecret("mfa-challenge");
