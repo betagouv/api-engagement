@@ -10,14 +10,16 @@ export default function Hero({
   titleClassName = "lg:text-[80px]! lg:leading-22!",
   description,
   descriptionClassName = "",
+  contentClassName = "md:max-w-98 lg:max-w-156",
   hint,
   onStartQuiz,
   action,
   className = "",
   children,
 }: {
-  // Pastille au-dessus du titre (ex. domaine d'une landing thématique).
-  badge?: string;
+  // Pastille au-dessus du titre (ex. domaine d'une landing thématique) : une chaîne reçoit la pastille par défaut,
+  // un élément est rendu tel quel (ex. badge DSFR).
+  badge?: ReactNode;
   kicker?: string;
   title: ReactNode;
   // Taille desktop du titre (80px par défaut) et largeur propre à chaque landing : une landing qui le passe
@@ -25,6 +27,8 @@ export default function Hero({
   titleClassName?: string;
   description: ReactNode;
   descriptionClassName?: string;
+  // Largeur de la colonne de texte à partir de la tablette (par défaut : colonne étroite à côté du visuel).
+  contentClassName?: string;
   // Sans `onStartQuiz`, pas de CTA quiz (ni d'indication) sous la description.
   hint?: string;
   onStartQuiz?: () => void;
@@ -36,8 +40,12 @@ export default function Hero({
   return (
     <section className={`relative overflow-hidden rounded-b-[20px] md:rounded-none ${className}`}>
       <div className="fr-container relative z-10">
-        <div className="pt-8 md:max-w-98 md:pt-11 lg:max-w-156 lg:pt-24">
-          {badge && <p className="bg-action-low-blue-france text-blue-france-sun mb-2! w-fit rounded-full px-2.5 text-xs leading-5! font-bold uppercase">{badge}</p>}
+        <div className={`pt-8 md:pt-11 lg:pt-24 ${contentClassName}`}>
+          {typeof badge === "string" ? (
+            <p className="bg-action-low-blue-france text-blue-france-sun mb-2! w-fit rounded-full px-2.5 text-xs leading-5! font-bold uppercase">{badge}</p>
+          ) : (
+            badge
+          )}
           {kicker && <p className="fr-h4 text-title-grey! mb-0! md:mb-2! lg:text-[32px]! lg:leading-10!">{kicker}</p>}
           <h1 className={`text-title-grey! fr-mb-2w text-[40px]! leading-12! ${titleClassName}`}>{title}</h1>
           <p className={`fr-text--lead mb-8! md:mb-6! ${descriptionClassName}`}>{description}</p>
