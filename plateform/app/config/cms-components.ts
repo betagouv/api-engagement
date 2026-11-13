@@ -303,10 +303,10 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     label: "Textes par défaut",
     block: {
       __component: "blocks.newsletter",
-      title: "Reçois tes missions par email",
-      subtitle: "1 email par mois avec des missions qui pourraient t'intéresser.",
-      ctaText: "Recevoir mes missions",
-      hintText: "En renseignant ton adresse électronique, tu acceptes de recevoir de nouvelles offres de missions. Tu pourras te désinscrire à tout moment.",
+      title: "Inscris-toi à la newsletter",
+      subtitle: "Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager.",
+      ctaText: "Je m'inscris",
+      hintText: "1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail.",
     },
   },
   {

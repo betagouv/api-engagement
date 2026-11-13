@@ -43,6 +43,8 @@ enable_public_gateway = true
 enable_mfa            = true
 enable_public_proxy   = true
 
+public_proxy_instance_type = "STARDUST1-S"
+
 private_network_cidr = "10.41.0.0/22"
 
 # CMS : le CNAME du hostname doit exister avant l'apply, cf. cms/README.md.

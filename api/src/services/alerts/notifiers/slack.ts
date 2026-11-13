@@ -10,7 +10,7 @@ import { formatDate } from "@/utils/date";
 
 export const STATUS_ACTION_PREFIX = "alert_status:";
 
-const STATUS_LABELS: Record<WarningStatus, string> = { TODO: "À traiter", IN_PROGRESS: "En cours", RESOLVED: "Résolue" };
+const STATUS_LABELS: Record<WarningStatus, string> = { TODO: "À traiter", IN_PROGRESS: "En cours", RESOLVED: "Résolue", IGNORED: "Ignorée" };
 
 // Échappe le mrkdwn Slack pour le contenu venant de l'extérieur (Metabase).
 const escapeMrkdwn = (text: string) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

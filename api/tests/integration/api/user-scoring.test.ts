@@ -852,6 +852,23 @@ describe("PUT /user-scoring/:userScoringId", () => {
     expect(brevoMock.sendTemplate.mock.calls[0][1].params.missionUrl).toBe(`http://localhost:4000/r/email/${mission.id}/${emailPublisher.id}?email_source=save_mission`);
   });
 
+  it("should subscribe a mission detail contact to the same lists as a saved mission", async () => {
+    const publisher = await createTestPublisher({ name: "Mission Detail Publisher" });
+    const emailPublisher = await createEmailPublisher();
+    const mission = await createTestMission({ publisherId: publisher.id, title: "Mission Detail" });
+
+    const res = await postMissionEmailRequest().send({
+      email: "user@example.com",
+      publisherId: emailPublisher.id,
+      missionIds: [mission.id],
+      signupSource: "mission_detail",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.email_sent).toBe(true);
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds: [22, 23, 26], signupSource: "mission_detail" }));
+  });
+
   it("should skip mission email when missionIds are not found", async () => {
     const emailPublisher = await createEmailPublisher();
 
@@ -1197,7 +1214,7 @@ describe("PUT /user-scoring/:userScoringId", () => {
 });
 
 describe("POST /newsletter", () => {
-  it("should subscribe a results banner contact to the future recommendations list only", async () => {
+  it("should subscribe a results banner contact to the newsletter and future recommendations lists", async () => {
     const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
     const userScoringId = "00000000-0000-4000-8000-000000000000";
 
@@ -1213,8 +1230,29 @@ describe("POST /newsletter", () => {
       distinctId: "distinct-id",
       userScoringId,
       missionAlertEnabled: false,
-      listIds: [26],
+      listIds: [23, 26],
       signupSource: "result_list",
     });
+  });
+
+  it("should subscribe a police landing contact to the newsletter and future recommendations lists", async () => {
+    const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
+
+    const res = await request(app)
+      .post("/newsletter")
+      .set("x-api-key", plateformPublisher.apikey!)
+      .send({ email: "user@example.com", signupSource: "landing_page_reengagement_police_nationale" });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds: [23, 26], signupSource: "landing_page_reengagement_police_nationale" }));
+  });
+
+  it("should subscribe a newsletter block contact to the newsletter list only", async () => {
+    const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
+
+    const res = await request(app).post("/newsletter").set("x-api-key", plateformPublisher.apikey!).send({ email: "user@example.com", signupSource: "home_newsletter" });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds: [23], signupSource: "home_newsletter" }));
   });
 });

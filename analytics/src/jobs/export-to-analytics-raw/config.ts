@@ -801,7 +801,7 @@ export const exportDefinitions: ExportDefinition[] = [
         field: "updated_at",
         idField: "id",
       },
-      columns: ["id", "type", "title", "description", "publisher_id", "status", "occurrences", "procedure_url", "notified_at", "fixed_at", "created_at", "updated_at"],
+      columns: ["id", "type", "title", "description", "publisher_id", "status", "occurrences", "procedure_url", "notified_at", "fixed_at", "ignored_at", "created_at", "updated_at"],
     },
     destination: {
       table: "warning",

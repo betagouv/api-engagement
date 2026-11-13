@@ -114,12 +114,13 @@ export default function EmailStep() {
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col">
-      <h1 className="fr-h1 mb-8!">Reçois les nouvelles missions qui correspondent à tes réponses</h1>
+      <h1 className="fr-h1 mb-4!">Reçois tes missions par e-mail</h1>
+      <p className="fr-text--lead mb-8!">On t'envoie tes 6 premiers résultats tout de suite pour que tu les retrouves quand tu veux.</p>
 
       <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
         <label className="fr-label" htmlFor={emailId}>
           Ton adresse e-mail
-          <span className="fr-hint-text">1 e-mail 1 fois par mois avec d'autres missions</span>
+          <span className="fr-hint-text">Format attendu : nom@domaine.fr</span>
         </label>
         <input
           id={emailId}
@@ -129,7 +130,7 @@ export default function EmailStep() {
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${emailId}-error` : undefined}
+          aria-describedby={`${emailId}-consent ${error ? `${emailId}-error` : ""}`}
           className={`fr-input ${error ? "fr-input--error" : ""}`}
         />
         {error && (
@@ -138,6 +139,10 @@ export default function EmailStep() {
           </div>
         )}
       </div>
+      <p id={`${emailId}-consent`} className="fr-hint-text md:max-w-sm">
+        En laissant ton e-mail, tu recevras aussi 1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement. Tu peux te désinscrire en un clic depuis chaque
+        e-mail.
+      </p>
 
       <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-col gap-4 bg-background p-4 md:static md:mx-0 md:mt-4 md:flex-row md:gap-6 md:bg-transparent md:p-0">
         <button type="submit" disabled={loading} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!">

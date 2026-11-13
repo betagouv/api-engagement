@@ -4,8 +4,10 @@ import { Link, useParams } from "react-router-dom";
 
 import Avatar from "@/components/Avatar";
 import Loader from "@/components/Loader";
+import Modal from "@/components/Modal";
 import Select from "@/components/Select";
 import Tabs from "@/components/Tabs";
+import LabelledTextarea from "@/components/form/LabelledTextarea";
 import { WARNING_STATUS, WARNINGS } from "@/constants";
 import AlertComments from "@/scenes/admin-warning/components/AlertComments";
 import AlertOccurrences from "@/scenes/admin-warning/components/AlertOccurrences";
@@ -20,12 +22,23 @@ const DETAIL_TABS = [
 
 const STATUS_OPTIONS = Object.entries(WARNING_STATUS).map(([value, { name }]) => ({ value, label: name }));
 
+// Passages qui demandent une confirmation (commentaire optionnel) avant d'être enregistrés.
+const CONFIRM_STATUS = {
+  IGNORED: { title: "Ignorer l’alerte", action: "Ignorer l’alerte", hint: "Pourquoi cette alerte est-elle ignorée ?" },
+  RESOLVED: { title: "Résoudre l’alerte", action: "Résoudre l’alerte", hint: "Comment cette alerte a-t-elle été résolue ?" },
+};
+
+const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
+
 const AlertDetail = () => {
   const { id } = useParams();
   const [alert, setAlert] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("comments");
+  const [pending, setPending] = useState(null);
+  const [comment, setComment] = useState("");
+  const [commentsVersion, setCommentsVersion] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,13 +55,13 @@ const AlertDetail = () => {
     fetchData();
   }, [id]);
 
-  const handleStatus = async ({ value }) => {
-    if (!value || value === alert.status) return;
+  const saveStatus = async (status, body) => {
     setSaving(true);
     try {
-      const res = await api.put(`/warning/${id}/status`, { status: value });
+      const res = await api.put(`/warning/${id}/status`, { status, comment: body || undefined });
       if (!res.ok) throw res;
       setAlert(res.data);
+      setCommentsVersion((v) => v + 1);
     } catch (error) {
       captureError(error, {
         message: error?.code === "RESSOURCE_ALREADY_EXIST" ? "Une alerte ouverte existe déjà pour ce partenaire et ce type" : "Impossible de modifier le statut",
@@ -56,6 +69,23 @@ const AlertDetail = () => {
       });
     }
     setSaving(false);
+  };
+
+  const handleStatus = ({ value }) => {
+    if (!value || value === alert.status) return;
+    if (CONFIRM_STATUS[value]) {
+      setComment("");
+      setPending(value);
+    } else saveStatus(value);
+  };
+
+  const closeModal = () => setPending(null);
+
+  const confirm = async (e) => {
+    e.preventDefault();
+    const status = pending;
+    closeModal();
+    await saveStatus(status, comment.trim());
   };
 
   if (loading) {
@@ -117,6 +147,18 @@ const AlertDetail = () => {
           <dt className="font-bold">Créée le</dt>
           <dd>{formatDateTime(alert.createdAt)}</dd>
         </div>
+        {alert.status === "IGNORED" && alert.ignoredAt && (
+          <>
+            <div>
+              <dt className="font-bold">Ignorée le</dt>
+              <dd>{formatDateTime(alert.ignoredAt)}</dd>
+            </div>
+            <div>
+              <dt className="font-bold">Réouverture automatique le</dt>
+              <dd>{formatDate(alert.ignoreUntil)}</dd>
+            </div>
+          </>
+        )}
         {alert.status === "RESOLVED" && alert.resolvedAt && (
           <div>
             <dt className="font-bold">Résolue le</dt>
@@ -164,13 +206,41 @@ const AlertDetail = () => {
         {/* Les deux onglets restent montés (masqués) pour conserver un commentaire en cours de saisie */}
         <section id="alert-tab-panel" role="tabpanel" aria-labelledby={`alert-tab-${activeTab}`} className="border-grey-border border-t pt-6">
           <div hidden={activeTab !== "comments"}>
-            <AlertComments alertId={id} />
+            <AlertComments key={commentsVersion} alertId={id} />
           </div>
           <div hidden={activeTab !== "history"}>
             <AlertOccurrences alertId={id} />
           </div>
         </section>
       </div>
+      <Modal open={!!pending} onClose={closeModal} title={pending ? CONFIRM_STATUS[pending].title : ""}>
+        {pending === "IGNORED" && (
+          <p>
+            Le problème persiste mais ne demande pas de correction. Aucune nouvelle alerte ne sera envoyée pour ce partenaire et ce type avant le {formatDate(alert.ignoreUntil)},
+            date à laquelle l’alerte sera rouverte si le problème persiste.
+          </p>
+        )}
+        <form onSubmit={confirm} className="flex flex-col gap-6">
+          <LabelledTextarea
+            id="alert-status-comment"
+            label="Commentaire (optionnel)"
+            hint={pending ? CONFIRM_STATUS[pending].hint : undefined}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            maxLength={5000}
+            rows={4}
+            className=""
+          />
+          <div className="flex justify-end gap-4">
+            <button type="button" className="secondary-btn" onClick={closeModal}>
+              Annuler
+            </button>
+            <button type="submit" className="primary-btn">
+              {pending ? CONFIRM_STATUS[pending].action : ""}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
