@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { toMissionBrowse } from "@/services/mission-browse/transformers";
 import type { MissionRecord } from "@/types/mission";
-import { toMissionBrowse } from "../transformers";
 
 const NANTES = { lat: 47.2184, lon: -1.5536 };
 
