@@ -74,6 +74,7 @@ export class VerifyPublisherOrganizationHandler implements BaseHandler<VerifyPub
         };
       }
 
+      let cursorId: string | undefined;
       for (let i = 0; i < totalUnverified; i += CHUNK_SIZE) {
         const chunk = await publisherOrganizationService.findMany(
           {
@@ -82,13 +83,16 @@ export class VerifyPublisherOrganizationHandler implements BaseHandler<VerifyPub
           },
           {
             take: CHUNK_SIZE,
-            skip: i,
+            orderBy: { id: "asc" },
+            ...(cursorId ? { cursor: { id: cursorId }, skip: 1 } : {}),
           }
         );
 
         if (chunk.length === 0) {
           break;
         }
+        // Advance even when verification fails, without offsetting the shrinking unverified set.
+        cursorId = chunk[chunk.length - 1].id;
         result.processed += chunk.length;
 
         console.log(`[VerifyPublisherOrganization] Processing batch of ${chunk.length} organizations (${i + 1}-${i + chunk.length}/${totalUnverified})`);

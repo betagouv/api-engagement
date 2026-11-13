@@ -40,7 +40,7 @@ const buildWhere = (params: PublisherOrganizationFindParams): Prisma.PublisherOr
   if (params.url) {
     where.url = params.url;
   }
-  if (params.verifiedAt) {
+  if (params.verifiedAt !== undefined) {
     where.verifiedAt = params.verifiedAt;
   }
 
@@ -66,7 +66,14 @@ const publisherOrganizationService = {
   },
   findMany: async (params: PublisherOrganizationFindParams, options: PublisherOrganizationFindManyOptions = {}): Promise<PublisherOrganizationRecord[]> => {
     const where = buildWhere(params);
-    return publisherOrganizationRepository.findMany({ where, take: options.take, skip: options.skip, select: options.select ?? undefined });
+    return publisherOrganizationRepository.findMany({
+      where,
+      take: options.take,
+      skip: options.skip,
+      cursor: options.cursor,
+      orderBy: options.orderBy,
+      select: options.select ?? undefined,
+    });
   },
   findManyByPublisherAndClientIds: async (pairs: Array<{ publisherId: string; clientId: string }>): Promise<PublisherOrganizationRecord[]> => {
     return publisherOrganizationRepository.findMany({ where: { OR: pairs.map(({ publisherId, clientId }) => ({ publisherId, clientId })) } });
