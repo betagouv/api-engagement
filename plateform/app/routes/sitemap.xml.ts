@@ -7,6 +7,7 @@ const SITE_URL = "https://trouvetamission.gouv.fr";
 // lastmod : uniquement une vraie date connue, jamais une date bidon commune à toutes les pages.
 const PUBLIC_PAGES: { path: string; lastmod?: string }[] = [
   { path: "/" },
+  { path: "/accompagnateurs" },
   { path: "/plan-du-site" },
   { path: "/accessibilite" },
   { path: "/mentions-legales" },
