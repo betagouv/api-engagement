@@ -46,6 +46,9 @@
       "image": {
         "upload": "landings/reserviste-gendarmerie/hero-gendarmerie.webp"
       },
+      "imageMobile": {
+        "upload": "landings/reserviste-gendarmerie/hero-gendarmerie-mobile.webp"
+      },
       "visual": "none"
     },
     {

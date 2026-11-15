@@ -192,6 +192,8 @@ const buildBrowseSearches = (params: MissionBrowseParams, excludedIds: string[] 
     ...(params.offset === undefined ? { per_page: params.pageSize, page: params.page } : { offset: params.offset, limit: params.pageSize }),
     ...(params.widgetMode ? { sort_by: "startAt:desc,createdAt:desc" } : {}),
     ...(params.sort === "recent" ? { sort_by: "createdAt:desc" } : {}),
+    // Hors widget (qui filtre par rayon), un point de référence trie par l'adresse la plus proche de chaque mission.
+    ...(!params.widgetMode && params.lat !== undefined && params.lon !== undefined ? { sort_by: `locations(${params.lat}, ${params.lon}):asc` } : {}),
   };
   const facets = params.widgetMode ? WIDGET_FACETS : GENERIC_FACETS;
   const facetSearches: SearchQueryParams<MissionIndexDocument>[] = facets.map((facet) => ({
@@ -293,7 +295,7 @@ export const missionBrowseService = {
     });
 
     return {
-      data: missions.map(toMissionBrowse),
+      data: missions.map((mission) => toMissionBrowse(mission, params)),
       total: (resultsResult.found ?? 0) + slotIds.length,
       page: params.page,
       pageSize: params.pageSize,

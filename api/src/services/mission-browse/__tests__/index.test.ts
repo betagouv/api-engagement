@@ -236,6 +236,13 @@ describe("missionBrowseService.browse", () => {
     expect(resultsSearch().sort_by).toBe("createdAt:desc");
   });
 
+  it("trie par distance au point de référence, sans filtrer par rayon", async () => {
+    await missionBrowseService.browse({ ...baseParams, sort: "recent", lat: 48.8566, lon: 2.3522 });
+
+    expect(resultsSearch().sort_by).toBe("locations(48.8566, 2.3522):asc");
+    expect(resultsSearch().filter_by).toBe(DIFFUSION);
+  });
+
   describe("emplacements", () => {
     const hits = (...ids: string[]) => ({ hits: ids.map((id) => ({ document: { id } })), found: ids.length });
     const ARMEES = { filters: { dispositif: ["reserve_armees"] } };

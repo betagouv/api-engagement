@@ -28,12 +28,18 @@ export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
   includeRemote?: boolean;
   // `recent` : missions les plus récentes d'abord.
   sort?: "recent";
+  // Point de référence : les missions dont une adresse est la plus proche passent en premier (prioritaire sur `sort`).
+  lat?: number;
+  lon?: number;
   // Emplacements des premiers résultats, appliqués uniquement quand aucun filtre n'est coché.
   slots?: MissionBrowseSlot[];
 };
 
 export type MissionBrowse = {
   id: string;
+  // Adresse retenue (la plus proche du point `lat`/`lon` de la recherche, sinon la première) : à passer en `?addressId=`
+  // à la fiche mission. `city` est celle de cette adresse.
+  addressId: string | null;
   title: string;
   description: string | null;
   remote: "no" | "possible" | "full" | "local" | null;

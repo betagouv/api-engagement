@@ -44,6 +44,11 @@ export function buildMissionDetailHref(item: MissionMatchItem, userScoringId?: s
   return addressId ? `${base}?addressId=${encodeURIComponent(addressId)}` : base;
 }
 
+// Lien vers la fiche d'une mission de la liste : sur l'adresse retenue par l'API (la plus proche de la recherche).
+export function buildMissionBrowseHref(mission: MissionBrowse): string {
+  return mission.addressId ? `/missions/${mission.id}?addressId=${encodeURIComponent(mission.addressId)}` : `/missions/${mission.id}`;
+}
+
 /**
  * Ajoute le contexte du quiz à une URL de redirection trackée vers l'annonceur.
  */
@@ -63,6 +68,7 @@ export function userValueKeysFromScoring(userValues: MissionMatchUserValue[]): S
 export function matchResultToBrowseMission(item: MissionMatchItem): MissionBrowse {
   return {
     id: item.mission.id,
+    addressId: item.mission.location.addressId,
     title: item.mission.title,
     description: null,
     remote: item.mission.remote,

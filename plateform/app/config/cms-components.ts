@@ -74,6 +74,24 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Avec recherche par adresse (« Trouve ta caserne »)",
+    block: {
+      __component: "blocks.hero",
+      title: "Deviens sapeur-pompier volontaire dans la caserne à côté de chez toi",
+      description: "Enfile ton casque, ta tenue bleu et rouge, et apprends les gestes qui sauvent. Fais du repérage de caserne en indiquant ta ville !",
+      tags: [],
+      primaryLabel: "Trouve ta caserne",
+      primaryUrl: null,
+      secondaryLabel: null,
+      secondaryUrl: null,
+      hint: null,
+      searchDispositif: "sapeurs_pompiers",
+      image: null,
+      imageMobile: null,
+      visual: "none",
+    },
+  },
+  {
     label: "Avec une pastille (thématique)",
     block: {
       __component: "blocks.hero",
@@ -311,6 +329,7 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
 
 const exampleMission = (id: string, title: string, photo: string, organizationName: string): MissionBrowse => ({
   id,
+  addressId: null,
   title,
   description: null,
   remote: "no",

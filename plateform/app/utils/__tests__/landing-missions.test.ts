@@ -38,6 +38,17 @@ describe("buildLandingBrowseFilters", () => {
     expect(filters.dispositif).toBeUndefined();
   });
 
+  it("transmet le point de la recherche par localisation", () => {
+    const filters = buildLandingBrowseFilters(new URLSearchParams("departmentCode=44&lat=47.2184&lon=-1.5536"), CONFIG);
+
+    expect(filters).toMatchObject({ departmentCode: ["44"], lat: 47.2184, lon: -1.5536 });
+  });
+
+  it("ignore un point incomplet ou invalide", () => {
+    expect(buildLandingBrowseFilters(new URLSearchParams("lat=47.2184"), CONFIG).lat).toBeUndefined();
+    expect(buildLandingBrowseFilters(new URLSearchParams("lat=abc&lon=-1.5536"), CONFIG).lat).toBeUndefined();
+  });
+
   it("ne garde qu'une tranche d'âge", () => {
     const filters = buildLandingBrowseFilters(new URLSearchParams("tranche_age=18_25_ans&tranche_age=26_30_ans"), CONFIG);
 

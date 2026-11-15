@@ -66,6 +66,13 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
     const values = getSelectedValues(searchParams, key);
     if (values.length) filters[key] = values;
   }
+  // Point de la recherche par localisation : missions triées par distance, sur leur adresse la plus proche.
+  const lat = Number(searchParams.get("lat"));
+  const lon = Number(searchParams.get("lon"));
+  if (config.filters.includes("departmentCode") && searchParams.has("lat") && searchParams.has("lon") && !Number.isNaN(lat) && !Number.isNaN(lon)) {
+    filters.lat = lat;
+    filters.lon = lon;
+  }
   return { ...filters, ...config.include };
 };
 
