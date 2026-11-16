@@ -87,7 +87,8 @@ export function sanitizeHtml(input: string | null | undefined): string {
 
 /** Longueur du texte visible (sans balises). */
 export function textLength(html: string): number {
-  return html.replace(/<[^>]*>/g, "").trim().length;
+  // Découpage (et non remplacement) : on ne fait que compter, rien n'est réinjecté.
+  return html.split(/<[^<>]*>/).join("").trim().length;
 }
 
 const CDATA_KEYS = [
