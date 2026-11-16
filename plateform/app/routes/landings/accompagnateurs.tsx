@@ -106,7 +106,7 @@ export default function Accompagnateurs() {
               </li>
             ))}
           </ul>
-          <p className="fr-text--sm mx-auto mt-8! mb-0! max-w-250 text-center text-[#cecece]">
+          <p className="fr-text--sm mx-auto! mt-8! mb-0! max-w-250 text-center text-[#cecece]">
             Bénévolat, Service Civique, réserves (police, armées, gendarmerie), sapeurs-pompiers volontaires.
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function Accompagnateurs() {
         <h2 id="cta" className="fr-h2">
           Envie de tester l'outil avec les personnes que vous accompagnez ?
         </h2>
-        <p className="fr-text--lead mx-auto max-w-225">Laissez votre adresse e-mail : nous vous prévenons dès l'ouverture et vous proposons un échange de 30 minutes.</p>
+        <p className="fr-text--lead mx-auto! max-w-225">Laissez votre adresse e-mail : nous vous prévenons dès l'ouverture et vous proposons un échange de 30 minutes.</p>
         <button type="button" onClick={focusSignup} className="fr-btn fr-btn--lg">
           Tester en avant-première
         </button>

@@ -41,7 +41,7 @@ export default function Benefices() {
         <h2 id="benefices" className="text-title-grey mb-10! text-center text-[28px]! leading-normal! font-bold! md:text-[36px]!">
           Pourquoi parler d'engagement aux personnes que vous accompagnez ?
         </h2>
-        <p className="text-default-grey mx-auto mb-10! max-w-225 text-center text-lg!">
+        <p className="text-default-grey mx-auto! mb-10! max-w-225 text-center text-lg!">
           Face à l'urgence de la formation, de l'orientation, de l'emploi ou du revenu, on n'y pense pas toujours. Pourtant, une mission d'engagement peut beaucoup pour une personne
           en construction de projet.
         </p>
