@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import Modal from "~/components/layout/modal";
-import { getConsentServices, type ConsentService } from "~/services/consent-services";
 import {
   COOKIE_CONSENT_MODAL_ID,
   getCookieConsentPreferences,
+  getConsentServices,
   isCookieConsentEnabled,
   saveCookieConsent,
   subscribeCookieConsentPanelOpen,
   type ConsentChoice,
   type ConsentPreferences,
+  type ConsentService,
 } from "~/services/cookie-consent";
 
 function preferencesForChoice(services: ConsentService[], choice: ConsentChoice): ConsentPreferences {

@@ -1,10 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const config = vi.hoisted(() => ({ GTM_CONTAINER_ID: "GTM-test" as string | undefined }));
+const config = vi.hoisted(() => ({
+  GTM_CONTAINER_ID: "GTM-test" as string | undefined,
+  POSTHOG_KEY: "phc_test",
+  TRACKING_PROVIDER: "posthog",
+  CRISP_WEBSITE_ID: "crisp-test",
+  CRISP_BOT_SCENARIO_ID: "scenario-test",
+}));
 vi.mock("~/services/config", () => config);
+vi.mock("~/services/tracking", () => ({ initTracking: vi.fn(), setTrackingConsentStatus: vi.fn() }));
 
 describe("consentements publicitaires GTM", () => {
-  let consent: typeof import("../gtm-consent");
+  let consent: typeof import("../tracking/providers/gtm");
   let provider: ReturnType<typeof import("../tracking/providers/gtm").createGtmProvider>;
   let scripts: { id: string; src: string; async: boolean }[];
   let appendChild: ReturnType<typeof vi.fn>;
@@ -23,17 +30,24 @@ describe("consentements publicitaires GTM", () => {
       expect(window.dataLayer?.at(-1)).toMatchObject({ event: "gtm.js" });
       scripts.push(script);
     });
-    vi.stubGlobal("window", {});
+    vi.stubGlobal("window", { location: { protocol: "https:" } });
     vi.stubGlobal("document", {
       getElementById: (id: string) => scripts.find((script) => script.id === id),
       createElement: () => ({}),
       head: { appendChild },
     });
-    consent = await import("../gtm-consent");
-    provider = (await import("../tracking/providers/gtm")).createGtmProvider();
+    const gtm = await import("../tracking/providers/gtm");
+    consent = {
+      ...gtm,
+      applyGtmConsentPreferences: (preferences) => gtm.applyGtmConsentPreferences({ google: "pending", adform: "pending", tiktok: "pending", snapchat: "pending", ...preferences }),
+    };
+    provider = gtm.createGtmProvider();
   });
 
-  afterEach(() => vi.unstubAllGlobals());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
 
   it("n'émet aucun signal ni évènement métier avant un premier choix publicitaire", () => {
     expect(consent.applyGtmConsentPreferences({})).toBe(false);
@@ -62,7 +76,7 @@ describe("consentements publicitaires GTM", () => {
   });
 
   it.each(Array.from({ length: 16 }, (_, mask) => [mask]))("applique la combinaison d'accords %i avec un seul signal", (mask) => {
-    const preferences = Object.fromEntries(consent.GTM_CONSENT_SERVICE_IDS.map((id, index) => [id, mask & (1 << index) ? "granted" : "denied"]));
+    const preferences = Object.fromEntries(Object.keys(denied).map((id, index) => [id, mask & (1 << index) ? ("granted" as const) : ("denied" as const)]));
     consent.applyGtmConsentPreferences(preferences);
 
     expect(consentEvents()).toEqual([
@@ -86,6 +100,21 @@ describe("consentements publicitaires GTM", () => {
     expect(consentEvents()).toHaveLength(2);
     expect(appendChild).toHaveBeenCalledTimes(1);
     expect(window.dataLayer?.filter((item) => (item as { event: string }).event === "gtm.js")).toHaveLength(1);
+  });
+
+  it("inclut automatiquement un nouveau service GTM du registre, mais pas les autres outils", async () => {
+    const registry = await import("../cookie-consent");
+    registry.consentServices.push({ id: "new_advertiser", version: 1, title: "Nouvelle régie", description: "", isEnabled: () => true, managedByGtm: true });
+    try {
+      registry.saveCookieConsent({ ...denied, new_advertiser: "granted", posthog: "denied", crisp: "denied" });
+
+      expect(consentEvents()).toEqual([{ ...deniedEvent, consent_new_advertiser: "granted" }]);
+      expect(appendChild).toHaveBeenCalledTimes(1);
+      expect(consent.applyGtmConsentPreferences({ ...denied, new_advertiser: "denied" })).toBe(true);
+      expect(consentEvents()?.at(-1)).toEqual({ ...deniedEvent, consent_new_advertiser: "denied" });
+    } finally {
+      registry.consentServices.pop();
+    }
   });
 
   it("ne rejoue pas les évènements antérieurs à l'accord", () => {

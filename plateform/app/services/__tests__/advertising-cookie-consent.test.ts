@@ -37,7 +37,7 @@ describe("gestionnaire de cookies et régies publicitaires", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("remplace GTM par quatre services sans modifier PostHog et Crisp", async () => {
-    const { getConsentServices } = await import("../consent-services");
+    const { getConsentServices } = await import("../cookie-consent");
     expect(getConsentServices().map((service) => service.id)).toEqual(["posthog", "crisp", "google", "adform", "tiktok", "snapchat"]);
   });
 
