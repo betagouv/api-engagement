@@ -302,7 +302,7 @@ export const TAXONOMY = {
     missionDerived: true,
     values: {
       benevolat: { label: "Bénévolat", icon: null, enrichable: false },
-      service_civique: { label: "Service civique", icon: null, enrichable: false },
+      service_civique: { label: "Service Civique", icon: null, enrichable: false },
       sapeurs_pompiers: { label: "Pompiers volontaires", icon: null, enrichable: false },
       reserve_gendarmerie: { label: "Réserve Gendarmerie", icon: null, enrichable: false },
       reserve_police_nationale: { label: "Réserve Police Nationale", icon: null, enrichable: false },
