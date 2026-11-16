@@ -95,6 +95,7 @@ async function runJob() {
 
     const payload = {
       table: tableName,
+      environment: selectedEnv,
     };
 
     const result = await handler.handle(payload);

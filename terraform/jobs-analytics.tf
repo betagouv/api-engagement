@@ -57,6 +57,28 @@ resource "scaleway_job_definition" "analytics-tracking-raw" {
   })
 }
 
+resource "scaleway_job_definition" "analytics-metrics-raw" {
+  count                  = var.enable_analytics_jobs ? 1 : 0
+  name                   = "analytics-${var.env}-metrics-raw"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_analytics_uri
+  timeout                = "120m"
+
+  cron {
+    schedule = "0 3 * * *"
+    timezone = "Europe/Paris"
+  }
+
+  env = merge(local.common_analytics_env_vars, {
+    JOB_CMD                  = "node dist/jobs/run-job.js export-metrics-raw"
+    COCKPIT_METRICS_OTLP_URL = lookup(local.secrets, "COCKPIT_METRICS_OTLP_URL", "")
+    COCKPIT_METRICS_TOKEN    = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
+  })
+}
+
 resource "scaleway_job_definition" "analytics-dbt-run" {
   count                  = var.enable_analytics_jobs ? 1 : 0
   name                   = "analytics-${var.env}-dbt-run"

@@ -141,6 +141,7 @@ const createActiveRecorder = (config: Required<Pick<HttpMetricsConfig, "environm
           environment: metric.environment,
           publisher_id: metric.publisherId,
           route: metric.route,
+          status_code: String(metric.statusCode),
         });
       }
     },
