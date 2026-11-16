@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
+import QuizCompassSvg from "~/assets/svg/quiz-compass.svg";
 import BetaBanner from "~/components/layout/beta-banner";
-import BackButton from "~/components/quiz/back-button";
 import ExitModal from "~/components/quiz/exit-modal";
 import LoadingRecap from "~/components/quiz/loading-recap";
 import QuizProgress from "~/components/quiz/progress";
@@ -20,6 +20,9 @@ import type { Route } from "./+types/_layout";
 export type QuizOutletContext = {
   goNext: () => void;
   goBack: () => void;
+  // Cible du bouton « Précédent » (step précédent, ou page d'origine au premier step) et son tracking.
+  backHref: string;
+  onBackNavigated: () => void;
   saveScoring: () => void;
   // Affiche l'écran de chargement des résultats (utilisé par la page email en fin de parcours).
   showLoadingRecap: () => void;
@@ -64,6 +67,8 @@ export default function QuizLayout() {
   const scoringPromiseRef = useRef<Promise<boolean> | null>(null);
 
   const currentIndex = currentStep ? steps.findIndex((s) => s.id === currentStep.id) : -1;
+  // Hors flow (page email du rollback q3), « Précédent » ramène au dernier step du parcours.
+  const backHref = currentIndex > 0 ? steps[currentIndex - 1].route : currentIndex < 0 && isEmailPage ? steps[steps.length - 1].route : (backTo ?? "/");
 
   // Guard : si la condition du step courant n'est pas remplie (ex: accès direct à /quiz/handicap
   // sans réponse à /quiz/age), on redirige vers le premier step visible.
@@ -165,21 +170,22 @@ export default function QuizLayout() {
     navigate(prev ? prev.route : QUIZ_FLOW[0].route, { replace: true });
   };
 
-  // quiz.back_navigated : clic sur un bouton "Retour" (BackButton au-dessus de la question).
+  // quiz.back_navigated : clic sur le bouton « Précédent » (BackButton, à côté de « Continuer »).
   const handleBackNavigated = () => {
     if (currentStep) trackQuizBackNavigated({ fromStepName: currentStep.id, fromStepIndex: currentIndex + 1 });
   };
 
   return (
     <div className="flex min-h-svh flex-1 flex-col">
-      <QuizProgress step={loadingResults ? steps.length + 1 : isEmailPage && currentIndex < 0 ? steps.length : currentIndex + 1} stepCount={steps.length + 1} />
       {/* Bandeau bêta affiché dès la première étape : la bêta est signalée avant que l'utilisateur s'engage dans le parcours. */}
       {!loadingResults && <BetaBanner source="quiz" session={quizAttemptId} />}
-      <main id="contenu" tabIndex={-1} className="relative flex flex-1 flex-col bg-linear-to-l from-blue-france-950/40 md:from-blue-france-950 to-transparent pt-10 md:pb-10">
-        {/* Bouton de sortie (desktop) : en haut de la zone de contenu, donc sous le bandeau bêta et non sur sa ligne. */}
+      <main id="contenu" tabIndex={-1} className="relative flex flex-1 flex-col pt-6">
+        {/* Bouton de sortie (desktop) : en haut de la zone de contenu, sur la ligne de l'indicateur d'étapes. */}
         <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-4 right-4 p-2 z-10 hidden lg:block" />
-        <div className="fr-container flex flex-1 flex-col gap-10">
-          {!loadingResults && !isEmailPage && <BackButton href={currentIndex > 0 ? steps[currentIndex - 1].route : (backTo ?? "/")} onBack={handleBackNavigated} />}
+        <div className="fr-container relative z-1 flex flex-1 flex-col gap-8">
+          {!loadingResults && (
+            <QuizProgress step={isEmailPage && currentIndex < 0 ? steps.length : currentIndex + 1} stepCount={steps.length} nextLabel={steps[currentIndex + 1]?.label} />
+          )}
           {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error" role="alert">
               <p>{scoringError}</p>
@@ -195,6 +201,8 @@ export default function QuizLayout() {
                   goNext,
                   goBack,
                   saveScoring,
+                  backHref,
+                  onBackNavigated: handleBackNavigated,
                   showLoadingRecap: () => setLoadingResultsPath(location.pathname),
                   currentStepId: currentStep?.id ?? null,
                   currentStepIndex: currentIndex + 1,
@@ -204,6 +212,9 @@ export default function QuizLayout() {
             />
           )}
         </div>
+        {/* Illustration décorative, toujours sous le contenu et collée au footer. En desktop, elle remonte à hauteur
+            des boutons (marge négative), à droite, sans jamais passer au-dessus des réponses. */}
+        <img src={QuizCompassSvg} alt="" className="pointer-events-none w-full max-w-[480px] self-end md:-mt-40" />
       </main>
     </div>
   );

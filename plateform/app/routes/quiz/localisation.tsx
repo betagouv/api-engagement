@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type SubmitEvent } fro
 import { useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
+import { highlightText } from "~/components/ui/highlight";
 import { getStepDef } from "~/config/quiz-flow";
 import { reverseGeocode, searchAddress, type GeoSuggestion } from "~/services/geolocation";
 import { useQuizStore } from "~/stores/quiz";
@@ -179,7 +180,7 @@ export default function LocalisationStep() {
     <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-8">
       <div className={`fr-input-group ${error ? "fr-input-group--error" : ""}`}>
         <Label subtitle={STEP.subtitle} htmlFor="localisation-input" error={error} required>
-          {STEP.title}
+          {highlightText(STEP.title, STEP.highlight)}
         </Label>
         <div className="relative max-w-sm!" ref={wrapperRef}>
           <input

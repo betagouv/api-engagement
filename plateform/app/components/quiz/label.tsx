@@ -15,9 +15,9 @@ export default function Label({ subtitle, children, htmlFor, error, required }: 
         {children}
         <span className="fr-text--lead block! mt-4! mb-0! font-normal!">
           {subtitle}
-          {required && <span className="inline! mb-0! ml-2!">(champ obligatoire)</span>}
+          {required && <span className="fr-text--sm inline! mb-0! ml-2!">(champ obligatoire)</span>}
         </span>
-        {!subtitle && required && <span className="fr-text--lead mb-0!">(champ obligatoire)</span>}
+        {!subtitle && required && <span className="fr-text--sm block! mb-0! font-normal!">(champ obligatoire)</span>}
       </h1>
     </label>
   );

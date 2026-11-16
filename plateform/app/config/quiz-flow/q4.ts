@@ -10,12 +10,14 @@ import type { StepDef } from "./types";
 //  - step "email" ajouté en fin de parcours, avant les résultats.
 export const QUIZ_FLOW_Q4: StepDef[] = [
   // Étape 1 — âge.
-  { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?", subtitle: "Certaines missions dépendent de l'âge." },
+  { id: "age", route: "/quiz/age", title: "Quel âge as-tu ?", highlight: "âge", label: "Ton âge", subtitle: "Certaines missions dépendent de l'âge." },
   // Étape 2 — handicap, posée uniquement entre 26 et 30 ans.
   {
     id: "handicap",
     route: "/quiz/handicap",
     title: "Es-tu en situation de handicap reconnue ?",
+    highlight: "situation de handicap",
+    label: "Ta situation",
     subtitle: "Certaines missions sont accessibles jusqu’à 30 ans pour les personnes en situation de handicap.",
     options: ["handicap.oui", "handicap.non", "handicap.ne_se_prononce_pas"],
     condition: numericRange("age", 26, 30),
@@ -25,6 +27,8 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     id: "localisation",
     route: "/quiz/localisation",
     title: "Où veux-tu chercher des missions ?",
+    highlight: "Où veux-tu chercher",
+    label: "Ta localisation",
     subtitle: "Entre ton adresse pour découvrir les missions près de chez toi. Certaines missions peuvent aussi se faire à distance.",
   },
   // Étape 4 — mobilité, calibre le rayon de recherche autour de la localisation.
@@ -32,6 +36,8 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     id: "mobilite",
     route: "/quiz/mobilite",
     title: "Comment tu te déplaces généralement ?",
+    highlight: "tu te déplaces",
+    label: "Tes moyens de transport",
     options: ["mobilite.pied_transports", "mobilite.velo", "mobilite.voiture"],
   },
   // Étape 5 — motivation de recherche.
@@ -39,6 +45,8 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     id: "motivation_recherche",
     route: "/quiz/motivation-recherche",
     title: "Qu’est-ce qui t’amène aujourd’hui ?",
+    highlight: "Qu’est-ce qui t’amène",
+    label: "Ton objectif",
     options: [
       "motivation_recherche.premiere_experience",
       "motivation_recherche.parcoursup",
@@ -56,6 +64,8 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     id: "rythme",
     route: "/quiz/rythme",
     title: "Quel rythme te conviendrait le mieux ?",
+    highlight: "Quel rythme",
+    label: "Ton rythme",
     options: [
       "rythme.ponctuelle_journee",
       "rythme.quelques_heures_semaine",
@@ -70,6 +80,8 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     id: "domaine_engagement",
     route: "/quiz/domaine-engagement",
     title: "Quels domaines t’intéressent ?",
+    highlight: "Quels domaines",
+    label: "Tes intérêts",
     options: [
       "domaine_engagement.sante_bien_etre",
       "domaine_engagement.sport",
@@ -87,6 +99,8 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     id: "activite",
     route: "/quiz/activite",
     title: "Qu’aimerais-tu faire concrètement ?",
+    highlight: "concrètement",
+    label: "Tes activités",
     options: [
       "activite.aider_accompagner",
       "activite.transmettre_animer",
@@ -102,8 +116,16 @@ export const QUIZ_FLOW_Q4: StepDef[] = [
     route: "/quiz/autonomie",
     completes: true,
     title: "Quel cadre te conviendrait le mieux ?",
+    highlight: "Quel cadre",
+    label: "Ton cadre",
     options: ["autonomie.organisation_libre", "autonomie.accompagnement_initial", "autonomie.cadre_suivi_regulier", "autonomie.je_ne_sais_pas"],
   },
   // Étape 10 — email : reçoit le top des missions et inscrit aux listes Brevo, avant les résultats. Pas de réponse au scoring.
-  { id: "email", route: "/quiz/email", title: "Reçois tes missions par e-mail" },
+  {
+    id: "email",
+    route: "/quiz/email",
+    title: "Reçois tes prochaines missions basées sur tes réponses",
+    highlight: "tes prochaines missions",
+    label: "Ton e-mail (optionnel)",
+  },
 ];

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import NextButton from "~/components/quiz/next-button";
 import RadioGroup from "~/components/quiz/radio-group";
+import { highlightText } from "~/components/ui/highlight";
 import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -40,7 +41,15 @@ export default function HandicapStep() {
 
   return (
     <>
-      <RadioGroup title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} error={error} selected={selected} required />
+      <RadioGroup
+        title={highlightText(STEP.title, STEP.highlight)}
+        subtitle={STEP.subtitle}
+        onChange={handleSelect}
+        options={STEP_OPTIONS}
+        error={error}
+        selected={selected}
+        required
+      />
       <NextButton onClick={handleNext} />
     </>
   );
