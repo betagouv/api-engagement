@@ -46,8 +46,11 @@ function buildSalary(mission: MissionRecord): LinkedInJob["salaries"] {
 /** Adresses diffusables (ville renseignée, dédoublonnées). Mission 100 % à distance sans adresse → France. */
 function resolveAddresses(mission: MissionRecord): (MissionAddress | null)[] {
   const seen = new Set<string>();
-  const addresses = (mission.addresses ?? []).filter((a) => {
-    const key = `${a.city}|${a.postalCode}`;
+  const keyOf = (a: MissionAddress) => `${a.city}|${a.postalCode}`;
+  // Ordre déterministe (l'ordre SQL ne l'est pas) : les suffixes de `partnerJobId` en dépendent.
+  const sorted = [...(mission.addresses ?? [])].sort((a, b) => keyOf(a).localeCompare(keyOf(b)));
+  const addresses = sorted.filter((a) => {
+    const key = keyOf(a);
     if (!a.city || seen.has(key)) {
       return false;
     }

@@ -35,6 +35,13 @@ describe("missionToLinkedinJobs", () => {
     expect(jobs.map((j) => j.location)).toEqual(["Paris, France", "Lyon, France"]);
   });
 
+  it("attribue les identifiants indépendamment de l'ordre des adresses", () => {
+    const lyon = address("Lyon", { postalCode: "69001" });
+    const paris = address("Paris");
+    const byId = (addresses: object[]) => Object.fromEntries(missionToLinkedinJobs(mission({ addresses }), jva).map((j) => [j.partnerJobId, j.location]));
+    expect(byId([lyon, paris])).toEqual(byId([paris, lyon]));
+  });
+
   it("dédoublonne les adresses sans plafond", () => {
     const addresses = Array.from({ length: 30 }, (_, i) => address(`Ville${i}`, { postalCode: String(i) }));
     expect(missionToLinkedinJobs(mission({ addresses: [...addresses, addresses[0]] }), jva)).toHaveLength(30);
