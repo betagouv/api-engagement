@@ -1,5 +1,6 @@
 export interface DailyPublisherUsage {
   publisher_id: string;
+  method: string | null;
   route: string;
   status_code: number | null;
   request_count: number;
@@ -61,13 +62,20 @@ const parseUsage = (payload: unknown): DailyPublisherUsage[] => {
     if (!isRecord(result) || !isRecord(result.metric) || !Array.isArray(result.value) || result.value.length !== 2) {
       throw new Error("Échantillon Cockpit invalide.");
     }
-    const { publisher_id, route, status_code } = result.metric;
+    const { publisher_id, method, route, status_code } = result.metric;
     const [timestamp, rawCount] = result.value;
     const requestCount = typeof rawCount === "string" && rawCount.trim() !== "" ? Number(rawCount) : NaN;
     if (typeof publisher_id !== "string" || !publisher_id || typeof route !== "string" || !route || typeof timestamp !== "number" || !Number.isFinite(timestamp)) {
       throw new Error("Labels ou timestamp Cockpit invalides.");
     }
     const statusCode = status_code === undefined || status_code === "" ? null : status_code;
+    let httpMethod: string | null = null;
+    if (method !== undefined && method !== "") {
+      if (typeof method !== "string" || !/^[!#$%&'*+.^_`|~0-9A-Z-]+$/.test(method)) {
+        throw new Error("Méthode HTTP Cockpit invalide.");
+      }
+      httpMethod = method;
+    }
     if (statusCode !== null && (typeof statusCode !== "string" || !/^[1-5]\d{2}$/.test(statusCode))) {
       throw new Error("Code de statut HTTP Cockpit invalide.");
     }
@@ -75,19 +83,19 @@ const parseUsage = (payload: unknown): DailyPublisherUsage[] => {
     if (!Number.isFinite(requestCount) || requestCount < 0 || !Number.isSafeInteger(roundedCount)) {
       throw new Error("Volume de requêtes Cockpit invalide.");
     }
-    const key = JSON.stringify([publisher_id, route, statusCode]);
+    const key = JSON.stringify([publisher_id, httpMethod, route, statusCode]);
     if (seen.has(key)) {
-      throw new Error("Cockpit a renvoyé plusieurs volumes pour un même partenaire, une même route et un même statut HTTP.");
+      throw new Error("Cockpit a renvoyé plusieurs volumes pour un même partenaire, une même méthode, une même route et un même statut HTTP.");
     }
     seen.add(key);
-    return { publisher_id, route, status_code: statusCode === null ? null : Number(statusCode), request_count: roundedCount };
+    return { publisher_id, method: httpMethod, route, status_code: statusCode === null ? null : Number(statusCode), request_count: roundedCount };
   });
 };
 
 export const createCockpitMetricsReader = (config: CockpitMetricsConfig, request: typeof fetch = fetch) => {
   // increase est appliqué AVANT sum pour traiter les resets de chaque instance.
   const query =
-    `sum by (publisher_id, route, status_code) (` +
+    `sum by (publisher_id, method, route, status_code) (` +
     `increase(api_engagement_http_requests_by_publisher_total{environment=${JSON.stringify(config.environment)},publisher_id!="",route!=""}[1d]))`;
 
   return async (end: Date): Promise<DailyPublisherUsage[]> => {

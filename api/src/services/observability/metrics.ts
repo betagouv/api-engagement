@@ -140,6 +140,7 @@ const createActiveRecorder = (config: Required<Pick<HttpMetricsConfig, "environm
         requestByPublisherCounter.add(1, {
           environment: metric.environment,
           publisher_id: metric.publisherId,
+          method: metric.method,
           route: metric.route,
           status_code: String(metric.statusCode),
         });

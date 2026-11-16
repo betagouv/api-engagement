@@ -4,7 +4,7 @@ export interface BulkUpsertOptions {
   table: string;
   schema?: string;
   conflictColumns: string[];
-  conflictWhere?: { column: string; isNull: boolean };
+  conflictWhere?: { column: string; isNull: boolean }[];
 }
 
 const formatIdentifier = (identifier: string) => {
@@ -84,7 +84,9 @@ export const bulkUpsert = async (client: PoolClient, rows: Record<string, any>[]
   const tableName = options.schema ? `${formatIdentifier(options.schema)}.${formatIdentifier(options.table)}` : formatIdentifier(options.table);
   const columnList = columns.map((column) => `"${column.replace(/"/g, '""')}"`).join(", ");
   const conflictClause = conflictColumns.map((column) => `"${column.replace(/"/g, '""')}"`).join(", ");
-  const conflictWhere = options.conflictWhere ? ` WHERE ${formatIdentifier(options.conflictWhere.column)} IS ${options.conflictWhere.isNull ? "" : "NOT "}NULL` : "";
+  const conflictWhere = options.conflictWhere?.length
+    ? ` WHERE ${options.conflictWhere.map(({ column, isNull }) => `${formatIdentifier(column)} IS ${isNull ? "" : "NOT "}NULL`).join(" AND ")}`
+    : "";
   const updateClause =
     updateColumns.length > 0 ? "UPDATE SET " + updateColumns.map((column) => `"${column.replace(/"/g, '""')}" = EXCLUDED."${column.replace(/"/g, '""')}"`).join(", ") : "NOTHING";
 
