@@ -1,56 +1,77 @@
 import { AUDIENCE_MAPPING, DOMAIN_MAPPING, LINKEDIN_XML_URL } from "@/jobs/linkedin/config";
-import { missionToLinkedinJob } from "@/jobs/linkedin/transformers";
-import { LinkedInJob } from "@/jobs/linkedin/types";
+import { missionToLinkedinJobs } from "@/jobs/linkedin/transformers";
+import { DispositifDefinition, LinkedInJob } from "@/jobs/linkedin/types";
 import { OBJECT_ACL, putObject } from "@/services/s3";
 import { MissionRecord } from "@/types/mission";
 import { buildFeedXml } from "@/utils/xml";
 
 export { getMissionsCursor } from "@/utils/mission-cursor";
 
-export async function generateJvaJobs(missionsCursor: AsyncIterable<MissionRecord>): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number }> {
+/** Transforme les missions d'un dispositif en jobs (un par adresse). `maxMissions` du dispositif plafonne les missions diffusées. */
+export async function generateJobs(
+  missionsCursor: AsyncIterable<MissionRecord>,
+  dispositif: DispositifDefinition
+): Promise<{ jobs: LinkedInJob[]; expired: number; skipped: number; processed: number; sentMissions: number }> {
   const jobs = [] as LinkedInJob[];
   let expired = 0;
   let skipped = 0;
   let processed = 0;
+  let sentMissions = 0;
 
   for await (const mission of missionsCursor) {
-    processed++;
-    const job = missionToLinkedinJob(mission, "jeveuxaider.gouv.fr");
-    if (!job) {
-      skipped++;
-      continue;
+    if (dispositif.maxMissions !== undefined && sentMissions >= dispositif.maxMissions) {
+      break;
     }
-    if (job.expirationDate && new Date(job.expirationDate).getTime() < Date.now()) {
+    processed++;
+    // Le filtre d'expiration ne s'applique qu'aux missions JVA.
+    if (dispositif.skipExpired && mission.endAt && new Date(mission.endAt).getTime() < Date.now()) {
       expired++;
       continue;
     }
-    jobs.push(job);
-  }
-
-  return { jobs, expired, skipped, processed };
-}
-
-export async function generatePartnersJobs(missionsCursor: AsyncIterable<MissionRecord>): Promise<{ jobs: LinkedInJob[]; skipped: number; processed: number }> {
-  const jobs = [] as LinkedInJob[];
-  let skipped = 0;
-  let processed = 0;
-
-  let slot = 0;
-  for await (const mission of missionsCursor) {
-    processed++;
-    const job = missionToLinkedinJob(mission, "benevolt");
-    if (!job) {
+    const missionJobs = missionToLinkedinJobs(mission, dispositif);
+    if (!missionJobs.length) {
       skipped++;
       continue;
     }
-    if (slot >= 50) {
-      break;
-    }
-    jobs.push(job);
-    slot++;
+    jobs.push(...missionJobs);
+    sentMissions++;
   }
 
-  return { jobs, skipped, processed };
+  return { jobs, expired, skipped, processed, sentMissions };
+}
+
+const ALLOWED_TAGS = ["b", "strong", "u", "i", "em", "br", "p", "ul", "li"];
+
+/** Ne garde que les balises acceptées par LinkedIn ; un texte brut est converti en paragraphes. */
+export function sanitizeHtml(input: string | null | undefined): string {
+  if (!input) {
+    return "";
+  }
+  if (!/<\/?[a-z][\s\S]*>/i.test(input)) {
+    return input
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .split(/\n{2,}/)
+      .map((p) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`)
+      .join("\n");
+  }
+  return input
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<(\/?)ol\b[^>]*>/gi, "<$1ul>")
+    .replace(/<(\/?)h[1-6]\b[^>]*>/gi, (_, close) => (close ? "</b></p>" : "<p><b>"))
+    .replace(/<(\/?)div\b[^>]*>/gi, "<$1p>")
+    .replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, (tag, name: string) => {
+      if (!ALLOWED_TAGS.includes(name.toLowerCase())) {
+        return "";
+      }
+      return `<${tag.startsWith("</") ? "/" : ""}${name.toLowerCase()}>`;
+    })
+    .trim();
+}
+
+/** Longueur du texte visible (sans balises). */
+export function textLength(html: string): number {
+  return html.replace(/<[^>]*>/g, "").trim().length;
 }
 
 const CDATA_KEYS = [
@@ -61,13 +82,11 @@ const CDATA_KEYS = [
   "company",
   "companyId",
   "location",
-  "alternateLocation",
   "city",
   "country",
   "postalCode",
   "expirationDate",
   "listDate",
-  "industry",
   "industryCode",
   "workplaceTypes",
 ];

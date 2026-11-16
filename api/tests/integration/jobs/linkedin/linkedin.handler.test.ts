@@ -91,4 +91,61 @@ describe("LinkedinHandler (integration test)", () => {
     // …celle de l'organisation exclue n'y figure pas.
     expect(xml).not.toContain(String(excluded.id));
   });
+
+  const ADDRESS = { city: "Lyon", postalCode: "69001", country: "FR", departmentName: "Rhône" };
+
+  /** Donne accès à LinkedIn aux missions d'un annonceur, puis matérialise le snapshot. */
+  async function scopeAndRebuild(annonceurId: string) {
+    await publisherDiffusionRuleService.findOrCreateScopeRoot(LINKEDIN_ID, annonceurId);
+    await missionDiffusionService.rebuildForDistributionPublisher(LINKEDIN_ID);
+  }
+
+  it("diffuse les missions Service Civique sous la page TTM avec le titre du dispositif", async () => {
+    await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE, name: "Service Civique" });
+    const mission = await createTestMission({
+      publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE,
+      statusCode: "ACCEPTED",
+      title: "Service Civique - Aider les élèves",
+      organizationName: "Asso SC",
+      addresses: [ADDRESS, { ...ADDRESS, city: "Paris", postalCode: "75001" }],
+    });
+    await scopeAndRebuild(PUBLISHER_IDS.SERVICE_CIVIQUE);
+
+    const result = await handler.handle({});
+
+    expect(result.success).toBe(true);
+    const xml = getAllStoredXml();
+    expect(xml).toContain("Service Civique : Aider les élèves");
+    expect(xml).not.toContain("Service Civique : Service Civique");
+    expect(xml).toContain("146194199");
+    expect(xml).toContain("INTERNSHIP");
+    // Un job par adresse.
+    expect(xml).toContain(`${mission.id}-1`);
+    expect(result.counter.sent).toBe(2);
+  });
+
+  it("n'inclut pas un annonceur sans règle de diffusion LinkedIn", async () => {
+    await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE, name: "Service Civique" });
+    const mission = await createTestMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, statusCode: "ACCEPTED", organizationName: "Asso SC", addresses: [ADDRESS] });
+    await missionDiffusionService.rebuildForDistributionPublisher(LINKEDIN_ID);
+
+    await handler.handle({});
+
+    expect(getAllStoredXml()).not.toContain(String(mission.id));
+  });
+
+  it("diffuse les partenaires via mission_diffusion, sur la page JVA sans page propre", async () => {
+    await createTestPublisher({ id: PUBLISHER_IDS.BENEVOLT, name: "Benevolt" });
+    await createTestPublisher({ id: PUBLISHER_IDS.ECTI, name: "ECTI" });
+    const diffused = await createTestMission({ publisherId: PUBLISHER_IDS.ECTI, statusCode: "ACCEPTED", organizationName: "Asso partenaire", addresses: [ADDRESS] });
+    const notDiffused = await createTestMission({ publisherId: PUBLISHER_IDS.BENEVOLT, statusCode: "ACCEPTED", organizationName: "Autre asso", addresses: [ADDRESS] });
+    await scopeAndRebuild(PUBLISHER_IDS.ECTI);
+
+    await handler.handle({});
+
+    const xml = getAllStoredXml();
+    expect(xml).toContain(String(diffused.id));
+    expect(xml).toContain("11100845");
+    expect(xml).not.toContain(String(notDiffused.id));
+  });
 });

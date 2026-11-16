@@ -3,9 +3,9 @@ import fs from "fs";
 import { ENV, PUBLISHER_IDS } from "@/config";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
-import { PARTNERS_IDS } from "@/jobs/linkedin/config";
-import { LinkedInJob } from "@/jobs/linkedin/types";
-import { generateJvaJobs, generatePartnersJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/linkedin/utils";
+import { DISPOSITIFS } from "@/jobs/linkedin/dispositifs";
+import { DispositifDefinition, LinkedInJob } from "@/jobs/linkedin/types";
+import { generateJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/linkedin/utils";
 import { JobResult } from "@/jobs/types";
 import { importService } from "@/services/import";
 import { publisherService } from "@/services/publisher";
@@ -20,6 +20,14 @@ export interface LinkedinJobResult extends JobResult {
     expired: number;
     skipped: number;
   };
+}
+
+async function resolvePublisherIds(dispositif: DispositifDefinition): Promise<string[]> {
+  if ("publisherIds" in dispositif.scope) {
+    return dispositif.scope.publisherIds;
+  }
+  const publishers = await publisherService.findPublishers({ missionType: dispositif.scope.missionType });
+  return publishers.map((publisher) => publisher.id);
 }
 
 export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, LinkedinJobResult> {
@@ -44,34 +52,21 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
       } as LinkedinJobResult;
 
       const jobs: LinkedInJob[] = [];
-
-      console.log(`[LinkedinHandler] Querying and processing missions of JeVeuxAider.gouv.fr`);
-      // On filtre les missions JVA via le snapshot de diffusion `mission_diffusion` de LinkedIn
-      // (diffuseurPublisherId), pour appliquer les exclusions d'organisations configurées pour LinkedIn.
-      const JvaMissionsCursor = getMissionsCursor({
-        publisherIds: [PUBLISHER_IDS.JEVEUXAIDER],
-        diffuseurPublisherId: PUBLISHER_IDS.LINKEDIN,
-      });
-
-      const jvaJobs = await generateJvaJobs(JvaMissionsCursor);
-      console.log(`[LinkedinHandler] ${jvaJobs.processed} JVA missions processed, ${jvaJobs.jobs.length} jobs added to the feed`);
-      jobs.push(...jvaJobs.jobs);
-      result.counter.processed += jvaJobs.processed;
-      result.counter.sent += jvaJobs.jobs.length;
-      result.counter.skipped += jvaJobs.skipped;
-      result.counter.expired += jvaJobs.expired;
-
-      console.log(`[LinkedinHandler] Querying and processing missions of partners`);
-      const partnersMissionsCursor = getMissionsCursor({
-        publisherIds: PARTNERS_IDS,
-      });
-
-      const partnersJobs = await generatePartnersJobs(partnersMissionsCursor);
-      console.log(`[LinkedinHandler] ${partnersJobs.processed} partners missions processed, ${partnersJobs.jobs.length} jobs added to the feed`);
-      jobs.push(...partnersJobs.jobs);
-      result.counter.processed += partnersJobs.processed;
-      result.counter.sent += partnersJobs.jobs.length;
-      result.counter.skipped += partnersJobs.skipped;
+      for (const dispositif of DISPOSITIFS) {
+        const publisherIds = await resolvePublisherIds(dispositif);
+        if (!publisherIds.length) {
+          continue;
+        }
+        // Toutes les missions passent par le snapshot `mission_diffusion` de LinkedIn (règles d'exclusion incluses).
+        const cursor = getMissionsCursor({ publisherIds, diffuseurPublisherId: PUBLISHER_IDS.LINKEDIN });
+        const res = await generateJobs(cursor, dispositif);
+        console.log(`[LinkedinHandler] ${dispositif.label}: ${res.processed} missions processed, ${res.jobs.length} jobs added to the feed`);
+        jobs.push(...res.jobs);
+        result.counter.processed += res.processed;
+        result.counter.sent += res.jobs.length;
+        result.counter.skipped += res.skipped;
+        result.counter.expired += res.expired;
+      }
 
       console.log(`[LinkedinHandler] Generating XML for ${jobs.length} jobs`);
       const xml = generateXML(jobs);
