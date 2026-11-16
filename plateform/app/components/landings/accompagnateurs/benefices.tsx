@@ -1,10 +1,8 @@
-import EuroSvg from "~/assets/svg/accompagnateurs/euro.svg";
-import HeartSvg from "~/assets/svg/accompagnateurs/heart.svg";
-import SelfTrainingSvg from "~/assets/svg/accompagnateurs/self-training.svg";
+import SelfTrainingSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/self-training.svg?url";
 
 const BENEFICES = [
   {
-    icon: HeartSvg,
+    icon: <span className="fr-icon-heart-line before:size-9! text-[#fa7659]" aria-hidden="true" />,
     bg: "bg-[#f6f286]",
     title: "Reprendre confiance",
     description: "Se sentir utile, retrouver un rythme et des repères, rencontrer de nouvelles personnes.",
@@ -13,7 +11,7 @@ const BENEFICES = [
       "François, bénévole dans le Val-d'Oise après une mission proposée par sa conseillère France Travail. Il signe aujourd'hui son deuxième contrat de travail. · Source : JeVeuxAider.gouv.fr, mesure d'impact 2025",
   },
   {
-    icon: SelfTrainingSvg,
+    icon: <img src={SelfTrainingSvg} alt="" className="size-9" />,
     bg: "bg-[#dec3ff]",
     title: "Avancer vers l'emploi",
     description: "Des compétences, des rencontres qui ouvrent des portes et une première expérience à valoriser sur un CV, en entretien ou dans Parcoursup.",
@@ -23,7 +21,7 @@ const BENEFICES = [
       "7 jeunes sur 10 étaient sans emploi ni formation avant leur Service Civique. Autant sont en emploi ou en études un an après. · Source : Ipsos / Agence du Service Civique, 2024",
   },
   {
-    icon: EuroSvg,
+    icon: <span className="fr-icon-money-euro-circle-line before:size-9! text-[#d69e75]" aria-hidden="true" />,
     bg: "bg-[#bfccff]",
     title: "Être indemnisé sans perdre ses droits",
     description: "Service Civique, réserves, sapeurs-pompiers volontaires : de nombreuses missions sont indemnisées.",
@@ -49,7 +47,7 @@ export default function Benefices() {
           {BENEFICES.map((b) => (
             <li key={b.title} className="border-border-default-grey bg-background flex flex-col gap-3 rounded-lg border p-7! lg:min-h-121">
               <span className={`flex size-16 shrink-0 items-center justify-center rounded-[28px] ${b.bg}`}>
-                <img src={b.icon} alt="" className="size-9" />
+                {b.icon}
               </span>
               <h3 className="fr-h5 mb-0! lg:min-h-14">{b.title}</h3>
               <p className="text-default-grey mb-0! text-[15px]! leading-normal! lg:min-h-21">{b.description}</p>
