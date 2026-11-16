@@ -90,6 +90,12 @@ describe("sanitizeHtml", () => {
   it("ne garde que les balises autorisées et convertit ol en ul", () => {
     expect(sanitizeHtml('<div class="x"><a href="y">lien</a> <ol><li>a</li></ol><script>x()</script></div>')).toBe("<p>lien <ul><li>a</li></ul></p>");
   });
+  it("neutralise les balises imbriquées et le contenu script", () => {
+    const out = sanitizeHtml("<p>a</p><scr<script>ipt>alert(1)</scr</script>ipt><script>evil()</script><p>b</p>");
+    expect(out).not.toMatch(/<script/i);
+    expect(out).not.toContain("evil");
+    expect(out).toContain("<p>a</p>");
+  });
   it("convertit le texte brut en paragraphes", () => {
     expect(sanitizeHtml("a\nb\n\nc")).toBe("<p>a<br>b</p>\n<p>c</p>");
   });

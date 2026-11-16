@@ -55,18 +55,34 @@ export function sanitizeHtml(input: string | null | undefined): string {
       .map((p) => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`)
       .join("\n");
   }
-  return input
-    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, "")
-    .replace(/<(\/?)ol\b[^>]*>/gi, "<$1ul>")
-    .replace(/<(\/?)h[1-6]\b[^>]*>/gi, (_, close) => (close ? "</b></p>" : "<p><b>"))
-    .replace(/<(\/?)div\b[^>]*>/gi, "<$1p>")
-    .replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, (tag, name: string) => {
-      if (!ALLOWED_TAGS.includes(name.toLowerCase())) {
-        return "";
+  // Un seul passage sur les jetons (balise / texte) : aucune réinterprétation du résultat, donc pas de
+  // contournement type `<scr<script>ipt>`. Tout `<` restant dans un texte est échappé.
+  const TAG_ALIASES: Record<string, string> = { ol: "ul", div: "p" };
+  let skipping: string | null = null;
+  const out: string[] = [];
+  for (const token of input.split(/(<[^<>]*>)/)) {
+    const tag = /^<(\/?)([a-z][a-z0-9]*)\b[^>]*>$/i.exec(token);
+    if (!tag) {
+      if (!skipping) {
+        out.push(token.replace(/</g, "&lt;").replace(/>/g, "&gt;"));
       }
-      return `<${tag.startsWith("</") ? "/" : ""}${name.toLowerCase()}>`;
-    })
-    .trim();
+      continue;
+    }
+    const closing = tag[1] === "/";
+    const name = tag[2].toLowerCase();
+    if (skipping) {
+      skipping = closing && name === skipping ? null : skipping;
+      continue;
+    }
+    if (!closing && (name === "script" || name === "style")) {
+      skipping = name;
+    } else if (/^h[1-6]$/.test(name)) {
+      out.push(closing ? "</b></p>" : "<p><b>");
+    } else if (ALLOWED_TAGS.includes(name) || TAG_ALIASES[name]) {
+      out.push(`<${closing ? "/" : ""}${TAG_ALIASES[name] ?? name}>`);
+    }
+  }
+  return out.join("").trim();
 }
 
 /** Longueur du texte visible (sans balises). */
