@@ -1,44 +1,22 @@
 import { useEffect, useRef } from "react";
 
 import HeroWebp from "~/assets/images/landings/accompagnateurs/hero.webp";
-import AscPng from "~/assets/images/logo/asc-logo.png";
-import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
-import JvaPng from "~/assets/images/logo/jva-logo.png";
-import RocPng from "~/assets/images/logo/roc-logo.png";
-import SpvPng from "~/assets/images/logo/spv-logo.png";
 import Benefices from "~/components/landings/accompagnateurs/benefices";
+import Dispositifs from "~/components/landings/accompagnateurs/dispositifs";
 import PourQui from "~/components/landings/accompagnateurs/pour-qui";
 import SignupForm, { SIGNUP_EMAIL_ID } from "~/components/landings/accompagnateurs/signup-form";
 import Valeur from "~/components/landings/accompagnateurs/valeur";
 import Hero from "~/components/landings/hero";
-import Partners from "~/components/layout/partners";
-import type { Partner } from "~/config/partners";
 import { registerLandingOrigin } from "~/services/tracking";
 import { trackPageViewed } from "~/services/tracking/events";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/accompagnateurs";
 
-// Dispositifs déjà réunis (logos disponibles) ; les dispositifs « bientôt » n'ont pas encore de logo dans le dépôt.
-const PARTNERS: Partner[] = [
-  { name: "Les réserves des armées", description: "Des missions indemnisées de réservistes.", logo: RocPng },
-  { name: "Le Service Civique", description: "De 6 à 12 mois, des missions d'intérêt général indemnisées.", logo: AscPng },
-  { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", logo: JvaPng },
-  { name: "Sapeurs-pompiers de France", description: "Des missions de sapeur-pompier volontaire près de chez soi.", logo: SpvPng },
-  { name: "Réserve de la Gendarmerie", description: "La réserve opérationnelle de la Gendarmerie.", logo: GendarmeriePng },
-];
-
 const CHIFFRES = [
   { value: "+\u00a0de\u00a0400\u00a0000", color: "text-[#6bffaf]", label: "occasions de s'engager" },
   { value: "Déjà 6", color: "text-[#fffa66]", label: "dispositifs publics réunis,\net c’est pas fini" },
   { value: "100 %", color: "text-[#dec3ff]", label: "des départements couverts, outre-mer compris" },
-];
-
-const BIENTOT = [
-  { name: "Chantiers de bénévoles", description: "Des projets collectifs de bénévolat, en France et à l'étranger." },
-  { name: "Corps européen de solidarité", description: "Des missions de volontariat en Europe et au-delà, de 18 à 30 ans." },
-  { name: "France Volontaires", description: "Le volontariat international d'échange et de solidarité." },
-  { name: "Service national", description: "Dix mois d'engagement militaire volontaire, de 18 à 25 ans." },
 ];
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
@@ -115,22 +93,7 @@ export default function Accompagnateurs() {
       <Benefices />
       <Valeur />
 
-      <Partners style="compact" squareArrows partners={PARTNERS} title="Les 6 dispositifs publics réunis" description={null} />
-
-      <section className="fr-container" aria-labelledby="bientot">
-        <p className="fr-badge fr-badge--sm fr-badge--new mb-2!">Bientôt disponible</p>
-        <h2 id="bientot" className="fr-h4 mb-6!">
-          Bientôt sur TrouveTaMission.gouv.fr
-        </h2>
-        <ul className="m-0! grid list-none! gap-6 p-0! md:grid-cols-2 lg:grid-cols-3">
-          {BIENTOT.map((b) => (
-            <li key={b.name} className="border-border-default-grey bg-[#f6f6f6] dark:bg-transparent border p-4!">
-              <h3 className="fr-text--bold mb-1! text-base">{b.name}</h3>
-              <p className="text-mention-grey fr-text--sm mb-0!">{b.description}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
+      <Dispositifs />
 
       <section className="fr-container text-center" aria-labelledby="cta">
         <h2 id="cta" className="fr-h2">
