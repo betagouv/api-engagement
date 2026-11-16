@@ -68,6 +68,7 @@ describe("LinkedinHandler (integration test)", () => {
       statusCode: "ACCEPTED",
       endAt: FUTURE_END,
       organizationName: "Orga gardée",
+      addresses: [{ city: "Lyon", postalCode: "69001", country: "FR" }],
       organizationClientId: "kept-org",
     });
     const excluded = await createTestMission({
@@ -75,6 +76,7 @@ describe("LinkedinHandler (integration test)", () => {
       statusCode: "ACCEPTED",
       endAt: FUTURE_END,
       organizationName: "Orga exclue",
+      addresses: [{ city: "Lyon", postalCode: "69001", country: "FR" }],
       organizationClientId: "excluded-org",
     });
 
