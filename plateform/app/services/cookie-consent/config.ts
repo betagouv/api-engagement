@@ -18,6 +18,17 @@ export interface ConsentService {
   applyConsent?(status: ConsentStatus): boolean | void;
 }
 
+function createGtmConsentService(id: string, title: string, description: string): ConsentService {
+  return {
+    id,
+    title,
+    version: 1,
+    managedByGtm: true,
+    description,
+    isEnabled: () => Boolean(GTM_CONTAINER_ID),
+  };
+}
+
 // Source unique des services : stockage, formulaire et actions « tout accepter/refuser ».
 export const consentServices: ConsentService[] = [
   {
@@ -42,39 +53,26 @@ export const consentServices: ConsentService[] = [
     applyConsent: applyCrispConsent,
   },
   // Les choix GTM sont synchronisés ensemble. L'ancien accord « gtm » n'est pas repris.
-  {
-    id: "google",
-    managedByGtm: true,
-    version: 1,
-    title: "Google Campaign Manager",
-    description:
-      "Google Campaign Manager mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
-    isEnabled: () => Boolean(GTM_CONTAINER_ID),
-  },
-  {
-    id: "adform",
-    managedByGtm: true,
-    version: 1,
-    title: "Adform",
-    description: "Adform mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
-    isEnabled: () => Boolean(GTM_CONTAINER_ID),
-  },
-  {
-    id: "tiktok",
-    managedByGtm: true,
-    version: 1,
-    title: "TikTok",
-    description: "TikTok mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
-    isEnabled: () => Boolean(GTM_CONTAINER_ID),
-  },
-  {
-    id: "snapchat",
-    managedByGtm: true,
-    version: 1,
-    title: "Snapchat",
-    description: "Snapchat mesure les conversions et la performance de nos campagnes publicitaires à l'aide de traceurs. Sans accord, aucune balise de cette régie n'est activée.",
-    isEnabled: () => Boolean(GTM_CONTAINER_ID),
-  },
+  createGtmConsentService(
+    "google",
+    "Google Campaign Manager",
+    "Permet de mesurer les visites et les actions réalisées sur la plateforme après avoir vu ou cliqué sur une publicité diffusée via Google Campaign Manager. Sans votre accord, les balises de mesure de cette régie ne sont pas chargées.",
+  ),
+  createGtmConsentService(
+    "adform",
+    "Adform",
+    "Permet de mesurer les visites et les actions réalisées sur la plateforme après une publicité diffusée via Adform, une plateforme de diffusion publicitaire. Sans votre accord, les balises Adform ne sont pas chargées.",
+  ),
+  createGtmConsentService(
+    "tiktok",
+    "TikTok",
+    "Permet de mesurer les visites et les actions réalisées sur la plateforme après avoir vu ou cliqué sur l'une de nos publicités sur TikTok. Sans votre accord, le pixel TikTok n'est pas chargé.",
+  ),
+  createGtmConsentService(
+    "snapchat",
+    "Snapchat",
+    "Permet de mesurer les visites et les actions réalisées sur la plateforme après avoir vu ou cliqué sur l'une de nos publicités sur Snapchat. Sans votre accord, le pixel Snapchat n'est pas chargé.",
+  ),
 ];
 
 export function getConsentServices(): ConsentService[] {
