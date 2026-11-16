@@ -1,5 +1,5 @@
 import { PUBLISHER_IDS } from "@/config";
-import { LINKEDIN_PAGES, LINKEDIN_PARTNER_PAGES } from "@/jobs/linkedin/config";
+import { organizationPage } from "@/jobs/linkedin/dispositifs/organization-page";
 import { DispositifDefinition } from "@/jobs/linkedin/types";
 
 export const partner: DispositifDefinition = {
@@ -20,11 +20,7 @@ export const partner: DispositifDefinition = {
   },
   jobType: "VOLUNTEER",
   maxMissions: 50,
-  // Page propre du partenaire si elle existe, sinon page JVA.
-  page: (mission) => {
-    const companyId = LINKEDIN_PARTNER_PAGES[mission.organizationName as string];
-    return companyId ? { company: mission.organizationName as string, companyId } : LINKEDIN_PAGES.JVA;
-  },
+  page: organizationPage,
   title: (mission) => `Mission de bénévolat : ${mission.title.trim()}`,
   intro: (mission) => `<p>Mission proposée par ${mission.organizationName}</p>`,
 };

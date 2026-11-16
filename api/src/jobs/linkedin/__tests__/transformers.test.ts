@@ -57,6 +57,11 @@ describe("missionToLinkedinJobs", () => {
     expect(jvaJob.companyId).toBe("11100845");
   });
 
+  it("JVA : page de l'organisation si elle existe, sinon page JVA", () => {
+    expect(missionToLinkedinJobs(mission({ organizationName: "AFEV" }), jva)[0]).toMatchObject({ company: "AFEV", companyId: "10329919" });
+    expect(missionToLinkedinJobs(mission({ organizationName: "Inconnue" }), jva)[0]).toMatchObject({ company: "jeveuxaider.gouv.fr", companyId: "11100845" });
+  });
+
   it("partenaire : sa page si elle existe, sinon JVA", () => {
     expect(missionToLinkedinJobs(mission({ organizationName: "benevolt" }), partner)[0].companyId).toBe("11022359");
     expect(missionToLinkedinJobs(mission(), partner)[0].companyId).toBe("11100845");

@@ -1,5 +1,5 @@
 import { PUBLISHER_IDS } from "@/config";
-import { LINKEDIN_PAGES } from "@/jobs/linkedin/config";
+import { organizationPage } from "@/jobs/linkedin/dispositifs/organization-page";
 import { DispositifDefinition } from "@/jobs/linkedin/types";
 
 export const jva: DispositifDefinition = {
@@ -8,7 +8,7 @@ export const jva: DispositifDefinition = {
   scope: { publisherIds: [PUBLISHER_IDS.JEVEUXAIDER] },
   jobType: "VOLUNTEER",
   skipExpired: true,
-  page: () => LINKEDIN_PAGES.JVA,
+  page: organizationPage,
   title: (mission) => `Mission de bénévolat : ${mission.title.trim()}`,
   intro: (mission) => `<p>Mission proposée par ${mission.organizationName}</p>`,
 };
