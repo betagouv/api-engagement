@@ -136,10 +136,10 @@ describe("LinkedinHandler (integration test)", () => {
     expect(getAllStoredXml()).not.toContain(String(mission.id));
   });
 
-  it("diffuse les partenaires via mission_diffusion, sur la page JVA sans page propre", async () => {
+  it("diffuse les autres annonceurs via mission_diffusion, sur la page JVA sans page propre", async () => {
     await createTestPublisher({ id: PUBLISHER_IDS.BENEVOLT, name: "Benevolt" });
     await createTestPublisher({ id: PUBLISHER_IDS.ECTI, name: "ECTI" });
-    const diffused = await createTestMission({ publisherId: PUBLISHER_IDS.ECTI, statusCode: "ACCEPTED", organizationName: "Asso partenaire", addresses: [ADDRESS] });
+    const diffused = await createTestMission({ publisherId: PUBLISHER_IDS.ECTI, statusCode: "ACCEPTED", organizationName: "Asso annonceur", addresses: [ADDRESS] });
     const notDiffused = await createTestMission({ publisherId: PUBLISHER_IDS.BENEVOLT, statusCode: "ACCEPTED", organizationName: "Autre asso", addresses: [ADDRESS] });
     await scopeAndRebuild(PUBLISHER_IDS.ECTI);
 

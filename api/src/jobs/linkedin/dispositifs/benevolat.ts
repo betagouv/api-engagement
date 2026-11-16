@@ -1,14 +1,14 @@
 import { PUBLISHER_IDS } from "@/config";
-import { LINKEDIN_PAGES, LINKEDIN_PARTNER_PAGES } from "@/jobs/linkedin/config";
+import { LINKEDIN_ORGANIZATION_PAGES, LINKEDIN_PAGES } from "@/jobs/linkedin/config";
 import { DispositifDefinition } from "@/jobs/linkedin/types";
 
-// Bénévolat : même rendu pour JVA et les partenaires, seuls le périmètre et le plafond diffèrent.
+// Bénévolat : même rendu pour JVA et les autres annonceurs, seuls le périmètre et le plafond diffèrent.
 const benevolat = {
   jobType: "VOLUNTEER",
   // Page de l'organisation si elle en a une sur LinkedIn, sinon page JVA.
   page: (mission) => {
     const organizationName = mission.organizationName as string;
-    const companyId = LINKEDIN_PARTNER_PAGES[organizationName];
+    const companyId = LINKEDIN_ORGANIZATION_PAGES[organizationName];
     return companyId ? { company: organizationName, companyId } : LINKEDIN_PAGES.JVA;
   },
   title: (mission) => `Mission de bénévolat : ${mission.title.trim()}`,
@@ -23,10 +23,10 @@ export const jva: DispositifDefinition = {
   skipExpired: true,
 };
 
-export const partners: DispositifDefinition = {
+export const annonceurs: DispositifDefinition = {
   ...benevolat,
-  id: "benevolat-partners",
-  label: "Bénévolat partenaires",
+  id: "benevolat-annonceurs",
+  label: "Bénévolat autres annonceurs",
   scope: {
     publisherIds: [
       PUBLISHER_IDS.BENEVOLT,

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/services/s3", () => ({ default: {}, putObject: vi.fn(), OBJECT_ACL: {} }));
 
-import { jva, partners, reserve, serviceCivique, spv } from "@/jobs/linkedin/dispositifs";
+import { annonceurs, jva, reserve, serviceCivique, spv } from "@/jobs/linkedin/dispositifs";
 import { missionToLinkedinJobs } from "@/jobs/linkedin/transformers";
 import { sanitizeHtml } from "@/jobs/linkedin/utils";
 import { MissionRecord } from "@/types/mission";
@@ -62,9 +62,9 @@ describe("missionToLinkedinJobs", () => {
     expect(missionToLinkedinJobs(mission({ organizationName: "Inconnue" }), jva)[0]).toMatchObject({ company: "jeveuxaider.gouv.fr", companyId: "11100845" });
   });
 
-  it("partenaire : sa page si elle existe, sinon JVA", () => {
-    expect(missionToLinkedinJobs(mission({ organizationName: "benevolt" }), partners)[0].companyId).toBe("11022359");
-    expect(missionToLinkedinJobs(mission(), partners)[0].companyId).toBe("11100845");
+  it("autre annonceur : sa page si elle existe, sinon JVA", () => {
+    expect(missionToLinkedinJobs(mission({ organizationName: "benevolt" }), annonceurs)[0].companyId).toBe("11022359");
+    expect(missionToLinkedinJobs(mission(), annonceurs)[0].companyId).toBe("11100845");
   });
 
   it("exclut les missions incomplètes ou sans lieu, accepte le full remote en France", () => {

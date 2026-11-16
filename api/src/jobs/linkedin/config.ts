@@ -4,15 +4,15 @@ export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/
 
 export const LINKEDIN_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
 
-// Pages entreprise LinkedIn : JVA et TTM (SC, SPV, réserve), puis les partenaires ayant leur propre page.
+// Pages entreprise LinkedIn : JVA et TTM (SC, SPV, réserve), puis les organisations ayant leur propre page.
 export const LINKEDIN_PAGES = {
   JVA: { company: "jeveuxaider.gouv.fr", companyId: "11100845" },
   TTM: { company: "Trouvetamission", companyId: "146194199" },
 } as const;
 
 // Organisations ayant leur propre page LinkedIn (clé = organizationName), reprises de l'ancien flux.
-// Les missions JVA et partenaires de ces organisations y sont rattachées ; les autres retombent sur la page JVA.
-export const LINKEDIN_PARTNER_PAGES = {
+// Les missions JVA et autres annonceurs de ces organisations y sont rattachées ; les autres retombent sur la page JVA.
+export const LINKEDIN_ORGANIZATION_PAGES = {
   benevolt: "11022359",
   Makesense: "737838",
   "Lobby des Consciences": "65886275",
