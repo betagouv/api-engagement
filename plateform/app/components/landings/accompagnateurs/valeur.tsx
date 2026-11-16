@@ -42,6 +42,9 @@ const STATUTS = [
   { mission: "Devenir sapeur-pompier volontaire près de chez soi", dispositif: "Sapeurs-pompiers volontaires", statut: "Partagée", badge: BADGE_INFO, row: "" },
 ];
 
+// Même URL que le lien « Centre d'aide » du footer.
+const HELP_CENTER_URL = "https://trouvetamission.crisp.help/fr/";
+
 const TEXTE = "text-default-grey text-lg! leading-normal! mb-0!";
 
 // Les « écrans » sont des illustrations de l'outil à venir : exemple fictif, signalé comme tel aux technologies d'assistance.
@@ -130,15 +133,17 @@ export default function Valeur() {
               Pour chaque mission : l'indemnité, la distance, le rythme, et une explication liée à ses objectifs. Vous en discutez ensemble puis vous la lui partagez par e-mail ou
               SMS.
             </p>
-            {/* Pages dispositifs / blog / FAQ pas encore créées : liens à brancher à leur ouverture (aujourd'hui, simple texte souligné). */}
+            {/* Pages dispositifs et blog pas encore créées : à brancher à leur ouverture (aujourd'hui, simple texte souligné). */}
             <div className="bg-blue-france-925 text-blue-france-sun mt-6 flex flex-col gap-2.5 rounded-lg px-5 py-4 text-[15px] leading-normal lg:max-w-110">
               <p className="mb-0! font-bold!">Et pour vos questions, des ressources :</p>
               <ul className="m-0! flex list-none! flex-wrap gap-x-4 gap-y-2 p-0! font-medium">
-                {["Les dispositifs", "Le blog", "Le centre d'aide (FAQ)"].map((l) => (
-                  <li key={l} className="underline">
-                    {l}
-                  </li>
-                ))}
+                <li className="underline">Les dispositifs</li>
+                <li className="underline">Le blog</li>
+                <li>
+                  <a href={HELP_CENTER_URL} target="_blank" rel="noopener external" title="Le centre d'aide (FAQ) - nouvelle fenêtre" className="text-blue-france-sun!">
+                    Le centre d'aide (FAQ)
+                  </a>
+                </li>
               </ul>
             </div>
           </Etape>
