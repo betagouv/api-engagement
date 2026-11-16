@@ -95,14 +95,17 @@ export default function Accompagnateurs() {
 
       <Dispositifs />
 
-      <section className="fr-container text-center" aria-labelledby="cta">
-        <h2 id="cta" className="fr-h2">
-          Envie de tester l'outil avec les personnes que vous accompagnez ?
-        </h2>
-        <p className="fr-text--lead mx-auto! max-w-225">Laissez votre adresse e-mail : nous vous prévenons dès l'ouverture et vous proposons un échange de 30 minutes.</p>
-        <button type="button" onClick={focusSignup} className="fr-btn fr-btn--lg">
-          Tester en avant-première
-        </button>
+      {/* Bandeau pleine largeur collé au footer : le padding du bas vient du bandeau. */}
+      <section className="bg-blue-france-925 py-12 md:py-20" aria-labelledby="cta">
+        <div className="fr-container flex flex-col items-center gap-6 text-center">
+          <h2 id="cta" className="text-title-grey mb-0! text-2xl! leading-normal! font-bold! md:text-[32px]!">
+            Envie de tester l'outil avec les personnes que vous accompagnez ?
+          </h2>
+          <p className="text-default-grey mb-0! max-w-225 text-lg! leading-normal!">Laissez votre adresse e-mail : nous vous prévenons dès l'ouverture et vous proposons un échange de 30 minutes.</p>
+          <button type="button" onClick={focusSignup} className="fr-btn fr-btn--lg">
+            S'enregistrer pour tester l'outil
+          </button>
+        </div>
       </section>
     </main>
   );
