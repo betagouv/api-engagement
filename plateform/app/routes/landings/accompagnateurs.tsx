@@ -25,6 +25,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
     description: "Conseillers, informateurs jeunesse, animateurs : proposez une mission d'engagement aux personnes que vous accompagnez, sans être expert des dispositifs.",
     ogTitle: "Proposez une mission d'engagement, sans être expert des dispositifs",
     ogDescription: "Bénévolat, Service Civique, réserves : une mission aide les personnes que vous accompagnez à se développer et à avancer dans leur projet.",
+    robots: "noindex, follow",
   });
 }
 
