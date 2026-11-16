@@ -32,7 +32,8 @@ describe("missionToLinkedinJobs", () => {
     const jobs = missionToLinkedinJobs(mission({ addresses: [address("Paris"), address("Lyon", { postalCode: "69001" })] }), jva);
     expect(jobs.map((j) => j.partnerJobId)).toEqual(["11111111-1111-1111-1111-111111111111", "11111111-1111-1111-1111-111111111111-1"]);
     expect(jobs.every((j) => j.partnerJobId.length <= 40)).toBe(true);
-    expect(jobs.map((j) => j.location)).toEqual(["Paris, France", "Lyon, France"]);
+    // Ordre déterministe (tri sur ville + code postal).
+    expect(jobs.map((j) => j.location)).toEqual(["Lyon, France", "Paris, France"]);
   });
 
   it("attribue les identifiants indépendamment de l'ordre des adresses", () => {
