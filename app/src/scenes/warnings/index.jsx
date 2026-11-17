@@ -24,6 +24,7 @@ const LINKS = {
   WIDGET_CONVERSION_WARNING: "/",
   API_WARNING: "/",
   ATTRIBUTES_TRACKING_WARNING: "/",
+  FROZEN_FEED_WARNING: "/:publisherId/settings",
 };
 
 const List = () => {
@@ -192,7 +193,7 @@ const List = () => {
                 const label = WARNINGS[w.type] || WARNINGS.OTHER_WARNING;
                 return (
                   <Link
-                    to={LINKS[w.type]}
+                    to={LINKS[w.type].replace(":publisherId", publisher.id)}
                     className="flex flex-col gap-4 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:gap-8 sm:p-6"
                     key={i}
                     id={slugify(`${w.type}-${w.publisherName}`)}

@@ -37,6 +37,7 @@ const TYPE_LABELS: Record<string, { emoji: string; label: string }> = {
   WIDGET_CONVERSION_WARNING: { emoji: "🚨", label: "Nombre de candidatures inhabituel" },
   API_WARNING: { emoji: "🚨", label: "Irrégularité dans les appels API" },
   ATTRIBUTES_TRACKING_WARNING: { emoji: "🤔", label: "Problème sur la récupération des attributes" },
+  FROZEN_FEED_WARNING: { emoji: "🧊", label: "Flux figé" },
 };
 
 // Limites Slack (section : 3000 caractères, champ : 2000, en-tête : 150) : on tronque le contenu libre venant de l'extérieur.
