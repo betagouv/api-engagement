@@ -63,7 +63,7 @@ const PARTNERS: Partner[] = [
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
-    title: "Votre engagement peut se faire autrement | Trouve ta mission",
+    title: "Votre engagement peut se faire autrement | TrouveTaMission.gouv.fr",
     description:
       "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez les missions d'engagement pour agir, secourir ou protéger près de chez vous.",
     ogTitle: "Votre engagement peut se faire autrement",

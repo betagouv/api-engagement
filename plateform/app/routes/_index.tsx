@@ -22,7 +22,7 @@ const STRUCTURED_DATA = {
     {
       "@type": "WebSite",
       "@id": "https://trouvetamission.gouv.fr/#website",
-      name: "Trouve Ta Mission",
+      name: "TrouveTaMission.gouv.fr",
       alternateName: ["TrouveTaMission.gouv.fr", "Trouve ta mission"],
       url: "https://trouvetamission.gouv.fr/",
       inLanguage: "fr",
@@ -31,7 +31,7 @@ const STRUCTURED_DATA = {
     {
       "@type": "GovernmentOrganization",
       "@id": "https://trouvetamission.gouv.fr/#organization",
-      name: "Trouve Ta Mission",
+      name: "TrouveTaMission.gouv.fr",
       url: "https://trouvetamission.gouv.fr/",
       logo: "https://trouvetamission.gouv.fr/logo.png",
       parentOrganization: { "@type": "GovernmentOrganization", name: "Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA)" },
@@ -42,7 +42,7 @@ const STRUCTURED_DATA = {
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return [
     ...pageMeta(location, {
-      title: "S'engager et se rendre utile | Trouve Ta Mission",
+      title: "S'engager et se rendre utile | TrouveTaMission.gouv.fr",
       description: "Bénévolat, Service Civique, réserves, sapeur-pompier volontaire : trouvez la mission qui vous ressemble, près de chez vous, à distance ou à l'étranger.",
     }),
     { "script:ld+json": STRUCTURED_DATA },

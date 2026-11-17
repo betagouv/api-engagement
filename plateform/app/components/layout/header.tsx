@@ -23,7 +23,7 @@ export default function Header() {
                   </p>
                 </div>
                 <div className="fr-header__operator">
-                  <img src={TtmLogoSvg} alt="Trouve ta mission" className="w-24 lg:w-38" />
+                  <img src={TtmLogoSvg} alt="TrouveTaMission.gouv.fr" className="w-24 lg:w-38" />
                 </div>
               </div>
               <div className="fr-header__service">

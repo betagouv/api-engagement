@@ -12,7 +12,7 @@ import { parseTerritory, sortDepartments } from "~/utils/public-stats";
 import type { Route } from "./+types/statistiques";
 
 export function meta(): Route.MetaDescriptors {
-  return [{ title: "Statistiques — Trouve ta mission" }];
+  return [{ title: "Statistiques — TrouveTaMission.gouv.fr" }];
 }
 
 export async function loader({ request }: Route.LoaderArgs) {

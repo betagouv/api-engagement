@@ -5,7 +5,7 @@ import type { Route } from "./+types/mission-detail";
 
 export function meta({ params }: Route.MetaArgs): Route.MetaDescriptors {
   // noindex : pas de canonical, et pathname sans identifiant de scoring pour ne pas l'exposer.
-  return pageMeta({ pathname: `/missions/${params.missionId}` }, { title: "Détail de la mission | Trouve ta mission", robots: "noindex, follow" });
+  return pageMeta({ pathname: `/missions/${params.missionId}` }, { title: "Détail de la mission | TrouveTaMission.gouv.fr", robots: "noindex, follow" });
 }
 
 export async function clientLoader() {
@@ -70,7 +70,7 @@ export default function MissionDetailPage() {
   // RGAA 8.5/8.6 : la mission est chargée côté client, meta() ne peut donner qu'un titre générique.
   // On le remplace par le titre de la mission dès qu'elle est disponible.
   useEffect(() => {
-    if (mission?.title) document.title = `${mission.title} | Trouve ta mission`;
+    if (mission?.title) document.title = `${mission.title} | TrouveTaMission.gouv.fr`;
   }, [mission]);
 
   // mission_detail.viewed : une fois la fiche chargée, émis une seule fois par mission.
