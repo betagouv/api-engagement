@@ -90,6 +90,7 @@ describe("missionToLinkedinJobs", () => {
     expect(benevole).toContain("Présentation de la mission");
     expect(benevole).toContain("Durée de la mission : </b>2h/semaine");
     expect(benevole).toContain("16 ans minimum");
+    expect(missionToLinkedinJobs(mission({ requirements: ["Permis B"] }), jva)[0].description).toMatch(/Pré-requis[\s\S]*<li>Permis B<\/li>/);
     expect(missionToLinkedinJobs(mission({ openToMinors: false } as Partial<MissionRecord>), jva)[0].description).toContain("18 ans minimum");
     expect(missionToLinkedinJobs(mission(), jva)[0].description).not.toMatch(/Âge minimum|Durée/);
     expect(missionToLinkedinJobs(m, roc)[0].description).toContain("Et si vous deveniez réserviste");

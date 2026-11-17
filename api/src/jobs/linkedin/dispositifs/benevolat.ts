@@ -20,6 +20,9 @@ const benevolat = {
       blocks.push(`<p><b>Domaine d'activité : </b>${getDomainLabel(mission.domain)}</p>`);
     }
     blocks.push("<p><b>Présentation de la mission</b></p>", descriptionBlock(mission));
+    if (Array.isArray(mission.requirements) && mission.requirements.length > 0) {
+      blocks.push(`<p><b>Pré-requis : </b></p>\n<ul>\n${mission.requirements.map((req) => `<li>${req}</li>`).join("\n")}\n</ul>`);
+    }
     if (Array.isArray(mission.audience) && mission.audience.length > 0) {
       blocks.push(`<p><b>Public accompagné durant la mission : </b>${mission.audience.map((a) => getAudienceLabel(a)).join(" - ")}</p>`);
     }
