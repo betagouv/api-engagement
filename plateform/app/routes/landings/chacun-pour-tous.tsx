@@ -63,7 +63,7 @@ const MISSIONS_CTA = { to: "/quiz/age", label: "Trouvez votre mission" };
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
-    title: "Chacun pour tous | Trouve ta mission",
+    title: "Chacun pour tous | TrouveTaMission.gouv.fr",
     description: "S'engager, c'est chacun pour tous ! Bénévolat, Service Civique, pompiers ou réservistes : trouvez la mission d'engagement qui vous ressemble.",
     ogTitle: "Chacun pour tous",
     ogDescription: "En France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Et vous ?",

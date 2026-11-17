@@ -2,7 +2,7 @@ import type { Route } from "./+types/mentions-legales";
 import { pageMeta } from "~/utils/seo";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Mentions légales | Trouve ta mission" });
+  return pageMeta(location, { title: "Mentions légales | TrouveTaMission.gouv.fr" });
 }
 
 export default function MentionsLegales() {
@@ -13,8 +13,8 @@ export default function MentionsLegales() {
 
         <h2>Éditeur</h2>
         <p>
-          Trouve ta mission (trouvetamission.gouv.fr) est un service public numérique édité par la Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative
-          (DJEPVA), au sein du Ministère des Sports, de la Jeunesse et de la Vie Associative.
+          TrouveTaMission.gouv.fr est un service public numérique édité par la Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA), au sein du
+          Ministère des Sports, de la Jeunesse et de la Vie Associative.
         </p>
         <p>
           Adresse : 95 avenue de France, 75650 Paris Cedex 13
@@ -39,8 +39,8 @@ export default function MentionsLegales() {
 
         <h2>Accessibilité</h2>
         <p>
-          Trouve ta mission s'engage à rendre son service accessible conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005. Le niveau de conformité du service est
-          détaillé dans la <a href="/accessibilite">déclaration d'accessibilité</a>.
+          TrouveTaMission.gouv.fr s'engage à rendre son service accessible conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005. Le niveau de conformité du service
+          est détaillé dans la <a href="/accessibilite">déclaration d'accessibilité</a>.
         </p>
         <p>
           Pour signaler un défaut d'accessibilité ou demander une alternative accessible, contactez-nous à{" "}

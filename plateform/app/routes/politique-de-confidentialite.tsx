@@ -2,32 +2,35 @@ import type { Route } from "./+types/politique-de-confidentialite";
 import { pageMeta } from "~/utils/seo";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Politique de confidentialité | Trouve ta mission" });
+  return pageMeta(location, { title: "Politique de confidentialité | TrouveTaMission.gouv.fr" });
 }
 
 export default function PolitiqueDeConfidentialite() {
   return (
     <main id="contenu" tabIndex={-1}>
       <div className="fr-container max-w-3xl py-8 md:py-16">
-        <h1>Politique de confidentialité de Trouve ta mission</h1>
+        <h1>Politique de confidentialité de TrouveTaMission.gouv.fr</h1>
 
         <h2>Qui sommes-nous ?</h2>
         <p>
-          Trouve ta mission est le{" "}
+          TrouveTaMission.gouv.fr est le{" "}
           <strong>service de référence de l'engagement public : il agrège l'ensemble de l'offre publique d'engagement et la rend visible aux citoyens</strong>.
         </p>
         <p>
-          Trouve ta mission est sous la responsabilité de la Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA) au sein du ministère des Sports,
-          de la Jeunesse et de la Vie Associative.
+          TrouveTaMission.gouv.fr est sous la responsabilité de la Direction de la Jeunesse, de l'Éducation Populaire et de la Vie Associative (DJEPVA) au sein du ministère des
+          Sports, de la Jeunesse et de la Vie Associative.
         </p>
 
         <h2>Pourquoi traitons-nous des données à caractère personnel ?</h2>
-        <p>Trouve ta mission traite des données à caractère personnel pour permettre de proposer des missions d'engagement en fonction des préférences des citoyens.</p>
+        <p>
+          TrouveTaMission.gouv.fr traite des données à caractère personnel pour proposer des missions d'engagement par courriel en fonction des préférences des citoyens, gérer les
+          abonnements à la lettre d'information et répondre aux retours des utilisateurs qui ont donné leur avis.
+        </p>
 
         <h2>Quelles sont les données collectées sur la plateforme ?</h2>
         <p>
-          L'adresse courriel est facultative : elle n'est collectée que si vous la renseignez, par exemple pour recevoir des missions par courriel. Elle peut contenir votre nom et
-          votre prénom. Les autres données collectées ne permettent pas de vous identifier directement : elles sont liées aux missions et à votre utilisation de la plateforme.
+          L'adresse courriel est la seule donnée à caractère personnel collectée. Elle peut contenir le nom et prénom. Elle est notamment demandée pour l'envoi des missions,
+          l'abonnement à la lettre d'information et pour recontacter les personnes qui donnent leur avis.
         </p>
         <p>
           Si vous utilisez le chat d'assistance, le contenu des messages que vous y saisissez (et toute donnée personnelle que vous choisissez d'y indiquer) est traité par notre
@@ -39,10 +42,10 @@ export default function PolitiqueDeConfidentialite() {
 
         <h2>Qu'est-ce qui nous autorise à traiter des données à caractère personnel ?</h2>
         <p>
-          Trouve ta mission traite des données à caractère personnel pour l'exécution d'une mission d'intérêt public ou relevant de l'exercice de l'autorité publique dont est
+          TrouveTaMission.gouv.fr traite des données à caractère personnel pour l'exécution d'une mission d'intérêt public ou relevant de l'exercice de l'autorité publique dont est
           investi le responsable de traitement conformément à l'article 6-1 e) du RGPD.
         </p>
-        <p>Cette mission d'intérêt public se traduit en pratique par :</p>
+        <p>Cette mission d'intérêt public se traduit en pratique notamment par :</p>
         <ul>
           <li>Le décret n° 2017-930 du 9 mai 2017 relatif à la Réserve Civique ;</li>
           <li>
@@ -83,7 +86,7 @@ export default function PolitiqueDeConfidentialite() {
         </ol>
 
         <h2>Qui peut accéder à vos données ?</h2>
-        <p>Les destinataires des données d'inscription sont uniquement accessibles aux membres habilités de l'équipe de Trouve ta mission.</p>
+        <p>Les données sont uniquement accessibles aux agents et prestataires de la DJEPVA, notamment les membres habilités de l'équipe de TrouveTaMission.gouv.fr.</p>
 
         <h2>Qui nous aide à traiter vos données à caractère personnel ?</h2>
         <p>
@@ -138,12 +141,32 @@ export default function PolitiqueDeConfidentialite() {
                 </td>
               </tr>
               <tr>
+                <td>Tally</td>
+                <td>Belgique</td>
+                <td>Outil de sondage / questionnaires</td>
+                <td>
+                  <a href="https://tally.so/help/data-processing-agreement" target="_blank" rel="noopener" title="Data Processing Agreement - nouvelle fenêtre">
+                    <span lang="en">Data Processing Agreement</span>
+                  </a>
+                </td>
+              </tr>
+              <tr>
                 <td>PostHog</td>
-                <td>États-Unis (données hébergées en Allemagne)</td>
+                <td>Allemagne</td>
                 <td>Mesure d'audience</td>
                 <td>
                   <a href="https://posthog.com/docs/privacy/gdpr-compliance" target="_blank" rel="noopener" title="Conformité RGPD - nouvelle fenêtre">
                     Conformité RGPD
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td>Google</td>
+                <td>États-Unis</td>
+                <td>Mesure d'audience</td>
+                <td>
+                  <a href="https://business.safety.google/adsprocessorterms/" target="_blank" rel="noopener" title="Conditions de traitement des données - nouvelle fenêtre">
+                    Conditions de traitement des données
                   </a>
                 </td>
               </tr>

@@ -21,7 +21,7 @@ const CHIFFRES = [
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return pageMeta(location, {
-    title: "J'accompagne des jeunes | Trouve ta mission",
+    title: "J'accompagne des jeunes | TrouveTaMission.gouv.fr",
     description: "Conseillers, informateurs jeunesse, animateurs : proposez une mission d'engagement aux personnes que vous accompagnez, sans être expert des dispositifs.",
     ogTitle: "Proposez une mission d'engagement, sans être expert des dispositifs",
     ogDescription: "Bénévolat, Service Civique, réserves : une mission aide les personnes que vous accompagnez à se développer et à avancer dans leur projet.",

@@ -26,7 +26,7 @@ export function DepartmentsMap({ data, name }: { data: DepartmentPoint[]; name: 
 
   return (
     <>
-      <data-box id={DATA_BOX_ID} name={name} heading-level="h3" source="Trouve ta mission" date={new Date().toISOString().slice(0, 10)} />
+      <data-box id={DATA_BOX_ID} name={name} heading-level="h3" source="TrouveTaMission.gouv.fr" date={new Date().toISOString().slice(0, 10)} />
       <map-chart databox-id={DATA_BOX_ID} databox-type="chart" data={JSON.stringify(valueByCode)} name={name} level="dep" />
       <table-chart
         databox-id={DATA_BOX_ID}

@@ -23,9 +23,9 @@ export const middleware: Route.MiddlewareFunction[] = [canonicalHostMiddleware];
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().
 export function meta({ error }: Route.MetaArgs): Route.MetaDescriptors {
-  if (!error) return [{ title: "Trouve ta mission" }];
+  if (!error) return [{ title: "TrouveTaMission.gouv.fr" }];
   const isNotFound = isRouteErrorResponse(error) && error.status === 404;
-  return [{ title: isNotFound ? "Page introuvable | Trouve ta mission" : "Une erreur est survenue | Trouve ta mission" }];
+  return [{ title: isNotFound ? "Page introuvable | TrouveTaMission.gouv.fr" : "Une erreur est survenue | TrouveTaMission.gouv.fr" }];
 }
 
 // Outils internes (/_cms/…) affichés dans l'admin Strapi : sans header, footer ni bandeau cookies.

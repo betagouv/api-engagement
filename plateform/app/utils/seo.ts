@@ -1,9 +1,9 @@
 import type { MetaDescriptor } from "react-router";
 
 export const SITE_URL = "https://trouvetamission.gouv.fr";
-const SITE_NAME = "Trouve ta mission";
+const SITE_NAME = "TrouveTaMission.gouv.fr";
 const OG_IMAGE = `${SITE_URL}/og-image.png`;
-const OG_IMAGE_ALT = "Trouve ta mission : tous les engagements publics réunis en un seul endroit";
+const OG_IMAGE_ALT = "TrouveTaMission.gouv.fr : tous les engagements publics réunis en un seul endroit";
 
 type PageMetaOptions = {
   title: string;

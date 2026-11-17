@@ -2,7 +2,7 @@ import type { Route } from "./+types/accessibilite";
 import { pageMeta } from "~/utils/seo";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Déclaration d'accessibilité | Trouve ta mission" });
+  return pageMeta(location, { title: "Déclaration d'accessibilité | TrouveTaMission.gouv.fr" });
 }
 
 export default function Accessibilite() {
@@ -19,7 +19,7 @@ export default function Accessibilite() {
 
         <h2 className="fr-mt-4w">État de conformité</h2>
         <p>
-          Trouve ta mission est <strong>partiellement conforme</strong> avec le Référentiel Général d'Amélioration de l'Accessibilité (RGAA), version 4.1.2 en raison des
+          TrouveTaMission.gouv.fr est <strong>partiellement conforme</strong> avec le Référentiel Général d'Amélioration de l'Accessibilité (RGAA), version 4.1.2 en raison des
           non-conformités énumérées ci-dessous.
         </p>
 
@@ -83,8 +83,8 @@ export default function Accessibilite() {
 
         <h2 className="fr-mt-4w">Retour d'information et contact</h2>
         <p>
-          Si vous n'arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable de Trouve ta mission pour être orienté vers une alternative accessible
-          ou obtenir le contenu sous une autre forme.
+          Si vous n'arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable de TrouveTaMission.gouv.fr pour être orienté vers une alternative
+          accessible ou obtenir le contenu sous une autre forme.
         </p>
         <ul className="fr-mb-3w">
           <li>
