@@ -40,6 +40,8 @@ export interface DispositifDefinition {
   /** Périmètre : publishers fixes, ou tous les publishers d'un type de mission. */
   scope: { publisherIds: string[] } | { missionType: PublisherMissionType };
   jobType: LinkedInJobType;
+  /** Plafond de missions diffusées (les plus anciennes d'abord). */
+  maxMissions?: number;
   /** Écarte les missions dont la date de fin est passée. */
   skipExpired?: boolean;
   page(mission: MissionRecord): { company: string; companyId: string };
