@@ -47,6 +47,6 @@ export interface DispositifDefinition {
   page(mission: MissionRecord): { company: string; companyId: string };
   /** `address` : adresse du job généré (absente pour une mission à distance sans adresse). */
   title(mission: MissionRecord, address?: MissionAddress): string;
-  /** Introduction HTML placée avant la description de la mission. */
-  intro(mission: MissionRecord): string;
+  /** Description HTML complète du job (introduction, description de la mission, blocs propres au dispositif). */
+  description(mission: MissionRecord): string;
 }

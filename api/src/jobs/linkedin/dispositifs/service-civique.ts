@@ -1,5 +1,6 @@
 import { PUBLISHER_IDS } from "@/config";
 import { LINKEDIN_PAGES } from "@/jobs/linkedin/config";
+import { descriptionBlock } from "@/jobs/linkedin/dispositifs/blocks";
 import { DispositifDefinition } from "@/jobs/linkedin/types";
 
 // Montant à mettre à jour chaque année.
@@ -13,7 +14,8 @@ export const serviceCivique: DispositifDefinition = {
   page: () => LINKEDIN_PAGES.TTM,
   // Sans doubler un préfixe « Service Civique » déjà présent dans le titre.
   title: (mission) => `Service Civique : ${mission.title.trim().replace(/^service civique\s*[:\-–—]?\s*/i, "")}`,
-  intro: (mission) => `<p>Mission de service civique proposée par ${mission.organizationName}.</p>
+  description: (mission) => `<p>Mission de service civique proposée par ${mission.organizationName}.</p>
+${descriptionBlock(mission)}
 <p><b>Conditions d'éligibilité</b></p>
 <p>Pour postuler à un Service Civique, vous devez obligatoirement :</p>
 <ul>

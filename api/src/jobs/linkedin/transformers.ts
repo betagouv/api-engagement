@@ -1,6 +1,7 @@
 import { DESCRIPTION_MAX_LENGTH, DESCRIPTION_MIN_LENGTH, LINKEDIN_INDUSTRY_CODE, LINKEDIN_PUBLISHER_ID } from "@/jobs/linkedin/config";
+import { descriptionBlock } from "@/jobs/linkedin/dispositifs/blocks";
 import { DispositifDefinition, LinkedInJob, LinkedInSalaryPeriod } from "@/jobs/linkedin/types";
-import { getAudienceLabel, getDomainLabel, sanitizeHtml, textLength } from "@/jobs/linkedin/utils";
+import { textLength } from "@/jobs/linkedin/utils";
 import { MissionAddress, MissionRecord } from "@/types/mission";
 import { formatDateMMDDYYYY, getMissionTrackedApplicationUrl } from "@/utils";
 
@@ -9,27 +10,6 @@ const SALARY_PERIODS: Record<string, LinkedInSalaryPeriod> = { hour: "HOURLY", d
 export function formatLocation(address: MissionAddress) {
   const country = address.country ?? "FR";
   return `${address.city ? `${address.city}, ` : ""}${country === "FR" ? "France" : country}`;
-}
-
-function buildBody(mission: MissionRecord): string {
-  const blocks: string[] = [];
-  if (mission.domain) {
-    blocks.push(`<p><b>Domaine d'activité : </b>${getDomainLabel(mission.domain)}</p>`);
-  }
-  blocks.push(sanitizeHtml(mission.descriptionHtml || mission.description));
-  if (Array.isArray(mission.requirements) && mission.requirements.length > 0) {
-    blocks.push(`<p><b>Pré-requis : </b></p>\n<ul>\n${mission.requirements.map((req) => `  <li>${req}</li>`).join("\n")}\n</ul>`);
-  }
-  if (Array.isArray(mission.audience) && mission.audience.length > 0) {
-    blocks.push(`<p><b>Public accompagné durant la mission : </b></p>\n<p>${mission.audience.map((a) => getAudienceLabel(a)).join(" - ")}</p>`);
-  }
-  if (mission.schedule) {
-    blocks.push(`<p><b>Durée de la mission : </b>${mission.schedule}</p>`);
-  }
-  if (mission.openToMinors === false) {
-    blocks.push(`<p><b>Âge minimum : </b>18 ans minimum</p>`);
-  }
-  return blocks.filter(Boolean).join("\n");
 }
 
 function buildSalary(mission: MissionRecord): LinkedInJob["salaries"] {
@@ -72,12 +52,11 @@ export function missionToLinkedinJobs(mission: MissionRecord, dispositif: Dispos
   if (!mission.title || !mission.description || !mission.organizationName) {
     return [];
   }
-  const body = buildBody(mission);
-  // Le minimum porte sur le contenu propre de la mission, pas sur l'intro du dispositif.
-  if (textLength(body) < DESCRIPTION_MIN_LENGTH) {
+  // Le minimum porte sur la description de la mission, pas sur le texte du dispositif.
+  if (textLength(descriptionBlock(mission)) < DESCRIPTION_MIN_LENGTH) {
     return [];
   }
-  const description = `${dispositif.intro(mission)}\n${body}`;
+  const description = dispositif.description(mission);
   if (description.length > DESCRIPTION_MAX_LENGTH) {
     return [];
   }

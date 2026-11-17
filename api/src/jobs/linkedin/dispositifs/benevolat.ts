@@ -1,6 +1,8 @@
 import { PUBLISHER_IDS } from "@/config";
 import { LINKEDIN_ORGANIZATION_PAGES, LINKEDIN_PAGES } from "@/jobs/linkedin/config";
+import { descriptionBlock, scheduleBlock } from "@/jobs/linkedin/dispositifs/blocks";
 import { DispositifDefinition } from "@/jobs/linkedin/types";
+import { getAudienceLabel, getDomainLabel } from "@/jobs/linkedin/utils";
 
 // Bénévolat : même rendu pour JVA et les autres annonceurs, seuls le périmètre et le plafond diffèrent.
 const benevolat = {
@@ -11,9 +13,23 @@ const benevolat = {
     const companyId = LINKEDIN_ORGANIZATION_PAGES[organizationName];
     return companyId ? { company: organizationName, companyId } : LINKEDIN_PAGES.JVA;
   },
-  title: (mission) => `Mission de bénévolat : ${mission.title.trim()}`,
-  intro: (mission) => `<p>Mission proposée par ${mission.organizationName}</p>`,
-} satisfies Pick<DispositifDefinition, "jobType" | "page" | "title" | "intro">;
+  title: (mission) => `Bénévolat : ${mission.title.trim()}`,
+  description: (mission) => {
+    const blocks = [`<p><b>Type de mission : </b>${mission.organizationName} vous propose une mission de bénévolat</p>`];
+    if (mission.domain) {
+      blocks.push(`<p><b>Domaine d'activité : </b>${getDomainLabel(mission.domain)}</p>`);
+    }
+    blocks.push("<p><b>Présentation de la mission</b></p>", descriptionBlock(mission));
+    if (Array.isArray(mission.audience) && mission.audience.length > 0) {
+      blocks.push(`<p><b>Public accompagné durant la mission : </b>${mission.audience.map((a) => getAudienceLabel(a)).join(" - ")}</p>`);
+    }
+    blocks.push(scheduleBlock(mission));
+    if (typeof mission.openToMinors === "boolean") {
+      blocks.push(`<p><b>Âge minimum : </b>${mission.openToMinors ? 16 : 18} ans minimum</p>`);
+    }
+    return blocks.filter(Boolean).join("\n");
+  },
+} satisfies Pick<DispositifDefinition, "jobType" | "page" | "title" | "description">;
 
 export const jva: DispositifDefinition = {
   ...benevolat,

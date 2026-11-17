@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("@/services/s3", () => ({ default: {}, putObject: vi.fn(), OBJECT_ACL: {} }));
 
-import { annonceurs, jva, reserve, serviceCivique, spv } from "@/jobs/linkedin/dispositifs";
+import { annonceurs, jva, pnGn, roc, serviceCivique, spv } from "@/jobs/linkedin/dispositifs";
 import { missionToLinkedinJobs } from "@/jobs/linkedin/transformers";
 import { sanitizeHtml } from "@/jobs/linkedin/utils";
 import { MissionRecord } from "@/types/mission";
@@ -49,9 +49,9 @@ describe("missionToLinkedinJobs", () => {
   });
 
   it("titres par dispositif, sans doubler le préfixe Service Civique", () => {
-    expect(missionToLinkedinJobs(mission(), jva)[0].title).toBe("Mission de bénévolat : Aider les enfants");
+    expect(missionToLinkedinJobs(mission(), jva)[0].title).toBe("Bénévolat : Aider les enfants");
     expect(missionToLinkedinJobs(mission({ title: "Service Civique - Aider" }), serviceCivique)[0].title).toBe("Service Civique : Aider");
-    expect(missionToLinkedinJobs(mission(), reserve)[0].title).toBe("Réserviste : Aider les enfants - Sécurité, Défense, Résilience nationale");
+    expect(missionToLinkedinJobs(mission(), roc)[0].title).toBe("Réserviste : Aider les enfants - Sécurité, Défense, Résilience nationale");
     expect(missionToLinkedinJobs(mission(), spv)[0].title).toMatch(/^Sapeur-Pompier volontaire Paris - Secourisme/);
   });
 
@@ -83,8 +83,23 @@ describe("missionToLinkedinJobs", () => {
     expect(remote[0].workplaceTypes).toBe("Remote");
   });
 
+  it("compose la description selon le dispositif", () => {
+    const m = mission({ domain: "education", audience: ["children"], schedule: "2h/semaine", openToMinors: true } as Partial<MissionRecord>);
+    const benevole = missionToLinkedinJobs(m, jva)[0].description;
+    expect(benevole).toContain("Mon asso vous propose une mission de bénévolat");
+    expect(benevole).toContain("Présentation de la mission");
+    expect(benevole).toContain("Durée de la mission : </b>2h/semaine");
+    expect(benevole).toContain("16 ans minimum");
+    expect(missionToLinkedinJobs(mission({ openToMinors: false } as Partial<MissionRecord>), jva)[0].description).toContain("18 ans minimum");
+    expect(missionToLinkedinJobs(mission(), jva)[0].description).not.toMatch(/Âge minimum|Durée/);
+    expect(missionToLinkedinJobs(m, roc)[0].description).toContain("Et si vous deveniez réserviste");
+    expect(missionToLinkedinJobs(m, roc)[0].description).toContain("Durée de la mission");
+    expect(missionToLinkedinJobs(m, pnGn)[0].description).toMatch(/^<p>Mission proposée par Mon asso<\/p>/);
+    expect(missionToLinkedinJobs(m, spv)[0].description).not.toContain("Durée de la mission");
+  });
+
   it("le minimum de 100 caractères porte sur la mission, pas sur l'intro", () => {
-    expect(missionToLinkedinJobs(mission({ description: "court", descriptionHtml: "<p>court</p>" }), reserve)).toEqual([]);
+    expect(missionToLinkedinJobs(mission({ description: "court", descriptionHtml: "<p>court</p>" }), roc)).toEqual([]);
   });
 
   it("listDate en MM/DD/YYYY depuis postedAt sinon createdAt", () => {
