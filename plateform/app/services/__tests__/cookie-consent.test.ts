@@ -6,7 +6,7 @@ vi.mock("~/services/config", () => ({ POSTHOG_KEY: "phc_test", TRACKING_PROVIDER
 vi.mock("~/services/tracking", () => tracking);
 
 import { getCookieConsentPreferences, parseCookieConsent, saveCookieConsent } from "../cookie-consent";
-import type { ConsentService } from "../consent-services";
+import type { ConsentService } from "../cookie-consent";
 
 describe("consentement cookies", () => {
   beforeEach(() => {
