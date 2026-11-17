@@ -20,8 +20,12 @@ Si vous ne souhaitez pas ajouter de compte externe à votre organisation, vous p
 2. Cliquez sur **« Voir mon profil »**, puis sur **« Créer et afficher un nouveau jeton »**.
 3. Choisissez **« Accès à une liste fermée de démarches »** et sélectionnez uniquement les démarches à connecter (recommandé plutôt que l'accès à toutes les démarches).
 4. Choisissez un accès en **lecture seule** : API Engagement n'écrit rien dans vos dossiers.
-5. Restriction par adresse IP : choisissez **« Réseaux personnalisés »** et saisissez les adresses IP communiquées par l'équipe API Engagement. Cette restriction est obligatoire pour les tokens créés depuis le 1er juillet 2026.
+5. Restriction par adresse IP : choisissez **« Réseaux personnalisés »** et saisissez l'adresse IP de sortie d'API Engagement : `78.232.48.26`. Cette restriction est obligatoire pour les tokens créés depuis le 1er juillet 2026.
 6. Copiez le token : **il n'est affiché qu'à sa création**.
+
+{% hint style="info" %}
+Tous les appels d'API Engagement vers Démarche Numérique sortent par cette adresse IP fixe. Votre token n'est donc utilisable que depuis nos serveurs : même s'il fuitait, il ne fonctionnerait pas ailleurs.
+{% endhint %}
 
 Transmettez ensuite le token à l'équipe API Engagement par un canal sécurisé (pas en clair dans un e-mail ou un ticket partagé). Il est stocké chiffré et n'est jamais réaffiché.
 
