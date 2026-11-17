@@ -1,274 +1,131 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MissionRecord } from "@/types/mission";
-import { missionToLinkedinJob } from "@/jobs/linkedin/transformers";
+import { describe, expect, it, vi } from "vitest";
 
-// Mock constants with IDs but keep the rest of the config
-vi.mock("../config", async () => {
-  const config = await vi.importActual<typeof import("@/jobs/linkedin/config")>("../config");
-  return {
-    ...config,
-    PUBLISHER_IDS: {
-      LINKEDIN: "test-linkedin-id",
-    },
-    LINKEDIN_COMPANY_ID: {
-      "Mon asso": "12345",
-      Benevolt: "54321",
-    },
-    LINKEDIN_PUBLISHER_ID: "test-linkedin-id",
-    MISSIONS_PERIODIC_REMOVAL_IDS: ["000000000000000000000123"],
-    MISSIONS_PERIODIC_ONLINE_DAYS: 10,
-    MISSIONS_PERIODIC_OFFLINE_DAYS: 1,
-    MISSIONS_PERIODIC_CYCLE_START_DATE: "2025-09-08",
-  };
+vi.mock("@/services/s3", () => ({ default: {}, putObject: vi.fn(), OBJECT_ACL: {} }));
+
+import { annonceurs, jva, pnGn, roc, serviceCivique, spv } from "@/jobs/linkedin/dispositifs";
+import { missionToLinkedinJobs } from "@/jobs/linkedin/transformers";
+import { sanitizeHtml } from "@/jobs/linkedin/utils";
+import { MissionRecord } from "@/types/mission";
+
+const address = (city: string, extra = {}) => ({ city, postalCode: "75001", country: "FR", departmentName: "Paris", ...extra });
+
+const mission = (overrides: Partial<MissionRecord> = {}) =>
+  ({
+    id: "11111111-1111-1111-1111-111111111111",
+    title: "Aider les enfants",
+    description: "d".repeat(150),
+    descriptionHtml: `<p>${"d".repeat(150)}</p>`,
+    organizationName: "Mon asso",
+    domain: "education",
+    remote: "no",
+    createdAt: new Date("2025-01-05T10:00:00Z"),
+    postedAt: null,
+    endAt: null,
+    requirements: [],
+    audience: [],
+    addresses: [address("Paris")],
+    ...overrides,
+  }) as unknown as MissionRecord;
+
+describe("missionToLinkedinJobs", () => {
+  it("génère un job par adresse, id d'origine conservé pour la première", () => {
+    const jobs = missionToLinkedinJobs(mission({ addresses: [address("Paris"), address("Lyon", { postalCode: "69001" })] }), jva);
+    expect(jobs.map((j) => j.partnerJobId)).toEqual(["11111111-1111-1111-1111-111111111111", "11111111-1111-1111-1111-111111111111-1"]);
+    expect(jobs.every((j) => j.partnerJobId.length <= 40)).toBe(true);
+    // Ordre déterministe (tri sur ville + code postal).
+    expect(jobs.map((j) => j.location)).toEqual(["Lyon, France", "Paris, France"]);
+  });
+
+  it("attribue les identifiants indépendamment de l'ordre des adresses", () => {
+    const lyon = address("Lyon", { postalCode: "69001" });
+    const paris = address("Paris");
+    const byId = (addresses: object[]) => Object.fromEntries(missionToLinkedinJobs(mission({ addresses }), jva).map((j) => [j.partnerJobId, j.location]));
+    expect(byId([lyon, paris])).toEqual(byId([paris, lyon]));
+  });
+
+  it("dédoublonne les adresses sans plafond", () => {
+    const addresses = Array.from({ length: 30 }, (_, i) => address(`Ville${i}`, { postalCode: String(i) }));
+    expect(missionToLinkedinJobs(mission({ addresses: [...addresses, addresses[0]] }), jva)).toHaveLength(30);
+  });
+
+  it("titres par dispositif, sans doubler le préfixe Service Civique", () => {
+    expect(missionToLinkedinJobs(mission(), jva)[0].title).toBe("Bénévolat : Aider les enfants");
+    expect(missionToLinkedinJobs(mission({ title: "Service Civique - Aider" }), serviceCivique)[0].title).toBe("Service Civique : Aider");
+    expect(missionToLinkedinJobs(mission(), roc)[0].title).toBe("Réserviste : Aider les enfants - Sécurité, Défense, Résilience nationale");
+    expect(missionToLinkedinJobs(mission(), spv)[0].title).toMatch(/^Sapeur-Pompier volontaire Paris - Secourisme/);
+  });
+
+  it("type d'emploi et page entreprise par dispositif", () => {
+    const sc = missionToLinkedinJobs(mission(), serviceCivique)[0];
+    expect(sc.jobtype).toBe("INTERNSHIP");
+    expect(sc.companyId).toBe("146194199");
+    expect(missionToLinkedinJobs(mission(), spv)[0].jobtype).toBe("CONTRACT");
+    const jvaJob = missionToLinkedinJobs(mission(), jva)[0];
+    expect(jvaJob.jobtype).toBe("VOLUNTEER");
+    expect(jvaJob.companyId).toBe("11100845");
+  });
+
+  it("JVA : page de l'organisation si elle existe, sinon page JVA", () => {
+    expect(missionToLinkedinJobs(mission({ organizationName: "AFEV" }), jva)[0]).toMatchObject({ company: "AFEV", companyId: "10329919" });
+    expect(missionToLinkedinJobs(mission({ organizationName: "Inconnue" }), jva)[0]).toMatchObject({ company: "jeveuxaider.gouv.fr", companyId: "11100845" });
+  });
+
+  it("autre annonceur : sa page si elle existe, sinon JVA", () => {
+    expect(missionToLinkedinJobs(mission({ organizationName: "benevolt" }), annonceurs)[0].companyId).toBe("11022359");
+    expect(missionToLinkedinJobs(mission(), annonceurs)[0].companyId).toBe("11100845");
+  });
+
+  it("exclut les missions incomplètes ou sans lieu, accepte le full remote en France", () => {
+    expect(missionToLinkedinJobs(mission({ organizationName: null }), jva)).toEqual([]);
+    expect(missionToLinkedinJobs(mission({ addresses: [] }), jva)).toEqual([]);
+    const remote = missionToLinkedinJobs(mission({ addresses: [], remote: "full" }), jva);
+    expect(remote[0].location).toBe("France");
+    expect(remote[0].workplaceTypes).toBe("Remote");
+  });
+
+  it("compose la description selon le dispositif", () => {
+    const m = mission({ domain: "education", audience: ["children"], schedule: "2h/semaine", openToMinors: true } as Partial<MissionRecord>);
+    const benevole = missionToLinkedinJobs(m, jva)[0].description;
+    expect(benevole).toContain("Mon asso vous propose une mission de bénévolat");
+    expect(benevole).toContain("Présentation de la mission");
+    expect(benevole).toContain("Durée de la mission : </b>2h/semaine");
+    expect(benevole).toContain("16 ans minimum");
+    expect(missionToLinkedinJobs(mission({ requirements: ["Permis B"] }), jva)[0].description).toMatch(/Pré-requis[\s\S]*<li>Permis B<\/li>/);
+    expect(missionToLinkedinJobs(mission({ openToMinors: false } as Partial<MissionRecord>), jva)[0].description).toContain("18 ans minimum");
+    expect(missionToLinkedinJobs(mission(), jva)[0].description).not.toMatch(/Âge minimum|Durée/);
+    expect(missionToLinkedinJobs(m, roc)[0].description).toContain("Et si vous deveniez réserviste");
+    expect(missionToLinkedinJobs(m, roc)[0].description).toContain("Durée de la mission");
+    expect(missionToLinkedinJobs(m, pnGn)[0].description).toMatch(/^<p>Mission proposée par Mon asso<\/p>/);
+    expect(missionToLinkedinJobs(m, spv)[0].description).not.toContain("Durée de la mission");
+  });
+
+  it("le minimum de 100 caractères porte sur la mission, pas sur l'intro", () => {
+    expect(missionToLinkedinJobs(mission({ description: "court", descriptionHtml: "<p>court</p>" }), roc)).toEqual([]);
+  });
+
+  it("listDate en MM/DD/YYYY depuis postedAt sinon createdAt", () => {
+    expect(missionToLinkedinJobs(mission(), jva)[0].listDate).toBe("01/05/2025");
+    expect(missionToLinkedinJobs(mission({ postedAt: new Date("2025-03-09T10:00:00Z") }), jva)[0].listDate).toBe("03/09/2025");
+  });
+
+  it("mappe le salaire quand l'info existe", () => {
+    expect(missionToLinkedinJobs(mission(), jva)[0].salaries).toBeUndefined();
+    const s = missionToLinkedinJobs(mission({ compensationAmount: 600, compensationUnit: "month" }), serviceCivique)[0].salaries;
+    expect(s?.salary).toMatchObject({ lowEnd: { amount: 600 }, highEnd: { amount: 600 }, period: "MONTHLY" });
+  });
 });
 
-vi.mock("../../../utils/mission", () => ({
-  getMissionTrackedApplicationUrl: vi.fn((mission, publisherId) => `https://api.api-engagement.beta.gouv.fr/r/${mission._id}/${publisherId}`),
-}));
-
-vi.mock("../utils", () => ({
-  getDomainLabel: vi.fn((domain) => `Libellé ${domain}`),
-  getAudienceLabel: vi.fn((audience) => `Libellé ${audience}`),
-}));
-
-const defaultCompany = "benevolt";
-
-const baseMission: Partial<MissionRecord> = {
-  title: "Développeur Web",
-  description: "Ceci est une description de mission de plus de 100 caractères pour passer la validation initiale. Il faut que ce soit assez long pour que le test passe.",
-  organizationName: "Mon asso",
-  startAt: new Date("2025-01-15"),
-  createdAt: new Date("2025-01-01"),
-  endAt: new Date("2025-06-30"),
-  domain: "environnement",
-  remote: "no",
-  addresses: [
-    {
-      city: "Paris",
-      postalCode: "75001",
-      region: "Île-de-France",
-      country: "FR",
-      street: "123 rue de test",
-      departmentName: "Paris",
-      departmentCode: "75",
-      location: {
-        lat: 48.8566,
-        lon: 2.3522,
-      },
-      geoPoint: {
-        type: "Point",
-        coordinates: [2.3522, 48.8566],
-      },
-      geolocStatus: "ENRICHED_BY_PUBLISHER",
-    },
-  ],
-};
-
-describe("missionToLinkedinJob", () => {
-  beforeEach(() => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2025-09-09"));
+describe("sanitizeHtml", () => {
+  it("ne garde que les balises autorisées et convertit ol en ul", () => {
+    expect(sanitizeHtml('<div class="x"><a href="y">lien</a> <ol><li>a</li></ol><script>x()</script></div>')).toBe("<p>lien <ul><li>a</li></ul></p>");
   });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.resetAllMocks();
+  it("neutralise les balises imbriquées et le contenu script", () => {
+    const out = sanitizeHtml("<p>a</p><scr<script>ipt>alert(1)</scr</script>ipt><script>evil()</script><p>b</p>");
+    expect(out).not.toMatch(/<script/i);
+    expect(out).not.toContain("evil");
+    expect(out).toContain("<p>a</p>");
   });
-
-  it("should return a valid LinkedInJob for a valid mission", () => {
-    const job = missionToLinkedinJob(baseMission as MissionRecord, defaultCompany);
-    expect(job).not.toBeNull();
-    expect(job?.partnerJobId).toBe(String(baseMission._id));
-    expect(job?.title).toBe(`Bénévolat - ${baseMission.title}`);
-    expect(job?.jobtype).toBe("VOLUNTEER");
-    expect(job?.applyUrl).toBe(`https://api.api-engagement.beta.gouv.fr/r/${baseMission._id}/test-linkedin-id`);
-    expect(job?.description).not.toBeNull(); // Description will be tested in dedicated test
-    expect(job?.company).toBe("Mon asso");
-    expect(job?.companyId).toBe("12345");
-    expect(job?.location).toBe("Paris, France");
-    // When location is provided, country and city are not mandatory
-    expect(job?.country).toBeUndefined();
-    expect(job?.city).toBeUndefined();
-    expect(job?.postalCode).toBeUndefined();
-    expect(job?.listDate).toBe(baseMission.createdAt?.toISOString());
-    expect(job?.expirationDate).toBe(baseMission.endAt?.toISOString());
-    expect(job?.industryCodes).toEqual([{ industryCode: 2368 }]);
-    expect(job?.workplaceTypes).toBe("On-site");
-  });
-
-  it("should format description with correct data", () => {
-    // JVA missions should have a description with the following structure
-    const descriptionHtml = `
-      <b>Présentation de la mission</b><br>
-      <p>Description</p>
-      <p>Sautez le pas</p><br>
-      <p>Texte</p>
-      <p>Précisions</p><br>
-      <p>Texte de précisions</p>`;
-    const organizationName = "Mon asso";
-    const requirements = ["Précision 1", "Précision 2"];
-    const schedule = "un jour par semaine";
-
-    const mission = {
-      ...baseMission,
-      descriptionHtml,
-      domain: "environnement",
-      requirements,
-      audience: ["seniors", "people_in_difficulty"],
-      schedule,
-      openToMinors: false,
-    } as MissionRecord;
-
-    const job = missionToLinkedinJob(mission, defaultCompany);
-
-    const expectedDescription = `
-      <p><b>Type de mission : </b><b>${organizationName}</b> vous propose une mission de bénévolat</p>
-      <p><b>Domaine d'activité : </b>Libellé environnement</p>
-      ${descriptionHtml}
-      <p><b>Pré-requis : </b></p>
-      <ol>
-        <li>${requirements[0]}</li>
-        <li>${requirements[1]}</li>
-      </ol>
-      <p><b>Public accompagné durant la mission : </b></p>
-      <p>Libellé seniors - Libellé people_in_difficulty</p>
-      <p><b>Durée de la mission : </b>${schedule}</p>
-      <p><b>Âge minimum : </b>18 ans minimum</p>
-    `;
-
-    // Compare strings with normalized whitespace
-    function normalizeHtml(str: string) {
-      return str.replace(/\s+/g, " ").trim();
-    }
-    expect(normalizeHtml(job?.description ?? "")).toBe(normalizeHtml(expectedDescription));
-  });
-
-  it("shouldnt include block title if openToMinors is yes", () => {
-    const mission = { ...baseMission, openToMinors: true } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.description).not.toContain("<b>Âge minimum : </b>");
-  });
-
-  it("shouldnt include block title if audience is empty", () => {
-    const mission = { ...baseMission, audience: [] } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.description).not.toContain("<b>Public accompagné durant la mission : </b>");
-  });
-
-  it("shouldnt include block title if schedule is empty", () => {
-    const mission = { ...baseMission, schedule: "" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.description).not.toContain("<b>Durée de la mission : </b>");
-  });
-
-  it("shouldnt include block title if requirements is empty", () => {
-    const mission = { ...baseMission, requirements: [] } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.description).not.toContain("<b>Pré-requis : </b>");
-  });
-
-  it("should use location fields when present and no address are provided", () => {
-    const mission = { ...baseMission, addresses: [], country: "FR", city: "Nantes", postalCode: "44000" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.country).toBe("FR");
-    expect(job?.city).toBe("Nantes");
-    expect(job?.postalCode).toBe("44000");
-  });
-
-  it("should use country to FR if address and no located fields are provided", () => {
-    const mission = { ...baseMission, addresses: [] } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.country).toBe("FR");
-  });
-
-  it("should return null if country is not valid", () => {
-    const mission = { ...baseMission, addresses: [], country: "invalid" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job).toBeNull();
-  });
-
-  it("should have alternate locations if mission has multiple addresses", () => {
-    const addresses = [
-      { ...baseMission.addresses?.[0], city: "Lyon", region: "Rhône-Alpes", country: "FR", postalCode: "69001" },
-      { ...baseMission.addresses?.[0], city: "Marseille", region: "Provence-Alpes-Côte d'Azur", country: "FR", postalCode: "13001" },
-    ];
-    const mission = { ...baseMission, addresses } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.alternateLocations?.alternateLocation).toHaveLength(2);
-    expect(job?.alternateLocations?.alternateLocation).toContain("Lyon, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("Marseille, France");
-  });
-
-  it("should not have alternate locations if mission has only one address", () => {
-    const mission = { ...baseMission } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.alternateLocations).toBeUndefined();
-  });
-
-  it("should limit alternate locations to 7", () => {
-    const addresses = Array.from({ length: 8 }, (_, i) => ({ ...baseMission.addresses?.[0], city: `City ${i}`, region: `Region ${i}`, country: "FR", postalCode: `12345${i}` }));
-    const mission = { ...baseMission, addresses } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.alternateLocations?.alternateLocation).toHaveLength(7);
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 0, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 1, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 2, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 3, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 4, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 5, France");
-    expect(job?.alternateLocations?.alternateLocation).toContain("City 6, France");
-  });
-
-  it.each([["title"], ["description"], ["organizationName"]])("should return null if %s is missing", (field) => {
-    const mission = { ...baseMission, [field]: undefined } as MissionRecord;
-    expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
-  });
-
-  it("should use defaultCompany when organization is not in LINKEDIN_COMPANY_ID", () => {
-    const mission = { ...baseMission, organizationName: "Some Other Org" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, "benevolt");
-    expect(job?.company).toBe("benevolt");
-    expect(job?.companyId).toBeUndefined();
-  });
-
-  it("should use defaultCompany when organizationName is not in LINKEDIN_COMPANY_ID and default is not benevolt", () => {
-    const mission = { ...baseMission, organizationName: "Unknown Org" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, "some-default");
-    expect(job?.company).toBe("some-default");
-    expect(job?.companyId).toBeUndefined();
-  });
-
-  it("should correctly map remote status", () => {
-    let job = missionToLinkedinJob({ ...baseMission, remote: "full" } as MissionRecord, defaultCompany);
-    expect(job?.workplaceTypes).toBe("Remote");
-    job = missionToLinkedinJob({ ...baseMission, remote: "possible" } as MissionRecord, defaultCompany);
-    expect(job?.workplaceTypes).toBe("Hybrid");
-    job = missionToLinkedinJob({ ...baseMission, remote: "no" } as MissionRecord, defaultCompany);
-    expect(job?.workplaceTypes).toBe("On-site");
-    job = missionToLinkedinJob({ ...baseMission, remote: "local" } as MissionRecord, defaultCompany);
-    expect(job?.workplaceTypes).toBe("On-site");
-  });
-
-  it("should not have expirationDate if endAt is not provided", () => {
-    const mission = { ...baseMission, endAt: null } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.expirationDate).toBeUndefined();
-  });
-
-  it("should return null for description length > 25000", () => {
-    const mission = { ...baseMission, descriptionHtml: "a".repeat(25001) } as MissionRecord;
-    expect(missionToLinkedinJob(mission, defaultCompany)).toBeNull();
-  });
-
-  it("should map domain to industry code", () => {
-    const mission = { ...baseMission, domain: "sante" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.industryCodes).toEqual([{ industryCode: 14 }]);
-  });
-
-  it("when domain is not in LINKEDIN_INDUSTRY_CODE, key should be undefined", () => {
-    const mission = { ...baseMission, domain: "unknown" } as MissionRecord;
-    const job = missionToLinkedinJob(mission, defaultCompany);
-    expect(job?.industryCodes).toBeUndefined();
+  it("convertit le texte brut en paragraphes", () => {
+    expect(sanitizeHtml("a\nb\n\nc")).toBe("<p>a<br>b</p>\n<p>c</p>");
   });
 });

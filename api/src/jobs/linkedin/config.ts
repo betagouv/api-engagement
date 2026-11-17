@@ -4,21 +4,15 @@ export const LINKEDIN_XML_URL = `https://${BUCKET_NAME}.s3.fr-par.scw.cloud/xml/
 
 export const LINKEDIN_PUBLISHER_ID = PUBLISHER_IDS.LINKEDIN;
 
-export const PARTNERS_IDS = [
-  PUBLISHER_IDS.LINKEDIN,
-  PUBLISHER_IDS.BENEVOLT,
-  PUBLISHER_IDS.FONDATION_RAOUL_FOLLEREAU,
-  PUBLISHER_IDS.VILLE_DE_NANTES,
-  PUBLISHER_IDS.VACANCES_ET_FAMILLES,
-  PUBLISHER_IDS.PREVENTION_ROUTIERE,
-  PUBLISHER_IDS.MEDECINS_DU_MONDE,
-  PUBLISHER_IDS.EGEE,
-  PUBLISHER_IDS.ECTI,
-  PUBLISHER_IDS.ADIE,
-];
+// Pages entreprise LinkedIn : JVA et TTM (SC, SPV, réserve), puis les organisations ayant leur propre page.
+export const LINKEDIN_PAGES = {
+  JVA: { company: "jeveuxaider.gouv.fr", companyId: "11100845" },
+  TTM: { company: "Trouvetamission", companyId: "146194199" },
+} as const;
 
-export const LINKEDIN_COMPANY_ID = {
-  "jeveuxaider.gouv.fr": "11100845",
+// Organisations ayant leur propre page LinkedIn (clé = organizationName), reprises de l'ancien flux.
+// Les missions JVA et autres annonceurs de ces organisations y sont rattachées ; les autres retombent sur la page JVA.
+export const LINKEDIN_ORGANIZATION_PAGES = {
   benevolt: "11022359",
   Makesense: "737838",
   "Lobby des Consciences": "65886275",
@@ -68,6 +62,9 @@ export const LINKEDIN_COMPANY_ID = {
   "Association Prévention Routière Île-de-France": "7214867",
   "Association Séphora Berrebi": "34715721",
 } as { [key: string]: string };
+
+export const DESCRIPTION_MIN_LENGTH = 100;
+export const DESCRIPTION_MAX_LENGTH = 25000;
 
 export const LINKEDIN_INDUSTRY_CODE = {
   environnement: 2368,
