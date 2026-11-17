@@ -1,6 +1,53 @@
 version: 2
 
 models:
+  - name: publisher_api_usage_daily
+    description: >
+      Une ligne par jour UTC, publisher, méthode HTTP et route.
+      Volumes estimés arrondis : total, succès (2xx/3xx), erreurs publisher (4xx)
+      et erreurs API (5xx). Les statuts inconnus sont inclus uniquement dans le total.
+      Une absence de ligne ne prouve pas une absence d'appels.
+      Exposé dans analytics, sans clé API ni donnée personnelle.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: date
+        tests:
+          - not_null
+      - name: publisher_id
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('publisher')
+                field: id
+      - name: method
+        description: Méthode HTTP, nullable pour l'historique.
+      - name: route
+        tests:
+          - not_null
+      - name: request_count
+        description: Total des appels, y compris ceux dont le statut est inconnu.
+        tests:
+          - not_null
+      - name: success_count
+        description: Appels avec un statut entre 200 et 399.
+        tests:
+          - not_null
+      - name: publisher_error_count
+        description: Appels avec un statut entre 400 et 499.
+        tests:
+          - not_null
+      - name: api_error_count
+        description: Appels avec un statut entre 500 et 599.
+        tests:
+          - not_null
+      - name: synced_at
+        description: Dernière synchronisation source parmi les lignes agrégées.
+        tests:
+          - not_null
   - name: publisher
     description: >
       Table mart dimensionnelle des partenaires, construite à partir du staging `stg_publisher` et alignée sur le

@@ -12,6 +12,23 @@ sources:
     schema: analytics_raw
     loader: node job export-to-analytics-raw
     tables:
+      - name: http_requests_by_publisher_total
+        description: Volumes HTTP journaliers estimés et arrondis, extraits de Cockpit par publisher, méthode, route et statut.
+        columns:
+          - name: date
+            description: Journée UTC observée.
+          - name: publisher_id
+            description: Identifiant du publisher.
+          - name: method
+            description: Méthode HTTP, inconnue pour les anciennes séries.
+          - name: route
+            description: Route HTTP normalisée.
+          - name: status_code
+            description: Statut HTTP, inconnu pour les anciennes séries.
+          - name: request_count
+            description: Volume estimé arrondi à l'entier.
+          - name: synced_at
+            description: Dernière synchronisation de la ligne, utilisée pour détecter les corrections.
       - name: stat_event
         description: >-
           Événements de statistiques (impressions, clics, candidatures, création de compte) exportés depuis la base `core`

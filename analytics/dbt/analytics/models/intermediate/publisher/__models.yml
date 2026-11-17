@@ -1,6 +1,41 @@
 version: 2
 
 models:
+  - name: int_publisher_api_usage_daily
+    description: >
+      Volumes journaliers par publisher, méthode et route, mis à jour en incrémental.
+      Toute journée modifiée est réagrégée sur tous ses statuts HTTP.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: date
+        tests:
+          - not_null
+      - name: publisher_id
+        tests:
+          - not_null
+      - name: method
+        description: Méthode HTTP, nullable pour l'historique.
+      - name: route
+        tests:
+          - not_null
+      - name: request_count
+        tests:
+          - not_null
+      - name: success_count
+        tests:
+          - not_null
+      - name: publisher_error_count
+        tests:
+          - not_null
+      - name: api_error_count
+        tests:
+          - not_null
+      - name: synced_at
+        tests:
+          - not_null
   - name: int_publisher_diffusion_rule
     description: >
       Modèle intermédiaire (table complète) des règles de diffusion par partenaire, dérivé de
