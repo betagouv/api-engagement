@@ -1,6 +1,35 @@
 version: 2
 
 models:
+  - name: stg_http_requests_by_publisher_total
+    description: >
+      Vue des volumes HTTP Cockpit. La clé technique distingue
+      explicitement les méthodes et statuts inconnus (NULL).
+      Expose synced_at pour la synchronisation incrémentale de la couche intermédiaire.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: date
+        tests:
+          - not_null
+      - name: publisher_id
+        tests:
+          - not_null
+      - name: route
+        tests:
+          - not_null
+      - name: method
+        description: Méthode HTTP, nullable pour l'historique.
+      - name: status_code
+        description: Statut HTTP, nullable pour l'historique.
+      - name: request_count
+        tests:
+          - not_null
+      - name: synced_at
+        tests:
+          - not_null
   - name: stg_publisher
     description: >
       Staging des partenaires exportés depuis `analytics_raw.publisher`. Ce modèle applique simplement les conversions
