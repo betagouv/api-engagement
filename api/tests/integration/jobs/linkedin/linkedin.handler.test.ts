@@ -16,6 +16,9 @@ import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
 import { putObject } from "@/services/s3";
 import { createTestMission, createTestPublisher } from "../../../fixtures";
 
+// Le flux exige une description de mission d'au moins 100 caractères.
+const DESCRIPTION = { description: "D".repeat(150), descriptionHtml: `<p>${"D".repeat(150)}</p>` };
+
 /**
  * LinkedIn job integration tests
  *
@@ -64,6 +67,7 @@ describe("LinkedinHandler (integration test)", () => {
     });
 
     const kept = await createTestMission({
+      ...DESCRIPTION,
       publisherId: JVA_ID,
       statusCode: "ACCEPTED",
       endAt: FUTURE_END,
@@ -72,6 +76,7 @@ describe("LinkedinHandler (integration test)", () => {
       organizationClientId: "kept-org",
     });
     const excluded = await createTestMission({
+      ...DESCRIPTION,
       publisherId: JVA_ID,
       statusCode: "ACCEPTED",
       endAt: FUTURE_END,
@@ -105,6 +110,7 @@ describe("LinkedinHandler (integration test)", () => {
   it("diffuse les missions Service Civique sous la page TTM avec le titre du dispositif", async () => {
     await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE, name: "Service Civique" });
     const mission = await createTestMission({
+      ...DESCRIPTION,
       publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE,
       statusCode: "ACCEPTED",
       title: "Service Civique - Aider les élèves",
@@ -128,7 +134,13 @@ describe("LinkedinHandler (integration test)", () => {
 
   it("n'inclut pas un annonceur sans règle de diffusion LinkedIn", async () => {
     await createTestPublisher({ id: PUBLISHER_IDS.SERVICE_CIVIQUE, name: "Service Civique" });
-    const mission = await createTestMission({ publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE, statusCode: "ACCEPTED", organizationName: "Asso SC", addresses: [ADDRESS] });
+    const mission = await createTestMission({
+      ...DESCRIPTION,
+      publisherId: PUBLISHER_IDS.SERVICE_CIVIQUE,
+      statusCode: "ACCEPTED",
+      organizationName: "Asso SC",
+      addresses: [ADDRESS],
+    });
     await missionDiffusionService.rebuildForDistributionPublisher(LINKEDIN_ID);
 
     await handler.handle({});
@@ -139,8 +151,14 @@ describe("LinkedinHandler (integration test)", () => {
   it("diffuse les autres annonceurs via mission_diffusion, sur la page JVA sans page propre", async () => {
     await createTestPublisher({ id: PUBLISHER_IDS.BENEVOLT, name: "Benevolt" });
     await createTestPublisher({ id: PUBLISHER_IDS.ECTI, name: "ECTI" });
-    const diffused = await createTestMission({ publisherId: PUBLISHER_IDS.ECTI, statusCode: "ACCEPTED", organizationName: "Asso annonceur", addresses: [ADDRESS] });
-    const notDiffused = await createTestMission({ publisherId: PUBLISHER_IDS.BENEVOLT, statusCode: "ACCEPTED", organizationName: "Autre asso", addresses: [ADDRESS] });
+    const diffused = await createTestMission({ ...DESCRIPTION, publisherId: PUBLISHER_IDS.ECTI, statusCode: "ACCEPTED", organizationName: "Asso annonceur", addresses: [ADDRESS] });
+    const notDiffused = await createTestMission({
+      ...DESCRIPTION,
+      publisherId: PUBLISHER_IDS.BENEVOLT,
+      statusCode: "ACCEPTED",
+      organizationName: "Autre asso",
+      addresses: [ADDRESS],
+    });
     await scopeAndRebuild(PUBLISHER_IDS.ECTI);
 
     await handler.handle({});
