@@ -51,12 +51,12 @@ export const getExportState = async (key: string): Promise<ExportStateRecord | n
   });
 };
 
-export const updateExportState = async (key: string, cursorValue: string, cursorId?: string | null) => {
+export const updateExportState = async (key: string, cursorValue: string, cursorId?: string | null, client?: PoolClient) => {
   const formattedCursor = formatTimestamp(cursorValue);
   if (!formattedCursor) {
     return;
   }
-  await withAnalyticsClient(async (client) => {
+  const update = async (client: PoolClient) => {
     await ensureStateTable(client);
     await client.query(
       `
@@ -67,5 +67,10 @@ export const updateExportState = async (key: string, cursorValue: string, cursor
       `,
       [key, formattedCursor, cursorId ?? null]
     );
-  });
+  };
+  if (client) {
+    await update(client);
+  } else {
+    await withAnalyticsClient(update);
+  }
 };
