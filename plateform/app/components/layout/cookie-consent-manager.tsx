@@ -73,7 +73,7 @@ export default function CookieConsentManager() {
 
       {preferences && hasPendingChoice(services, preferences) && (
         <div className="fr-consent-banner">
-          <h2 className="fr-h6">À propos des cookies sur TrouveTaMission.gouv.fr</h2>
+          <h2 className="fr-h6">À propos des cookies sur la plateforme TrouveTaMission.gouv.fr</h2>
           <div className="fr-consent-banner__content">
             <p className="fr-text--sm">
               Bienvenue ! Ce site utilise des cookies pour mesurer la fréquentation du site afin d’en améliorer le fonctionnement et l’administration et, avec votre accord, pour

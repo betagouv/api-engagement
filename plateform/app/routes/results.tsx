@@ -136,12 +136,10 @@ export default function ResultsPage() {
   // Refaire le quiz repart toujours de la première question.
   const quizHref = QUIZ_FLOW[0].route;
 
-  // Carte mission affichée sur la map (desktop) : le survol d'un pin prévisualise la mission, le clic
-  // la fixe (boutons email + fermer). Le survol d'une carte de la liste n'affiche rien sur la map.
+  // Carte mission affichée sur la map (desktop) : uniquement au survol d'un pin, pour les infos décisionnelles.
+  // Le clic sur un pin ne l'affiche pas : il surligne la carte de la liste (pas de doublon liste / map).
   const hoveredPinMission = items.find((i) => i.mission.id === hoveredPinMissionId) ?? null;
-  const displayedMission = hoveredPinMission ?? selectedMission;
-  const displayedMissionRank = displayedMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === displayedMission.mission.id) + 1 : 0;
-  const cardIsFixed = displayedMission !== null && displayedMission.mission.id === selectedMission?.mission.id;
+  const hoveredPinMissionRank = hoveredPinMission ? (page - 1) * RESULTS_PAGE_SIZE + items.findIndex((i) => i.mission.id === hoveredPinMission.mission.id) + 1 : 0;
 
   const handleCollapseSheet = () => {
     if (selectedMission) setIsClosingCard(true);
@@ -346,56 +344,18 @@ export default function ResultsPage() {
               <div className="sticky top-6 max-h-156 flex-1">
                 {showMap && (
                   <div className="relative h-full overflow-hidden rounded-lg">
-                    <LazyMissionMap
-                      items={items}
-                      center={mapCenter}
-                      onMarkerClick={handleMarkerClick}
-                      selectionPadding={[350, 0]}
-                      activeMissionId={activeMissionId}
-                      onMissionHover={setHoveredPinMissionId}
-                    />
+                    <LazyMissionMap items={items} center={mapCenter} onMarkerClick={handleMarkerClick} activeMissionId={activeMissionId} onMissionHover={setHoveredPinMissionId} />
 
-                    {displayedMission && (
-                      <div className={`absolute top-4 left-4 z-500 w-[320px] ${cardIsFixed ? "" : "pointer-events-none"}`}>
-                        <div className="relative">
-                          <MatchMissionCard
-                            item={displayedMission}
-                            section="map"
-                            rank={displayedMissionRank}
-                            pageNumber={page}
-                            userScoringId={userScoringId}
-                            userValueKeys={userValueKeys}
-                          />
-                          {showDebug && cardIsFixed && <DebugButton missionId={displayedMission.mission.id} />}
-                          {cardIsFixed && (
-                            <div className="absolute right-3 top-3 z-10 flex items-center gap-2">
-                              <button
-                                type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setEmailMission({ missionId: displayedMission.mission.id, publisherId: displayedMission.mission.publisherId ?? "", rank: displayedMissionRank });
-                                }}
-                                aria-label="Recevoir par e-mail"
-                              >
-                                <i className="fr-icon-mail-send-line fr-icon--sm" aria-hidden="true" />
-                              </button>
-                              <button
-                                type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-full bg-background! shadow-md"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setSelectedMission(null);
-                                }}
-                                aria-label="Fermer la carte"
-                              >
-                                <i className="fr-icon-close-line fr-icon--sm" aria-hidden="true" />
-                              </button>
-                            </div>
-                          )}
-                        </div>
+                    {hoveredPinMission && (
+                      <div className="pointer-events-none absolute top-4 left-4 z-500 w-[320px]">
+                        <MatchMissionCard
+                          item={hoveredPinMission}
+                          section="map"
+                          rank={hoveredPinMissionRank}
+                          pageNumber={page}
+                          userScoringId={userScoringId}
+                          userValueKeys={userValueKeys}
+                        />
                       </div>
                     )}
                   </div>
