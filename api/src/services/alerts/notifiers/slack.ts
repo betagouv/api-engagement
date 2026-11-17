@@ -48,7 +48,7 @@ const field = (label: string, value: string) => ({ type: "mrkdwn", text: `*${lab
 // `handledBy` : prénom de la personne qui a changé le statut, affiché avec le statut.
 export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], handledBy?: string) => {
   const { emoji, label } = TYPE_LABELS[warning.type] ?? { emoji: "🚨", label: "Alerte" };
-  const publisher = escapeMrkdwn(truncate(warning.publisherName ?? "Annonceur", 200));
+  const publisher = escapeMrkdwn(truncate(warning.publisherName ?? "Partenaire", 200));
   const title = escapeMrkdwn(truncate(warning.title ?? label, 300));
   const item = warning.itemLabel ? escapeMrkdwn(truncate(warning.itemLabel, 200)) : null;
   const mentions = users.map((u) => (u.slackUserId ? `<@${u.slackUserId}>` : escapeMrkdwn(u.firstname))).join(", ");
@@ -72,7 +72,7 @@ export const buildAlertMessage = (warning: WarningRecord, users: UserRecord[], h
         type: "section",
         text: { type: "mrkdwn", text: [`*${title}*`, ...(warning.description ? [escapeMrkdwn(truncate(warning.description, 2000))] : [])].join("\n") },
         fields: [
-          field("Annonceur", publisher),
+          field("Partenaire", publisher),
           ...(item ? [field("Élément", item)] : []),
           field("Statut", status),
           field("Déclenchée le", formatDate(warning.createdAt)),
