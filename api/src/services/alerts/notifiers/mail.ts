@@ -16,7 +16,7 @@ export const mailNotifier: AlertNotifier = {
         emailTo: [user.email],
         // Une réponse à ce mail arrive sur /inbound-email (voir ../reply.ts) et résout l'alerte.
         ...(INBOUND_EMAIL_DOMAIN ? { replyTo: alertReplyAddress(warning.id, user.id) } : {}),
-        subject: `[Alerte] ${warning.publisherName ?? "Annonceur"} : ${warning.title ?? warning.type}${warning.itemLabel ? ` (${warning.itemLabel})` : ""}`,
+        subject: `[Alerte] ${warning.publisherName ?? "Partenaire"} : ${warning.title ?? warning.type}${warning.itemLabel ? ` (${warning.itemLabel})` : ""}`,
         params: {
           firstname: user.firstname,
           publisherName: warning.publisherName,
