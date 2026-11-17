@@ -9,6 +9,7 @@ export const SIGNUP_SOURCES = [
   "missions_newsletter",
   "cms_newsletter",
   "chacun_pour_tous_newsletter",
+  "landing_accompagnateurs",
 ] as const;
 
 export type SignupSource = (typeof SIGNUP_SOURCES)[number];

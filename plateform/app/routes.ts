@@ -46,6 +46,9 @@ export default [
   // (pas de « police » dans l'adresse).
   route("engagement-securite", "routes/landings/engagement-securite.tsx"),
 
+  // « J'accompagne des jeunes » : entrée dédiée aux accompagnateurs (conseillers, informateurs jeunesse, animateurs), inscription à l'avant-première de l'espace pro.
+  route("accompagnateurs", "routes/landings/accompagnateurs.tsx"),
+
   // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales), rendues depuis le contenu du CMS (cf. routes/cms-page.tsx).
   route("pages/:slug", "routes/cms-page.tsx"),
   // Outils internes affichés dans l'admin Strapi (iframe) : pas de header/footer (cf. root.tsx), non indexés.

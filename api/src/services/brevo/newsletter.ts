@@ -5,6 +5,7 @@ import { createOrUpdateContact } from "./contact";
 const RECOMMENDATION_USERS_BREVO_LIST_ID = 22; // « Produit - Utilisateurs recommandations »
 const NEWSLETTER_BREVO_LIST_ID = 23; // « Newsletter »
 const FUTURE_RECOMMENDATIONS_BREVO_LIST_ID = 26; // « Recommandations futures »
+const ACCOMPAGNATEURS_BREVO_LIST_ID = 27; // « Produit - Accompagnateurs »
 
 // Listes Brevo par publisher autorise sur la route /newsletter, alimentees selon le point d'entree de l'inscription.
 // `default` sert quand aucune source n'est fournie ou que le publisher n'a pas de listes dediees a cette source.
@@ -17,6 +18,7 @@ const NEWSLETTER_BREVO_LISTS_BY_PUBLISHER: Record<string, { default: number[] } 
     mission_detail: [RECOMMENDATION_USERS_BREVO_LIST_ID, NEWSLETTER_BREVO_LIST_ID, FUTURE_RECOMMENDATIONS_BREVO_LIST_ID],
     result_list: [NEWSLETTER_BREVO_LIST_ID, FUTURE_RECOMMENDATIONS_BREVO_LIST_ID],
     landing_page_reengagement_police_nationale: [NEWSLETTER_BREVO_LIST_ID, FUTURE_RECOMMENDATIONS_BREVO_LIST_ID],
+    landing_accompagnateurs: [ACCOMPAGNATEURS_BREVO_LIST_ID],
   },
 };
 
