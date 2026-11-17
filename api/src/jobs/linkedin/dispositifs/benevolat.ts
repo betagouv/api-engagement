@@ -40,5 +40,4 @@ export const annonceurs: DispositifDefinition = {
       PUBLISHER_IDS.ADIE,
     ],
   },
-  maxMissions: 50,
 };

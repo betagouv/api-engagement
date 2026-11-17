@@ -7,7 +7,7 @@ import { buildFeedXml } from "@/utils/xml";
 
 export { getMissionsCursor } from "@/utils/mission-cursor";
 
-/** Transforme les missions d'un dispositif en jobs (un par adresse). `maxMissions` du dispositif plafonne les missions diffusées. */
+/** Transforme les missions d'un dispositif en jobs (un par adresse). */
 export async function generateJobs(
   missionsCursor: AsyncIterable<MissionRecord>,
   dispositif: DispositifDefinition
@@ -19,9 +19,6 @@ export async function generateJobs(
   let sentMissions = 0;
 
   for await (const mission of missionsCursor) {
-    if (dispositif.maxMissions !== undefined && sentMissions >= dispositif.maxMissions) {
-      break;
-    }
     processed++;
     // Le filtre d'expiration ne s'applique qu'aux missions JVA.
     if (dispositif.skipExpired && mission.endAt && new Date(mission.endAt).getTime() < Date.now()) {
