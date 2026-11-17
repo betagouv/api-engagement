@@ -111,6 +111,11 @@ export const WARNINGS = {
     name: "Problème sur la récupération des attributes",
     advice: "Les attributs de tracking ne sont pas correctement récupérés. Nous vous conseillons de vérifier votre tracking.",
   },
+  FROZEN_FEED_WARNING: {
+    emoji: <span aria-hidden="true">🧊</span>,
+    name: "Flux figé",
+    advice: "Votre flux n’a pas évolué depuis plusieurs jours. Il s’agit peut-être d’un problème dans la mise à jour des données. Nous vous conseillons de vérifier votre flux.",
+  },
   OTHER_WARNING: {
     emoji: <span aria-hidden="true">🤔</span>,
     name: "Alerte",

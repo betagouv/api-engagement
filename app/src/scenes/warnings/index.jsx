@@ -24,6 +24,7 @@ const LINKS = {
   WIDGET_CONVERSION_WARNING: "/",
   API_WARNING: "/",
   ATTRIBUTES_TRACKING_WARNING: "/",
+  FROZEN_FEED_WARNING: "/announce?tab=settings",
 };
 
 const List = () => {
