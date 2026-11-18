@@ -6,8 +6,9 @@ export const SERVICE_TITLE = "TrouveTaMission.gouv.fr";
 export const SERVICE_TAGLINE = "Tout l’engagement public à portée de clic";
 
 export default function Header() {
-  // « Espace Accompagnateurs » : uniquement sur la homepage pour l'instant (ni quiz ni landings à destination des jeunes).
-  const showAccompagnateurs = useLocation().pathname === "/";
+  // « Espace Accompagnateurs » : uniquement sur la homepage et sa propre landing (ni quiz ni landings à destination des jeunes).
+  const { pathname } = useLocation();
+  const showAccompagnateurs = pathname === "/" || pathname === "/accompagnateurs";
   // Retour SIG : même header sur toutes les pages, quiz compris, en mobile comme en desktop.
   // Le DSFR passe le nom du service sous le bloc marque en mobile. Les liens « Retour » vivent dans les pages.
   return (
