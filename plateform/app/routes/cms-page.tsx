@@ -97,8 +97,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   );
 
   const result = { page, preview, missionsByBlock, missionDetailsByBlock, browsersByBlock };
-  // Preview : brouillon privé, jamais mis en cache (navigateur, CDN) ni indexé.
-  return preview ? data(result, { headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } }) : result;
+  // Preview : brouillon privé, jamais mis en cache (navigateur, CDN) ni indexé ; sans référent, pour que le secret de l'URL ne
+  // soit pas transmis à la page suivante (document.referrer, Sentry).
+  return preview ? data(result, { headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex", "Referrer-Policy": "no-referrer" } }) : result;
 }
 
 export default function CmsLanding() {
