@@ -30,7 +30,7 @@ const config: Core.Config.Middlewares = [
   "strapi::query",
   "strapi::body",
   "strapi::session",
-  { name: "strapi::favicon", config: { path: "favicon.ico" } },
+  { name: "strapi::favicon", config: { path: "public/favicon.ico" } },
   "strapi::public",
 ];
 
