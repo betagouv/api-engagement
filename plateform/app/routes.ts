@@ -40,8 +40,6 @@ export default [
   // souvent éphémères, elles restent identifiables et supprimables d'un bloc.
   // « Les défis de l'engagement » : programme dédié aux 16-18 ans.
   route("defis-engagement", "routes/landings/defis-engagement.tsx"),
-  // « Chacun pour tous » : campagne d'engagement tous publics.
-  route("chacun-pour-tous", "routes/landings/chacun-pour-tous.tsx"),
   // « Votre engagement peut se faire autrement » : réorientation des candidats non retenus à la réserve Police
   // (pas de « police » dans l'adresse).
   route("engagement-securite", "routes/landings/engagement-securite.tsx"),
@@ -49,8 +47,6 @@ export default [
   // « J'accompagne des jeunes » : entrée dédiée aux accompagnateurs (conseillers, informateurs jeunesse, animateurs), inscription à l'avant-première de l'espace pro.
   route("accompagnateurs", "routes/landings/accompagnateurs.tsx"),
 
-  // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales), rendues depuis le contenu du CMS (cf. routes/cms-page.tsx).
-  route("pages/:slug", "routes/cms-page.tsx"),
   // Outils internes affichés dans l'admin Strapi (iframe) : pas de header/footer (cf. root.tsx), non indexés.
   // Composants du CMS (exemples + champs).
   route("_cms/components", "routes/cms-components.tsx"),
@@ -66,4 +62,8 @@ export default [
   route("results/:userScoringId/missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-from-results" }),
   route("missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-standalone" }),
   route("missions", "routes/missions.tsx"),
+
+  // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales) servies à la racine, slug avec « / » possible.
+  // Splat en dernier recours : toute route ci-dessus l'emporte. Premiers segments réservés : cms/src/api/page/reserved-slugs.ts.
+  route("*", "routes/cms-page.tsx"),
 ] satisfies RouteConfig;

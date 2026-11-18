@@ -14,7 +14,7 @@ const CACHE_TTL_MS = 60_000;
 export const CMS_CACHE_MAX_ENTRIES = 200;
 const cache = new Map<string, { page: CmsPage; at: number }>();
 
-const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/;
 const SLUG_MAX_LENGTH = 80;
 
 // Strapi 5 ne peuple pas les composants imbriqués par défaut : un `populate` explicite par type de bloc.

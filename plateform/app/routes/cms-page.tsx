@@ -1,6 +1,6 @@
 import type { MissionBrowse, MissionBrowseFilters, MissionDetailResponse } from "@engagement/dto";
 import { useEffect, useRef } from "react";
-import { data, useLoaderData, useLocation, useNavigate } from "react-router";
+import { data, redirect, useLoaderData, useLocation, useNavigate } from "react-router";
 
 import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
 import { LOCATION_LABEL_PARAM, type Location } from "~/components/landings/location-filter";
@@ -20,7 +20,7 @@ import type { Route } from "./+types/cms-page";
 
 const MISSIONS_CTA = { to: "/quiz/age", label: "Trouver ma mission" };
 
-// POC : pages (landings, pages éditoriales) pilotées par le CMS, servies sous /pages/:slug.
+// POC : pages (landings, pages éditoriales) pilotées par le CMS, servies à la racine du site (route splat, slug avec « / » possible).
 export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescriptors {
   if (!loaderData) return [{ title: "Page introuvable" }];
   return pageMeta(location, {
@@ -33,7 +33,12 @@ export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescri
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const page = await getCmsPage(params.slug);
+  const { pathname } = new URL(request.url);
+  // Ancienne adresse /pages/<slug> et slash final : une seule URL par page.
+  const canonical = pathname.replace(/^\/pages(?=\/)/, "").replace(/(.)\/$/, "$1");
+  if (canonical !== pathname) throw redirect(canonical + new URL(request.url).search, 301);
+
+  const page = await getCmsPage(params["*"] ?? "");
   if (!page) throw data("Page introuvable", { status: 404 });
 
   const browse = async (filters: MissionBrowseFilters) => {
@@ -96,8 +101,8 @@ export default function CmsLanding() {
   // Dernière page tracée : le composant est réutilisé d'une page du CMS à l'autre, un booléen ignorerait la suivante.
   const trackedOrigin = useRef<string | null>(null);
 
-  // « chacun-pour-tous » → landing_chacun_pour_tous : mêmes évènements que la landing en code.
-  const origin = page.slug.replaceAll("-", "_");
+  // « chacun-pour-tous » → landing_chacun_pour_tous : évènements de la landing historique.
+  const origin = page.slug.replaceAll(/[-/]/g, "_");
   const landing: LandingName = `landing_${origin}`;
 
   useEffect(() => {

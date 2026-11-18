@@ -13,7 +13,7 @@
     },
     "backUrl": {
       "type": "string",
-      "description": "Lien « Retour » en haut de page (ex. : /pages/trouve-ta-caserne). Vide : pas de lien."
+      "description": "Lien « Retour » en haut de page (ex. : /trouve-ta-caserne). Vide : pas de lien."
     }
   }
 }

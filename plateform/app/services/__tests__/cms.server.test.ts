@@ -25,7 +25,7 @@ describe("getCmsPage", () => {
 
   it("ne sollicite pas le CMS pour un slug mal formé", async () => {
     const { getCmsPage } = await load();
-    for (const slug of ["../etc", "A B", "a/b", "-a", "a".repeat(81)]) {
+    for (const slug of ["../etc", "A B", "a//b", "a/", "/a", "a/../b", "-a", "a".repeat(81)]) {
       expect(await getCmsPage(slug)).toBeNull();
     }
     expect(fetchMock).not.toHaveBeenCalled();
