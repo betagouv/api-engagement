@@ -237,7 +237,9 @@ models:
     description: >
       Staging des valeurs extraites lors de l'enrichissement des missions depuis
       `analytics_raw.mission_enrichment_value`. Chaque ligne décrit une valeur de taxonomie détectée, sa confiance et
-      les éventuels éléments de preuve au format JSON.
+      les éventuels éléments de preuve au format JSON. Ne garde que le dernier passage de chaque enrichissement
+      (lignes au `created_at` maximal par `enrichment_id`) : l'export incrémental ne voit pas les suppressions de la
+      base core, les valeurs des passages précédents restent dans `analytics_raw`.
     columns:
       - name: id
         description: Identifiant unique de la valeur d'enrichissement.
@@ -304,7 +306,14 @@ models:
     description: >
       Staging des valeurs de scoring des missions par taxonomie exportées depuis
       `analytics_raw.mission_scoring_value`. Chaque ligne correspond au score d'une mission pour un couple
-      `taxonomy_key` / `value_key`, éventuellement relié à une valeur d'enrichissement.
+      `taxonomy_key` / `value_key`, éventuellement relié à une valeur d'enrichissement. Ne garde que le dernier
+      passage de chaque scoring (lignes au `created_at` maximal par `mission_scoring_id`) : l'export incrémental ne
+      voit pas les suppressions de la base core, les valeurs des passages précédents restent dans `analytics_raw`.
+      Écarte aussi, après ce filtre, les valeurs dont la valeur d'enrichissement n'est plus au dernier passage
+      (`mission_enrichment_value_id` absent de `stg_mission_enrichment_value`) : avant la v1.20.0, un
+      ré-enrichissement ne relançait pas le scoring et la base core les a supprimées par cascade. Les valeurs de
+      règles déterministes (`mission_enrichment_value_id` null) sont gardées. Un scoring dont il ne reste aucune
+      valeur n'apparaît pas, comme dans la base core.
     columns:
       - name: id
         description: Identifiant unique de la valeur de scoring mission.
@@ -320,12 +329,9 @@ models:
                 to: ref('stg_mission_scoring')
                 field: id
       - name: mission_enrichment_value_id
-        description: Identifiant de la valeur d'enrichissement ayant servi au scoring, si applicable.
-        tests:
-          - relationships:
-              arguments:
-                to: ref('stg_mission_enrichment_value')
-                field: id
+        description: >
+          Identifiant de la valeur d'enrichissement ayant servi au scoring, si applicable (null pour les règles
+          déterministes). Toujours présent dans `stg_mission_enrichment_value` : le modèle écarte les autres.
       - name: taxonomy_key
         description: Clé de la taxonomie scorée.
       - name: value_key
