@@ -1,5 +1,6 @@
 import { GTM_CONTAINER_ID, TRACKING_PROVIDER } from "~/services/config";
 import { useQuizStore } from "~/stores/quiz";
+import { isCmsPreviewLocation } from "~/utils/cms-preview";
 import { CAMPAIGN_UTM_KEYS, getCampaignParamsFromSearch, resolveActiveCampaign, type CampaignParams } from "~/utils/campaign-attribution";
 import { getInternalUserFlagAction, isInternalUserFlagEnabled, persistInternalUserFlagAction } from "~/utils/internal-user-flag";
 
@@ -27,7 +28,8 @@ function isBrowser(): boolean {
 }
 
 function getProviders(): TrackingProvider[] {
-  if (!isBrowser()) return [];
+  // Preview du CMS : aucun provider n'est initialisé (PostHog/GTM collecteraient l'URL, donc le secret).
+  if (!isBrowser() || isCmsPreviewLocation()) return [];
   if (!providers) {
     providers = [createProvider(TRACKING_PROVIDER as TrackingProviderName)];
     if (GTM_CONTAINER_ID) providers.push(createGtmProvider());

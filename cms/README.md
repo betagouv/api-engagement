@@ -87,7 +87,9 @@ Conventions et commandes : voir `AGENTS.md`. Si les dépendances changent, recr�
 
 ## Publication
 
-Il n'y a **pas de preview** : plateform ne lit que le contenu publié. Une page publiée est visible sur `/<slug>` après au plus 60 s (cache de plateform). Tant qu'elle n'est pas prête, la laisser en brouillon, ou la publier avec `noindex` pour ne pas l'exposer aux moteurs de recherche.
+**Preview** : dans l'éditeur d'une page, le panneau « Aperçu » (preview native de Strapi) affiche le brouillon en cours d'édition, rendu par plateform sur `/<slug>?preview=<secret>` (non mis en cache, `noindex`). Il faut enregistrer pour rafraîchir l'aperçu. Elle repose sur `CMS_PREVIEW_SECRET`, identique côté CMS et plateform (secret Terraform `CMS_PREVIEW_SECRET` ; sans lui la preview est désactivée). Le handler est dans `config/admin.ts`.
+
+Hors preview, plateform ne lit que le contenu publié : une page publiée est visible sur `/<slug>` après au plus 60 s (cache de plateform).
 
 ## Déploiement (Scaleway)
 

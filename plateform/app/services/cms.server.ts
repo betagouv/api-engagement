@@ -1,3 +1,6 @@
+import { createHash, timingSafeEqual } from "node:crypto";
+
+import { dropIncomplete } from "~/services/cms-components.server";
 import type { CmsPage } from "~/types/cms";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
@@ -6,6 +9,16 @@ const CMS_URL = process.env.CMS_URL || "http://localhost:1337";
 // Les médias sont chargés par le navigateur : URL publique du CMS (différente de CMS_URL dans Docker).
 export const CMS_PUBLIC_URL = process.env.CMS_PUBLIC_URL ?? CMS_URL;
 const CMS_API_TOKEN = process.env.CMS_API_TOKEN;
+// Secret de la preview (aperçu des brouillons depuis l'admin du CMS) : sans lui, la preview est désactivée.
+const CMS_PREVIEW_SECRET = process.env.CMS_PREVIEW_SECRET;
+
+export function isCmsPreview(searchParams: URLSearchParams): boolean {
+  const given = searchParams.get("preview");
+  if (!CMS_PREVIEW_SECRET || !given) return false;
+  const a = createHash("sha256").update(given).digest();
+  const b = createHash("sha256").update(CMS_PREVIEW_SECRET).digest();
+  return timingSafeEqual(a, b);
+}
 
 // Cache mémoire des pages publiées : évite un aller-retour CMS par visite et garde la page servie si le CMS est indisponible.
 // Seules les pages existantes y entrent (jamais un 404) et sa taille est bornée : le slug vient de l'URL, il ne doit pas
@@ -46,10 +59,15 @@ export function canonicalCmsPath(pathname: string): string {
     .replace(/^\/+/, "/");
 }
 
-// Contenu publié uniquement (pas de brouillon côté plateform).
-export async function getCmsPage(slug: string): Promise<CmsPage | null> {
+// Contenu publié, ou brouillon en preview (jamais mis en cache : l'éditeur doit voir sa dernière sauvegarde).
+export async function getCmsPage(slug: string, { draft = false } = {}): Promise<CmsPage | null> {
   // Un slug mal formé ne correspond à aucune page : inutile de solliciter le CMS.
   if (!CMS_API_TOKEN || slug.length > SLUG_MAX_LENGTH || !SLUG.test(slug)) return null;
+
+  if (draft) {
+    const page = await fetchCmsPage(slug, "draft");
+    return page && { ...page, blocks: dropIncomplete(page.blocks) };
+  }
 
   const cached = cache.get(slug);
   if (cached && Date.now() - cached.at < CACHE_TTL_MS) return cached.page;
@@ -73,8 +91,8 @@ function remember(slug: string, page: CmsPage) {
   if (cache.size > CMS_CACHE_MAX_ENTRIES) cache.delete(cache.keys().next().value!);
 }
 
-async function fetchCmsPage(slug: string): Promise<CmsPage | null> {
-  const query = `filters[slug][$eq]=${encodeURIComponent(slug)}&status=published&${POPULATE}`;
+async function fetchCmsPage(slug: string, status: "draft" | "published" = "published"): Promise<CmsPage | null> {
+  const query = `filters[slug][$eq]=${encodeURIComponent(slug)}&status=${status}&${POPULATE}`;
   const response = await fetch(`${CMS_URL}/api/pages?${query}`, {
     headers: { Authorization: `Bearer ${CMS_API_TOKEN}` },
     signal: AbortSignal.timeout(5000),

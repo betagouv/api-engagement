@@ -31,7 +31,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 - Dépendances : versions **exactes** dans `package.json` (pas de `^` ni `~`), lockfile à jour.
 - TypeScript (TS 5.9, version embarquée par Strapi, pas la 6.0 du reste du dépôt), ESLint et Prettier alignés sur le reste du dépôt (config Prettier racine, `printWidth: 180`).
 - Ajouter un bloc : schéma JSON dans `blocks/` (+ son élément dans `items/` s'il contient une liste) et entrée dans `page/schema.json` → type dans `plateform/app/types/cms.ts` → `POPULATE` → cas dans le registre plateform (voir `README.md`).
-- Pas de preview : plateform ne lit que le contenu publié. Le contenu se crée dans l'admin ; le seed ne sert qu'au développement local.
+- Preview des brouillons via `admin.preview` (`config/admin.ts`) + `?preview=<CMS_PREVIEW_SECRET>` côté plateform ; sinon plateform ne lit que le contenu publié. Le contenu se crée dans l'admin ; le seed ne sert qu'au développement local.
 - Textes éditoriaux : texte brut avec micro-balisage (`==surlignage==`, `[libellé](/chemin)`), jamais de HTML.
 - Scope de commit : `cms`.
 

@@ -203,6 +203,8 @@ resource "scaleway_container" "plateform" {
   secret_environment_variables = {
     "PUBLISHER_API_KEY" = lookup(local.secrets, "PLATEFORM_PUBLISHER_API_KEY", "")
     "CMS_API_TOKEN"     = lookup(local.secrets, "PLATEFORM_CMS_API_TOKEN", "")
+    # Même valeur que `CMS_PREVIEW_SECRET` côté CMS.
+    "CMS_PREVIEW_SECRET" = lookup(local.secrets, "CMS_PREVIEW_SECRET", "")
   }
 }
 

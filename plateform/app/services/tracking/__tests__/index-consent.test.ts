@@ -35,6 +35,16 @@ describe("orchestration du consentement tracking", () => {
 
   beforeEach(() => vi.clearAllMocks());
 
+  it("n'initialise aucun provider en preview du CMS (le secret est dans l'URL)", () => {
+    vi.stubGlobal("window", { location: { search: "?preview=secret" }, localStorage: {} });
+    initTracking();
+    track("page.viewed");
+
+    expect(trackingProvider.init).not.toHaveBeenCalled();
+    expect(trackingProvider.track).not.toHaveBeenCalled();
+    vi.stubGlobal("window", { location: { search: "" }, localStorage: {} });
+  });
+
   it("anonymise pendant l'attente et le refus puis identifie après accord", () => {
     initTracking();
     track("quiz.started", { quiz_attempt_id: "leaked-attempt", mission_id: "mission-id" });

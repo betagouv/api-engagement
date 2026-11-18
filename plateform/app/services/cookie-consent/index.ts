@@ -1,4 +1,5 @@
 import { applyGtmConsentPreferences } from "~/services/tracking/providers/gtm";
+import { isCmsPreviewLocation } from "~/utils/cms-preview";
 import { COOKIE_CONSENT_OPEN_EVENT, getConsentServices, type ConsentPreferences, type ConsentService } from "./config";
 import { isConsentChoice, parseCookieConsent as parseStoredConsent, readCookieConsent, writeCookieConsent } from "./storage";
 
@@ -19,6 +20,8 @@ export function getCookieConsentPreferences(cookieHeader: string = typeof docume
 }
 
 function applyConsentPreferences(preferences: ConsentPreferences, services: ConsentService[]): void {
+  // Preview du CMS : aucun script tiers (GTM, régies) ne doit s'exécuter dans une page dont l'URL porte le secret.
+  if (isCmsPreviewLocation()) return;
   const enabledPreferences = Object.fromEntries(services.map((service) => [service.id, preferences[service.id] ?? "pending"]));
   const gtmPreferences = Object.fromEntries(services.filter((service) => service.managedByGtm).map((service) => [service.id, enabledPreferences[service.id]]));
   let reloadRequired = applyGtmConsentPreferences(gtmPreferences);
