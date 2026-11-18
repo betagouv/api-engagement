@@ -46,7 +46,7 @@ export default function Header() {
                 <div className="fr-header__tools-links max-lg:block!">
                   <ul className="fr-btns-group">
                     <li>
-                      <Link to="/accompagnateurs" className="fr-btn fr-icon-team-line">
+                      <Link to="/accompagnateurs" className="fr-btn fr-icon-team-line" aria-current={pathname === "/accompagnateurs" ? "page" : undefined}>
                         Espace Accompagnateurs
                       </Link>
                     </li>
