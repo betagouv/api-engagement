@@ -1,5 +1,3 @@
-{{ config(materialized = 'view') }}
-
 select
   id,
   mission_scoring_id,
