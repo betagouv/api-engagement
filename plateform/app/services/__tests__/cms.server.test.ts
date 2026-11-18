@@ -25,7 +25,7 @@ describe("getCmsPage", () => {
 
   it("ne sollicite pas le CMS pour un slug mal formé", async () => {
     const { getCmsPage } = await load();
-    for (const slug of ["../etc", "A B", "a/b", "-a", "a".repeat(81)]) {
+    for (const slug of ["../etc", "A B", "a//b", "a/", "/a", "a/../b", "-a", "a".repeat(81)]) {
       expect(await getCmsPage(slug)).toBeNull();
     }
     expect(fetchMock).not.toHaveBeenCalled();
@@ -77,5 +77,21 @@ describe("getCmsPage", () => {
     const { getCmsPage } = await import("../cms.server");
     expect(await getCmsPage("a")).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("canonicalCmsPath", () => {
+  it("retire l'ancien préfixe /pages et le slash final", async () => {
+    const { canonicalCmsPath } = await load();
+    expect(canonicalCmsPath("/pages/sport")).toBe("/sport");
+    expect(canonicalCmsPath("/dispositif/service-civique/")).toBe("/dispositif/service-civique");
+    expect(canonicalCmsPath("/sport")).toBe("/sport");
+  });
+
+  it("ne produit jamais une URL absolue (redirection ouverte)", async () => {
+    const { canonicalCmsPath } = await load();
+    for (const path of ["/pages//example.org", "//example.org", "//example.org/", "/pages///example.org/x", "///example.org"]) {
+      expect(canonicalCmsPath(path)).toMatch(/^\/(?!\/)/);
+    }
   });
 });

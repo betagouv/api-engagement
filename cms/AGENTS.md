@@ -23,7 +23,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 
 - Les schémas JSON de `src/**` sont la **source de vérité** du contenu.
 - Les types lus par plateform vivent dans `plateform/app/types/cms.ts` (pas dans `@engagement/dto` : `cms/` n'en dépend pas) : tout changement de bloc ou de champ doit y être répercuté **dans la même PR**.
-- Rendu côté plateform : `plateform/app/routes/cms-page.tsx` (route `/pages/:slug`), `plateform/app/components/cms/index.tsx` (registre bloc → composant), `plateform/app/components/cms/rich-text.tsx` (texte riche) et `plateform/app/services/cms.server.ts` (requête, cache 60 s et `POPULATE` par bloc).
+- Rendu côté plateform : `plateform/app/routes/cms-page.tsx` (route splat `*`, slug à la racine ; premiers segments réservés dans `src/api/page/reserved-slugs.ts`), `plateform/app/components/cms/index.tsx` (registre bloc → composant), `plateform/app/components/cms/rich-text.tsx` (texte riche) et `plateform/app/services/cms.server.ts` (requête, cache 60 s et `POPULATE` par bloc).
 
 ## Conventions
 

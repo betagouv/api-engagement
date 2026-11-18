@@ -5,7 +5,7 @@
     "singularName": "page",
     "pluralName": "pages",
     "displayName": "Page",
-    "description": "Page composée de blocs (landing, page éditoriale…), rendue par plateform sur /cms/:slug."
+    "description": "Page composée de blocs (landing, page éditoriale…), rendue par plateform à la racine du site (/:slug, « / » autorisé : dispositif/service-civique)."
   },
   "options": {
     "draftAndPublish": true
@@ -17,9 +17,11 @@
       "required": true
     },
     "slug": {
-      "type": "uid",
-      "targetField": "title",
-      "required": true
+      "type": "string",
+      "required": true,
+      "unique": true,
+      "maxLength": 80,
+      "regex": "^[a-z0-9]+(-[a-z0-9]+)*(/[a-z0-9]+(-[a-z0-9]+)*)*$"
     },
     "seoTitle": {
       "type": "string",

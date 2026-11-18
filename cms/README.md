@@ -46,7 +46,7 @@ Côté `plateform` (hors Docker, Node ≥ 22.22) :
 cd plateform && CMS_URL=http://localhost:1337 CMS_API_TOKEN=dev-cms-read-token npx react-router dev
 ```
 
-La page du seed est rendue sur `/pages/chacun-pour-tous` (à comparer avec `/chacun-pour-tous`, la version en code). Plus généralement, une page publiée avec le slug `mon-slug` est rendue sur `/pages/mon-slug`. Hors seed, un jeton se crée dans l'admin : _Settings_ → _API Tokens_ → type _Read-only_.
+La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en code, le CMS est la seule source). Plus généralement, une page publiée avec le slug `mon-slug` est rendue sur `/mon-slug` (un `/` est permis : `dispositif/service-civique`) ; le premier segment ne peut pas être celui d'une route existante (`cms/src/api/page/reserved-slugs.ts`). Hors seed, un jeton se crée dans l'admin : _Settings_ → _API Tokens_ → type _Read-only_.
 
 ## Modèle de contenu
 
@@ -81,7 +81,7 @@ Conventions et commandes : voir `AGENTS.md`. Si les dépendances changent, recr�
 
 ## Publication
 
-Il n'y a **pas de preview** : plateform ne lit que le contenu publié. Une page publiée est visible sur `/pages/<slug>` après au plus 60 s (cache de plateform). Tant qu'elle n'est pas prête, la laisser en brouillon, ou la publier avec `noindex` pour ne pas l'exposer aux moteurs de recherche.
+Il n'y a **pas de preview** : plateform ne lit que le contenu publié. Une page publiée est visible sur `/<slug>` après au plus 60 s (cache de plateform). Tant qu'elle n'est pas prête, la laisser en brouillon, ou la publier avec `noindex` pour ne pas l'exposer aux moteurs de recherche.
 
 ## Déploiement (Scaleway)
 
@@ -105,7 +105,7 @@ Le CMS est **désactivé par défaut** (`enable_cms = false` dans `terraform/env
 4. **Activer** : `enable_cms = true` et `cms_hostname` renseigné dans `terraform/envs/<env>.tfvars`, puis merge : le pipeline construit l'image et applique Terraform.
 5. **Premier administrateur** : le formulaire de `/admin` crée le super-admin au premier accès. Le faire **immédiatement** après le déploiement (tant qu'aucun admin n'existe, n'importe qui joignant l'URL peut le créer).
 6. **Jeton de lecture de plateform** : _Settings_ → _API Tokens_ → type _Read-only_ ; copier sa valeur dans la clé `PLATEFORM_CMS_API_TOKEN` du secret, puis relancer le déploiement (plateform lit `CMS_URL` et `CMS_API_TOKEN`).
-7. **Contenu** : créer les pages dans l'admin, puis vérifier le rendu sur `https://<plateform>/pages/<slug>`.
+7. **Contenu** : créer les pages dans l'admin, puis vérifier le rendu sur `https://<plateform>/<slug>`.
 
 Production : mêmes étapes, après validation en staging.
 

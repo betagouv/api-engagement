@@ -2,7 +2,7 @@
   "name": "cms",
   "version": "0.1.0",
   "private": true,
-  "description": "CMS Strapi (POC) : landings et pages éditoriales de plateform.",
+  "description": "CMS Strapi : landings et pages éditoriales de plateform.",
   "scripts": {
     "dev": "strapi develop",
     "build": "strapi build",
