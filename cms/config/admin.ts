@@ -9,9 +9,13 @@ const previewConfig = (env: Core.Config.Shared.ConfigParams["env"]): Core.Config
     config: {
       allowedOrigins: [baseUrl],
       async handler(uid, { documentId, status }) {
-        if (uid !== "api::page.page") return null;
+        if (uid !== "api::page.page") {
+          return null;
+        }
         const page = await strapi.documents(uid).findOne({ documentId, status: status === "published" ? "published" : "draft", fields: ["slug"] });
-        if (!page?.slug) return null;
+        if (!page?.slug) {
+          return null;
+        }
         return `${baseUrl}/${page.slug}?preview=${encodeURIComponent(secret!)}`;
       },
     },
