@@ -9,6 +9,7 @@ const PROFESSIONNELS = [
   "Enseignant",
   "Animateur",
   "Mentor associatif",
+  "Parents",
 ];
 
 const ACCOMPAGNES = [
