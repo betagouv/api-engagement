@@ -18,6 +18,8 @@ const config: Core.Config.Middlewares = [
       contentSecurityPolicy: {
         useDefaults: true,
         directives: {
+          // Websocket du verrouillage d'édition (plugin record-locking).
+          "connect-src": ["'self'", "https:", "ws:", "wss:"],
           "img-src": ["'self'", "data:", "blob:", "https://market-assets.strapi.io", ...mediaSources],
           "media-src": ["'self'", "data:", "blob:", ...mediaSources],
           "frame-src": ["'self'", plateformUrl],
