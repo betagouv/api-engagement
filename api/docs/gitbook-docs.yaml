@@ -1,0 +1,15 @@
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  structure:
+    - type: space
+      key: documentation-produit
+      title: Documentation Produit
+      path: documentation-produit
+      content:
+        directory: null
+    - type: space
+      key: api-reference
+      title: API Reference
+      path: api-reference
+      content:
+        directory: ./
