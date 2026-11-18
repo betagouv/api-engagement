@@ -3,7 +3,7 @@ import { isDeepStrictEqual } from "node:util";
 
 const PAGE_UID = "api::page.page";
 const VERSION_UID = "api::page-version.page-version";
-const ACTIONS = ["create", "update", "publish"];
+const ACTIONS = ["create", "update", "publish", "discardDraft"];
 // Versions conservées par page.
 const MAX_VERSIONS = 50;
 
@@ -25,7 +25,7 @@ const clean = (value: unknown): unknown => {
   return value;
 };
 
-// Historise le brouillon de chaque page à chaque création, enregistrement ou publication (middleware du Document Service).
+// Historise le brouillon de chaque page à chaque création, enregistrement, publication ou abandon de brouillon (middleware du Document Service).
 export const registerPageHistory = (strapi: Core.Strapi) => {
   strapi.documents.use(async (context, next) => {
     const result = await next();
@@ -64,7 +64,9 @@ const saveVersion = async (strapi: Core.Strapi, documentId: string, action: stri
 
   const user = strapi.requestContext.get()?.state?.user as { firstname?: string; lastname?: string; email?: string } | undefined;
   const author = user ? [user.firstname, user.lastname].filter(Boolean).join(" ") || user.email : null;
-  await versions.create({ data: { pageDocumentId: documentId, title: String(snapshot.title ?? ""), action, author, snapshot } as never });
+  await versions.create({
+    data: { pageDocumentId: documentId, title: String(snapshot.title ?? ""), action: action === "discardDraft" ? "update" : action, author, snapshot } as never,
+  });
 
   const old = await versions.findMany({ filters: { pageDocumentId: documentId }, sort: "createdAt:desc", start: MAX_VERSIONS, fields: ["documentId"] });
   await Promise.all(old.map((version) => versions.delete({ documentId: version.documentId })));
