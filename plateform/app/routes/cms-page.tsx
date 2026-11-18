@@ -32,6 +32,11 @@ export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescri
   });
 }
 
+// Sans cet export, React Router n'envoie pas les en-têtes du loader (no-store, noindex de la preview) dans la réponse HTML.
+export function headers({ loaderHeaders }: Route.HeadersArgs) {
+  return loaderHeaders;
+}
+
 export async function loader({ request, params }: Route.LoaderArgs) {
   const { pathname, search } = new URL(request.url);
   // Ancienne adresse /pages/<slug> et slash final : une seule URL par page.
