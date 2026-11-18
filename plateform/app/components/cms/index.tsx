@@ -42,6 +42,8 @@ export type CmsBlocksContext = {
   browsersByBlock: Record<number, CmsBrowserResults>;
   // La page contient une liste de missions filtrable (le hero affiche alors la recherche par localisation).
   hasMissionsBrowser: boolean;
+  // Libellé des boutons « quiz » choisi dans le CMS pour la page ; null : libellés par défaut.
+  ctaLabel: string | null;
   onStartQuiz: (section: QuizEntrySection) => void;
   // Recherche par adresse du hero : ouvre la mission du dispositif la plus proche, sur son adresse la plus proche.
   onLocationSearch: (dispositif: string, location: Location) => Promise<void>;
@@ -76,13 +78,23 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           description={<InlineText text={block.description} />}
           hint={withQuiz ? (block.hint ?? undefined) : undefined}
           onStartQuiz={withQuiz ? () => context.onStartQuiz("hero") : undefined}
+          ctaLabel={context.ctaLabel ?? undefined}
           action={
             <>
-              {withActions && <HeroActions tags={block.tags} primary={primary} secondary={secondary} hint={block.hint} onStartQuiz={() => context.onStartQuiz("hero")} />}
+              {withActions && (
+                <HeroActions
+                  tags={block.tags}
+                  primary={primary}
+                  secondary={secondary}
+                  hint={block.hint}
+                  ctaLabel={context.ctaLabel ?? undefined}
+                  onStartQuiz={() => context.onStartQuiz("hero")}
+                />
+              )}
               {searchDispositif && (
                 <LocationFilter
                   id="hero-recherche"
-                  submitLabel={block.primaryLabel ?? "Trouve ta mission"}
+                  submitLabel={block.primaryLabel ?? context.ctaLabel ?? "Trouve ta mission"}
                   onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
                   className="mb-16 max-w-149 max-lg:hidden"
                 />
@@ -118,7 +130,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           <div className="fr-container relative z-20 -mt-8 lg:hidden">
             <LocationFilter
               id="hero-recherche-mobile"
-              submitLabel={block.primaryLabel ?? "Trouve ta mission"}
+              submitLabel={block.primaryLabel ?? context.ctaLabel ?? "Trouve ta mission"}
               onSearch={(location) => context.onLocationSearch(searchDispositif, location)}
             />
           </div>
@@ -170,6 +182,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         <Etapes
           etapes={block.items.map((item) => ({ ...item, icon: PICTOGRAMS[item.icon] }))}
           onStartQuiz={() => context.onStartQuiz("etapes")}
+          ctaLabel={context.ctaLabel ?? undefined}
           cta={block.ctaLabel && block.ctaUrl ? <HeroButton link={{ label: block.ctaLabel, url: block.ctaUrl }} className="fr-btn--secondary fr-btn--lg" /> : undefined}
         />
       );
@@ -177,6 +190,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       return (
         <Benefits
           title={<InlineText text={block.title} />}
+          intro={block.intro ?? undefined}
           benefices={block.benefits}
           newsletterTitle={<InlineText text={block.newsletterTitle} />}
           newsletterText={block.newsletterText}

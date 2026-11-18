@@ -6,18 +6,15 @@ CMS headless (Strapi 5, Community, Postgres) pour construire les **landing pages
 
 ```bash
 docker compose up -d cms                # Strapi + Postgres, admin sur http://localhost:1337/admin (1er démarrage : build des images)
-docker compose exec cms npm run seed          # dev uniquement : jeton de lecture + page « chacun-pour-tous »
+docker compose exec cms npm run seed          # dev uniquement : jeton de lecture de plateform
 docker compose exec cms npm run seed:pages    # dev uniquement : pages décrites dans cms/seed/pages/
 ```
 
 À la première visite de l'admin, créer un compte administrateur (local). Le contenu se crée ensuite dans l'interface : _Content Manager_ → **Page**.
 
-Le **seed** (`cms/scripts/seed.ts`) fait deux choses, et seulement en développement local (il refuse de tourner en production) :
+Le **seed** (`cms/scripts/seed.ts`) crée le jeton de lecture de plateform, de valeur fixe `dev-cms-read-token` (variable `CMS_API_TOKEN` du conteneur `cms`, hachée par Strapi), et seulement en développement local (il refuse de tourner en production).
 
-- il crée le jeton de lecture de plateform, de valeur fixe `dev-cms-read-token` (variable `CMS_API_TOKEN` du conteneur `cms`, hachée par Strapi) ;
-- il recrée la page `chacun-pour-tous` avec les blocs existants (hero, missions, étapes, bénéfices, cartes, histoires, questions, partenaires), à partir des images de `plateform/app/assets` (montées sur `/seed-assets`). Relancer le seed **écrase** cette page.
-
-Il a déjà été lancé sur les environnements : ne pas le modifier pour ajouter une page, passer par le **seed des pages** (`cms/scripts/seed-pages.ts`, dev uniquement lui aussi). Il recrée chaque page décrite dans `cms/seed/pages/` (un fichier JSON par page, au format de l'API : `title`, `slug`, champs SEO, `blocks` avec leur `__component`). Un média s'écrit `{ "upload": "logo/jva-logo.png", "alternativeText": "…" }`, chemin relatif à `cms/seed/images/`. Relancer le seed **écrase** les pages concernées ; `npm run seed:pages -- <slug>` n'en recrée qu'une.
+Pour ajouter une page, passer par le **seed des pages** (`cms/scripts/seed-pages.ts`, dev uniquement lui aussi). Il recrée chaque page décrite dans `cms/seed/pages/` (un fichier JSON par page, au format de l'API : `title`, `slug`, champs SEO, `blocks` avec leur `__component`). Un média s'écrit `{ "upload": "logo/jva-logo.png", "alternativeText": "…" }`, chemin relatif à `cms/seed/images/`. Relancer le seed **écrase** les pages concernées ; `npm run seed:pages -- <slug>` n'en recrée qu'une.
 
 Pour ajouter une page de dev : créer `cms/seed/pages/<slug>.json` (s'inspirer de `trouve-ta-caserne.json`), déposer ses images dans `cms/seed/images/`, puis lancer `npm run seed:pages`.
 
@@ -50,7 +47,7 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
 
 ## Modèle de contenu
 
-- `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
+- `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`), libellé des boutons « quiz » (`ctaLabel`, ex. « Trouvez votre mission » pour une page au vouvoiement ; vide : libellés par défaut) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
 - **`src/components/blocks/`** : les sections qu'un éditeur ajoute à une page (les seuls composants proposés dans la zone `blocks`).
   - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images) et `image` (image + légende).
   - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `testimonials`, `faq`, `accordion` (FAQ en accordéon), `partners`.

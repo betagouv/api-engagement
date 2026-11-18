@@ -62,7 +62,7 @@ export type CmsBlock =
   | { __component: "blocks.rich-text"; title: string | null; body: CmsRichTextNode[] }
   | { __component: "blocks.image"; image: CmsMedia; caption: string | null }
   | { __component: "blocks.etapes"; items: { icon: string; title: string; description: string }[]; ctaLabel?: string | null; ctaUrl?: string | null }
-  | { __component: "blocks.benefits"; title: string; benefits: { emoji: string; label: string }[]; newsletterTitle: string; newsletterText: string }
+  | { __component: "blocks.benefits"; title: string; intro: string | null; benefits: { emoji: string; label: string }[]; newsletterTitle: string; newsletterText: string }
   | { __component: "blocks.cards"; title: string; cards: { icon: string; title: string; points: string }[] }
   | { __component: "blocks.stories"; title: string; intro: string | null; stories: { image: CmsMedia; domain: string; story: string; publisher: string; logo: CmsMedia }[] }
   | { __component: "blocks.testimonials"; testimonials: { image: CmsMedia; quote: string; name: string; role: string }[] }
@@ -88,5 +88,6 @@ export type CmsPage = {
   ogTitle: string | null;
   ogDescription: string | null;
   noindex: boolean;
+  ctaLabel: string | null;
   blocks: CmsBlock[];
 };

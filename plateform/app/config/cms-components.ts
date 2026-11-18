@@ -204,6 +204,7 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     block: {
       __component: "blocks.benefits",
       title: "Ce que l'engagement\nt'apporte",
+      intro: "Une mission peut t'apporter\u00a0:",
       benefits: [
         { emoji: "🤝", label: "Des rencontres" },
         { emoji: "💪", label: "De nouvelles compétences" },

@@ -6,6 +6,7 @@
   "ogTitle": "Chacun pour tous",
   "ogDescription": "En France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Et vous ?",
   "noindex": true,
+  "ctaLabel": "Trouvez votre mission",
   "blocks": [
     {
       "__component": "blocks.hero",
@@ -30,6 +31,7 @@
     {
       "__component": "blocks.benefits",
       "title": "Bon pour vous,\nutile pour tous",
+      "intro": "Une mission peut vous apporter\u00a0:",
       "benefits": [
         { "emoji": "🎓", "label": "Une expérience à valoriser" },
         { "emoji": "💼", "label": "De nouvelles compétences" },

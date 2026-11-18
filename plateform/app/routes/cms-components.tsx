@@ -25,6 +25,7 @@ const CONTEXT: CmsBlocksContext = {
   missionDetailsByBlock: { 0: CMS_COMPONENT_MISSION_DETAIL },
   browsersByBlock: { 0: { missions: CMS_COMPONENT_MISSIONS, total: CMS_COMPONENT_MISSIONS.length, page: 1 } },
   hasMissionsBrowser: false,
+  ctaLabel: null,
   onStartQuiz: () => {},
   onLocationSearch: async () => {},
   missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
