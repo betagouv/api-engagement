@@ -72,6 +72,12 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
 - Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
 - Texte riche (`rich-text`) : éditeur « Blocks » de Strapi (sans tableaux). « Titre 1 » donne un h2 (le h1 est le titre de la page), « Titre 2 » un h3, etc. Le texte alternatif des images se renseigne dans la médiathèque ; sans lui, l'image est décorative.
 
+## Historique des pages
+
+Un instantané du brouillon est enregistré dans `page-version` à chaque création, enregistrement ou publication d'une page (middleware du Document Service dans `src/history.ts`, 50 versions conservées par page, pas de doublon si rien n'a changé). Le panneau « Historique » de la page (`src/admin/components/page-history-panel.tsx`) liste les versions et restaure l'une d'elles dans le brouillon ; la publication reste manuelle.
+
+`page-version` n'a pas de route d'API : elle n'est lisible que depuis l'admin. Donner aux rôles éditeurs uniquement le droit de **lecture** sur ce type (Paramètres › Rôles), sinon ils pourraient modifier les instantanés.
+
 ## Ajouter un bloc
 
 1. Schéma JSON dans `src/components/blocks/` (et, s'il contient une liste, son élément dans `src/components/items/`) + l'ajouter à `blocks` dans `src/api/page/content-types/page/schema.json`.
