@@ -78,3 +78,30 @@ export const getBlockSchema = (uid: string): CmsComponentSchema | null => {
   if (!schema) return null;
   return { displayName: schema.info.displayName, description: schema.info.description ?? null, fields: toFields(schema) };
 };
+
+// Strapi n'impose les champs obligatoires qu'à la publication : un brouillon peut contenir un média manquant, que les composants
+// lisent sans garde (`image.url`). D'après les schémas, on écarte le bloc (ou l'élément de liste) dont un média obligatoire est vide,
+// pour que l'aperçu reste affichable pendant la rédaction.
+// ponytail : seuls les médias obligatoires sont traités ; un texte obligatoire vide rend un bloc vide, sans erreur.
+type Unit = Record<string, unknown>;
+
+const hasRequiredMedia = (schema: StrapiComponent, unit: Unit) =>
+  Object.entries(schema.attributes).every(([name, attribute]) => attribute.type !== "media" || !attribute.required || Boolean(unit[name]));
+
+function cleanUnit(schema: StrapiComponent, unit: Unit): Unit {
+  const cleaned = { ...unit };
+  for (const [name, attribute] of Object.entries(schema.attributes)) {
+    const items = unit[name];
+    const child = attribute.type === "component" && Array.isArray(items) ? getSchema(attribute.component!) : undefined;
+    if (child) cleaned[name] = (items as Unit[]).filter((item) => hasRequiredMedia(child, item)).map((item) => cleanUnit(child, item));
+  }
+  return cleaned;
+}
+
+export function dropIncompleteMedia<T extends { __component: string }>(blocks: T[]): T[] {
+  return blocks.flatMap((block) => {
+    const schema = getSchema(block.__component);
+    if (!schema) return [block];
+    return hasRequiredMedia(schema, block) ? [cleanUnit(schema, block) as T] : [];
+  });
+}

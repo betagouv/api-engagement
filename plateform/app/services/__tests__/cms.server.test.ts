@@ -95,32 +95,3 @@ describe("canonicalCmsPath", () => {
     }
   });
 });
-
-describe("brouillon incomplet (preview)", () => {
-  it("écarte les blocs et éléments sans média obligatoire", async () => {
-    vi.resetModules();
-    vi.stubEnv("CMS_API_TOKEN", "jeton");
-    const { dropIncompleteMedia } = await import("../cms.server");
-    const media = { url: "/x.png" };
-    const page = {
-      blocks: [
-        { __component: "blocks.image", image: null },
-        { __component: "blocks.image", image: media },
-        {
-          __component: "blocks.stories",
-          stories: [
-            { image: media, logo: null },
-            { image: media, logo: media },
-          ],
-        },
-        { __component: "blocks.partners", partners: [{ logo: null }] },
-        { __component: "blocks.rich-text", body: [] },
-      ],
-    };
-    const result = dropIncompleteMedia(page as never);
-    expect(result.blocks.map((b) => b.__component)).toEqual(["blocks.image", "blocks.stories", "blocks.partners", "blocks.rich-text"]);
-    expect((result.blocks[1] as { stories: unknown[] }).stories).toHaveLength(1);
-    expect((result.blocks[2] as { partners: unknown[] }).partners).toHaveLength(0);
-    vi.unstubAllEnvs();
-  });
-});

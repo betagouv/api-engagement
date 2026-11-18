@@ -1,6 +1,7 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
-import type { CmsBlock, CmsPage } from "~/types/cms";
+import { dropIncompleteMedia } from "~/services/cms-components.server";
+import type { CmsPage } from "~/types/cms";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
 // Sans CMS_API_TOKEN, le CMS est considéré comme non configuré (ex. environnement sans CMS) : les landings répondent 404.
@@ -65,7 +66,7 @@ export async function getCmsPage(slug: string, { draft = false } = {}): Promise<
 
   if (draft) {
     const page = await fetchCmsPage(slug, "draft");
-    return page && dropIncompleteMedia(page);
+    return page && { ...page, blocks: dropIncompleteMedia(page.blocks) };
   }
 
   const cached = cache.get(slug);
@@ -105,27 +106,3 @@ async function fetchCmsPage(slug: string, status: "draft" | "published" = "publi
 // Les médias sont servis par le CMS : on rend leurs URLs absolues (seuls les `/uploads/` sont concernés).
 const absolutizeMedia = <T>(value: T): T =>
   JSON.parse(JSON.stringify(value), (key, v) => (key === "url" && typeof v === "string" && v.startsWith("/uploads/") ? `${CMS_PUBLIC_URL}${v}` : v));
-
-// Strapi n'impose les champs obligatoires qu'à la publication : un brouillon peut contenir un média manquant, que les composants
-// lisent sans garde (`image.url`). On écarte ces blocs / éléments pour que l'aperçu reste affichable pendant la rédaction.
-// ponytail : seuls les médias obligatoires sont traités ; les textes vides rendent un bloc vide, sans erreur.
-export function dropIncompleteMedia(page: CmsPage): CmsPage {
-  const has = <T extends object>(item: T, ...keys: (keyof T)[]) => keys.every((key) => item[key]);
-  const blocks = page.blocks.flatMap((block): CmsBlock[] => {
-    switch (block.__component) {
-      case "blocks.image":
-        return has(block, "image") ? [block] : [];
-      case "blocks.stories":
-        return [{ ...block, stories: block.stories.filter((story) => has(story, "image", "logo")) }];
-      case "blocks.testimonials":
-        return [{ ...block, testimonials: block.testimonials.filter((item) => has(item, "image")) }];
-      case "blocks.quote-wall":
-        return [{ ...block, quotes: block.quotes.filter((item) => has(item, "image")) }];
-      case "blocks.partners":
-        return [{ ...block, partners: block.partners.filter((item) => has(item, "logo")) }];
-      default:
-        return [block];
-    }
-  });
-  return { ...page, blocks };
-}
