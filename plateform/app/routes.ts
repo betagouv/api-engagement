@@ -63,7 +63,7 @@ export default [
   route("missions/:missionId", "routes/mission-detail.tsx", { id: "mission-detail-standalone" }),
   route("missions", "routes/missions.tsx"),
 
-  // POC CMS (Strapi) : pages composées de blocs (landings, pages éditoriales) servies à la racine, slug avec « / » possible.
+  // CMS (Strapi) : pages composées de blocs (landings, pages éditoriales) servies à la racine, slug avec « / » possible.
   // Splat en dernier recours : toute route ci-dessus l'emporte. Premiers segments réservés : cms/src/api/page/reserved-slugs.ts.
   route("*", "routes/cms-page.tsx"),
 ] satisfies RouteConfig;
