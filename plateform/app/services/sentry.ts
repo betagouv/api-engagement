@@ -1,8 +1,10 @@
 import * as Sentry from "@sentry/react";
 import { isRouteErrorResponse, type ClientOnErrorFunction } from "react-router";
 import { ENV, SENTRY_DSN } from "~/services/config";
+import { isCmsPreviewLocation } from "~/utils/cms-preview";
 
-const isSentryEnabled = ENV !== "development" && Boolean(SENTRY_DSN);
+// Désactivé en preview du CMS : les évènements embarquent l'URL complète, donc le secret.
+const isSentryEnabled = ENV !== "development" && Boolean(SENTRY_DSN) && !isCmsPreviewLocation();
 
 let isSentryInitialized = false;
 
