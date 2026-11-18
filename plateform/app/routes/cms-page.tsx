@@ -4,7 +4,7 @@ import { data, redirect, useLoaderData, useLocation, useNavigate } from "react-r
 
 import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
 import { LOCATION_LABEL_PARAM, type Location } from "~/components/landings/location-filter";
-import { getCmsPage } from "~/services/cms.server";
+import { getCmsPage, isCmsPreview } from "~/services/cms.server";
 import { browseMissions, getMissionDetail } from "~/services/api/missions";
 import { browseMissions as browseMissionsFromClient } from "~/services/mission-browse";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -28,7 +28,7 @@ export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescri
     description: loaderData.page.seoDescription ?? undefined,
     ogTitle: loaderData.page.ogTitle ?? undefined,
     ogDescription: loaderData.page.ogDescription ?? undefined,
-    robots: loaderData.page.noindex ? "noindex, follow" : undefined,
+    robots: loaderData.preview || loaderData.page.noindex ? "noindex, follow" : undefined,
   });
 }
 
@@ -38,7 +38,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   const canonical = pathname.replace(/^\/pages(?=\/)/, "").replace(/(.)\/$/, "$1");
   if (canonical !== pathname) throw redirect(canonical + new URL(request.url).search, 301);
 
-  const page = await getCmsPage(params["*"] ?? "");
+  const preview = isCmsPreview(new URL(request.url).searchParams);
+  const page = await getCmsPage(params["*"] ?? "", { draft: preview });
   if (!page) throw data("Page introuvable", { status: 404 });
 
   const browse = async (filters: MissionBrowseFilters) => {
@@ -90,7 +91,9 @@ export async function loader({ request, params }: Route.LoaderArgs) {
     }),
   );
 
-  return { page, missionsByBlock, missionDetailsByBlock, browsersByBlock };
+  const result = { page, preview, missionsByBlock, missionDetailsByBlock, browsersByBlock };
+  // Preview : brouillon privé, jamais mis en cache (navigateur, CDN) ni indexé.
+  return preview ? data(result, { headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" } }) : result;
 }
 
 export default function CmsLanding() {

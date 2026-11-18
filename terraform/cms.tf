@@ -84,7 +84,9 @@ resource "scaleway_container" "cms" {
     "TRANSFER_TOKEN_SALT" = lookup(local.secrets, "CMS_TRANSFER_TOKEN_SALT", "")
     "ENCRYPTION_KEY"      = lookup(local.secrets, "CMS_ENCRYPTION_KEY", "")
     "JWT_SECRET"          = lookup(local.secrets, "CMS_JWT_SECRET", "")
-    "DATABASE_URL"        = lookup(local.secrets, "DATABASE_URL_CMS", "")
+    # Optionnel : sans lui, la preview des brouillons est désactivée.
+    "CMS_PREVIEW_SECRET" = lookup(local.secrets, "CMS_PREVIEW_SECRET", "")
+    "DATABASE_URL"       = lookup(local.secrets, "DATABASE_URL_CMS", "")
     # Clés Object Storage déjà utilisées par l'API pour son bucket.
     "SCW_ACCESS_KEY" = local.secrets.SCW_ACCESS_KEY
     "SCW_SECRET_KEY" = local.secrets.SCW_SECRET_KEY
