@@ -74,7 +74,7 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
 
 ## Historique des pages
 
-Un instantané du brouillon est enregistré dans `page-version` à chaque création, enregistrement ou publication d'une page (middleware du Document Service dans `src/history.ts`, 50 versions conservées par page, pas de doublon si rien n'a changé). Le panneau « Historique » de la page (`src/admin/components/page-history-panel.tsx`) liste les versions et restaure l'une d'elles dans le brouillon ; la publication reste manuelle.
+Un instantané du brouillon est enregistré dans `page-version` à chaque création, enregistrement ou publication d'une page (middleware du Document Service dans `src/history.ts`, 50 versions conservées par page, pas de doublon si rien n'a changé). Le panneau « Historique » de la page (`src/admin/components/page-history.tsx`) ouvre une modale qui liste les versions (regroupées par mois, filtre « Publications », pastille par auteur) et restaure l'une d'elles dans le brouillon ; la publication reste manuelle.
 
 `page-version` n'a pas de route d'API : elle n'est lisible que depuis l'admin. Donner aux rôles éditeurs uniquement le droit de **lecture** sur ce type (Paramètres › Rôles), sinon ils pourraient modifier les instantanés.
 
