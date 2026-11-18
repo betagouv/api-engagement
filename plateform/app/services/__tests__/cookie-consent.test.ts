@@ -53,4 +53,12 @@ describe("consentement cookies", () => {
     expect(tracking.setTrackingConsentStatus).toHaveBeenCalledWith("denied");
     expect(tracking.initTracking).toHaveBeenCalledOnce();
   });
+
+  it("n'applique aucun consentement (GTM, régies) en preview du CMS", () => {
+    vi.stubGlobal("window", { location: { protocol: "https:", search: "?preview=secret" } });
+    saveCookieConsent({ posthog: "granted" });
+
+    expect(tracking.setTrackingConsentStatus).not.toHaveBeenCalled();
+    expect(tracking.initTracking).not.toHaveBeenCalled();
+  });
 });

@@ -1,6 +1,6 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 
-import { dropIncompleteMedia } from "~/services/cms-components.server";
+import { dropIncomplete } from "~/services/cms-components.server";
 import type { CmsPage } from "~/types/cms";
 
 // Client serveur du CMS (Strapi) : lit les landings depuis les loaders SSR. Jamais importé côté navigateur (`.server`).
@@ -66,7 +66,7 @@ export async function getCmsPage(slug: string, { draft = false } = {}): Promise<
 
   if (draft) {
     const page = await fetchCmsPage(slug, "draft");
-    return page && { ...page, blocks: dropIncompleteMedia(page.blocks) };
+    return page && { ...page, blocks: dropIncomplete(page.blocks) };
   }
 
   const cached = cache.get(slug);
