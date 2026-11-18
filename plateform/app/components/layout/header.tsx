@@ -6,7 +6,7 @@ export const SERVICE_TITLE = "TrouveTaMission.gouv.fr";
 export const SERVICE_TAGLINE = "Tout l’engagement public à portée de clic";
 
 export default function Header() {
-  // « Espace Accompagnateurs » : uniquement sur la homepage et sa propre landing (ni quiz ni landings à destination des jeunes).
+  // « Espace Accompagnateurs » : uniquement sur la homepage et sa propre landing (ni quiz ni landings à destination des jeunes), desktop uniquement.
   const { pathname } = useLocation();
   const showAccompagnateurs = pathname === "/" || pathname === "/accompagnateurs";
   // Retour SIG : même header sur toutes les pages, quiz compris, en mobile comme en desktop.
@@ -15,7 +15,7 @@ export default function Header() {
     <header role="banner" className="fr-header">
       <div className="fr-header__body">
         <div className="fr-container">
-          <div className="fr-header__body-row max-lg:flex-wrap!">
+          <div className="fr-header__body-row">
             <div className="fr-header__brand fr-enlarge-link">
               <div className="fr-header__brand-top">
                 <div className="fr-header__logo">
@@ -41,9 +41,9 @@ export default function Header() {
               </div>
             </div>
             {showAccompagnateurs && (
-              <div className="fr-header__tools max-lg:w-full">
-                {/* Le DSFR masque `fr-header__tools-links` sous `lg` (il l'attend dupliqué dans un menu burger, absent ici) : on le garde visible. */}
-                <div className="fr-header__tools-links max-lg:block!">
+              <div className="fr-header__tools">
+                {/* Masqué sous `lg` par le DSFR (il l'attend dupliqué dans un menu burger, absent ici) : visible en desktop uniquement en attendant une vraie navigation. */}
+                <div className="fr-header__tools-links">
                   <ul className="fr-btns-group">
                     <li>
                       <Link to="/accompagnateurs" className="fr-btn fr-icon-team-line" aria-current={pathname === "/accompagnateurs" ? "page" : undefined}>
