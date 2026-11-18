@@ -79,3 +79,19 @@ describe("getCmsPage", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+describe("canonicalCmsPath", () => {
+  it("retire l'ancien préfixe /pages et le slash final", async () => {
+    const { canonicalCmsPath } = await load();
+    expect(canonicalCmsPath("/pages/sport")).toBe("/sport");
+    expect(canonicalCmsPath("/dispositif/service-civique/")).toBe("/dispositif/service-civique");
+    expect(canonicalCmsPath("/sport")).toBe("/sport");
+  });
+
+  it("ne produit jamais une URL absolue (redirection ouverte)", async () => {
+    const { canonicalCmsPath } = await load();
+    for (const path of ["/pages//example.org", "//example.org", "//example.org/", "/pages///example.org/x", "///example.org"]) {
+      expect(canonicalCmsPath(path)).toMatch(/^\/(?!\/)/);
+    }
+  });
+});

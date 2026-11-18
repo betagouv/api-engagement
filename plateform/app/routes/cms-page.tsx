@@ -4,7 +4,7 @@ import { data, redirect, useLoaderData, useLocation, useNavigate } from "react-r
 
 import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
 import { LOCATION_LABEL_PARAM, type Location } from "~/components/landings/location-filter";
-import { getCmsPage } from "~/services/cms.server";
+import { canonicalCmsPath, getCmsPage } from "~/services/cms.server";
 import { browseMissions, getMissionDetail } from "~/services/api/missions";
 import { browseMissions as browseMissionsFromClient } from "~/services/mission-browse";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -33,10 +33,10 @@ export function meta({ loaderData, location }: Route.MetaArgs): Route.MetaDescri
 }
 
 export async function loader({ request, params }: Route.LoaderArgs) {
-  const { pathname } = new URL(request.url);
+  const { pathname, search } = new URL(request.url);
   // Ancienne adresse /pages/<slug> et slash final : une seule URL par page.
-  const canonical = pathname.replace(/^\/pages(?=\/)/, "").replace(/(.)\/$/, "$1");
-  if (canonical !== pathname) throw redirect(canonical + new URL(request.url).search, 301);
+  const canonical = canonicalCmsPath(pathname);
+  if (canonical !== pathname) throw redirect(canonical + search, 301);
 
   const page = await getCmsPage(params["*"] ?? "");
   if (!page) throw data("Page introuvable", { status: 404 });
