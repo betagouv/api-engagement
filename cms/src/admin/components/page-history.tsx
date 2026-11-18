@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Modal, SingleSelect, SingleSelectOption, Status, Typography } from "@strapi/design-system";
+import { Badge, Box, Button, Flex, Modal, SingleSelect, SingleSelectOption, Status, Typography } from "@strapi/design-system";
 import { ClockCounterClockwise } from "@strapi/icons";
 import { useFetchClient, useNotification } from "@strapi/strapi/admin";
 import { useCallback, useEffect, useState } from "react";
@@ -33,12 +33,8 @@ const Row = ({ version, current, restoring, onRestore }: { version: Version; cur
               {published ? "Publiée" : "Brouillon"}
             </Typography>
           </Status>
+          {current && <Badge active>Version actuelle</Badge>}
         </Flex>
-        {current && (
-          <Typography variant="pi" textColor="primary600" fontWeight="bold" tag="p">
-            Version actuelle
-          </Typography>
-        )}
         <Flex gap={2} alignItems="center">
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: authorColor(version.author) }} />
           <Typography variant="pi" tag="span">
