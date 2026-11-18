@@ -40,15 +40,13 @@ export default function Benefices() {
           Pourquoi parler d'engagement aux personnes que vous accompagnez ?
         </h2>
         <p className="text-default-grey mx-auto! mb-10! max-w-225 text-center text-lg!">
-          Face à l'urgence de la formation, de l'orientation, de l'emploi ou du revenu, on n'y pense pas toujours. Pourtant, une mission d'engagement peut beaucoup pour une personne
-          en construction de projet.
+          Face à l'urgence de la formation, de l'orientation, de l'emploi ou du revenu, on n'y pense pas toujours. Pourtant, une mission d'engagement peut beaucoup pour une
+          personne en construction de projet.
         </p>
         <ul className="m-0! grid list-none! gap-6 p-0! lg:grid-cols-3">
           {BENEFICES.map((b) => (
             <li key={b.title} className="border-border-default-grey bg-background flex flex-col gap-3 rounded-lg border p-7! lg:min-h-121">
-              <span className={`flex size-16 shrink-0 items-center justify-center rounded-[28px] ${b.bg}`}>
-                {b.icon}
-              </span>
+              <span className={`flex size-16 shrink-0 items-center justify-center rounded-[28px] ${b.bg}`}>{b.icon}</span>
               <h3 className="fr-h5 mb-0! lg:min-h-14">{b.title}</h3>
               <p className="text-default-grey mb-0! text-[15px]! leading-normal! lg:min-h-21">{b.description}</p>
               <div className="pt-1 lg:min-h-15.25">

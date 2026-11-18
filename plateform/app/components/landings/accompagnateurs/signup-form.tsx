@@ -3,7 +3,7 @@ import { type SubmitEvent, useState } from "react";
 import { subscribeNewsletter } from "~/services/newsletter";
 import { useQuizStore } from "~/stores/quiz";
 
-export const SIGNUP_EMAIL_ID = "accompagnateurs-email";
+const SIGNUP_EMAIL_ID = "accompagnateurs-email";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MESSAGE_EMPTY = "Renseignez votre adresse e-mail pour recevoir un accès en avant-première à votre compte pro";
