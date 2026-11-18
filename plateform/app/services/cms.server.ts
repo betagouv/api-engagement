@@ -49,6 +49,15 @@ const POPULATE = [
   "populate[blocks][on][blocks.quote-wall][populate][quotes][populate]=*",
 ].join("&");
 
+// URL unique d'une page : sans l'ancien préfixe /pages, sans slash final. Les « / » de tête sont réduits à un seul, sinon
+// « //hote.tld » serait lu comme une URL absolue par le navigateur (redirection ouverte).
+export function canonicalCmsPath(pathname: string): string {
+  return pathname
+    .replace(/^\/pages(?=\/)/, "")
+    .replace(/(.)\/$/, "$1")
+    .replace(/^\/+/, "/");
+}
+
 // Contenu publié, ou brouillon en preview (jamais mis en cache : l'éditeur doit voir sa dernière sauvegarde).
 export async function getCmsPage(slug: string, { draft = false } = {}): Promise<CmsPage | null> {
   // Un slug mal formé ne correspond à aucune page : inutile de solliciter le CMS.
