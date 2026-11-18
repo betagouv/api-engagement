@@ -48,7 +48,7 @@ export const registerPageHistory = (strapi: Core.Strapi) => {
 const saveVersion = async (strapi: Core.Strapi, documentId: string, action: string) => {
   const populateBuilder = strapi.plugin("content-manager").service("populate-builder") as unknown as PopulateBuilder;
   const populate = await populateBuilder(PAGE_UID).populateDeep(Infinity).build();
-  const page = await strapi.documents(PAGE_UID).findOne({ documentId, status: "draft", populate });
+  const page = await strapi.documents(PAGE_UID).findOne({ documentId, status: "draft", populate: populate as never });
   if (!page) {
     return;
   }
