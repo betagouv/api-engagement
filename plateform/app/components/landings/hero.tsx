@@ -15,6 +15,7 @@ export default function Hero({
   onStartQuiz,
   ctaLabel = "Trouve ta mission",
   action,
+  id,
   className = "",
   children,
 }: {
@@ -37,11 +38,13 @@ export default function Hero({
   ctaLabel?: string;
   // Bloc affiché sous le texte à la place du CTA quiz (ex. recherche par localisation).
   action?: ReactNode;
+  // Cible d'ancre (ex. CTA en bas de page qui renvoie au hero) : rendue focusable (tabindex -1) pour que le focus la suive.
+  id?: string;
   className?: string;
   children: ReactNode;
 }) {
   return (
-    <section className={`relative overflow-hidden rounded-b-[20px] md:rounded-none ${className}`}>
+    <section id={id} tabIndex={id ? -1 : undefined} className={`relative overflow-hidden rounded-b-[20px] md:rounded-none ${className}`}>
       <div className="fr-container relative z-10">
         <div className={`pt-8 md:pt-11 lg:pt-24 ${contentClassName}`}>
           {typeof badge === "string" ? (

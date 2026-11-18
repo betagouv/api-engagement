@@ -4,7 +4,7 @@ import HeroWebp from "~/assets/images/landings/accompagnateurs/hero.webp";
 import Benefices from "~/components/landings/accompagnateurs/benefices";
 import Dispositifs from "~/components/landings/accompagnateurs/dispositifs";
 import PourQui from "~/components/landings/accompagnateurs/pour-qui";
-import SignupForm, { SIGNUP_EMAIL_ID } from "~/components/landings/accompagnateurs/signup-form";
+import SignupForm from "~/components/landings/accompagnateurs/signup-form";
 import Valeur from "~/components/landings/accompagnateurs/valeur";
 import Hero from "~/components/landings/hero";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -39,16 +39,10 @@ export default function Accompagnateurs() {
     trackPageViewed({ pageName: "landing_accompagnateurs" });
   }, []);
 
-  // Le CTA final renvoie au formulaire du hero : on le remonte et on y place le focus.
-  const focusSignup = () => {
-    const input = document.getElementById(SIGNUP_EMAIL_ID);
-    input?.scrollIntoView({ block: "center" });
-    input?.focus();
-  };
-
   return (
     <main id="contenu" tabIndex={-1} className="flex flex-col gap-12! md:gap-20!">
       <Hero
+        id="hero"
         badge={<p className="fr-badge fr-badge--new mb-2!">Bientôt disponible</p>}
         title="Proposez une mission d'engagement, sans être expert des dispositifs"
         titleClassName="lg:text-[40px]! lg:leading-12!"
@@ -102,10 +96,12 @@ export default function Accompagnateurs() {
           <h2 id="cta" className="text-title-grey mb-0! text-2xl! leading-normal! font-bold! md:text-[32px]!">
             Envie de tester l'outil avec les personnes que vous accompagnez ?
           </h2>
-          <p className="text-default-grey mb-0! max-w-225 text-lg! leading-normal!">Laissez votre adresse e-mail : nous vous prévenons dès l'ouverture et vous proposons un échange de 30 minutes.</p>
-          <button type="button" onClick={focusSignup} className="fr-btn fr-btn--lg">
+          <p className="text-default-grey mb-0! max-w-225 text-lg! leading-normal!">
+            Laissez votre adresse e-mail : nous vous prévenons dès l'ouverture et vous proposons un échange de 30 minutes.
+          </p>
+          <a href="#hero" className="fr-btn fr-btn--lg">
             S'enregistrer pour tester l'outil
-          </button>
+          </a>
         </div>
       </section>
     </main>
