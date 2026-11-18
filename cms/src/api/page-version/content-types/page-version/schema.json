@@ -1,0 +1,21 @@
+{
+  "kind": "collectionType",
+  "collectionName": "page_versions",
+  "info": {
+    "singularName": "page-version",
+    "pluralName": "page-versions",
+    "displayName": "Page version",
+    "description": "Historique des pages : un instantané du brouillon à chaque enregistrement ou publication. Écrit par le CMS, pas d'API publique."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "pageDocumentId": { "type": "string", "required": true },
+    "title": { "type": "string" },
+    "action": { "type": "enumeration", "enum": ["create", "update", "publish"], "required": true },
+    "author": { "type": "string" },
+    "snapshot": { "type": "json", "required": true }
+  }
+}

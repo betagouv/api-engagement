@@ -14,6 +14,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 
 - `config/*.ts` : serveur (proxy/URL publique), base (SSL), admin, middlewares (CSP), plugins (médias sur Object Storage quand `CMS_MEDIA_BUCKET` est défini). Secrets via variables d'environnement (valeurs de dev locales dans `docker-compose.yml`).
 - `src/api/page/` : content-type `page` (brouillon/publié) + routes/contrôleur/service par défaut. Une landing est une page qui utilise des blocs de campagne ; les blocs génériques (`rich-text`, `image`) servent aux pages éditoriales.
+- `src/history.ts` + `src/api/page-version/` : historique des pages (instantané à chaque enregistrement) ; `src/admin/components/page-history.tsx` : panneau de restauration dans l'édition d'une page.
 - `src/components/blocks/` : les sections qu'un éditeur ajoute à une page (zone dynamique `blocks`) ; `src/components/items/` : les éléments répétables à l'intérieur d'un bloc (carte, étape, partenaire…), jamais ajoutés seuls à une page.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
 - `scripts/seed.ts` : seed de **dev uniquement** (jeton de lecture de plateform + page `chacun-pour-tous` avec les blocs existants ; images lues dans `plateform/app/assets` via `/seed-assets`). Refuse de tourner en production. Déjà lancé sur les environnements : ne pas y ajouter de page.
