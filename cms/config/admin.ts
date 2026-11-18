@@ -8,11 +8,12 @@ const previewConfig = (env: Core.Config.Shared.ConfigParams["env"]): Core.Config
     enabled: Boolean(secret),
     config: {
       allowedOrigins: [baseUrl],
-      async handler(uid, { documentId, status }) {
+      // plateform rend toujours le brouillon : on prend donc le slug du brouillon, quel que soit l'onglet (publié ou non) d'où l'aperçu est ouvert.
+      async handler(uid, { documentId }) {
         if (uid !== "api::page.page") {
           return null;
         }
-        const page = await strapi.documents(uid).findOne({ documentId, status: status === "published" ? "published" : "draft", fields: ["slug"] });
+        const page = await strapi.documents(uid).findOne({ documentId, status: "draft", fields: ["slug"] });
         if (!page?.slug) {
           return null;
         }

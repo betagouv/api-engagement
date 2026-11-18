@@ -27,7 +27,8 @@ function isBrowser(): boolean {
 }
 
 function getProviders(): TrackingProvider[] {
-  if (!isBrowser()) return [];
+  // Preview du CMS : l'URL porte le secret (`?preview=`), que PostHog/GTM collecteraient. Aucun provider n'est initialisé.
+  if (!isBrowser() || new URLSearchParams(window.location.search).has("preview")) return [];
   if (!providers) {
     providers = [createProvider(TRACKING_PROVIDER as TrackingProviderName)];
     if (GTM_CONTAINER_ID) providers.push(createGtmProvider());
