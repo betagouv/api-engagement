@@ -48,7 +48,8 @@ export async function loader({ request, params }: Route.LoaderArgs) {
   if (!page) {
     // Ancien slug d'une page renommée : 301 vers le slug courant (pas en preview, où l'on veut voir la situation réelle).
     const target = preview ? null : await getCmsRedirect(params["*"] ?? "");
-    if (target) throw redirect(`/${target}${search}`, 301);
+    // max-age borné : un 301 sans durée est gardé indéfiniment par les navigateurs, et un slug repris (A→B→A) ferait boucler les visiteurs qui l'ont suivi.
+    if (target) throw redirect(`/${target}${search}`, { status: 301, headers: { "Cache-Control": "public, max-age=3600" } });
     throw data("Page introuvable", { status: 404 });
   }
 
