@@ -40,6 +40,11 @@
       "type": "boolean",
       "default": false
     },
+    "ctaLabel": {
+      "type": "string",
+      "maxLength": 40,
+      "description": "Libellé des boutons « quiz » de la page (ex. : Trouvez votre mission). Vide : libellés par défaut (tutoiement)."
+    },
     "blocks": {
       "type": "dynamiczone",
       "required": true,

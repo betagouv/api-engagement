@@ -44,7 +44,8 @@ export default function Cards({ onStartQuiz, cta, title, cards }: { onStartQuiz:
               }}
               className="fr-link fr-icon-arrow-right-line fr-link--icon-right mt-auto!"
             >
-              Trouver ma mission<span className="fr-sr-only"> : {etape.title}</span>
+              {cta.label}
+              <span className="fr-sr-only"> : {etape.title}</span>
             </Link>
           </div>
         ))}

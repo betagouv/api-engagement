@@ -124,7 +124,7 @@ export default function CmsLanding() {
   const onStartQuiz = (section: QuizEntrySection) => {
     // reset() regénère quiz_attempt_id : on réinitialise avant de tracer, pour rattacher cta.clicked au nouveau funnel.
     reset(pathname);
-    trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
+    trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: page.ctaLabel ?? "Trouve ta mission", ctaDestination: "quiz", destinationPath: "/quiz/age" });
     navigate("/quiz/age", { state: { entrySource: `${landing}_cta`, entrySection: section } });
   };
 
@@ -143,7 +143,9 @@ export default function CmsLanding() {
 
   const missionsCta = (section: CtaSection): LandingCta => ({
     ...MISSIONS_CTA,
-    onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
+    label: page.ctaLabel ?? MISSIONS_CTA.label,
+    onClick: () =>
+      trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: page.ctaLabel ?? MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
   });
 
   const hasMissionsBrowser = page.blocks.some((block) => block.__component === "blocks.missions-browser");
@@ -159,7 +161,18 @@ export default function CmsLanding() {
       )}
       <CmsBlocks
         blocks={page.blocks}
-        context={{ landing, path: pathname, missionsByBlock, missionDetailsByBlock, browsersByBlock, hasMissionsBrowser, onStartQuiz, onLocationSearch, missionsCta }}
+        context={{
+          landing,
+          path: pathname,
+          missionsByBlock,
+          missionDetailsByBlock,
+          browsersByBlock,
+          hasMissionsBrowser,
+          ctaLabel: page.ctaLabel,
+          onStartQuiz,
+          onLocationSearch,
+          missionsCta,
+        }}
       />
     </main>
   );

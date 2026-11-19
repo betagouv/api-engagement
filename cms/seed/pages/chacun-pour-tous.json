@@ -1,23 +1,23 @@
 {
   "title": "Chacun pour tous",
   "slug": "chacun-pour-tous",
-  "seoTitle": "Chacun pour tous | Trouve ta mission",
-  "seoDescription": "S'engager ça fait du bien, à soi, aux autres, au pays. Bénévolat, Service Civique, pompiers ou réservistes : trouve la mission d'engagement qui te ressemble.",
+  "seoTitle": "Chacun pour tous | TrouveTaMission.gouv.fr",
+  "seoDescription": "S'engager, c'est chacun pour tous ! Bénévolat, Service Civique, pompiers ou réservistes : trouvez la mission d'engagement qui vous ressemble.",
   "ogTitle": "Chacun pour tous",
-  "ogDescription": "3 Français sur 4 se sont déjà engagés cette année. Et toi ?",
+  "ogDescription": "En France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Et vous ?",
   "noindex": true,
+  "ctaLabel": "Trouvez votre mission",
   "blocks": [
     {
       "__component": "blocks.hero",
-      "title": "S'engager ça fait du bien, à soi, aux autres, au pays.",
-      "description": "On croit que s'engager, c'est rare. En fait, 3 Français sur 4 l'ont déjà fait cette année.\nOn fait le tour des bonnes idées ?",
-      "hint": "En quelques questions, trouve une mission qui te correspond.",
+      "title": "S'engager, c'est chacun pour tous !",
+      "description": "Vous vous engagez peut-être déjà, sans même vous en rendre compte : aider un voisin, donner de votre temps, voter… Et vous êtes loin d'être seul : en France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Trouvez la mission qui vous ressemble, près de chez vous et à votre rythme.",
       "visual": "chacun_pour_tous"
     },
     {
       "__component": "blocks.missions",
-      "title": "Tu peux agir au ==coin de ta rue==",
-      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Découvre les missions qui te correspondent !",
+      "title": "Mille façons de s'engager. ==Laquelle vous ressemble ?==",
+      "description": "Accompagner une personne en difficulté, protéger la nature, organiser des événements, aider des personnes isolées, s'engager pour son pays… Les occasions d'agir sont nombreuses !\nDécouvrez les missions qui correspondent à vos envies et à vos disponibilités.",
       "slots": [
         { "dispositif": "benevolat", "domaineEngagement": "solidarite_inclusion" },
         { "dispositif": "service_civique", "domaineEngagement": "sport" },
@@ -29,39 +29,37 @@
       "background": "creme"
     },
     {
-      "__component": "blocks.etapes",
-      "items": [
-        { "icon": "self_training", "title": "Réponds en trois minutes", "description": "Le formulaire du gouv le plus court de ta vie" },
-        { "icon": "search", "title": "Découvre les missions", "description": "On te montre celles qui vont te plaire" },
-        { "icon": "mail_send", "title": "Ton engagement commence ici", "description": "On te met en relation avec le service public qui a besoin d'aide" }
-      ]
-    },
-    {
       "__component": "blocks.benefits",
-      "title": "Bon pour toi,\nutile pour tous",
+      "title": "Bon pour vous,\nutile pour tous",
+      "intro": "Une mission peut vous apporter\u00a0:",
       "benefits": [
-        { "emoji": "🎓", "label": "De l'expérience pour ton CV" },
-        { "emoji": "💼", "label": "Des compétences" },
+        { "emoji": "🎓", "label": "Une expérience à valoriser" },
+        { "emoji": "💼", "label": "De nouvelles compétences" },
         { "emoji": "🤝", "label": "Des rencontres" },
-        { "emoji": "💸", "label": "Avec ou sans indemnité" },
-        { "emoji": "❤️", "label": "La fierté d'être utile" }
+        { "emoji": "💸", "label": "Une indemnité, selon la mission" },
+        { "emoji": "❤️", "label": "Le sentiment d'être utile" }
       ],
-      "newsletterTitle": "Pas le bon moment ?\nOn te prévient",
-      "newsletterText": "On t'envoie des idées de missions une fois par mois près de chez toi."
+      "newsletterTitle": "Pas le bon moment ?\nOn vous prévient",
+      "newsletterText": "Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager."
     },
     {
       "__component": "blocks.cards",
       "title": "Une mission pour ==chaque étape de== la vie",
       "cards": [
-        { "icon": "backpack", "title": "Tu fais des études ?", "points": "Des missions dès 16 ans\nPendant les week-ends et les vacances" },
-        { "icon": "search", "title": "Tu cherches un emploi ?", "points": "Une expérience pour rebondir\nService Civique indemnisé" },
-        { "icon": "self_training", "title": "Tu travailles déjà ?", "points": "Quelques heures par mois\nLe soir ou les week-ends" }
+        { "icon": "backpack", "title": "Vous faites des études ?", "points": "Des missions dès 16 ans\nPendant les week-ends et les vacances" },
+        {
+          "icon": "search",
+          "title": "Vous préparez votre insertion professionnelle ?",
+          "points": "Une expérience pour rebondir\nDes compétences à valoriser sur votre CV"
+        },
+        { "icon": "self_training", "title": "Vous travaillez déjà ?", "points": "Quelques heures par mois\nLe soir ou les week-ends" },
+        { "icon": "book", "title": "Vous êtes à la retraite ?", "points": "Des missions ponctuelles ou régulières\nLa possibilité de transmettre votre expérience" }
       ]
     },
     {
       "__component": "blocks.stories",
-      "title": "Des histoires vraies qui donnent\n==envie d'agir==",
-      "intro": "À ceux qui votent, qui laissent passer les piétons, qui sourient aux bébés, à celles qui donnent du temps à une cause, qui portent les cartons du voisin… À tous ceux qui prennent part sans le savoir : MERCI",
+      "title": "Chacun son histoire, une même\n==envie d'agir==",
+      "intro": "Vous votez, vous donnez de votre temps, vous tenez un bureau de vote, transmettez ce que vous savez, veillez sur une personne isolée ou aidez un voisin. L'ensemble de ces gestes font vivre la vie collective et notre démocratie. Ils montrent que l'engagement est déjà là, dans le quotidien. À toutes celles et tous ceux qui le font vivre : merci.",
       "stories": [
         {
           "image": { "upload": "landings/chacun-pour-tous/histoire-1.webp" },
@@ -94,25 +92,37 @@
       ]
     },
     {
+      "__component": "blocks.etapes",
+      "items": [
+        {
+          "icon": "self_training",
+          "title": "Répondez à quelques questions",
+          "description": "Un questionnaire simple et rapide pour préciser vos envies, vos disponibilités et les causes qui vous tiennent à cœur."
+        },
+        { "icon": "search", "title": "Découvrez les missions", "description": "On vous propose celles qui correspondent à vos envies et à votre rythme." },
+        { "icon": "mail_send", "title": "Commencez à agir", "description": "On vous met en relation avec la structure qui a besoin de vous." }
+      ]
+    },
+    {
       "__component": "blocks.faq",
-      "title": "Tu te poses les mêmes ==questions ?==",
+      "title": "Vous vous posez les mêmes ==questions ?==",
       "intro": "[TrouveTaMission.gouv.fr](/) est le service public numérique de l'engagement, accessible à tous, dès 16 ans. Cette plateforme oriente les envies d'agir des citoyens et des citoyennes vers les missions d'intérêt général.",
       "questions": [
         {
-          "icon": "environment",
-          "question": "Comment avoir vraiment de l'impact, et pas juste en parler ?",
-          "answer": "Parce qu'agir, même à petite échelle, change tout, pour toi et pour les autres."
+          "icon": "human_cooperation",
+          "question": "« Chacun pour tous », c'est quoi ?",
+          "answer": "C'est la devise qui rassemble toutes les façons de participer à la vie collective et démocratique : aider, transmettre, rejoindre une association, faire un Service Civique, voter… Concrètement, c'est un repère pour trouver plus facilement votre façon d'agir."
         },
-        { "icon": "community", "question": "Comment rejoindre une communauté qui a du sens ?", "answer": "Rencontre des personnes qui, comme toi, veulent agir concrètement." },
+        {
+          "icon": "environment",
+          "question": "Comment avoir vraiment de l'impact, et pas juste en parler ?",
+          "answer": "En choisissant une mission concrète, près de chez vous ou ailleurs. Même à petite échelle, votre action est utile aux autres, et à vous aussi."
+        },
+        { "icon": "community", "question": "Comment rejoindre une communauté qui a du sens ?", "answer": "Rencontrez des personnes qui, comme vous, veulent agir concrètement." },
         {
           "icon": "backpack",
-          "question": "Et ça compte pour mon parcours ?",
-          "answer": "Oui ! Chaque mission t'apporte des compétences, des connaissances, une idée plus claire de ce que tu veux faire."
-        },
-        {
-          "icon": "human_cooperation",
-          "question": "Chacun pour tous",
-          "answer": "Qu'on se le dise : nous sommes plus engagés que nous ne le croyons. 74 % des Français ont fait au moins un acte civique dans l'année."
+          "question": "Est-ce que cela compte pour votre parcours ?",
+          "answer": "Oui ! Chaque mission vous apporte des compétences, des connaissances, une idée plus claire de ce que vous voulez faire."
         }
       ]
     },
@@ -123,8 +133,8 @@
         { "name": "Les réserves des armées", "description": "Des missions indemnisées de réservistes.", "logo": { "upload": "logo/roc-logo.png" } },
         { "name": "JeVeuxAider.gouv.fr", "description": "La plateforme publique du bénévolat.", "logo": { "upload": "logo/jva-logo.png" } },
         { "name": "Le Service Civique", "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.", "logo": { "upload": "logo/asc-logo.png" } },
-        { "name": "Sapeurs-pompiers de France", "description": "Deviens sapeur-pompier volontaire près de chez toi.", "logo": { "upload": "logo/spv-logo.png" } },
-        { "name": "Gendarmerie nationale", "description": "Deviens gendarme près de chez toi.", "logo": { "upload": "logo/gendarmerie-logo.png" } }
+        { "name": "Sapeurs-pompiers de France", "description": "Devenez sapeur-pompier volontaire près de chez vous.", "logo": { "upload": "logo/spv-logo.png" } },
+        { "name": "Gendarmerie nationale", "description": "Devenez gendarme près de chez vous.", "logo": { "upload": "logo/gendarmerie-logo.png" } }
       ]
     }
   ]

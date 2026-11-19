@@ -19,12 +19,14 @@ export default function HeroActions({
   primary,
   secondary,
   hint,
+  ctaLabel = "Trouve ta mission",
   onStartQuiz,
 }: {
   tags: CmsHeroTag[];
   primary: HeroLink | null;
   secondary: HeroLink | null;
   hint: string | null;
+  ctaLabel?: string;
   onStartQuiz: () => void;
 }) {
   return (
@@ -47,7 +49,7 @@ export default function HeroActions({
           <HeroButton link={primary} className="fr-btn--lg" />
         ) : (
           <button type="button" onClick={onStartQuiz} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!">
-            Trouve ta mission
+            {ctaLabel}
           </button>
         )}
         {secondary && <HeroButton link={secondary} className="fr-btn--secondary fr-btn--lg" />}
