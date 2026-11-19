@@ -4,7 +4,7 @@ import { data, redirect, useLoaderData, useLocation, useNavigate } from "react-r
 
 import CmsBlocks, { type CmsBrowserResults } from "~/components/cms";
 import { LOCATION_LABEL_PARAM, type Location } from "~/components/landings/location-filter";
-import { canonicalCmsPath, getCmsPage, isCmsPreview } from "~/services/cms.server";
+import { canonicalCmsPath, getCmsPage, getCmsRedirect, isCmsPreview } from "~/services/cms.server";
 import { browseMissions, getMissionDetail } from "~/services/api/missions";
 import { browseMissions as browseMissionsFromClient } from "~/services/mission-browse";
 import { registerLandingOrigin } from "~/services/tracking";
@@ -45,7 +45,12 @@ export async function loader({ request, params }: Route.LoaderArgs) {
 
   const preview = isCmsPreview(new URL(request.url).searchParams);
   const page = await getCmsPage(params["*"] ?? "", { draft: preview });
-  if (!page) throw data("Page introuvable", { status: 404 });
+  if (!page) {
+    // Ancien slug d'une page renommée : 301 vers le slug courant (pas en preview, où l'on veut voir la situation réelle).
+    const target = preview ? null : await getCmsRedirect(params["*"] ?? "");
+    if (target) throw redirect(`/${target}${search}`, 301);
+    throw data("Page introuvable", { status: 404 });
+  }
 
   const browse = async (filters: MissionBrowseFilters) => {
     try {
