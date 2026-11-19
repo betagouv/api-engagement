@@ -3,13 +3,17 @@ import type { Core } from "@strapi/strapi";
 // Médias : disque local en dev ; en déploiement (Scaleway Serverless Containers, disque éphémère), bucket Object Storage
 // public en lecture, renseigné par `CMS_MEDIA_BUCKET` (cf. terraform/cms.tf).
 export default ({ env }: Core.Config.Shared.ConfigParams): Core.Config.Plugin => {
+  // Verrouillage des pages en édition (websocket, verrous en base) : un seul éditeur à la fois, reprise possible.
+  const recordLocking = { "record-locking": { enabled: true, config: { include: ["api::page.page"], showTakeoverButton: true } } };
+
   const bucket = env("CMS_MEDIA_BUCKET");
   if (!bucket) {
-    return {};
+    return recordLocking;
   }
 
   const region = env("CMS_MEDIA_REGION", "fr-par");
   return {
+    ...recordLocking,
     upload: {
       config: {
         provider: "aws-s3",
