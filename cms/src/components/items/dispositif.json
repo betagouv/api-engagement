@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_items_dispositifs",
+  "info": {
+    "displayName": "Dispositif",
+    "icon": "filter"
+  },
+  "attributes": {
+    "dispositif": {
+      "type": "enumeration",
+      "enum": [
+        "benevolat",
+        "service_civique",
+        "sapeurs_pompiers",
+        "reserve_gendarmerie",
+        "reserve_police_nationale",
+        "reserve_armees"
+      ],
+      "required": true
+    }
+  }
+}

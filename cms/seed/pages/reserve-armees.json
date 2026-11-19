@@ -22,7 +22,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "dispositif": "reserve_armees"
+      "dispositifs": [{ "dispositif": "reserve_armees" }]
     },
     {
       "__component": "blocks.etapes",

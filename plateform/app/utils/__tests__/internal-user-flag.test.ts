@@ -35,14 +35,11 @@ describe("persistInternalUserFlagAction", () => {
   it("persiste le flag quand il est activé", () => {
     const storage = new Map<string, string>();
 
-    persistInternalUserFlagAction(
-      "enable",
-      {
-        getItem: (key) => storage.get(key) ?? null,
-        removeItem: (key) => storage.delete(key),
-        setItem: (key, value) => storage.set(key, value),
-      },
-    );
+    persistInternalUserFlagAction("enable", {
+      getItem: (key) => storage.get(key) ?? null,
+      removeItem: (key) => storage.delete(key),
+      setItem: (key, value) => storage.set(key, value),
+    });
 
     expect(storage.get(INTERNAL_USER_FLAG_STORAGE_KEY)).toBe("1");
   });
@@ -50,14 +47,11 @@ describe("persistInternalUserFlagAction", () => {
   it("retire le flag quand il est désactivé", () => {
     const storage = new Map<string, string>([[INTERNAL_USER_FLAG_STORAGE_KEY, "1"]]);
 
-    persistInternalUserFlagAction(
-      "disable",
-      {
-        getItem: (key) => storage.get(key) ?? null,
-        removeItem: (key) => storage.delete(key),
-        setItem: (key, value) => storage.set(key, value),
-      },
-    );
+    persistInternalUserFlagAction("disable", {
+      getItem: (key) => storage.get(key) ?? null,
+      removeItem: (key) => storage.delete(key),
+      setItem: (key, value) => storage.set(key, value),
+    });
 
     expect(storage.has(INTERNAL_USER_FLAG_STORAGE_KEY)).toBe(false);
   });
@@ -65,14 +59,11 @@ describe("persistInternalUserFlagAction", () => {
   it("ne modifie rien sans action", () => {
     const storage = new Map<string, string>([[INTERNAL_USER_FLAG_STORAGE_KEY, "1"]]);
 
-    persistInternalUserFlagAction(
-      "none",
-      {
-        getItem: (key) => storage.get(key) ?? null,
-        removeItem: (key) => storage.delete(key),
-        setItem: (key, value) => storage.set(key, value),
-      },
-    );
+    persistInternalUserFlagAction("none", {
+      getItem: (key) => storage.get(key) ?? null,
+      removeItem: (key) => storage.delete(key),
+      setItem: (key, value) => storage.set(key, value),
+    });
 
     expect(storage.get(INTERNAL_USER_FLAG_STORAGE_KEY)).toBe("1");
   });
