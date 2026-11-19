@@ -5,7 +5,7 @@ import { PageHistoryPanel } from "./components/page-history";
 // Personnalisation de l'admin : lien « Composants du CMS » dans le menu, vers la page rendue par plateform.
 export default {
   config: {
-    locales: [],
+    locales: ["fr"],
   },
   register(app: StrapiApp) {
     app.addMenuLink({
