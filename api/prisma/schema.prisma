@@ -1116,10 +1116,30 @@ model MissionEnrichment {
   mission         Mission                  @relation(fields: [missionId], references: [id], onDelete: Cascade)
   values          MissionEnrichmentValue[]
   missionScorings MissionScoring[]
+  runs            MissionEnrichmentRun[]
 
   @@unique([missionId, promptVersion], map: "mission_enrichment_mission_version_unique")
   @@index([status], map: "mission_enrichment_status_idx")
   @@map("mission_enrichment")
+}
+
+model MissionEnrichmentRun {
+  id                  String                  @id @default(uuid())
+  missionEnrichmentId String?                  @map("mission_enrichment_id")
+  promptVersion       String                  @map("prompt_version")
+  status              MissionEnrichmentStatus @default(processing)
+  inputTokens         Int?                    @map("input_tokens")
+  outputTokens        Int?                    @map("output_tokens")
+  totalTokens         Int?                    @map("total_tokens")
+  completedAt         DateTime?               @map("completed_at")
+  createdAt           DateTime                @default(now()) @map("created_at")
+  updatedAt           DateTime                @updatedAt @map("updated_at")
+
+  missionEnrichment MissionEnrichment? @relation(fields: [missionEnrichmentId], references: [id], onDelete: SetNull)
+
+  @@index([missionEnrichmentId], map: "mission_enrichment_run_enrichment_idx")
+  @@index([updatedAt, id], map: "mission_enrichment_run_updated_id_idx")
+  @@map("mission_enrichment_run")
 }
 
 model MissionEnrichmentValue {

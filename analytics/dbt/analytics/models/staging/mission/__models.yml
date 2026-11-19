@@ -197,7 +197,7 @@ models:
   - name: stg_mission_enrichment
     description: >
       Staging des enrichissements de mission exportés depuis `analytics_raw.mission_enrichment`. Chaque ligne représente
-      une tentative d'enrichissement d'une mission pour une version de prompt, avec son statut, ses métriques de tokens
+      l'état courant d'enrichissement d'une mission pour une version de prompt, avec son statut, ses dernières métriques de tokens
       et sa date de complétion.
     columns:
       - name: id

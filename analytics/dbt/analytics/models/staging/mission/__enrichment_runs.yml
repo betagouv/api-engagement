@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_mission_enrichment_run
+    description: >
+      Un passage applicatif d'enrichissement. Les tokens représentent la consommation
+      connue, y compris les retries exposant leur usage, et restent NULL si inconnus.
+      La reprise historique conserve seulement le dernier état disponible par enrichissement.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: mission_enrichment_id
+        description: Rattachement nullable pour préserver l'usage après suppression de l'enrichissement.
+      - name: prompt_version
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [pending, processing, completed, failed]
+      - name: created_at
+        tests:
+          - not_null
+      - name: completed_at
+        description: Date de complétion d'un passage réussi, si disponible.
+      - name: updated_at
+        tests:
+          - not_null

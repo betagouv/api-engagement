@@ -4,7 +4,7 @@ vi.mock("ai", () => ({ generateObject: vi.fn() }));
 
 vi.mock("@/services/mission-enrichment/config", () => ({
   LLM_MAX_RETRIES: 3,
-  LLM_NO_OBJECT_MAX_RETRIES: 1,
+  LLM_NO_OBJECT_MAX_RETRIES: 2,
 }));
 
 vi.mock("@/services/mission-enrichment/prompts", () => ({
@@ -22,6 +22,46 @@ const input = { systemPrompt: "sys", userMessage: "usr", promptVersion } as any;
 
 const makeApiCallError = (statusCode: number, extra: Record<string, unknown> = {}) => Object.assign(new Error("api error"), { name: "AI_APICallError", statusCode, ...extra });
 const makeRetryError = (lastError: unknown) => Object.assign(new Error("retry error"), { name: "AI_RetryError", lastError });
+
+describe("llmMissionEnrichmentProvider — usage across retries", () => {
+  it("adds usage from an invalid generation to the successful retry", async () => {
+    generateObjectMock.mockReset();
+    generateObjectMock
+      .mockRejectedValueOnce(
+        Object.assign(new Error("invalid object"), {
+          name: "AI_NoObjectGeneratedError",
+          usage: { inputTokens: 10, outputTokens: 2, totalTokens: 12 },
+        })
+      )
+      .mockResolvedValueOnce({ object: { classifications: [] }, usage: { inputTokens: 20, outputTokens: 3, totalTokens: 23 } });
+    await expect(llmMissionEnrichmentProvider.generate(input)).resolves.toEqual({
+      object: { classifications: [] },
+      usage: { inputTokens: 30, outputTokens: 5, totalTokens: 35 },
+    });
+  });
+
+  it("preserves cumulative usage on final failure", async () => {
+    generateObjectMock.mockReset();
+    generateObjectMock.mockRejectedValue(
+      Object.assign(new Error("invalid object"), {
+        name: "AI_NoObjectGeneratedError",
+        usage: { inputTokens: 10, outputTokens: 2, totalTokens: 12 },
+      })
+    );
+    await expect(llmMissionEnrichmentProvider.generate(input)).rejects.toMatchObject({
+      usage: { inputTokens: 20, outputTokens: 4, totalTokens: 24 },
+    });
+  });
+
+  it("does not turn unknown usage into zero", async () => {
+    generateObjectMock.mockReset();
+    generateObjectMock.mockResolvedValue({ object: { classifications: [] }, usage: {} });
+    const result = await llmMissionEnrichmentProvider.generate(input);
+    expect(result.usage.inputTokens).toBeUndefined();
+    expect(result.usage.outputTokens).toBeUndefined();
+    expect(result.usage.totalTokens).toBeUndefined();
+  });
+});
 
 describe("llmMissionEnrichmentProvider — rate limit detection", () => {
   it("throws MissionEnrichmentRateLimitError when AI_APICallError 429 surfaces directly (maxRetries=0)", async () => {

@@ -887,6 +887,24 @@ sources:
             description: Timestamp de création de l'enrichissement.
           - name: updated_at
             description: Timestamp de dernière mise à jour, utilisé comme curseur d'export.
+      - name: mission_enrichment_run
+        description: >
+          Historique des passages d'enrichissement, sans classifications.
+          La reprise historique ne conserve que le dernier état disponible.
+        columns:
+          - name: id
+            tests:
+              - not_null
+              - unique
+          - name: mission_enrichment_id
+          - name: prompt_version
+          - name: status
+          - name: input_tokens
+          - name: output_tokens
+          - name: total_tokens
+          - name: completed_at
+          - name: created_at
+          - name: updated_at
       - name: mission_enrichment_value
         description: >-
           Valeurs de taxonomie extraites lors de l'enrichissement des missions, avec score de confiance et éléments de

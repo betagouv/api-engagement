@@ -10,6 +10,7 @@ vi.mock("@/repositories/mission-enrichment", () => ({
     claimForRun: vi.fn(),
     update: vi.fn(),
     completeWithValues: vi.fn(),
+    failForRun: vi.fn(),
   },
 }));
 
@@ -86,6 +87,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
 
   beforeEach(() => {
     providerGenerate.mockReset();
+    vi.mocked(missionEnrichmentRepository.failForRun).mockResolvedValue(undefined);
     (getMissionEnrichmentProvider as ReturnType<typeof vi.fn>).mockReturnValue({ generate: providerGenerate });
   });
 
@@ -167,7 +169,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
   it("calls LLM and forwards to scoring after successful enrichment", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
     (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue("enrichment-new");
+    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue({ enrichmentId: "enrichment-new", runId: "run-new" });
     (missionEnrichmentRepository.update as ReturnType<typeof vi.fn>).mockResolvedValue({});
     (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
     providerGenerate.mockResolvedValue({
@@ -183,6 +185,13 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
       promptVersion: expect.objectContaining({ TEMPERATURE: 0 }),
     });
     expect(asyncTaskBus.publish).toHaveBeenCalledOnce();
+    expect(missionEnrichmentRepository.completeWithValues).toHaveBeenCalledWith(
+      "enrichment-new",
+      expect.any(String),
+      { inputTokens: 10, outputTokens: 5, totalTokens: 15 },
+      [],
+      "run-new"
+    );
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
       payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-new", force: true },
@@ -192,7 +201,7 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
   it("uses an explicit prompt version independently from the active version", async () => {
     (missionRepository.findUnique as ReturnType<typeof vi.fn>).mockResolvedValue(baseMission);
     (missionEnrichmentRepository.findFirst as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue("enrichment-v5");
+    (missionEnrichmentRepository.claimForRun as ReturnType<typeof vi.fn>).mockResolvedValue({ enrichmentId: "enrichment-v5", runId: "run-v5" });
     (missionEnrichmentRepository.completeWithValues as ReturnType<typeof vi.fn>).mockResolvedValue({});
     providerGenerate.mockResolvedValue({
       object: { classifications: [] },
@@ -201,14 +210,37 @@ describe("missionEnrichmentService.enrich — chain propagation", () => {
 
     await missionEnrichmentService.enrich("mission-1", { promptVersion: "v5" });
 
-    expect(missionEnrichmentRepository.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({ where: expect.objectContaining({ promptVersion: "v5" }) })
-    );
+    expect(missionEnrichmentRepository.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ promptVersion: "v5" }) }));
     expect(missionEnrichmentRepository.claimForRun).toHaveBeenCalledWith({ missionId: "mission-1", promptVersion: "v5" });
     expect(providerGenerate).toHaveBeenCalledWith(expect.objectContaining({ systemPrompt: "system v5", userMessage: "user v5" }));
     expect(asyncTaskBus.publish).toHaveBeenCalledWith({
       type: "mission.scoring",
       payload: { missionId: "mission-1", missionEnrichmentId: "enrichment-v5", force: true },
     });
+  });
+
+  it("preserves usage when generation fails and does not queue scoring", async () => {
+    vi.mocked(missionRepository.findUnique).mockResolvedValue(baseMission as never);
+    vi.mocked(missionEnrichmentRepository.findFirst).mockResolvedValue(null);
+    vi.mocked(missionEnrichmentRepository.claimForRun).mockResolvedValue({ enrichmentId: "enrichment-1", runId: "run-1" });
+    const error = Object.assign(new Error("invalid object"), { usage: { inputTokens: 12, outputTokens: 3, totalTokens: 15 } });
+    providerGenerate.mockRejectedValue(error);
+
+    await expect(missionEnrichmentService.enrich("mission-1")).rejects.toThrow(error);
+
+    expect(missionEnrichmentRepository.failForRun).toHaveBeenCalledWith("enrichment-1", "run-1", error.usage);
+    expect(asyncTaskBus.publish).not.toHaveBeenCalled();
+  });
+
+  it("does not fail a completed run when scoring publication fails", async () => {
+    vi.mocked(missionRepository.findUnique).mockResolvedValue(baseMission as never);
+    vi.mocked(missionEnrichmentRepository.findFirst).mockResolvedValue(null);
+    vi.mocked(missionEnrichmentRepository.claimForRun).mockResolvedValue({ enrichmentId: "enrichment-1", runId: "run-1" });
+    vi.mocked(missionEnrichmentRepository.completeWithValues).mockResolvedValue(undefined);
+    providerGenerate.mockResolvedValue({ object: { classifications: [] }, usage: {} });
+    vi.mocked(asyncTaskBus.publish).mockRejectedValueOnce(new Error("queue unavailable"));
+
+    await expect(missionEnrichmentService.enrich("mission-1")).rejects.toThrow("queue unavailable");
+    expect(missionEnrichmentRepository.failForRun).not.toHaveBeenCalled();
   });
 });
