@@ -41,6 +41,19 @@ export const registerSlugRedirects = (strapi: Core.Strapi) => {
       await Promise.all(owned.map((r) => redirects.delete({ documentId: r.documentId })));
       return result;
     }
+    // Dépublication : le slug publié disparaît avec la version publiée. On le garde comme redirection (omise tant que la page n'est
+    // pas republiée, supprimée si elle reprend ce slug), pour qu'un renommage avant la republication ne casse pas l'ancienne URL.
+    if (context.action === "unpublish" && documentId) {
+      const before = await publishedSlug(strapi, documentId);
+      const result = await next();
+      if (before) {
+        const redirects = strapi.documents(REDIRECT_UID);
+        const stale = await redirects.findMany({ filters: { fromSlug: before }, limit: -1 });
+        await Promise.all(stale.map((r) => redirects.delete({ documentId: r.documentId })));
+        await redirects.create({ data: { fromSlug: before, pageDocumentId: documentId } as never });
+      }
+      return result;
+    }
     if (context.action !== "publish" || !documentId) {
       return next();
     }

@@ -35,14 +35,16 @@ const UrlPreview = ({ documentId }: { documentId: string }) => {
           À la publication, {url(published!)} redirigera (301) vers cette URL.
         </Typography>
       )}
-      {previous.length > 0 && (
+      {previous.filter((from) => from !== slug).length > 0 && (
         <Box>
           <Typography variant="pi">Anciennes URL redirigées ici :</Typography>
-          {previous.map((from) => (
-            <Typography key={from} variant="pi" tag="p" style={{ wordBreak: "break-all" }}>
-              {url(from)}
-            </Typography>
-          ))}
+          {previous
+            .filter((from) => from !== slug)
+            .map((from) => (
+              <Typography key={from} variant="pi" tag="p" style={{ wordBreak: "break-all" }}>
+                {url(from)}
+              </Typography>
+            ))}
         </Box>
       )}
     </Flex>
