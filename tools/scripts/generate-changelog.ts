@@ -75,6 +75,7 @@ const APPS = [
   { scope: "api", label: "API", decorator: "⚙️" },
   { scope: "widget", label: "Widget", decorator: "🖼️" },
   { scope: "analytics", label: "Analytics", decorator: "📊" },
+  { scope: "cms", label: "CMS", decorator: "📝" },
 ] as const;
 
 // ---------------------------------------------------------------------------
@@ -375,10 +376,9 @@ async function synthesizeWithOpenAI(tag: string, commits: Commit[], contexts: PR
 
   const rawPrContext = contexts
     .map(({ pr, notionContent }) => {
-      const sources = [
-        notionContent ? `Ticket Notion :\n${notionContent}` : null,
-        pr.body ? `Description de PR :\n${pr.body}` : null,
-      ].filter((source): source is string => source !== null);
+      const sources = [notionContent ? `Ticket Notion :\n${notionContent}` : null, pr.body ? `Description de PR :\n${pr.body}` : null].filter(
+        (source): source is string => source !== null
+      );
 
       const raw = sources.join("\n\n---\n\n") || "(pas de description)";
       const source = truncateForPrompt(raw, OPENAI_LIMITS.maxCharsPerSource, "contenu PR/Notion");
