@@ -163,7 +163,7 @@ export default function DefisEngagement() {
       <Questions cta={missionsCta("questions")} />
       <CadreMineurs />
       <Histoires cta={missionsCta("histoires")} />
-      <Partners style="compact" squareArrows partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
+      <Partners style="compact" partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
     </main>
   );
 }

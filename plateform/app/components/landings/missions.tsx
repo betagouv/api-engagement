@@ -46,7 +46,6 @@ export default function Missions({
           <p className="fr-text--lead mb-4! md:mb-6! lg:mb-8!">{description}</p>
 
           <Carousel
-            squareArrows
             label="Missions mises en avant"
             previousLabel="Voir les missions précédentes"
             nextLabel="Voir les missions suivantes"
