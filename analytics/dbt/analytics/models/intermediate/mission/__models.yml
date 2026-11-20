@@ -317,3 +317,19 @@ models:
           - not_null
       - name: deleted_at
         description: Horodatage du retrait de la diffusion (nullable).
+  - name: int_mission_enrichment_run
+    description: >
+      Passages d'enrichissement avec rattachement à la mission via l'enrichissement courant.
+      Aucun historique de classifications. Un passage peut comprendre plusieurs appels fournisseur.
+      Chargement incrémental par updated_at, avec remplacement des passages par identifiant.
+    columns:
+      - name: id
+        tests:
+          - not_null
+          - unique
+      - name: mission_id
+        description: Nullable si l'enrichissement parent a été supprimé.
+      - name: completed_at
+        description: Date de complétion d'un passage réussi, si disponible.
+      - name: updated_at
+        description: Date de modification source du passage, utilisée pour détecter les changements.

@@ -11,11 +11,12 @@ export const missionEnrichmentRepository = {
    *
    * Conditional atomic upsert: the unique constraint (mission_id, prompt_version) ensures there is
    * only one row; the `DO UPDATE ... WHERE status NOT IN (‘pending’,'processing')` only “takes” the
-   * row if no run is already in progress. Returns the reserved ID, or `null` if another worker
+   * row if no run is already in progress. Returns the reservation, or `null` if another worker
    * already holds the run (concurrency) — the caller must then stop.
    */
-  async claimForRun(params: { missionId: string; promptVersion: string }): Promise<string | null> {
-    const rows = await prisma.$queryRaw<{ id: string }[]>`
+  async claimForRun(params: { missionId: string; promptVersion: string }): Promise<{ enrichmentId: string; runId: string } | null> {
+    return prisma.$transaction(async (tx) => {
+      const rows = await tx.$queryRaw<{ id: string }[]>`
       INSERT INTO "mission_enrichment" ("id", "mission_id", "prompt_version", "status", "created_at", "updated_at")
       VALUES (gen_random_uuid(), ${params.missionId}, ${params.promptVersion}, 'processing', now(), now())
       ON CONFLICT ("mission_id", "prompt_version")
@@ -31,7 +32,15 @@ export const missionEnrichmentRepository = {
       RETURNING "id"
     `;
 
-    return rows[0]?.id ?? null;
+      const enrichmentId = rows[0]?.id;
+      if (!enrichmentId) {
+        return null;
+      }
+      const run = await tx.missionEnrichmentRun.create({
+        data: { missionEnrichmentId: enrichmentId, promptVersion: params.promptVersion, status: "processing" },
+      });
+      return { enrichmentId, runId: run.id };
+    });
   },
 
   findFirst<T extends Prisma.MissionEnrichmentFindFirstArgs>(
@@ -58,7 +67,8 @@ export const missionEnrichmentRepository = {
     enrichmentId: string,
     rawResponse: string,
     tokenUsage: { inputTokens: number | undefined; outputTokens: number | undefined; totalTokens: number | undefined },
-    values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[]
+    values: Omit<Prisma.MissionEnrichmentValueUncheckedCreateInput, "enrichmentId">[],
+    runId: string
   ): Promise<void> {
     await prisma.$transaction(async (tx) => {
       // Sérialiser le remplacement avec un scoring qui vérifie cette révision.
@@ -80,6 +90,33 @@ export const missionEnrichmentRepository = {
           totalTokens: tokenUsage.totalTokens,
           completedAt: new Date(),
         },
+      });
+      await tx.missionEnrichmentRun.update({
+        where: { id: runId },
+        data: { status: "completed", completedAt: new Date(), ...tokenUsage },
+      });
+    });
+  },
+
+  async failForRun(
+    enrichmentId: string,
+    runId: string,
+    data: {
+      rawResponse?: string;
+      inputTokens?: number;
+      outputTokens?: number;
+      totalTokens?: number;
+    }
+  ): Promise<void> {
+    const usage = { inputTokens: data.inputTokens, outputTokens: data.outputTokens, totalTokens: data.totalTokens };
+    await prisma.$transaction(async (tx) => {
+      await tx.missionEnrichment.update({
+        where: { id: enrichmentId },
+        data: { status: "failed", ...data },
+      });
+      await tx.missionEnrichmentRun.update({
+        where: { id: runId },
+        data: { status: "failed", ...usage },
       });
     });
   },

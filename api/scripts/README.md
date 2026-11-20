@@ -36,6 +36,12 @@ Ce répertoire contient des scripts de maintenance/migration pour l’API. Les s
   - Options : `--publisher-id` (répétable ; les publishers sont parcourus en parallèle), `--version` (`v0` ou `v2`, les deux si absent), `--offset` (sonde v0 supplémentaire, incompatible avec `--version v2`), `--page-size` (entier supérieur ou égal à 1, défaut 20, appliqué aux requêtes v0 et v2), `--concurrency` (nombre de parcours complets indépendants par publisher, défaut 1), `--delay-ms` (défaut 0, pour ajouter volontairement une pause entre deux pages). Le parcours n'impose aucune limite au nombre total de missions.
   - Codes de sortie : `0` si identiques, `1` si différents, `2` si la comparaison est impossible. Une modification des missions pendant l'exécution peut produire une différence temporaire ; relancer dans ce cas sur un jeu de données stable.
 
+- **backfill-mission-enrichment-runs.ts**
+
+  - Simulation: `npx ts-node scripts/backfill-mission-enrichment-runs.ts --dry-run`
+  - Exécution: `npx ts-node scripts/backfill-mission-enrichment-runs.ts`
+  - Prérequis: Producteurs d'enrichissements arrêtés, tâches en cours drainées et workers arrêtés avant l'exécution.
+
 - **backfill-publisher-organizations.ts**
 
   - Exécution: `npx ts-node scripts/backfill-publisher-organizations.ts`

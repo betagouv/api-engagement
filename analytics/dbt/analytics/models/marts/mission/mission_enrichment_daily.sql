@@ -18,11 +18,12 @@ with last_run as (
 
 affected_dates as (
   select distinct date(me.created_at) as event_date
-  from {{ ref('mission_enrichment') }} as me
+  from {{ ref('int_mission_enrichment_run') }} as me
+  left join {{ ref('mission') }} as m on me.mission_id = m.id
   cross join last_run
   {% if is_incremental() %}
     where
-      coalesce(me.updated_at, me.created_at)
+      greatest(coalesce(me.updated_at, me.created_at), m.updated_at)
       >= last_run.last_updated_at
   {% endif %}
 ),
@@ -37,8 +38,8 @@ base as (
     me.output_tokens,
     me.total_tokens,
     date(me.created_at) as event_date,
-    coalesce(me.updated_at, me.created_at) as updated_at
-  from {{ ref('mission_enrichment') }} as me
+    greatest(coalesce(me.updated_at, me.created_at), m.updated_at) as updated_at
+  from {{ ref('int_mission_enrichment_run') }} as me
   left join {{ ref('mission') }} as m on me.mission_id = m.id
   left join {{ ref('dim_publisher') }} as p on m.publisher_id = p.id
   {% if is_incremental() %}

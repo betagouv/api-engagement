@@ -310,14 +310,14 @@ export const missionEnrichmentService = {
     // The unique constraint (mission_id, prompt_version) guarantees one row; claimForRun reuses it
     // (no accumulation) and atomically blocks concurrent workers: a null id means another worker
     // already holds the run, so we skip silently.
-    const enrichmentId = await missionEnrichmentRepository.claimForRun({ missionId, promptVersion: currentPromptVersion });
+    const reservation = await missionEnrichmentRepository.claimForRun({ missionId, promptVersion: currentPromptVersion });
 
-    if (!enrichmentId) {
+    if (!reservation) {
       console.log(`${LOG_PREFIX} skipping ${missionId} — enrichment already in-flight (concurrent worker)`);
       return;
     }
 
-    const enrichment = { id: enrichmentId };
+    const enrichment = { id: reservation.enrichmentId };
 
     // Declared outside try/catch so the catch block can persist them on failure
     let providerResult: MissionEnrichmentProviderResult | undefined;
@@ -356,7 +356,13 @@ export const missionEnrichmentService = {
         evidence: v.evidence,
       }));
 
-      await missionEnrichmentRepository.completeWithValues(enrichment.id, JSON.stringify(providerResult.object), { inputTokens, outputTokens, totalTokens }, persistedValues);
+      await missionEnrichmentRepository.completeWithValues(
+        enrichment.id,
+        JSON.stringify(providerResult.object),
+        { inputTokens, outputTokens, totalTokens },
+        persistedValues,
+        reservation.runId
+      );
 
       console.log(`${LOG_PREFIX} ${missionId}: enrichment completed — ${valid.length} values persisted`);
     } catch (error) {
@@ -367,17 +373,13 @@ export const missionEnrichmentService = {
       const usage = providerResult?.usage ?? errPayload.usage;
 
       await missionEnrichmentRepository
-        .update({
-          where: { id: enrichment.id },
-          data: {
-            status: "failed",
-            ...(rawResponse !== null && { rawResponse }),
-            ...(usage && {
-              inputTokens: usage.inputTokens,
-              outputTokens: usage.outputTokens,
-              totalTokens: usage.totalTokens,
-            }),
-          },
+        .failForRun(enrichment.id, reservation.runId, {
+          ...(rawResponse !== null && { rawResponse }),
+          ...(usage && {
+            inputTokens: usage.inputTokens,
+            outputTokens: usage.outputTokens,
+            totalTokens: usage.totalTokens,
+          }),
         })
         .catch((updateErr) => {
           console.error(`${LOG_PREFIX} ${missionId}: failed to update status to failed`, updateErr);

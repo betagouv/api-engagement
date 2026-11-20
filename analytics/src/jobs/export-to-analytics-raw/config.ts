@@ -761,6 +761,30 @@ export const exportDefinitions: ExportDefinition[] = [
     },
   },
   {
+    key: "mission_enrichment_run",
+    batchSize: 2000,
+    source: {
+      table: "mission_enrichment_run",
+      cursor: { field: "updated_at", idField: "id" },
+      columns: [
+        "id",
+        "mission_enrichment_id",
+        "prompt_version",
+        "status",
+        "input_tokens",
+        "output_tokens",
+        "total_tokens",
+        "completed_at",
+        "created_at",
+        "updated_at",
+      ],
+    },
+    destination: {
+      table: "mission_enrichment_run",
+      conflictColumns: ["id"],
+    },
+  },
+  {
     key: "mission_enrichment_value",
     batchSize: 2000,
     source: {
