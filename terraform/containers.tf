@@ -89,6 +89,7 @@ resource "scaleway_container" "api" {
     "COCKPIT_METRICS_TOKEN"       = lookup(local.secrets, "COCKPIT_METRICS_TOKEN", "")
     "TYPESENSE_API_KEY"           = lookup(local.secrets, "TYPESENSE_API_KEY", "")
     "DEMARCHES_SIMPLIFIEES_TOKEN" = lookup(local.secrets, "DEMARCHES_SIMPLIFIEES_TOKEN", "")
+    "PUBLIC_PROXY_URL"            = lookup(local.secrets, "PUBLIC_PROXY_URL", "")
   }
 }
 
