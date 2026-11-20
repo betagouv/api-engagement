@@ -9,6 +9,9 @@ ENV NODE_ENV=production
 # Environnement (staging/production) inliné dans le bundle de l'admin (bandeau pré-prod) : STRAPI_ADMIN_* est lu au build.
 ARG ENV
 ENV STRAPI_ADMIN_ENV=$ENV
+# Domaine public du site (aperçu de l'URL d'une page) : même mécanisme.
+ARG PLATEFORM_URL
+ENV STRAPI_ADMIN_PLATEFORM_URL=$PLATEFORM_URL
 # Compile le serveur (TS → dist) et construit l'admin (build). Les secrets ne sont pas nécessaires au build.
 RUN npm run build && npm prune --omit=dev
 

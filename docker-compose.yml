@@ -63,6 +63,7 @@ services:
       CMS_API_TOKEN: dev-cms-read-token
       # Composants du CMS (plateform) affiché dans l'admin : URL vue par le navigateur.
       PLATEFORM_URL: http://localhost:3005
+      STRAPI_ADMIN_PLATEFORM_URL: http://localhost:3005
       # Secret partagé avec plateform pour la preview des brouillons (dev local uniquement).
       CMS_PREVIEW_SECRET: dev-cms-preview-secret
     volumes:
