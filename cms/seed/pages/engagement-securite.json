@@ -1,0 +1,152 @@
+{
+  "title": "Votre engagement peut se faire autrement",
+  "slug": "engagement-securite",
+  "seoTitle": "Votre engagement peut se faire autrement | TrouveTaMission.gouv.fr",
+  "seoDescription": "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez les missions d'engagement pour agir, secourir ou protéger près de chez vous.",
+  "ogTitle": "Votre engagement peut se faire autrement",
+  "ogDescription": "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez comment votre engagement va évoluer !",
+  "noindex": true,
+  "blocks": [
+    {
+      "__component": "blocks.hero",
+      "tags": [],
+      "visual": "none",
+      "title": "Votre engagement peut se faire autrement",
+      "description": "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez comment votre engagement va évoluer !",
+      "image": {
+        "upload": "landings/engagement-securite/hero.webp"
+      }
+    },
+    {
+      "__component": "blocks.missions-browser",
+      "dispositifs": [
+        {
+          "dispositif": "benevolat"
+        },
+        {
+          "dispositif": "service_civique"
+        },
+        {
+          "dispositif": "sapeurs_pompiers"
+        },
+        {
+          "dispositif": "reserve_gendarmerie"
+        },
+        {
+          "dispositif": "reserve_armees"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.etapes",
+      "items": [
+        {
+          "icon": "self_training",
+          "title": "Filtrez selon votre profil",
+          "description": "Votre âge et votre localisation, pour ne montrer que ce qui existe près de chez vous."
+        },
+        {
+          "icon": "search",
+          "title": "Comparez les missions disponibles",
+          "description": "Une sélection parmi les missions disponibles, pas un annuaire à trier vous-même."
+        },
+        {
+          "icon": "community",
+          "title": "Contactez l'organisme en direct",
+          "description": "Vous échangez directement avec l'organisme, sans intermédiaire !"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.benefits",
+      "title": "C'est quoi TrouveTaMission.gouv.fr ?",
+      "intro": "Le service public qui aide chaque personne à trouver une façon concrète de s'engager, quelle que soit sa forme, de quelques heures à toute une vie !",
+      "benefits": [
+        {
+          "emoji": "🎓",
+          "label": "De l'expérience pour votre CV"
+        },
+        {
+          "emoji": "📍",
+          "label": "Près de chez vous ou à distance"
+        },
+        {
+          "emoji": "💼",
+          "label": "Des compétences"
+        },
+        {
+          "emoji": "💸",
+          "label": "Avec ou sans indemnité"
+        },
+        {
+          "emoji": "❤️",
+          "label": "Adapté à vos valeurs"
+        }
+      ],
+      "newsletterTitle": "Pas le bon moment ?\nOn vous prévient",
+      "newsletterText": "1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement."
+    },
+    {
+      "__component": "blocks.faq",
+      "title": "Vous vous posez sûrement ==ces questions==",
+      "questions": [
+        {
+          "icon": "police",
+          "question": "C'est vraiment comparable à la réserve Police ?",
+          "answer": "Non, et ce n'est pas le but. Ce sont des missions différentes, mais tout aussi concrètes, pour agir, secourir ou protéger."
+        },
+        {
+          "icon": "calendar",
+          "question": "Je peux quand même retenter la Police l'an prochain ?",
+          "answer": "Oui. Une mission d'engagement ne ferme aucune porte pour candidater à nouveau. Et c'est une expérience valorisable."
+        },
+        {
+          "icon": "success",
+          "question": "Combien de temps ça va me prendre ?",
+          "answer": "De quelques heures par semaine à plusieurs semaines par an, jamais un engagement à temps plein. Le rythme exact est indiqué sur chaque fiche !"
+        }
+      ]
+    },
+    {
+      "__component": "blocks.partners",
+      "title": "Toutes les missions d’engagement vérifiées par l'État",
+      "partners": [
+        {
+          "name": "Les réserves des armées",
+          "description": "Des missions indemnisées de réservistes.",
+          "logo": {
+            "upload": "logo/roc-logo.png"
+          }
+        },
+        {
+          "name": "JeVeuxAider.gouv.fr",
+          "description": "La plateforme publique du bénévolat.",
+          "logo": {
+            "upload": "logo/jva-logo.png"
+          }
+        },
+        {
+          "name": "Le Service Civique",
+          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
+          "logo": {
+            "upload": "logo/asc-logo.png"
+          }
+        },
+        {
+          "name": "Sapeurs-pompiers de France",
+          "description": "Devenez sapeur-pompier volontaire près de chez vous.",
+          "logo": {
+            "upload": "logo/spv-logo.png"
+          }
+        },
+        {
+          "name": "Gendarmerie nationale",
+          "description": "Devenez réserviste de la Gendarmerie près de chez vous.",
+          "logo": {
+            "upload": "logo/gendarmerie-logo.png"
+          }
+        }
+      ]
+    }
+  ]
+}

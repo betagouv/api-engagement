@@ -80,9 +80,15 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
 // de la liste. Missions à distance et réserves (sans département) toujours visibles.
 const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
 
-export const getLandingMissionsConfig = ({ dispositif, domaineEngagement }: { dispositif: string | null; domaineEngagement: string | null }): LandingMissionsConfig => {
+export const getLandingMissionsConfig = ({
+  dispositifs,
+  domaineEngagement,
+}: {
+  dispositifs: { dispositif: string }[];
+  domaineEngagement: string | null;
+}): LandingMissionsConfig => {
   const include: MissionBrowseTaxonomyParams = {
-    ...(dispositif && { dispositif: [dispositif] }),
+    ...(dispositifs.length > 0 && { dispositif: dispositifs.map(({ dispositif }) => dispositif) }),
     ...(domaineEngagement && { domaine_engagement: [domaineEngagement] }),
   };
   return { include, includeRemote: true, filters: ALL_LANDING_FILTERS.filter((key) => !(key in include)) };

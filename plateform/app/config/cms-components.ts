@@ -312,7 +312,7 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
   },
   {
     label: "Limitée à un domaine (filtre Domaines masqué)",
-    block: { __component: "blocks.missions-browser", dispositif: null, domaineEngagement: "environnement_animaux" },
+    block: { __component: "blocks.missions-browser", dispositifs: [], domaineEngagement: "environnement_animaux" },
   },
   {
     label: "Exemple",
