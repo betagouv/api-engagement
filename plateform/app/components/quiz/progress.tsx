@@ -1,15 +1,15 @@
 interface QuizProgressProps {
   step: number;
   stepCount: number;
+  nextLabel?: string;
 }
 
-// Sous le header global : barre de progression du quiz. Le bouton de sortie vit dans le layout du quiz,
-// sous le bandeau bêta, pour ne pas aligner deux croix sur la même ligne.
-export default function QuizProgress({ step = 0, stepCount }: QuizProgressProps) {
-  const progress = stepCount > 0 ? Math.min(100, Math.max(0, (step / stepCount) * 100)) : 0;
-
+// Indicateur d'étapes du quiz (modèle DSFR « indicateur d'étapes »). Le composant fr-stepper du DSFR
+// est limité à 8 étapes : les segments sont donc construits ici, un par étape.
+export default function QuizProgress({ step = 0, stepCount, nextLabel }: QuizProgressProps) {
   return (
-    <div className="relative">
+    <div className="flex flex-col gap-3">
+      <p className="fr-text--sm mb-0!">{`Étape ${step} sur ${stepCount}`}</p>
       <div
         role="progressbar"
         aria-label="Progression du quiz"
@@ -17,11 +17,17 @@ export default function QuizProgress({ step = 0, stepCount }: QuizProgressProps)
         aria-valuemax={stepCount}
         aria-valuenow={step}
         aria-valuetext={`Étape ${step} sur ${stepCount}`}
-        className="h-2 bg-beige-gris-galet"
+        className="flex gap-2"
       >
-        <span className="sr-only">{`Étape ${step} sur ${stepCount}`}</span>
-        <div className="h-full bg-blue-france-sun transition-[width] ease-out duration-500" style={{ width: `${progress}%` }} />
+        {Array.from({ length: stepCount }, (_, index) => (
+          <div key={index} className={`h-2 flex-1 transition-colors duration-500 ${index < step ? "bg-blue-france-sun" : "bg-[var(--background-contrast-grey)]"}`} />
+        ))}
       </div>
+      {nextLabel && (
+        <p className="fr-text--xs text-mention-grey mb-0!">
+          <span className="font-bold">Étape suivante :</span> {nextLabel}
+        </p>
+      )}
     </div>
   );
 }

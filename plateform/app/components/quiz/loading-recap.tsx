@@ -1,5 +1,6 @@
 import type { TaxonomyValueKey } from "@engagement/taxonomy";
 import { useEffect, useMemo, useState } from "react";
+import { highlightText } from "~/components/ui/highlight";
 import Spinner from "~/components/ui/spinner";
 import { OPTIONS } from "~/config/quiz-options";
 import { fetchInitialMatches } from "~/services/matching";
@@ -86,19 +87,18 @@ export default function LoadingRecap({ onComplete }: Props) {
   return (
     <div className="flex flex-col gap-10">
       <h1 className="fr-h1 mb-0!">
-        Parfait !
-        <br />
-        On cherche les meilleures missions
-        <br />
-        pour ta première expérience.
+        {/* Mobile : sans « Parfait ! » et sans retours à la ligne forcés (maquette). */}
+        <span className="hidden md:inline">
+          Parfait !
+          <br />
+        </span>
+        {highlightText("On cherche les meilleures missions", "les meilleures missions")}
+        <br className="hidden md:inline" /> pour ta première expérience.
       </h1>
       <ul className="list-none! p-0! m-0! flex flex-col gap-3">
         {items.slice(0, visibleCount).map((label) => (
           <li key={label} className="flex items-center gap-3 fr-text--sm mb-0! animate-slide-up-fade">
-            <span
-              className="fr-icon-arrow-right-line fr-icon--sm flex items-center justify-center bg-action-high-blue-france text-inverted-blue-france h-5 w-5 rounded-full shrink-0"
-              aria-hidden="true"
-            />
+            <span className="fr-icon-checkbox-circle-fill fr-icon--sm text-blue-france-sun shrink-0" aria-hidden="true" />
             {label}
           </li>
         ))}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext } from "react-router";
 import CheckboxGroupRich from "~/components/quiz/checkbox-group-rich";
 import NextButton from "~/components/quiz/next-button";
+import { highlightText } from "~/components/ui/highlight";
 import { getStepDef } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { useQuizStore } from "~/stores/quiz";
@@ -36,7 +37,15 @@ export default function DomainesStep() {
 
   return (
     <>
-      <CheckboxGroupRich title={STEP.title} subtitle={STEP.subtitle} onChange={handleSelect} options={STEP_OPTIONS} selected={selected} error={error} required />
+      <CheckboxGroupRich
+        title={highlightText(STEP.title, STEP.highlight)}
+        subtitle={STEP.subtitle}
+        onChange={handleSelect}
+        options={STEP_OPTIONS}
+        selected={selected}
+        error={error}
+        required
+      />
       <NextButton onClick={handleNext} skip />
     </>
   );

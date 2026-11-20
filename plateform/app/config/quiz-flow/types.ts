@@ -25,6 +25,10 @@ export interface StepDef {
   title: string;
   // Sous-titre optionnel affiché sous le titre du step.
   subtitle?: string;
+  // Partie du titre surlignée (doit apparaître telle quelle dans `title`).
+  highlight?: string;
+  // Nom court du step, affiché par le stepper du step précédent (« Étape suivante : Ta localisation »).
+  label?: string;
   // Réponses proposées, dans l'ordre d'affichage. Versionnées ici et non dans le step component :
   // les steps sont partagés entre les parcours, seul le flow sait ce que sa version propose.
   // Absent pour les steps sans liste d'options (age, localisation).

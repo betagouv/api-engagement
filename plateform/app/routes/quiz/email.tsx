@@ -1,5 +1,8 @@
 import { type SubmitEvent, useEffect, useId, useRef, useState } from "react";
 import { useLocation, useNavigate, useOutletContext } from "react-router";
+import BackButton from "~/components/quiz/back-button";
+import { highlightText } from "~/components/ui/highlight";
+import { getStepDef } from "~/config/quiz-flow";
 import { PUBLISHER_ID } from "~/services/config";
 import { sendMissionEmail } from "~/services/email";
 import { fetchInitialMatches } from "~/services/matching";
@@ -22,7 +25,7 @@ import type { QuizOutletContext } from "./_layout";
 export default function EmailStep() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { showLoadingRecap, currentStepIndex, totalSteps } = useOutletContext<QuizOutletContext>();
+  const { showLoadingRecap, currentStepIndex, totalSteps, backHref, onBackNavigated } = useOutletContext<QuizOutletContext>();
   const distinctId = useQuizStore((s) => s.distinctId);
   const userScoringId = useQuizStore((s) => s.userScoringId);
   const markEmailSent = useQuizStore((s) => s.markEmailSent);
@@ -112,10 +115,11 @@ export default function EmailStep() {
 
   if (!userScoringId) return null;
 
+  const step = getStepDef("email");
+
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-1 flex-col">
-      <h1 className="fr-h1 mb-4!">Reçois tes missions par e-mail</h1>
-      <p className="fr-text--lead mb-8!">On t'envoie tes 6 premiers résultats tout de suite pour que tu les retrouves quand tu veux.</p>
+      <h1 className="fr-h1 mb-8!">{highlightText(step.title, step.highlight)}</h1>
 
       <div className={`fr-input-group md:max-w-sm ${error ? "fr-input-group--error" : ""}`}>
         <label className="fr-label" htmlFor={emailId}>
@@ -144,12 +148,14 @@ export default function EmailStep() {
         e-mail.
       </p>
 
+      {/* Desktop : Précédent, sans e-mail, puis l'action principale. Mobile : action principale au-dessus, Précédent masqué (maquette). */}
       <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-col gap-4 bg-background p-4 md:static md:mx-0 md:mt-4 md:flex-row md:gap-6 md:bg-transparent md:p-0">
-        <button type="submit" disabled={loading} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!">
-          {loading ? "Envoi en cours…" : "Voir mes résultats"}
-        </button>
-        <button type="button" onClick={handleSkip} disabled={loading} className="fr-btn fr-btn--lg fr-btn--secondary w-full! justify-center! md:w-auto!">
+        <BackButton href={backHref} onBack={onBackNavigated} className="hidden! md:inline-flex!" />
+        <button type="button" onClick={handleSkip} disabled={loading} className="fr-btn fr-btn--lg fr-btn--secondary w-full! justify-center! md:w-auto! order-2">
           Continuer sans laisser mon e-mail
+        </button>
+        <button type="submit" disabled={loading || !email.trim()} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto! order-1 md:order-3">
+          {loading ? "Envoi en cours…" : "Voir mes résultats"}
         </button>
       </div>
     </form>

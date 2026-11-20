@@ -2,6 +2,7 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import { useLocation, useOutletContext } from "react-router";
 import Label from "~/components/quiz/label";
 import NextButton from "~/components/quiz/next-button";
+import { highlightText } from "~/components/ui/highlight";
 import { getStepDef } from "~/config/quiz-flow";
 import { trackQuizStarted } from "~/services/tracking/events";
 import type { QuizEntrySection } from "~/services/tracking/types";
@@ -74,7 +75,7 @@ export default function AgeStep() {
     <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-8">
       <div className={`fr-select-group mb-0! ${error ? "fr-select-group--error" : ""}`}>
         <Label subtitle={STEP.subtitle} htmlFor="age-input" error={error} required>
-          {STEP.title}
+          {highlightText(STEP.title, STEP.highlight)}
         </Label>
         <select
           id="age-input"

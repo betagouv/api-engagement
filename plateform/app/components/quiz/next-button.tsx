@@ -1,5 +1,7 @@
 import React from "react";
-import { useNavigate, useOutletContext } from "react-router";
+import { Link, useOutletContext } from "react-router";
+import BackButton from "~/components/quiz/back-button";
+import { getStepDef } from "~/config/quiz-flow";
 import { useIsMobile } from "~/hooks/useIsMobile";
 import type { QuizOutletContext } from "~/routes/quiz/_layout";
 import { trackQuizShortcutTaken } from "~/services/tracking/events";
@@ -11,42 +13,43 @@ interface NextButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
 }
 
 export default function NextButton({ onClick, skip = false, ...props }: NextButtonProps) {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const userScoringId = useQuizStore((s) => s.userScoringId);
-  const { currentStepId, currentStepIndex } = useOutletContext<QuizOutletContext>();
+  const { currentStepId, currentStepIndex, backHref, onBackNavigated } = useOutletContext<QuizOutletContext>();
+  // Raccourci "Voir mes résultats" depuis une étape (feature_usage).
   const handleSkip = () => {
     const { answers } = useQuizStore.getState();
-    // Raccourci "Voir mes résultats" depuis une étape (feature_usage).
     if (currentStepId) {
       trackQuizShortcutTaken({ fromStepName: currentStepId, fromStepIndex: currentStepIndex, answers });
     }
-    // Sans userScoringId, le quiz n'a produit aucun scoring : pas de complétion à tracker.
-    // `quiz.completed` part à la sortie de l'étape email.
-    if (!userScoringId) {
-      navigate("/");
-      return;
-    }
-    navigate("/quiz/email", { state: { completionType: "shortcut" } });
   };
+
+  const isLastQuestion = currentStepId ? Boolean(getStepDef(currentStepId).completes) : false;
+
+  // Sans userScoringId, le quiz n'a produit aucun scoring : retour à l'accueil, pas de complétion à tracker.
+  // `quiz.completed` part à la sortie de l'étape email.
+  const skipLink = (
+    <Link
+      to={userScoringId ? "/quiz/email" : "/"}
+      state={userScoringId ? { completionType: "shortcut" } : undefined}
+      onClick={handleSkip}
+      className="fr-link fr-icon-arrow-right-line fr-link--icon-right self-center md:self-start"
+    >
+      Voir toutes les missions
+    </Link>
+  );
 
   return (
     <>
-      {skip && isMobile && (
-        <button type="button" onClick={handleSkip} className="fr-btn fr-btn--lg fr-btn--tertiary w-full! justify-center!">
-          Voir toutes les missions
-        </button>
-      )}
+      {skip && isMobile && skipLink}
       <div className="sticky bottom-0 z-10 -mx-4 mt-auto bg-background p-4 md:static md:mx-0 md:mt-0 md:bg-transparent md:p-0 md:flex md:flex-row md:gap-6">
+        {/* Mobile : seul « Continuer » reste, collé en bas d'écran (maquette). */}
+        <BackButton href={backHref} onBack={onBackNavigated} className="hidden! md:inline-flex!" />
         <button type="button" onClick={onClick} className="fr-btn fr-btn--lg w-full! justify-center! md:w-auto!" {...props}>
-          Continuer
+          {isLastQuestion ? "Voir mes missions" : "Continuer"}
         </button>
-        {skip && !isMobile && (
-          <button type="button" onClick={handleSkip} className="fr-btn fr-btn--lg fr-btn--tertiary inline-flex!">
-            Voir toutes les missions
-          </button>
-        )}
       </div>
+      {skip && !isMobile && skipLink}
     </>
   );
 }
