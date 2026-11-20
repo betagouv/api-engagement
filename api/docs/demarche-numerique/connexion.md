@@ -6,33 +6,44 @@ description: Connecter vos démarches Démarche Numérique à API Engagement pou
 
 Si vos candidatures passent par une démarche [Démarche Numérique](https://demarche.numerique.gouv.fr) (ex-Démarches Simplifiées), API Engagement lit les dossiers déposés pour les rattacher aux redirections de vos missions et comptabiliser les candidatures.
 
-Pour cela, API Engagement doit avoir accès en lecture à vos démarches. Deux modes de connexion sont possibles.
+La connexion se fait en deux étapes : préparer chaque démarche, puis nous transmettre un jeton API en lecture.
 
-## Option 1 : ajouter API Engagement à votre organisation
+## Étape 1 : préparer la démarche
 
-Ajoutez le compte API Engagement (adresse communiquée par l'équipe) comme administrateur de chaque démarche concernée. Nous utilisons alors notre propre accès : vous n'avez rien d'autre à faire.
+Chaque démarche doit contenir une **annotation privée** de type **« Texte court »** intitulée **« Identifiant de la redirection »**. API Engagement la préremplit avec l'identifiant de la redirection quand un candidat arrive depuis une mission diffusée, ce qui permet de rattacher le dossier déposé à cette redirection.
 
-## Option 2 : nous transmettre un token API
+<figure><img src="../.gitbook/assets/demarche-numerique-champ-identifiant-redirection.png" alt="Champ de type Texte court intitulé « Identifiant de la redirection »"><figcaption><p>Ajout du champ « Identifiant de la redirection »</p></figcaption></figure>
 
-Si vous ne souhaitez pas ajouter de compte externe à votre organisation, vous pouvez créer un token API et nous le transmettre. Documentation officielle : [Jeton d'authentification](https://doc.demarches-simplifiees.fr/api-graphql/jeton-dauthentification).
+{% hint style="warning" %}
+Le libellé doit être exactement **« Identifiant de la redirection »**. Laissez le champ facultatif.
+{% endhint %}
+
+## Étape 2 : nous transmettre un jeton API
+
+Créez un jeton API et transmettez-le-nous. Documentation officielle : [Jeton d'authentification](https://doc.demarches-simplifiees.fr/api-graphql/jeton-dauthentification).
 
 1. Connectez-vous à Démarche Numérique avec un **compte administrateur** des démarches concernées.
 2. Cliquez sur **« Voir mon profil »**, puis sur **« Créer et afficher un nouveau jeton »**.
-3. Choisissez **« Accès à une liste fermée de démarches »** et sélectionnez uniquement les démarches à connecter (recommandé plutôt que l'accès à toutes les démarches).
-4. Choisissez un accès en **lecture seule** : API Engagement n'écrit rien dans vos dossiers.
-5. Restriction par adresse IP : choisissez **« Réseaux personnalisés »** et saisissez l'adresse IP de sortie d'API Engagement : `78.232.48.26`. Cette restriction est obligatoire pour les tokens créés depuis le 1er juillet 2026.
-6. Copiez le token : **il n'est affiché qu'à sa création**.
+3. Choisissez les démarches auxquelles le jeton accède. Nous recommandons **« certaines de mes démarches »** et de ne sélectionner que les démarches à connecter.
+4. Choisissez **« de lire uniquement »** : API Engagement n'écrit rien dans vos dossiers. Cliquez sur **« Continuer »**.
+
+<figure><img src="../.gitbook/assets/demarche-numerique-jeton-etape-1.png" alt="Formulaire de création d'un jeton : choix des démarches et des droits"><figcaption><p>Choix des démarches et accès en lecture seule</p></figcaption></figure>
+
+5. Filtrage réseau : choisissez **« Saisie manuelle des réseaux autorisés »** et saisissez l'adresse IP de sortie d'API Engagement : `78.232.48.26`. Cette restriction est obligatoire pour les jetons créés depuis le 1er juillet 2026.
+6. Durée de vie du jeton : choisissez **« 1 an »** (durée maximale), puis cliquez sur **« Valider »**.
+
+<figure><img src="../.gitbook/assets/demarche-numerique-jeton-etape-2.png" alt="Formulaire de création d'un jeton : filtrage réseau et durée de vie"><figcaption><p>Filtrage réseau sur l'IP d'API Engagement et durée de vie</p></figcaption></figure>
+
+7. Cliquez sur **« Copier »** pour récupérer le jeton : **il n'est affiché qu'à sa création**.
+
+<figure><img src="../.gitbook/assets/demarche-numerique-jeton-copie.jpg" alt="Page « Votre jeton est prêt » avec le bouton Copier"><figcaption><p>Copie du jeton</p></figcaption></figure>
 
 {% hint style="info" %}
-Tous les appels d'API Engagement vers Démarche Numérique sortent par cette adresse IP fixe. Votre token n'est donc utilisable que depuis nos serveurs : même s'il fuitait, il ne fonctionnerait pas ailleurs.
+Tous les appels d'API Engagement vers Démarche Numérique sortent par cette adresse IP fixe. Votre jeton n'est donc utilisable que depuis nos serveurs : même s'il fuitait, il ne fonctionnerait pas ailleurs.
 {% endhint %}
 
-Transmettez ensuite le token à l'équipe API Engagement par un canal sécurisé (pas en clair dans un e-mail ou un ticket partagé). Il est stocké chiffré et n'est jamais réaffiché.
+Transmettez ensuite le jeton à l'équipe API Engagement par un canal sécurisé (pas en clair dans un e-mail ou un ticket partagé). Il est stocké chiffré et n'est jamais réaffiché.
 
 {% hint style="info" %}
-Si le token expire ou est révoqué, les candidatures ne remontent plus : créez-en un nouveau et transmettez-le-nous.
+Si le jeton expire ou est révoqué, les candidatures ne remontent plus : créez-en un nouveau et transmettez-le-nous.
 {% endhint %}
-
-## Préparer la démarche
-
-Quel que soit le mode de connexion, chaque démarche doit contenir une **annotation privée** de type texte intitulée **« Identifiant de la redirection »**. API Engagement la préremplit avec l'identifiant de la redirection quand un candidat arrive depuis une mission diffusée, ce qui permet de rattacher le dossier déposé à cette redirection.
