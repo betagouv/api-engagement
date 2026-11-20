@@ -10,7 +10,15 @@ La connexion se fait en deux étapes : préparer chaque démarche, puis nous tra
 
 ## Étape 1 : préparer la démarche
 
-Chaque démarche doit contenir une **annotation privée** de type **« Texte court »** intitulée **« Identifiant de la redirection »**. API Engagement la préremplit avec l'identifiant de la redirection quand un candidat arrive depuis une mission diffusée, ce qui permet de rattacher le dossier déposé à cette redirection.
+Chaque démarche doit contenir une **annotation privée** de type **« Texte court »** intitulée **« Identifiant de la redirection »**. Ce champ est renseigné automatiquement lorsqu'un candidat arrive depuis une mission diffusée par l'API Engagement : il permet de rattacher le dossier déposé à cette redirection.
+
+Pour l'ajouter :
+
+1. Connectez-vous à Démarche Numérique avec un **compte administrateur** de la démarche.
+2. Dans **« Mes démarches »**, ouvrez la démarche concernée.
+3. Dans la rubrique **« Annotations privées »**, cliquez sur **« Modifier »**.
+4. Cliquez sur **« Ajouter une annotation »**, choisissez le type **« Texte court »** et saisissez le libellé **« Identifiant de la redirection »**.
+5. Si la démarche est déjà publiée, publiez les modifications pour qu'elles s'appliquent aux nouveaux dossiers.
 
 <figure><img src="../.gitbook/assets/demarche-numerique-champ-identifiant-redirection.png" alt="Champ de type Texte court intitulé « Identifiant de la redirection »"><figcaption><p>Ajout du champ « Identifiant de la redirection »</p></figcaption></figure>
 
@@ -47,3 +55,5 @@ Transmettez ensuite le jeton à l'équipe API Engagement par un canal sécurisé
 {% hint style="info" %}
 Si le jeton expire ou est révoqué, les candidatures ne remontent plus : créez-en un nouveau et transmettez-le-nous.
 {% endhint %}
+
+Après réception du jeton, l'équipe API Engagement réalise une candidature test et vous confirme que le suivi fonctionne.
