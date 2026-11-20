@@ -238,7 +238,6 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       return (
         <Partners
           style="compact"
-          squareArrows
           title={block.title}
           description={null}
           partners={block.partners.map((partner) => ({ name: partner.name, description: partner.description, url: partner.url ?? undefined, logo: partner.logo.url }))}

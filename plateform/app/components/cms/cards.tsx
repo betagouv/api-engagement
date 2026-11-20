@@ -13,7 +13,6 @@ export default function Cards({ onStartQuiz, cta, title, cards }: { onStartQuiz:
       <h2 className="fr-h1 mb-4! text-center md:mb-8!">{title}</h2>
 
       <Carousel
-        squareArrows
         label="Une mission pour chaque étape de la vie"
         previousLabel="Voir la carte précédente"
         nextLabel="Voir la carte suivante"

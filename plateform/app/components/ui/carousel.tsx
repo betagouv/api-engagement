@@ -13,7 +13,6 @@ type Props = {
   previousLabel?: string;
   nextLabel?: string;
   ordered?: boolean;
-  squareArrows?: boolean;
 };
 
 /**
@@ -41,7 +40,7 @@ type Props = {
  * (ex. `md:grid md:grid-cols-3`), en pensant à neutraliser le débord (`md:mx-0! md:px-0!`).
  * `ordered` rend une `<ol>` quand l'ordre des diapositives porte du sens (des étapes).
  * `header` (ex. le titre de la section) place les flèches à sa droite sur desktop ; elles restent sous la liste sur mobile.
- * `squareArrows` : flèches carrées (bouton tertiaire DSFR de 48 px, icône de 24 px centrée : `fr-btn--lg` la passerait à 32 px, et le DSFR lui laisse une marge droite prévue pour le texte) des landings, au lieu des flèches rondes.
+ * Flèches carrées : bouton tertiaire DSFR de 48 px, icône de 24 px centrée (`fr-btn--lg` la passerait à 32 px, et le DSFR lui laisse une marge droite prévue pour le texte).
  */
 export default function Carousel({
   label,
@@ -54,7 +53,6 @@ export default function Carousel({
   previousLabel = "Précédent",
   nextLabel = "Suivant",
   ordered = false,
-  squareArrows = false,
 }: Props) {
   const listId = useId();
   const scrollRef = useRef<HTMLUListElement & HTMLOListElement>(null);
@@ -98,17 +96,15 @@ export default function Carousel({
 
   const ListTag = ordered ? "ol" : "ul";
 
-  const arrowClassName = squareArrows ? "fr-btn--tertiary size-12! max-h-none! max-w-none! justify-center! before:mr-0!" : "fr-btn--secondary rounded-full";
-
   const arrows = (
-    <div className={`flex gap-6 ${squareArrows ? "" : "md:gap-3"}`}>
+    <div className="flex gap-6">
       <button
         type="button"
         onClick={() => handleScroll(-1)}
         disabled={atStart}
         aria-label={previousLabel}
         aria-controls={listId}
-        className={`fr-btn fr-icon-arrow-left-line fr-icon--md ${arrowClassName}`}
+        className="fr-btn fr-btn--tertiary fr-icon-arrow-left-line fr-icon--md size-12! max-h-none! max-w-none! justify-center! before:mr-0!"
       />
       <button
         type="button"
@@ -116,7 +112,7 @@ export default function Carousel({
         disabled={atEnd}
         aria-label={nextLabel}
         aria-controls={listId}
-        className={`fr-btn fr-icon-arrow-right-line fr-icon--md ${arrowClassName}`}
+        className="fr-btn fr-btn--tertiary fr-icon-arrow-right-line fr-icon--md size-12! max-h-none! max-w-none! justify-center! before:mr-0!"
       />
     </div>
   );
