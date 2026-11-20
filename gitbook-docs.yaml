@@ -1,0 +1,17 @@
+$schema: https://api.gitbook.com/gitbook-docs.yaml
+site:
+  title: Documentation API Engagement
+  structure:
+    - type: space
+      key: space-1
+      title: Documentation Produit
+      path: documentation-api-engagement
+      default: true
+      content:
+        directory: ./documentation-api-engagement
+    - type: space
+      key: space-2
+      title: API Reference
+      path: api-reference
+      content:
+        directory: ./api/docs
