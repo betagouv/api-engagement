@@ -1,8 +1,6 @@
-version: "3.9"
-
 services:
   postgres-analytics:
-    image: postgres:13
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_USER: user
@@ -14,7 +12,7 @@ services:
       - postgres-analytics-data:/var/lib/postgresql/data
 
   postgres-core:
-    image: postgres:13
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_USER: user
@@ -28,7 +26,7 @@ services:
   # CMS Strapi (POC) : landings et pages éditoriales de plateform. Admin sur http://localhost:1337/admin.
   # Secrets ci-dessous : valeurs de dev local uniquement.
   postgres-cms:
-    image: postgres:16
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_USER: strapi

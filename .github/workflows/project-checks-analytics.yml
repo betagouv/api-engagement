@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: ${{ inputs.dbt && 'postgres:15' || '' }}
+        image: ${{ inputs.dbt && 'postgres:17' || '' }}
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
