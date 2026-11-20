@@ -28,6 +28,7 @@ jobs:
             plateform
             cms
             ci
+            doc
             tools
             deps
             deps-dev
