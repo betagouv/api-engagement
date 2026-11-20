@@ -2,19 +2,24 @@ import { useState } from "react";
 import { Link } from "react-router";
 import Modal from "~/components/layout/modal";
 import MissionTag from "~/components/missions/mission-tag";
-import { QUIZ_FLOW } from "~/config/quiz-flow";
+import { QUIZ_FLOW, type StepId } from "~/config/quiz-flow";
 import { OPTIONS } from "~/config/quiz-options";
 import { trackResultsRecapOpened } from "~/services/tracking/events";
 import { useQuizStore } from "~/stores/quiz";
 
 // Bouton « Ton profil » + modale « Ce qu'on a compris de toi » : récapitule les réponses du quiz
 // sous forme de tags et propose de refaire le quiz (renvoie vers la première question).
+// Seules les contraintes structurelles sont récapitulées : les autres réponses (rythme, domaine,
+// activité…) se modifient directement via les filtres de la page résultats.
+const STRUCTURAL_STEP_IDS: StepId[] = ["age", "handicap", "localisation", "mobilite", "motivation_recherche"];
+
 export default function ProfileModal({ quizHref }: { quizHref: string }) {
   const answers = useQuizStore((s) => s.answers);
   const [open, setOpen] = useState(false);
 
   // Libellés des réponses, dans l'ordre du parcours du quiz.
   const answerLabels = QUIZ_FLOW.flatMap((step) => {
+    if (!STRUCTURAL_STEP_IDS.includes(step.id)) return [];
     const answer = answers[step.id];
     if (!answer) return [];
     // Seul step numérique du parcours : l'âge.
