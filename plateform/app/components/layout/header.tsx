@@ -41,17 +41,15 @@ export default function Header() {
               </div>
             </div>
             {showAccompagnateurs && (
-              <div className="fr-header__tools">
-                {/* Masqué sous `lg` par le DSFR (il l'attend dupliqué dans un menu burger, absent ici) : visible en desktop uniquement en attendant une vraie navigation. */}
-                <div className="fr-header__tools-links">
-                  <ul className="fr-btns-group">
-                    <li>
-                      <Link to="/accompagnateurs" className="fr-btn fr-icon-team-line" aria-current={pathname === "/accompagnateurs" ? "page" : undefined}>
-                        Espace Accompagnateurs
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+              <div className="fr-header__tools fr-hidden fr-unhidden-lg">
+                {/* Pas de fr-header__tools-links : son JS exige un menu mobile, absent de cet en-tête. */}
+                <Link
+                  to="/accompagnateurs"
+                  className="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-team-line"
+                  aria-current={pathname === "/accompagnateurs" ? "page" : undefined}
+                >
+                  Espace Accompagnateurs
+                </Link>
               </div>
             )}
           </div>
