@@ -6,7 +6,7 @@ export const SERVICE_TITLE = "TrouveTaMission.gouv.fr";
 export const SERVICE_TAGLINE = "Tout l’engagement public à portée de clic";
 
 export default function Header() {
-  // « Espace Accompagnateurs » : uniquement sur la homepage et sa propre landing (ni quiz ni landings à destination des jeunes), desktop uniquement.
+  // « Espace accompagnateurs » : uniquement sur la homepage et sa propre landing (ni quiz ni landings à destination des jeunes), desktop uniquement.
   const { pathname } = useLocation();
   const showAccompagnateurs = pathname === "/" || pathname === "/accompagnateurs";
   // Retour SIG : même header sur toutes les pages, quiz compris, en mobile comme en desktop.
@@ -48,7 +48,7 @@ export default function Header() {
                   className="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-team-line"
                   aria-current={pathname === "/accompagnateurs" ? "page" : undefined}
                 >
-                  Espace Accompagnateurs
+                  Espace accompagnateurs
                 </Link>
               </div>
             )}
