@@ -37,14 +37,16 @@ const DEFAULT_OPTIONS = {
   ACL: OBJECT_ACL.PRIVATE,
 };
 
-export const putObject = async (objectName: string, objectContent: string | Buffer, options = {}): Promise<CompleteMultipartUploadCommandOutput> => {
+export const putObject = async (objectName: string, objectContent: string | Buffer | Readable, options = {}): Promise<CompleteMultipartUploadCommandOutput> => {
   const params = {
     ...DEFAULT_OPTIONS,
     ...options,
     Key: objectName,
     Body: objectContent,
   };
-  const upload = new Upload({ client: bucket, params });
+  // Un flux ne doit pas être accumulé en mémoire : deux parties de 5 Mio en vol au maximum.
+  const streamOptions = objectContent instanceof Readable ? { queueSize: 2, partSize: 5 * 1024 * 1024 } : {};
+  const upload = new Upload({ client: bucket, params, ...streamOptions });
   return upload.done();
 };
 
