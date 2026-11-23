@@ -1,11 +1,15 @@
-import fs from "fs";
+import { createWriteStream } from "fs";
+import { mkdtemp, rm, stat, writeFile } from "fs/promises";
+import { tmpdir } from "os";
+import { join } from "path";
+import { pipeline } from "stream/promises";
 
 import { ENV, PUBLISHER_IDS } from "@/config";
 import { captureException } from "@/error";
 import { BaseHandler } from "@/jobs/base/handler";
 import { DISPOSITIFS } from "@/jobs/linkedin/dispositifs";
-import { DispositifDefinition, LinkedInJob } from "@/jobs/linkedin/types";
-import { generateJobs, generateXML, getMissionsCursor, storeXML } from "@/jobs/linkedin/utils";
+import { DispositifDefinition } from "@/jobs/linkedin/types";
+import { createXMLStream, generateXMLHeader, getMissionsCursor, storeXML, writeJobs, XML_FOOTER } from "@/jobs/linkedin/utils";
 import { JobResult } from "@/jobs/types";
 import { importService } from "@/services/import";
 import { publisherService } from "@/services/publisher";
@@ -35,6 +39,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
 
   public async handle(payload: LinkedinJobPayload): Promise<LinkedinJobResult> {
     const start = new Date();
+    let temporaryDirectory: string | undefined;
     try {
       const linkedin = await publisherService.findOnePublisherById(PUBLISHER_IDS.LINKEDIN);
       if (!linkedin) {
@@ -51,7 +56,9 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         },
       } as LinkedinJobResult;
 
-      const jobs: LinkedInJob[] = [];
+      temporaryDirectory = await mkdtemp(join(tmpdir(), "linkedin-"));
+      const jobsPath = join(temporaryDirectory, "jobs.xml");
+      await writeFile(jobsPath, "", { mode: 0o600 });
       for (const dispositif of DISPOSITIFS) {
         const publisherIds = await resolvePublisherIds(dispositif);
         if (!publisherIds.length) {
@@ -59,21 +66,20 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         }
         // Toutes les missions passent par le snapshot `mission_diffusion` de LinkedIn (règles d'exclusion incluses).
         const cursor = getMissionsCursor({ publisherIds, diffuseurPublisherId: PUBLISHER_IDS.LINKEDIN });
-        const res = await generateJobs(cursor, dispositif);
-        console.log(`[LinkedinHandler] ${dispositif.label}: ${res.processed} missions processed, ${res.jobs.length} jobs added to the feed`);
-        jobs.push(...res.jobs);
-        result.counter.processed += res.processed;
-        result.counter.sent += res.jobs.length;
-        result.counter.skipped += res.skipped;
-        result.counter.expired += res.expired;
+        const counters = await writeJobs(cursor, dispositif, jobsPath);
+        console.log(`[LinkedinHandler] ${dispositif.label}: ${counters.processed} missions processed, ${counters.sent} jobs added to the feed`);
+        result.counter.processed += counters.processed;
+        result.counter.sent += counters.sent;
+        result.counter.skipped += counters.skipped;
+        result.counter.expired += counters.expired;
       }
 
-      console.log(`[LinkedinHandler] Generating XML for ${jobs.length} jobs`);
-      const xml = generateXML(jobs);
-      console.log(`[LinkedinHandler] ${xml.length} bytes`);
+      const header = generateXMLHeader(result.counter.sent);
+      const size = (await stat(jobsPath)).size + Buffer.byteLength(header) + Buffer.byteLength(XML_FOOTER);
+      console.log(`[LinkedinHandler] ${size} bytes for ${result.counter.sent} jobs`);
 
       if (ENV === "development") {
-        fs.writeFileSync("linkedin.xml", xml);
+        await pipeline(createXMLStream(jobsPath, header), createWriteStream("linkedin.xml"));
         console.log(`[LinkedinHandler] XML stored in local file`);
 
         return {
@@ -84,7 +90,7 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         };
       }
 
-      const url = await storeXML(xml);
+      const url = await storeXML(jobsPath, header);
       console.log(`[LinkedinHandler] XML stored at ${url}`);
 
       await importService.createImport({
@@ -126,6 +132,10 @@ export class LinkedinHandler implements BaseHandler<LinkedinJobPayload, Linkedin
         url: "",
         counter: { processed: 0, sent: 0, expired: 0, skipped: 0 },
       };
+    } finally {
+      if (temporaryDirectory) {
+        await rm(temporaryDirectory, { recursive: true, force: true });
+      }
     }
   }
 }
