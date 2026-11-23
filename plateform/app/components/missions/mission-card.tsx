@@ -1,8 +1,9 @@
 import { Link } from "react-router";
 
 // Présentation unique des cartes mission (résultats de matching, liste /missions, landings) : image
-// sans surimpression, tag domaine, titre, tags et annonceur, plus un bouton email optionnel. Seul le
-// lien « Détails » mène à la fiche (retour SIG : pas d'action sur le visuel ni de carte cliquable).
+// sans surimpression, tag domaine, titre, tags et annonceur, plus un bouton email optionnel. Toute la
+// carte est cliquable : le lien « Détails » contient un span vide en absolute qui couvre toute la carte
+// (pas de ::before/::after : DSFR les réserve aux icônes et force content: none sur le ::before).
 // Les appelants n'ont pas les mêmes données (matching vs browse) ni le même tracking : la carte ne
 // reçoit que du déjà mis en forme et ne calcule ni les tags ni le lien.
 export default function MissionCard({
@@ -30,15 +31,15 @@ export default function MissionCard({
 }) {
   return (
     // Sans tags (cartes d'exemple des landings) : hauteur au contenu et titre plus grand, sur 3 lignes.
-    <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
+    <div className={`border-border-default-grey bg-background shadow-card relative flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
       {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
 
-      <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
-        {/* Cœur en absolute au-dessus du titre : le titre garde toute la largeur de la carte. */}
+      <div className="flex flex-1 flex-col px-4 py-3 gap-4">
+        {/* Cœur en absolute au-dessus du titre (sous l'image h-30) et au-dessus du lien étendu : le titre garde toute la largeur de la carte. */}
         {onEmailClick && (
           <button
             type="button"
-            className="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-heart-line absolute! top-2 right-4 w-8! h-8! text-xs!"
+            className="fr-btn fr-btn--tertiary fr-btn--sm fr-icon-heart-line absolute! top-32 right-4 z-10 w-8! h-8! text-xs!"
             title="Recevoir cette mission par e-mail"
             onClick={onEmailClick}
           >
@@ -82,6 +83,7 @@ export default function MissionCard({
           )}
           {to && (
             <Link to={to} state={state} onClick={onClick} className="fr-link fr-icon-arrow-right-line fr-link--icon-right shrink-0">
+              <span aria-hidden="true" className="absolute inset-0" />
               Détails<span className="fr-sr-only"> de la mission : {title}</span>
             </Link>
           )}

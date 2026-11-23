@@ -59,8 +59,6 @@ interface Props {
   items: MissionMatchItem[];
   center: [number, number];
   onMarkerClick?: (item: MissionMatchItem) => void;
-  // Marge (x, y en px) à garder dégagée en haut/à gauche pour que le pin cliqué ne passe pas sous la carte mission fixée.
-  selectionPadding?: [number, number];
   // Mission actuellement survolée/sélectionnée : son pin est mis en couleur et passe au premier plan.
   activeMissionId?: string | null;
   // Mobile : mission mise en avant par le carrousel (clic sur un pin ou swipe) → la map se recentre sur son pin.
@@ -70,14 +68,9 @@ interface Props {
   onMissionHover?: (missionId: string | null) => void;
 }
 
-export default function MissionMap({ items, center, onMarkerClick, selectionPadding, activeMissionId, focusedMissionId, onMissionHover }: Props) {
+export default function MissionMap({ items, center, onMarkerClick, activeMissionId, focusedMissionId, onMissionHover }: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const isMobile = useIsMobile();
-
-  const handleMarkerSelect = (item: MissionMatchItem, position: GeoPosition) => {
-    if (selectionPadding && mapRef.current) mapRef.current.panInside(position, { paddingTopLeft: selectionPadding });
-    onMarkerClick?.(item);
-  };
 
   const missions = useMemo<MapMission[]>(() => {
     const positionedMissions = items.map((item, index) => {
@@ -147,7 +140,7 @@ export default function MissionMap({ items, center, onMarkerClick, selectionPadd
               zIndexOffset={isActive ? 1000 : 0}
               keyboard={false}
               eventHandlers={{
-                ...(onMarkerClick ? { click: () => handleMarkerSelect(item, position) } : {}),
+                ...(onMarkerClick ? { click: () => onMarkerClick(item) } : {}),
                 ...(onMissionHover ? { mouseover: () => onMissionHover(item.mission.id), mouseout: () => onMissionHover(null) } : {}),
               }}
             >
