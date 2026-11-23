@@ -38,17 +38,29 @@ const JVA_ID = PUBLISHER_IDS.JEVEUXAIDER;
 const FUTURE_END = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
 const handler = new LinkedinHandler();
+const storedXml: string[] = [];
 
-/** Concatène tous les corps XML écrits sur S3 pendant le run. */
+/** Concatène les corps XML consommés par le mock S3 pendant le run. */
 function getAllStoredXml(): string {
-  return vi
-    .mocked(putObject)
-    .mock.calls.map(([, body]) => body as string)
-    .join("");
+  return storedXml.join("");
 }
 
 beforeEach(async () => {
-  vi.mocked(putObject).mockClear();
+  storedXml.length = 0;
+  vi.mocked(putObject).mockReset();
+  vi.mocked(putObject).mockImplementation(async (_key, body) => {
+    // Le handler ferme le flux après l'upload : il faut le lire ici, pas après handle().
+    if (typeof body === "string" || Buffer.isBuffer(body)) {
+      storedXml.push(body.toString());
+    } else {
+      const chunks: Buffer[] = [];
+      for await (const chunk of body) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      storedXml.push(Buffer.concat(chunks).toString("utf8"));
+    }
+    return {};
+  });
   await prisma.import.deleteMany({});
   await createTestPublisher({ id: LINKEDIN_ID, name: "LinkedIn" });
   await createTestPublisher({ id: JVA_ID, name: "JeVeuxAider" });
@@ -93,6 +105,8 @@ describe("LinkedinHandler (integration test)", () => {
     expect(result.success).toBe(true);
 
     const xml = getAllStoredXml();
+    expect(storedXml).toHaveLength(2);
+    expect(storedXml[0]).toBe(storedXml[1]);
     // La mission de l'organisation gardée figure dans le feed…
     expect(xml).toContain(String(kept.id));
     // …celle de l'organisation exclue n'y figure pas.
