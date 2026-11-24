@@ -1,5 +1,6 @@
 import { Layout } from "@strapi/icons";
 import type { StrapiApp } from "@strapi/strapi/admin";
+import { BlockDocsPanel } from "./components/block-docs";
 import { PageHistoryPanel } from "./components/page-history";
 
 // Personnalisation de l'admin : lien « Composants du CMS » dans le menu, vers la page rendue par plateform.
@@ -18,7 +19,7 @@ export default {
   },
   bootstrap(app: StrapiApp) {
     // Historique des pages : voir src/history.ts.
-    (app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (actions: unknown[]) => void } }).apis.addEditViewSidePanel([PageHistoryPanel]);
+    (app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (actions: unknown[]) => void } }).apis.addEditViewSidePanel([PageHistoryPanel, BlockDocsPanel]);
     // Bandeau pré-prod (comme app/) : fixé en haut, l'admin est décalé de sa hauteur.
     // STRAPI_ADMIN_ENV est inlinée au build (cf. Dockerfile.production, issue de l'ENV global du workflow).
     if (process.env.STRAPI_ADMIN_ENV !== "staging") {
