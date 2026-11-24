@@ -26,18 +26,19 @@
     },
     "primaryLabel": {
       "type": "string",
-      "description": "Bouton principal (ex. : Je candidate). Remplace le bouton quiz si le lien est renseigné. Avec une recherche par adresse : libellé du bouton de recherche (ex. : Trouve ta caserne)."
+      "description": "Libellé du CTA principal, le bouton mis en avant (ex. : Je candidate). Remplace le bouton quiz si le lien du CTA est renseigné. Avec une recherche par adresse : libellé du bouton de recherche (ex. : Trouve ta caserne)."
     },
     "primaryUrl": {
       "type": "string",
-      "description": "Lien du bouton principal. Une URL https://… s'ouvre dans un nouvel onglet."
+      "description": "Lien du CTA principal (bouton mis en avant). Une URL https://… s'ouvre dans un nouvel onglet."
     },
     "secondaryLabel": {
       "type": "string",
-      "description": "Bouton secondaire (ex. : En savoir plus sur la mission)."
+      "description": "Libellé du CTA secondaire, le bouton discret à côté du principal (ex. : En savoir plus sur la mission)."
     },
     "secondaryUrl": {
-      "type": "string"
+      "type": "string",
+      "description": "Lien du CTA secondaire."
     },
     "hint": {
       "type": "string",
@@ -61,7 +62,7 @@
       "allowedTypes": [
         "images"
       ],
-      "description": "Visuel à droite du texte à partir de la tablette (et sur mobile si aucune image mobile). Ignoré si un habillage de campagne est choisi."
+      "description": "Visuel à droite du texte à partir de la tablette (et sur mobile si aucune image mobile)."
     },
     "imageMobile": {
       "type": "media",
@@ -70,16 +71,6 @@
         "images"
       ],
       "description": "Visuel sous le texte sur mobile (moins de 768 px). Sans elle, l'image principale est utilisée."
-    },
-    "visual": {
-      "type": "enumeration",
-      "enum": [
-        "none",
-        "chacun_pour_tous"
-      ],
-      "default": "none",
-      "required": true,
-      "description": "Habillage de campagne codé dans plateform (laisser sur none sauf cas particulier)."
     }
   }
 }
