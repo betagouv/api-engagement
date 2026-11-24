@@ -25,6 +25,10 @@ export default {
     });
   },
   bootstrap(app: StrapiApp) {
+    // Les listes déroulantes défilent sans que l'on voie qu'elles le peuvent (scrollbars macOS masquées) : barre toujours visible.
+    const style = document.createElement("style");
+    style.textContent = '[role="listbox"] { scrollbar-width: auto; scrollbar-color: #8e8ea9 #eaeaef; }';
+    document.head.append(style);
     // Historique des pages : voir src/history.ts.
     (app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (actions: unknown[]) => void } }).apis.addEditViewSidePanel([PageHistoryPanel, BlockDocsPanel]);
     // Bandeau pré-prod (comme app/) : fixé en haut, l'admin est décalé de sa hauteur.
