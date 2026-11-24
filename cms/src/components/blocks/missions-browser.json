@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Liste de missions filtrable",
     "icon": "search",
-    "description": "Liste paginée de missions avec filtres (localisation, âge, rythme…), comme la page /missions. Les dispositifs, domaines et départements choisis limitent la liste et masquent le filtre correspondant. Un seul bloc par page."
+    "description": "Liste paginée de missions avec filtres (localisation, âge, rythme…), comme la page /missions. Ces réglages choisissent les missions affichées dans la liste : une mission n'apparaît que si elle correspond à la fois au dispositif, au domaine et au département choisis. Par exemple, si vous sélectionnez Bénévolat et Santé et bien-être, seules les missions de bénévolat dans le domaine Santé et bien-être apparaîtront. Plusieurs valeurs d'un même champ s'additionnent (Bénévolat ou Service civique). Un champ laissé vide n'applique aucune restriction sur ce critère. Un champ renseigné masque le filtre correspondant pour les visiteurs. Les missions sont affichées de la plus récente à la plus ancienne (date de création). Un seul bloc par page."
   },
   "attributes": {
     "dispositifs": {
