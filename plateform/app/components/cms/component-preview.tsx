@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import CmsBlocks, { type CmsBlocksContext } from "~/components/cms";
-import { CMS_COMPONENT_IMAGES, CMS_COMPONENT_PARTNERS } from "~/config/cms-components";
+import { CMS_COMPONENT_IMAGES } from "~/config/cms-components";
 import type { CmsComponentField } from "~/services/cms-components.server";
 import type { CmsBlock, CmsMedia } from "~/types/cms";
 
@@ -104,30 +104,6 @@ function FieldInput({ field, value, onChange, id }: { field: CmsComponentField; 
           {field.options.map((option) => (
             <option key={option} value={option}>
               {option}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
-
-  if (field.kind === "relation") {
-    return (
-      <div className="fr-select-group">
-        <label className="fr-label" htmlFor={id}>
-          {label}
-          {hint}
-        </label>
-        <select
-          className="fr-select"
-          id={id}
-          value={(value as { name: string } | null)?.name ?? ""}
-          onChange={(event) => onChange(CMS_COMPONENT_PARTNERS.find((partner) => partner.name === event.target.value) ?? null)}
-        >
-          {!field.required && <option value="">Aucun partenaire</option>}
-          {CMS_COMPONENT_PARTNERS.map((partner) => (
-            <option key={partner.name} value={partner.name}>
-              {partner.name}
             </option>
           ))}
         </select>
@@ -270,6 +246,5 @@ function emptyValue(field: CmsComponentField): unknown {
   if (field.kind === "media") return field.required ? CMS_COMPONENT_IMAGES[0].media : null;
   if (field.kind === "blocks") return [{ type: "paragraph", children: [{ type: "text", text: "Texte à rédiger dans Strapi." }] }];
   if (field.kind === "component") return emptyItem(field.children);
-  if (field.kind === "relation") return field.required ? CMS_COMPONENT_PARTNERS[0] : null;
   return field.required ? "À compléter" : null;
 }

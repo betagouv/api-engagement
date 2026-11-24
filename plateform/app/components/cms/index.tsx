@@ -6,6 +6,7 @@ import Hero from "~/components/landings/hero";
 import LocationFilter, { type Location } from "~/components/landings/location-filter";
 import Missions from "~/components/landings/missions";
 import Newsletter from "~/components/layout/newsletter";
+import { CMS_PARTNERS } from "~/config/cms-partners";
 import Partners from "~/components/layout/partners";
 import MissionsBrowser from "~/components/missions/missions-browser";
 import { getLandingMissionsConfig } from "~/utils/landing-missions";
@@ -238,7 +239,10 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           squareArrows
           title={block.title}
           description={null}
-          partners={block.partners.map(({ partner, description }) => ({ name: partner.name, description: description || partner.description, logo: partner.logo.url }))}
+          partners={block.partners.flatMap(({ partner, description }) => {
+            const known = CMS_PARTNERS[partner];
+            return known ? [{ name: known.name, description: description || known.description, logo: known.logo }] : [];
+          })}
         />
       );
     case "blocks.newsletter":

@@ -1,10 +1,6 @@
 {
   "collectionName": "components_blocks_partners",
-  "info": {
-    "displayName": "Partenaires",
-    "icon": "handHeart",
-    "description": "Logos de partenaires sous un titre. Les partenaires (nom, texte, logo) se créent une fois pour toutes dans « Partenaire » (menu de gauche) puis se choisissent dans une liste. Le texte de chaque partenaire peut être remplacé sur la page (ex. : vouvoiement)."
-  },
+  "info": { "displayName": "Partenaires", "icon": "handHeart" },
   "attributes": {
     "title": { "type": "string", "required": true },
     "partners": { "type": "component", "repeatable": true, "component": "items.partner" }
