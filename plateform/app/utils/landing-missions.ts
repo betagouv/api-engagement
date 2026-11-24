@@ -37,18 +37,12 @@ export const getTotalPages = (total: number, alertCard = false): number => {
   return total <= firstPageSize ? 1 : 1 + Math.ceil((total - firstPageSize) / LANDING_MISSIONS_PAGE_SIZE);
 };
 
-// Filtres à choix unique : un seul param d'URL est pris en compte.
-export const SINGLE_CHOICE_FILTERS: LandingFilterKey[] = ["tranche_age"];
-
 export const getPage = (searchParams: URLSearchParams): number => {
   const page = parseInt(searchParams.get("page") ?? "1", 10);
   return Number.isNaN(page) ? 1 : Math.max(1, page);
 };
 
-export const getSelectedValues = (searchParams: URLSearchParams, key: LandingFilterKey): string[] => {
-  const values = searchParams.getAll(key);
-  return SINGLE_CHOICE_FILTERS.includes(key) ? values.slice(0, 1) : values;
-};
+export const getSelectedValues = (searchParams: URLSearchParams, key: LandingFilterKey): string[] => searchParams.getAll(key);
 
 // Paramètres de `/missions/browse` pour une landing : seuls les filtres affichés sont lus dans l'URL,
 // la liste est toujours triée par date (les emplacements ne s'appliquent que sans filtre, côté API).

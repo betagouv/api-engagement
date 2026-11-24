@@ -33,7 +33,6 @@ export default function Questions() {
 
       {/* Mobile : carrousel de cartes avec ombre ; à partir de la tablette, grille de 3 cartes bordées et arrondies. */}
       <Carousel
-        squareArrows
         label="Les questions que vous vous posez"
         previousLabel="Voir la question précédente"
         nextLabel="Voir la question suivante"

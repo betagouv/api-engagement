@@ -5,7 +5,7 @@ import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router";
 
-import LocationFilter, { LOCATION_LABEL_PARAM } from "~/components/landings/location-filter";
+import { LOCATION_LABEL_PARAM } from "~/components/landings/location-filter";
 import MissionAlertCard from "~/components/landings/mission-alert-card";
 import MissionCard from "~/components/missions/mission-card";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
@@ -14,7 +14,7 @@ import { useFocusTrap } from "~/hooks/useFocusTrap";
 import { PUBLISHER_ID } from "~/services/config";
 import { trackMissionClickedFromBrowse, trackMissionsFilterApplied, trackMissionsPageChanged } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState, MissionsFilterType } from "~/services/tracking/types";
-import { SINGLE_CHOICE_FILTERS, getPageWindow, getSelectedValues, getTotalPages, type LandingFilterKey } from "~/utils/landing-missions";
+import { getPageWindow, getSelectedValues, getTotalPages, type LandingFilterKey } from "~/utils/landing-missions";
 import { buildMissionBrowseHref } from "~/utils/mission";
 import { getScrollBehavior } from "~/utils/motion";
 
@@ -22,7 +22,7 @@ import { getScrollBehavior } from "~/utils/motion";
 const ALERT_CARD_POSITION = 6;
 
 const FILTER_LABELS: Record<LandingFilterKey, string> = {
-  departmentCode: "Localisation",
+  departmentCode: "Département",
   tranche_age: "Tranche d'âge",
   activite: "Activités",
   domaine_engagement: "Domaines",
@@ -49,7 +49,14 @@ const getFilterOptions = (key: LandingFilterKey, exclude: MissionBrowseTaxonomyP
     .map(([value, { label }]) => ({ value, label }));
 };
 
-// Groupes de filtres dépliables (cases à cocher, ou boutons radio pour un choix unique). Partagés par la colonne
+// Recherche dans les départements : sans casse ni accents (« reunion » trouve « La Réunion »).
+const normalizeSearch = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+// Groupes de filtres dépliables en cases à cocher (Département avec un champ de recherche). Partagés par la colonne
 // desktop (application immédiate) et la fenêtre mobile (application à la sauvegarde) : `idPrefix` évite les
 // identifiants en double quand les deux sont dans la page.
 function FilterGroups({
@@ -65,7 +72,8 @@ function FilterGroups({
   onChange: (key: LandingFilterKey, next: string[]) => void;
   idPrefix: string;
 }) {
-  const [openGroups, setOpenGroups] = useState<LandingFilterKey[]>(["activite"]);
+  const [openGroups, setOpenGroups] = useState<LandingFilterKey[]>(["departmentCode"]);
+  const [departmentQuery, setDepartmentQuery] = useState("");
 
   const handleToggleGroup = (key: LandingFilterKey) => {
     setOpenGroups((prev) => (prev.includes(key) ? prev.filter((openKey) => openKey !== key) : [...prev, key]));
@@ -79,7 +87,6 @@ function FilterGroups({
         const selectedValues = selected(key);
         const open = openGroups.includes(key);
         const panelId = `${idPrefix}-${key}`;
-        const single = SINGLE_CHOICE_FILTERS.includes(key);
         return (
           <div key={key} className={`mx-6 ${index > 0 ? "border-border-default-grey border-t" : ""}`}>
             <button
@@ -95,31 +102,49 @@ function FilterGroups({
             </button>
             <fieldset id={panelId} hidden={!open} className="fr-fieldset m-0! p-0! pt-4! pb-6!">
               <legend className="fr-sr-only">{FILTER_LABELS[key]}</legend>
-              {getFilterOptions(key, exclude).map((option) => {
-                const inputId = `${panelId}-${option.value}`;
-                const checked = selectedValues.includes(option.value);
-                return (
-                  <div key={option.value} className="fr-fieldset__element mb-4! p-0! last:mb-0!">
-                    <div className={single ? "fr-radio-group" : "fr-checkbox-group"}>
-                      {/* Le JS du DSFR annote les cases (`data-fr-js-*`) avant l'hydratation : écart attendu. */}
-                      <input
-                        suppressHydrationWarning
-                        type={single ? "radio" : "checkbox"}
-                        id={inputId}
-                        name={single ? panelId : undefined}
-                        checked={checked}
-                        onChange={() => {
-                          if (single) return onChange(key, [option.value]);
-                          onChange(key, checked ? selectedValues.filter((value) => value !== option.value) : [...selectedValues, option.value]);
-                        }}
-                      />
-                      <label className="fr-label" htmlFor={inputId}>
-                        {option.label}
-                      </label>
-                    </div>
+              {key === "departmentCode" && (
+                <div className="fr-input-group fr-fieldset__element mb-6! p-0!">
+                  <label className="fr-label fr-sr-only" htmlFor={`${panelId}-recherche`}>
+                    Rechercher un département
+                  </label>
+                  <div className="fr-input-wrap fr-icon-search-line">
+                    <input
+                      id={`${panelId}-recherche`}
+                      type="search"
+                      className="fr-input"
+                      placeholder="Rechercher département"
+                      value={departmentQuery}
+                      onChange={(event) => setDepartmentQuery(event.target.value)}
+                    />
                   </div>
-                );
-              })}
+                </div>
+              )}
+              {/* Département : la centaine d'options défile dans une zone d'une dizaine de lignes (maquette). */}
+              <div className={key === "departmentCode" ? "max-h-100 overflow-y-auto" : ""}>
+                {getFilterOptions(key, exclude)
+                  .filter((option) => key !== "departmentCode" || normalizeSearch(option.label).includes(normalizeSearch(departmentQuery)))
+                  .map((option) => {
+                    const inputId = `${panelId}-${option.value}`;
+                    const checked = selectedValues.includes(option.value);
+                    return (
+                      <div key={option.value} className="fr-fieldset__element mb-4! p-0! last:mb-0!">
+                        <div className="fr-checkbox-group">
+                          {/* Le JS du DSFR annote les cases (`data-fr-js-*`) avant l'hydratation : écart attendu. */}
+                          <input
+                            suppressHydrationWarning
+                            type="checkbox"
+                            id={inputId}
+                            checked={checked}
+                            onChange={() => onChange(key, checked ? selectedValues.filter((value) => value !== option.value) : [...selectedValues, option.value])}
+                          />
+                          <label className="fr-label" htmlFor={inputId}>
+                            {option.label}
+                          </label>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
             </fieldset>
           </div>
         );
@@ -203,9 +228,9 @@ function FiltersSheet({
   );
 }
 
-// Liste de missions filtrable des landings et de la page /missions. Desktop : localisation et filtres en colonne à gauche, cartes et
-// pagination à droite. Mobile : la localisation est dans le hero (`LocationFilter` rendu par la page) et les
-// filtres s'ouvrent dans une fenêtre depuis un bouton collé en bas de l'écran. L'état vit dans l'URL (chaque
+// Liste de missions filtrable des landings et de la page /missions. Desktop : filtres en colonne à gauche (dont le
+// département), cartes et pagination à droite. Mobile : les filtres s'ouvrent dans une fenêtre depuis un bouton
+// collé en bas de l'écran (certaines landings gardent en plus un champ d'adresse `LocationFilter` dans leur hero). L'état vit dans l'URL (chaque
 // changement relance le loader de la page, qui applique le réglage `LandingMissionsConfig`).
 export default function MissionsBrowser({
   missions,
@@ -260,6 +285,12 @@ export default function MissionsBrowser({
       (prev) => {
         const params = new URLSearchParams(prev);
         params.delete("page");
+        // Départements changés à la main : l'adresse saisie dans le hero d'une landing (et son tri par distance) ne correspond plus.
+        if (values.departmentCode && values.departmentCode.join() !== params.getAll("departmentCode").join()) {
+          params.delete(LOCATION_LABEL_PARAM);
+          params.delete("lat");
+          params.delete("lon");
+        }
         for (const [key, next] of Object.entries(values)) {
           params.delete(key);
           for (const value of next) params.append(key, value);
@@ -308,7 +339,6 @@ export default function MissionsBrowser({
   const { offset } = getPageWindow(page, alertCard);
   // Page 1 : carte d'alertes en 6e position, ou après la dernière mission s'il y en a moins de 5.
   const alertCardAfterIndex = Math.min(ALERT_CARD_POSITION - 1, missions.length) - 1;
-  const groupFilters = filters.filter((key) => key !== "departmentCode");
 
   // Les premières cartes chevauchent le bas du hero : -160px moins l'espacement entre sections sur mobile et
   // tablette, et à côté de la colonne de filtres sur desktop.
@@ -318,9 +348,8 @@ export default function MissionsBrowser({
 
       {/* Desktop : colonne de filtres à gauche, qui défile avec la page. */}
       <div className="hidden h-fit flex-col gap-6 lg:flex lg:w-74 lg:shrink-0">
-        {filters.includes("departmentCode") && <LocationFilter id="missions-localisation" />}
         <FilterGroups
-          keys={groupFilters}
+          keys={filters}
           exclude={exclude}
           selected={(key) => getSelectedValues(searchParams, key)}
           onChange={(key, next) => updateFilters({ [key]: next })}
@@ -404,9 +433,9 @@ export default function MissionsBrowser({
 
       {sheetOpen && (
         <FiltersSheet
-          keys={groupFilters}
+          keys={filters}
           exclude={exclude}
-          initialValues={Object.fromEntries(groupFilters.map((key) => [key, getSelectedValues(searchParams, key)]))}
+          initialValues={Object.fromEntries(filters.map((key) => [key, getSelectedValues(searchParams, key)]))}
           onSave={handleSheetSave}
           onClose={() => setSheetOpen(false)}
         />

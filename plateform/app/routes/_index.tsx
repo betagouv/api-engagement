@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
+import type { MissionBrowseFilters } from "@engagement/dto";
+import { useLoaderData, useNavigate } from "react-router";
 import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
 import HowItWorks from "~/components/home/how-it-works";
@@ -9,6 +10,7 @@ import Partners from "~/components/layout/partners";
 import Testimonials from "~/components/home/testimonials";
 import Newsletter from "~/components/layout/newsletter";
 import { STATE_PARTNERS, STATE_PARTNERS_TITLE } from "~/config/partners";
+import { browseMissions } from "~/services/api/missions";
 import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
@@ -39,6 +41,31 @@ const STRUCTURED_DATA = {
   ],
 };
 
+// Un exemple par dispositif d'engagement, dans l'ordre d'affichage du carrousel. Un dispositif
+// sans mission disponible (ou en erreur) est simplement absent.
+const MISSION_EXAMPLE_SLOTS: MissionBrowseFilters[] = [
+  { dispositif: "sapeurs_pompiers" },
+  { dispositif: "service_civique" },
+  { dispositif: "reserve_armees" },
+  { dispositif: "benevolat" },
+  { dispositif: "reserve_gendarmerie" },
+  { dispositif: "reserve_police_nationale" },
+];
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const examples = await Promise.all(
+    MISSION_EXAMPLE_SLOTS.map(async (filters) => {
+      try {
+        const response = await browseMissions({ ...filters, pageSize: 1 }, request);
+        return response.data;
+      } catch {
+        return [];
+      }
+    }),
+  );
+  return { examples: examples.flat() };
+}
+
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
   return [
     ...pageMeta(location, {
@@ -50,6 +77,7 @@ export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
 }
 
 export default function Landing() {
+  const { examples } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
   const reset = useQuizStore((s) => s.reset);
   const pageViewedFired = useRef(false);
@@ -73,7 +101,7 @@ export default function Landing() {
       {/* Test : bandeau bêta en complément du badge bêta du header, sans lien de feedback. */}
       <BetaBanner source="site" />
       <Hero onStartQuiz={() => handleStartQuiz("hero")} />
-      <MissionExamples />
+      <MissionExamples missions={examples} />
       <HowItWorks onStartQuiz={() => handleStartQuiz("how_it_works")} />
       <Testimonials onStartQuiz={() => handleStartQuiz("testimonials")} />
       <About />

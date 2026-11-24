@@ -36,7 +36,6 @@ export default function Etapes({
       </h2>
 
       <Carousel
-        squareArrows
         label="Les 3 étapes pour passer à l'action"
         ordered
         previousLabel="Voir l'étape précédente"

@@ -130,7 +130,7 @@ export default function EngagementSecurite() {
       <Etapes etapes={ETAPES} />
       <Presentation />
       <Questions />
-      <Partners style="compact" squareArrows partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
+      <Partners style="compact" partners={PARTNERS} title="Toutes les missions d’engagement vérifiées par l'État" description={null} />
     </main>
   );
 }

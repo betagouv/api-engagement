@@ -17,7 +17,6 @@ export default function Stories({ cta, title, intro, histoires }: { cta: Landing
           {intro && <p className="fr-text--lead mb-4! md:mb-6! lg:mb-8!">{intro}</p>}
 
           <Carousel
-            squareArrows
             label="Histoires de personnes engagées"
             previousLabel="Voir les histoires précédentes"
             nextLabel="Voir les histoires suivantes"
