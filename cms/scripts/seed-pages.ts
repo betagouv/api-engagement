@@ -65,6 +65,35 @@ const resolveUploads = async (strapi: Core.Strapi, value: unknown): Promise<unkn
   return resolved;
 };
 
+// Partenaires de `seed/partners.json` (clé : nom) : créés ou mis à jour, puis référencés par nom dans les blocs « Partenaires ».
+const seedPartners = async (strapi: Core.Strapi): Promise<Map<string, string>> => {
+  const documents = strapi.documents("api::partner.partner");
+  const ids = new Map<string, string>();
+  for (const partner of JSON.parse(fs.readFileSync(path.join(process.cwd(), "seed", "partners.json"), "utf8")) as Array<Record<string, unknown> & { name: string }>) {
+    const data = (await resolveUploads(strapi, partner)) as never;
+    const [existing] = await documents.findMany({ filters: { name: partner.name } });
+    const saved = existing ? await documents.update({ documentId: existing.documentId, data }) : await documents.create({ data });
+    ids.set(partner.name, saved?.documentId ?? existing.documentId);
+  }
+  return ids;
+};
+
+// Dans chaque bloc « Partenaires », remplace les noms par les documentId des partenaires.
+const partnerId = (ids: Map<string, string>, name: string): string => {
+  const id = ids.get(name);
+  if (!id) {
+    throw new Error(`Partenaire « ${name} » inconnu (seed/partners.json).`);
+  }
+  return id;
+};
+
+const linkPartners = (page: SeedPage, ids: Map<string, string>): SeedPage => ({
+  ...page,
+  blocks: (page.blocks as Array<Record<string, unknown>>).map((block) =>
+    block.__component === "blocks.partners" ? { ...block, partners: (block.partners as string[]).map((name) => partnerId(ids, name)) } : block
+  ),
+});
+
 const savePage = async (strapi: Core.Strapi, page: SeedPage) => {
   const documents = strapi.documents(UID);
   for (const old of await documents.findMany({ filters: { slug: page.slug } })) {
@@ -92,8 +121,9 @@ const main = async () => {
   const app = await createStrapi(await compileStrapi()).load();
   app.log.level = "error";
 
+  const partnerIds = await seedPartners(app);
   for (const page of selectedPages) {
-    await savePage(app, page);
+    await savePage(app, linkPartners(page, partnerIds));
   }
 
   await app.destroy();

@@ -68,6 +68,47 @@ const resolveUploads = async (value: unknown): Promise<unknown> => {
   return resolved;
 };
 
+// Partenaires de `seed/partners.json` : créés s'ils n'existent pas (un partenaire déjà présent, peut-être retouché dans l'admin, n'est pas modifié),
+// puis référencés par nom dans les blocs « Partenaires » des pages.
+const seedPartners = async (): Promise<Map<string, string>> => {
+  const ids = new Map<string, string>();
+  const partners = JSON.parse(fs.readFileSync(path.join(process.cwd(), "seed", "partners.json"), "utf8")) as Array<Record<string, unknown> & { name: string }>;
+  for (const partner of partners) {
+    const { data: existing } = await request<{ data: Array<{ documentId: string }> }>(`/api/partners?filters[name][$eq]=${encodeURIComponent(partner.name)}`);
+    if (existing.length > 0) {
+      ids.set(partner.name, existing[0].documentId);
+      continue;
+    }
+    const data = await resolveUploads(partner);
+    const { data: created } = await request<{ data: { documentId: string } }>("/api/partners", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data }),
+    });
+    ids.set(partner.name, created.documentId);
+    console.log(`  Partenaire « ${partner.name} » créé.`);
+  }
+  return ids;
+};
+
+const linkPartners = (page: SeedPage, ids: Map<string, string>): SeedPage => ({
+  ...page,
+  blocks: (page.blocks as Array<Record<string, unknown>>).map((block) =>
+    block.__component === "blocks.partners"
+      ? {
+          ...block,
+          partners: (block.partners as string[]).map((name) => {
+            const id = ids.get(name);
+            if (!id) {
+              throw new Error(`Partenaire « ${name} » inconnu (seed/partners.json).`);
+            }
+            return id;
+          }),
+        }
+      : block
+  ),
+});
+
 const savePage = async (page: SeedPage, replace: boolean) => {
   // `status=draft` remonte aussi les pages jamais publiées.
   const { data: existingPages } = await request<{ data: Array<{ documentId: string }> }>(`/api/pages?status=draft&filters[slug][$eq]=${encodeURIComponent(page.slug)}`);
@@ -103,13 +144,14 @@ const main = async () => {
   const slugs = requestedSlugs.length > 0 ? requestedSlugs : allSlugs;
   console.log(`CMS : ${CMS_REMOTE_URL} — ${slugs.length} page(s)${replace ? ", avec --replace" : ""}.`);
 
+  const partnerIds = await seedPartners();
   for (const slug of slugs) {
     const file = path.join(PAGES, `${slug}.json`);
     if (!fs.existsSync(file)) {
       throw new Error(`Aucune page « ${slug} » dans seed/pages/.`);
     }
     const page: SeedPage = JSON.parse(fs.readFileSync(file, "utf8"));
-    await savePage(page, replace);
+    await savePage(linkPartners(page, partnerIds), replace);
   }
 };
 

@@ -1,8 +1,12 @@
 {
   "collectionName": "components_blocks_partners",
-  "info": { "displayName": "Partenaires", "icon": "handHeart" },
+  "info": {
+    "displayName": "Partenaires",
+    "icon": "handHeart",
+    "description": "Logos de partenaires sous un titre. Les partenaires (nom, texte, logo) se créent une fois pour toutes dans « Partenaire » (menu de gauche), puis se choisissent dans la liste, dans l'ordre d'affichage."
+  },
   "attributes": {
     "title": { "type": "string", "required": true },
-    "partners": { "type": "component", "repeatable": true, "component": "items.partner" }
+    "partners": { "type": "relation", "relation": "manyToMany", "target": "api::partner.partner", "description": "Partenaires affichés, dans l'ordre choisi." }
   }
 }

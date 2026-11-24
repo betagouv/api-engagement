@@ -151,41 +151,11 @@
       "__component": "blocks.partners",
       "title": "Toutes les missions d’engagement vérifiées par l'État",
       "partners": [
-        {
-          "name": "Les réserves des armées",
-          "description": "Des missions indemnisées de réservistes.",
-          "logo": {
-            "upload": "logo/roc-logo.png"
-          }
-        },
-        {
-          "name": "JeVeuxAider.gouv.fr",
-          "description": "La plateforme publique du bénévolat.",
-          "logo": {
-            "upload": "logo/jva-logo.png"
-          }
-        },
-        {
-          "name": "Le Service Civique",
-          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
-          "logo": {
-            "upload": "logo/asc-logo.png"
-          }
-        },
-        {
-          "name": "Sapeurs-pompiers de France",
-          "description": "Deviens sapeur-pompier volontaire près de chez toi.",
-          "logo": {
-            "upload": "logo/spv-logo.png"
-          }
-        },
-        {
-          "name": "Gendarmerie nationale",
-          "description": "Deviens gendarme près de chez toi.",
-          "logo": {
-            "upload": "logo/gendarmerie-logo.png"
-          }
-        }
+        "Les réserves des armées",
+        "JeVeuxAider.gouv.fr",
+        "Le Service Civique",
+        "Sapeurs-pompiers de France",
+        "Gendarmerie nationale"
       ]
     }
   ]

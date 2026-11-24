@@ -1,0 +1,17 @@
+{
+  "kind": "collectionType",
+  "collectionName": "partners",
+  "info": {
+    "singularName": "partner",
+    "pluralName": "partners",
+    "displayName": "Partenaire",
+    "description": "Partenaires connus (nom, texte, logo), à choisir dans les blocs « Partenaires » des pages."
+  },
+  "options": { "draftAndPublish": false },
+  "pluginOptions": {},
+  "attributes": {
+    "name": { "type": "string", "required": true, "unique": true },
+    "description": { "type": "string", "required": true, "description": "Phrase affichée sous le nom du partenaire." },
+    "logo": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true }
+  }
+}
