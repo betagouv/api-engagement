@@ -12,13 +12,6 @@ export default {
   },
   register(app: StrapiApp) {
     app.customFields.register({
-      name: "multi-select",
-      type: "json",
-      intlLabel: { id: "multi-select.label", defaultMessage: "Choix multiples" },
-      intlDescription: { id: "multi-select.description", defaultMessage: "Plusieurs valeurs parmi une liste" },
-      components: { Input: async () => ({ default: (await import("./components/multi-select-input")).default as never }) },
-    });
-    app.customFields.register({
       name: "pictogram",
       type: "string",
       intlLabel: { id: "pictogram.label", defaultMessage: "Pictogramme DSFR" },
