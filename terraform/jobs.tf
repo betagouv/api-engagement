@@ -524,7 +524,6 @@ resource "scaleway_job_definition" "rdb-backup" {
   }
 
   env = merge(local.all_env_vars, {
-    "RDB_BACKUP_INSTANCE_ID"    = var.core_database_id
     "RDB_BACKUP_DATABASE_NAME"  = "rdb"
     "RDB_BACKUP_RETENTION_DAYS" = 7
   })
@@ -548,7 +547,6 @@ resource "scaleway_job_definition" "rdb-backup-replication" {
   }
 
   env = merge(local.all_env_vars, {
-    "RDB_BACKUP_INSTANCE_ID"   = var.core_database_id
     "RDB_BACKUP_DATABASE_NAME" = "rdb"
     "RDB_BACKUP_S3_BUCKET"     = var.rdb_backup_s3_bucket
     "RDB_BACKUP_S3_REGION"     = var.rdb_backup_s3_region

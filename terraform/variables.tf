@@ -243,12 +243,6 @@ variable "rdb_backup_s3_region" {
   description = "Région du bucket de sauvegardes RDB du projet security"
 }
 
-variable "core_database_id" {
-  type        = string
-  default     = ""
-  description = "ID of the managed PostgreSQL instance to back up"
-}
-
 variable "enable_app" {
   type        = bool
   default     = true
