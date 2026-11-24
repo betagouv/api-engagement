@@ -19,8 +19,7 @@
       },
       "imageMobile": {
         "upload": "landings/sapeur-pompier-volontaire/hero-pompier-mobile.webp"
-      },
-      "visual": "none"
+      }
     },
     {
       "__component": "blocks.etapes",

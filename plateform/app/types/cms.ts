@@ -47,7 +47,6 @@ export type CmsBlock =
       searchDispositif?: string | null;
       image: CmsMedia | null;
       imageMobile: CmsMedia | null;
-      visual: "none" | "chacun_pour_tous";
     }
   | {
       __component: "blocks.missions";

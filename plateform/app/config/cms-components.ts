@@ -47,7 +47,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       hint: "2 minutes pour trouver ta mission.",
       image: null,
       imageMobile: null,
-      visual: "none",
     },
   },
   {
@@ -70,7 +69,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       hint: "À un clic de ton engagement.",
       image: media(heroEngagementSecurite),
       imageMobile: null,
-      visual: "none",
     },
   },
   {
@@ -88,7 +86,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       searchDispositif: "sapeurs_pompiers",
       image: null,
       imageMobile: null,
-      visual: "none",
     },
   },
   {
@@ -106,24 +103,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       hint: null,
       image: null,
       imageMobile: null,
-      visual: "none",
-    },
-  },
-  {
-    label: "Habillage de campagne « chacun_pour_tous »",
-    block: {
-      __component: "blocks.hero",
-      title: "Chacun pour tous",
-      description: "Une campagne d'engagement ouverte à ==tous les publics==.",
-      tags: [],
-      primaryLabel: null,
-      primaryUrl: null,
-      secondaryLabel: null,
-      secondaryUrl: null,
-      hint: null,
-      image: null,
-      imageMobile: null,
-      visual: "chacun_pour_tous",
     },
   },
   {
