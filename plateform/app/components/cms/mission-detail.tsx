@@ -2,11 +2,12 @@ import type { MissionDetailResponse } from "@engagement/dto";
 import { useEffect } from "react";
 import { Link } from "react-router";
 
+import MissionApplicationLink from "~/components/mission-detail/application-link";
 import MissionCtaPanel from "~/components/mission-detail/cta-panel";
 import MissionDescriptionCard from "~/components/mission-detail/description-card";
 import MissionHeroCard from "~/components/mission-detail/hero-card";
 import MissionLocationCard from "~/components/mission-detail/location-card";
-import { trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/services/tracking/events";
+import { trackMissionDetailViewed } from "~/services/tracking/events";
 import type { LandingName } from "~/services/tracking/types";
 
 // Fiche d'une mission de l'API placée dans une page du CMS (ex. : suite d'une landing) : mêmes cartes que la fiche
@@ -58,16 +59,7 @@ export default function MissionDetail({ mission, backUrl, landing }: { mission: 
 
       {/* Mobile : le bouton de candidature vit dans une barre fixe en bas d'écran, comme sur la fiche mission. */}
       <div className="border-border-default-grey bg-background fixed right-0 bottom-0 left-0 z-10 border-t px-5 py-4 md:hidden">
-        <a
-          href={mission.applicationUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Découvrir la mission - nouvelle fenêtre"
-          className="fr-btn w-full! justify-center!"
-          onClick={() => trackMissionClickedFromDetail(mission)}
-        >
-          Découvrir la mission
-        </a>
+        <MissionApplicationLink mission={mission} className="fr-btn w-full! justify-center!" />
       </div>
     </div>
   );

@@ -4,10 +4,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
+import { campaignService } from "@/services/campaign";
 import { publisherService } from "@/services/publisher";
 import { statBotService } from "@/services/stat-bot";
 import * as utils from "@/utils";
-import { createTestMission } from "../../../../fixtures";
+import { createTestMission, createTestPublisher } from "../../../../fixtures";
 import { createTestApp } from "../../../../testApp";
 
 const app = createTestApp();
@@ -141,6 +142,50 @@ describe("RedirectController /:missionId/:publisherId", () => {
     });
 
     expect(statsBotFindOneSpy).toHaveBeenCalledWith(identity.user);
+  });
+
+  it("records the campaign click independently of quiz scoring and keeps TTM as the publisher", async () => {
+    const ttm = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Trouve Ta Mission" });
+    const advertiser = await publisherService.createPublisher({ name: "Mission Publisher" });
+    const campaign = await campaignService.createCampaign({
+      name: "TTM Campaign",
+      type: "OTHER",
+      url: "https://trouvetamission.gouv.fr/missions",
+      fromPublisherId: advertiser.id,
+      toPublisherId: advertiser.id,
+    });
+    const mission = await createTestMission({
+      applicationUrl: "https://mission.example.com/apply",
+      publisherId: advertiser.id,
+    });
+    const scoring = await prisma.userScoring.create({ data: { distinctId: "quiz-user" } });
+    vi.spyOn(utils, "identify").mockReturnValue({ user: "mission-user", referer: "", userAgent: "Mozilla/5.0" });
+    vi.spyOn(statBotService, "findStatBotByUser").mockResolvedValue(null);
+
+    const landing = await request(app).get(`/r/campaign/${campaign.id}`);
+    const originClickId = new URL(landing.headers.location).searchParams.get("apiengagement_id")!;
+    const redirect = async (origin: string, scoringId?: string) => {
+      const response = await request(app)
+        .get(`/r/${mission.id}/${ttm.id}`)
+        .query({ origin_click_id: origin, ...(scoringId ? { user_scoring_id: scoringId } : {}) });
+      expect(response.status).toBe(302);
+      const url = new URL(response.headers.location);
+      expect(url.searchParams.has("origin_click_id")).toBe(false);
+      return prisma.statEvent.findUniqueOrThrow({ where: { id: url.searchParams.get("apiengagement_id")! } });
+    };
+
+    const withoutQuiz = await redirect(originClickId);
+    expect(withoutQuiz).toMatchObject({
+      fromPublisherId: ttm.id,
+      toPublisherId: advertiser.id,
+      source: "publisher",
+      customAttributes: { origin_click_id: originClickId },
+    });
+    expect((await redirect(originClickId, scoring.id)).customAttributes).toEqual({ origin_click_id: originClickId, user_scoring_id: scoring.id });
+    expect((await redirect(originClickId, "invalid")).customAttributes).toEqual({ origin_click_id: originClickId });
+    for (const invalidOrigin of ["invalid", randomUUID(), withoutQuiz.id]) {
+      expect((await redirect(invalidOrigin, scoring.id)).customAttributes).toEqual({ user_scoring_id: scoring.id });
+    }
   });
 
   it("records clicks without custom attributes when user scoring is absent, invalid or unknown", async () => {

@@ -1,4 +1,5 @@
 import type { MissionBrowse, MissionMatchItem, MissionMatchUserValue } from "@engagement/dto";
+import { API_URL } from "~/services/config";
 
 const MONTHS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
@@ -50,13 +51,18 @@ export function buildMissionBrowseHref(mission: MissionBrowse): string {
 }
 
 /**
- * Ajoute le contexte du quiz à une URL de redirection trackée vers l'annonceur.
+ * Ajoute les contextes du quiz et du dernier clic de campagne à une redirection API.
  */
-export function buildMissionApplicationHref(applicationUrl: string, userScoringId?: string): string {
-  if (!userScoringId) return applicationUrl;
+export function buildMissionApplicationHref(applicationUrl: string, userScoringId?: string, cookieHeader = typeof document === "undefined" ? "" : document.cookie): string {
+  const originClickId = cookieHeader.match(/(?:^|;\s*)apiengagement=([^;]+)/)?.[1];
+  if ((!userScoringId && !originClickId) || !URL.canParse(applicationUrl)) return applicationUrl;
 
   const url = new URL(applicationUrl);
-  url.searchParams.set("user_scoring_id", userScoringId);
+  // Les fiches CMS peuvent aussi contenir des liens directs vers l'annonceur.
+  if (url.origin !== new URL(API_URL).origin || !/^\/r\/[^/]+\/[^/]+$/.test(url.pathname)) return applicationUrl;
+
+  if (userScoringId) url.searchParams.set("user_scoring_id", userScoringId);
+  if (originClickId) url.searchParams.set("origin_click_id", originClickId);
   return url.toString();
 }
 

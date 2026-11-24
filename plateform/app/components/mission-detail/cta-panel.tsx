@@ -1,8 +1,8 @@
 import { formatCompensation, type MissionDetailResponse } from "@engagement/dto";
 import { type ReactNode, useState } from "react";
+import MissionApplicationLink from "~/components/mission-detail/application-link";
 import EmailMissionsModal from "~/components/results/email-missions-modal";
-import { trackMissionClickedFromDetail } from "~/services/tracking/events";
-import { buildMissionApplicationHref, formatStartDate } from "~/utils/mission";
+import { formatStartDate } from "~/utils/mission";
 
 interface MissionCtaPanelProps {
   mission: MissionDetailResponse;
@@ -24,7 +24,6 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
   const [emailModalOpen, setEmailModalOpen] = useState(false);
   const durationLabel = formatStartDate(mission.startAt, mission.duration);
   const compensationLabel = mission.compensation ? formatCompensation(mission.compensation, { withType: true }) : null;
-  const applicationHref = buildMissionApplicationHref(mission.applicationUrl, userScoringId);
 
   return (
     <div className={`md:shadow-card flex flex-col gap-6 bg-background px-5! py-5! md:p-6! ${className}`}>
@@ -60,16 +59,7 @@ export default function MissionCtaPanel({ mission, userScoringId, deadlineLabel 
 
       <div className="flex flex-col gap-3">
         {/* En mobile, le bouton primaire vit uniquement dans la barre fixe de la fiche (retour SIG). */}
-        <a
-          href={applicationHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Découvrir la mission - nouvelle fenêtre"
-          className="fr-btn w-full! justify-center! max-md:hidden!"
-          onClick={() => trackMissionClickedFromDetail(mission)}
-        >
-          Découvrir la mission
-        </a>
+        <MissionApplicationLink mission={mission} userScoringId={userScoringId} className="fr-btn w-full! justify-center! max-md:hidden!" />
 
         <button type="button" onClick={() => setEmailModalOpen(true)} className="fr-btn fr-btn--secondary w-full! justify-center!">
           Recevoir cette mission par e-mail

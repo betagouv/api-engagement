@@ -708,6 +708,11 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
 
     const queryData = query.success ? query.data : undefined;
     const userScoringId = queryData?.user_scoring_id && (await userScoringService.exists(queryData.user_scoring_id)) ? queryData.user_scoring_id : undefined;
+    // Cette attribution de campagne est indépendante du quiz et ne remplace pas le diffuseur.
+    const originParam = zod.uuid().safeParse(req.query.origin_click_id);
+    const originClick =
+      originParam.success && fromPublisher.id === PUBLISHER_IDS.PLATEFORME_ENGAGEMENT ? await statEventService.findOneStatEventById(originParam.data.toLowerCase()) : null;
+    const originClickId = originClick?.type === "click" && originClick.source === "campaign" && originClick.sourceId ? originClick._id : undefined;
 
     const obj = {
       type: "click",
@@ -728,7 +733,8 @@ router.get("/:missionId/:publisherId", cors({ origin: "*" }), async (req, res) =
       fromPublisherName: fromPublisher?.name || "",
       isBot: false,
       tags: queryData?.tags ? (queryData.tags.includes(",") ? queryData.tags.split(",").map((tag) => tag.trim()) : [queryData.tags]) : undefined,
-      customAttributes: userScoringId ? { user_scoring_id: userScoringId } : undefined,
+      customAttributes:
+        userScoringId || originClickId ? { ...(userScoringId ? { user_scoring_id: userScoringId } : {}), ...(originClickId ? { origin_click_id: originClickId } : {}) } : undefined,
     } as StatEventRecord;
 
     const { clickId, url } = await createClickRedirect(obj, mission, href, {
