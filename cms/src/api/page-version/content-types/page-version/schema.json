@@ -10,7 +10,7 @@
   "options": {
     "draftAndPublish": false
   },
-  "pluginOptions": {},
+  "pluginOptions": { "content-manager": { "visible": false } },
   "attributes": {
     "pageDocumentId": { "type": "string", "required": true },
     "title": { "type": "string" },
