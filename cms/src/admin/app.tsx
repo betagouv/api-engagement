@@ -9,6 +9,13 @@ export default {
     locales: ["fr"],
   },
   register(app: StrapiApp) {
+    app.customFields.register({
+      name: "pictogram",
+      type: "string",
+      intlLabel: { id: "pictogram.label", defaultMessage: "Pictogramme DSFR" },
+      intlDescription: { id: "pictogram.description", defaultMessage: "Pictogramme DSFR avec recherche" },
+      components: { Input: async () => ({ default: (await import("./components/pictogram-input")).default as never }) },
+    });
     app.addMenuLink({
       to: "cms-components",
       icon: Layout,

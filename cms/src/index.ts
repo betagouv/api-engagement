@@ -4,5 +4,6 @@ import { registerPageHistory } from "./history";
 export default {
   register({ strapi }: { strapi: Core.Strapi }) {
     registerPageHistory(strapi);
+    strapi.customFields.register({ name: "pictogram", type: "string" });
   },
 };
