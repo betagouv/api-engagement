@@ -281,8 +281,8 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       __component: "blocks.partners",
       title: "Nos partenaires",
       partners: [
-        { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", logo: media(jvaLogo) },
-        { name: "Service Civique", description: "L'engagement volontaire de 16 à 25 ans.", logo: media(ascLogo) },
+        { partner: { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", logo: media(jvaLogo) }, description: null },
+        { partner: { name: "Service Civique", description: "L'engagement volontaire de 16 à 25 ans.", logo: media(ascLogo) }, description: "Texte propre à cette page." },
       ],
     },
   },

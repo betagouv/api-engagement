@@ -112,30 +112,26 @@ function FieldInput({ field, value, onChange, id }: { field: CmsComponentField; 
   }
 
   if (field.kind === "relation") {
-    const selected = (value as { name: string }[] | null) ?? [];
     return (
-      <fieldset className="mb-6">
-        <legend className="fr-label mb-2">
+      <div className="fr-select-group">
+        <label className="fr-label" htmlFor={id}>
           {label}
           {hint}
-        </legend>
-        {CMS_COMPONENT_PARTNERS.map((partner, index) => {
-          const checked = selected.some((item) => item.name === partner.name);
-          return (
-            <div key={partner.name} className="fr-checkbox-group fr-checkbox-group--sm">
-              <input
-                type="checkbox"
-                id={`${id}-${index}`}
-                checked={checked}
-                onChange={() => onChange(checked ? selected.filter((item) => item.name !== partner.name) : [...selected, partner])}
-              />
-              <label className="fr-label" htmlFor={`${id}-${index}`}>
-                {partner.name}
-              </label>
-            </div>
-          );
-        })}
-      </fieldset>
+        </label>
+        <select
+          className="fr-select"
+          id={id}
+          value={(value as { name: string } | null)?.name ?? ""}
+          onChange={(event) => onChange(CMS_COMPONENT_PARTNERS.find((partner) => partner.name === event.target.value) ?? null)}
+        >
+          {!field.required && <option value="">Aucun partenaire</option>}
+          {CMS_COMPONENT_PARTNERS.map((partner) => (
+            <option key={partner.name} value={partner.name}>
+              {partner.name}
+            </option>
+          ))}
+        </select>
+      </div>
     );
   }
 
@@ -274,6 +270,6 @@ function emptyValue(field: CmsComponentField): unknown {
   if (field.kind === "media") return field.required ? CMS_COMPONENT_IMAGES[0].media : null;
   if (field.kind === "blocks") return [{ type: "paragraph", children: [{ type: "text", text: "Texte à rédiger dans Strapi." }] }];
   if (field.kind === "component") return emptyItem(field.children);
-  if (field.kind === "relation") return [];
+  if (field.kind === "relation") return field.required ? CMS_COMPONENT_PARTNERS[0] : null;
   return field.required ? "À compléter" : null;
 }

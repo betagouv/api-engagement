@@ -238,7 +238,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           squareArrows
           title={block.title}
           description={null}
-          partners={block.partners.map((partner) => ({ name: partner.name, description: partner.description, logo: partner.logo.url }))}
+          partners={block.partners.map(({ partner, description }) => ({ name: partner.name, description: description || partner.description, logo: partner.logo.url }))}
         />
       );
     case "blocks.newsletter":
