@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link } from "react-router";
 
 import TtmLogoSvg from "~/assets/svg/ttm-logo.svg";
 
@@ -6,9 +6,6 @@ export const SERVICE_TITLE = "TrouveTaMission.gouv.fr";
 export const SERVICE_TAGLINE = "Tout l’engagement public à portée de clic";
 
 export default function Header() {
-  // « Espace accompagnateurs » : uniquement sur la homepage et sa propre landing (ni quiz ni landings à destination des jeunes), desktop uniquement.
-  const { pathname } = useLocation();
-  const showAccompagnateurs = pathname === "/" || pathname === "/accompagnateurs";
   // Retour SIG : même header sur toutes les pages, quiz compris, en mobile comme en desktop.
   // Le DSFR passe le nom du service sous le bloc marque en mobile. Les liens « Retour » vivent dans les pages.
   return (
@@ -40,18 +37,6 @@ export default function Header() {
                 <p className="fr-header__service-tagline">{SERVICE_TAGLINE}</p>
               </div>
             </div>
-            {showAccompagnateurs && (
-              <div className="fr-header__tools fr-hidden fr-unhidden-lg">
-                {/* Pas de fr-header__tools-links : son JS exige un menu mobile, absent de cet en-tête. */}
-                <Link
-                  to="/accompagnateurs"
-                  className="fr-btn fr-btn--tertiary-no-outline fr-btn--sm fr-btn--icon-left fr-icon-team-line"
-                  aria-current={pathname === "/accompagnateurs" ? "page" : undefined}
-                >
-                  Espace accompagnateurs
-                </Link>
-              </div>
-            )}
           </div>
         </div>
       </div>
