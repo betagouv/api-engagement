@@ -37,14 +37,12 @@ describe("dropIncomplete (brouillons)", () => {
           { ...story, logo: media },
         ],
       },
-      { __component: "blocks.partners", title: "t", partners: [{ logo: null }] },
       { __component: "blocks.rich-text", body: [] },
       { __component: "blocks.inconnu" },
     ];
     const result = dropIncomplete(blocks);
-    expect(result.map((b) => b.__component)).toEqual(["blocks.image", "blocks.stories", "blocks.partners", "blocks.rich-text", "blocks.inconnu"]);
+    expect(result.map((b) => b.__component)).toEqual(["blocks.image", "blocks.stories", "blocks.rich-text", "blocks.inconnu"]);
     expect((result[1] as unknown as { stories: unknown[] }).stories).toHaveLength(1);
-    expect((result[2] as unknown as { partners: unknown[] }).partners).toHaveLength(0);
   });
 
   it("écarte aussi les éléments dont un texte obligatoire est vide (card.points, titres)", () => {

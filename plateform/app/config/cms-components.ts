@@ -32,6 +32,13 @@ export const CMS_COMPONENT_IMAGES: { label: string; media: CmsMedia }[] = [
   { label: "Logo sapeurs-pompiers", media: media(spvLogo) },
 ];
 
+// Partenaires proposés dans le formulaire du bloc « Partenaires » (comme la collection « Partenaire » du CMS).
+export const CMS_COMPONENT_PARTNERS: { name: string; description: string; logo: CmsMedia }[] = [
+  { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", logo: media(jvaLogo) },
+  { name: "Le Service Civique", description: "De 6 à 12 mois, des missions d'intérêt général indemnisées.", logo: media(ascLogo) },
+  { name: "Sapeurs-pompiers de France", description: "Deviens sapeur-pompier volontaire près de chez toi.", logo: media(spvLogo) },
+];
+
 export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
   {
     label: "Sans pastille ni bouton : bouton quiz « Trouve ta mission »",
@@ -274,8 +281,8 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       __component: "blocks.partners",
       title: "Nos partenaires",
       partners: [
-        { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", url: "https://www.jeveuxaider.gouv.fr", logo: media(jvaLogo) },
-        { name: "Service Civique", description: "L'engagement volontaire de 16 à 25 ans.", url: null, logo: media(ascLogo) },
+        { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", logo: media(jvaLogo) },
+        { name: "Service Civique", description: "L'engagement volontaire de 16 à 25 ans.", logo: media(ascLogo) },
       ],
     },
   },

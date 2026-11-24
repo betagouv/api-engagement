@@ -5,6 +5,8 @@ type StrapiAttribute = {
   repeatable?: boolean;
   multiple?: boolean;
   component?: string;
+  relation?: string;
+  target?: string;
   enum?: string[];
   default?: string | boolean | number;
   min?: number;
@@ -47,6 +49,7 @@ const describeType = (attribute: StrapiAttribute) => {
     const bounds = [attribute.min !== undefined && `min ${attribute.min}`, attribute.max !== undefined && `max ${attribute.max}`].filter(Boolean).join(", ");
     return `Liste de « ${displayName} »${bounds ? ` (${bounds})` : ""}`;
   }
+  if (attribute.type === "relation") return `Sélection dans « ${attribute.target?.split(".").pop() ?? ""} » (liste déroulante)`;
   if (attribute.type === "media") return attribute.multiple ? "Images" : "Image";
   if (attribute.type === "blocks") return "Texte riche";
   if (attribute.type === "text") return "Texte long";
@@ -62,7 +65,7 @@ const toFields = (schema: StrapiComponent): CmsComponentField[] =>
     return {
       name,
       kind: attribute.type,
-      list: Boolean(attribute.repeatable || attribute.multiple),
+      list: Boolean(attribute.repeatable || attribute.multiple || attribute.relation?.endsWith("Many")),
       typeLabel: describeType(attribute),
       itemName: child?.info.displayName ?? null,
       required: Boolean(attribute.required),

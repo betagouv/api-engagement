@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import CmsBlocks, { type CmsBlocksContext } from "~/components/cms";
-import { CMS_COMPONENT_IMAGES } from "~/config/cms-components";
+import { CMS_COMPONENT_IMAGES, CMS_COMPONENT_PARTNERS } from "~/config/cms-components";
 import type { CmsComponentField } from "~/services/cms-components.server";
 import type { CmsBlock, CmsMedia } from "~/types/cms";
 
@@ -108,6 +108,34 @@ function FieldInput({ field, value, onChange, id }: { field: CmsComponentField; 
           ))}
         </select>
       </div>
+    );
+  }
+
+  if (field.kind === "relation") {
+    const selected = (value as { name: string }[] | null) ?? [];
+    return (
+      <fieldset className="mb-6">
+        <legend className="fr-label mb-2">
+          {label}
+          {hint}
+        </legend>
+        {CMS_COMPONENT_PARTNERS.map((partner, index) => {
+          const checked = selected.some((item) => item.name === partner.name);
+          return (
+            <div key={partner.name} className="fr-checkbox-group fr-checkbox-group--sm">
+              <input
+                type="checkbox"
+                id={`${id}-${index}`}
+                checked={checked}
+                onChange={() => onChange(checked ? selected.filter((item) => item.name !== partner.name) : [...selected, partner])}
+              />
+              <label className="fr-label" htmlFor={`${id}-${index}`}>
+                {partner.name}
+              </label>
+            </div>
+          );
+        })}
+      </fieldset>
     );
   }
 
@@ -246,5 +274,6 @@ function emptyValue(field: CmsComponentField): unknown {
   if (field.kind === "media") return field.required ? CMS_COMPONENT_IMAGES[0].media : null;
   if (field.kind === "blocks") return [{ type: "paragraph", children: [{ type: "text", text: "Texte à rédiger dans Strapi." }] }];
   if (field.kind === "component") return emptyItem(field.children);
+  if (field.kind === "relation") return [];
   return field.required ? "À compléter" : null;
 }
