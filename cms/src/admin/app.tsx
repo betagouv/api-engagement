@@ -25,9 +25,15 @@ export default {
     });
   },
   bootstrap(app: StrapiApp) {
-    // Les listes déroulantes défilent sans que l'on voie qu'elles le peuvent (scrollbars macOS masquées) : barre toujours visible.
+    // Les zones défilantes (listes déroulantes…) utilisent une scrollbar Radix fine, claire et visible au survol seulement : on remet la scrollbar native, toujours visible.
     const style = document.createElement("style");
-    style.textContent = '[role="listbox"] { scrollbar-width: auto; scrollbar-color: #8e8ea9 #eaeaef; }';
+    style.textContent = `
+      [data-radix-scroll-area-viewport] { scrollbar-width: thin !important; scrollbar-color: #666687 #dcdce4; }
+      [data-radix-scroll-area-viewport]::-webkit-scrollbar { display: block !important; width: 10px; }
+      [data-radix-scroll-area-viewport]::-webkit-scrollbar-track { background: #dcdce4; }
+      [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb { background: #666687; border-radius: 5px; }
+      [data-radix-scroll-area-viewport] ~ [data-orientation] { display: none !important; }
+    `;
     document.head.append(style);
     // Historique des pages : voir src/history.ts.
     (app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (actions: unknown[]) => void } }).apis.addEditViewSidePanel([PageHistoryPanel, BlockDocsPanel]);
