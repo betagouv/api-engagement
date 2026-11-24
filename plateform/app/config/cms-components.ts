@@ -290,8 +290,12 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Limitée à des départements (filtre de localisation masqué)",
+    block: { __component: "blocks.missions-browser", dispositifs: null, domainesEngagement: null, departements: ["29", "56"] },
+  },
+  {
     label: "Limitée à un domaine (filtre Domaines masqué)",
-    block: { __component: "blocks.missions-browser", dispositif: null, domaineEngagement: "environnement_animaux" },
+    block: { __component: "blocks.missions-browser", dispositifs: null, domainesEngagement: ["environnement_animaux"], departements: null },
   },
   {
     label: "Exemple",

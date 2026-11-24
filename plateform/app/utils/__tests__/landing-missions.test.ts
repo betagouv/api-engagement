@@ -110,13 +110,13 @@ describe("getPageWindow / getTotalPages", () => {
 
 describe("getLandingMissionsConfig", () => {
   it("fait du dispositif choisi le périmètre de la page et masque son filtre", () => {
-    const config = getLandingMissionsConfig({ dispositif: "reserve_armees", domaineEngagement: null });
+    const config = getLandingMissionsConfig({ dispositifs: ["reserve_armees"] });
     expect(config.include).toEqual({ dispositif: ["reserve_armees"] });
     expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement"]);
   });
 
   it("applique toujours le périmètre, même si l'URL demande autre chose", () => {
-    const config = getLandingMissionsConfig({ dispositif: null, domaineEngagement: "environnement_animaux" });
+    const config = getLandingMissionsConfig({ domainesEngagement: ["environnement_animaux"] });
     const filters = buildLandingBrowseFilters(new URLSearchParams("domaine_engagement=sport&dispositif=benevolat"), config);
     expect(filters.domaine_engagement).toEqual(["environnement_animaux"]);
     expect(filters.dispositif).toEqual(["benevolat"]);
@@ -124,6 +124,26 @@ describe("getLandingMissionsConfig", () => {
   });
 
   it("propose tous les filtres sans périmètre", () => {
-    expect(getLandingMissionsConfig({ dispositif: null, domaineEngagement: null }).filters).toHaveLength(6);
+    expect(getLandingMissionsConfig({}).filters).toHaveLength(6);
+  });
+  it("transforme les listes du bloc en périmètre et masque les filtres correspondants", () => {
+    const config = getLandingMissionsConfig({ dispositifs: ["benevolat", "service_civique"], domainesEngagement: ["sport"], departements: null });
+
+    expect(config.include).toEqual({ dispositif: ["benevolat", "service_civique"], domaine_engagement: ["sport"] });
+    expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite"]);
+    expect(config.includeRemote).toBe(true);
+  });
+
+  it("limite aux départements choisis, sans missions à distance, et masque la localisation", () => {
+    const config = getLandingMissionsConfig({ departements: ["29", "56"] });
+
+    expect(config.include).toEqual({ departmentCode: ["29", "56"] });
+    expect(config.filters).not.toContain("departmentCode");
+    expect(config.includeRemote).toBe(false);
+    expect(buildLandingBrowseFilters(new URLSearchParams("departmentCode=75"), config).departmentCode).toEqual(["29", "56"]);
+  });
+
+  it("traite une liste vide comme aucune restriction", () => {
+    expect(getLandingMissionsConfig({ dispositifs: [], domainesEngagement: null, departements: undefined }).include).toEqual({});
   });
 });
