@@ -90,7 +90,9 @@ const partnerId = (ids: Map<string, string>, name: string): string => {
 const linkPartners = (page: SeedPage, ids: Map<string, string>): SeedPage => ({
   ...page,
   blocks: (page.blocks as Array<Record<string, unknown>>).map((block) =>
-    block.__component === "blocks.partners" ? { ...block, partners: (block.partners as string[]).map((name) => partnerId(ids, name)) } : block
+    block.__component === "blocks.partners"
+      ? { ...block, partners: (block.partners as Array<{ partner: string; description?: string }>).map((item) => ({ ...item, partner: partnerId(ids, item.partner) })) }
+      : block
   ),
 });
 

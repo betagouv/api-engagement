@@ -1,0 +1,8 @@
+{
+  "collectionName": "components_items_partners",
+  "info": { "displayName": "Partenaire", "icon": "handHeart" },
+  "attributes": {
+    "partner": { "type": "relation", "relation": "oneToOne", "target": "api::partner.partner", "required": true, "description": "Partenaire à afficher (nom, texte et logo se gèrent dans « Partenaire », menu de gauche)." },
+    "description": { "type": "string", "description": "Remplace le texte du partenaire sur cette page (ex. : vouvoiement). Vide : texte du partenaire." }
+  }
+}

@@ -97,12 +97,12 @@ const linkPartners = (page: SeedPage, ids: Map<string, string>): SeedPage => ({
     block.__component === "blocks.partners"
       ? {
           ...block,
-          partners: (block.partners as string[]).map((name) => {
-            const id = ids.get(name);
+          partners: (block.partners as Array<{ partner: string; description?: string }>).map((item) => {
+            const id = ids.get(item.partner);
             if (!id) {
-              throw new Error(`Partenaire « ${name} » inconnu (seed/partners.json).`);
+              throw new Error(`Partenaire « ${item.partner} » inconnu (seed/partners.json).`);
             }
-            return id;
+            return { ...item, partner: id };
           }),
         }
       : block

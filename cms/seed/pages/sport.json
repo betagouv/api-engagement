@@ -151,11 +151,11 @@
       "__component": "blocks.partners",
       "title": "Toutes les missions d’engagement vérifiées par l'État",
       "partners": [
-        "Les réserves des armées",
-        "JeVeuxAider.gouv.fr",
-        "Le Service Civique",
-        "Sapeurs-pompiers de France",
-        "Gendarmerie nationale"
+        { "partner": "Les réserves des armées" },
+        { "partner": "JeVeuxAider.gouv.fr" },
+        { "partner": "Le Service Civique" },
+        { "partner": "Sapeurs-pompiers de France" },
+        { "partner": "Gendarmerie nationale" }
       ]
     }
   ]
