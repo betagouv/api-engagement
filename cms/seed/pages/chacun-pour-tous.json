@@ -12,8 +12,8 @@
       "__component": "blocks.hero",
       "title": "S'engager, c'est chacun pour tous !",
       "description": "Vous vous engagez peut-être déjà, sans même vous en rendre compte : aider un voisin, donner de votre temps, voter… Et vous êtes loin d'être seul : en France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Trouvez la mission qui vous ressemble, près de chez vous et à votre rythme.",
-      "image": { "upload": "landings/chacun-pour-tous/hero.webp" },
-      "imageMobile": { "upload": "landings/chacun-pour-tous/hero-mobile.webp" }
+      "image": { "upload": "landings/chacun-pour-tous/hero-chacun-pour-tous.webp", "alternativeText": "Campagne « Chacun pour tous » : deux jeunes souriants dos à dos" },
+      "imageMobile": { "upload": "landings/chacun-pour-tous/hero-chacun-pour-tous-mobile.webp" }
     },
     {
       "__component": "blocks.missions",
