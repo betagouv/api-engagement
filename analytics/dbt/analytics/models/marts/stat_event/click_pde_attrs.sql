@@ -8,9 +8,9 @@
 ) }}
 
 -- Attributs spécifiques Plateforme de l'Engagement (Trouve Ta Mission) portés
--- par les `custom_attributes` des `stat_event` de type `click` issus des
--- résultats du quiz ou d'un email. Grain : une ligne par clic
--- (`click_id` = `stat_event_id` du clic). Même patron que `apply_jva_attrs` /
+-- par les `custom_attributes` des `stat_event` de type `click` issus du quiz,
+-- d'un email ou d'une navigation avec un clic de campagne. Une ligne par
+-- clic (`click_id` = `stat_event_id`). Même patron que `apply_jva_attrs` /
 -- `apply_service_civique_attrs`.
 with src as (
   select
@@ -30,6 +30,9 @@ select
   s.stat_event_id as click_id,
   s.created_at,
   s.updated_at,
-  nullif(s.attrs ->> 'user_scoring_id', '') as user_scoring_id
+  nullif(s.attrs ->> 'user_scoring_id', '') as user_scoring_id,
+  nullif(s.attrs ->> 'origin_click_id', '') as origin_click_id
 from src as s
-where nullif(s.attrs ->> 'user_scoring_id', '') is not null
+where
+  nullif(s.attrs ->> 'user_scoring_id', '') is not null
+  or nullif(s.attrs ->> 'origin_click_id', '') is not null

@@ -1,6 +1,22 @@
 version: 2
 
 models:
+  - name: int_tracking_campaign_redirect
+    description: >
+      Redirections TTM vers un annonceur, hors robots, attribuées à une campagne via le
+      dernier clic API transmis dans `origin_click_id`, sans dépendance à PostHog.
+    columns:
+      - name: redirect_id
+        description: Identifiant du clic sortant TTM utilisé pour joindre les candidatures.
+        tests:
+          - not_null
+          - unique
+      - name: campaign_id
+        description: Identifiant de la campagne du clic d'origine.
+        tests:
+          - not_null
+      - name: user_scoring_id
+        description: Identifiant du quiz, facultatif. Conservé pour comparer les deux rattachements.
   - name: int_internal_distinct_ids
     description: >
       Référentiel des `distinct_id` internes (équipe API Engagement) : liste des identifiants ayant émis au moins

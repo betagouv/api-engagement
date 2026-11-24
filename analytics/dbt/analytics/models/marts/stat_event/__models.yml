@@ -279,7 +279,7 @@ models:
     description: >
       Extraction des attributs personnalisés portés par les clics de la Plateforme de
       l'Engagement (Trouve Ta Mission), dérivés du JSON `custom_attributes` des `stat_event`
-      de type `click`. Une ligne par clic porteur d'un `user_scoring_id`.
+      de type `click`. Une ligne par clic porteur d'un `user_scoring_id` ou d'un `origin_click_id`.
     columns:
       - name: click_id
         description: Identifiant du clic (référence à `public."StatEvent"`).
@@ -294,5 +294,5 @@ models:
         description: >
           Identifiant de la session quiz (`userScoringId`) porté par le clic quand il vient
           des résultats du quiz ou d'un email.
-        tests:
-          - not_null
+      - name: origin_click_id
+        description: Identifiant du dernier clic de campagne API transmis par TTM, avec ou sans session quiz.
