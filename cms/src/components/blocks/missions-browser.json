@@ -3,18 +3,23 @@
   "info": {
     "displayName": "Liste de missions filtrable",
     "icon": "search",
-    "description": "Liste paginée de missions avec filtres (localisation, âge, rythme…), comme la page /missions. Le dispositif et le domaine choisis limitent la liste et masquent le filtre correspondant. Un seul bloc par page."
+    "description": "Liste paginée de missions avec filtres (localisation, âge, rythme…), comme la page /missions. Les dispositifs, domaines et départements choisis limitent la liste et masquent le filtre correspondant. Un seul bloc par page."
   },
   "attributes": {
-    "dispositif": {
-      "type": "enumeration",
-      "enum": ["benevolat", "service_civique", "sapeurs_pompiers", "reserve_gendarmerie", "reserve_police_nationale", "reserve_armees"],
-      "description": "Ne montrer que ce type de mission (ex. : reserve_armees). Vide : tous."
+    "dispositifs": {
+      "type": "customField",
+      "customField": "global::multi-select",
+      "description": "Ne montrer que ces types de mission (ex. : reserve_armees). Vide : tous. Masque le filtre dispositif."
     },
-    "domaineEngagement": {
-      "type": "enumeration",
-      "enum": ["sante_bien_etre", "sport", "solidarite_inclusion", "environnement_animaux", "art_culture", "securite_secours", "citoyennete", "numerique", "education"],
-      "description": "Ne montrer que ce domaine (ex. : environnement_animaux). Vide : tous."
+    "domainesEngagement": {
+      "type": "customField",
+      "customField": "global::multi-select",
+      "description": "Ne montrer que ces domaines (ex. : environnement_animaux). Vide : tous. Masque le filtre domaine."
+    },
+    "departements": {
+      "type": "customField",
+      "customField": "global::multi-select",
+      "description": "Ne montrer que les missions de ces départements (hors missions à distance). Vide : tous. Masque le filtre de localisation."
     }
   }
 }

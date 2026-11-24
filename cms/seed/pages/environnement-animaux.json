@@ -19,7 +19,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "domaineEngagement": "environnement_animaux"
+      "domainesEngagement": ["environnement_animaux"]
     },
     {
       "__component": "blocks.etapes",

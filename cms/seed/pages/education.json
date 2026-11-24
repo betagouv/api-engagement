@@ -19,7 +19,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "domaineEngagement": "education"
+      "domainesEngagement": ["education"]
     },
     {
       "__component": "blocks.etapes",

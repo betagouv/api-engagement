@@ -19,7 +19,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "domaineEngagement": "sport"
+      "domainesEngagement": ["sport"]
     },
     {
       "__component": "blocks.etapes",

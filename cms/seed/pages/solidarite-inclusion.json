@@ -19,7 +19,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "domaineEngagement": "solidarite_inclusion"
+      "domainesEngagement": ["solidarite_inclusion"]
     },
     {
       "__component": "blocks.etapes",

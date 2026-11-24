@@ -19,7 +19,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "domaineEngagement": "securite_secours"
+      "domainesEngagement": ["securite_secours"]
     },
     {
       "__component": "blocks.etapes",
