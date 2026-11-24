@@ -2,9 +2,12 @@
   "collectionName": "components_items_partners",
   "info": { "displayName": "Partenaire", "icon": "handHeart" },
   "attributes": {
-    "name": { "type": "string", "required": true },
-    "description": { "type": "string", "required": true },
-    "url": { "type": "string" },
-    "logo": { "type": "media", "multiple": false, "allowedTypes": ["images"], "required": true }
+    "partner": {
+      "type": "enumeration",
+      "enum": ["reserve_armees", "jeveuxaider", "service_civique", "sapeurs_pompiers", "gendarmerie"],
+      "required": true,
+      "description": "Partenaire connu : nom, logo et texte par défaut sont définis dans plateform."
+    },
+    "description": { "type": "string", "description": "Remplace le texte par défaut du partenaire sur cette page (ex. : vouvoiement). Vide : texte par défaut." }
   }
 }

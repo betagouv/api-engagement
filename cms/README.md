@@ -63,9 +63,10 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
   | `testimonials` | `items.testimonial`    |
   | `faq`          | `items.question`       |
   | `accordion`    | `items.accordion-item` |
+  | `partners`     | `items.partner`        |
   | `missions`     | `items.mission-slot`   |
 
-- **`partner`** (collection « Partenaire », menu de gauche) : partenaires connus (nom, texte, logo), créés une fois puis choisis dans le bloc `partners` (`items.partner` : partenaire + texte facultatif qui remplace celui du partenaire sur la page, ex. pour le vouvoiement ; ordre conservé). Le seed les crée depuis `seed/partners.json` ; les pages du seed les référencent par nom.
+- Bloc `partners` : chaque partenaire se choisit dans une liste (`items.partner.partner`) ; son nom, son logo et son texte par défaut vivent dans `plateform/app/config/cms-partners.ts` (un nouveau partenaire s'ajoute là **et** dans l'enum du schéma). Le champ `description` remplace le texte par défaut sur la page (ex. vouvoiement).
 - Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
 - Texte riche (`rich-text`) : éditeur « Blocks » de Strapi (sans tableaux). « Titre 1 » donne un h2 (le h1 est le titre de la page), « Titre 2 » un h3, etc. Le texte alternatif des images se renseigne dans la médiathèque ; sans lui, l'image est décorative.
 
