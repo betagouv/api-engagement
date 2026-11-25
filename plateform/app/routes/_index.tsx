@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { MissionBrowseFilters } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseFilters } from "@engagement/dto";
 import { useLoaderData, useNavigate } from "react-router";
 import About from "~/components/home/about";
 import Hero from "~/components/home/hero";
@@ -52,8 +52,15 @@ const MISSION_EXAMPLE_SLOTS: MissionBrowseFilters[] = [
   { dispositif: "reserve_police_nationale" },
 ];
 
+// Les exemples sont les mêmes pour tous les visiteurs : on les garde en mémoire quelques minutes pour ne pas
+// attendre 6 appels API avant d'envoyer la page (temps de réponse serveur, et donc LCP mobile).
+const EXAMPLES_CACHE_DURATION_MS = 5 * 60 * 1000;
+let examplesCache: { examples: MissionBrowse[]; expiresAt: number } | null = null;
+
 export async function loader({ request }: Route.LoaderArgs) {
-  const examples = await Promise.all(
+  if (examplesCache && examplesCache.expiresAt > Date.now()) return { examples: examplesCache.examples };
+
+  const examplesBySlot = await Promise.all(
     MISSION_EXAMPLE_SLOTS.map(async (filters) => {
       try {
         const response = await browseMissions({ ...filters, pageSize: 1 }, request);
@@ -63,7 +70,10 @@ export async function loader({ request }: Route.LoaderArgs) {
       }
     }),
   );
-  return { examples: examples.flat() };
+  const examples = examplesBySlot.flat();
+  // Une liste vide signale une API en erreur : on ne la garde pas, pour retenter dès la visite suivante.
+  if (examples.length > 0) examplesCache = { examples, expiresAt: Date.now() + EXAMPLES_CACHE_DURATION_MS };
+  return { examples };
 }
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
