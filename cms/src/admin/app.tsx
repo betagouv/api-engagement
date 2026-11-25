@@ -1,5 +1,6 @@
 import { Layout } from "@strapi/icons";
 import type { StrapiApp } from "@strapi/strapi/admin";
+import { PageErrorsPanel } from "./components/page-errors";
 import { PageHistoryPanel } from "./components/page-history";
 import { PageUrlPanel } from "./components/page-url";
 
@@ -19,7 +20,11 @@ export default {
   },
   bootstrap(app: StrapiApp) {
     // Historique des pages : voir src/history.ts.
-    (app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (actions: unknown[]) => void } }).apis.addEditViewSidePanel([PageUrlPanel, PageHistoryPanel]);
+    (app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (actions: unknown[]) => void } }).apis.addEditViewSidePanel([
+      PageErrorsPanel,
+      PageUrlPanel,
+      PageHistoryPanel,
+    ]);
     // Bandeau pré-prod (comme app/) : fixé en haut, l'admin est décalé de sa hauteur.
     // STRAPI_ADMIN_ENV est inlinée au build (cf. Dockerfile.production, issue de l'ENV global du workflow).
     if (process.env.STRAPI_ADMIN_ENV !== "staging") {
