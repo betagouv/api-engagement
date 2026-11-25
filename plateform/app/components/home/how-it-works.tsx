@@ -37,7 +37,7 @@ export default function HowItWorks({ onStartQuiz }: { onStartQuiz: () => void })
             className="list-none! marker:content-none! flex items-center gap-2 md:bg-background md:h-full md:flex-col md:gap-4 md:p-10 md:text-center md:shadow-tile lg:w-full lg:max-w-68 lg:p-6!"
           >
             <span className="bg-blue-ecume-975 dark:bg-white p-2 rounded-full flex size-12 shrink-0 items-center justify-center md:size-20 md:rounded-none dark:md:p-1 dark:md:rounded-full md:bg-transparent">
-              <img src={feature.icon} alt="" aria-hidden="true" />
+              <img loading="lazy" src={feature.icon} alt="" aria-hidden="true" />
             </span>
             <h3 className="text-[20px]! leading-7! text-default-grey fr-mb-0 font-bold">{feature.title}</h3>
           </li>

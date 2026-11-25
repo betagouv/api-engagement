@@ -82,7 +82,7 @@ export default function Partners({
             {partners.map((partner) => (
               <li key={partner.name} className="flex items-start gap-4">
                 <div className="flex items-center justify-center bg-white rounded-sm p-1">
-                  <img src={partner.logo} alt="" className="size-10 shrink-0 rounded object-contain" aria-hidden="true" />
+                  <img loading="lazy" src={partner.logo} alt="" className="size-10 shrink-0 rounded object-contain" aria-hidden="true" />
                 </div>
                 <div className="flex-1">
                   <p className="fr-mb-0 font-bold">{partnerName(partner)}</p>
@@ -140,7 +140,7 @@ export default function Partners({
           {partners.map((partner) => (
             <li key={partner.name} className="flex w-70 shrink-0 snap-start items-center gap-4">
               <div className="flex size-15 shrink-0 items-center justify-center rounded-lg bg-white">
-                <img src={partner.logo} alt="" className="size-12 object-contain" aria-hidden="true" />
+                <img loading="lazy" src={partner.logo} alt="" className="size-12 object-contain" aria-hidden="true" />
               </div>
               <div>
                 <p className="fr-mb-0 text-title-grey font-bold">{partnerName(partner)}</p>

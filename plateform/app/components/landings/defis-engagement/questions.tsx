@@ -47,7 +47,7 @@ export default function Questions({ cta }: { cta: LandingCta }) {
         {QUESTIONS.map((item) => (
           <div key={item.question} className="bg-blue-france-975 border-border-default-grey flex h-full flex-col gap-2! rounded-2xl! border p-6!">
             <div className="bg-background fr-mb-1w flex size-20 items-center justify-center rounded-full md:size-24">
-              <img src={item.icon} alt="" aria-hidden="true" className="size-15 md:size-18 dark:rounded-full dark:bg-white" />
+              <img loading="lazy" src={item.icon} alt="" aria-hidden="true" className="size-15 md:size-18 dark:rounded-full dark:bg-white" />
             </div>
             <h3 className="fr-h6 mb-0!">{item.question}</h3>
             <p className="fr-text--lg mb-0!">{item.answer}</p>

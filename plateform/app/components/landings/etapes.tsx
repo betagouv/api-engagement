@@ -55,7 +55,7 @@ export default function Etapes({
         {etapes.map((etape) => (
           <div key={etape.title} className="bg-background flex h-full flex-col items-center gap-4! px-6! py-9! text-center shadow-tile">
             <div className="bg-blue-france-975 flex size-24 items-center justify-center rounded-full">
-              <img src={etape.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />
+              <img loading="lazy" src={etape.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />
             </div>
             <div>
               <h3 className="fr-h6 text-title-grey mb-1!">{etape.title}</h3>

@@ -122,7 +122,7 @@ export default function Testimonials({ onStartQuiz }: { onStartQuiz: () => void 
                 <h3 className="fr-text--md text-title-grey font-normal! mb-0!">{testimonial.title}</h3>
                 <div className="flex items-center gap-2 fr-mt-auto pt-2">
                   <div className="size-7.5 shrink-0 rounded-lg bg-white p-0.5">
-                    <img src={testimonial.publisherLogo} alt="" className="size-full object-contain" />
+                    <img loading="lazy" src={testimonial.publisherLogo} alt="" className="size-full object-contain" />
                   </div>
                   <span className="text-mention-grey fr-text--xs mb-0!">{testimonial.publisherName}</span>
                 </div>

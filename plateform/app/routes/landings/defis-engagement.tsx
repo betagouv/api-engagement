@@ -144,7 +144,7 @@ export default function DefisEngagement() {
       >
         {/* Visuel calé en bas de la section : sous le texte sur mobile, à droite à partir de la tablette (le débord
             à droite sur tablette est rogné par la section, comme dans la maquette). */}
-        <img src={HeroWebp} alt="" className="mx-auto aspect-774/662 w-[97%] md:absolute md:bottom-0 md:left-[45.3%] md:mt-0 md:w-[60.2%] lg:right-0 lg:left-auto lg:w-[53.75%]" />
+        <img src={HeroWebp} alt="" fetchPriority="high" className="mx-auto aspect-774/662 w-[97%] md:absolute md:bottom-0 md:left-[45.3%] md:mt-0 md:w-[60.2%] lg:right-0 lg:left-auto lg:w-[53.75%]" />
       </Hero>
       <Missions
         missions={missions}
