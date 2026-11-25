@@ -1,5 +1,8 @@
 import "@gouvfr/dsfr/dist/dsfr.min.css";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
+import MarianneBold from "@gouvfr/dsfr/dist/fonts/Marianne-Bold.woff2?url";
+import MarianneMedium from "@gouvfr/dsfr/dist/fonts/Marianne-Medium.woff2?url";
+import MarianneRegular from "@gouvfr/dsfr/dist/fonts/Marianne-Regular.woff2?url";
 import { type ReactNode } from "react";
 import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useLocation, useNavigation } from "react-router";
 import CookieConsentManager from "~/components/layout/cookie-consent-manager";
@@ -19,6 +22,11 @@ const apiEngagementTag = PUBLISHER_ID
   : null;
 
 export const middleware: Route.MiddlewareFunction[] = [canonicalHostMiddleware];
+
+// Polices Marianne utilisées dès le premier écran : sans préchargement, le navigateur ne les découvre qu'après
+// avoir lu le CSS, affiche d'abord la police de secours puis décale tout le texte à leur arrivée (CLS mobile).
+export const links: Route.LinksFunction = () =>
+  [MarianneRegular, MarianneMedium, MarianneBold].map((href) => ({ rel: "preload", href, as: "font", type: "font/woff2", crossOrigin: "anonymous" }));
 
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().
