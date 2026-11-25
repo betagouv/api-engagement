@@ -236,7 +236,6 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       return (
         <Partners
           style="compact"
-          squareArrows
           title={block.title}
           description={null}
           partners={block.partners.flatMap(({ partner, description }) => {

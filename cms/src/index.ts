@@ -1,5 +1,6 @@
 import type { Core } from "@strapi/strapi";
 import { registerPageHistory } from "./history";
+import { registerSlugRedirects } from "./slug-redirects";
 
 // Types de plugins à masquer du menu « Content Manager » (users gérés par les settings admin, verrous d'édition internes).
 const HIDDEN_CONTENT_TYPES = ["plugin::users-permissions.user", "plugin::record-locking.open-entity"];
@@ -14,5 +15,6 @@ export default {
         contentType.pluginOptions = { ...contentType.pluginOptions, "content-manager": { visible: false } };
       }
     }
+    registerSlugRedirects(strapi);
   },
 };

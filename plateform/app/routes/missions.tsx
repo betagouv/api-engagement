@@ -2,7 +2,6 @@ import type { MissionBrowseSlot } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 
-import LocationFilter from "~/components/landings/location-filter";
 import Newsletter from "~/components/layout/newsletter";
 import Partners from "~/components/layout/partners";
 import MissionsBrowser, { FILTER_TYPES } from "~/components/missions/missions-browser";
@@ -67,8 +66,6 @@ export default function MissionsPage() {
         <div className="fr-container pt-8 md:pt-16">
           <h1 className="fr-h1 mb-2!">Trouve ta mission</h1>
           <p className="fr-text--lead mb-6!">{`${total.toLocaleString("fr-FR")} mission${total > 1 ? "s" : ""} disponible${total > 1 ? "s" : ""}`}</p>
-          {/* Mobile et tablette : la localisation est ici ; à partir du desktop, elle rejoint la colonne de filtres. */}
-          <LocationFilter id="hero-localisation" className="lg:hidden" />
         </div>
       </GradientBg>
       <MissionsBrowser missions={missions} total={total} page={page} filters={MISSIONS_CONFIG.filters} pageName="missions_list" backTo="/missions" />

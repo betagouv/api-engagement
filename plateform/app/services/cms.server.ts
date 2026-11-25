@@ -59,6 +59,28 @@ export function canonicalCmsPath(pathname: string): string {
     .replace(/^\/+/, "/");
 }
 
+// Anciens slugs → slug courant (table complète, petite), mise en cache comme les pages. Panne du CMS : pas de redirection
+// (l'ancienne URL reste en 404), jamais une erreur.
+let redirects: { map: Map<string, string>; at: number } | null = null;
+
+export async function getCmsRedirect(slug: string): Promise<string | null> {
+  if (!CMS_API_TOKEN) return null;
+  if (!redirects || Date.now() - redirects.at >= CACHE_TTL_MS) {
+    try {
+      const response = await fetch(`${CMS_URL}/api/page-redirects`, {
+        headers: { Authorization: `Bearer ${CMS_API_TOKEN}` },
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!response.ok) throw new Error(`CMS indisponible (${response.status})`);
+      const { data } = (await response.json()) as { data: { fromSlug: string; toSlug: string }[] };
+      redirects = { map: new Map(data.map((r) => [r.fromSlug, r.toSlug])), at: Date.now() };
+    } catch {
+      if (!redirects) return null;
+    }
+  }
+  return redirects.map.get(slug) ?? null;
+}
+
 // Contenu publié, ou brouillon en preview (jamais mis en cache : l'éditeur doit voir sa dernière sauvegarde).
 export async function getCmsPage(slug: string, { draft = false } = {}): Promise<CmsPage | null> {
   // Un slug mal formé ne correspond à aucune page : inutile de solliciter le CMS.

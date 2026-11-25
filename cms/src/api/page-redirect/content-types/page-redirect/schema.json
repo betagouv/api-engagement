@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "page_redirects",
+  "info": {
+    "singularName": "page-redirect",
+    "pluralName": "page-redirects",
+    "displayName": "Page redirect",
+    "description": "Anciens slugs d'une page, redirigés en 301 vers son slug publié. Créé à la publication d'un changement de slug (cf. src/slug-redirects.ts) ; supprimer une ligne casse l'ancienne URL."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "fromSlug": { "type": "string", "required": true, "unique": true },
+    "pageDocumentId": { "type": "string", "required": true }
+  }
+}

@@ -29,7 +29,7 @@ export default function MissionCard({
   onEmailClick?: () => void;
 }) {
   return (
-    // Sans tags (cartes d'exemple des landings) : hauteur au contenu et titre plus grand, sur 3 lignes.
+    // Sans tags (cartes d’exemple de la home et des landings) : hauteur au contenu.
     <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
       {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
 
@@ -54,8 +54,8 @@ export default function MissionCard({
               {domainLabel}
             </span>
           )}
-          {/* title : intitulé complet au survol quand il dépasse les 3 lignes. */}
-          <h3 title={title} className={`text-blue-france-sun! m-0! font-bold! line-clamp-3 ${tags ? "text-base!" : "text-xl! leading-7!"} ${onEmailClick ? "mt-1!" : ""}`}>
+          {/* title : intitulé complet au survol quand il est tronqué (3 lignes avec tags, 1 ligne sans : carte de 215 px de la maquette). */}
+          <h3 title={title} className={`text-blue-france-sun! m-0! font-bold! text-base! leading-6! ${tags ? "line-clamp-3" : "line-clamp-1"} ${onEmailClick ? "mt-1!" : ""}`}>
             {title}
           </h3>
         </div>

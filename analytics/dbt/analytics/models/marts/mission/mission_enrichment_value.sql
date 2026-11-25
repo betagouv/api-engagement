@@ -1,5 +1,3 @@
-{{ config(materialized = 'view') }}
-
 select
   id,
   enrichment_id,

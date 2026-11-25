@@ -49,10 +49,10 @@ describe("buildLandingBrowseFilters", () => {
     expect(buildLandingBrowseFilters(new URLSearchParams("lat=abc&lon=-1.5536"), CONFIG).lat).toBeUndefined();
   });
 
-  it("ne garde qu'une tranche d'âge", () => {
+  it("garde plusieurs tranches d'âge", () => {
     const filters = buildLandingBrowseFilters(new URLSearchParams("tranche_age=18_25_ans&tranche_age=26_30_ans"), CONFIG);
 
-    expect(filters.tranche_age).toEqual(["18_25_ans"]);
+    expect(filters.tranche_age).toEqual(["18_25_ans", "26_30_ans"]);
   });
 
   it("affiche 12 missions en page 1 sans carte d'alertes", () => {

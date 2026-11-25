@@ -95,3 +95,27 @@ describe("canonicalCmsPath", () => {
     }
   });
 });
+
+describe("getCmsRedirect", () => {
+  const table = { ok: true, json: async () => ({ data: [{ fromSlug: "ancien", toSlug: "nouveau" }] }) };
+
+  beforeEach(() => fetchMock.mockReset());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("résout un ancien slug et lit la table une seule fois (cache)", async () => {
+    const { getCmsRedirect } = await load();
+    fetchMock.mockResolvedValue(table);
+    expect(await getCmsRedirect("ancien")).toBe("nouveau");
+    expect(await getCmsRedirect("inconnu")).toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("ne redirige pas (sans erreur) quand le CMS est indisponible", async () => {
+    const { getCmsRedirect } = await load();
+    fetchMock.mockRejectedValueOnce(new Error("down"));
+    expect(await getCmsRedirect("ancien")).toBeNull();
+  });
+});

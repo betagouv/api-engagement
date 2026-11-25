@@ -33,7 +33,6 @@ export default function Questions({ cta }: { cta: LandingCta }) {
       </h2>
 
       <Carousel
-        squareArrows
         label="Les questions que tu te poses"
         previousLabel="Voir la question précédente"
         nextLabel="Voir la question suivante"

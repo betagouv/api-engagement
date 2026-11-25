@@ -9,7 +9,6 @@ const DEFAULT_DESCRIPTION = "…directement sur les sites qui les proposent, jet
 // Bandeau des partenaires, en deux rendus :
 // - `default` : grille de deux colonnes ;
 // - `compact` : bandeau défilant, flèches alignées sur le titre (home, landings, résultats) ;
-//   `squareArrows` les rend carrées, comme celles des carrousels des landings.
 // `partners` : liste propre à la page appelante (partenaires affichés et liens de redirection dédiés,
 // pour attribuer les clics à cette page). Par défaut, les quatre partenaires génériques.
 export default function Partners({
@@ -17,13 +16,11 @@ export default function Partners({
   partners = DEFAULT_PARTNERS,
   title = DEFAULT_TITLE,
   description = DEFAULT_DESCRIPTION,
-  squareArrows = false,
 }: {
   style?: "default" | "compact";
   partners?: Partner[];
   title?: string;
   description?: string | null;
-  squareArrows?: boolean;
 }) {
   const listId = useId();
   const scrollRef = useRef<HTMLUListElement>(null);
@@ -71,7 +68,8 @@ export default function Partners({
       partner.name
     );
 
-  const arrowClassName = squareArrows ? "fr-btn--tertiary size-12! max-h-none! max-w-none! justify-center! before:mr-0!" : "fr-btn--secondary rounded-full";
+  // Flèches carrées tertiaires, comme celles des carrousels (cf. `ui/carousel.tsx`).
+  const arrowClassName = "fr-btn--tertiary size-12! max-h-none! max-w-none! justify-center! before:mr-0!";
 
   if (style === "default") {
     return (
@@ -109,7 +107,7 @@ export default function Partners({
             {description && <p className="mt-2! mb-0! text-title-grey">{description}</p>}
           </div>
           {scrollable && (
-            <div className={`flex shrink-0 ${squareArrows ? "gap-6" : "gap-3"}`}>
+            <div className="flex shrink-0 gap-6">
               <button
                 type="button"
                 onClick={() => handleScroll(-1)}

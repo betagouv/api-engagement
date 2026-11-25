@@ -692,8 +692,9 @@ models:
           - not_null
   - name: mission_enrichment_value
     description: >
-      Vue d'exposition des valeurs extraites lors de l'enrichissement des missions, dérivée de
-      `stg_mission_enrichment_value`.
+      Table d'exposition des valeurs extraites lors de l'enrichissement des missions, dérivée de
+      `stg_mission_enrichment_value` : dernier passage de chaque enrichissement seulement. Grain : une ligne par
+      (`enrichment_id`, `taxonomy_key`, `value_key`), testé par `assert_mission_enrichment_value_unique_value`.
     columns:
       - name: id
         description: Identifiant unique de la valeur d'enrichissement.
@@ -762,7 +763,10 @@ models:
           - not_null
   - name: mission_scoring_value
     description: >
-      Vue d'exposition des valeurs de scoring des missions par taxonomie, dérivée de `stg_mission_scoring_value`.
+      Table d'exposition des valeurs de scoring des missions par taxonomie, dérivée de `stg_mission_scoring_value` :
+      dernier passage de chaque scoring seulement, sans les valeurs dont la valeur d'enrichissement a disparu de la
+      base core. Grain : une ligne par (`mission_scoring_id`, `taxonomy_key`,
+      `value_key`), testé par `assert_mission_scoring_value_unique_value`.
     columns:
       - name: id
         description: Identifiant unique de la valeur de scoring mission.
@@ -778,12 +782,9 @@ models:
                 to: ref('mission_scoring')
                 field: id
       - name: mission_enrichment_value_id
-        description: Identifiant de la valeur d'enrichissement ayant servi au scoring, si applicable.
-        tests:
-          - relationships:
-              arguments:
-                to: ref('mission_enrichment_value')
-                field: id
+        description: >
+          Identifiant de la valeur d'enrichissement ayant servi au scoring, si applicable (null pour les règles
+          déterministes). Toujours présent dans `mission_enrichment_value`.
       - name: taxonomy_key
         description: Clé de la taxonomie scorée.
       - name: value_key
