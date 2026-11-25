@@ -31,7 +31,7 @@ export type MissionBrowseFilters = MissionBrowseTaxonomyParams & {
   // Point de référence : les missions dont une adresse est la plus proche passent en premier (prioritaire sur `sort`).
   lat?: number;
   lon?: number;
-  // Emplacements des premiers résultats, appliqués uniquement quand aucun filtre n'est coché.
+  // Emplacements des premiers résultats, choisis parmi les missions qui respectent les autres filtres.
   slots?: MissionBrowseSlot[];
 };
 

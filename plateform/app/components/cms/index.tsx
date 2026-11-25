@@ -249,12 +249,14 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
     case "blocks.missions-browser": {
       const results = context.browsersByBlock[index];
       if (!results) return null;
+      const { filters, include } = getLandingMissionsConfig(block);
       return (
         <MissionsBrowser
           missions={results.missions}
           total={results.total}
           page={results.page}
-          filters={getLandingMissionsConfig(block).filters}
+          filters={filters}
+          include={include}
           pageName={context.landing}
           backTo={context.path}
           overlapHero={false}

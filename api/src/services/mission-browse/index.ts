@@ -218,13 +218,13 @@ const buildSlotFilter = (slot: MissionBrowseSlot): string => {
 // Remplit les emplacements avec les missions les plus récentes de chaque critère distinct. Chaque emplacement prend
 // la mission suivante de son critère ; s'il est épuisé, il passe au critère des emplacements suivants, sans laisser de trou.
 const findSlotMissionIds = async (params: MissionBrowseParams, slots: MissionBrowseSlot[]): Promise<string[]> => {
-  const alwaysParts = buildAlwaysFilterParts(params);
+  const baseParts = [...buildAlwaysFilterParts(params), ...buildFacetFilterParts(params).values()];
   const slotFilters = slots.map(buildSlotFilter);
   const distinctFilters = [...new Set(slotFilters)];
   let candidates: string[][];
   try {
     candidates = await missionSearchClient.findLatestIds(
-      distinctFilters.map((slotFilter) => [...alwaysParts, slotFilter].filter(Boolean).join(" && ") || undefined),
+      distinctFilters.map((slotFilter) => [...baseParts, slotFilter].filter(Boolean).join(" && ") || undefined),
       slots.length
     );
   } catch (error) {
@@ -268,8 +268,8 @@ const mapFacetCounts = (spec: FacetSpec, result?: SearchQueryResponse<MissionInd
 
 export const missionBrowseService = {
   async browse(params: MissionBrowseParams): Promise<MissionBrowseResponse> {
-    // Les emplacements ne valent que pour la liste sans filtre : dès qu'un filtre est coché, simple tri.
-    const slots = !params.widgetMode && buildFacetFilterParts(params).size === 0 ? (params.slots ?? []) : [];
+    // Les emplacements respectent les filtres reçus (ex. périmètre d'une page) : c'est à l'appelant de ne pas les envoyer quand il n'en veut pas.
+    const slots = params.widgetMode ? [] : (params.slots ?? []);
     const slotIds = slots.length ? await findSlotMissionIds(params, slots) : [];
 
     // Liste complète = missions des emplacements puis toutes les autres. La page courante prend sa part
