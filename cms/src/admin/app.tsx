@@ -22,8 +22,8 @@ export default {
     // Historique des pages : voir src/history.ts.
     const { apis } = app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (panels: unknown[] | ((panels: unknown[]) => unknown[])) => void } };
     apis.addEditViewSidePanel([PageUrlPanel, PageHistoryPanel]);
-    // En tête, devant le volet natif de publication.
-    apis.addEditViewSidePanel((panels) => [PageErrorsPanel, ...panels]);
+    // Juste sous le volet natif de publication (le premier de la liste).
+    apis.addEditViewSidePanel(([actions, ...others]) => [actions, PageErrorsPanel, ...others]);
     // Bandeau pré-prod (comme app/) : fixé en haut, l'admin est décalé de sa hauteur.
     // STRAPI_ADMIN_ENV est inlinée au build (cf. Dockerfile.production, issue de l'ENV global du workflow).
     if (process.env.STRAPI_ADMIN_ENV !== "staging") {
