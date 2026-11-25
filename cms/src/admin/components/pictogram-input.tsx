@@ -1,10 +1,18 @@
-import { Combobox, ComboboxOption, Field } from "@strapi/design-system";
+import { Combobox, ComboboxOption, Field, Flex } from "@strapi/design-system";
 import { forwardRef } from "react";
 
 // Pictogrammes DSFR proposés, lus dans le paquet @gouvfr/dsfr (nouvelle version du DSFR = nouveaux choix sans code ici).
 // Valeur = nom du fichier, tirets remplacés par des underscores (`self-training.svg` → `self_training`), comme plateform/app/components/cms/pictograms.ts.
-const FILES = (import.meta as unknown as { glob: (pattern: string) => Record<string, unknown> }).glob("/node_modules/@gouvfr/dsfr/dist/artwork/pictograms/*/*.svg");
-export const PICTOGRAMS = [...new Set(Object.keys(FILES).map((file) => file.split("/").pop()!.replace(".svg", "").replaceAll("-", "_")))].sort();
+const FILES = (import.meta as unknown as { glob: (pattern: string, options: object) => Record<string, string> }).glob(
+  "/node_modules/@gouvfr/dsfr/dist/artwork/pictograms/*/*.svg",
+  {
+    eager: true,
+    query: "?url",
+    import: "default",
+  }
+);
+const URLS: Record<string, string> = Object.fromEntries(Object.entries(FILES).map(([file, url]) => [file.split("/").pop()!.replace(".svg", "").replaceAll("-", "_"), url]));
+export const PICTOGRAMS = Object.keys(URLS).sort();
 
 type Props = {
   name: string;
@@ -29,8 +37,11 @@ const PictogramInput = forwardRef<HTMLInputElement, Props>(({ name, value, onCha
       onChange={(next?: string) => onChange({ target: { name, value: next ?? null, type: "string" } })}
     >
       {PICTOGRAMS.map((pictogram) => (
-        <ComboboxOption key={pictogram} value={pictogram}>
-          {pictogram}
+        <ComboboxOption key={pictogram} value={pictogram} textValue={pictogram}>
+          <Flex gap={3}>
+            <img src={URLS[pictogram]} alt="" width={40} height={40} />
+            {pictogram}
+          </Flex>
         </ComboboxOption>
       ))}
     </Combobox>
