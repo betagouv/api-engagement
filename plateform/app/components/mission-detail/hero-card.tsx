@@ -1,5 +1,6 @@
 import type { MissionDetailResponse } from "@engagement/dto";
 import { getDomainLabel } from "@engagement/dto";
+import { IMAGE_WIDTHS, resizedImageUrl } from "~/utils/image";
 import { formatMissionType } from "~/utils/mission";
 
 interface MissionHeroCardProps {
@@ -25,7 +26,7 @@ export default function MissionHeroCard({ mission }: MissionHeroCardProps) {
 
         {orgDisplayName && (
           <div className="order-3 flex items-center gap-4">
-            {logo && <img src={logo} alt="" className="h-8 w-14 flex-none object-contain" loading="eager" />}
+            {logo && <img src={resizedImageUrl(logo, IMAGE_WIDTHS.logo)} alt="" className="h-8 w-14 flex-none object-contain" loading="eager" />}
             <p className="fr-text--sm fr-mb-0 text-mention-grey">
               {publisherTypeLabel} proposée par <span className="text-title-grey font-semibold">{orgDisplayName}</span>
             </p>

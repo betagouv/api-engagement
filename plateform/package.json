@@ -39,6 +39,7 @@
     "react-leaflet": "5.0.0",
     "react-router": "8.5.1",
     "sanitize-html": "2.18.1",
+    "sharp": "0.35.5",
     "tailwindcss": "4.3.3",
     "zustand": "5.0.16"
   },

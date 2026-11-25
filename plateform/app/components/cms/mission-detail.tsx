@@ -8,6 +8,7 @@ import MissionHeroCard from "~/components/mission-detail/hero-card";
 import MissionLocationCard from "~/components/mission-detail/location-card";
 import { trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/services/tracking/events";
 import type { LandingName } from "~/services/tracking/types";
+import { IMAGE_WIDTHS, resizedImageUrl } from "~/utils/image";
 
 // Fiche d'une mission de l'API placée dans une page du CMS (ex. : suite d'une landing) : mêmes cartes que la fiche
 // mission de la plateforme (routes/mission-detail.tsx), avec le bandeau crème des landings.
@@ -22,7 +23,7 @@ export default function MissionDetail({ mission, backUrl, landing }: { mission: 
     });
   }, [mission, landing]);
 
-  const photo = mission.photo && <img src={mission.photo} alt="" className="h-full w-full object-cover" />;
+  const photo = mission.photo && <img src={resizedImageUrl(mission.photo, IMAGE_WIDTHS.detail)} alt="" className="h-full w-full object-cover" />;
 
   return (
     <div className="relative pb-28 md:pb-0">
