@@ -40,6 +40,12 @@
       "type": "boolean",
       "default": false
     },
+    "collection": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::collection.collection",
+      "inversedBy": "pages"
+    },
     "ctaLabel": {
       "type": "string",
       "maxLength": 40,
