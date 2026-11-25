@@ -35,10 +35,6 @@ const ErrorList = () => {
   }, [get]);
 
   const problems = flatten(errors);
-  if (problems.length === 0) {
-    return <Typography variant="pi">Aucune erreur. Les champs manquants ou invalides sont listés ici à l'enregistrement.</Typography>;
-  }
-
   // Un chemin `blocks.2.title.…` devient « Bloc n°3 · Nom du bloc › title ».
   const where = ({ path }: Problem) => {
     if (path[0] !== "blocks" || !/^\d+$/.test(path[1] ?? "")) {
@@ -65,9 +61,10 @@ const ErrorList = () => {
   );
 };
 
-// Panneau latéral de l'édition d'une page : champs manquants ou invalides, avec le bloc concerné (voir l'enregistrement/la publication).
+// Panneau latéral de l'édition d'une page : champs manquants ou invalides, avec le bloc concerné. Absent tant qu'il n'y a pas d'erreur.
 export const PageErrorsPanel = ({ model }: { model: string }) => {
-  if (model !== PAGE_UID) {
+  const hasErrors = useForm("PageErrorsPanel", (state) => flatten(state.errors).length > 0);
+  if (model !== PAGE_UID || !hasErrors) {
     return null;
   }
   return { title: "Erreurs de validation", content: <ErrorList /> };
