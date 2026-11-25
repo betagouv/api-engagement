@@ -32,7 +32,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
         </div>
 
         <div className="flex flex-col gap-6">
-          <img src={PodcastSvg} alt="" aria-hidden="true" className="size-15" />
+          <img loading="lazy" src={PodcastSvg} alt="" aria-hidden="true" className="size-15" />
 
           {/* Annonce le témoignage affiché quand on navigue avec les flèches. */}
           <figure aria-live="polite" className="m-0!">

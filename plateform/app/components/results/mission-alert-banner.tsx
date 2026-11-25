@@ -51,8 +51,8 @@ export default function MissionAlertBanner({ userScoringId }: MissionAlertBanner
 
   return (
     <section className="relative my-6 flex flex-col gap-3 overflow-hidden bg-blue-france-975 p-6">
-      <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16" />
-      <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute -top-0.5 right-4 w-12 rotate-[-11deg]" />
+      <img loading="lazy" src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16" />
+      <img loading="lazy" src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute -top-0.5 right-4 w-12 rotate-[-11deg]" />
 
       <h2 className="relative fr-text--lg font-bold! mb-0! pr-12">Reçois les nouvelles missions qui matchent tes réponses</h2>
       <p className="relative fr-text--sm mb-0!">

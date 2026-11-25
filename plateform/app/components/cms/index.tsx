@@ -113,6 +113,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
               <img
                 src={mobileImage?.url}
                 alt={image.alternativeText ?? ""}
+                fetchPriority="high"
                 width={mobileImage?.width ?? undefined}
                 height={mobileImage?.height ?? undefined}
                 className="mt-8 block h-auto w-full md:absolute md:right-0 md:bottom-0 md:mt-0 md:w-[46%] lg:w-[56%] lg:max-w-[812px]"

@@ -35,7 +35,7 @@ function Cartes({ items, className = "" }: { items: Dispositif[]; className?: st
       {items.map((d) => (
         <li key={d.name} className={`border-border-default-grey flex items-start gap-4 border p-4! ${className}`}>
           <span className="flex size-15 shrink-0 items-center justify-center rounded-lg bg-white">
-            <img src={d.logo} alt="" className="size-12 object-contain" />
+            <img loading="lazy" src={d.logo} alt="" className="size-12 object-contain" />
           </span>
           <div className="flex min-h-15 flex-col justify-center">
             <h3 className="text-title-grey mb-0! text-base! leading-6! font-bold!">{d.name}</h3>

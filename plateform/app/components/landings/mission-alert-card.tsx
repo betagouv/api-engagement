@@ -43,8 +43,8 @@ export default function MissionAlertCard({ signupSource }: { signupSource?: Sign
   return (
     <div className="border-border-default-grey bg-blue-france-975 relative flex h-full flex-col gap-2 overflow-hidden border p-5">
       {/* Décor illisible sur fond sombre (traits clairs, pictogramme bleu foncé) : masqué en thème sombre. */}
-      <img src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16 dark:hidden" />
-      <img src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-2 right-4 w-14 rotate-[-11deg] dark:hidden" />
+      <img loading="lazy" src={TraceSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-1.5 right-16 dark:hidden" />
+      <img loading="lazy" src={MailSendSvg} alt="" aria-hidden="true" className="pointer-events-none absolute top-2 right-4 w-14 rotate-[-11deg] dark:hidden" />
 
       <h3 className="fr-text--lg text-title-grey relative mb-0! pr-16 font-bold">Recevez de nouvelles missions par e-mail</h3>
       <p className="fr-text--sm relative mb-1!">1 e-mail par mois avec de nouvelles missions et des actualités sur l'engagement.</p>

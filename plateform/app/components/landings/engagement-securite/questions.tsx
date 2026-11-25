@@ -45,7 +45,7 @@ export default function Questions() {
             className="shadow-tile md:dark:border-border-default-grey flex h-full bg-[#faf9fc] dark:bg-transparent flex-col gap-2 p-6! md:rounded-2xl md:border md:border-[#e9e1f0] md:shadow-none"
           >
             <div className="bg-background flex size-24 items-center justify-center rounded-full">
-              <img src={item.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />
+              <img loading="lazy" src={item.icon} alt="" aria-hidden="true" className="size-18 dark:rounded-full dark:bg-white" />
             </div>
             <h3 className="fr-h6 mb-0!">{item.question}</h3>
             <p className="mb-0!">{item.answer}</p>
