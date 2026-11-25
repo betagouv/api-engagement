@@ -18,11 +18,11 @@
 
 ## 2. Classification de la mission
 
-| Champ XML     | Champ API  | Obligatoire                                                                                                                                                                                                   | Description                                                                                    |
-| ------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| domain        | domain     | <p>❌ <br>Fortement recommandé. Si absent, la mission est acceptée mais utilise une image par défaut et ressort moins bien dans les recherches par domaine. Une valeur hors de la liste entraîne un refus.</p> | Domaine d'action de la mission.                                                                |
-| activities\[] | activities | ❌                                                                                                                                                                                                             | Activité(s) principale(s) de la mission.                                                       |
-| tags\[]       | tags       | ❌                                                                                                                                                                                                             | Mots-clés personnalisés pour taguer la mission. Chaque élément du tableau est un tag distinct. |
+| Champ XML     | Champ API  | Obligatoire                                                                                                                                                                                                  | Description                                                                                    |
+| ------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| domain        | domain     | <p>❌<br>Fortement recommandé. Si absent, la mission est acceptée mais utilise une image par défaut et ressort moins bien dans les recherches par domaine. Une valeur hors de la liste entraîne un refus.</p> | Domaine d'action de la mission.                                                                |
+| activities\[] | activities | ❌                                                                                                                                                                                                            | Activité(s) principale(s) de la mission.                                                       |
+| tags\[]       | tags       | ❌                                                                                                                                                                                                            | Mots-clés personnalisés pour taguer la mission. Chaque élément du tableau est un tag distinct. |
 
 ## 3. Public & compétences
 
@@ -46,11 +46,12 @@
 
 ## 5. Indemnisation
 
-| Champ XML          | Champ API          | Obligatoire | Description                                                         |
-| ------------------ | ------------------ | ----------- | ------------------------------------------------------------------- |
-| compensationAmount | compensationAmount | ❌           | Montant de l'indemnisation perçue par le bénévole ou le volontaire. |
-| compensationUnit   | compensationUnit   | ❌           | Période de l'indemnisation pour le montant fourni.                  |
-| compensationType   | compensationType   | ❌           | Type d'indemnisation.                                               |
+| Champ XML             | Champ API             | Obligatoire | Description                                                                                                          |
+| --------------------- | --------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| compensationAmount    | compensationAmount    | ❌           | Montant de l'indemnisation perçue par le bénévole ou le volontaire.                                                  |
+| compensationAmountMax | compensationAmountMax | ❌           | Montant maximum de l'indemnisation. Si renseigné, doit être supérieur ou égal à `compensationAmount` (ex. 0–13 €/h). |
+| compensationUnit      | compensationUnit      | ❌           | Période de l'indemnisation pour le montant fourni.                                                                   |
+| compensationType      | compensationType      | ❌           | Type d'indemnisation.                                                                                                |
 
 ## 6. Accessibilité & conditions
 
