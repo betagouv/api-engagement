@@ -45,7 +45,7 @@ describe("demarches-simplifiees GraphQL client", () => {
     expect(init.dispatcher).toBeUndefined();
   });
 
-  it("ne proxifie pas les appels hors GraphQL (schéma public de préremplissage)", async () => {
+  it("route aussi les pages publiques via le proxy (schéma public de préremplissage)", async () => {
     vi.stubEnv("PUBLIC_PROXY_URL", PROXY_URL);
     fetchMock.mockResolvedValue(new Response(JSON.stringify({ revision: { champDescriptors: [] } }), { status: 200, headers: { "content-type": "application/json" } }));
     const { getPublicChampDescriptors } = await import("@/services/demarches-simplifiees/functions");
@@ -53,8 +53,8 @@ describe("demarches-simplifiees GraphQL client", () => {
     const result = await getPublicChampDescriptors("ma-demarche");
 
     expect(result).toEqual({ ok: true, data: [] });
-    // Aucune option passée à fetch : donc aucun dispatcher (proxy) sur cet appel.
-    const [, init] = fetchMock.mock.calls[0];
-    expect(init).toBeUndefined();
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toContain("/preremplir/ma-demarche/schema");
+    expect(init.dispatcher).toBeInstanceOf(ProxyAgent);
   });
 });

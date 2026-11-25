@@ -1,7 +1,6 @@
 import { captureException } from "@/error";
 import {
   ChampDescriptor,
-  DEMARCHES_SIMPLIFIEES_BASE_URL,
   detectCandidateFields,
   DossierChamp,
   DossierDemandeur,
@@ -14,7 +13,7 @@ import {
 
 import { CandidateFields } from "@/types/publisher";
 
-import { DemarchesSimplifieesResponse, query } from "./client";
+import { DemarchesSimplifieesResponse, fetchDemarchesSimplifiees, query } from "./client";
 
 // Exemple de helper : récupère les infos de base d'une démarche par son numéro.
 export const getDemarche = async (number: number, token?: string | null) => {
@@ -127,7 +126,7 @@ export const getAnnotationId = async (demarcheNumber: number, token?: string | n
 // formulaire (pas les dossiers) et n'est disponible que si le préremplissage est ouvert sur la démarche.
 export const getPublicChampDescriptors = async (slug: string): Promise<DemarchesSimplifieesResponse<ChampDescriptor[]>> => {
   try {
-    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/preremplir/${encodeURIComponent(slug)}/schema`);
+    const response = await fetchDemarchesSimplifiees(`/preremplir/${encodeURIComponent(slug)}/schema`);
     if (!response.ok) {
       return { ok: false, message: `HTTP ${response.status} ${response.statusText}` };
     }
@@ -354,7 +353,7 @@ export const checkDossier = async (
 // (dossier_number, dossier_url, etc.). Cet endpoint public ne nécessite pas de token.
 export const createDossier = async (demarcheNumber: number, data: Record<string, unknown> = {}) => {
   try {
-    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/public/v1/demarches/${demarcheNumber}/dossiers`, {
+    const response = await fetchDemarchesSimplifiees(`/api/public/v1/demarches/${demarcheNumber}/dossiers`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -377,7 +376,7 @@ export const createDossier = async (demarcheNumber: number, data: Record<string,
 // contient le numéro de la démarche (ex. "... · #149326 · ..."). Pas de token nécessaire.
 export const getDemarcheNumberBySlug = async (slug: string): Promise<DemarchesSimplifieesResponse<number>> => {
   try {
-    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/commencer/${encodeURIComponent(slug)}`);
+    const response = await fetchDemarchesSimplifiees(`/commencer/${encodeURIComponent(slug)}`);
     if (!response.ok) {
       return { ok: false, message: response.status === 404 ? "Démarche not found" : `HTTP ${response.status} ${response.statusText}` };
     }
