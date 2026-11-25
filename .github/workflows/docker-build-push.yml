@@ -148,6 +148,7 @@ jobs:
           echo "SENTRY_DSN_PLATEFORM=${{ secrets.SENTRY_DSN_PLATEFORM }}" >> $GITHUB_OUTPUT
           echo "SENTRY_DSN_WIDGET=${{ secrets.SENTRY_DSN_WIDGET }}" >> $GITHUB_OUTPUT
           echo "API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
+          echo "PLATEFORM_URL=${{ vars.PLATEFORM_URL }}" >> $GITHUB_OUTPUT
           echo "VITE_API_URL=${{ vars.API_URL }}" >> $GITHUB_OUTPUT
           echo "BENEVOLAT_URL=${{ vars.BENEVOLAT_URL }}" >> $GITHUB_OUTPUT
           echo "VOLONTARIAT_URL=${{ vars.VOLONTARIAT_URL }}" >> $GITHUB_OUTPUT
@@ -174,6 +175,7 @@ jobs:
           build-args: |
             ENV=${{ steps.app_args.outputs.ENV }}
             API_URL=${{ steps.app_args.outputs.API_URL }}
+            PLATEFORM_URL=${{ steps.app_args.outputs.PLATEFORM_URL }}
             VITE_API_URL=${{ steps.app_args.outputs.VITE_API_URL }}
             VITE_ENV=${{ steps.app_args.outputs.ENV }}
             VITE_SENTRY_DSN=${{ steps.app_args.outputs.SENTRY_DSN_PLATEFORM }}
