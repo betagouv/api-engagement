@@ -7,13 +7,14 @@ import zod from "zod";
 import { PUBLISHER_IDS } from "@/config";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, INVALID_QUERY, NOT_FOUND } from "@/error";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { ACCEPTED_IMAGE_TYPES, MISSION_PHOTO_MAX_SIZE, optimizeImage } from "@/services/image";
 import { missionService } from "@/services/mission";
 import { missionDiffusionService } from "@/services/mission-diffusion";
 import { missionEnrichmentService } from "@/services/mission-enrichment";
 import { missionModerationStatusService } from "@/services/mission-moderation-status";
 import { missionScoringService } from "@/services/mission-scoring";
 import publisherOrganizationService from "@/services/publisher-organization";
-import { OBJECT_ACL, putObject } from "@/services/s3";
+import { IMMUTABLE_CACHE_CONTROL, OBJECT_ACL, putObject } from "@/services/s3";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import type { UserRequest } from "@/types/passport";
 import { applyWidgetRules, getDistanceKm } from "@/utils";
@@ -21,7 +22,6 @@ import { normalizeMissionDescriptionInput } from "@/utils/mission";
 import { getModeration } from "@/utils/mission-moderation";
 import { getUserPublisherIds, hasAdminOrDirectPublisherAccess, isAdmin, readRequiredParam } from "@/utils/publisher-access";
 
-const IMAGE_EXTENSIONS: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif" };
 const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
 
 const router = Router();
@@ -425,8 +425,7 @@ router.post("/:id/image", passport.authenticate("admin", { session: false }), up
     if (!missionId) {
       return;
     }
-    const extension = req.file && IMAGE_EXTENSIONS[req.file.mimetype];
-    if (!req.file || !extension) {
+    if (!req.file || !ACCEPTED_IMAGE_TYPES.includes(req.file.mimetype)) {
       return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Image JPEG, PNG, WebP ou GIF requise" });
     }
     const access = await missionService.findOneMissionWithAccess(missionId);
@@ -434,9 +433,11 @@ router.post("/:id/image", passport.authenticate("admin", { session: false }), up
       return res.status(404).send({ ok: false, code: NOT_FOUND });
     }
 
-    const response = await putObject(`publishers/${access.ownerPublisherId}/missions/${missionId}-${randomUUID()}.${extension}`, req.file.buffer, {
+    const photo = await optimizeImage(req.file.buffer, MISSION_PHOTO_MAX_SIZE);
+    const response = await putObject(`publishers/${access.ownerPublisherId}/missions/${missionId}-${randomUUID()}.webp`, photo, {
       ACL: OBJECT_ACL.PUBLIC_READ,
-      ContentType: req.file.mimetype,
+      ContentType: "image/webp",
+      CacheControl: IMMUTABLE_CACHE_CONTROL,
     });
     await missionService.update(missionId, { domainLogo: response.Location });
     return res.status(200).send({ ok: true, data: { url: response.Location } });

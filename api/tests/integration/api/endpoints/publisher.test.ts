@@ -1,3 +1,4 @@
+import sharp from "sharp";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -5,6 +6,7 @@ import { PUBLISHER_IDS } from "@/config";
 import { asyncTaskBus } from "@/services/async-task";
 import { publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
+import { putObject } from "@/services/s3";
 import { PublisherMissionType } from "@/types/publisher";
 
 import { createTestPublisher } from "../../../fixtures";
@@ -172,6 +174,30 @@ describe("Dashboard publisher controller", () => {
     const res = await request(app).post(`/publisher/${otherPublisher.id}/apikey`).set(authHeader());
 
     expect(res.status).toBe(403);
+  });
+
+  it("stores the logo as a resized WebP cached for a year on POST /publisher/:id/image", async () => {
+    vi.mocked(putObject).mockClear();
+    const logo = await sharp({ create: { width: 1000, height: 500, channels: 3, background: "#000091" } })
+      .png()
+      .toBuffer();
+
+    const res = await request(app).post(`/publisher/${publisherId}/image`).set(authHeader()).attach("files", logo, "logo.png");
+
+    expect(res.status).toBe(200);
+    const [objectName, body, options] = vi.mocked(putObject).mock.calls[0];
+    expect(objectName).toMatch(new RegExp(`^publishers/${publisherId}/logo-[0-9a-f-]{36}\\.webp$`));
+    expect(options).toMatchObject({ ContentType: "image/webp", CacheControl: "public, max-age=31536000, immutable" });
+    expect(await sharp(body as Buffer).metadata()).toMatchObject({ format: "webp", width: 256, height: 128 });
+  });
+
+  it("rejects a file that is not an image on POST /publisher/:id/image", async () => {
+    vi.mocked(putObject).mockClear();
+
+    const res = await request(app).post(`/publisher/${publisherId}/image`).set(authHeader()).attach("files", Buffer.from("not an image"), "logo.txt");
+
+    expect(res.status).toBe(400);
+    expect(putObject).not.toHaveBeenCalled();
   });
 
   it("rejects POST /publisher/:id/image for another publisher", async () => {

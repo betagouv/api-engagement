@@ -1,8 +1,10 @@
+import sharp from "sharp";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PUBLISHER_IDS } from "@/config";
 import { prisma } from "@/db/postgres";
+import { putObject } from "@/services/s3";
 import { missionSearchClient } from "@/services/search/collections/missions/client";
 import { createTestMission, createTestMissionWithModeration, createTestPublisher, createTestPublisherOrganization } from "../../../fixtures";
 import { createTestUser } from "../../../fixtures/user";
@@ -22,6 +24,40 @@ describe("Dashboard mission controller", () => {
   });
 
   const authHeader = () => ({ Authorization: `jwt ${token}` });
+
+  it("stores the mission photo as a resized WebP cached for a year on POST /mission/:id/image", async () => {
+    vi.mocked(putObject).mockClear();
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const mission = await createTestMission({ publisherId });
+    const photo = await sharp({ create: { width: 3000, height: 2000, channels: 3, background: "#e1000f" } })
+      .jpeg()
+      .toBuffer();
+
+    const res = await request(app)
+      .post(`/mission/${mission.id}/image`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .attach("file", photo, "photo.jpg");
+
+    expect(res.status).toBe(200);
+    const [objectName, body, options] = vi.mocked(putObject).mock.calls[0];
+    expect(objectName).toMatch(new RegExp(`/missions/${mission.id}-[0-9a-f-]{36}\\.webp$`));
+    expect(options).toMatchObject({ ContentType: "image/webp", CacheControl: "public, max-age=31536000, immutable" });
+    expect(await sharp(body as Buffer).metadata()).toMatchObject({ format: "webp", width: 1200, height: 800 });
+  });
+
+  it("rejects a file that is not an image on POST /mission/:id/image", async () => {
+    vi.mocked(putObject).mockClear();
+    const { token: adminToken } = await createTestUser({ role: "admin" });
+    const mission = await createTestMission({ publisherId });
+
+    const res = await request(app)
+      .post(`/mission/${mission.id}/image`)
+      .set({ Authorization: `jwt ${adminToken}` })
+      .attach("file", Buffer.from("not an image"), "photo.txt");
+
+    expect(res.status).toBe(400);
+    expect(putObject).not.toHaveBeenCalled();
+  });
 
   it("allows POST /mission/search for an authenticated user", async () => {
     const res = await request(app).post("/mission/search").set(authHeader()).send({});

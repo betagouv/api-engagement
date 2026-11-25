@@ -2,6 +2,7 @@ import { vi } from "vitest";
 
 const s3Mock = {
   BUCKET_URL: "https://mock-bucket.example.com",
+  IMMUTABLE_CACHE_CONTROL: "public, max-age=31536000, immutable",
   OBJECT_ACL: {
     PRIVATE: "private",
     PUBLIC_READ: "public-read",
