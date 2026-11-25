@@ -47,7 +47,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       hint: "2 minutes pour trouver ta mission.",
       image: null,
       imageMobile: null,
-      visual: "none",
     },
   },
   {
@@ -70,7 +69,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       hint: "À un clic de ton engagement.",
       image: media(heroEngagementSecurite),
       imageMobile: null,
-      visual: "none",
     },
   },
   {
@@ -88,7 +86,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       searchDispositif: "sapeurs_pompiers",
       image: null,
       imageMobile: null,
-      visual: "none",
     },
   },
   {
@@ -106,24 +103,6 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       hint: null,
       image: null,
       imageMobile: null,
-      visual: "none",
-    },
-  },
-  {
-    label: "Habillage de campagne « chacun_pour_tous »",
-    block: {
-      __component: "blocks.hero",
-      title: "Chacun pour tous",
-      description: "Une campagne d'engagement ouverte à ==tous les publics==.",
-      tags: [],
-      primaryLabel: null,
-      primaryUrl: null,
-      secondaryLabel: null,
-      secondaryUrl: null,
-      hint: null,
-      image: null,
-      imageMobile: null,
-      visual: "chacun_pour_tous",
     },
   },
   {
@@ -295,8 +274,8 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       __component: "blocks.partners",
       title: "Nos partenaires",
       partners: [
-        { name: "JeVeuxAider.gouv.fr", description: "La plateforme publique du bénévolat.", url: "https://www.jeveuxaider.gouv.fr", logo: media(jvaLogo) },
-        { name: "Service Civique", description: "L'engagement volontaire de 16 à 25 ans.", url: null, logo: media(ascLogo) },
+        { partner: "jeveuxaider", description: null },
+        { partner: "service_civique", description: "Texte propre à cette page." },
       ],
     },
   },
@@ -311,8 +290,12 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Limitée à des départements (filtre de localisation masqué)",
+    block: { __component: "blocks.missions-browser", dispositifs: null, domainesEngagement: null, departements: ["29", "56"] },
+  },
+  {
     label: "Limitée à un domaine (filtre Domaines masqué)",
-    block: { __component: "blocks.missions-browser", dispositif: null, domaineEngagement: "environnement_animaux" },
+    block: { __component: "blocks.missions-browser", dispositifs: null, domainesEngagement: ["environnement_animaux"], departements: null },
   },
   {
     label: "Exemple",

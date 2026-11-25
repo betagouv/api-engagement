@@ -52,7 +52,7 @@ export default function ComponentPreview({
         <CmsBlocks blocks={[values as CmsBlock]} context={context} />
       </div>
 
-      <div className="fr-container grid gap-8 py-8 lg:grid-cols-2">
+      <div className="fr-container py-8">
         <form onSubmit={(event) => event.preventDefault()} aria-labelledby={`${uid}-params-title`}>
           <div className="mb-4 flex items-center justify-between gap-4">
             <h2 id={`${uid}-params-title`} className="fr-h4 mb-0!">
@@ -65,12 +65,6 @@ export default function ComponentPreview({
           <p className="fr-text--sm text-mention-grey!">* champ obligatoire dans Strapi</p>
           <Fields fields={fields} values={values} onChange={setValues} idPrefix={uid} />
         </form>
-
-        <div>
-          <h2 className="fr-h4">Données</h2>
-          <p className="fr-text--sm text-mention-grey!">Contenu du bloc tel que plateform le reçoit du CMS.</p>
-          <pre className="max-h-160 overflow-auto bg-gray-100 p-4 text-xs lg:sticky lg:top-4">{JSON.stringify(values, null, 2)}</pre>
-        </div>
       </div>
     </>
   );

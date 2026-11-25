@@ -1,3 +1,4 @@
+import type { CmsPartnerKey } from "~/config/cms-partners";
 // Page composée de blocs (landing, page éditoriale…), éditée dans le CMS (Strapi, `cms/`) et lue par plateform.
 // Types propres à plateform (`cms/` n'en dépend pas). Les schémas Strapi (`cms/src/**`) restent la source de vérité :
 // tout changement de bloc ou de champ doit être répercuté ici.
@@ -47,7 +48,6 @@ export type CmsBlock =
       searchDispositif?: string | null;
       image: CmsMedia | null;
       imageMobile: CmsMedia | null;
-      visual: "none" | "chacun_pour_tous";
     }
   | {
       __component: "blocks.missions";
@@ -76,9 +76,9 @@ export type CmsBlock =
       teamPhotos: CmsMedia[] | null;
     }
   | { __component: "blocks.newsletter"; title: string; subtitle: string; ctaText: string; hintText: string }
-  | { __component: "blocks.missions-browser"; dispositif: string | null; domaineEngagement: string | null }
+  | { __component: "blocks.missions-browser"; dispositifs: string[] | null; domainesEngagement: string[] | null; departements: string[] | null }
   | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[] }
-  | { __component: "blocks.partners"; title: string; partners: { name: string; description: string; url: string | null; logo: CmsMedia }[] };
+  | { __component: "blocks.partners"; title: string; partners: { partner: CmsPartnerKey; description: string | null }[] };
 
 export type CmsPage = {
   title: string;

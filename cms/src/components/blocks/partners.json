@@ -1,6 +1,10 @@
 {
   "collectionName": "components_blocks_partners",
-  "info": { "displayName": "Partenaires", "icon": "handHeart" },
+  "info": {
+    "displayName": "Partenaires",
+    "icon": "handHeart",
+    "description": "Logos de partenaires sous un titre. Chaque partenaire se choisit dans une liste (nom et logo sont définis dans plateform) ; son texte peut être remplacé sur la page (ex. : vouvoiement)."
+  },
   "attributes": {
     "title": { "type": "string", "required": true },
     "partners": { "type": "component", "repeatable": true, "component": "items.partner" }

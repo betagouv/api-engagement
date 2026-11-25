@@ -10,7 +10,6 @@
     {
       "__component": "blocks.hero",
       "tags": [],
-      "visual": "none",
       "title": "Rejoins la réserve des armées près de chez toi",
       "description": "Armées, Gendarmerie, Police nationale : en parallèle de tes études ou de ton job, tu renforces celles et ceux qui protègent le pays, selon tes disponibilités.",
       "image": {
@@ -22,7 +21,7 @@
     },
     {
       "__component": "blocks.missions-browser",
-      "dispositif": "reserve_armees"
+      "dispositifs": ["reserve_armees"]
     },
     {
       "__component": "blocks.etapes",
@@ -154,41 +153,11 @@
       "__component": "blocks.partners",
       "title": "Toutes les missions d’engagement vérifiées par l'État",
       "partners": [
-        {
-          "name": "Les réserves des armées",
-          "description": "Des missions indemnisées de réservistes.",
-          "logo": {
-            "upload": "logo/roc-logo.png"
-          }
-        },
-        {
-          "name": "JeVeuxAider.gouv.fr",
-          "description": "La plateforme publique du bénévolat.",
-          "logo": {
-            "upload": "logo/jva-logo.png"
-          }
-        },
-        {
-          "name": "Le Service Civique",
-          "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.",
-          "logo": {
-            "upload": "logo/asc-logo.png"
-          }
-        },
-        {
-          "name": "Sapeurs-pompiers de France",
-          "description": "Deviens sapeur-pompier volontaire près de chez toi.",
-          "logo": {
-            "upload": "logo/spv-logo.png"
-          }
-        },
-        {
-          "name": "Gendarmerie nationale",
-          "description": "Deviens gendarme près de chez toi.",
-          "logo": {
-            "upload": "logo/gendarmerie-logo.png"
-          }
-        }
+        { "partner": "reserve_armees" },
+        { "partner": "jeveuxaider" },
+        { "partner": "service_civique" },
+        { "partner": "sapeurs_pompiers" },
+        { "partner": "gendarmerie" }
       ]
     }
   ]

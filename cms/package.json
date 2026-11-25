@@ -15,6 +15,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@gouvfr/dsfr": "1.15.4",
     "@notum-cz/strapi-plugin-record-locking": "2.1.1",
     "@strapi/plugin-users-permissions": "5.61.0",
     "@strapi/provider-upload-aws-s3": "5.61.0",
@@ -23,6 +24,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.30.6",
+    "strapi-plugin-multi-select": "2.1.1",
     "styled-components": "6.6.0"
   },
   "devDependencies": {

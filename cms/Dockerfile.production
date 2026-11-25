@@ -2,6 +2,9 @@ FROM node:22-alpine AS builder
 # Dépendances natives de sharp (images) et de strapi.
 RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips-dev git > /dev/null 2>&1
 WORKDIR /opt/app
+# @gouvfr/dsfr >= 1.15.0 gate le preinstall sur l'acceptation des CGU.
+ENV DSFR_ACCEPT_LICENSE=1
+
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .

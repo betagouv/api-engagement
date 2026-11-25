@@ -1,12 +1,12 @@
 import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
 
-import HeroVisual from "~/components/landings/chacun-pour-tous/hero-visual";
 import Histoires from "~/components/landings/defis-engagement/histoires";
 import Etapes from "~/components/landings/etapes";
 import Hero from "~/components/landings/hero";
 import LocationFilter, { type Location } from "~/components/landings/location-filter";
 import Missions from "~/components/landings/missions";
 import Newsletter from "~/components/layout/newsletter";
+import { CMS_PARTNERS } from "~/config/cms-partners";
 import Partners from "~/components/layout/partners";
 import MissionsBrowser from "~/components/missions/missions-browser";
 import { getLandingMissionsConfig } from "~/utils/landing-missions";
@@ -59,8 +59,7 @@ export default function CmsBlocks({ blocks, context }: { blocks: CmsBlock[]; con
 function Block({ block, index, context }: { block: CmsBlock; index: number; context: CmsBlocksContext }) {
   switch (block.__component) {
     case "blocks.hero": {
-      const campaignVisual = block.visual === "chacun_pour_tous";
-      const image = campaignVisual ? null : block.image;
+      const { image } = block;
       const mobileImage = block.imageMobile ?? image;
       const primary = block.primaryLabel && block.primaryUrl ? { label: block.primaryLabel, url: block.primaryUrl } : null;
       const secondary = block.secondaryLabel && block.secondaryUrl ? { label: block.secondaryLabel, url: block.secondaryUrl } : null;
@@ -74,7 +73,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         <Hero
           badge={block.badge ?? undefined}
           title={block.title}
-          titleClassName={campaignVisual ? "lg:w-184 lg:text-[80px]! lg:leading-22!" : "lg:text-[72px]! lg:leading-20!"}
+          titleClassName="lg:text-[72px]! lg:leading-20!"
           description={<InlineText text={block.description} />}
           hint={withQuiz ? (block.hint ?? undefined) : undefined}
           onStartQuiz={withQuiz ? () => context.onStartQuiz("hero") : undefined}
@@ -102,9 +101,8 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
               {!searchDispositif && context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
             </>
           }
-          className={`${BACKGROUNDS.creme} ${searchDispositif ? "overflow-visible! rounded-none! md:max-lg:pb-14" : ""} ${campaignVisual ? "md:min-h-130 lg:min-h-[max(664px,51.6vw)]" : image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
+          className={`${BACKGROUNDS.creme} ${searchDispositif ? "overflow-visible! rounded-none! md:max-lg:pb-14" : ""} ${image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
-          {campaignVisual && <HeroVisual />}
           {/* Visuel du CMS : sous le texte, en pleine largeur et collé au bas du hero sur mobile (image mobile si
               renseignée), calé en bas à droite à partir de la tablette (48em, point de rupture `md` du DSFR). */}
           {image && (
@@ -240,7 +238,10 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           style="compact"
           title={block.title}
           description={null}
-          partners={block.partners.map((partner) => ({ name: partner.name, description: partner.description, url: partner.url ?? undefined, logo: partner.logo.url }))}
+          partners={block.partners.flatMap(({ partner, description }) => {
+            const known = CMS_PARTNERS[partner];
+            return known ? [{ name: known.name, description: description || known.description, logo: known.logo }] : [];
+          })}
         />
       );
     case "blocks.newsletter":

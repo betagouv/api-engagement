@@ -12,7 +12,8 @@
       "__component": "blocks.hero",
       "title": "S'engager, c'est chacun pour tous !",
       "description": "Vous vous engagez peut-être déjà, sans même vous en rendre compte : aider un voisin, donner de votre temps, voter… Et vous êtes loin d'être seul : en France, 3 personnes sur 4 ont accompli un acte civique dans l'année. Trouvez la mission qui vous ressemble, près de chez vous et à votre rythme.",
-      "visual": "chacun_pour_tous"
+      "image": { "upload": "landings/chacun-pour-tous/hero-chacun-pour-tous.webp", "alternativeText": "Campagne « Chacun pour tous » : deux jeunes souriants dos à dos" },
+      "imageMobile": { "upload": "landings/chacun-pour-tous/hero-chacun-pour-tous-mobile.webp" }
     },
     {
       "__component": "blocks.missions",
@@ -130,11 +131,11 @@
       "__component": "blocks.partners",
       "title": "Toutes les missions d’engagement vérifiées par l'État",
       "partners": [
-        { "name": "Les réserves des armées", "description": "Des missions indemnisées de réservistes.", "logo": { "upload": "logo/roc-logo.png" } },
-        { "name": "JeVeuxAider.gouv.fr", "description": "La plateforme publique du bénévolat.", "logo": { "upload": "logo/jva-logo.png" } },
-        { "name": "Le Service Civique", "description": "De 6 à 12 mois, des missions d'intérêt général indemnisées.", "logo": { "upload": "logo/asc-logo.png" } },
-        { "name": "Sapeurs-pompiers de France", "description": "Devenez sapeur-pompier volontaire près de chez vous.", "logo": { "upload": "logo/spv-logo.png" } },
-        { "name": "Gendarmerie nationale", "description": "Devenez gendarme près de chez vous.", "logo": { "upload": "logo/gendarmerie-logo.png" } }
+        { "partner": "reserve_armees" },
+        { "partner": "jeveuxaider" },
+        { "partner": "service_civique" },
+        { "partner": "sapeurs_pompiers", "description": "Devenez sapeur-pompier volontaire près de chez vous." },
+        { "partner": "gendarmerie", "description": "Devenez gendarme près de chez vous." }
       ]
     }
   ]

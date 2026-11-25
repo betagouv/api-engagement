@@ -1,5 +1,6 @@
 import { Layout } from "@strapi/icons";
 import type { StrapiApp } from "@strapi/strapi/admin";
+import { BlockDocsPanel } from "./components/block-docs";
 import { PageErrorsPanel } from "./components/page-errors";
 import { PageHistoryPanel } from "./components/page-history";
 import { PageUrlPanel } from "./components/page-url";
@@ -8,8 +9,17 @@ import { PageUrlPanel } from "./components/page-url";
 export default {
   config: {
     locales: ["fr"],
+    // Thème : curseur des scrollbars des listes déroulantes (token neutral150, très clair par défaut) plus marqué.
+    theme: { light: { colors: { neutral150: "#a5a5ba" } } },
   },
   register(app: StrapiApp) {
+    app.customFields.register({
+      name: "pictogram",
+      type: "string",
+      intlLabel: { id: "pictogram.label", defaultMessage: "Pictogramme DSFR" },
+      intlDescription: { id: "pictogram.description", defaultMessage: "Pictogramme DSFR avec recherche" },
+      components: { Input: async () => ({ default: (await import("./components/pictogram-input")).default as never }) },
+    });
     app.addMenuLink({
       to: "cms-components",
       icon: Layout,
@@ -21,7 +31,7 @@ export default {
   bootstrap(app: StrapiApp) {
     // Historique des pages : voir src/history.ts.
     const { apis } = app.getPlugin("content-manager") as unknown as { apis: { addEditViewSidePanel: (panels: unknown[] | ((panels: unknown[]) => unknown[])) => void } };
-    apis.addEditViewSidePanel([PageUrlPanel, PageHistoryPanel]);
+    apis.addEditViewSidePanel([PageUrlPanel, PageHistoryPanel, BlockDocsPanel]);
     // Juste sous le volet natif de publication (le premier de la liste).
     apis.addEditViewSidePanel(([actions, ...others]) => [actions, PageErrorsPanel, ...others]);
     // Bandeau pré-prod (comme app/) : fixé en haut, l'admin est décalé de sa hauteur.

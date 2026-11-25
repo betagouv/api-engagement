@@ -9,7 +9,7 @@ export type LandingMissionsConfig = {
   // Missions masquées partout : résultats, pages suivantes et compteurs des filtres.
   exclude?: MissionBrowseTaxonomyParams;
   // Périmètre de la page (ex. réserve des armées) : toujours appliqué ; son filtre ne doit pas être affiché.
-  include?: MissionBrowseTaxonomyParams;
+  include?: MissionBrowseTaxonomyParams & { departmentCode?: string[] };
   // Avec une localisation choisie, garde aussi les missions à distance ou sans lieu précis (ex. réserves).
   includeRemote?: boolean;
   // Filtres affichés, dans l'ordre.
@@ -70,16 +70,21 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
   return { ...filters, ...config.include };
 };
 
-// Tous les filtres de /missions, sauf ceux du dispositif et du domaine donnés, qui deviennent le périmètre (`include`)
-// de la liste. Missions à distance et réserves (sans département) toujours visibles.
+// Tous les filtres de /missions, sauf ceux du dispositif, du domaine et du département donnés, qui deviennent le périmètre
+// (`include`) de la liste. Missions à distance et réserves (sans département) visibles, sauf périmètre départemental.
 const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
 
-export const getLandingMissionsConfig = ({ dispositif, domaineEngagement }: { dispositif: string | null; domaineEngagement: string | null }): LandingMissionsConfig => {
-  const include: MissionBrowseTaxonomyParams = {
-    ...(dispositif && { dispositif: [dispositif] }),
-    ...(domaineEngagement && { domaine_engagement: [domaineEngagement] }),
+// Périmètre du bloc CMS : listes de valeurs (vide ou absente : pas de restriction).
+export type LandingScope = { dispositifs?: string[] | null; domainesEngagement?: string[] | null; departements?: string[] | null };
+
+export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, departements }: LandingScope): LandingMissionsConfig => {
+  const include: NonNullable<LandingMissionsConfig["include"]> = {
+    ...(dispositifs?.length && { dispositif: dispositifs }),
+    ...(domainesEngagement?.length && { domaine_engagement: domainesEngagement }),
+    ...(departements?.length && { departmentCode: departements }),
   };
-  return { include, includeRemote: true, filters: ALL_LANDING_FILTERS.filter((key) => !(key in include)) };
+  // Les missions à distance restent visibles sauf si la liste est limitée à des départements.
+  return { include, includeRemote: !include.departmentCode, filters: ALL_LANDING_FILTERS.filter((key) => !(key in include)) };
 };
 
 // Code département (format de la taxonomie : "01", "2A", "971"…) déduit d'un code postal français.

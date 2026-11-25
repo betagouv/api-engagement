@@ -5,6 +5,9 @@ RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev vips
 
 WORKDIR /opt/app
 
+# @gouvfr/dsfr >= 1.15.0 gate le preinstall sur l'acceptation des CGU.
+ENV DSFR_ACCEPT_LICENSE=1
+
 COPY package.json package-lock.json ./
 RUN npm ci
 
