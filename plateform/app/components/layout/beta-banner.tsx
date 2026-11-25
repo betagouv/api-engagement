@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useRouteLoaderData } from "react-router";
 import { SERVICE_TITLE } from "~/components/layout/header";
 import { QUIZ_FLOW_VERSION } from "~/config/quiz-flow";
+import type { loader as rootLoader } from "~/root";
 import { TALLY_FEEDBACK_URL } from "~/services/config";
 import { trackBetaBannerClicked } from "~/services/tracking/events";
-import { dismissBetaBanner, isBetaBannerDismissed, type BetaBannerSource } from "~/utils/beta-banner";
+import { betaBannerDismissCookie, isBetaBannerDismissed, type BetaBannerSource } from "~/utils/beta-banner";
 
 // Pendant le quiz, l'utilisateur n'a pas encore vu ses résultats : on ne peut pas lui demander
 // s'ils sont pertinents. D'où deux formulations, aiguillées côté Tally par le champ `source`.
@@ -35,25 +37,18 @@ interface BetaBannerProps {
 }
 
 export default function BetaBanner({ source, session }: BetaBannerProps) {
-  // Le localStorage n'est lu qu'après montage : le rendu initial est identique côté serveur et client.
-  const [visible, setVisible] = useState(false);
+  // Rendu initial calculé par le loader racine depuis les cookies de la requête : identique côté serveur et client.
+  const rootData = useRouteLoaderData<typeof rootLoader>("root");
+  const [visible, setVisible] = useState(!rootData?.dismissedBetaBanners.includes(source));
 
+  // Les données du loader racine datent du premier chargement : on relit le cookie après une navigation côté client.
   useEffect(() => {
-    try {
-      setVisible(!isBetaBannerDismissed(source, window.localStorage));
-    } catch {
-      // Storage indisponible (navigation privée, cookies bloqués) : on affiche le bandeau.
-      setVisible(true);
-    }
+    setVisible(!isBetaBannerDismissed(source, document.cookie));
   }, [source]);
 
   const handleClose = () => {
     setVisible(false);
-    try {
-      dismissBetaBanner(source, window.localStorage);
-    } catch {
-      // La fermeture reste effective pour la navigation en cours.
-    }
+    document.cookie = betaBannerDismissCookie(source, window.location.protocol === "https:");
   };
 
   if (!visible) return null;
