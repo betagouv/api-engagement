@@ -8,13 +8,13 @@ export type LandingFilterKey = "departmentCode" | "tranche_age" | "activite" | "
 export type LandingMissionsConfig = {
   // Missions masquées partout : résultats, pages suivantes et compteurs des filtres.
   exclude?: MissionBrowseTaxonomyParams;
-  // Périmètre de la page (ex. réserve des armées) : toujours appliqué ; son filtre ne doit pas être affiché.
+  // Périmètre de la page (ex. réserve des armées) : toujours appliqué ; son filtre n'est affiché que s'il reste un choix.
   include?: MissionBrowseTaxonomyParams & { departmentCode?: string[] };
   // Avec une localisation choisie, garde aussi les missions à distance ou sans lieu précis (ex. réserves).
   includeRemote?: boolean;
   // Filtres affichés, dans l'ordre.
   filters: LandingFilterKey[];
-  // Emplacements des premiers résultats, appliqués par l'API tant qu'aucun filtre n'est coché.
+  // Emplacements des premiers résultats, envoyés tant que le visiteur n'a coché aucun filtre ni saisi de localisation.
   slots?: MissionBrowseSlot[];
   // Carte d'inscription aux alertes en première page (landing Police uniquement).
   alertCard?: boolean;
@@ -44,8 +44,27 @@ export const getPage = (searchParams: URLSearchParams): number => {
 
 export const getSelectedValues = (searchParams: URLSearchParams, key: LandingFilterKey): string[] => searchParams.getAll(key);
 
+// Ordre par défaut des premiers résultats, pour que chaque dispositif apparaisse en première page (11 emplacements).
+const DIVERSITY_ORDER = [
+  "benevolat",
+  "service_civique",
+  "reserve_armees",
+  "sapeurs_pompiers",
+  "benevolat",
+  "service_civique",
+  "benevolat",
+  "reserve_gendarmerie",
+  "reserve_armees",
+  "benevolat",
+  "reserve_police_nationale",
+];
+
+// Emplacements de l'ordre par défaut, sans les dispositifs hors périmètre (périmètre vide : tous).
+export const getDiversitySlots = (dispositifs?: string[] | null): MissionBrowseSlot[] =>
+  DIVERSITY_ORDER.filter((dispositif) => !dispositifs?.length || dispositifs.includes(dispositif)).map((dispositif) => ({ filters: { dispositif: [dispositif] } }));
+
 // Paramètres de `/missions/browse` pour une landing : seuls les filtres affichés sont lus dans l'URL,
-// la liste est toujours triée par date (les emplacements ne s'appliquent que sans filtre, côté API).
+// la liste est triée par date. Un filtre sur un critère du périmètre le restreint, sans jamais en sortir.
 export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config: LandingMissionsConfig): MissionBrowseFilters => {
   const page = getPage(searchParams);
   const filters: MissionBrowseFilters = {
@@ -54,11 +73,15 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
     sort: "recent",
     exclude: config.exclude,
     includeRemote: config.includeRemote,
-    slots: config.slots,
   };
+  let hasSelection = false;
   for (const key of config.filters) {
-    const values = getSelectedValues(searchParams, key);
-    if (values.length) filters[key] = values;
+    const scope = config.include?.[key];
+    const values = getSelectedValues(searchParams, key).filter((value) => !scope || [scope].flat().includes(value));
+    if (values.length) {
+      filters[key] = values;
+      hasSelection = true;
+    }
   }
   // Point de la recherche par localisation : missions triées par distance, sur leur adresse la plus proche.
   const lat = Number(searchParams.get("lat"));
@@ -66,12 +89,15 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
   if (config.filters.includes("departmentCode") && searchParams.has("lat") && searchParams.has("lon") && !Number.isNaN(lat) && !Number.isNaN(lon)) {
     filters.lat = lat;
     filters.lon = lon;
+  } else if (!hasSelection) {
+    filters.slots = config.slots;
   }
-  return { ...filters, ...config.include };
+  return { ...config.include, ...filters };
 };
 
-// Tous les filtres de /missions, sauf ceux du dispositif, du domaine et du département donnés, qui deviennent le périmètre
-// (`include`) de la liste. Missions à distance et réserves (sans département) visibles, sauf périmètre départemental.
+// Le dispositif, le domaine et le département donnés deviennent le périmètre (`include`) de la liste. Tous les filtres de
+// /missions sont proposés, sauf la localisation avec un périmètre départemental et les critères limités à une seule valeur.
+// Missions à distance et réserves (sans département) visibles, sauf périmètre départemental.
 const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
 
 // Périmètre du bloc CMS : listes de valeurs (vide ou absente : pas de restriction).
@@ -84,7 +110,8 @@ export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, depa
     ...(departements?.length && { departmentCode: departements }),
   };
   // Les missions à distance restent visibles sauf si la liste est limitée à des départements.
-  return { include, includeRemote: !include.departmentCode, filters: ALL_LANDING_FILTERS.filter((key) => !(key in include)) };
+  const isFilterShown = (key: LandingFilterKey) => (key === "departmentCode" ? !include.departmentCode : [include[key] ?? []].flat().length !== 1);
+  return { include, includeRemote: !include.departmentCode, filters: ALL_LANDING_FILTERS.filter(isFilterShown), slots: getDiversitySlots(dispositifs) };
 };
 
 // Code département (format de la taxonomie : "01", "2A", "971"…) déduit d'un code postal français.

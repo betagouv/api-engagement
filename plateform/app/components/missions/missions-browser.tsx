@@ -41,11 +41,12 @@ export const FILTER_TYPES: Record<LandingFilterKey, MissionsFilterType> = {
 };
 
 // Options fixes dans l'ordre de la taxonomie, quels que soient les résultats (une combinaison sans mission mène à
-// l'état vide) : seules les valeurs masquées et celles exclues par la page (ex. réserve Police) sont retirées.
-const getFilterOptions = (key: LandingFilterKey, exclude: MissionBrowseTaxonomyParams = {}) => {
+// l'état vide) : seules les valeurs masquées, hors périmètre ou exclues par la page (ex. réserve Police) sont retirées.
+const getFilterOptions = (key: LandingFilterKey, exclude: MissionBrowseTaxonomyParams = {}, include: MissionBrowseTaxonomyParams = {}) => {
   const excludedValues = [exclude[key as MissionBrowseTaxonomyKey] ?? []].flat();
+  const scope = [include[key as MissionBrowseTaxonomyKey] ?? []].flat();
   return Object.entries(TAXONOMY[key].values as Record<string, { label: string; hidden?: boolean }>)
-    .filter(([value, { hidden }]) => !hidden && !excludedValues.includes(value))
+    .filter(([value, { hidden }]) => !hidden && !excludedValues.includes(value) && (!scope.length || scope.includes(value)))
     .map(([value, { label }]) => ({ value, label }));
 };
 
@@ -62,12 +63,14 @@ const normalizeSearch = (value: string) =>
 function FilterGroups({
   keys,
   exclude,
+  include,
   selected,
   onChange,
   idPrefix,
 }: {
   keys: LandingFilterKey[];
   exclude?: MissionBrowseTaxonomyParams;
+  include?: MissionBrowseTaxonomyParams;
   selected: (key: LandingFilterKey) => string[];
   onChange: (key: LandingFilterKey, next: string[]) => void;
   idPrefix: string;
@@ -121,7 +124,7 @@ function FilterGroups({
               )}
               {/* Département : la centaine d'options défile dans une zone d'une dizaine de lignes (maquette). */}
               <div className={key === "departmentCode" ? "max-h-100 overflow-y-auto" : ""}>
-                {getFilterOptions(key, exclude)
+                {getFilterOptions(key, exclude, include)
                   .filter((option) => key !== "departmentCode" || normalizeSearch(option.label).includes(normalizeSearch(departmentQuery)))
                   .map((option) => {
                     const inputId = `${panelId}-${option.value}`;
@@ -158,12 +161,14 @@ function FilterGroups({
 function FiltersSheet({
   keys,
   exclude,
+  include,
   initialValues,
   onSave,
   onClose,
 }: {
   keys: LandingFilterKey[];
   exclude?: MissionBrowseTaxonomyParams;
+  include?: MissionBrowseTaxonomyParams;
   initialValues: Record<string, string[]>;
   onSave: (values: Record<string, string[]>) => void;
   onClose: () => void;
@@ -208,6 +213,7 @@ function FiltersSheet({
           <FilterGroups
             keys={keys}
             exclude={exclude}
+            include={include}
             selected={(key) => values[key] ?? []}
             onChange={(key, next) => setValues((prev) => ({ ...prev, [key]: next }))}
             idPrefix="missions-filtre-mobile"
@@ -238,6 +244,7 @@ export default function MissionsBrowser({
   page,
   filters,
   exclude,
+  include,
   pageName,
   backTo,
   alertCard = false,
@@ -250,6 +257,8 @@ export default function MissionsBrowser({
   filters: LandingFilterKey[];
   // Valeurs retirées des options de filtre (`exclude` de la `LandingMissionsConfig`).
   exclude?: MissionBrowseTaxonomyParams;
+  // Périmètre de la page : les filtres affichés ne proposent que ses valeurs.
+  include?: MissionBrowseTaxonomyParams;
   pageName: "missions_list" | LandingName;
   backTo: string;
   // Carte d'inscription aux alertes en première page (`alertCard` de la `LandingMissionsConfig`) : la page 1 compte alors une mission de moins.
@@ -351,6 +360,7 @@ export default function MissionsBrowser({
         <FilterGroups
           keys={filters}
           exclude={exclude}
+          include={include}
           selected={(key) => getSelectedValues(searchParams, key)}
           onChange={(key, next) => updateFilters({ [key]: next })}
           idPrefix="missions-filtre"
@@ -435,6 +445,7 @@ export default function MissionsBrowser({
         <FiltersSheet
           keys={filters}
           exclude={exclude}
+          include={include}
           initialValues={Object.fromEntries(filters.map((key) => [key, getSelectedValues(searchParams, key)]))}
           onSave={handleSheetSave}
           onClose={() => setSheetOpen(false)}

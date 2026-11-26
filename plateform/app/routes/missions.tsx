@@ -1,4 +1,3 @@
-import type { MissionBrowseSlot } from "@engagement/dto";
 import { useEffect, useRef } from "react";
 import { useLoaderData, useSearchParams } from "react-router";
 
@@ -9,20 +8,14 @@ import GradientBg from "~/components/ui/gradient-bg";
 import { browseMissions } from "~/services/api/missions";
 import { STATE_PARTNERS, STATE_PARTNERS_TITLE } from "~/config/partners";
 import { trackPageViewed } from "~/services/tracking/events";
-import { buildLandingBrowseFilters, getSelectedValues, type LandingMissionsConfig } from "~/utils/landing-missions";
+import { buildLandingBrowseFilters, getDiversitySlots, getSelectedValues, type LandingMissionsConfig } from "~/utils/landing-missions";
 import { pageMeta } from "~/utils/seo";
 
 import type { Route } from "./+types/missions";
 
-const ARMEES: MissionBrowseSlot = { filters: { dispositif: ["reserve_armees"] } };
-const BENEVOLAT: MissionBrowseSlot = { filters: { dispositif: ["benevolat"] } };
-const SAPEURS_POMPIERS: MissionBrowseSlot = { filters: { dispositif: ["sapeurs_pompiers"] } };
-const SERVICE_CIVIQUE: MissionBrowseSlot = { filters: { dispositif: ["service_civique"] } };
-const GENDARMERIE: MissionBrowseSlot = { filters: { dispositif: ["reserve_gendarmerie"] } };
-
 const MISSIONS_CONFIG: LandingMissionsConfig = {
   filters: ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"],
-  slots: [BENEVOLAT, SERVICE_CIVIQUE, ARMEES, SAPEURS_POMPIERS, BENEVOLAT, SERVICE_CIVIQUE, BENEVOLAT, GENDARMERIE, ARMEES, BENEVOLAT],
+  slots: getDiversitySlots(),
 };
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {

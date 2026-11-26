@@ -313,11 +313,12 @@ describe("missionBrowseService.browse", () => {
       expect(resultsSearch()).toMatchObject({ offset: 0, limit: 2 });
     });
 
-    it("abandonne les emplacements dès qu'un filtre est coché", async () => {
-      await missionBrowseService.browse({ ...baseParams, sort: "recent", activite: ["secourir_proteger"], slots: [ARMEES] });
+    it("applique les filtres reçus à la recherche de chaque emplacement", async () => {
+      mockSlotsThenResults([["a1"]]);
 
-      expect(findLatestIdsMock).not.toHaveBeenCalled();
-      expect(resultsSearch()).toMatchObject({ per_page: 20, page: 1, sort_by: "createdAt:desc" });
+      await missionBrowseService.browse({ ...baseParams, domaine_engagement: ["sport"], slots: [ARMEES] });
+
+      expect(findLatestIdsMock).toHaveBeenCalledWith([`${DIFFUSION} && domaine_engagement:=[\`sport\`] && dispositif:=[\`reserve_armees\`]`], 1);
     });
   });
 

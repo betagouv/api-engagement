@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   buildLandingBrowseFilters,
+  getDiversitySlots,
   getLandingMissionsConfig,
   getDepartmentCodeFromPostcode,
   getPage,
@@ -36,6 +37,11 @@ describe("buildLandingBrowseFilters", () => {
 
     expect(filters.activite).toEqual(["secourir_proteger", "aider_accompagner"]);
     expect(filters.dispositif).toBeUndefined();
+  });
+
+  it("n'envoie pas les emplacements avec un filtre coché ou une localisation", () => {
+    expect(buildLandingBrowseFilters(new URLSearchParams("activite=secourir_proteger"), CONFIG).slots).toBeUndefined();
+    expect(buildLandingBrowseFilters(new URLSearchParams("lat=47.2184&lon=-1.5536"), CONFIG).slots).toBeUndefined();
   });
 
   it("transmet le point de la recherche par localisation", () => {
@@ -115,6 +121,34 @@ describe("getLandingMissionsConfig", () => {
     expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement"]);
   });
 
+  it("ne garde que les emplacements des dispositifs du périmètre", () => {
+    const slots = getLandingMissionsConfig({ dispositifs: ["service_civique", "reserve_armees", "sapeurs_pompiers", "reserve_gendarmerie"] }).slots;
+
+    expect(slots?.map((slot) => slot.filters.dispositif?.[0])).toEqual([
+      "service_civique",
+      "reserve_armees",
+      "sapeurs_pompiers",
+      "service_civique",
+      "reserve_gendarmerie",
+      "reserve_armees",
+    ]);
+  });
+
+  it("réserve un emplacement à chaque dispositif sans périmètre", () => {
+    expect(new Set(getDiversitySlots().map((slot) => slot.filters.dispositif?.[0])).size).toBe(6);
+  });
+
+  it("garde le filtre d'un critère à plusieurs valeurs, sans sortir du périmètre", () => {
+    const config = getLandingMissionsConfig({ dispositifs: ["benevolat", "service_civique"] });
+
+    expect(config.filters).toContain("dispositif");
+    expect(buildLandingBrowseFilters(new URLSearchParams("dispositif=service_civique&dispositif=reserve_armees"), config).dispositif).toEqual(["service_civique"]);
+
+    const outOfScope = buildLandingBrowseFilters(new URLSearchParams("dispositif=reserve_armees"), config);
+    expect(outOfScope.dispositif).toEqual(["benevolat", "service_civique"]);
+    expect(outOfScope.slots).toEqual(config.slots);
+  });
+
   it("applique toujours le périmètre, même si l'URL demande autre chose", () => {
     const config = getLandingMissionsConfig({ domainesEngagement: ["environnement_animaux"] });
     const filters = buildLandingBrowseFilters(new URLSearchParams("domaine_engagement=sport&dispositif=benevolat"), config);
@@ -126,11 +160,11 @@ describe("getLandingMissionsConfig", () => {
   it("propose tous les filtres sans périmètre", () => {
     expect(getLandingMissionsConfig({}).filters).toHaveLength(6);
   });
-  it("transforme les listes du bloc en périmètre et masque les filtres correspondants", () => {
+  it("transforme les listes du bloc en périmètre et masque les filtres à une seule valeur", () => {
     const config = getLandingMissionsConfig({ dispositifs: ["benevolat", "service_civique"], domainesEngagement: ["sport"], departements: null });
 
     expect(config.include).toEqual({ dispositif: ["benevolat", "service_civique"], domaine_engagement: ["sport"] });
-    expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite"]);
+    expect(config.filters).toEqual(["departmentCode", "tranche_age", "type_mission", "activite", "dispositif"]);
     expect(config.includeRemote).toBe(true);
   });
 
