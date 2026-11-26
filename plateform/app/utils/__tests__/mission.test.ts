@@ -1,5 +1,6 @@
 import type { MissionMatchItem } from "@engagement/dto";
 import { describe, expect, it } from "vitest";
+import { API_URL } from "~/services/config";
 import { buildMissionApplicationHref, formatMissionType, formatStartDate, matchResultToBrowseMission } from "../mission";
 
 describe("formatStartDate", () => {
@@ -38,16 +39,38 @@ describe("formatMissionType", () => {
 });
 
 describe("buildMissionApplicationHref", () => {
+  const redirectUrl = `${API_URL}/r/mission/publisher?tags=featured#mission`;
+  const originClickId = "638b9ddb-f1ee-4053-9173-5c652edbd6b3";
+  const userScoringId = "cc37f4b5-a145-43e7-9f9b-05f6c5635341";
+
+  it.each([undefined, userScoringId])("propage le clic d'origine avec ou sans quiz (%s)", (scoringId) => {
+    const url = new URL(buildMissionApplicationHref(redirectUrl, scoringId, `other=1; apiengagement=${originClickId}; last=2`));
+
+    expect(url.searchParams.get("origin_click_id")).toBe(originClickId);
+    expect(url.searchParams.get("user_scoring_id")).toBe(scoringId ?? null);
+    expect(url.searchParams.get("tags")).toBe("featured");
+    expect(url.hash).toBe("#mission");
+  });
+
+  it.each(["", "apiengagement=", `other_apiengagement=${originClickId}`])("ignore un cookie absent ou vide (%s)", (cookie) => {
+    expect(buildMissionApplicationHref(redirectUrl, undefined, cookie)).toBe(redirectUrl);
+  });
+
+  it("ne transmet pas le cookie à un lien direct vers l'annonceur", () => {
+    const directUrl = "https://annonceur.example.com/r/mission/publisher";
+    expect(buildMissionApplicationHref(directUrl, userScoringId, `apiengagement=${originClickId}`)).toBe(directUrl);
+  });
+
   it("ajoute le user_scoring_id à l'URL trackée", () => {
-    const href = buildMissionApplicationHref("https://api.example.com/r/mission/publisher?tags=featured", "cc37f4b5-a145-43e7-9f9b-05f6c5635341");
+    const href = buildMissionApplicationHref(redirectUrl, userScoringId);
 
     const params = new URL(href).searchParams;
     expect(params.get("tags")).toBe("featured");
-    expect(params.get("user_scoring_id")).toBe("cc37f4b5-a145-43e7-9f9b-05f6c5635341");
+    expect(params.get("user_scoring_id")).toBe(userScoringId);
   });
 
   it("conserve l'URL inchangée sans user_scoring_id", () => {
-    expect(buildMissionApplicationHref("https://api.example.com/r/mission/publisher", undefined)).toBe("https://api.example.com/r/mission/publisher");
+    expect(buildMissionApplicationHref(redirectUrl)).toBe(redirectUrl);
   });
 });
 

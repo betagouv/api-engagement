@@ -14,6 +14,7 @@ export async function clientLoader() {
 
 import Missions from "~/components/landings/missions";
 import BetaBanner from "~/components/layout/beta-banner";
+import MissionApplicationLink from "~/components/mission-detail/application-link";
 import MissionCtaPanel from "~/components/mission-detail/cta-panel";
 import MissionDescriptionCard from "~/components/mission-detail/description-card";
 import MissionHeroCard from "~/components/mission-detail/hero-card";
@@ -23,10 +24,10 @@ import GradientBg from "~/components/ui/gradient-bg";
 import Highlight from "~/components/ui/highlight";
 import { browseMissions, fetchMissionDetail } from "~/services/mission-browse";
 import { setQuizSessionId } from "~/services/tracking";
-import { trackCtaClicked, trackMissionClickedFromDetail, trackMissionDetailViewed } from "~/services/tracking/events";
+import { trackCtaClicked, trackMissionDetailViewed } from "~/services/tracking/events";
 import type { LandingName, MissionDetailNavState } from "~/services/tracking/types";
 import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
-import { buildMissionApplicationHref, formatDeadline } from "~/utils/mission";
+import { formatDeadline } from "~/utils/mission";
 import { pageMeta } from "~/utils/seo";
 
 export default function MissionDetailPage() {
@@ -90,7 +91,6 @@ export default function MissionDetailPage() {
   const backPath = userScoringId ? `/results/${userScoringId}` : (navState?.backTo ?? "/");
   const backLabel = userScoringId ? "Retour aux résultats" : navState?.backTo ? "Retour" : "Accueil";
   const deadlineLabel = mission ? formatDeadline(mission.endAt) : null;
-  const applicationHref = mission ? buildMissionApplicationHref(mission.applicationUrl, userScoringId) : "";
 
   if (loading) {
     return (
@@ -193,16 +193,7 @@ export default function MissionDetailPage() {
         )}
 
         <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-border-default-grey bg-background px-5 py-4 md:hidden">
-          <a
-            href={applicationHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="Découvrir la mission - nouvelle fenêtre"
-            className="fr-btn w-full! justify-center!"
-            onClick={() => trackMissionClickedFromDetail(mission)}
-          >
-            Découvrir la mission
-          </a>
+          <MissionApplicationLink mission={mission} userScoringId={userScoringId} className="fr-btn w-full! justify-center!" />
           {deadlineLabel && <p className="text-mention-grey text-sm! md:hidden text-center! mt-4! mb-0!">{deadlineLabel}</p>}
         </div>
       </main>

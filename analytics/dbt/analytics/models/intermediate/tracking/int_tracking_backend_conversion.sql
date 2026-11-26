@@ -12,7 +12,9 @@ with backend_clicks as (
   from {{ ref('stg_stat_event__click') }} as c
   inner join {{ ref('click_pde_attrs') }} as pde
     on c.stat_event_id = pde.click_id
-  where not c.is_bot
+  where
+    not c.is_bot
+    and pde.user_scoring_id is not null
 ),
 
 applies as (
