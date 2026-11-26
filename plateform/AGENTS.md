@@ -13,7 +13,6 @@ Stack principale : React 19, React Router v7 en mode framework avec SSR activé,
 Structure notable :
 
 - `app/root.tsx` : layout HTML global, imports DSFR, favicon DSFR, header/footer et outlet applicatif.
-- `app/dsfr.css` : liste des CSS DSFR chargés (core, composants utilisés, icônes), dans l'ordre du bundle officiel.
 - `app/routes.ts` : table de routage React Router. C’est la source de vérité pour les URLs, les routes API SSR et le quiz.
 - `app/routes/` : pages et loaders/actions de routes.
 - `app/routes/api.*.ts` : façade serveur SSR vers l’API backend. Ces routes signent les appels avec `PUBLISHER_API_KEY` sans exposer cette clé au navigateur.
@@ -86,7 +85,7 @@ Préférer ces packages aux copies locales de types, clés ou libellés métier.
 
 ## UI, styles et accessibilité
 
-- Le DSFR est chargé globalement via `app/dsfr.css` (importé dans `app/root.tsx`), **composant par composant** : seuls les composants utilisés sont importés. Utiliser les composants/classes DSFR quand ils couvrent le besoin ; pour un composant DSFR pas encore utilisé dans plateform, ajouter son CSS (et ses dépendances) dans `app/dsfr.css`, sinon il s'affiche sans style.
+- Le DSFR est chargé globalement dans `app/root.tsx`. Utiliser les composants/classes DSFR quand ils couvrent le besoin.
 - Tailwind v4 est importé dans `app/main.css` et sert surtout aux layouts et ajustements fins.
 - Conserver les classes DSFR `fr-*` pour les éléments qui relèvent du système de design public.
 - Les composants interactifs doivent garder des labels accessibles (`aria-label`, texte visible, états d’erreur DSFR).
