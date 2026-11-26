@@ -47,12 +47,50 @@ campaigns as (
   from {{ ref('int_tracking_campaign') }}
 ),
 
-campaign_redirects as (
-  select * from {{ ref('int_tracking_campaign_redirect') }}
+-- Un quiz est rattaché à une seule session propriétaire.
+quiz_campaigns as (
+  select
+    campaign_key,
+    unnest(quiz_session_ids) as quiz_session_id
+  from {{ ref('tracking_campaign_session') }}
+  where campaign_key is not null and has_backend_click
 ),
 
--- Chaque événement API est compté à sa propre date, pas à celle de la visite.
-api_events as (
+direct_redirects as (
+  select
+    redirect_id,
+    redirected_at,
+    campaign_id as campaign_key
+  from {{ ref('int_tracking_campaign_redirect') }}
+),
+
+-- Le clic d'origine l'emporte ; le quiz est un repli pour tous les canaux.
+campaign_redirects as (
+  select
+    redirect_id,
+    redirected_at,
+    campaign_key
+  from direct_redirects
+  union all
+  select
+    r.stat_event_id as redirect_id,
+    r.created_at as redirected_at,
+    q.campaign_key
+  from quiz_campaigns as q
+  inner join {{ ref('click_pde_attrs') }} as pde
+    on q.quiz_session_id = pde.user_scoring_id
+  inner join {{ ref('click') }} as r on pde.click_id = r.stat_event_id
+  where
+    not r.is_bot
+    and not exists (
+      select 1
+      from direct_redirects as d
+      where d.redirect_id = r.stat_event_id
+    )
+),
+
+-- Chaque événement est compté à sa propre date, pas à celle de la visite.
+campaign_events as (
   -- Clics `/r/campaign/` lus dans le mart `click`, indexé sur `campaign_id`.
   select
     ck.created_at::date as kpi_date,
@@ -67,21 +105,21 @@ api_events as (
   union all
   select
     redirected_at::date as kpi_date,
-    campaign_id as campaign_key,
+    campaign_key,
     redirect_id as event_id,
     'redirect' as event_type
   from campaign_redirects
   union all
   select
     a.created_at::date as kpi_date,
-    r.campaign_id as campaign_key,
+    r.campaign_key,
     a.stat_event_id as event_id,
     'apply' as event_type
   from campaign_redirects as r
   inner join {{ ref('apply') }} as a on r.redirect_id = a.click_id
 ),
 
-api_daily as (
+events_daily as (
   select
     kpi_date,
     campaign_key,
@@ -91,46 +129,11 @@ api_daily as (
       as redirections,
     count(distinct event_id) filter (where event_type = 'apply')
       as conversions
-  from api_events
+  from campaign_events
   group by kpi_date, campaign_key
 ),
 
--- Hors campagne API, le quiz reste le pont vers les conversions par visite.
--- Priorité au lien API direct : une redirection déjà rattachée à une
--- campagne API ne doit pas être aussi comptée sous l'UTM de sa session quiz.
-visit_quiz as (
-  select
-    session_date,
-    campaign_key,
-    visit_key,
-    unnest(quiz_session_ids) as quiz_session_id
-  from {{ ref('tracking_campaign_session') }}
-  where campaign_type is distinct from 'api' and has_backend_click
-),
-
-visit_outcomes as (
-  select
-    v.session_date as kpi_date,
-    v.campaign_key,
-    count(distinct v.visit_key) as redirections,
-    count(distinct v.visit_key) filter (where a.stat_event_id is not null)
-      as conversions
-  from visit_quiz as v
-  inner join {{ ref('click_pde_attrs') }} as pde
-    on v.quiz_session_id = pde.user_scoring_id
-  inner join {{ ref('click') }} as r on pde.click_id = r.stat_event_id
-  left join {{ ref('apply') }} as a on r.stat_event_id = a.click_id
-  where
-    not r.is_bot
-    and not exists (
-      select 1
-      from campaign_redirects as cr
-      where cr.redirect_id = r.stat_event_id
-    )
-  group by v.session_date, v.campaign_key
-),
-
--- Full outer join : ne perdre ni les jours avec événements API sans session
+-- Full outer join : ne perdre ni les jours avec événements sans session
 -- trackée, ni l'inverse (attribution UTM d'un lien partagé sans passer par
 -- `/r/campaign/`, ou campagne non API).
 joined as (
@@ -141,8 +144,8 @@ joined as (
     s.campaign_name as session_campaign_name,
     s.api_campaign_id as session_api_campaign_id,
     a.origin_clicks,
-    a.redirections as api_redirections,
-    a.conversions as api_conversions,
+    coalesce(a.redirections, 0) as redirections,
+    coalesce(a.conversions, 0) as conversions,
     coalesce(s.sessions, 0) as sessions,
     coalesce(s.visits, 0) as visits,
     coalesce(s.sessions_with_consent, 0) as sessions_with_consent,
@@ -156,7 +159,7 @@ joined as (
     coalesce(s.backend_clicks, 0) as backend_clicks,
     coalesce(s.applies, 0) as applies
   from sessions as s
-  full outer join api_daily as a
+  full outer join events_daily as a
     on
       s.kpi_date = a.kpi_date
       and s.campaign_key is not distinct from a.campaign_key
@@ -192,13 +195,9 @@ select
   j.sessions_apply,
   j.backend_clicks,
   j.applies,
-  coalesce(j.api_redirections, v.redirections, 0) as redirections,
-  coalesce(j.api_conversions, v.conversions, 0) as conversions
+  j.redirections,
+  j.conversions
 from joined as j
 left join campaigns as c on j.campaign_key = c.campaign_key
 left join {{ ref('stg_campaign') }} as sc on j.campaign_key = sc.id
-left join visit_outcomes as v
-  on
-    j.kpi_date = v.kpi_date
-    and j.campaign_key is not distinct from v.campaign_key
 order by j.kpi_date desc, j.campaign_key asc nulls first
