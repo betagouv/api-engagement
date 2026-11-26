@@ -19,6 +19,35 @@ const TABLE_HEADER = [
   { title: "Total des missions", key: "missionCount", position: "center" },
 ];
 
+const IMPORT_ERROR_EXPLANATIONS = {
+  empty_xml: "Votre flux est accessible mais ne contient aucune mission : vérifiez que votre export génère bien vos missions.",
+  fetch_failed: "Notre plateforme n’arrive pas à joindre votre serveur : vérifiez que l’adresse du flux est correcte et que votre serveur est en ligne.",
+  http_auth:
+    "Votre serveur refuse l’accès à notre plateforme : vérifiez l’identifiant et le mot de passe de votre flux. Si vous avez changé vos identifiants, pensez à nous les envoyer pour rétablir l’accès.",
+  http_client_error: "Votre serveur refuse notre demande : vérifiez l’adresse du flux et qu’aucune règle de votre serveur n’en bloque l’accès.",
+  http_not_found: "L’adresse de votre flux n’existe plus : communiquez-nous sa nouvelle adresse.",
+  http_server_error: "Votre serveur renvoie une erreur : vérifiez qu’il fonctionne et que l’adresse du flux s’ouvre dans un navigateur.",
+  parse_error:
+    "Votre adresse répond, mais ne renvoie pas un fichier XML valide (souvent une page d’erreur ou de connexion) : vérifiez que l’adresse ouvre bien votre fichier XML et que son format est correct.",
+  no_feed: "Aucune adresse de flux n’est renseignée : communiquez-nous l’adresse de votre flux XML.",
+  unsafe_feed_url: "L’adresse de votre flux n’est pas autorisée : vérifiez qu’elle pointe vers un fichier XML accessible publiquement.",
+  internal_error: "L’erreur vient de notre côté : aucune action de votre part n’est nécessaire à ce stade.",
+};
+
+// L’API renvoie le message brut ; reprendre les catégories du modèle analytics des imports.
+const getImportErrorType = (message = "") => {
+  if (/No feed$/i.test(message)) return "no_feed";
+  if (/Unsafe feed URL$/i.test(message)) return "unsafe_feed_url";
+  if (/Failed to fetch XML$/i.test(message)) return "fetch_failed";
+  if (/^(401|403) -/.test(message)) return "http_auth";
+  if (/^404 -/.test(message)) return "http_not_found";
+  if (/^4\d{2} -/.test(message)) return "http_client_error";
+  if (/^5\d{2} -/.test(message)) return "http_server_error";
+  if (message === "Empty xml") return "empty_xml";
+  if (message === "Error parsing xml" || message === "Not an XML") return "parse_error";
+  return "internal_error";
+};
+
 const Flux = () => {
   const { user, publisher } = useStore();
   const [filters, setFilters] = useState({
@@ -27,10 +56,11 @@ const Flux = () => {
   });
   const [imports, setImports] = useState([]);
   const [total, setTotal] = useState(0);
-  const [lastSync, setLastSync] = useState(null);
+  const [lastImport, setLastImport] = useState(undefined);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -40,26 +70,32 @@ const Flux = () => {
           skip: (filters.page - 1) * filters.size,
         };
 
-        const res = await api.post(`/import/search`, query);
+        const res = await api.post(`/import/search`, query, { signal: controller.signal });
 
+        if (controller.signal.aborted) return;
         if (!res.ok) {
           throw res;
         }
         setImports(res.data);
         setTotal(res.total);
-        if (res.data.length > 0) {
-          if (!lastSync || new Date(res.data[0].finishedAt) > new Date(lastSync)) {
-            setLastSync(new Date(res.data[0].finishedAt).toISOString());
-          }
+        if (filters.page === 1) {
+          setLastImport(res.data[0] ?? null);
         }
       } catch (error) {
-        captureError(error, { extra: { publisherId: publisher.id, filters } });
+        if (!controller.signal.aborted) captureError(error, { extra: { publisherId: publisher.id, filters } });
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     fetchData();
+    return () => controller.abort();
   }, [publisher, filters]);
+
+  const lastSync = lastImport && new Date(lastImport.finishedAt ?? lastImport.startedAt);
+  const errorMessage = lastImport?.error?.trim();
+  const errorType = lastImport?.status === "FAILED" ? getImportErrorType(errorMessage) : null;
+  const hasFeed = Boolean(publisher.feed?.trim());
+  const isLate = lastSync && lastSync.getTime() < Date.now() - 24 * 60 * 60 * 1000;
 
   const buildDuration = (d1, d2) => {
     const diff = Math.abs(d1 - d2);
@@ -86,26 +122,47 @@ const Flux = () => {
             Lien du fichier XML à synchroniser
           </label>
           <div className="flex min-w-0 flex-1 gap-2">
-            <input id="publisher-feed" className="input border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 border read-only:opacity-80" value={publisher.feed} readOnly />
+            <input
+              id="publisher-feed"
+              className="input border-blue-france-925 bg-blue-france-975 min-w-0 flex-1 border read-only:opacity-80"
+              value={publisher.feed ?? ""}
+              readOnly
+            />
             {user.role === "admin" && <ModifyModal />}
           </div>
         </div>
 
         <div className="h-px w-full bg-gray-900" />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <p className="font-semibold sm:w-[35%]">Dernière synchronisation</p>
-          <div className="flex flex-1 gap-2">
-            {imports.length > 0 && lastSync < new Date(Date.now() - 24 * 60 * 60 * 1000) ? (
-              <div className="items-center">
-                <p className="inline align-middle">{new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCloseCircleFill aria-label="Synchronisation en retard" role="img" className="text-error ml-2 inline h-5 w-5 align-middle" />
-                <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <p>{imports.length > 0 && new Date(lastSync).toLocaleString("fr").replace(" ", " à ")}</p>
-                <RiCheckboxCircleFill aria-label="Synchronisation à jour" role="img" className="text-success mr-1 h-5 w-5" />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+          <p className="font-semibold sm:w-[35%] sm:flex-none">Dernière synchronisation</p>
+          <div className="min-w-0 flex-1 space-y-1" aria-live="polite">
+            {lastImport === null && <p>Aucune synchronisation enregistrée.</p>}
+            {lastSync && (
+              <>
+                <div className="flex items-center gap-2">
+                  <p>{lastSync.toLocaleString("fr").replace(" ", " à ")}</p>
+                  {errorType || isLate ? (
+                    <RiCloseCircleFill aria-label={errorType ? "Échec de la synchronisation" : "Synchronisation en retard"} role="img" className="text-error h-5 w-5 shrink-0" />
+                  ) : hasFeed ? (
+                    <RiCheckboxCircleFill aria-label="Synchronisation à jour" role="img" className="text-success h-5 w-5 shrink-0" />
+                  ) : null}
+                </div>
+                {errorType ? (
+                  <div className="text-error space-y-1 text-sm wrap-break-word">
+                    <p className="font-semibold">La dernière synchronisation a échoué.</p>
+                    {errorMessage && errorType !== "internal_error" && <p>Message technique : {lastImport.error}</p>}
+                    <p>{IMPORT_ERROR_EXPLANATIONS[errorType]}</p>
+                  </div>
+                ) : (
+                  isLate && <p className="text-xs">Dernière synchronisation il y a plus de 24h.</p>
+                )}
+              </>
+            )}
+            {!hasFeed && errorType !== "no_feed" && (
+              <div className="text-error flex items-start gap-2 text-sm">
+                <RiCloseCircleFill aria-hidden="true" className="h-5 w-5 shrink-0" />
+                <p>{IMPORT_ERROR_EXPLANATIONS.no_feed}</p>
               </div>
             )}
           </div>
@@ -179,7 +236,7 @@ const ModifyModal = () => {
       <Modal open={open} onClose={() => setOpen(false)} title="Modifier votre flux de missions" className="w-[90vw] max-w-3xl">
         <div className="flex flex-col items-start justify-between gap-4">
           <label htmlFor="feed-url">Lien du fichier XML à synchroniser</label>
-          <input id="feed-url" className="input focus w-full" value={feed} onChange={(e) => setFeed(e.target.value)} />
+          <input id="feed-url" className="input focus w-full" value={feed ?? ""} onChange={(e) => setFeed(e.target.value)} />
         </div>
         <div className="flex justify-end gap-6">
           <button type="button" className="tertiary-btn" onClick={() => setOpen(false)}>
