@@ -2,7 +2,7 @@ import type { Route } from "./+types/accessibilite";
 import { pageMeta } from "~/utils/seo";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Déclaration d'accessibilité | TrouveTaMission.gouv.fr" });
+  return pageMeta(location, { title: "Déclaration d'accessibilité | TrouveTaMission.gouv.fr", robots: "noindex, follow" });
 }
 
 export default function Accessibilite() {

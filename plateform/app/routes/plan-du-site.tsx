@@ -3,7 +3,7 @@ import type { Route } from "./+types/plan-du-site";
 import { pageMeta } from "~/utils/seo";
 
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
-  return pageMeta(location, { title: "Plan du site | TrouveTaMission.gouv.fr" });
+  return pageMeta(location, { title: "Plan du site | TrouveTaMission.gouv.fr", robots: "noindex, follow" });
 }
 
 export default function PlanDuSite() {
