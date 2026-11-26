@@ -15,7 +15,7 @@ export default function Faq({ title, intro, questions }: { title: ReactNode; int
         {questions.map((item) => (
           <li key={item.question} className="flex gap-2 p-0! md:flex-col">
             <div className="bg-blue-ecume-975 flex size-12 shrink-0 items-center justify-center rounded-full">
-              <img src={item.icon} alt="" aria-hidden="true" className="size-8 dark:rounded-full dark:bg-white" />
+              <img loading="lazy" src={item.icon} alt="" aria-hidden="true" className="size-8 dark:rounded-full dark:bg-white" />
             </div>
             <div>
               <h3 className="fr-h6 mb-2!">{item.question}</h3>

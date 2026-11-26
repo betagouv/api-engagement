@@ -1,7 +1,11 @@
-import "@gouvfr/dsfr/dist/dsfr.min.css";
+import "@gouvfr/dsfr/dist/dsfr.main.min.css";
+import DsfrPrintCss from "@gouvfr/dsfr/dist/dsfr.print.min.css?url";
 import "@gouvfr/dsfr/dist/utility/utility.min.css";
+import MarianneBold from "@gouvfr/dsfr/dist/fonts/Marianne-Bold.woff2?url";
+import MarianneMedium from "@gouvfr/dsfr/dist/fonts/Marianne-Medium.woff2?url";
+import MarianneRegular from "@gouvfr/dsfr/dist/fonts/Marianne-Regular.woff2?url";
 import { type ReactNode } from "react";
-import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useLocation, useNavigation } from "react-router";
+import { Link, Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse, useLocation, useNavigation, useRouteLoaderData } from "react-router";
 import CookieConsentManager from "~/components/layout/cookie-consent-manager";
 import Footer, { FooterContent } from "~/components/layout/footer";
 import Header from "~/components/layout/header";
@@ -9,6 +13,8 @@ import InternalUserFlagIndicator from "~/components/layout/internal-user-flag-in
 import SkipLinks from "~/components/layout/skip-links";
 import { canonicalHostMiddleware } from "~/middlewares/canonical-host";
 import { PUBLISHER_ID } from "~/services/config";
+import { getCookieConsentPreferences } from "~/services/cookie-consent";
+import { BETA_BANNER_SOURCES, isBetaBannerDismissed } from "~/utils/beta-banner";
 import { serializeForInlineScript } from "~/utils/string";
 import type { Route } from "./+types/root";
 import "./main.css";
@@ -19,6 +25,28 @@ const apiEngagementTag = PUBLISHER_ID
   : null;
 
 export const middleware: Route.MiddlewareFunction[] = [canonicalHostMiddleware];
+
+// Bandeaux pilotés par cookie (consentement, bêta) : lus côté serveur pour les rendre dès le HTML initial. Affichés
+// seulement après l'hydratation, ils retardaient l'affichage principal (LCP) et décalaient la page (CLS).
+// On ne renvoie que l'état calculé : l'en-tête Cookie brut exposerait tous les cookies dans la page.
+export function loader({ request }: Route.LoaderArgs) {
+  const cookieHeader = request.headers.get("Cookie") ?? "";
+  return {
+    consentPreferences: getCookieConsentPreferences(cookieHeader),
+    dismissedBetaBanners: BETA_BANNER_SOURCES.filter((source) => isBetaBannerDismissed(source, cookieHeader)),
+  };
+}
+
+// Polices Marianne utilisées dès le premier écran : sans préchargement, le navigateur ne les découvre qu'après
+// avoir lu le CSS, affiche d'abord la police de secours puis décale tout le texte à leur arrivée (CLS mobile).
+// dsfr.main.min.css est le bundle DSFR sans la variante legacy (navigateurs anciens) ni les règles d'impression :
+// celles-ci sont chargées à part en media="print" pour ne pas bloquer l'affichage à l'écran.
+export const links: Route.LinksFunction = () => [
+  { rel: "preload", href: MarianneRegular, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
+  { rel: "preload", href: MarianneMedium, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
+  { rel: "preload", href: MarianneBold, as: "font", type: "font/woff2", crossOrigin: "anonymous" },
+  { rel: "stylesheet", href: DsfrPrintCss, media: "print" },
+];
 
 // RGAA 8.5 : sert de titre aux pages d'erreur (404 notamment, où seule la route racine matche
 // et où aucun autre meta() ne fournit de <title>) et de secours pour toute route sans meta().
@@ -33,6 +61,8 @@ const isCmsTool = (pathname: string) => pathname.startsWith("/_cms/");
 
 export function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
+  // Absent quand la route racine elle-même échoue : le bandeau cookies retombe alors sur la lecture après montage.
+  const rootData = useRouteLoaderData<typeof loader>("root");
 
   return (
     <html lang="fr" data-fr-scheme="system" suppressHydrationWarning>
@@ -51,7 +81,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <body className="flex flex-col min-h-screen">
         {!isCmsTool(pathname) && <SkipLinks />}
         {children}
-        {!isCmsTool(pathname) && <CookieConsentManager />}
+        {!isCmsTool(pathname) && <CookieConsentManager initialPreferences={rootData?.consentPreferences ?? null} />}
         <ScrollRestoration />
         <Scripts />
       </body>

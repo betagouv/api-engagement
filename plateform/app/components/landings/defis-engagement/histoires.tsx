@@ -34,7 +34,7 @@ type HistoireTemoignage = { quote: string; name: string; role: string };
 function Temoignage({ quote, name, role, className = "" }: { quote: string; name: string; role: string; className?: string }) {
   return (
     <figure className={`bg-blue-france-975 border-border-default-grey m-0! flex flex-col gap-6 rounded-2xl border p-3 md:p-4 lg:p-8 ${className}`}>
-      <img src={DoubleQuotesSvg} alt="" aria-hidden="true" className="size-8" />
+      <img loading="lazy" src={DoubleQuotesSvg} alt="" aria-hidden="true" className="size-8" />
       <blockquote className="text-default-grey m-0! p-0!">{quote}</blockquote>
       <figcaption className="text-mention-grey fr-text--sm mb-0!">
         <span className="fr-text--lg block font-bold mb-2!">{name}</span>

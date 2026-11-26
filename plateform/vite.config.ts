@@ -38,6 +38,10 @@ export default defineConfig(({ mode }) => {
       // Cible par défaut de Vite 8 (baseline widely available), avec Firefox abaissé à 102 (ESR encore utilisé, sinon l'hydratation plante).
       target: ["chrome111", "edge111", "firefox102", "safari16.4", "ios16.4"],
       sourcemap: "hidden",
+      // Les ~1 000 icônes DSFR (référencées par dsfr.main.min.css et utility.min.css) font chacune moins de 4 Ko :
+      // inlinées en data URI, elles pèsent 2 Mo dans le CSS qui bloque l'affichage. Servies en fichiers,
+      // le navigateur ne télécharge que celles réellement affichées.
+      assetsInlineLimit: (filePath: string) => (filePath.includes("@gouvfr/dsfr/dist/icons/") ? false : undefined),
     },
   };
 });

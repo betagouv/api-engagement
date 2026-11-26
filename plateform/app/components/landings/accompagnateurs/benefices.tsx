@@ -11,7 +11,7 @@ const BENEFICES = [
       "François, bénévole dans le Val-d'Oise après une mission proposée par sa conseillère France Travail. Il signe aujourd'hui son deuxième contrat de travail. · Source : JeVeuxAider.gouv.fr, mesure d'impact 2025",
   },
   {
-    icon: <img src={SelfTrainingSvg} alt="" className="size-9" />,
+    icon: <img loading="lazy" src={SelfTrainingSvg} alt="" className="size-9" />,
     bg: "bg-[#dec3ff]",
     title: "Avancer vers l'emploi",
     description: "Des compétences, des rencontres qui ouvrent des portes et une première expérience à valoriser sur un CV, en entretien ou dans Parcoursup.",

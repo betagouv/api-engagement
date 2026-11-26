@@ -44,7 +44,7 @@ export default function About() {
         {BENEFITS.map((benefit) => (
           <div key={benefit.title} className="flex items-start gap-2 sm:flex-col">
             <div className="bg-blue-ecume-975 dark:bg-white flex size-12 shrink-0 items-center justify-center rounded-3xl">
-              <img src={benefit.icon} alt="" className="size-8" aria-hidden="true" />
+              <img loading="lazy" src={benefit.icon} alt="" className="size-8" aria-hidden="true" />
             </div>
             <div className="flex flex-col sm:gap-2">
               <h3 className="fr-h6 text-default-grey fr-mb-0">{benefit.title}</h3>

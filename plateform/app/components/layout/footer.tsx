@@ -76,7 +76,7 @@ export function FooterContent({ landmark = true }: { landmark?: boolean }) {
               Française
             </p>
             <a className="fr-footer__brand-link" href="/chacun-pour-tous" title="Accueil — TrouveTaMission.gouv.fr">
-              <img className="fr-footer__logo w-40" src={ChacunPourTousLogo} alt="Chacun pour tous" />
+              <img loading="lazy" className="fr-footer__logo w-40" src={ChacunPourTousLogo} alt="Chacun pour tous" />
             </a>
           </div>
           <div className="fr-footer__content">

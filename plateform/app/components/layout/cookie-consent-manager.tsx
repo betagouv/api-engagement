@@ -32,10 +32,11 @@ function denyPendingChoices(services: ConsentService[], preferences: ConsentPref
   return Object.fromEntries(services.map((service) => [service.id, preferences[service.id] === "granted" ? "granted" : "denied"]));
 }
 
-export default function CookieConsentManager() {
+// `initialPreferences` vient du loader racine (cookie de la requête) : le bandeau est rendu dès le HTML initial.
+export default function CookieConsentManager({ initialPreferences }: { initialPreferences: ConsentPreferences | null }) {
   const services = getConsentServices();
-  const [preferences, setPreferences] = useState<ConsentPreferences | null>(null);
-  const [draftPreferences, setDraftPreferences] = useState<ConsentPreferences>({});
+  const [preferences, setPreferences] = useState<ConsentPreferences | null>(initialPreferences);
+  const [draftPreferences, setDraftPreferences] = useState<ConsentPreferences>(initialPreferences ?? {});
   const [modalOpen, setModalOpen] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState("");
 

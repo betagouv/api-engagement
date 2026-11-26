@@ -27,7 +27,7 @@ export default function Cards({ onStartQuiz, cta, title, cards }: { onStartQuiz:
       >
         {cards.map((etape) => (
           <div key={etape.title} className="bg-background shadow-tile relative flex h-full flex-col items-start gap-4 p-6">
-            <img src={etape.icon} alt="" aria-hidden="true" className="size-12 dark:rounded-full dark:bg-white" />
+            <img loading="lazy" src={etape.icon} alt="" aria-hidden="true" className="size-12 dark:rounded-full dark:bg-white" />
             <h3 className="fr-h5 mb-0!">{etape.title}</h3>
             <ul className="mb-0! list-disc! ps-6!">
               {etape.points.map((point) => (
