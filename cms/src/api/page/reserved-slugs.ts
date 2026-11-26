@@ -4,7 +4,6 @@ export const RESERVED_SLUGS = [
   "accessibilite",
   "accompagnateurs",
   "api",
-  "defis-engagement",
   "mentions-legales",
   "missions",
   "pages",

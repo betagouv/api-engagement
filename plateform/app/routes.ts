@@ -38,8 +38,6 @@ export default [
 
   // Landings marketing, isolées dans `routes/landings` (composants dans `components/landings`) :
   // souvent éphémères, elles restent identifiables et supprimables d'un bloc.
-  // « Les défis de l'engagement » : programme dédié aux 16-18 ans.
-  route("defis-engagement", "routes/landings/defis-engagement.tsx"),
 
   // « J'accompagne des jeunes » : entrée dédiée aux accompagnateurs (conseillers, informateurs jeunesse, animateurs), inscription à l'avant-première de l'espace pro.
   route("accompagnateurs", "routes/landings/accompagnateurs.tsx"),
