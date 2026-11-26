@@ -34,14 +34,21 @@ export type QuizOutletContext = {
 
 // Titre par step (RGAA 8.6) : les routes enfants n'exportent pas de meta(), celui-ci s'applique à toutes.
 // Le flow actif est cherché en premier, puis les autres versions (leurs routes restent accessibles).
+// Seule la page d'entrée du quiz est indexable (canonical vers elle-même, présente dans le sitemap) ; les steps suivants restent en noindex.
 export function meta({ location }: Route.MetaArgs): Route.MetaDescriptors {
+  if (location.pathname === QUIZ_FLOW[0].route) {
+    return pageMeta(location, {
+      title: "Trouver ma mission : le quiz | Trouve Ta Mission",
+      description: "En 9 questions sur tes envies, tes disponibilités et ton lieu de vie, le quiz te propose les missions d'engagement faites pour toi.",
+    });
+  }
   const step =
     QUIZ_FLOW.find((s) => s.route === location.pathname) ??
     Object.values(QUIZ_FLOW_REGISTRY)
       .flat()
       .find((s) => s.route === location.pathname);
   const title = step ? `${step.title} | Quiz Engagement | TrouveTaMission.gouv.fr` : "Quiz Engagement | TrouveTaMission.gouv.fr";
-  return pageMeta(location, { title, robots: "noindex, nofollow" });
+  return pageMeta(location, { title, robots: "noindex, follow" });
 }
 
 // Client-only : évite les mismatchs d'hydratation liés au store persisté en localStorage.
@@ -184,7 +191,10 @@ export default function QuizLayout() {
         <ExitModal className="fr-icon-close-line text-blue-france-sun! absolute top-4 right-4 p-2 z-10 hidden lg:block" />
         <div className="fr-container relative z-1 flex flex-1 flex-col gap-8">
           {!loadingResults && (
-            <QuizProgress step={isEmailPage && currentIndex < 0 ? steps.length : currentIndex + 1} stepCount={steps.length} nextLabel={steps[currentIndex + 1]?.label} />
+            <div>
+              {currentIndex === 0 && <h1 className="fr-text--md fr-mb-1w">Trouve ta mission en 9 questions</h1>}
+              <QuizProgress step={isEmailPage && currentIndex < 0 ? steps.length : currentIndex + 1} stepCount={steps.length} nextLabel={steps[currentIndex + 1]?.label} />
+            </div>
           )}
           {scoringError && !loadingResults && (
             <div className="fr-alert fr-alert--error" role="alert">
