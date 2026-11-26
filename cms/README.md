@@ -14,7 +14,7 @@ docker compose exec cms npm run seed:pages    # dev uniquement : pages décrites
 
 Le **seed** (`cms/scripts/seed.ts`) crée le jeton de lecture de plateform, de valeur fixe `dev-cms-read-token` (variable `CMS_API_TOKEN` du conteneur `cms`, hachée par Strapi), et seulement en développement local (il refuse de tourner en production).
 
-Pour ajouter une page, passer par le **seed des pages** (`cms/scripts/seed-pages.ts`, dev uniquement lui aussi). Il recrée chaque page décrite dans `cms/seed/pages/` (un fichier JSON par page, au format de l'API : `title`, `slug`, champs SEO, `blocks` avec leur `__component`). Un média s'écrit `{ "upload": "logo/jva-logo.png", "alternativeText": "…" }`, chemin relatif à `cms/seed/images/`. Relancer le seed **écrase** les pages concernées ; `npm run seed:pages -- <slug>` n'en recrée qu'une.
+Pour ajouter une page, passer par le **seed des pages** (`cms/scripts/seed-pages.ts`, dev uniquement lui aussi). Il recrée chaque page décrite dans `cms/seed/pages/` (un fichier JSON par page, au format de l'API : `title`, `slug`, `collection` (nom d'une collection de `cms/seed/collections.json`, créée par `npm run seed`), champs SEO, `blocks` avec leur `__component`). Un média s'écrit `{ "upload": "logo/jva-logo.png", "alternativeText": "…" }`, chemin relatif à `cms/seed/images/`. Relancer le seed **écrase** les pages concernées ; `npm run seed:pages -- <slug>` n'en recrée qu'une.
 
 Pour ajouter une page de dev : créer `cms/seed/pages/<slug>.json` (s'inspirer de `trouve-ta-caserne.json`), déposer ses images dans `cms/seed/images/`, puis lancer `npm run seed:pages`.
 
@@ -33,6 +33,8 @@ Pour ajouter une page de dev : créer `cms/seed/pages/<slug>.json` (s'inspirer d
 
 3. Supprimer le jeton dans l'admin.
 
+`seed:remote` crée d'abord les collections manquantes, puis classe les pages qu'il envoie.
+
 Une page dont le slug existe déjà est **ignorée** : elle a pu être retouchée dans l'admin. Ajouter `--replace` pour l'écraser (elle est supprimée puis recréée, publiée). Les images sont réutilisées si un média du même nom existe déjà dans la médiathèque : renommer le fichier pour forcer l'envoi d'une nouvelle version. Les composants utilisés par la page doivent déjà être déployés sur l'environnement visé.
 
 Compte admin perdu : `docker compose exec cms npx strapi admin:list-users` pour retrouver l'email, puis `docker compose exec cms npx strapi admin:reset-user-password --email <email>`.
@@ -48,6 +50,7 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
 ## Modèle de contenu
 
 - `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`), libellé des boutons « quiz » (`ctaLabel`, ex. « Trouvez votre mission » pour une page au vouvoiement ; vide : libellés par défaut) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
+- `collection` : classement des pages (une collection au plus par page), pour filtrer la liste des pages de l'admin (bouton « Filtres » › `collection`). Sans effet sur le site ; non historisée. `npm run seed` (dev) et `seed:remote` créent les collections de base. Les rôles éditeurs doivent recevoir leurs droits sur ce type (Paramètres › Rôles).
 - **`src/components/blocks/`** : les sections qu'un éditeur ajoute à une page (les seuls composants proposés dans la zone `blocks`).
   - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images) et `image` (image + légende).
   - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `testimonials`, `faq`, `accordion` (FAQ en accordéon), `partners`.

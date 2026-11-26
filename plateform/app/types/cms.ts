@@ -83,6 +83,8 @@ export type CmsBlock =
 export type CmsPage = {
   title: string;
   slug: string;
+  // Classement dans l'admin, non utilisé au rendu : absent tant que la relation n'est pas peuplée.
+  collection?: { name: string } | null;
   seoTitle: string;
   seoDescription: string | null;
   ogTitle: string | null;

@@ -13,7 +13,7 @@ const IMAGES = path.join(process.cwd(), "seed", "images");
 const UID = "api::page.page";
 
 type Upload = { upload: string; alternativeText?: string };
-type SeedPage = Record<string, unknown> & { slug: string };
+type SeedPage = Record<string, unknown> & { slug: string; collection?: string };
 
 const uploadImage = async (strapi: Core.Strapi, { upload, alternativeText = "" }: Upload): Promise<number> => {
   const filepath = path.join(IMAGES, upload);
@@ -66,11 +66,15 @@ const resolveUploads = async (strapi: Core.Strapi, value: unknown): Promise<unkn
 };
 
 const savePage = async (strapi: Core.Strapi, page: SeedPage) => {
+  const collection = page.collection ? await strapi.documents("api::collection.collection").findFirst({ filters: { name: page.collection } }) : null;
+  if (page.collection && !collection) {
+    throw new Error(`Collection « ${page.collection} » absente : lancer d'abord \`npm run seed\`.`);
+  }
   const documents = strapi.documents(UID);
   for (const old of await documents.findMany({ filters: { slug: page.slug } })) {
     await documents.delete({ documentId: old.documentId });
   }
-  const data = await resolveUploads(strapi, page);
+  const data = { ...((await resolveUploads(strapi, page)) as SeedPage), collection: collection?.documentId };
   // Le typage généré des zones dynamiques est trop strict pour ce seed : Strapi valide le contenu à l'exécution.
   await documents.create({ status: "published", data: data as never });
   console.log(`Page « ${page.slug} » créée.`);

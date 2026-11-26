@@ -1,6 +1,6 @@
 // Envoie les pages de `seed/pages/` vers un CMS déployé (staging, production) par son API REST, sans accès à la base.
 // Usage, depuis `cms/` (sans Docker ni dépendances) : `CMS_REMOTE_URL=https://… CMS_REMOTE_TOKEN=… npm run seed:remote -- [slug…] [--replace]` (ou dans `cms/.env`).
-// Sans slug, toutes les pages de `seed/pages/` sont envoyées.
+// Sans slug, toutes les pages de `seed/pages/` sont envoyées. Les collections manquantes (`seed/collections.json`) sont d'abord créées.
 // Jeton : Settings → API Tokens → type « Full access », à supprimer après usage.
 // Sans `--replace`, une page dont le slug existe déjà est laissée telle quelle (elle a pu être modifiée dans l'admin).
 // Les images sont réutilisées si un média du même nom existe déjà dans la médiathèque.
@@ -15,7 +15,7 @@ const CMS_REMOTE_URL = process.env.CMS_REMOTE_URL?.replace(/\/$/, "");
 const CMS_REMOTE_TOKEN = process.env.CMS_REMOTE_TOKEN;
 
 type Upload = { upload: string; alternativeText?: string };
-type SeedPage = Record<string, unknown> & { slug: string };
+type SeedPage = Record<string, unknown> & { slug: string; collection?: string };
 
 const request = async <T>(pathname: string, init: RequestInit = {}): Promise<T> => {
   const response = await fetch(`${CMS_REMOTE_URL}${pathname}`, {
@@ -68,18 +68,43 @@ const resolveUploads = async (value: unknown): Promise<unknown> => {
   return resolved;
 };
 
-const savePage = async (page: SeedPage, replace: boolean) => {
+// Crée les collections manquantes (aucune suppression) et renvoie leur documentId par nom.
+const ensureCollections = async (): Promise<Map<string, string>> => {
+  const names: string[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "seed", "collections.json"), "utf8"));
+  const ids = new Map<string, string>();
+  for (const name of names) {
+    const { data: existing } = await request<{ data: Array<{ documentId: string }> }>(`/api/collections?filters[name][$eq]=${encodeURIComponent(name)}`);
+    let documentId = existing[0]?.documentId;
+    if (!documentId) {
+      const { data: created } = await request<{ data: { documentId: string } }>("/api/collections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: { name } }),
+      });
+      documentId = created.documentId;
+      console.log(`Collection « ${name} » créée.`);
+    }
+    ids.set(name, documentId);
+  }
+  return ids;
+};
+
+const savePage = async (page: SeedPage, replace: boolean, collections: Map<string, string>) => {
   // `status=draft` remonte aussi les pages jamais publiées.
   const { data: existingPages } = await request<{ data: Array<{ documentId: string }> }>(`/api/pages?status=draft&filters[slug][$eq]=${encodeURIComponent(page.slug)}`);
   if (existingPages.length > 0 && !replace) {
     console.log(`Page « ${page.slug} » déjà présente : ignorée (relancer avec --replace pour l'écraser).`);
     return;
   }
+  const collection = page.collection ? collections.get(page.collection) : undefined;
+  if (page.collection && !collection) {
+    throw new Error(`Collection « ${page.collection} » absente de seed/collections.json.`);
+  }
   for (const existingPage of existingPages) {
     await request(`/api/pages/${existingPage.documentId}`, { method: "DELETE" });
   }
 
-  const data = await resolveUploads(page);
+  const data = { ...((await resolveUploads(page)) as SeedPage), collection };
   await request("/api/pages?status=published", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -103,13 +128,15 @@ const main = async () => {
   const slugs = requestedSlugs.length > 0 ? requestedSlugs : allSlugs;
   console.log(`CMS : ${CMS_REMOTE_URL} — ${slugs.length} page(s)${replace ? ", avec --replace" : ""}.`);
 
+  const collections = await ensureCollections();
+
   for (const slug of slugs) {
     const file = path.join(PAGES, `${slug}.json`);
     if (!fs.existsSync(file)) {
       throw new Error(`Aucune page « ${slug} » dans seed/pages/.`);
     }
     const page: SeedPage = JSON.parse(fs.readFileSync(file, "utf8"));
-    await savePage(page, replace);
+    await savePage(page, replace, collections);
   }
 };
 

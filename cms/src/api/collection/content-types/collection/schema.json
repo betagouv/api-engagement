@@ -1,0 +1,18 @@
+{
+  "kind": "collectionType",
+  "collectionName": "collections",
+  "info": {
+    "singularName": "collection",
+    "pluralName": "collections",
+    "displayName": "Collection",
+    "description": "Regroupe des pages pour les filtrer dans l'admin. Sans effet sur le site ; l'API REST sert à seed:remote."
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": { "type": "string", "required": true, "unique": true },
+    "pages": { "type": "relation", "relation": "oneToMany", "target": "api::page.page", "mappedBy": "collection" }
+  }
+}

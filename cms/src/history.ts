@@ -52,7 +52,8 @@ const saveVersion = async (strapi: Core.Strapi, documentId: string, action: stri
   if (!page) {
     return;
   }
-  const { id, documentId: _documentId, createdAt, updatedAt, publishedAt, createdBy, updatedBy, locale, localizations, ...content } = page as Record<string, unknown>;
+  const { id, documentId: _documentId, createdAt, updatedAt, publishedAt, createdBy, updatedBy, locale, localizations, collection, ...content } = page as Record<string, unknown>;
+  // `collection` est un classement, pas du contenu : hors instantané, une restauration n'y touche pas.
   const snapshot = clean(content) as Record<string, unknown>;
 
   const versions = strapi.documents(VERSION_UID);

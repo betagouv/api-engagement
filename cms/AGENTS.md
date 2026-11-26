@@ -17,7 +17,7 @@ En plus des exclusions racine, ne pas éditer/committer `dist/`, `build/`, `.str
 - `src/history.ts` + `src/api/page-version/` : historique des pages (instantané à chaque enregistrement) ; `src/admin/components/page-history.tsx` : panneau de restauration dans l'édition d'une page.
 - `src/components/blocks/` : les sections qu'un éditeur ajoute à une page (zone dynamique `blocks`) ; `src/components/items/` : les éléments répétables à l'intérieur d'un bloc (carte, étape, partenaire…), jamais ajoutés seuls à une page.
 - `Dockerfile` (dev) et `Dockerfile.production` (image déployée : build, non-root, port 8080).
-- `scripts/seed.ts` : seed de **dev uniquement** (jeton de lecture de plateform, pas de page). Refuse de tourner en production.
+- `scripts/seed.ts` : seed de **dev uniquement** (jeton de lecture de plateform et collections, pas de page). Refuse de tourner en production.
 - `scripts/seed-pages.ts` : seed de **dev uniquement** des pages décrites en JSON dans `seed/pages/` (une par fichier ; médias `{ "upload": "…" }` lus dans `seed/images/`). Refuse de tourner en production.
 
 ## Contrat avec plateform
@@ -43,7 +43,7 @@ Depuis `cms/` (ou dans le conteneur : `docker compose exec cms npm run <script>`
 - Typecheck : `npm run typecheck` (génère les types Strapi puis `tsc`)
 - Lint : `npm run lint`
 - Format : `npm run prettier`
-- Seed (dev) : `npm run seed` (jeton de lecture)
+- Seed (dev) : `npm run seed` (jeton de lecture, collections)
 - Seed des pages (dev) : `npm run seed:pages` (toutes les pages de `seed/pages/`) ou `npm run seed:pages -- <slug>` (une seule)
 
 Strapi redémarre à chaque modification de fichier dans `cms/` (mode `develop`).
