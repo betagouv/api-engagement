@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { IMAGE_WIDTHS, resizedImageUrl } from "~/utils/image";
 
 // Présentation unique des cartes mission (résultats de matching, liste /missions, landings) : image
 // sans surimpression, tag domaine, titre, tags et annonceur, plus un bouton email optionnel. Seul le
@@ -31,7 +32,11 @@ export default function MissionCard({
   return (
     // Sans tags (cartes d’exemple de la home et des landings) : hauteur au contenu.
     <div className={`border-border-default-grey bg-background shadow-card flex w-full flex-col border ${tags ? "h-89.75" : "h-full"}`}>
-      {image ? <img className="h-30 w-full object-cover" src={image} alt="" loading="lazy" /> : <div className="bg-beige-gris-galet h-30 w-full" />}
+      {image ? (
+        <img className="h-30 w-full object-cover" src={resizedImageUrl(image, IMAGE_WIDTHS.card)} alt="" loading="lazy" />
+      ) : (
+        <div className="bg-beige-gris-galet h-30 w-full" />
+      )}
 
       <div className="relative flex flex-1 flex-col px-4 py-3 gap-4">
         {/* Cœur en absolute au-dessus du titre : le titre garde toute la largeur de la carte. */}
@@ -74,7 +79,9 @@ export default function MissionCard({
           {/* RGAA 1.1: if the publisher has no name, don't display the logo */}
           {publisherName ? (
             <div className="text-mention-grey flex min-w-0 items-center gap-2 text-sm">
-              {publisherLogo && <img src={publisherLogo} alt="" aria-hidden="true" className="h-8 max-w-12 bg-white object-contain" loading="lazy" />}
+              {publisherLogo && (
+                <img src={resizedImageUrl(publisherLogo, IMAGE_WIDTHS.logo)} alt="" aria-hidden="true" className="h-8 max-w-12 bg-white object-contain" loading="lazy" />
+              )}
               <span className="line-clamp-1">{publisherName}</span>
             </div>
           ) : (

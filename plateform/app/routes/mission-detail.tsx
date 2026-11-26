@@ -27,6 +27,7 @@ import { trackCtaClicked, trackMissionClickedFromDetail, trackMissionDetailViewe
 import type { LandingName, MissionDetailNavState } from "~/services/tracking/types";
 import { resolveMissionDetailEntrySource } from "~/services/tracking/utils";
 import { buildMissionApplicationHref, formatDeadline } from "~/utils/mission";
+import { IMAGE_WIDTHS, resizedImageUrl } from "~/utils/image";
 import { pageMeta } from "~/utils/seo";
 
 export default function MissionDetailPage() {
@@ -130,7 +131,7 @@ export default function MissionDetailPage() {
         <GradientBg className="bg-size-[100%_680px] min-h-screen">
           {mission.photo && (
             <div className="h-54 w-full overflow-hidden md:hidden">
-              <img src={mission.photo} alt="" className="h-full w-full object-cover" />
+              <img src={resizedImageUrl(mission.photo, IMAGE_WIDTHS.detail)} alt="" className="h-full w-full object-cover" />
             </div>
           )}
           <div className="bg-background px-3 pt-2 md:hidden">
@@ -157,7 +158,7 @@ export default function MissionDetailPage() {
                 <div className="sticky top-4 flex flex-col">
                   {mission.photo && (
                     <div className="h-54 w-full overflow-hidden">
-                      <img src={mission.photo} alt="" className="h-full w-full object-cover" />
+                      <img src={resizedImageUrl(mission.photo, IMAGE_WIDTHS.detail)} alt="" className="h-full w-full object-cover" />
                     </div>
                   )}
                   <MissionCtaPanel mission={mission} userScoringId={userScoringId} />

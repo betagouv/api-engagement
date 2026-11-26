@@ -15,6 +15,8 @@ export default [
   route("api/user-scoring/:id", "routes/api.user-scoring.$id.ts"),
   route("api/email/mission", "routes/api.email.mission.ts"),
   route("api/newsletter", "routes/api.newsletter.ts"),
+  // Photos et logos des missions redimensionnés à leur taille d'affichage (cf. utils/image.ts).
+  route("api/image", "routes/api.image.ts"),
 
   // Quiz — flow conditionnel, un step = une route, layout partagé.
   // Les steps de toutes les versions du parcours restent enregistrés (cf. config/quiz-flow) ;

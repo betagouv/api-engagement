@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { NextFunction, Response, Router } from "express";
 import multer from "multer";
 import passport from "passport";
@@ -8,9 +9,10 @@ import { DemarcheSimplifieeFieldType } from "@/db/core";
 import { FORBIDDEN, INVALID_BODY, INVALID_PARAMS, NOT_FOUND, RESSOURCE_ALREADY_EXIST, captureException } from "@/error";
 import { requireDirectPublisherAccess, requirePublisherRelationAccess } from "@/middlewares/authorization";
 import { ipRateLimiter } from "@/middlewares/rate-limit";
+import { ACCEPTED_IMAGE_TYPES, LOGO_MAX_SIZE, optimizeImage } from "@/services/image";
 import { PublisherDiffusionPartnerNotFoundError, PublisherExpectedApplicationsRequiredError, PublisherNotFoundError, publisherService } from "@/services/publisher";
 import publisherDiffusionRuleService from "@/services/publisher-diffusion-rule";
-import { OBJECT_ACL, putObject } from "@/services/s3";
+import { IMMUTABLE_CACHE_CONTROL, OBJECT_ACL, putObject } from "@/services/s3";
 import { userService } from "@/services/user";
 import { UserRequest } from "@/types/passport";
 import { PublisherMissionType, type PublisherDiffusionInput, type PublisherRoleFilter } from "@/types/publisher";
@@ -256,10 +258,16 @@ router.post(
       if (files.length === 0) {
         return res.status(400).send({ ok: false, code: INVALID_BODY, message: "No file uploaded" });
       }
-      const objectName = `publishers/${publisherId}/${files[0].originalname}`;
+      if (!ACCEPTED_IMAGE_TYPES.includes(files[0].mimetype)) {
+        return res.status(400).send({ ok: false, code: INVALID_BODY, message: "Image JPEG, PNG, WebP ou GIF requise" });
+      }
 
-      const response = await putObject(objectName, files[0].buffer, {
+      const logo = await optimizeImage(files[0].buffer, LOGO_MAX_SIZE);
+      // Nom unique à chaque upload : le logo peut être mis en cache un an sans risquer de servir l'ancien.
+      const response = await putObject(`publishers/${publisherId}/logo-${randomUUID()}.webp`, logo, {
         ACL: OBJECT_ACL.PUBLIC_READ,
+        ContentType: "image/webp",
+        CacheControl: IMMUTABLE_CACHE_CONTROL,
       });
 
       const updated = await publisherService.updatePublisher(publisherId, { logo: response.Location });

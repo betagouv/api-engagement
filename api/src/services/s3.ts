@@ -32,6 +32,9 @@ export const OBJECT_ACL: Record<string, ObjectCannedACL> = {
   BUCKET_OWNER_FULL_CONTROL: "bucket-owner-full-control",
 };
 
+// Pour les fichiers dont le nom change à chaque upload (identifiant unique) : le navigateur les garde un an sans revalider.
+export const IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable";
+
 const DEFAULT_OPTIONS = {
   Bucket: BUCKET_NAME,
   ACL: OBJECT_ACL.PRIVATE,
