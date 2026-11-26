@@ -18,9 +18,8 @@ import { createPosthogProvider } from "../providers/posthog";
 describe("provider PostHog", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("initialise le mode on_reject avec les collectes automatiques désactivées", async () => {
+  it("initialise le mode on_reject avec les collectes automatiques désactivées", () => {
     createPosthogProvider().init?.();
-    await vi.dynamicImportSettled();
 
     expect(posthog.init).toHaveBeenCalledWith(
       "phc_test",
@@ -37,13 +36,12 @@ describe("provider PostHog", () => {
     );
   });
 
-  it("capture en cookieless pendant l'attente et après refus", async () => {
+  it("capture en cookieless pendant l'attente et après refus", () => {
     const provider = createPosthogProvider();
     provider.init?.();
     provider.setConsentStatus?.("pending");
     provider.track("page.viewed", { page_name: "homepage" });
     provider.identify?.("forbidden-id");
-    await vi.dynamicImportSettled();
 
     expect(posthog.opt_out_capturing).toHaveBeenCalledOnce();
     expect(posthog.capture).toHaveBeenCalledWith("page.viewed", { page_name: "homepage" });
@@ -58,12 +56,11 @@ describe("provider PostHog", () => {
     expect(posthog.identify).not.toHaveBeenCalled();
   });
 
-  it("active la persistance et l'identification après acceptation", async () => {
+  it("active la persistance et l'identification après acceptation", () => {
     const provider = createPosthogProvider();
     provider.init?.();
     provider.setConsentStatus?.("granted");
     provider.identify?.("quiz-distinct-id", { source: "quiz" });
-    await vi.dynamicImportSettled();
 
     expect(posthog.opt_in_capturing).toHaveBeenCalledWith({ captureEventName: false });
     expect(posthog.identify).toHaveBeenCalledWith("quiz-distinct-id", { source: "quiz" });
