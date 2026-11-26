@@ -473,7 +473,8 @@
         { "partner": "jeveuxaider" },
         { "partner": "service_civique" },
         { "partner": "sapeurs_pompiers" },
-        { "partner": "gendarmerie" }
+        { "partner": "gendarmerie" },
+        { "partner": "police_nationale" }
       ]
     }
   ]

@@ -135,7 +135,8 @@
         { "partner": "jeveuxaider" },
         { "partner": "service_civique" },
         { "partner": "sapeurs_pompiers", "description": "Devenez sapeur-pompier volontaire près de chez vous." },
-        { "partner": "gendarmerie", "description": "Devenez gendarme près de chez vous." }
+        { "partner": "gendarmerie", "description": "Devenez gendarme près de chez vous." },
+        { "partner": "police_nationale", "description": "Devenez policier près de chez vous." }
       ]
     }
   ]
