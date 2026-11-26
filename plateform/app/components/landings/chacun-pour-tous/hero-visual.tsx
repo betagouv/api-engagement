@@ -1,4 +1,3 @@
-import Hero800Webp from "~/assets/images/landings/chacun-pour-tous/hero-800.webp";
 import HeroWebp from "~/assets/images/landings/chacun-pour-tous/hero.webp";
 import LogoPng from "~/assets/images/logo/chacun-pour-tous.png";
 import BadgeSvg from "~/assets/svg/chacun-pour-tous/badge.svg";
@@ -18,15 +17,7 @@ export default function HeroVisual() {
   return (
     <div aria-hidden="true" className="relative -mt-6 aspect-390/309 w-full md:absolute md:right-0 md:bottom-0 md:mt-0 md:aspect-1052/759 md:w-[64%] lg:w-[73%]">
       <img src={SymboleSvg} alt="" className="absolute top-0 left-[40.3%] w-[58%] md:top-[31.4%] md:left-[60.2%] md:w-[39%]" />
-      {/* sizes : 93,3 % de la largeur du conteneur sur mobile (100vw), 79,6 % ensuite (64vw, puis 73vw). */}
-      <img
-        src={HeroWebp}
-        srcSet={`${Hero800Webp} 800w, ${HeroWebp} 1680w`}
-        sizes="(min-width: 64rem) 58.1vw, (min-width: 48rem) 51vw, 93.3vw"
-        alt=""
-        fetchPriority="high"
-        className="absolute top-[30.4%] left-[3.6%] h-[69.6%] w-[93.3%] object-cover object-top md:top-[34.9%] md:left-[14.4%] md:h-auto md:w-[79.6%]"
-      />
+      <img src={HeroWebp} alt="" className="absolute top-[30.4%] left-[3.6%] h-[69.6%] w-[93.3%] object-cover object-top md:top-[34.9%] md:left-[14.4%] md:h-auto md:w-[79.6%]" />
       <img src={LogoPng} alt="" className="absolute top-[7.6%] left-[5.9%] w-[51.8%] md:top-[10.3%] md:left-[64.2%] md:w-[25.8%]" />
 
       {/* Pictos casque, carte, gilet et badge : groupe de 330×228 dans la maquette desktop. */}
