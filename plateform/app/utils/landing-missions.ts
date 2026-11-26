@@ -101,9 +101,9 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
 const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
 
 // Périmètre du bloc CMS : listes de valeurs (vide ou absente : pas de restriction).
-export type LandingScope = { dispositifs?: string[] | null; domainesEngagement?: string[] | null; departements?: string[] | null };
+export type LandingScope = { dispositifs?: string[] | null; domainesEngagement?: string[] | null; departements?: string[] | null; alertCard?: boolean | null };
 
-export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, departements }: LandingScope): LandingMissionsConfig => {
+export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, departements, alertCard }: LandingScope): LandingMissionsConfig => {
   const include: NonNullable<LandingMissionsConfig["include"]> = {
     ...(dispositifs?.length && { dispositif: dispositifs }),
     ...(domainesEngagement?.length && { domaine_engagement: domainesEngagement }),
@@ -111,7 +111,7 @@ export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, depa
   };
   // Les missions à distance restent visibles sauf si la liste est limitée à des départements.
   const isFilterShown = (key: LandingFilterKey) => (key === "departmentCode" ? !include.departmentCode : [include[key] ?? []].flat().length !== 1);
-  return { include, includeRemote: !include.departmentCode, filters: ALL_LANDING_FILTERS.filter(isFilterShown), slots: getDiversitySlots(dispositifs) };
+  return { include, includeRemote: !include.departmentCode, filters: ALL_LANDING_FILTERS.filter(isFilterShown), slots: getDiversitySlots(dispositifs), alertCard: !!alertCard };
 };
 
 // Code département (format de la taxonomie : "01", "2A", "971"…) déduit d'un code postal français.

@@ -115,6 +115,11 @@ describe("getPageWindow / getTotalPages", () => {
 });
 
 describe("getLandingMissionsConfig", () => {
+  it("n'active la carte d'alertes que si le bloc la demande, avec une mission de moins en première page", () => {
+    expect(getLandingMissionsConfig({}).alertCard).toBe(false);
+    expect(buildLandingBrowseFilters(new URLSearchParams(), getLandingMissionsConfig({ alertCard: true })).pageSize).toBe(11);
+  });
+
   it("fait du dispositif choisi le périmètre de la page et masque son filtre", () => {
     const config = getLandingMissionsConfig({ dispositifs: ["reserve_armees"] });
     expect(config.include).toEqual({ dispositif: ["reserve_armees"] });

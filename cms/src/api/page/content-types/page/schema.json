@@ -51,6 +51,11 @@
       "maxLength": 40,
       "description": "Libellé des boutons « quiz » de la page (ex. : Trouvez votre mission). Vide : libellés par défaut (tutoiement)."
     },
+    "signupSource": {
+      "type": "enumeration",
+      "enum": ["landing_page_reengagement_police_nationale"],
+      "description": "Source des inscriptions à la newsletter faites sur la page (listes Brevo). Vide : source par défaut du CMS."
+    },
     "blocks": {
       "type": "dynamiczone",
       "required": true,

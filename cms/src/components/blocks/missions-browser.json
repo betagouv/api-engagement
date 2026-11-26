@@ -150,6 +150,11 @@
         "988 - Nouvelle-Calédonie:988",
         "989 - Clipperton:989"
       ]
+    },
+    "alertCard": {
+      "type": "boolean",
+      "default": false,
+      "description": "Carte d'inscription aux alertes par e-mail parmi les missions de la première page (textes en vouvoiement)."
     }
   }
 }
