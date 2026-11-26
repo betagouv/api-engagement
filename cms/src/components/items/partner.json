@@ -4,7 +4,7 @@
   "attributes": {
     "partner": {
       "type": "enumeration",
-      "enum": ["reserve_armees", "jeveuxaider", "service_civique", "sapeurs_pompiers", "gendarmerie"],
+      "enum": ["reserve_armees", "jeveuxaider", "service_civique", "sapeurs_pompiers", "gendarmerie", "police_nationale"],
       "required": true,
       "description": "Partenaire connu : nom, logo et texte par défaut sont définis dans plateform."
     },

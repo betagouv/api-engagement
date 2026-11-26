@@ -5,6 +5,7 @@ import { useLoaderData, useNavigate } from "react-router";
 import HeroWebp from "~/assets/images/landings/defis-engagement/hero.webp";
 import AscPng from "~/assets/images/logo/asc-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
+import PolicePng from "~/assets/images/logo/police-nationale-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
 import SpvPng from "~/assets/images/logo/spv-logo.png";
 import CadreMineurs from "~/components/landings/defis-engagement/cadre-mineurs";
@@ -58,6 +59,11 @@ const PARTNERS: Partner[] = [
     name: "Gendarmerie nationale",
     description: "Deviens gendarme près de chez toi.",
     logo: RocPng,
+  },
+  {
+    name: "Police nationale",
+    description: "Deviens policier près de chez toi.",
+    logo: PolicePng,
   },
 ];
 

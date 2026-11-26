@@ -1,6 +1,7 @@
 import AscPng from "~/assets/images/logo/asc-logo.png";
 import GendarmeriePng from "~/assets/images/logo/gendarmerie-logo.png";
 import JvaPng from "~/assets/images/logo/jva-logo.png";
+import PolicePng from "~/assets/images/logo/police-nationale-logo.png";
 import RocPng from "~/assets/images/logo/roc-logo.png";
 import SpvPng from "~/assets/images/logo/spv-logo.png";
 
@@ -42,7 +43,7 @@ export const DEFAULT_PARTNERS: Partner[] = [
   },
 ];
 
-// Bandeau « dispositifs » de bas de page (home, page missions) : les cinq dispositifs vérifiés par l'État, sans lien.
+// Bandeau « dispositifs » de bas de page (home, page missions) : les six dispositifs vérifiés par l'État, sans lien.
 export const STATE_PARTNERS_TITLE = "Toutes les missions d'engagement vérifiées par l'État";
 
 export const STATE_PARTNERS: Partner[] = [
@@ -70,5 +71,10 @@ export const STATE_PARTNERS: Partner[] = [
     name: "Gendarmerie nationale",
     description: "Deviens gendarme près de chez toi.",
     logo: GendarmeriePng,
+  },
+  {
+    name: "Police nationale",
+    description: "Deviens policier près de chez toi.",
+    logo: PolicePng,
   },
 ];
