@@ -91,7 +91,7 @@ const Settings = () => {
         <Tabs tabs={tabs} ariaLabel="Paramètres" panelId="settings-panel" className="flex items-center gap-4 pl-4 font-semibold text-black" variant="primary" />
         <section id="settings-panel" role="tabpanel" aria-labelledby={activeTabId || undefined} className="bg-white shadow-lg">
           <Routes>
-            <Route path="/" element={<Flux />} />
+            <Route path="/" element={<Flux key={publisherId} />} />
             <Route path="/api" element={<ApiAnnonceur />} />
             <Route path="/tracking" element={<TrackingAnnounce />} />
             <Route path="/real-time" element={<RealTime />} />
