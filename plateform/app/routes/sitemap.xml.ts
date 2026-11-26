@@ -2,10 +2,10 @@ const SITE_URL = "https://trouvetamission.gouv.fr";
 
 // Source unique des pages publiques indexables : ajouter une page ici suffit à la faire apparaître
 // dans le sitemap (pas de fichier XML figé à maintenir en parallèle des routes).
-// Un sitemap ne liste que des pages indexables. Exclus volontairement : quiz, /results/*, /missions (noindex), fiches mission
+// Un sitemap ne liste que des pages indexables. Exclus volontairement : steps du quiz après l'entrée, /results/*, /missions (noindex), fiches mission
 // (/missions/:id, sujet SEO à part), pages légales et plan du site (noindex), et toute URL avec filtres (?domaine_engagement=…).
 // lastmod : uniquement une vraie date connue, jamais une date bidon commune à toutes les pages.
-const PUBLIC_PAGES: { path: string; lastmod?: string }[] = [{ path: "/" }];
+const PUBLIC_PAGES: { path: string; lastmod?: string }[] = [{ path: "/" }, { path: "/quiz/age", lastmod: "2026-11-26" }];
 
 export async function loader() {
   const urls = PUBLIC_PAGES.map(({ path, lastmod }) => `  <url>\n    <loc>${SITE_URL}${path}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}\n  </url>`).join("\n");
