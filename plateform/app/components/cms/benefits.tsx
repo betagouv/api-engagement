@@ -20,13 +20,12 @@ const FORM_WORDING = {
   },
 };
 
-// Bénéfices + inscription à la newsletter, entièrement pilotés par le contenu du CMS.
+// Bénéfices + inscription facultative à la newsletter, entièrement pilotés par le contenu du CMS.
 export default function Benefits({
   title,
   intro,
   benefices,
-  newsletterTitle,
-  newsletterText,
+  newsletter,
   signupSource,
   newsletterLists,
   vouvoiement = false,
@@ -34,8 +33,8 @@ export default function Benefits({
   title: ReactNode;
   intro?: string;
   benefices: { emoji: string; label: string }[];
-  newsletterTitle: ReactNode;
-  newsletterText: string;
+  // Sans elle, le bloc ne montre que la liste.
+  newsletter?: { title: ReactNode; text: string | null };
   signupSource: NewsletterSignupSource;
   newsletterLists?: NewsletterListChoice;
   vouvoiement?: boolean;
@@ -88,49 +87,51 @@ export default function Benefits({
           </ul>
         </div>
 
-        <div className="bg-background flex flex-col gap-6 p-4 shadow-[0_4px_12px_0_rgba(0,0,18,0.16)] md:p-10 lg:w-md">
-          <h3 className="fr-h2 mb-0!">{newsletterTitle}</h3>
-          <p className="fr-text--lead mb-0!">{newsletterText}</p>
+        {newsletter && (
+          <div className="bg-background flex flex-col gap-6 p-4 shadow-[0_4px_12px_0_rgba(0,0,18,0.16)] md:p-10 lg:w-md">
+            <h3 className="fr-h2 mb-0!">{newsletter.title}</h3>
+            {newsletter.text && <p className="fr-text--lead mb-0!">{newsletter.text}</p>}
 
-          {success ? (
-            <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
-              <p>{wording.success}</p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
-                <label className="fr-label fr-sr-only" htmlFor="landing-newsletter-email">
-                  {wording.label}
-                </label>
-                <input
-                  id="landing-newsletter-email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  aria-required="true"
-                  aria-invalid={error ? true : undefined}
-                  aria-describedby={`landing-newsletter-email-hint ${error ? "landing-newsletter-email-messages" : ""}`}
-                  className="fr-input mt-0!"
-                  placeholder={wording.placeholder}
-                />
-                {error && (
-                  <div className="fr-messages-group" id="landing-newsletter-email-messages" role="alert">
-                    <p className="fr-message fr-message--error">{error}</p>
-                  </div>
-                )}
+            {success ? (
+              <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
+                <p>{wording.success}</p>
               </div>
-              <div className="flex flex-col gap-2">
-                <button type="submit" disabled={loading} className="fr-btn w-full! justify-center!">
-                  {loading ? "Inscription en cours…" : "Je m'inscris"}
-                </button>
-                <p id="landing-newsletter-email-hint" className="fr-hint-text mb-0!">
-                  {wording.hint}
-                </p>
-              </div>
-            </form>
-          )}
-        </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
+                  <label className="fr-label fr-sr-only" htmlFor="landing-newsletter-email">
+                    {wording.label}
+                  </label>
+                  <input
+                    id="landing-newsletter-email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    aria-required="true"
+                    aria-invalid={error ? true : undefined}
+                    aria-describedby={`landing-newsletter-email-hint ${error ? "landing-newsletter-email-messages" : ""}`}
+                    className="fr-input mt-0!"
+                    placeholder={wording.placeholder}
+                  />
+                  {error && (
+                    <div className="fr-messages-group" id="landing-newsletter-email-messages" role="alert">
+                      <p className="fr-message fr-message--error">{error}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button type="submit" disabled={loading} className="fr-btn w-full! justify-center!">
+                    {loading ? "Inscription en cours…" : "Je m'inscris"}
+                  </button>
+                  <p id="landing-newsletter-email-hint" className="fr-hint-text mb-0!">
+                    {wording.hint}
+                  </p>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

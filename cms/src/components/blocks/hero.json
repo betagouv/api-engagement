@@ -10,6 +10,16 @@
       "type": "string",
       "description": "Pastille au-dessus du titre (ex. : Environnement et animaux)."
     },
+    "kicker": {
+      "type": "string",
+      "description": "Accroche au-dessus du titre (ex. : Tu veux te rendre utile ?)."
+    },
+    "background": {
+      "type": "enumeration",
+      "enum": ["creme", "galet"],
+      "default": "creme",
+      "description": "Couleur de fond."
+    },
     "title": {
       "type": "string",
       "required": true

@@ -12,13 +12,14 @@
     {
       "__component": "blocks.hero",
       "tags": [],
-      "badge": "Tu veux te rendre utile ?",
       "title": "À chacun sa façon d'agir",
       "description": "Des missions d'engagement en bénévolat, Service Civique, pompiers ou réservistes dans la gendarmerie dès 16 ans pour changer les choses (même un peu).",
       "hint": "Réponds en quelques clics, on te propose une mission qui te correspond",
       "image": {
         "upload": "landings/defis-engagement/hero-defis-engagement.webp"
-      }
+      },
+      "kicker": "Tu veux te rendre utile ?",
+      "background": "galet"
     },
     {
       "__component": "blocks.missions",
@@ -43,7 +44,10 @@
       ],
       "fillWithRandom": true,
       "examples": false,
-      "background": "galet"
+      "background": "galet",
+      "trancheAge": "moins_18_ans",
+      "ctaLabel": "Voir toutes les missions",
+      "ctaUrl": "/missions?tranche_age=moins_18_ans"
     },
     {
       "__component": "blocks.etapes",
@@ -66,6 +70,33 @@
       ]
     },
     {
+      "__component": "blocks.benefits",
+      "title": "Choisis ton terrain de jeu",
+      "intro": "Des missions basées sur tes envies, ton lieu et ta disponibilité. Pour que le bonheur des uns, fasse le bonheur des autres.",
+      "benefits": [
+        {
+          "emoji": "🗓️",
+          "label": "À ton rythme"
+        },
+        {
+          "emoji": "💸",
+          "label": "Avec ou sans indemnité"
+        },
+        {
+          "emoji": "📍",
+          "label": "Près de chez toi ou à distance"
+        },
+        {
+          "emoji": "🎓",
+          "label": "Sans diplôme requis ni expérience"
+        },
+        {
+          "emoji": "♥️",
+          "label": "Adapté à tes valeurs"
+        }
+      ]
+    },
+    {
       "__component": "blocks.faq",
       "title": "Tu te poses les ==mêmes questions== ?",
       "questions": [
@@ -83,6 +114,25 @@
           "icon": "mental_disabilities",
           "question": "Comment rejoindre une communauté qui a du sens ?",
           "answer": "Rencontre des personnes qui, comme toi, veulent agir concrètement."
+        }
+      ]
+    },
+    {
+      "__component": "blocks.benefits",
+      "title": "Un cadre pensé pour les mineurs",
+      "intro": "Tes données sont protégées, c'est bien le minimum ! La plateforme respecte le RGPD et protège les données de tous les utilisateurs.",
+      "benefits": [
+        {
+          "emoji": "✅",
+          "label": "Missions vérifiées par l'État"
+        },
+        {
+          "emoji": "✅",
+          "label": "Encadrement adapté à ton âge"
+        },
+        {
+          "emoji": "✅",
+          "label": "Autorisation parentale requise"
         }
       ]
     },
@@ -114,7 +164,9 @@
             "upload": "landings/temoignages/temoignage-3.webp"
           }
         }
-      ]
+      ],
+      "ctaLabel": "Voir toutes les missions",
+      "ctaUrl": "/missions?tranche_age=moins_18_ans"
     },
     {
       "__component": "blocks.partners",

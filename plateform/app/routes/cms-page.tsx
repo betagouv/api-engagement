@@ -94,9 +94,10 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         ...(dispositif && { dispositif }),
         ...(domaineEngagement && { domaine_engagement: domaineEngagement }),
       }));
+      const age = block.trancheAge ? { tranche_age: block.trancheAge } : {};
       const results = await Promise.all([
-        ...slots.map((slot) => browse({ ...slot, pageSize: 1 })),
-        ...(block.fillWithRandom ? [browse({ pageSize: 10, page: Math.ceil(Math.random() * 10) })] : []),
+        ...slots.map((slot) => browse({ ...slot, ...age, pageSize: 1 })),
+        ...(block.fillWithRandom ? [browse({ ...age, pageSize: 10, page: Math.ceil(Math.random() * 10) })] : []),
       ]);
       missionsByBlock[index] = [...new Map(results.flat().map((mission) => [mission.id, mission])).values()];
     }),
@@ -147,12 +148,15 @@ export default function CmsLanding() {
     navigate(`/missions?${params}`);
   };
 
-  const missionsCta = (section: CtaSection): LandingCta => ({
-    ...MISSIONS_CTA,
-    label: page.ctaLabel ?? MISSIONS_CTA.label,
-    onClick: () =>
-      trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: page.ctaLabel ?? MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
-  });
+  // `custom` : bouton défini sur le bloc, à la place de celui vers le quiz.
+  const missionsCta = (section: CtaSection, custom?: { label?: string | null; url?: string | null }): LandingCta => {
+    const { to, label } = custom?.label && custom.url ? { to: custom.url, label: custom.label } : { ...MISSIONS_CTA, label: page.ctaLabel ?? MISSIONS_CTA.label };
+    return {
+      to,
+      label,
+      onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: label, ctaDestination: "missions_list", destinationPath: to }),
+    };
+  };
 
   const hasMissionsBrowser = page.blocks.some((block) => block.__component === "blocks.missions-browser");
   // Un hero ou une fiche mission affichée porte déjà le h1 ; sinon, le titre de la page en tient lieu.

@@ -5,8 +5,8 @@
     "title": { "type": "text", "required": true, "description": "Retour à la ligne = saut de ligne." },
     "intro": { "type": "string", "description": "Phrase au-dessus de la liste (ex. : Une mission peut vous apporter :). Vide : pas de phrase." },
     "benefits": { "type": "component", "repeatable": true, "component": "items.benefit" },
-    "newsletterTitle": { "type": "text", "required": true },
-    "newsletterText": { "type": "string", "required": true },
+    "newsletterTitle": { "type": "text", "description": "Vide : pas d'inscription à la newsletter." },
+    "newsletterText": { "type": "string" },
     "vouvoiement": { "type": "boolean", "default": false, "description": "Textes du formulaire (champ e-mail, aide, confirmation) au vouvoiement. Désactivé : tutoiement." }
   }
 }

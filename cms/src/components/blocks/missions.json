@@ -6,6 +6,9 @@
     "description": { "type": "text", "required": true },
     "slots": { "type": "component", "repeatable": true, "component": "items.mission-slot" },
     "fillWithRandom": { "type": "boolean", "default": true, "description": "Complète avec 10 missions tirées au hasard." },
+    "trancheAge": { "type": "enumeration", "enum": ["moins_18_ans", "entre_18_25_ans", "entre_26_64_ans", "plus_65_ans"], "description": "Limite les missions mises en avant et le complément aléatoire à cette tranche d'âge. Vide : toutes." },
+    "ctaLabel": { "type": "string", "description": "Remplace le libellé du bouton (utilisé avec le lien)." },
+    "ctaUrl": { "type": "string", "description": "Lien du bouton (ex. : /missions?tranche_age=moins_18_ans). Libellé ou lien vide : bouton par défaut vers le quiz." },
     "examples": { "type": "boolean", "default": false, "description": "Cartes d'exemple : sans lien vers la fiche mission." },
     "background": { "type": "enumeration", "enum": ["creme", "galet"], "default": "galet", "required": true }
   }
