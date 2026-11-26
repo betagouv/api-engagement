@@ -77,7 +77,7 @@ export const validatePublisher = (values) => {
     errors.missionType = "Veuillez sélectionner un type de mission.";
   }
   if (values.isAnnonceur && (values.expectedApplications === null || values.expectedApplications === undefined)) {
-    errors.expectedApplications = "Veuillez indiquer si des candidatures sont attendues.";
+    errors.expectedApplications = "Veuillez indiquer si le tracking des candidatures est déployé.";
   }
   if (values.isDiffuseur && !values.category) {
     errors.category = "Veuillez sélectionner une catégorie de diffuseur.";
