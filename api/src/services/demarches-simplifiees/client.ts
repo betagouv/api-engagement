@@ -9,8 +9,8 @@ import { DEMARCHES_SIMPLIFIEES_BASE_URL } from "@/services/demarches-simplifiees
 // soit un tableau d'erreurs. Doc : https://doc.demarches-simplifiees.fr/api-graphql
 // L'instance (GraphQL + API publique) est dérivée de DEMARCHES_SIMPLIFIEES_BASE_URL.
 
-// Les appels GraphQL sortent par le proxy public (IP de sortie fixe) quand il est configuré : les jetons
-// Démarche Numérique sont restreints à cette adresse. Les pages publiques restent en direct (sans token).
+// Tous les appels à Démarche Numérique sortent par le proxy public (IP de sortie fixe) quand il est configuré : les jetons
+// sont restreints à cette adresse, et les conteneurs n'atteignent pas l'instance en direct (ConnectTimeoutError).
 // L'agent est créé une seule fois : il conserve son pool de connexions vers le proxy.
 let proxyDispatcher: ProxyAgent | undefined;
 const getProxyDispatcher = (): ProxyAgent | undefined => {
@@ -20,13 +20,20 @@ const getProxyDispatcher = (): ProxyAgent | undefined => {
   if (!proxyDispatcher) {
     proxyDispatcher = new ProxyAgent(PUBLIC_PROXY_URL);
     // On ne journalise que l'hôte : l'URL peut contenir les identifiants du proxy.
-    console.log(`[DemarchesSimplifiees] GraphQL calls routed through public proxy ${new URL(PUBLIC_PROXY_URL).host}`);
+    console.log(`[DemarchesSimplifiees] Calls routed through public proxy ${new URL(PUBLIC_PROXY_URL).host}`);
   }
   return proxyDispatcher;
 };
 
 // `dispatcher` (option undici) n'existe pas dans le type RequestInit de lib.dom.
 type FetchInit = RequestInit & { dispatcher?: ProxyAgent };
+
+// fetch vers l'instance Démarche Numérique (`path` relatif à DEMARCHES_SIMPLIFIEES_BASE_URL), via le proxy s'il est configuré.
+export const fetchDemarchesSimplifiees = (path: string, init: RequestInit = {}) => {
+  const dispatcher = getProxyDispatcher();
+  const fetchInit: FetchInit = dispatcher ? { ...init, dispatcher } : init;
+  return fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}${path}`, fetchInit);
+};
 
 interface DemarchesSimplifieesSuccess<T> {
   ok: true;
@@ -50,21 +57,14 @@ export const query = async <T = unknown>(graphqlQuery: string, variables: Record
       return { ok: false, message: "DEMARCHES_SIMPLIFIEES_TOKEN is not set" };
     }
 
-    const init: FetchInit = {
+    const response = await fetchDemarchesSimplifiees("/api/v2/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiToken}`,
       },
       body: JSON.stringify({ query: graphqlQuery, variables }),
-    };
-
-    const dispatcher = getProxyDispatcher();
-    if (dispatcher) {
-      init.dispatcher = dispatcher;
-    }
-
-    const response = await fetch(`${DEMARCHES_SIMPLIFIEES_BASE_URL}/api/v2/graphql`, init);
+    });
 
     if (!response.ok) {
       if (response.status === 401) {
