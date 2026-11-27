@@ -151,6 +151,28 @@ resource "scaleway_job_definition" "import-organizations" {
   env = local.all_env_vars
 }
 
+# Rapport d’impact mensuel envoyé aux partenaires de production.
+resource "scaleway_job_definition" "report" {
+  count                  = var.enable_intern_jobs && var.workspace == "production" ? 1 : 0
+  name                   = "${terraform.workspace}-report"
+  project_id             = var.project_id
+  cpu_limit              = 1000
+  memory_limit           = 2048
+  local_storage_capacity = 1024
+  image_uri              = local.image_uri
+  startup_command        = ["/workspace/docker/ssh-tunnel-entrypoint.sh"]
+  args                   = ["node", "--max-old-space-size=1800", "dist/jobs/run-job.js", "report"]
+  timeout                = "60m"
+
+  cron {
+    # Après l’export analytics et le run dbt du matin.
+    schedule = "0 9 2 * *"
+    timezone = "Europe/Paris"
+  }
+
+  env = local.all_env_vars
+}
+
 # Job Definition for the 'warnings' task
 resource "scaleway_job_definition" "warnings" {
   count                  = var.enable_intern_jobs ? 1 : 0

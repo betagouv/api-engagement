@@ -4,8 +4,8 @@ import { publisherService } from "@/services/publisher";
 import { reportService } from "@/services/report";
 import { userService } from "@/services/user";
 
-import type { ReportTemplateIds } from "./config";
-import { MONTHS, type ReportStats } from "./generate/data";
+import type { ReportTemplateIds } from "@/jobs/report/config";
+import { MONTHS, type ReportStats } from "@/jobs/report/generate/data";
 
 export const sendReports = async (templateIds: ReportTemplateIds, year: number, month: number, publisherId?: string) => {
   const templateIdByReportType = {
