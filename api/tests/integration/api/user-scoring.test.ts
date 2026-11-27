@@ -1247,6 +1247,27 @@ describe("POST /newsletter", () => {
     expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds: [23, 26], signupSource: "landing_page_reengagement_police_nationale" }));
   });
 
+  it.each([
+    ["landing_engagement_securite", [23, 26]],
+    ["landing_chacun_pour_tous", [23]],
+  ])("should accept the CMS page source %s", async (signupSource, listIds) => {
+    const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
+
+    const res = await request(app).post("/newsletter").set("x-api-key", plateformPublisher.apikey!).send({ email: "user@example.com", signupSource });
+
+    expect(res.status).toBe(200);
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds, signupSource }));
+  });
+
+  it.each(["unknown_source", "landing_", "landing_Bad Source", `landing_${"a".repeat(81)}`])("should reject the invalid source %s", async (signupSource) => {
+    const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
+
+    const res = await request(app).post("/newsletter").set("x-api-key", plateformPublisher.apikey!).send({ email: "user@example.com", signupSource });
+
+    expect(res.status).toBe(400);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+  });
+
   it("should subscribe a newsletter block contact to the newsletter list only", async () => {
     const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
 

@@ -1,5 +1,3 @@
-import type { SignupSource } from "@engagement/dto";
-
 import type { CmsPartnerKey } from "~/config/cms-partners";
 
 // Page composée de blocs (landing, page éditoriale…), éditée dans le CMS (Strapi, `cms/`) et lue par plateform.
@@ -102,7 +100,5 @@ export type CmsPage = {
   ogDescription: string | null;
   noindex: boolean;
   ctaLabel: string | null;
-  // Source des inscriptions à la newsletter de la page ; vide : `cms_newsletter`.
-  signupSource?: SignupSource | null;
   blocks: CmsBlock[];
 };

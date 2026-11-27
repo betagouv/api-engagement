@@ -1,4 +1,4 @@
-import type { SignupSource } from "@engagement/dto";
+import type { NewsletterSignupSource } from "@engagement/dto";
 import MailSendSvg from "@gouvfr/dsfr/dist/artwork/pictograms/digital/mail-send.svg?url";
 import { type SubmitEvent, useId, useState } from "react";
 
@@ -11,7 +11,7 @@ import { INVALID_EMAIL_FORMAT_ERROR, isValidEmail } from "~/utils/string";
 // (missions et actualités sur l'engagement). Contenu calibré pour tenir dans la hauteur fixe d'une carte mission (h-89.75) : côte à côte, les deux
 // cartes s'alignent. Pas de quiz sur ces parcours, donc pas de réponses à rattacher (contrairement au bandeau des résultats).
 // `signupSource` : listes Brevo propres à la landing (ex. réengagement Police) ; sans source, liste par défaut.
-export default function MissionAlertCard({ signupSource }: { signupSource?: SignupSource }) {
+export default function MissionAlertCard({ signupSource }: { signupSource?: NewsletterSignupSource }) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);

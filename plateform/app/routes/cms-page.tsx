@@ -175,7 +175,6 @@ export default function CmsLanding() {
           browsersByBlock,
           hasMissionsBrowser,
           ctaLabel: page.ctaLabel,
-          signupSource: page.signupSource ?? "cms_newsletter",
           onStartQuiz,
           onLocationSearch,
           missionsCta,

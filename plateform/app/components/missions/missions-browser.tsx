@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionBrowseTaxonomyKey, MissionBrowseTaxonomyParams, SignupSource } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseTaxonomyKey, MissionBrowseTaxonomyParams, NewsletterSignupSource } from "@engagement/dto";
 import { buildMissionBrowseTags, getDomainLabel } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
@@ -264,7 +264,7 @@ export default function MissionsBrowser({
   // Carte d'inscription aux alertes en première page (`alertCard` de la `LandingMissionsConfig`) : la page 1 compte alors une mission de moins.
   alertCard?: boolean;
   // Source Brevo de la carte d'inscription aux alertes.
-  signupSource?: SignupSource;
+  signupSource?: NewsletterSignupSource;
   // Les premières cartes remontent sur le bas du hero (fond prévu pour) ; à désactiver sous un hero à visuel.
   overlapHero?: boolean;
 }) {

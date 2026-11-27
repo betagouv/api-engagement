@@ -1,4 +1,4 @@
-import type { SignupSource } from "@engagement/dto";
+import type { NewsletterSignupSource } from "@engagement/dto";
 import { type SubmitEvent, useState } from "react";
 
 import { subscribeNewsletter } from "~/services/newsletter";
@@ -18,7 +18,7 @@ interface NewsletterProps {
   ctaText: string;
   hintText: string;
   // Origine enregistrée dans Brevo (SIGNUP_SOURCE) : une valeur `…_newsletter` par page qui affiche le bloc.
-  signupSource: SignupSource;
+  signupSource: NewsletterSignupSource;
 }
 
 export default function Newsletter({

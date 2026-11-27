@@ -7,7 +7,6 @@
   "ogTitle": "Votre engagement peut se faire autrement",
   "ogDescription": "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez comment votre engagement va évoluer !",
   "noindex": true,
-  "signupSource": "landing_page_reengagement_police_nationale",
   "blocks": [
     {
       "__component": "blocks.hero",

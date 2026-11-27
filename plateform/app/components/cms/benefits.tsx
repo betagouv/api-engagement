@@ -1,4 +1,4 @@
-import type { SignupSource } from "@engagement/dto";
+import type { NewsletterSignupSource } from "@engagement/dto";
 import { type ReactNode, type SubmitEvent, useState } from "react";
 
 import { subscribeNewsletter } from "~/services/newsletter";
@@ -18,7 +18,7 @@ export default function Benefits({
   benefices: { emoji: string; label: string }[];
   newsletterTitle: ReactNode;
   newsletterText: string;
-  signupSource: SignupSource;
+  signupSource: NewsletterSignupSource;
 }) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [loading, setLoading] = useState(false);

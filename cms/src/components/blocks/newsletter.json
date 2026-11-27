@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Newsletter",
     "icon": "envelop",
-    "description": "Inscription à la newsletter et liens vers les réseaux sociaux, à placer en fin de page (collé au pied de page). La source d'inscription se choisit sur la page (champ signupSource)."
+    "description": "Inscription à la newsletter et liens vers les réseaux sociaux, à placer en fin de page (collé au pied de page). La source d'inscription est déduite du slug de la page (landing_<slug>)."
   },
   "attributes": {
     "title": {
