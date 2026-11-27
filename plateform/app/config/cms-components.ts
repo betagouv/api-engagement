@@ -179,7 +179,22 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
-    label: "Exemple",
+    label: "Tutoiement (par défaut)",
+    block: {
+      __component: "blocks.benefits",
+      title: "Ce que l'engagement\nt'apporte",
+      intro: "Une mission peut t'apporter\u00a0:",
+      benefits: [
+        { emoji: "🤝", label: "Des rencontres" },
+        { emoji: "💪", label: "De nouvelles compétences" },
+        { emoji: "🌱", label: "Un impact concret" },
+      ],
+      newsletterTitle: "Reste informé",
+      newsletterText: "Reçois les nouvelles missions par email.",
+    },
+  },
+  {
+    label: "Vouvoiement",
     block: {
       __component: "blocks.benefits",
       title: "Ce que l'engagement\nvous apporte",
@@ -191,6 +206,7 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       ],
       newsletterTitle: "Restez informé",
       newsletterText: "Recevez les nouvelles missions par e-mail.",
+      vouvoiement: true,
     },
   },
   {

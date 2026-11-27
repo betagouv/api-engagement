@@ -55,6 +55,7 @@
     },
     {
       "__component": "blocks.benefits",
+      "vouvoiement": true,
       "title": "C'est quoi TrouveTaMission.gouv.fr ?",
       "intro": "Le service public qui aide chaque personne à trouver une façon concrète de s'engager, quelle que soit sa forme, de quelques heures à toute une vie !",
       "benefits": [

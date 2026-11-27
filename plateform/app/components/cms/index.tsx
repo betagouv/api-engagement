@@ -187,6 +187,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
     case "blocks.benefits":
       return (
         <Benefits
+          vouvoiement={!!block.vouvoiement}
           signupSource={context.landing}
           title={<InlineText text={block.title} />}
           intro={block.intro ?? undefined}
