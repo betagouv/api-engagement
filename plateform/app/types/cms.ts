@@ -39,6 +39,8 @@ export type CmsBlock =
   | {
       __component: "blocks.hero";
       badge?: string | null;
+      kicker?: string | null;
+      background?: "creme" | "galet" | null;
       title: string;
       description: string;
       tags: CmsHeroTag[];
@@ -59,6 +61,9 @@ export type CmsBlock =
       slots: CmsMissionSlot[];
       fillWithRandom: boolean;
       examples: boolean;
+      trancheAge?: string | null;
+      ctaLabel?: string | null;
+      ctaUrl?: string | null;
       background: "creme" | "galet";
     }
   | { __component: "blocks.mission-detail"; missionId: string; backUrl: string | null }
@@ -70,8 +75,8 @@ export type CmsBlock =
       title: string;
       intro: string | null;
       benefits: { emoji: string; label: string }[];
-      newsletterTitle: string;
-      newsletterText: string;
+      newsletterTitle: string | null;
+      newsletterText: string | null;
       vouvoiement?: boolean | null;
     }
   | { __component: "blocks.cards"; title: string; cards: { icon: string; title: string; points: string }[] }
@@ -96,7 +101,7 @@ export type CmsBlock =
       prioriteDomaines?: string[] | null;
       alertCard?: boolean | null;
     }
-  | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[] }
+  | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[]; ctaLabel?: string | null; ctaUrl?: string | null }
   | { __component: "blocks.partners"; title: string; partners: { partner: CmsPartnerKey; description: string | null }[] };
 
 export type CmsPage = {

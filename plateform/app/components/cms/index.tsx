@@ -49,7 +49,7 @@ export type CmsBlocksContext = {
   onStartQuiz: (section: QuizEntrySection) => void;
   // Recherche par adresse du hero : ouvre la mission du dispositif la plus proche, sur son adresse la plus proche.
   onLocationSearch: (dispositif: string, location: Location) => Promise<void>;
-  missionsCta: (section: CtaSection) => LandingCta;
+  missionsCta: (section: CtaSection, custom?: { label?: string | null; url?: string | null }) => LandingCta;
 };
 
 // Registre des blocs du CMS (`__component`) → composants de plateform. Un bloc inconnu est ignoré :
@@ -76,6 +76,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       const hero = (
         <Hero
           badge={block.badge ?? undefined}
+          kicker={block.kicker ?? undefined}
           title={block.title}
           titleClassName="lg:text-[72px]! lg:leading-20!"
           description={<InlineText text={block.description} />}
@@ -105,7 +106,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
               {!searchDispositif && context.hasMissionsBrowser && <LocationFilter id="hero-localisation" className="mb-8 lg:hidden" />}
             </>
           }
-          className={`${BACKGROUNDS.creme} ${searchDispositif ? "overflow-visible! rounded-none! md:max-lg:pb-14" : ""} ${image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
+          className={`${BACKGROUNDS[block.background ?? "creme"]} ${searchDispositif ? "overflow-visible! rounded-none! md:max-lg:pb-14" : ""} ${image ? "md:min-h-130 lg:min-h-187" : "pb-8 md:pb-11"}`}
         >
           {/* Visuel du CMS : sous le texte, en pleine largeur et collé au bas du hero sur mobile (image mobile si
               renseignée), calé en bas à droite à partir de la tablette (48em, point de rupture `md` du DSFR). */}
@@ -170,7 +171,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
       return (
         <Missions
           missions={context.missionsByBlock[index] ?? []}
-          cta={context.missionsCta("missions")}
+          cta={context.missionsCta("missions", { label: block.ctaLabel, url: block.ctaUrl })}
           title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_GREEN} />}
           description={block.description}
           landing={context.landing}
@@ -197,8 +198,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           title={<InlineText text={block.title} />}
           intro={block.intro ?? undefined}
           benefices={block.benefits}
-          newsletterTitle={<InlineText text={block.newsletterTitle} />}
-          newsletterText={block.newsletterText}
+          newsletter={block.newsletterTitle ? { title: <InlineText text={block.newsletterTitle} />, text: block.newsletterText } : undefined}
         />
       );
     case "blocks.cards":
@@ -285,7 +285,7 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
     case "blocks.quote-wall":
       return (
         <Histoires
-          cta={context.missionsCta("histoires")}
+          cta={context.missionsCta("histoires", { label: block.ctaLabel, url: block.ctaUrl })}
           title={<InlineText text={block.title} highlightClassName={HIGHLIGHT_YELLOW} />}
           temoignages={block.quotes}
           images={block.quotes.map((quote) => quote.image.url)}

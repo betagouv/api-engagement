@@ -89,6 +89,24 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Avec accroche, fond galet",
+    block: {
+      __component: "blocks.hero",
+      kicker: "Tu veux te rendre utile ?",
+      background: "galet",
+      title: "À chacun sa façon d'agir",
+      description: "Des missions d'engagement dès 16 ans pour changer les choses.",
+      tags: [],
+      primaryLabel: null,
+      primaryUrl: null,
+      secondaryLabel: null,
+      secondaryUrl: null,
+      hint: "Réponds en quelques clics.",
+      image: null,
+      imageMobile: null,
+    },
+  },
+  {
     label: "Avec une pastille (thématique)",
     block: {
       __component: "blocks.hero",
@@ -155,6 +173,21 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
+    label: "Moins de 18 ans, bouton personnalisé",
+    block: {
+      __component: "blocks.missions",
+      title: "Des missions à ==ne pas louper== !",
+      description: "Découvre les missions ouvertes aux moins de 18 ans.",
+      slots: [],
+      fillWithRandom: true,
+      examples: false,
+      background: "galet",
+      trancheAge: "moins_18_ans",
+      ctaLabel: "Voir toutes les missions",
+      ctaUrl: "/missions?tranche_age=moins_18_ans",
+    },
+  },
+  {
     label: "Exemple (3 étapes maximum)",
     block: {
       __component: "blocks.etapes",
@@ -191,6 +224,21 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       ],
       newsletterTitle: "Reste informé",
       newsletterText: "Reçois les nouvelles missions par email.",
+    },
+  },
+  {
+    label: "Sans newsletter",
+    block: {
+      __component: "blocks.benefits",
+      title: "Choisis ton terrain de jeu",
+      intro: "Des missions basées sur tes envies, ton lieu et ta disponibilité.",
+      benefits: [
+        { emoji: "🗓️", label: "À ton rythme" },
+        { emoji: "💸", label: "Avec ou sans indemnité" },
+        { emoji: "📍", label: "Près de chez toi ou à distance" },
+      ],
+      newsletterTitle: null,
+      newsletterText: null,
     },
   },
   {
@@ -324,6 +372,20 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
   {
     label: "Limitée à un domaine (filtre Domaines masqué)",
     block: { __component: "blocks.missions-browser", dispositifs: null, domainesEngagement: ["environnement_animaux"], departements: null },
+  },
+  {
+    label: "Bouton personnalisé",
+    block: {
+      __component: "blocks.quote-wall",
+      title: "Des histoires vraies\nqui donnent ==envie d'agir==",
+      quotes: [
+        { quote: "J'ai découvert un collectif et un vrai sens à mes week-ends.", name: "Camille", role: "Bénévole depuis 2024", image: media(histoire1) },
+        { quote: "Mon service civique m'a aidé à choisir mon orientation.", name: "Yanis", role: "Volontaire en service civique", image: media(testimonialSolidarity) },
+        { quote: "On apprend autant qu'on donne.", name: "Inès", role: "Réserviste depuis 2023", image: media(histoire2) },
+      ],
+      ctaLabel: "Voir toutes les missions",
+      ctaUrl: "/missions?tranche_age=moins_18_ans",
+    },
   },
   {
     label: "Exemple",

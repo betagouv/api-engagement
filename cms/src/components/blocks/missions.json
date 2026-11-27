@@ -1,11 +1,14 @@
 {
   "collectionName": "components_blocks_missions",
-  "info": { "displayName": "Missions", "icon": "compass", "description": "Carrousel de vraies missions." },
+  "info": { "displayName": "Missions", "icon": "compass", "description": "Carrousel de vraies missions, limitable à une tranche d'âge. Bouton vers le quiz, remplaçable par un libellé et un lien." },
   "attributes": {
     "title": { "type": "string", "required": true, "description": "==mots== pour surligner." },
     "description": { "type": "text", "required": true },
     "slots": { "type": "component", "repeatable": true, "component": "items.mission-slot" },
     "fillWithRandom": { "type": "boolean", "default": true, "description": "Complète avec 10 missions tirées au hasard." },
+    "trancheAge": { "type": "enumeration", "enum": ["moins_18_ans", "entre_18_25_ans", "entre_25_30_ans", "entre_30_45_ans", "entre_46_67_ans", "entre_68_72_ans", "plus_72_ans"], "description": "Limite les missions mises en avant et le complément aléatoire à cette tranche d'âge. Vide : toutes." },
+    "ctaLabel": { "type": "string", "description": "Remplace le libellé du bouton (utilisé avec le lien)." },
+    "ctaUrl": { "type": "string", "description": "Lien du bouton (ex. : /missions?tranche_age=moins_18_ans). Libellé ou lien vide : bouton par défaut vers le quiz." },
     "examples": { "type": "boolean", "default": false, "description": "Cartes d'exemple : sans lien vers la fiche mission." },
     "background": { "type": "enumeration", "enum": ["creme", "galet"], "default": "galet", "required": true }
   }

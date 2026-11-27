@@ -12,6 +12,7 @@ import { trackCtaClicked, trackPageViewed } from "~/services/tracking/events";
 import type { CtaSection, LandingCta, LandingName, MissionDetailNavState, QuizEntrySection } from "~/services/tracking/types";
 import { useQuizStore } from "~/stores/quiz";
 import type { CmsBlock } from "~/types/cms";
+import { buildCarouselFilters, resolveCmsButton, type CmsCustomButton } from "~/utils/cms-missions";
 import { buildLandingBrowseFilters, getLandingMissionsConfig } from "~/utils/landing-missions";
 import { buildMissionBrowseHref } from "~/utils/mission";
 import { pageMeta } from "~/utils/seo";
@@ -90,14 +91,7 @@ export async function loader({ request, params }: Route.LoaderArgs) {
         return;
       }
       if (block.__component !== "blocks.missions") return;
-      const slots = block.slots.map(({ dispositif, domaineEngagement }) => ({
-        ...(dispositif && { dispositif }),
-        ...(domaineEngagement && { domaine_engagement: domaineEngagement }),
-      }));
-      const results = await Promise.all([
-        ...slots.map((slot) => browse({ ...slot, pageSize: 1 })),
-        ...(block.fillWithRandom ? [browse({ pageSize: 10, page: Math.ceil(Math.random() * 10) })] : []),
-      ]);
+      const results = await Promise.all(buildCarouselFilters(block, Math.ceil(Math.random() * 10)).map(browse));
       missionsByBlock[index] = [...new Map(results.flat().map((mission) => [mission.id, mission])).values()];
     }),
   );
@@ -147,12 +141,15 @@ export default function CmsLanding() {
     navigate(`/missions?${params}`);
   };
 
-  const missionsCta = (section: CtaSection): LandingCta => ({
-    ...MISSIONS_CTA,
-    label: page.ctaLabel ?? MISSIONS_CTA.label,
-    onClick: () =>
-      trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: page.ctaLabel ?? MISSIONS_CTA.label, ctaDestination: "missions_list", destinationPath: MISSIONS_CTA.to }),
-  });
+  // `custom` : bouton défini sur le bloc, à la place de celui vers le quiz.
+  const missionsCta = (section: CtaSection, custom?: CmsCustomButton): LandingCta => {
+    const { to, label } = resolveCmsButton(custom, { ...MISSIONS_CTA, label: page.ctaLabel ?? MISSIONS_CTA.label });
+    return {
+      to,
+      label,
+      onClick: () => trackCtaClicked({ pageName: landing, ctaSection: section, ctaLabel: label, ctaDestination: "missions_list", destinationPath: to }),
+    };
+  };
 
   const hasMissionsBrowser = page.blocks.some((block) => block.__component === "blocks.missions-browser");
   // Un hero ou une fiche mission affichée porte déjà le h1 ; sinon, le titre de la page en tient lieu.

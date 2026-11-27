@@ -5,6 +5,7 @@ import { type CmsBlocksContext } from "~/components/cms";
 import ComponentPreview from "~/components/cms/component-preview";
 import { CMS_COMPONENT_EXAMPLES, CMS_COMPONENT_MISSION_DETAIL, CMS_COMPONENT_MISSIONS } from "~/config/cms-components";
 import type { CmsBlock } from "~/types/cms";
+import { resolveCmsButton } from "~/utils/cms-missions";
 import { type CmsComponentField, getBlockSchema } from "~/services/cms-components.server";
 import { CMS_PUBLIC_URL } from "~/services/cms.server";
 
@@ -28,7 +29,7 @@ const CONTEXT: CmsBlocksContext = {
   ctaLabel: null,
   onStartQuiz: () => {},
   onLocationSearch: async () => {},
-  missionsCta: () => ({ to: "/quiz/age", label: "Trouver ma mission", onClick: () => {} }),
+  missionsCta: (_section, custom) => ({ ...resolveCmsButton(custom, { to: "/quiz/age", label: "Trouver ma mission" }), onClick: () => {} }),
 };
 
 // Seule l'admin Strapi peut afficher la page en iframe.

@@ -1,8 +1,10 @@
 {
   "collectionName": "components_blocks_quote_walls",
-  "info": { "displayName": "Mosaïque de témoignages", "icon": "quote", "description": "Trois témoignages et trois photos en mosaïque, puis le bouton « Trouver ma mission »." },
+  "info": { "displayName": "Mosaïque de témoignages", "icon": "quote", "description": "Trois témoignages et trois photos en mosaïque, puis le bouton « Trouver ma mission » (ou le libellé quiz de la page), remplaçable par un libellé et un lien." },
   "attributes": {
     "title": { "type": "text", "required": true, "description": "Retour à la ligne = saut de ligne. ==mot== pour surligner." },
-    "quotes": { "type": "component", "repeatable": true, "component": "items.quote", "min": 3, "max": 3 }
+    "quotes": { "type": "component", "repeatable": true, "component": "items.quote", "min": 3, "max": 3 },
+    "ctaLabel": { "type": "string", "description": "Remplace le libellé du bouton (utilisé avec le lien)." },
+    "ctaUrl": { "type": "string", "description": "Lien du bouton (ex. : /missions?tranche_age=moins_18_ans). Libellé ou lien vide : bouton par défaut vers le quiz." }
   }
 }
