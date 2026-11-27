@@ -1,10 +1,11 @@
-import { SLACK_CRON_CHANNEL_ID } from "@/config";
+import { SENDINBLUE_APIKEY, SLACK_CRON_CHANNEL_ID } from "@/config";
 import { captureException } from "@/error";
-import { postMessage } from "@/services/slack";
 import { BaseHandler } from "@/jobs/base/handler";
-import { JobResult } from "@/jobs/types";
+import { REPORT_BREVO_TEMPLATE_IDS } from "@/jobs/report/config";
 import { generateReports } from "@/jobs/report/generate";
 import { sendReports } from "@/jobs/report/send";
+import { JobResult } from "@/jobs/types";
+import { postMessage } from "@/services/slack";
 
 export interface ReportJobPayload {
   dryRun?: boolean;
@@ -24,12 +25,14 @@ export class ReportHandler implements BaseHandler<ReportJobPayload, ReportJobRes
     let jobMessage = "Reports sent successfully";
     console.log(`[Report] Starting at ${start.toISOString()}`);
     try {
-      const month = new Date().getMonth() !== 0 ? new Date().getMonth() - 1 : 11;
-      const year = month === 11 ? new Date().getFullYear() - 1 : new Date().getFullYear();
+      if (!dryRun && !SENDINBLUE_APIKEY) {
+        throw new Error("Brevo API key must be configured to send reports");
+      }
+      const period = new Date(start.getFullYear(), start.getMonth() - 1, 1);
+      const month = period.getMonth();
+      const year = period.getFullYear();
 
-      console.log(
-        `[Report] Generating report for ${year}-${month}${publisherId ? ` (single publisher: ${publisherId})` : ""}`
-      );
+      console.log(`[Report] Generating report for ${year}-${month}${publisherId ? ` (single publisher: ${publisherId})` : ""}`);
       const generationRes = await generateReports(year, month, publisherId);
       console.log(`[Report] Generated ${generationRes.count} report with ${generationRes.errors.length} errors`);
       if (generationRes.errors.length > 0) {
@@ -45,10 +48,8 @@ export class ReportHandler implements BaseHandler<ReportJobPayload, ReportJobRes
         });
         jobMessage = `Reports generated in dry-run mode (${generationRes.count} processed)`;
       } else {
-        console.log(
-          `[Report] Sending report for ${year}-${month}${publisherId ? ` (single publisher: ${publisherId})` : ""}`
-        );
-        const sendingRes = await sendReports(year, month, publisherId);
+        console.log(`[Report] Sending report for ${year}-${month}${publisherId ? ` (single publisher: ${publisherId})` : ""}`);
+        const sendingRes = await sendReports(REPORT_BREVO_TEMPLATE_IDS, year, month, publisherId);
         console.log(`[Report] Sent ${sendingRes.count} report, ${sendingRes.skipped.length} skipped and ${sendingRes.errors.length} errors`);
         if (sendingRes.errors.length > 0) {
           console.error(`[Report] Errors`, JSON.stringify(sendingRes.errors, null, 2));
