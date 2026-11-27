@@ -24,15 +24,13 @@
     {
       "__component": "blocks.missions-browser",
       "alertCard": true,
+      "securiteEnTete": true,
       "dispositifs": [
         "benevolat",
         "service_civique",
         "sapeurs_pompiers",
         "reserve_gendarmerie",
         "reserve_armees"
-      ],
-      "domainesEngagement": [
-        "securite_secours"
       ]
     },
     {

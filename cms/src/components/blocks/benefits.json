@@ -1,6 +1,6 @@
 {
   "collectionName": "components_blocks_benefits",
-  "info": { "displayName": "Bénéfices + newsletter", "icon": "heart", "description": "Liste de bénéfices et inscription à la newsletter. Les textes du formulaire sont en vouvoiement." },
+  "info": { "displayName": "Bénéfices + newsletter", "icon": "heart", "description": "Liste de bénéfices et inscription à la newsletter. Les textes du formulaire sont en vouvoiement. La source d'inscription se choisit sur la page (champ signupSource)." },
   "attributes": {
     "title": { "type": "text", "required": true, "description": "Retour à la ligne = saut de ligne." },
     "intro": { "type": "string", "description": "Phrase au-dessus de la liste (ex. : Une mission peut vous apporter :). Vide : pas de phrase." },

@@ -49,7 +49,7 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
 
 ## Modèle de contenu
 
-- `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`), libellé des boutons « quiz » (`ctaLabel`, ex. « Trouvez votre mission » pour une page au vouvoiement ; vide : libellés par défaut) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
+- `page` (brouillon / publié) : titre (h1 de la page, sauf si un bloc `hero` le porte), slug, SEO (`seoTitle`, `seoDescription`, `ogTitle`, `ogDescription`, `noindex`), libellé des boutons « quiz » (`ctaLabel`, ex. « Trouvez votre mission » pour une page au vouvoiement ; vide : libellés par défaut), source des inscriptions à la newsletter (`signupSource`, pour la carte d'alertes et les blocs `benefits` et `newsletter` ; vide : `cms_newsletter`) et une **zone dynamique `blocks`**. Une landing est une page qui utilise des blocs de campagne.
 - `collection` : classement des pages (une collection au plus par page), pour filtrer la liste des pages de l'admin (bouton « Filtres » › `collection`). Sans effet sur le site ; non historisée. `npm run seed` (dev) et `seed:remote` créent les collections de base. Les rôles éditeurs doivent recevoir leurs droits sur ce type (Paramètres › Rôles).
 - **`src/components/blocks/`** : les sections qu'un éditeur ajoute à une page (les seuls composants proposés dans la zone `blocks`).
   - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images) et `image` (image + légende).
@@ -70,6 +70,7 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
   | `missions`     | `items.mission-slot`   |
 
 - Bloc `partners` : chaque partenaire se choisit dans une liste (`items.partner.partner`) ; son nom, son logo et son texte par défaut vivent dans `plateform/app/config/cms-partners.ts` (un nouveau partenaire s'ajoute là **et** dans l'enum du schéma). Le champ `description` remplace le texte par défaut sur la page (ex. vouvoiement).
+- Bloc `missions-browser` : `securiteEnTete` limite, dans les premières places seulement (sans filtre ni localisation du visiteur), le bénévolat et le Service Civique à l'activité « Secourir et protéger » ou au domaine « Sécurité et secours » ; `alertCard` ajoute la carte d'inscription aux alertes en première page. Les textes de cette carte et du formulaire du bloc `benefits` sont en vouvoiement. Une nouvelle valeur de `signupSource` doit exister dans `SIGNUP_SOURCES` (`packages/dto`).
 - Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
 - Texte riche (`rich-text`) : éditeur « Blocks » de Strapi (sans tableaux). « Titre 1 » donne un h2 (le h1 est le titre de la page), « Titre 2 » un h3, etc. Le texte alternatif des images se renseigne dans la médiathèque ; sans lui, l'image est décorative.
 

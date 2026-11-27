@@ -79,7 +79,14 @@ export type CmsBlock =
       teamPhotos: CmsMedia[] | null;
     }
   | { __component: "blocks.newsletter"; title: string; subtitle: string; ctaText: string; hintText: string }
-  | { __component: "blocks.missions-browser"; dispositifs: string[] | null; domainesEngagement: string[] | null; departements: string[] | null; alertCard?: boolean | null }
+  | {
+      __component: "blocks.missions-browser";
+      dispositifs: string[] | null;
+      domainesEngagement: string[] | null;
+      departements: string[] | null;
+      securiteEnTete?: boolean | null;
+      alertCard?: boolean | null;
+    }
   | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[] }
   | { __component: "blocks.partners"; title: string; partners: { partner: CmsPartnerKey; description: string | null }[] };
 

@@ -115,6 +115,15 @@ describe("getPageWindow / getTotalPages", () => {
 });
 
 describe("getLandingMissionsConfig", () => {
+  it("avec la sécurité en tête, restreint les seuls emplacements bénévolat et Service Civique, pas la liste", () => {
+    const { slots, include } = getLandingMissionsConfig({ securiteEnTete: true });
+    for (const slot of slots ?? []) {
+      expect(!!slot.anyOf).toBe(["benevolat", "service_civique"].includes(String(slot.filters.dispositif)));
+    }
+    expect(include).toEqual({});
+    expect(getLandingMissionsConfig({}).slots?.some((slot) => slot.anyOf)).toBe(false);
+  });
+
   it("n'active la carte d'alertes que si le bloc la demande, avec une mission de moins en première page", () => {
     expect(getLandingMissionsConfig({}).alertCard).toBe(false);
     expect(buildLandingBrowseFilters(new URLSearchParams(), getLandingMissionsConfig({ alertCard: true })).pageSize).toBe(11);
