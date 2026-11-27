@@ -7,7 +7,7 @@ import { plateformRateLimiter } from "@/middlewares/rate-limit";
 import { subscribeToNewsletter } from "@/services/brevo";
 import type { PublisherRequest } from "@/types/passport";
 import type { PublisherRecord } from "@/types/publisher";
-import { LANDING_SIGNUP_SOURCE_PATTERN, SIGNUP_SOURCES, type NewsletterSubscribeResponse } from "@engagement/dto";
+import { CMS_SIGNUP_SOURCE_PATTERN, NEWSLETTER_LIST_CHOICES, SIGNUP_SOURCES, type NewsletterSubscribeResponse } from "@engagement/dto";
 
 const router = Router();
 router.use(passport.authenticate(["apikey", "api"], { session: false }));
@@ -20,7 +20,8 @@ const newsletterBodySchema = zod
     email: emailSchema,
     distinctId: zod.string().trim().min(1).optional(),
     userScoringId: zod.uuid().optional(),
-    signupSource: zod.union([zod.enum(SIGNUP_SOURCES), zod.templateLiteral(["landing_", zod.string()]).refine((value) => LANDING_SIGNUP_SOURCE_PATTERN.test(value))]).optional(),
+    signupSource: zod.union([zod.enum(SIGNUP_SOURCES), zod.templateLiteral(["cms_", zod.string()]).refine((value) => CMS_SIGNUP_SOURCE_PATTERN.test(value))]).optional(),
+    newsletterLists: zod.enum(NEWSLETTER_LIST_CHOICES).optional(),
   })
   .strict();
 

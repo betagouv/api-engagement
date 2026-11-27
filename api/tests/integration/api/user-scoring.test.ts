@@ -1248,18 +1248,31 @@ describe("POST /newsletter", () => {
   });
 
   it.each([
-    ["landing_engagement_securite", [23, 26]],
-    ["landing_chacun_pour_tous", [23]],
-  ])("should accept the CMS page source %s", async (signupSource, listIds) => {
+    [undefined, [23]],
+    ["newsletter", [23]],
+    ["newsletter_et_recommandations", [23, 26]],
+  ])("should subscribe a CMS page contact to the lists chosen by the page (%s)", async (newsletterLists, listIds) => {
     const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
 
-    const res = await request(app).post("/newsletter").set("x-api-key", plateformPublisher.apikey!).send({ email: "user@example.com", signupSource });
+    const res = await request(app)
+      .post("/newsletter")
+      .set("x-api-key", plateformPublisher.apikey!)
+      .send({ email: "user@example.com", signupSource: "cms_engagement_securite", newsletterLists });
 
     expect(res.status).toBe(200);
-    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds, signupSource }));
+    expect(brevoMock.createOrUpdateContact).toHaveBeenCalledWith(expect.objectContaining({ listIds, signupSource: "cms_engagement_securite" }));
   });
 
-  it.each(["unknown_source", "landing_", "landing_Bad Source", `landing_${"a".repeat(81)}`])("should reject the invalid source %s", async (signupSource) => {
+  it.each(["accompagnateurs", [27]])("should reject an unknown list choice (%s)", async (newsletterLists) => {
+    const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
+
+    const res = await request(app).post("/newsletter").set("x-api-key", plateformPublisher.apikey!).send({ email: "user@example.com", newsletterLists });
+
+    expect(res.status).toBe(400);
+    expect(brevoMock.createOrUpdateContact).not.toHaveBeenCalled();
+  });
+
+  it.each(["unknown_source", "cms_", "cms_Bad Source", "landing_chacun_pour_tous", `cms_${"a".repeat(81)}`])("should reject the invalid source %s", async (signupSource) => {
     const plateformPublisher = await createTestPublisher({ id: PUBLISHER_IDS.PLATEFORME_ENGAGEMENT, name: "Plateform Publisher" });
 
     const res = await request(app).post("/newsletter").set("x-api-key", plateformPublisher.apikey!).send({ email: "user@example.com", signupSource });

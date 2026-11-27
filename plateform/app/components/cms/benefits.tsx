@@ -1,4 +1,4 @@
-import type { NewsletterSignupSource } from "@engagement/dto";
+import type { NewsletterListChoice, NewsletterSignupSource } from "@engagement/dto";
 import { type ReactNode, type SubmitEvent, useState } from "react";
 
 import { subscribeNewsletter } from "~/services/newsletter";
@@ -28,6 +28,7 @@ export default function Benefits({
   newsletterTitle,
   newsletterText,
   signupSource,
+  newsletterLists,
   vouvoiement = false,
 }: {
   title: ReactNode;
@@ -36,6 +37,7 @@ export default function Benefits({
   newsletterTitle: ReactNode;
   newsletterText: string;
   signupSource: NewsletterSignupSource;
+  newsletterLists?: NewsletterListChoice;
   vouvoiement?: boolean;
 }) {
   const wording = FORM_WORDING[vouvoiement ? "vous" : "tu"];
@@ -53,7 +55,7 @@ export default function Benefits({
     setError(null);
 
     try {
-      await subscribeNewsletter({ email, distinctId, signupSource });
+      await subscribeNewsletter({ email, distinctId, signupSource, newsletterLists });
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {

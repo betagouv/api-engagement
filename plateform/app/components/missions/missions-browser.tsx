@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionBrowseTaxonomyKey, MissionBrowseTaxonomyParams, NewsletterSignupSource } from "@engagement/dto";
+import type { MissionBrowse, MissionBrowseTaxonomyKey, MissionBrowseTaxonomyParams, NewsletterListChoice, NewsletterSignupSource } from "@engagement/dto";
 import { buildMissionBrowseTags, getDomainLabel } from "@engagement/dto";
 import { TAXONOMY } from "@engagement/taxonomy";
 import { Fragment, useEffect, useId, useRef, useState } from "react";
@@ -249,6 +249,7 @@ export default function MissionsBrowser({
   backTo,
   alertCard = false,
   signupSource,
+  newsletterLists,
   overlapHero = true,
 }: {
   missions: MissionBrowse[];
@@ -265,6 +266,7 @@ export default function MissionsBrowser({
   alertCard?: boolean;
   // Source Brevo de la carte d'inscription aux alertes.
   signupSource?: NewsletterSignupSource;
+  newsletterLists?: NewsletterListChoice;
   // Les premières cartes remontent sur le bas du hero (fond prévu pour) ; à désactiver sous un hero à visuel.
   overlapHero?: boolean;
 }) {
@@ -409,7 +411,7 @@ export default function MissionsBrowser({
                 </li>
                 {alertCard && page === 1 && index === alertCardAfterIndex && (
                   <li className="min-w-0 p-0!">
-                    <MissionAlertCard signupSource={signupSource} />
+                    <MissionAlertCard signupSource={signupSource} newsletterLists={newsletterLists} />
                   </li>
                 )}
               </Fragment>

@@ -1,3 +1,5 @@
+import type { NewsletterListChoice } from "@engagement/dto";
+
 import type { CmsPartnerKey } from "~/config/cms-partners";
 
 // Page composée de blocs (landing, page éditoriale…), éditée dans le CMS (Strapi, `cms/`) et lue par plateform.
@@ -108,5 +110,7 @@ export type CmsPage = {
   ogDescription: string | null;
   noindex: boolean;
   ctaLabel: string | null;
+  // Listes alimentées par les inscriptions faites sur la page ; vide : newsletter seule.
+  listesNewsletter?: NewsletterListChoice | null;
   blocks: CmsBlock[];
 };

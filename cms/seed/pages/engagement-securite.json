@@ -7,6 +7,7 @@
   "ogTitle": "Votre engagement peut se faire autrement",
   "ogDescription": "Service Civique, réserve militaire, sapeurs-pompiers volontaires, bénévolat… Découvrez comment votre engagement va évoluer !",
   "noindex": true,
+  "listesNewsletter": "newsletter_et_recommandations",
   "blocks": [
     {
       "__component": "blocks.hero",
