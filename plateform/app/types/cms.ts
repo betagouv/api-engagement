@@ -84,7 +84,8 @@ export type CmsBlock =
       dispositifs: string[] | null;
       domainesEngagement: string[] | null;
       departements: string[] | null;
-      securiteEnTete?: boolean | null;
+      prioriteActivites?: string[] | null;
+      prioriteDomaines?: string[] | null;
       alertCard?: boolean | null;
     }
   | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[] }

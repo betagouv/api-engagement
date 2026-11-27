@@ -59,16 +59,20 @@ const DIVERSITY_ORDER = [
   "reserve_police_nationale",
 ];
 
-// Option « sécurité en tête » : critère imposé au bénévolat et au Service Civique dans les emplacements (l'un ou l'autre suffit).
-const SECURITY_CRITERIA = { activite: ["secourir_proteger"], domaine_engagement: ["securite_secours"] };
-const SECURITY_SCOPED_DISPOSITIFS = ["benevolat", "service_civique"];
+// Priorité des emplacements : chacun ne prend que des missions ayant l'une des activités ou l'un des domaines.
+export type SlotPriority = { activites?: string[] | null; domaines?: string[] | null };
 
 // Emplacements de l'ordre par défaut, sans les dispositifs hors périmètre (périmètre vide : tous).
-export const getDiversitySlots = (dispositifs?: string[] | null, securityFirst = false): MissionBrowseSlot[] =>
-  DIVERSITY_ORDER.filter((dispositif) => !dispositifs?.length || dispositifs.includes(dispositif)).map((dispositif) => ({
+export const getDiversitySlots = (dispositifs?: string[] | null, priority: SlotPriority = {}): MissionBrowseSlot[] => {
+  const anyOf = {
+    ...(priority.activites?.length && { activite: priority.activites }),
+    ...(priority.domaines?.length && { domaine_engagement: priority.domaines }),
+  };
+  return DIVERSITY_ORDER.filter((dispositif) => !dispositifs?.length || dispositifs.includes(dispositif)).map((dispositif) => ({
     filters: { dispositif: [dispositif] },
-    ...(securityFirst && SECURITY_SCOPED_DISPOSITIFS.includes(dispositif) && { anyOf: SECURITY_CRITERIA }),
+    ...(Object.keys(anyOf).length > 0 && { anyOf }),
   }));
+};
 
 // Paramètres de `/missions/browse` pour une landing : seuls les filtres affichés sont lus dans l'URL,
 // la liste est triée par date. Un filtre sur un critère du périmètre le restreint, sans jamais en sortir.
@@ -112,11 +116,19 @@ export type LandingScope = {
   dispositifs?: string[] | null;
   domainesEngagement?: string[] | null;
   departements?: string[] | null;
-  securiteEnTete?: boolean | null;
+  prioriteActivites?: string[] | null;
+  prioriteDomaines?: string[] | null;
   alertCard?: boolean | null;
 };
 
-export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, departements, securiteEnTete, alertCard }: LandingScope): LandingMissionsConfig => {
+export const getLandingMissionsConfig = ({
+  dispositifs,
+  domainesEngagement,
+  departements,
+  prioriteActivites,
+  prioriteDomaines,
+  alertCard,
+}: LandingScope): LandingMissionsConfig => {
   const include: NonNullable<LandingMissionsConfig["include"]> = {
     ...(dispositifs?.length && { dispositif: dispositifs }),
     ...(domainesEngagement?.length && { domaine_engagement: domainesEngagement }),
@@ -128,7 +140,7 @@ export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, depa
     include,
     includeRemote: !include.departmentCode,
     filters: ALL_LANDING_FILTERS.filter(isFilterShown),
-    slots: getDiversitySlots(dispositifs, !!securiteEnTete),
+    slots: getDiversitySlots(dispositifs, { activites: prioriteActivites, domaines: prioriteDomaines }),
     alertCard: !!alertCard,
   };
 };

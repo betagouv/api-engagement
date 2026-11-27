@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Liste de missions filtrable",
     "icon": "search",
-    "description": "Liste paginée de missions avec filtres (localisation, âge, rythme…), comme la page /missions. Ces réglages choisissent les missions affichées dans la liste : une mission n'apparaît que si elle correspond à la fois au dispositif, au domaine et au département choisis. Par exemple, si vous sélectionnez Bénévolat et Santé et bien-être, seules les missions de bénévolat dans le domaine Santé et bien-être apparaîtront. Plusieurs valeurs d'un même champ s'additionnent (Bénévolat ou Service civique). Un champ laissé vide n'applique aucune restriction sur ce critère. Avec une seule valeur, le filtre dispositif ou domaine est masqué pour les visiteurs ; avec plusieurs, il ne propose que ces valeurs. Le filtre de localisation est masqué dès qu'un département est choisi. Les missions sont affichées de la plus récente à la plus ancienne (date de création). Sans filtre ni localisation du visiteur, les premières places alternent les dispositifs autorisés. Deux options : « sécurité en tête » (securiteEnTete) limite, dans ces premières places seulement, le bénévolat et le Service Civique aux missions de sécurité et de secours ; la carte d'alertes (alertCard) ajoute une inscription par e-mail parmi les missions de la première page, avec la source d'inscription choisie sur la page (signupSource). Un seul bloc par page."
+    "description": "Liste paginée de missions avec filtres (localisation, âge, rythme…), comme la page /missions. Ces réglages choisissent les missions affichées dans la liste : une mission n'apparaît que si elle correspond à la fois au dispositif, au domaine et au département choisis. Par exemple, si vous sélectionnez Bénévolat et Santé et bien-être, seules les missions de bénévolat dans le domaine Santé et bien-être apparaîtront. Plusieurs valeurs d'un même champ s'additionnent (Bénévolat ou Service civique). Un champ laissé vide n'applique aucune restriction sur ce critère. Avec une seule valeur, le filtre dispositif ou domaine est masqué pour les visiteurs ; avec plusieurs, il ne propose que ces valeurs. Le filtre de localisation est masqué dès qu'un département est choisi. Les missions sont affichées de la plus récente à la plus ancienne (date de création). Sans filtre ni localisation du visiteur, les premières places alternent les dispositifs autorisés. Une priorité d'activités ou de domaines peut être donnée aux premiers résultats (ex. : « Secourir et protéger » ou « Sécurité et secours ») ; les autres missions restent plus loin dans la liste. La carte d'alertes (alertCard) ajoute une inscription par e-mail parmi les missions de la première page, avec la source d'inscription choisie sur la page (signupSource). Un seul bloc par page."
   },
   "attributes": {
     "dispositifs": {
@@ -151,10 +151,34 @@
         "989 - Clipperton:989"
       ]
     },
-    "securiteEnTete": {
-      "type": "boolean",
-      "default": false,
-      "description": "Premières places : le bénévolat et le Service Civique ne proposent que des missions « Secourir et protéger » ou « Sécurité et secours ». Le reste de la liste n'est pas limité."
+    "prioriteActivites": {
+      "type": "customField",
+      "customField": "plugin::multi-select.multi-select",
+      "description": "Priorité des premiers résultats (sans filtre ni localisation du visiteur) : missions ayant l'une de ces activités ou l'un des domaines prioritaires, tous dispositifs confondus. Le reste de la liste n'est pas limité.",
+      "options": [
+        "Aider et accompagner:aider_accompagner",
+        "Transmettre et animer:transmettre_animer",
+        "Fabriquer, réparer, agir sur le terrain:fabriquer_reparer_terrain",
+        "Secourir et protéger:secourir_proteger",
+        "Organiser et coordonner:organiser_coordonner",
+        "Créer et communiquer:creer_communiquer"
+      ]
+    },
+    "prioriteDomaines": {
+      "type": "customField",
+      "customField": "plugin::multi-select.multi-select",
+      "description": "Domaines prioritaires (l'une des activités ou l'un des domaines suffit). Sans activité ni domaine : aucune priorité.",
+      "options": [
+        "Santé et bien-être:sante_bien_etre",
+        "Sport:sport",
+        "Solidarité et inclusion:solidarite_inclusion",
+        "Environnement et animaux:environnement_animaux",
+        "Art et culture:art_culture",
+        "Sécurité et secours:securite_secours",
+        "Citoyenneté:citoyennete",
+        "Numérique:numerique",
+        "Éducation:education"
+      ]
     },
     "alertCard": {
       "type": "boolean",

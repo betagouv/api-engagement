@@ -290,8 +290,16 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
-    label: "Sécurité en tête et carte d'alertes",
-    block: { __component: "blocks.missions-browser", dispositifs: null, domainesEngagement: null, departements: null, securiteEnTete: true, alertCard: true },
+    label: "Priorité des premiers résultats et carte d'alertes",
+    block: {
+      __component: "blocks.missions-browser",
+      dispositifs: null,
+      domainesEngagement: null,
+      departements: null,
+      prioriteActivites: ["secourir_proteger"],
+      prioriteDomaines: ["securite_secours"],
+      alertCard: true,
+    },
   },
   {
     label: "Limitée à des départements (filtre de localisation masqué)",

@@ -24,7 +24,8 @@
     {
       "__component": "blocks.missions-browser",
       "alertCard": true,
-      "securiteEnTete": true,
+      "prioriteActivites": ["secourir_proteger"],
+      "prioriteDomaines": ["securite_secours"],
       "dispositifs": [
         "benevolat",
         "service_civique",

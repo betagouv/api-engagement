@@ -115,10 +115,10 @@ describe("getPageWindow / getTotalPages", () => {
 });
 
 describe("getLandingMissionsConfig", () => {
-  it("avec la sécurité en tête, restreint les seuls emplacements bénévolat et Service Civique, pas la liste", () => {
-    const { slots, include } = getLandingMissionsConfig({ securiteEnTete: true });
+  it("applique la priorité à tous les emplacements sans limiter la liste", () => {
+    const { slots, include } = getLandingMissionsConfig({ prioriteActivites: ["secourir_proteger"], prioriteDomaines: ["securite_secours"] });
     for (const slot of slots ?? []) {
-      expect(!!slot.anyOf).toBe(["benevolat", "service_civique"].includes(String(slot.filters.dispositif)));
+      expect(slot.anyOf).toEqual({ activite: ["secourir_proteger"], domaine_engagement: ["securite_secours"] });
     }
     expect(include).toEqual({});
     expect(getLandingMissionsConfig({}).slots?.some((slot) => slot.anyOf)).toBe(false);
