@@ -179,7 +179,7 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
     },
   },
   {
-    label: "Exemple",
+    label: "Tutoiement (par défaut)",
     block: {
       __component: "blocks.benefits",
       title: "Ce que l'engagement\nt'apporte",
@@ -191,6 +191,22 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       ],
       newsletterTitle: "Reste informé",
       newsletterText: "Reçois les nouvelles missions par email.",
+    },
+  },
+  {
+    label: "Vouvoiement",
+    block: {
+      __component: "blocks.benefits",
+      title: "Ce que l'engagement\nvous apporte",
+      intro: "Une mission peut vous apporter\u00a0:",
+      benefits: [
+        { emoji: "🤝", label: "Des rencontres" },
+        { emoji: "💪", label: "De nouvelles compétences" },
+        { emoji: "🌱", label: "Un impact concret" },
+      ],
+      newsletterTitle: "Restez informé",
+      newsletterText: "Recevez les nouvelles missions par e-mail.",
+      vouvoiement: true,
     },
   },
   {
@@ -287,6 +303,18 @@ export const CMS_COMPONENT_EXAMPLES: { label: string; block: CmsBlock }[] = [
       subtitle: "Chaque mois, des missions liées à l'actualité et un éclairage sur les différentes façons de s'engager.",
       ctaText: "Je m'inscris",
       hintText: "1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail.",
+    },
+  },
+  {
+    label: "Priorité des premiers résultats et carte d'alertes",
+    block: {
+      __component: "blocks.missions-browser",
+      dispositifs: null,
+      domainesEngagement: null,
+      departements: null,
+      prioriteActivites: ["secourir_proteger"],
+      prioriteDomaines: ["securite_secours"],
+      alertCard: true,
     },
   },
   {

@@ -32,6 +32,7 @@
     },
     {
       "__component": "blocks.benefits",
+      "vouvoiement": true,
       "title": "Bon pour vous,\nutile pour tous",
       "intro": "Une mission peut vous apporter\u00a0:",
       "benefits": [

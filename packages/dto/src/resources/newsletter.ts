@@ -1,3 +1,5 @@
+import type { NEWSLETTER_LIST_CHOICES } from "../utils/newsletter";
+
 // Point d'entrée de la première inscription d'un contact, conservé dans Brevo (attribut SIGNUP_SOURCE).
 export const SIGNUP_SOURCES = [
   "quiz",
@@ -14,11 +16,18 @@ export const SIGNUP_SOURCES = [
 
 export type SignupSource = (typeof SIGNUP_SOURCES)[number];
 
+// Sources acceptées par l'inscription à la newsletter : la liste ci-dessus, ou la page du CMS d'où elle part.
+export type NewsletterSignupSource = SignupSource | `cms_${string}`;
+
+export type NewsletterListChoice = (typeof NEWSLETTER_LIST_CHOICES)[number];
+
 export type NewsletterSubscribeRequest = {
   email: string;
   distinctId?: string;
   userScoringId?: string;
-  signupSource?: SignupSource;
+  signupSource?: NewsletterSignupSource;
+  // Prioritaire sur les listes associées à la source.
+  newsletterLists?: NewsletterListChoice;
 };
 
 export type NewsletterSubscribeResponse = {

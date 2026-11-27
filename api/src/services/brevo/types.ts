@@ -1,4 +1,4 @@
-import type { SignupSource } from "@engagement/dto";
+import type { NewsletterSignupSource } from "@engagement/dto";
 
 export type BrevoHttpMethod = "DELETE" | "GET" | "PATCH" | "POST" | "PUT";
 
@@ -40,14 +40,14 @@ export type CreateOrUpdateContactParams = {
   distinctId?: string;
   missionAlertEnabled: boolean;
   listIds: number[];
-  signupSource?: SignupSource;
+  signupSource?: NewsletterSignupSource;
 };
 
 export type ContactAttributes = {
   DISTINCT_ID?: string;
   MISSION_ALERT_ENABLED: boolean;
   USER_SCORING_ID?: string;
-  SIGNUP_SOURCE?: SignupSource;
+  SIGNUP_SOURCE?: NewsletterSignupSource;
   QUIZ_SESSION_ID?: string;
 };
 

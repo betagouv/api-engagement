@@ -1,4 +1,7 @@
+import type { NewsletterListChoice } from "@engagement/dto";
+
 import type { CmsPartnerKey } from "~/config/cms-partners";
+
 // Page composée de blocs (landing, page éditoriale…), éditée dans le CMS (Strapi, `cms/`) et lue par plateform.
 // Types propres à plateform (`cms/` n'en dépend pas). Les schémas Strapi (`cms/src/**`) restent la source de vérité :
 // tout changement de bloc ou de champ doit être répercuté ici.
@@ -62,7 +65,15 @@ export type CmsBlock =
   | { __component: "blocks.rich-text"; title: string | null; body: CmsRichTextNode[] }
   | { __component: "blocks.image"; image: CmsMedia; caption: string | null }
   | { __component: "blocks.etapes"; items: { icon: string; title: string; description: string }[]; ctaLabel?: string | null; ctaUrl?: string | null }
-  | { __component: "blocks.benefits"; title: string; intro: string | null; benefits: { emoji: string; label: string }[]; newsletterTitle: string; newsletterText: string }
+  | {
+      __component: "blocks.benefits";
+      title: string;
+      intro: string | null;
+      benefits: { emoji: string; label: string }[];
+      newsletterTitle: string;
+      newsletterText: string;
+      vouvoiement?: boolean | null;
+    }
   | { __component: "blocks.cards"; title: string; cards: { icon: string; title: string; points: string }[] }
   | { __component: "blocks.stories"; title: string; intro: string | null; stories: { image: CmsMedia; domain: string; story: string; publisher: string; logo: CmsMedia }[] }
   | { __component: "blocks.testimonials"; testimonials: { image: CmsMedia; quote: string; name: string; role: string }[] }
@@ -76,7 +87,15 @@ export type CmsBlock =
       teamPhotos: CmsMedia[] | null;
     }
   | { __component: "blocks.newsletter"; title: string; subtitle: string; ctaText: string; hintText: string }
-  | { __component: "blocks.missions-browser"; dispositifs: string[] | null; domainesEngagement: string[] | null; departements: string[] | null }
+  | {
+      __component: "blocks.missions-browser";
+      dispositifs: string[] | null;
+      domainesEngagement: string[] | null;
+      departements: string[] | null;
+      prioriteActivites?: string[] | null;
+      prioriteDomaines?: string[] | null;
+      alertCard?: boolean | null;
+    }
   | { __component: "blocks.quote-wall"; title: string; quotes: { quote: string; name: string; role: string; image: CmsMedia }[] }
   | { __component: "blocks.partners"; title: string; partners: { partner: CmsPartnerKey; description: string | null }[] };
 
@@ -91,5 +110,7 @@ export type CmsPage = {
   ogDescription: string | null;
   noindex: boolean;
   ctaLabel: string | null;
+  // Listes alimentées par les inscriptions faites sur la page ; vide : newsletter seule.
+  listesNewsletter?: NewsletterListChoice | null;
   blocks: CmsBlock[];
 };

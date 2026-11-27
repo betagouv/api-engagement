@@ -59,9 +59,20 @@ const DIVERSITY_ORDER = [
   "reserve_police_nationale",
 ];
 
+// Priorité des emplacements : chacun ne prend que des missions ayant l'une des activités ou l'un des domaines.
+export type SlotPriority = { activites?: string[] | null; domaines?: string[] | null };
+
 // Emplacements de l'ordre par défaut, sans les dispositifs hors périmètre (périmètre vide : tous).
-export const getDiversitySlots = (dispositifs?: string[] | null): MissionBrowseSlot[] =>
-  DIVERSITY_ORDER.filter((dispositif) => !dispositifs?.length || dispositifs.includes(dispositif)).map((dispositif) => ({ filters: { dispositif: [dispositif] } }));
+export const getDiversitySlots = (dispositifs?: string[] | null, priority: SlotPriority = {}): MissionBrowseSlot[] => {
+  const anyOf = {
+    ...(priority.activites?.length && { activite: priority.activites }),
+    ...(priority.domaines?.length && { domaine_engagement: priority.domaines }),
+  };
+  return DIVERSITY_ORDER.filter((dispositif) => !dispositifs?.length || dispositifs.includes(dispositif)).map((dispositif) => ({
+    filters: { dispositif: [dispositif] },
+    ...(Object.keys(anyOf).length > 0 && { anyOf }),
+  }));
+};
 
 // Paramètres de `/missions/browse` pour une landing : seuls les filtres affichés sont lus dans l'URL,
 // la liste est triée par date. Un filtre sur un critère du périmètre le restreint, sans jamais en sortir.
@@ -101,9 +112,23 @@ export const buildLandingBrowseFilters = (searchParams: URLSearchParams, config:
 const ALL_LANDING_FILTERS: LandingFilterKey[] = ["departmentCode", "tranche_age", "type_mission", "activite", "domaine_engagement", "dispositif"];
 
 // Périmètre du bloc CMS : listes de valeurs (vide ou absente : pas de restriction).
-export type LandingScope = { dispositifs?: string[] | null; domainesEngagement?: string[] | null; departements?: string[] | null };
+export type LandingScope = {
+  dispositifs?: string[] | null;
+  domainesEngagement?: string[] | null;
+  departements?: string[] | null;
+  prioriteActivites?: string[] | null;
+  prioriteDomaines?: string[] | null;
+  alertCard?: boolean | null;
+};
 
-export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, departements }: LandingScope): LandingMissionsConfig => {
+export const getLandingMissionsConfig = ({
+  dispositifs,
+  domainesEngagement,
+  departements,
+  prioriteActivites,
+  prioriteDomaines,
+  alertCard,
+}: LandingScope): LandingMissionsConfig => {
   const include: NonNullable<LandingMissionsConfig["include"]> = {
     ...(dispositifs?.length && { dispositif: dispositifs }),
     ...(domainesEngagement?.length && { domaine_engagement: domainesEngagement }),
@@ -111,7 +136,13 @@ export const getLandingMissionsConfig = ({ dispositifs, domainesEngagement, depa
   };
   // Les missions à distance restent visibles sauf si la liste est limitée à des départements.
   const isFilterShown = (key: LandingFilterKey) => (key === "departmentCode" ? !include.departmentCode : [include[key] ?? []].flat().length !== 1);
-  return { include, includeRemote: !include.departmentCode, filters: ALL_LANDING_FILTERS.filter(isFilterShown), slots: getDiversitySlots(dispositifs) };
+  return {
+    include,
+    includeRemote: !include.departmentCode,
+    filters: ALL_LANDING_FILTERS.filter(isFilterShown),
+    slots: getDiversitySlots(dispositifs, { activites: prioriteActivites, domaines: prioriteDomaines }),
+    alertCard: !!alertCard,
+  };
 };
 
 // Code département (format de la taxonomie : "01", "2A", "971"…) déduit d'un code postal français.

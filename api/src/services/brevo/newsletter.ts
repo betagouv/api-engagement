@@ -1,5 +1,5 @@
 import { PUBLISHER_IDS } from "@/config";
-import type { SignupSource } from "@engagement/dto";
+import type { NewsletterListChoice, NewsletterSignupSource } from "@engagement/dto";
 import { createOrUpdateContact } from "./contact";
 
 const RECOMMENDATION_USERS_BREVO_LIST_ID = 22; // « Produit - Utilisateurs recommandations »
@@ -7,10 +7,16 @@ const NEWSLETTER_BREVO_LIST_ID = 23; // « Newsletter »
 const FUTURE_RECOMMENDATIONS_BREVO_LIST_ID = 26; // « Recommandations futures »
 const ACCOMPAGNATEURS_BREVO_LIST_ID = 27; // « Produit - Accompagnateurs »
 
+// Listes correspondant aux choix proposés aux pages du CMS (champ `listesNewsletter`).
+const NEWSLETTER_BREVO_LISTS_BY_CHOICE: Record<NewsletterListChoice, number[]> = {
+  newsletter: [NEWSLETTER_BREVO_LIST_ID],
+  newsletter_et_recommandations: [NEWSLETTER_BREVO_LIST_ID, FUTURE_RECOMMENDATIONS_BREVO_LIST_ID],
+};
+
 // Listes Brevo par publisher autorise sur la route /newsletter, alimentees selon le point d'entree de l'inscription.
 // `default` sert quand aucune source n'est fournie ou que le publisher n'a pas de listes dediees a cette source.
 // Un publisher absent est refuse. Chaque liste est independante : l'utilisateur peut se desinscrire de l'une sans quitter les autres.
-const NEWSLETTER_BREVO_LISTS_BY_PUBLISHER: Record<string, { default: number[] } & Partial<Record<SignupSource, number[]>>> = {
+const NEWSLETTER_BREVO_LISTS_BY_PUBLISHER: Record<string, { default: number[] } & Partial<Record<NewsletterSignupSource, number[]>>> = {
   [PUBLISHER_IDS.PLATEFORME_ENGAGEMENT]: {
     default: [NEWSLETTER_BREVO_LIST_ID],
     quiz: [RECOMMENDATION_USERS_BREVO_LIST_ID, NEWSLETTER_BREVO_LIST_ID, FUTURE_RECOMMENDATIONS_BREVO_LIST_ID],
@@ -30,7 +36,8 @@ export const subscribeToNewsletter = async (params: {
   distinctId?: string;
   userScoringId?: string;
   missionAlertEnabled?: boolean;
-  signupSource?: SignupSource;
+  signupSource?: NewsletterSignupSource;
+  newsletterLists?: NewsletterListChoice;
 }): Promise<SubscribeResult> => {
   const lists = NEWSLETTER_BREVO_LISTS_BY_PUBLISHER[params.publisherId];
   if (!lists) {
@@ -42,7 +49,7 @@ export const subscribeToNewsletter = async (params: {
     distinctId: params.distinctId,
     userScoringId: params.userScoringId,
     missionAlertEnabled: params.missionAlertEnabled ?? false,
-    listIds: (params.signupSource && lists[params.signupSource]) ?? lists.default,
+    listIds: params.newsletterLists ? NEWSLETTER_BREVO_LISTS_BY_CHOICE[params.newsletterLists] : ((params.signupSource && lists[params.signupSource]) ?? lists.default),
     signupSource: params.signupSource,
   });
 

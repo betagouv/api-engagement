@@ -1,4 +1,4 @@
-import type { SignupSource } from "@engagement/dto";
+import type { NewsletterListChoice, NewsletterSignupSource } from "@engagement/dto";
 import { type SubmitEvent, useState } from "react";
 
 import { subscribeNewsletter } from "~/services/newsletter";
@@ -18,7 +18,8 @@ interface NewsletterProps {
   ctaText: string;
   hintText: string;
   // Origine enregistrée dans Brevo (SIGNUP_SOURCE) : une valeur `…_newsletter` par page qui affiche le bloc.
-  signupSource: SignupSource;
+  signupSource: NewsletterSignupSource;
+  newsletterLists?: NewsletterListChoice;
 }
 
 export default function Newsletter({
@@ -27,6 +28,7 @@ export default function Newsletter({
   ctaText = "Je m'inscris",
   hintText = "1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail.",
   signupSource,
+  newsletterLists,
 }: NewsletterProps) {
   const distinctId = useQuizStore((s) => s.distinctId);
   const [loading, setLoading] = useState(false);
@@ -42,7 +44,7 @@ export default function Newsletter({
     setError(null);
 
     try {
-      await subscribeNewsletter({ email, distinctId, signupSource });
+      await subscribeNewsletter({ email, distinctId, signupSource, newsletterLists });
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {

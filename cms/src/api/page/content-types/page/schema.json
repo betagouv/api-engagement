@@ -51,6 +51,12 @@
       "maxLength": 40,
       "description": "Libellé des boutons « quiz » de la page (ex. : Trouvez votre mission). Vide : libellés par défaut (tutoiement)."
     },
+    "listesNewsletter": {
+      "type": "enumeration",
+      "enum": ["newsletter", "newsletter_et_recommandations"],
+      "default": "newsletter",
+      "description": "Listes alimentées par les inscriptions faites sur la page : newsletter seule, ou newsletter et recommandations futures."
+    },
     "blocks": {
       "type": "dynamiczone",
       "required": true,

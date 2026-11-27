@@ -1,6 +1,6 @@
 {
   "collectionName": "components_blocks_faqs",
-  "info": { "displayName": "Questions", "icon": "question" },
+  "info": { "displayName": "Questions", "icon": "question", "description": "Questions et réponses illustrées d'un pictogramme, titre à gauche et questions sur deux colonnes. Avec exactement trois questions : titre centré au-dessus de trois colonnes sur grand écran." },
   "attributes": {
     "title": { "type": "string", "required": true, "description": "==mots== pour surligner." },
     "intro": { "type": "text", "description": "[texte du lien](/chemin) pour un lien." },

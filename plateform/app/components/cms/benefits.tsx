@@ -1,7 +1,24 @@
+import type { NewsletterListChoice, NewsletterSignupSource } from "@engagement/dto";
 import { type ReactNode, type SubmitEvent, useState } from "react";
 
 import { subscribeNewsletter } from "~/services/newsletter";
 import { useQuizStore } from "~/stores/quiz";
+
+// Textes du formulaire, non saisis dans le CMS : tutoiement par défaut, vouvoiement au choix du bloc.
+const FORM_WORDING = {
+  tu: {
+    success: "Ton inscription est bien prise en compte. À très vite dans ta boîte mail !",
+    label: "Ton adresse e-mail (ex. : nom@domaine.fr)",
+    placeholder: "Ton adresse e-mail",
+    hint: "1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail.",
+  },
+  vous: {
+    success: "Votre inscription est bien prise en compte. À très vite dans votre boîte mail !",
+    label: "Votre adresse e-mail (ex. : nom@domaine.fr)",
+    placeholder: "Votre adresse e-mail",
+    hint: "1 e-mail par mois. Vous pouvez vous désinscrire en un clic depuis chaque e-mail.",
+  },
+};
 
 // Bénéfices + inscription à la newsletter, entièrement pilotés par le contenu du CMS.
 export default function Benefits({
@@ -10,13 +27,20 @@ export default function Benefits({
   benefices,
   newsletterTitle,
   newsletterText,
+  signupSource,
+  newsletterLists,
+  vouvoiement = false,
 }: {
   title: ReactNode;
   intro?: string;
   benefices: { emoji: string; label: string }[];
   newsletterTitle: ReactNode;
   newsletterText: string;
+  signupSource: NewsletterSignupSource;
+  newsletterLists?: NewsletterListChoice;
+  vouvoiement?: boolean;
 }) {
+  const wording = FORM_WORDING[vouvoiement ? "vous" : "tu"];
   const distinctId = useQuizStore((s) => s.distinctId);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -31,7 +55,7 @@ export default function Benefits({
     setError(null);
 
     try {
-      await subscribeNewsletter({ email, distinctId, signupSource: "cms_newsletter" });
+      await subscribeNewsletter({ email, distinctId, signupSource, newsletterLists });
       setSuccess(true);
     } catch (err) {
       if (err instanceof Error && err.message === "INVALID_BODY") {
@@ -70,13 +94,13 @@ export default function Benefits({
 
           {success ? (
             <div role="status" className="fr-alert fr-alert--success fr-alert--sm">
-              <p>Ton inscription est bien prise en compte. À très vite dans ta boîte mail !</p>
+              <p>{wording.success}</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               <div className={`fr-input-group mb-0! ${error ? "fr-input-group--error" : ""}`}>
                 <label className="fr-label fr-sr-only" htmlFor="landing-newsletter-email">
-                  Ton adresse e-mail (ex. : nom@domaine.fr)
+                  {wording.label}
                 </label>
                 <input
                   id="landing-newsletter-email"
@@ -88,7 +112,7 @@ export default function Benefits({
                   aria-invalid={error ? true : undefined}
                   aria-describedby={`landing-newsletter-email-hint ${error ? "landing-newsletter-email-messages" : ""}`}
                   className="fr-input mt-0!"
-                  placeholder="Ton adresse e-mail"
+                  placeholder={wording.placeholder}
                 />
                 {error && (
                   <div className="fr-messages-group" id="landing-newsletter-email-messages" role="alert">
@@ -101,7 +125,7 @@ export default function Benefits({
                   {loading ? "Inscription en cours…" : "Je m'inscris"}
                 </button>
                 <p id="landing-newsletter-email-hint" className="fr-hint-text mb-0!">
-                  1 e-mail par mois. Tu peux te désinscrire en un clic depuis chaque e-mail.
+                  {wording.hint}
                 </p>
               </div>
             </form>

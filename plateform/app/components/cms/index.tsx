@@ -1,4 +1,4 @@
-import type { MissionBrowse, MissionDetailResponse } from "@engagement/dto";
+import type { MissionBrowse, MissionDetailResponse, NewsletterListChoice } from "@engagement/dto";
 
 import Histoires from "~/components/landings/defis-engagement/histoires";
 import Etapes from "~/components/landings/etapes";
@@ -44,6 +44,8 @@ export type CmsBlocksContext = {
   hasMissionsBrowser: boolean;
   // Libellé des boutons « quiz » choisi dans le CMS pour la page ; null : libellés par défaut.
   ctaLabel: string | null;
+  // Listes alimentées par les inscriptions à la newsletter, choisies sur la page.
+  newsletterLists?: NewsletterListChoice;
   onStartQuiz: (section: QuizEntrySection) => void;
   // Recherche par adresse du hero : ouvre la mission du dispositif la plus proche, sur son adresse la plus proche.
   onLocationSearch: (dispositif: string, location: Location) => Promise<void>;
@@ -57,6 +59,8 @@ export default function CmsBlocks({ blocks, context }: { blocks: CmsBlock[]; con
 }
 
 function Block({ block, index, context }: { block: CmsBlock; index: number; context: CmsBlocksContext }) {
+  // Source des inscriptions à la newsletter, déduite du slug de la page (`landing_<slug>` → `cms_<slug>`).
+  const signupSource = `cms_${context.landing.slice("landing_".length)}` as const;
   switch (block.__component) {
     case "blocks.hero": {
       const { image } = block;
@@ -187,6 +191,9 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
     case "blocks.benefits":
       return (
         <Benefits
+          vouvoiement={!!block.vouvoiement}
+          signupSource={signupSource}
+          newsletterLists={context.newsletterLists}
           title={<InlineText text={block.title} />}
           intro={block.intro ?? undefined}
           benefices={block.benefits}
@@ -245,11 +252,20 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
         />
       );
     case "blocks.newsletter":
-      return <Newsletter title={block.title} subtitle={block.subtitle} ctaText={block.ctaText} hintText={block.hintText} signupSource="cms_newsletter" />;
+      return (
+        <Newsletter
+          title={block.title}
+          subtitle={block.subtitle}
+          ctaText={block.ctaText}
+          hintText={block.hintText}
+          signupSource={signupSource}
+          newsletterLists={context.newsletterLists}
+        />
+      );
     case "blocks.missions-browser": {
       const results = context.browsersByBlock[index];
       if (!results) return null;
-      const { filters, include } = getLandingMissionsConfig(block);
+      const { filters, include, alertCard } = getLandingMissionsConfig(block);
       return (
         <MissionsBrowser
           missions={results.missions}
@@ -257,6 +273,9 @@ function Block({ block, index, context }: { block: CmsBlock; index: number; cont
           page={results.page}
           filters={filters}
           include={include}
+          alertCard={alertCard}
+          signupSource={signupSource}
+          newsletterLists={context.newsletterLists}
           pageName={context.landing}
           backTo={context.path}
           overlapHero={false}
