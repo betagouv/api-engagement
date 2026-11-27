@@ -1,5 +1,7 @@
+import { TAXONOMY } from "@engagement/taxonomy";
 import { describe, expect, it } from "vitest";
 
+import { getBlockSchema } from "~/services/cms-components.server";
 import { buildCarouselFilters, resolveCmsButton } from "~/utils/cms-missions";
 
 const slots = [
@@ -32,5 +34,14 @@ describe("resolveCmsButton", () => {
     expect(resolveCmsButton({ label: "Voir", url: null }, fallback)).toEqual(fallback);
     expect(resolveCmsButton({ label: "", url: "/missions" }, fallback)).toEqual(fallback);
     expect(resolveCmsButton(undefined, fallback)).toEqual(fallback);
+  });
+});
+
+describe("bloc Missions", () => {
+  it("ne propose que les tranches d'âge visibles de la taxonomie", () => {
+    const keys = Object.entries(TAXONOMY.tranche_age.values)
+      .filter(([, value]) => !("hidden" in value))
+      .map(([key]) => key);
+    expect(getBlockSchema("blocks.missions")?.fields.find(({ name }) => name === "trancheAge")?.options).toEqual(keys);
   });
 });
