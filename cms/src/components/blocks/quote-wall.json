@@ -1,6 +1,6 @@
 {
   "collectionName": "components_blocks_quote_walls",
-  "info": { "displayName": "Mosaïque de témoignages", "icon": "quote", "description": "Trois témoignages et trois photos en mosaïque, puis le bouton « Trouver ma mission »." },
+  "info": { "displayName": "Mosaïque de témoignages", "icon": "quote", "description": "Trois témoignages et trois photos en mosaïque, puis le bouton « Trouver ma mission » (ou le libellé quiz de la page), remplaçable par un libellé et un lien." },
   "attributes": {
     "title": { "type": "text", "required": true, "description": "Retour à la ligne = saut de ligne. ==mot== pour surligner." },
     "quotes": { "type": "component", "repeatable": true, "component": "items.quote", "min": 3, "max": 3 },

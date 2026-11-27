@@ -3,7 +3,7 @@
   "info": {
     "displayName": "Hero",
     "icon": "picture",
-    "description": "Titre, texte, pastilles et boutons. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz), recherche de mission par adresse si un dispositif de recherche est choisi, ou recherche par localisation si la page a une liste de missions filtrable."
+    "description": "Accroche ou pastille, titre, texte, pastilles et boutons, sur fond crème ou galet. Sans bouton principal renseigné : bouton « Trouve ta mission » (quiz), recherche de mission par adresse si un dispositif de recherche est choisi, ou recherche par localisation si la page a une liste de missions filtrable."
   },
   "attributes": {
     "badge": {

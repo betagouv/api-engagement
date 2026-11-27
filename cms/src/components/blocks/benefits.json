@@ -1,6 +1,6 @@
 {
   "collectionName": "components_blocks_benefits",
-  "info": { "displayName": "Bénéfices + newsletter", "icon": "heart", "description": "Liste de bénéfices et inscription à la newsletter. Les textes du formulaire sont au tutoiement, ou au vouvoiement si l'option est activée. La source d'inscription est déduite du slug de la page (cms_<slug>) ; les listes alimentées se choisissent sur la page (champ listesNewsletter)." },
+  "info": { "displayName": "Bénéfices + newsletter", "icon": "heart", "description": "Liste de bénéfices, avec une inscription facultative à la newsletter (affichée si newsletterTitle est renseigné). Les textes du formulaire sont au tutoiement, ou au vouvoiement si l'option est activée. La source d'inscription est déduite du slug de la page (cms_<slug>) ; les listes alimentées se choisissent sur la page (champ listesNewsletter)." },
   "attributes": {
     "title": { "type": "text", "required": true, "description": "Retour à la ligne = saut de ligne." },
     "intro": { "type": "string", "description": "Phrase au-dessus de la liste (ex. : Une mission peut vous apporter :). Vide : pas de phrase." },

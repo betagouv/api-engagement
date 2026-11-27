@@ -1,6 +1,6 @@
 {
   "collectionName": "components_blocks_missions",
-  "info": { "displayName": "Missions", "icon": "compass", "description": "Carrousel de vraies missions." },
+  "info": { "displayName": "Missions", "icon": "compass", "description": "Carrousel de vraies missions, limitable à une tranche d'âge. Bouton vers le quiz, remplaçable par un libellé et un lien." },
   "attributes": {
     "title": { "type": "string", "required": true, "description": "==mots== pour surligner." },
     "description": { "type": "text", "required": true },

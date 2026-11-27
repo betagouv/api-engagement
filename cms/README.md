@@ -53,7 +53,7 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
 - `collection` : classement des pages (une collection au plus par page), pour filtrer la liste des pages de l'admin (bouton « Filtres » › `collection`). Sans effet sur le site ; non historisée. `npm run seed` (dev) et `seed:remote` créent les collections de base. Les rôles éditeurs doivent recevoir leurs droits sur ce type (Paramètres › Rôles).
 - **`src/components/blocks/`** : les sections qu'un éditeur ajoute à une page (les seuls composants proposés dans la zone `blocks`).
   - Blocs génériques : `rich-text` (titre de section + texte riche : titres, paragraphes, listes, liens, citations, images) et `image` (image + légende).
-  - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices + newsletter), `cards`, `stories`, `testimonials`, `faq`, `accordion` (FAQ en accordéon), `partners`.
+  - Blocs « tout faits » : `hero`, `missions`, `etapes`, `benefits` (bénéfices, newsletter facultative), `cards`, `stories`, `testimonials`, `faq`, `accordion` (FAQ en accordéon), `partners`.
 - **`src/components/items/`** : les éléments répétables **à l'intérieur d'un bloc** (une carte, une étape, un partenaire…). Ils ne s'ajoutent jamais seuls à une page.
 
   | Bloc           | Éléments               |
@@ -70,6 +70,10 @@ La page du seed est rendue sur `/chacun-pour-tous` (la landing n'existe plus en 
   | `missions`     | `items.mission-slot`   |
 
 - Bloc `partners` : chaque partenaire se choisit dans une liste (`items.partner.partner`) ; son nom, son logo et son texte par défaut vivent dans `plateform/app/config/cms-partners.ts` (un nouveau partenaire s'ajoute là **et** dans l'enum du schéma). Le champ `description` remplace le texte par défaut sur la page (ex. vouvoiement).
+- Bloc `hero` : `kicker` (accroche au-dessus du titre) et `background` (`creme`, par défaut, ou `galet`).
+- Bloc `missions` : `trancheAge` limite les missions mises en avant et le complément aléatoire.
+- Blocs `missions` et `quote-wall` : `ctaLabel` et `ctaUrl`, renseignés ensemble, remplacent le bouton vers le quiz (ex. `/missions?tranche_age=moins_18_ans`).
+- Bloc `benefits` : sans `newsletterTitle`, seul le titre, la phrase et la liste sont affichés.
 - Bloc `missions-browser` : `prioriteActivites` et `prioriteDomaines` donnent la priorité, dans les premiers résultats seulement (sans filtre ni localisation du visiteur), aux missions ayant l'une de ces activités ou l'un de ces domaines, tous dispositifs confondus ; `alertCard` ajoute la carte d'inscription aux alertes en première page. Les textes de cette carte sont en vouvoiement ; ceux du formulaire du bloc `benefits` sont au tutoiement, sauf si l'option `vouvoiement` du bloc est activée.
 - Inscriptions à la newsletter (carte d'alertes, blocs `benefits` et `newsletter`) : la source envoyée à Brevo est déduite du slug (`engagement-securite` → `cms_engagement_securite`). Les listes alimentées se choisissent sur la page (`listesNewsletter` : `newsletter`, par défaut, ou `newsletter_et_recommandations`) ; les ids Brevo restent dans `api/src/services/brevo/newsletter.ts`, et un nouveau choix s'ajoute là, dans `NEWSLETTER_LIST_CHOICES` (`packages/dto`) et dans le schéma de la page. Renommer le slug change la source, pas les listes.
 - Champs texte des blocs « tout faits » : `==mot==` surligne, `[libellé](/chemin)` crée un lien, un retour à la ligne est conservé.
