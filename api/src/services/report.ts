@@ -179,7 +179,7 @@ export const reportService = {
       data.publisher = { connect: { id: patch.publisherId } };
     }
     if ("dataTemplate" in patch) {
-      data.dataTemplate = patch.dataTemplate ?? undefined;
+      data.dataTemplate = patch.dataTemplate;
     }
     if ("sentAt" in patch) {
       data.sentAt = patch.sentAt ?? undefined;

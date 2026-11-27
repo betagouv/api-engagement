@@ -127,7 +127,7 @@ const AdminReport = () => {
                   <>
                     <div className="flex items-center gap-2">
                       <div className="bg-error h-2 w-2 rounded-full" />
-                      <p className="flex-1 text-sm font-bold">Non envoyé</p>
+                      <p className="flex-1 text-sm font-bold">{item.status === "PARTIALLY_SENT" ? "Envoi partiel" : "Non envoyé"}</p>
                     </div>
                     <p className="flex-1 text-xs">{REPORT_STATUS[item.status] || item.status}</p>
                   </>

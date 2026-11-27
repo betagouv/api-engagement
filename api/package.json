@@ -58,7 +58,6 @@
         "html-to-text": "10.0.1",
         "isbot": "5.2.2",
         "jsonwebtoken": "9.0.3",
-        "jspdf": "4.2.1",
         "morgan": "1.12.1",
         "multer": "2.5.0",
         "node-cron": "4.6.0",

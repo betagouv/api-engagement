@@ -137,6 +137,7 @@ export const REPORT_STATUS = {
   NOT_SENT_NO_RECIPIENT: "Aucun email de contact renseigné",
   NOT_SENT_MISSING_URL: "URL manquante",
   NOT_SENT_ERROR_SENDING: "Erreur lors de l'envoi du rapport",
+  PARTIALLY_SENT: "Brevo a accepté l’envoi pour une partie des destinataires",
   SENT: "Envoyé",
 };
 
